@@ -1,0 +1,405 @@
+<div id="affiliate-dashboard-container">
+  <!-- ===========================
+       CSS (Isolado por ID)
+  ============================ -->
+  <style>
+    /* Isolando tudo dentro do #affiliate-dashboard-container para evitar conflitos com o restante da página */
+    #affiliate-dashboard-container {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      color: #333;
+    }
+
+    #affiliate-dashboard-container h1,
+    #affiliate-dashboard-container h2 {
+      margin-bottom: 10px;
+    }
+
+    /* Banners */
+    #banners-list img {
+      max-width: 200px;
+      margin: 10px;
+      display: block;
+    }
+
+    #banners-list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    /* Margins Table */
+    #margins-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    #margins-table th,
+    #margins-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 6px 12px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+
+    /* Sections Layout */
+    .section {
+      margin-bottom: 30px;
+    }
+
+    /* Simple list items */
+    .list-item {
+      padding: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+      border-radius: 4px;
+    }
+  </style>
+
+  <!-- ===========================
+       Estrutura HTML
+  ============================ -->
+  <div id="affiliate-dashboard">
+
+    <h1>Painel do Afiliado</h1>
+
+    <!-- Seção Banners -->
+    <div class="section">
+      <h2>Gerenciar Banners</h2>
+      <div id="banners-list"></div>
+      <button id="btn-add-banner" class="btn">Adicionar Banner</button>
+    </div>
+
+    <!-- Seção Margens -->
+    <div class="section">
+      <h2>Margens por Categoria</h2>
+      <table id="margins-table">
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Margem (%)</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="margins-tbody">
+          <!-- Linhas criadas via JS -->
+        </tbody>
+      </table>
+      <button id="btn-add-margin" class="btn">Adicionar Margem</button>
+    </div>
+
+    <!-- Seção Carrinhos -->
+    <div class="section">
+      <h2>Carrinhos</h2>
+      <div id="carts-list"></div>
+      <!-- Exemplo simples, sem adicionar itens ao carrinho. Apenas listagem. -->
+    </div>
+
+    <!-- Seção Pedidos -->
+    <div class="section">
+      <h2>Últimos Pedidos</h2>
+      <div id="orders-list"></div>
+    </div>
+
+  </div>
+
+  <!-- ===========================
+       JavaScript
+  ============================ -->
+  <script>
+    /********************************************************
+     * CONFIGURAÇÃO E VARIÁVEIS
+     ********************************************************/
+    // Ajuste a URL base da sua API. Exemplo: 'http://localhost:3000/api'
+    // ou o domínio real do seu back-end.
+    const API_BASE_URL = 'http://localhost:3000/api';
+
+    // Supondo que o ID do afiliado esteja definido. Pode vir de login, token etc.
+    // Aqui é apenas um exemplo fixo. Ajuste conforme sua lógica.
+    const AFFILIATE_ID = 1;
+
+    // Referências a elementos HTML
+    const bannersListEl = document.getElementById('banners-list');
+    const marginsTableBody = document.getElementById('margins-tbody');
+    const cartsListEl = document.getElementById('carts-list');
+    const ordersListEl = document.getElementById('orders-list');
+
+    const btnAddBanner = document.getElementById('btn-add-banner');
+    const btnAddMargin = document.getElementById('btn-add-margin');
+
+    /********************************************************
+     * EVENTOS DE CLIQUE
+     ********************************************************/
+    document.addEventListener('DOMContentLoaded', () => {
+      // Ao carregar a página, busca dados iniciais
+      loadBanners();
+      loadMargins();
+      loadCarts();
+      loadOrders();
+    });
+
+    btnAddBanner.addEventListener('click', () => {
+      addBanner();
+    });
+
+    btnAddMargin.addEventListener('click', () => {
+      addMargin();
+    });
+
+    /********************************************************
+     * FUNÇÕES PARA BANNERS
+     ********************************************************/
+    async function loadBanners() {
+      // Exemplo: GET /banners?affiliateId=1
+      // Ajuste para a rota do seu back-end.
+      try {
+        const response = await fetch(`${API_BASE_URL}/banners?affiliateId=${AFFILIATE_ID}`);
+        const banners = await response.json();
+
+        bannersListEl.innerHTML = '';
+
+        banners.forEach(banner => {
+          const img = document.createElement('img');
+          img.src = banner.banner_url;
+          img.alt = 'Banner';
+          bannersListEl.appendChild(img);
+
+          // Opcional: Botão para remover ou editar
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'Remover Banner';
+          removeBtn.classList.add('btn');
+          removeBtn.style.backgroundColor = 'red';
+          removeBtn.addEventListener('click', () => removeBanner(banner.id));
+          bannersListEl.appendChild(removeBtn);
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar banners:', error);
+      }
+    }
+
+    async function addBanner() {
+      const bannerUrl = prompt('Informe a URL do banner (imagem):');
+      if (!bannerUrl) return;
+      const linkUrl = prompt('Informe a URL de destino (opcional):') || '';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/banners`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            affiliate_id: AFFILIATE_ID,
+            banner_url: bannerUrl,
+            link_url: linkUrl
+          })
+        });
+
+        if (response.ok) {
+          alert('Banner adicionado com sucesso!');
+          loadBanners(); // atualiza a listagem
+        } else {
+          alert('Erro ao adicionar banner!');
+        }
+      } catch (error) {
+        console.error('Erro ao adicionar banner:', error);
+      }
+    }
+
+    async function removeBanner(bannerId) {
+      if (!confirm('Tem certeza que deseja remover este banner?')) return;
+      try {
+        const response = await fetch(`${API_BASE_URL}/banners/${bannerId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('Banner removido com sucesso!');
+          loadBanners();
+        } else {
+          alert('Erro ao remover banner!');
+        }
+      } catch (error) {
+        console.error('Erro ao remover banner:', error);
+      }
+    }
+
+    /********************************************************
+     * FUNÇÕES PARA MARGENS
+     ********************************************************/
+    async function loadMargins() {
+      // Exemplo: GET /margins?affiliateId=1
+      try {
+        const response = await fetch(`${API_BASE_URL}/margins?affiliateId=${AFFILIATE_ID}`);
+        const margins = await response.json();
+
+        marginsTableBody.innerHTML = '';
+
+        margins.forEach(margin => {
+          const tr = document.createElement('tr');
+
+          const tdCategory = document.createElement('td');
+          tdCategory.textContent = margin.category_name || `Categoria ID ${margin.category_id}`;
+          tr.appendChild(tdCategory);
+
+          const tdMargin = document.createElement('td');
+          tdMargin.textContent = margin.margin + ' %';
+          tr.appendChild(tdMargin);
+
+          const tdActions = document.createElement('td');
+          // Botão de Editar
+          const editBtn = document.createElement('button');
+          editBtn.classList.add('btn');
+          editBtn.textContent = 'Editar';
+          editBtn.addEventListener('click', () => editMargin(margin.category_id, margin.margin));
+          tdActions.appendChild(editBtn);
+
+          // Botão de Remover (opcional)
+          const removeBtn = document.createElement('button');
+          removeBtn.classList.add('btn');
+          removeBtn.style.backgroundColor = 'red';
+          removeBtn.textContent = 'Remover';
+          removeBtn.addEventListener('click', () => removeMargin(margin.category_id));
+          tdActions.appendChild(removeBtn);
+
+          tr.appendChild(tdActions);
+
+          marginsTableBody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar margens:', error);
+      }
+    }
+
+    async function addMargin() {
+      const categoryId = prompt('Digite o ID da categoria:');
+      if (!categoryId) return;
+      const marginValue = prompt('Digite a margem (%):');
+      if (!marginValue) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/margins`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            affiliate_id: AFFILIATE_ID,
+            category_id: categoryId,
+            margin: parseFloat(marginValue)
+          })
+        });
+
+        if (response.ok) {
+          alert('Margem criada com sucesso!');
+          loadMargins();
+        } else {
+          alert('Erro ao criar margem!');
+        }
+      } catch (error) {
+        console.error('Erro ao criar margem:', error);
+      }
+    }
+
+    async function editMargin(categoryId, currentMargin) {
+      const newMargin = prompt('Digite a nova margem (%):', currentMargin);
+      if (!newMargin) return;
+
+      try {
+        // Exemplo: PUT /margins/:categoryId
+        const response = await fetch(`${API_BASE_URL}/margins/${categoryId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            affiliate_id: AFFILIATE_ID,
+            margin: parseFloat(newMargin)
+          })
+        });
+
+        if (response.ok) {
+          alert('Margem atualizada com sucesso!');
+          loadMargins();
+        } else {
+          alert('Erro ao atualizar margem!');
+        }
+      } catch (error) {
+        console.error('Erro ao atualizar margem:', error);
+      }
+    }
+
+    async function removeMargin(categoryId) {
+      if (!confirm('Deseja realmente remover esta margem?')) return;
+
+      try {
+        // Exemplo: DELETE /margins/:categoryId?affiliateId=1
+        const response = await fetch(`${API_BASE_URL}/margins/${categoryId}?affiliateId=${AFFILIATE_ID}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          alert('Margem removida!');
+          loadMargins();
+        } else {
+          alert('Erro ao remover margem!');
+        }
+      } catch (error) {
+        console.error('Erro ao remover margem:', error);
+      }
+    }
+
+    /********************************************************
+     * FUNÇÕES PARA CARRINHOS
+     ********************************************************/
+    async function loadCarts() {
+      // GET /carts?affiliateId=1 (exemplo)
+      try {
+        const response = await fetch(`${API_BASE_URL}/carts?affiliateId=${AFFILIATE_ID}`);
+        const carts = await response.json();
+
+        cartsListEl.innerHTML = '';
+
+        carts.forEach(cart => {
+          const div = document.createElement('div');
+          div.classList.add('list-item');
+          div.textContent = `Carrinho #${cart.id} | Status: ${cart.status} | Total de itens: ${cart.totalItems || 0}`;
+          cartsListEl.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar carrinhos:', error);
+      }
+    }
+
+    /********************************************************
+     * FUNÇÕES PARA PEDIDOS
+     ********************************************************/
+    async function loadOrders() {
+      // GET /orders?affiliateId=1 (exemplo)
+      try {
+        const response = await fetch(`${API_BASE_URL}/orders?affiliateId=${AFFILIATE_ID}`);
+        const orders = await response.json();
+
+        ordersListEl.innerHTML = '';
+
+        orders.forEach(order => {
+          const div = document.createElement('div');
+          div.classList.add('list-item');
+          div.textContent = `Pedido #${order.id} | Valor Total: R$ ${order.total} | Status: ${order.status}`;
+          ordersListEl.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar pedidos:', error);
+      }
+    }
+
+  </script>
+</div>
