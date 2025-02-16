@@ -1,28 +1,31 @@
 // index.js
-require('dotenv').config(); // carrega as variáveis do .env
+require('dotenv').config();
 
 const express = require('express');
 const app = express();
 const port = process.env.APP_PORT || 3000;
 
-// Importa o arquivo de conexão do Sequelize
 const { sequelize } = require('./src/config/database');
 
-// Rotas
+// Rotas existentes
 const affiliateRoutes = require('./src/routes/affiliateRoutes');
 const cartRoutes = require('./src/routes/cartRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
-// Você pode adicionar outras rotas conforme necessário
 
-// Middleware para interpretar JSON
+// >>> NOVO: rotas de autenticação/registro <<<
+const authRoutes = require('./src/routes/authRoutes');
+
+// Middleware
 app.use(express.json());
 
-// Rotas
+// Uso das rotas
 app.use('/api/affiliates', affiliateRoutes);
 app.use('/api/carts', cartRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Sincroniza o banco (em modo desenvolvimento)
+// >>> Novo uso de rotas
+app.use('/api/auth', authRoutes);
+
 sequelize.sync({ alter: true })
   .then(() => {
     console.log('Banco de dados sincronizado com sucesso.');
@@ -31,7 +34,6 @@ sequelize.sync({ alter: true })
     console.error('Erro ao sincronizar banco de dados:', error);
   });
 
-// Inicia o servidor
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
