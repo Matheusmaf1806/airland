@@ -2,214 +2,125 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Exemplo - Hotelbeds Activities Availability</title>
-  <!-- Biblioteca para gerar assinatura SHA-256 (CryptoJS) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <title>Exemplo de Busca - Hotelbeds Activities API</title>
+
   <style>
-    /* ========== CSS para estilizar e evitar conflitos ========== */
-    #availability-container {
-      font-family: Arial, sans-serif;
+    /* Estilos básicos para manter tudo isolado */
+    #hotelbeds-activities-container {
+      border: 2px solid #ccc;
+      padding: 16px;
       max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
+      margin: 0 auto;
+      font-family: Arial, sans-serif;
     }
-    #availability-container h2 {
-      margin-bottom: 15px;
+    #hotelbeds-activities-container h1 {
+      font-size: 1.2rem;
+      margin-bottom: 8px;
     }
-    .field-group {
-      margin-bottom: 10px;
+    #hotelbeds-activities-container .button-container {
+      margin-bottom: 16px;
     }
-    .field-group label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-    .field-group input[type="text"],
-    .field-group input[type="date"],
-    .field-group input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-    }
-    button {
-      padding: 10px 15px;
-      font-size: 1rem;
-      background-color: #a20033; /* cor semelhante aos exemplos anteriores */
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #b3003b;
-    }
-    #result-area {
-      margin-top: 20px;
+    #hotelbeds-activities-results {
       white-space: pre-wrap;
-      background-color: #f9f9f9;
-      border: 1px solid #ccc;
+      background: #f9f9f9;
       padding: 10px;
-      min-height: 100px;
+      border: 1px solid #eee;
     }
-    .error {
-      color: red;
-      font-weight: bold;
-    }
+    /* Você pode customizar mais estilos conforme sua necessidade */
   </style>
 </head>
 <body>
-
-<div id="availability-container">
-  <h2>Pesquisa de Disponibilidade (Activities - Hotelbeds)</h2>
-
-  <!-- Campo para o "Destination Code" (ex: MCO, BCN...) -->
-  <div class="field-group">
-    <label for="destination">Destino (código) <span style="color:red">*</span></label>
-    <input 
-      type="text" 
-      id="destination" 
-      placeholder="Ex: BCN (Barcelona), MCO (Orlando)..." 
-      required 
-    />
+<div id="hotelbeds-activities-container">
+  <h1>Exemplo de Busca de Atividades (Hotelbeds)</h1>
+  
+  <div class="button-container">
+    <button id="searchButton">Fazer Busca</button>
   </div>
 
-  <!-- Datas obrigatórias (yyyy-mm-dd) -->
-  <div class="field-group">
-    <label for="fromDate">Data início (AAAA-MM-DD) <span style="color:red">*</span></label>
-    <input 
-      type="date" 
-      id="fromDate" 
-      required 
-    />
-  </div>
-
-  <div class="field-group">
-    <label for="toDate">Data fim (AAAA-MM-DD) <span style="color:red">*</span></label>
-    <input 
-      type="date" 
-      id="toDate" 
-      required
-    />
-  </div>
-
-  <!-- Quantidade de pessoas (ex: 2 adultos, 1 criança etc.)
-       Neste exemplo simples, vamos pegar só a idade do "primeiro passageiro".
-       Você pode replicar ou adaptar para vários paxes. -->
-  <div class="field-group">
-    <label for="paxAge">Idade do Pax (ex: 30)</label>
-    <input 
-      type="number" 
-      id="paxAge" 
-      min="1" 
-      value="30"
-    />
-  </div>
-
-  <button type="button" onclick="searchAvailability()">
-    Pesquisar
-  </button>
-
-  <div id="result-area">O resultado aparecerá aqui.</div>
+  <div id="hotelbeds-activities-results">Clique em "Fazer Busca" para ver o resultado aqui...</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+        integrity="sha512-j4Q/iF6EH6ECZQveN71NlfSBp7Tn2ANJ8nqRsNFK+OL7UR9xKvoQNbRsRNUW/fL8Qle0mMdGmOGZlfXN1tnzHw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+
 <script>
-  /**
-   * Exemplo de função que faz POST no endpoint "/activities/availability"
-   * da Hotelbeds, usando 'fetch' e incluindo a assinatura X-Signature.
-   */
-  function searchAvailability() {
-    // 1) Captura valores do formulário:
-    var destinationCode = document.getElementById("destination").value.trim();
-    var fromDate = document.getElementById("fromDate").value;
-    var toDate = document.getElementById("toDate").value;
-    var paxAge = document.getElementById("paxAge").value || "30"; // se vazio, default 30
+(function(){
+  // Credenciais e configurações da sua conta Hotelbeds (TEST ENVIRONMENT).
+  const API_KEY    = "995c89cbb1766da1785cfb394a630747";
+  const API_SECRET = "38ce721d98";
+  // URL de teste para Activities (Activities API).
+  // A documentação atual aponta algo como: https://api.test.hotelbeds.com/activities/v1/search
+  // Caso seja diferente, ajuste conforme a doc mais recente.
+  const ACTIVITIES_SEARCH_URL = "https://api.test.hotelbeds.com/activities/v1/search";
 
-    // Simples validação:
-    if (!destinationCode || !fromDate || !toDate) {
-      alert("Por favor, preencha destino, data início e data fim.");
-      return;
-    }
+  // Seleciona elementos HTML
+  const btnSearch        = document.getElementById("searchButton");
+  const resultsContainer = document.getElementById("hotelbeds-activities-results");
 
-    // 2) Credenciais de teste (NÃO expor em produção):
-    var apiKey = "995c89cbb1766da1785cfb394a630747";
-    var secret = "38ce721d98";
-
-    // 3) Gera X-Signature: apiKey + secret + timestamp (em segundos)
-    var timestamp = Math.floor(Date.now() / 1000);
-    var signatureString = apiKey + secret + timestamp;
-    var signature = CryptoJS.SHA256(signatureString).toString();
-
-    // 4) Monta a URL do endpoint de teste:
-    // Para o /activities/availability, usar environment test
-    var endpoint = "https://api.test.hotelbeds.com/activity-api/3.0/activities/availability";
-
-    // 5) Monta o JSON de request (exemplo básico com 'destination' e 'paxes'):
-    // IMPORTANTE: datas devem estar no formato YYYY-MM-DD
-    // "paxes" é um array, cada objeto precisa de { "age": number }
-    // "filters": definimos "destination" => "BCN", "MCO", etc.
-    // "from" e "to": datas obrigatórias
-    // "language": ex: "en", "pt" etc.
-
-    var requestBody = {
-      filters: [
-        {
-          searchFilterItems: [
-            {
-              type: "destination", 
-              value: destinationCode // ex: "BCN", "MCO"
-            }
-          ]
-        }
-      ],
-      from: fromDate,            // ex: "2025-02-27"
-      to: toDate,                // ex: "2025-03-02"
-      paxes: [
-        { age: Number(paxAge) }  // ex: { age: 30 }
-      ],
-      language: "en",
-      pagination: {
-        itemsPerPage: 10,
-        page: 1
-      },
-      order: "DEFAULT"
+  // Adiciona evento de clique no botão para disparar a busca
+  btnSearch.addEventListener("click", async function() {
+    // Monta o corpo da requisição conforme a doc
+    // (exemplo: busca por DESTINO = "BCN", de 29/03/2022 até 31/03/2022).
+    // Você pode trocar por qualquer um dos exemplos descritos na documentação.
+    const requestBody = {
+      "filters": [{
+        "searchFilterItems": [
+          {
+            "type": "destination",
+            "value": "BCN"   // Exemplo de Barcelona
+          }
+        ]
+      }],
+      "from": "2022-03-29",
+      "to":   "2022-03-31"
     };
 
-    // 6) Configura o fetch: POST + headers + body em JSON
-    var fetchOptions = {
-      method: "POST",
-      headers: {
-        "Api-key": apiKey,
-        "X-Signature": signature,
-        "Accept": "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(requestBody)
-    };
+    // Calcula o X-Signature usando o padrão: md5( apiKey + secret + timestamp )
+    const signature = generateSignature(API_KEY, API_SECRET);
 
-    // 7) Limpar/indicar carregando
-    var resultArea = document.getElementById("result-area");
-    resultArea.textContent = "Carregando...";
-
-    // 8) Executa a requisição
-    fetch(endpoint, fetchOptions)
-      .then(function(response) {
-        if (!response.ok) {
-          // Se status não estiver OK (200-299), lança erro para cair no catch
-          throw new Error("HTTP error! Status: " + response.status);
-        }
-        return response.json();
-      })
-      .then(function(data) {
-        console.log("Resposta da API:", data);
-        // Exibe o JSON formatado
-        resultArea.textContent = JSON.stringify(data, null, 2);
-      })
-      .catch(function(error) {
-        console.error("Erro na requisição:", error);
-        resultArea.innerHTML = '<span class="error">Erro: ' + error + '</span>';
+    try {
+      // Executa a requisição com método POST
+      const response = await fetch(ACTIVITIES_SEARCH_URL, {
+        method: "POST",
+        headers: {
+          "Api-key":      API_KEY,
+          "X-Signature":  signature,
+          "Content-Type": "application/json",
+          "Accept":       "application/json"
+        },
+        body: JSON.stringify(requestBody)
       });
-  }
-</script>
 
+      // Se não for status 2xx, já lança erro
+      if (!response.ok) {
+        throw new Error("Erro de HTTP, status = " + response.status);
+      }
+
+      // Converte a resposta para JSON
+      const data = await response.json();
+
+      // Exibe em tela (formato de texto)
+      resultsContainer.textContent = JSON.stringify(data, null, 2);
+
+    } catch (error) {
+      console.error("Erro:", error);
+      resultsContainer.textContent = "Ocorreu um erro: " + error.message;
+    }
+  });
+
+  /**
+   * Função para gerar a assinatura exigida pela Hotelbeds:
+   *   signature = MD5(apiKey + secret + timeStamp)
+   * onde timeStamp é a hora atual em segundos (Unix time).
+   */
+  function generateSignature(apiKey, secret) {
+    const timeStamp = Math.floor(Date.now() / 1000); // Segundos
+    const toSign    = apiKey + secret + timeStamp;
+    return CryptoJS.MD5(toSign).toString();
+  }
+})();
+</script>
 </body>
 </html>
