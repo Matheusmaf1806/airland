@@ -26,7 +26,6 @@
       padding: 10px;
       border: 1px solid #eee;
     }
-    /* Você pode customizar mais estilos conforme sua necessidade */
   </style>
 </head>
 <body>
@@ -40,36 +39,26 @@
   <div id="hotelbeds-activities-results">Clique em "Fazer Busca" para ver o resultado aqui...</div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
-        integrity="sha512-j4Q/iF6EH6ECZQveN71NlfSBp7Tn2ANJ8nqRsNFK+OL7UR9xKvoQNbRsRNUW/fL8Qle0mMdGmOGZlfXN1tnzHw=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
+<!-- Carrega CryptoJS sem integrity para evitar bloqueio -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" referrerpolicy="no-referrer"></script>
 
 <script>
 (function(){
-  // Credenciais e configurações da sua conta Hotelbeds (TEST ENVIRONMENT).
+  // Credenciais e configurações da sua conta Hotelbeds
   const API_KEY    = "995c89cbb1766da1785cfb394a630747";
   const API_SECRET = "38ce721d98";
-  // URL de teste para Activities (Activities API).
-  // A documentação atual aponta algo como: https://api.test.hotelbeds.com/activities/v1/search
-  // Caso seja diferente, ajuste conforme a doc mais recente.
   const ACTIVITIES_SEARCH_URL = "https://api.test.hotelbeds.com/activities/v1/search";
 
-  // Seleciona elementos HTML
   const btnSearch        = document.getElementById("searchButton");
   const resultsContainer = document.getElementById("hotelbeds-activities-results");
 
-  // Adiciona evento de clique no botão para disparar a busca
   btnSearch.addEventListener("click", async function() {
-    // Monta o corpo da requisição conforme a doc
-    // (exemplo: busca por DESTINO = "BCN", de 29/03/2022 até 31/03/2022).
-    // Você pode trocar por qualquer um dos exemplos descritos na documentação.
     const requestBody = {
       "filters": [{
         "searchFilterItems": [
           {
             "type": "destination",
-            "value": "BCN"   // Exemplo de Barcelona
+            "value": "BCN"
           }
         ]
       }],
@@ -77,11 +66,10 @@
       "to":   "2022-03-31"
     };
 
-    // Calcula o X-Signature usando o padrão: md5( apiKey + secret + timestamp )
+    // Gera a assinatura X-Signature
     const signature = generateSignature(API_KEY, API_SECRET);
 
     try {
-      // Executa a requisição com método POST
       const response = await fetch(ACTIVITIES_SEARCH_URL, {
         method: "POST",
         headers: {
@@ -93,15 +81,11 @@
         body: JSON.stringify(requestBody)
       });
 
-      // Se não for status 2xx, já lança erro
       if (!response.ok) {
         throw new Error("Erro de HTTP, status = " + response.status);
       }
 
-      // Converte a resposta para JSON
       const data = await response.json();
-
-      // Exibe em tela (formato de texto)
       resultsContainer.textContent = JSON.stringify(data, null, 2);
 
     } catch (error) {
@@ -110,13 +94,8 @@
     }
   });
 
-  /**
-   * Função para gerar a assinatura exigida pela Hotelbeds:
-   *   signature = MD5(apiKey + secret + timeStamp)
-   * onde timeStamp é a hora atual em segundos (Unix time).
-   */
   function generateSignature(apiKey, secret) {
-    const timeStamp = Math.floor(Date.now() / 1000); // Segundos
+    const timeStamp = Math.floor(Date.now() / 1000);
     const toSign    = apiKey + secret + timeStamp;
     return CryptoJS.MD5(toSign).toString();
   }
