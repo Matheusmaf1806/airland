@@ -1,81 +1,192 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Exemplo de Requisição - Hotelbeds Activities API</title>
-  <!-- Importa a biblioteca CryptoJS para gerar a assinatura SHA-256 -->
+  <meta charset="UTF-8" />
+  <title>Pesquisa de Parques Temáticos - Exemplo Hotelbeds Activities</title>
+  <!-- Biblioteca para gerar a assinatura SHA-256 (CryptoJS) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
-    /* Estilos para evitar conflitos com o restante da página */
-    #hotelbeds-activities-container {
+    /* ==== CSS para evitar conflitos e estilizar o formulário ==== */
+    #search-container {
       font-family: Arial, sans-serif;
-      margin: 20px;
-      border: 1px solid #ccc;
+      max-width: 600px;
+      margin: 20px auto;
       padding: 20px;
+      border: 1px solid #ccc;
     }
-    #hotelbeds-activities-container h1 {
-      font-size: 1.5rem;
+    #search-container h2 {
+      margin-bottom: 15px;
+    }
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
       margin-bottom: 10px;
     }
-    #hotelbeds-activities-container button {
+    .search-row label {
+      width: 100%;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .search-row input[type="text"],
+    .search-row input[type="date"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+    }
+    .radio-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .radio-row label {
+      font-weight: normal;
+    }
+    button {
       padding: 10px 15px;
       font-size: 1rem;
+      background-color: #a20033; /* cor semelhante à do botão "Pesquisar" */
+      color: #fff;
+      border: none;
       cursor: pointer;
-      margin-bottom: 20px;
     }
-    #hotelbeds-activities-result {
+    button:hover {
+      background-color: #b3003b;
+    }
+    #results {
+      margin-top: 20px;
       white-space: pre-wrap;
-      background-color: #f1f1f1;
-      padding: 10px;
-      overflow: auto;
+      background-color: #f7f7f7;
       border: 1px solid #ccc;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
 
-<div id="hotelbeds-activities-container">
-  <h1>Teste da API de Atividades da Hotelbeds</h1>
-  <!-- Botão para executar a requisição -->
-  <button onclick="fetchHotelbedsActivities()">Buscar Atividades</button>
-  <!-- Área onde mostraremos o resultado da resposta da API -->
-  <div id="hotelbeds-activities-result">O resultado da requisição aparecerá aqui.</div>
+<div id="search-container">
+  <h2>Pesquisa de Parques Temáticos</h2>
+  
+  <!-- Radio buttons para escolher tipo de produto (exemplo didático) -->
+  <div class="radio-row">
+    <div>
+      <input 
+        type="radio" 
+        name="ticketOption" 
+        id="onlyTicket" 
+        value="APENAS_BILHETE" 
+        checked
+      />
+      <label for="onlyTicket">Apenas bilhete</label>
+    </div>
+    <div>
+      <input 
+        type="radio" 
+        name="ticketOption" 
+        id="hotelPackage" 
+        value="HOTEL_PACOTE"
+      />
+      <label for="hotelPackage">Hotel/pacotes</label>
+    </div>
+  </div>
+
+  <!-- Campo de destino/parque temático -->
+  <div class="search-row">
+    <label for="destinationInput">Destino ou parque temático <span style="color:red">*</span></label>
+    <input 
+      type="text" 
+      id="destinationInput" 
+      placeholder="Por exemplo: Barcelona, Espanha" 
+      required
+    />
+  </div>
+
+  <!-- Datas "de" e "até" (opcional) -->
+  <div class="search-row">
+    <div style="width: 48%; margin-right: 4%;">
+      <label for="fromDate">Desde (opcional)</label>
+      <input 
+        type="date" 
+        id="fromDate"
+      />
+    </div>
+    <div style="width: 48%;">
+      <label for="toDate">Até (opcional)</label>
+      <input 
+        type="date" 
+        id="toDate"
+      />
+    </div>
+  </div>
+
+  <button type="button" onclick="searchActivities()">
+    Pesquisar
+  </button>
+
+  <!-- Div para mostrar a resposta da requisição -->
+  <div id="results">A resposta da API aparecerá aqui.</div>
 </div>
 
 <script>
   /**
-   * Função que faz a requisição à API de atividades da Hotelbeds em ambiente de teste.
+   * Exemplo de chamada à API "Activities" da Hotelbeds, usando o que o usuário
+   * preencher nos campos do formulário (destino, datas, tipo etc.).
    */
-  function fetchHotelbedsActivities() {
-    // =====================================================
-    // 1. Credenciais de Teste (NÃO RECOMENDADO expor no Front-End em Produção)
-    // =====================================================
+  function searchActivities() {
+    // 1) Obter valores dos campos
+    var ticketOption = document.querySelector('input[name="ticketOption"]:checked').value;
+    var destination = document.getElementById("destinationInput").value.trim();
+    var fromDate = document.getElementById("fromDate").value; // YYYY-MM-DD
+    var toDate = document.getElementById("toDate").value;     // YYYY-MM-DD
+
+    // Validação simples: destino é obrigatório
+    if (!destination) {
+      alert("Por favor, informe um destino ou parque temático.");
+      return;
+    }
+
+    // 2) Suas credenciais de teste da Hotelbeds (NÃO USAR EM PRODUÇÃO DIRETAMENTE!)
     var apiKey = "995c89cbb1766da1785cfb394a630747";
     var secret = "38ce721d98";
 
-    // =====================================================
-    // 2. Geração do Timestamp e da Assinatura
-    // =====================================================
-    // Gera o timestamp atual em segundos (Unix time)
-    var timestamp = Math.floor(Date.now() / 1000); 
-    // Monta a string que será usada na hash: apiKey + secret + timestamp
+    // 3) Montar a assinatura X-Signature
+    var timestamp = Math.floor(Date.now() / 1000);
     var signatureString = apiKey + secret + timestamp;
-    // Usa CryptoJS para gerar a hash SHA-256
     var signature = CryptoJS.SHA256(signatureString).toString();
 
-    // =====================================================
-    // 3. Montagem da URL e dos parâmetros de busca
-    // =====================================================
-    // Exemplo de URL do ambiente de teste para Activities:
-    // https://api.test.hotelbeds.com/activity-api/3.0/activities
+    // 4) Montar a URL de consulta
+    // Exemplo de endpoint de teste:
     var endpoint = "https://api.test.hotelbeds.com/activity-api/3.0/activities";
-    // Parâmetros de exemplo (destination=BCN, de 10/05/2025 até 15/05/2025)
-    var queryParams = "?destination=BCN&from=2025-05-10&to=2025-05-15&language=ENG&useSecondaryLanguage=false";
+
+    // Parâmetros obrigatórios:
+    // - destination (ex. "BCN" para Barcelona) 
+    // - datas (opcionais aqui, se estiverem vazias, não enviamos)
+    // - language (ex.: "ENG" ou "PT")
+
+    // ATENÇÃO: a API de Activities costuma trabalhar com códigos de destino (ex. "BCN"),
+    // mas aqui vamos simular enviando a string do input. Na prática, você pode precisar
+    // de um "destination converter" ou trabalhar com "geolocalização".
+
+    // Vamos tratar as datas: se não preenchidas, não adicionamos no query param.
+    // Se estiverem preenchidas, vamos converter para AAAA-MM-DD, se necessário.
+
+    var queryParams = "?";
+    queryParams += "destination=" + encodeURIComponent(destination);
+    // Caso você queira forçar datas, adicione:
+    if (fromDate) {
+      queryParams += "&from=" + fromDate;
+    }
+    if (toDate) {
+      queryParams += "&to=" + toDate;
+    }
+    // Idioma
+    queryParams += "&language=ENG";
+    queryParams += "&useSecondaryLanguage=false";
+
+    // Monta a URL final
     var url = endpoint + queryParams;
 
-    // =====================================================
-    // 4. Configura o objeto de requisição (método, headers, etc.)
-    // =====================================================
+    // 5) Configuração do fetch
     var options = {
       method: "GET",
       headers: {
@@ -86,24 +197,26 @@
       }
     };
 
-    // =====================================================
-    // 5. Faz a requisição via fetch e trata a resposta
-    // =====================================================
+    // (Opcional) Exibir algo para indicar que está carregando...
+    document.getElementById("results").textContent = "Pesquisando atividades, aguarde...";
+
+    // 6) Fazer a requisição
     fetch(url, options)
       .then(function(response) {
-        // Converte a resposta para JSON
+        // Verifica se a resposta está ok
+        if (!response.ok) {
+          throw new Error("HTTP status " + response.status);
+        }
         return response.json();
       })
       .then(function(data) {
-        // Exibe o resultado no console do navegador (para debug)
         console.log("Resposta da API:", data);
-        // E mostra na tela em formato "legível"
-        document.getElementById("hotelbeds-activities-result").textContent = JSON.stringify(data, null, 2);
+        // Mostrar no <div id="results">
+        document.getElementById("results").textContent = JSON.stringify(data, null, 2);
       })
       .catch(function(error) {
         console.error("Erro na requisição:", error);
-        // Exibe o erro na tela
-        document.getElementById("hotelbeds-activities-result").textContent = "Erro: " + error;
+        document.getElementById("results").textContent = "Erro: " + error;
       });
   }
 </script>
