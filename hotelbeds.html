@@ -2,50 +2,40 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Pesquisa de Parques Temáticos - Exemplo Hotelbeds Activities</title>
-  <!-- Biblioteca para gerar a assinatura SHA-256 (CryptoJS) -->
+  <title>Exemplo - Hotelbeds Activities Availability</title>
+  <!-- Biblioteca para gerar assinatura SHA-256 (CryptoJS) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
-    /* ==== CSS para evitar conflitos e estilizar o formulário ==== */
-    #search-container {
+    /* ========== CSS para estilizar e evitar conflitos ========== */
+    #availability-container {
       font-family: Arial, sans-serif;
       max-width: 600px;
       margin: 20px auto;
       padding: 20px;
       border: 1px solid #ccc;
     }
-    #search-container h2 {
+    #availability-container h2 {
       margin-bottom: 15px;
     }
-    .search-row {
-      display: flex;
-      flex-wrap: wrap;
+    .field-group {
       margin-bottom: 10px;
     }
-    .search-row label {
-      width: 100%;
+    .field-group label {
       font-weight: bold;
+      display: block;
       margin-bottom: 5px;
     }
-    .search-row input[type="text"],
-    .search-row input[type="date"] {
+    .field-group input[type="text"],
+    .field-group input[type="date"],
+    .field-group input[type="number"] {
       width: 100%;
       padding: 8px;
-      margin-bottom: 5px;
       box-sizing: border-box;
-    }
-    .radio-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 10px;
-    }
-    .radio-row label {
-      font-weight: normal;
     }
     button {
       padding: 10px 15px;
       font-size: 1rem;
-      background-color: #a20033; /* cor semelhante à do botão "Pesquisar" */
+      background-color: #a20033; /* cor semelhante aos exemplos anteriores */
       color: #fff;
       border: none;
       cursor: pointer;
@@ -53,170 +43,170 @@
     button:hover {
       background-color: #b3003b;
     }
-    #results {
+    #result-area {
       margin-top: 20px;
       white-space: pre-wrap;
-      background-color: #f7f7f7;
+      background-color: #f9f9f9;
       border: 1px solid #ccc;
       padding: 10px;
+      min-height: 100px;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div id="search-container">
-  <h2>Pesquisa de Parques Temáticos</h2>
-  
-  <!-- Radio buttons para escolher tipo de produto (exemplo didático) -->
-  <div class="radio-row">
-    <div>
-      <input 
-        type="radio" 
-        name="ticketOption" 
-        id="onlyTicket" 
-        value="APENAS_BILHETE" 
-        checked
-      />
-      <label for="onlyTicket">Apenas bilhete</label>
-    </div>
-    <div>
-      <input 
-        type="radio" 
-        name="ticketOption" 
-        id="hotelPackage" 
-        value="HOTEL_PACOTE"
-      />
-      <label for="hotelPackage">Hotel/pacotes</label>
-    </div>
-  </div>
+<div id="availability-container">
+  <h2>Pesquisa de Disponibilidade (Activities - Hotelbeds)</h2>
 
-  <!-- Campo de destino/parque temático -->
-  <div class="search-row">
-    <label for="destinationInput">Destino ou parque temático <span style="color:red">*</span></label>
+  <!-- Campo para o "Destination Code" (ex: MCO, BCN...) -->
+  <div class="field-group">
+    <label for="destination">Destino (código) <span style="color:red">*</span></label>
     <input 
       type="text" 
-      id="destinationInput" 
-      placeholder="Por exemplo: Barcelona, Espanha" 
+      id="destination" 
+      placeholder="Ex: BCN (Barcelona), MCO (Orlando)..." 
+      required 
+    />
+  </div>
+
+  <!-- Datas obrigatórias (yyyy-mm-dd) -->
+  <div class="field-group">
+    <label for="fromDate">Data início (AAAA-MM-DD) <span style="color:red">*</span></label>
+    <input 
+      type="date" 
+      id="fromDate" 
+      required 
+    />
+  </div>
+
+  <div class="field-group">
+    <label for="toDate">Data fim (AAAA-MM-DD) <span style="color:red">*</span></label>
+    <input 
+      type="date" 
+      id="toDate" 
       required
     />
   </div>
 
-  <!-- Datas "de" e "até" (opcional) -->
-  <div class="search-row">
-    <div style="width: 48%; margin-right: 4%;">
-      <label for="fromDate">Desde (opcional)</label>
-      <input 
-        type="date" 
-        id="fromDate"
-      />
-    </div>
-    <div style="width: 48%;">
-      <label for="toDate">Até (opcional)</label>
-      <input 
-        type="date" 
-        id="toDate"
-      />
-    </div>
+  <!-- Quantidade de pessoas (ex: 2 adultos, 1 criança etc.)
+       Neste exemplo simples, vamos pegar só a idade do "primeiro passageiro".
+       Você pode replicar ou adaptar para vários paxes. -->
+  <div class="field-group">
+    <label for="paxAge">Idade do Pax (ex: 30)</label>
+    <input 
+      type="number" 
+      id="paxAge" 
+      min="1" 
+      value="30"
+    />
   </div>
 
-  <button type="button" onclick="searchActivities()">
+  <button type="button" onclick="searchAvailability()">
     Pesquisar
   </button>
 
-  <!-- Div para mostrar a resposta da requisição -->
-  <div id="results">A resposta da API aparecerá aqui.</div>
+  <div id="result-area">O resultado aparecerá aqui.</div>
 </div>
 
 <script>
   /**
-   * Exemplo de chamada à API "Activities" da Hotelbeds, usando o que o usuário
-   * preencher nos campos do formulário (destino, datas, tipo etc.).
+   * Exemplo de função que faz POST no endpoint "/activities/availability"
+   * da Hotelbeds, usando 'fetch' e incluindo a assinatura X-Signature.
    */
-  function searchActivities() {
-    // 1) Obter valores dos campos
-    var ticketOption = document.querySelector('input[name="ticketOption"]:checked').value;
-    var destination = document.getElementById("destinationInput").value.trim();
-    var fromDate = document.getElementById("fromDate").value; // YYYY-MM-DD
-    var toDate = document.getElementById("toDate").value;     // YYYY-MM-DD
+  function searchAvailability() {
+    // 1) Captura valores do formulário:
+    var destinationCode = document.getElementById("destination").value.trim();
+    var fromDate = document.getElementById("fromDate").value;
+    var toDate = document.getElementById("toDate").value;
+    var paxAge = document.getElementById("paxAge").value || "30"; // se vazio, default 30
 
-    // Validação simples: destino é obrigatório
-    if (!destination) {
-      alert("Por favor, informe um destino ou parque temático.");
+    // Simples validação:
+    if (!destinationCode || !fromDate || !toDate) {
+      alert("Por favor, preencha destino, data início e data fim.");
       return;
     }
 
-    // 2) Suas credenciais de teste da Hotelbeds (NÃO USAR EM PRODUÇÃO DIRETAMENTE!)
+    // 2) Credenciais de teste (NÃO expor em produção):
     var apiKey = "995c89cbb1766da1785cfb394a630747";
     var secret = "38ce721d98";
 
-    // 3) Montar a assinatura X-Signature
+    // 3) Gera X-Signature: apiKey + secret + timestamp (em segundos)
     var timestamp = Math.floor(Date.now() / 1000);
     var signatureString = apiKey + secret + timestamp;
     var signature = CryptoJS.SHA256(signatureString).toString();
 
-    // 4) Montar a URL de consulta
-    // Exemplo de endpoint de teste:
-    var endpoint = "https://api.test.hotelbeds.com/activity-api/3.0/activities";
+    // 4) Monta a URL do endpoint de teste:
+    // Para o /activities/availability, usar environment test
+    var endpoint = "https://api.test.hotelbeds.com/activity-api/3.0/activities/availability";
 
-    // Parâmetros obrigatórios:
-    // - destination (ex. "BCN" para Barcelona) 
-    // - datas (opcionais aqui, se estiverem vazias, não enviamos)
-    // - language (ex.: "ENG" ou "PT")
+    // 5) Monta o JSON de request (exemplo básico com 'destination' e 'paxes'):
+    // IMPORTANTE: datas devem estar no formato YYYY-MM-DD
+    // "paxes" é um array, cada objeto precisa de { "age": number }
+    // "filters": definimos "destination" => "BCN", "MCO", etc.
+    // "from" e "to": datas obrigatórias
+    // "language": ex: "en", "pt" etc.
 
-    // ATENÇÃO: a API de Activities costuma trabalhar com códigos de destino (ex. "BCN"),
-    // mas aqui vamos simular enviando a string do input. Na prática, você pode precisar
-    // de um "destination converter" ou trabalhar com "geolocalização".
+    var requestBody = {
+      filters: [
+        {
+          searchFilterItems: [
+            {
+              type: "destination", 
+              value: destinationCode // ex: "BCN", "MCO"
+            }
+          ]
+        }
+      ],
+      from: fromDate,            // ex: "2025-02-27"
+      to: toDate,                // ex: "2025-03-02"
+      paxes: [
+        { age: Number(paxAge) }  // ex: { age: 30 }
+      ],
+      language: "en",
+      pagination: {
+        itemsPerPage: 10,
+        page: 1
+      },
+      order: "DEFAULT"
+    };
 
-    // Vamos tratar as datas: se não preenchidas, não adicionamos no query param.
-    // Se estiverem preenchidas, vamos converter para AAAA-MM-DD, se necessário.
-
-    var queryParams = "?";
-    queryParams += "destination=" + encodeURIComponent(destination);
-    // Caso você queira forçar datas, adicione:
-    if (fromDate) {
-      queryParams += "&from=" + fromDate;
-    }
-    if (toDate) {
-      queryParams += "&to=" + toDate;
-    }
-    // Idioma
-    queryParams += "&language=ENG";
-    queryParams += "&useSecondaryLanguage=false";
-
-    // Monta a URL final
-    var url = endpoint + queryParams;
-
-    // 5) Configuração do fetch
-    var options = {
-      method: "GET",
+    // 6) Configura o fetch: POST + headers + body em JSON
+    var fetchOptions = {
+      method: "POST",
       headers: {
         "Api-key": apiKey,
         "X-Signature": signature,
         "Accept": "application/json",
-        "Accept-Encoding": "gzip"
-      }
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody)
     };
 
-    // (Opcional) Exibir algo para indicar que está carregando...
-    document.getElementById("results").textContent = "Pesquisando atividades, aguarde...";
+    // 7) Limpar/indicar carregando
+    var resultArea = document.getElementById("result-area");
+    resultArea.textContent = "Carregando...";
 
-    // 6) Fazer a requisição
-    fetch(url, options)
+    // 8) Executa a requisição
+    fetch(endpoint, fetchOptions)
       .then(function(response) {
-        // Verifica se a resposta está ok
         if (!response.ok) {
-          throw new Error("HTTP status " + response.status);
+          // Se status não estiver OK (200-299), lança erro para cair no catch
+          throw new Error("HTTP error! Status: " + response.status);
         }
         return response.json();
       })
       .then(function(data) {
         console.log("Resposta da API:", data);
-        // Mostrar no <div id="results">
-        document.getElementById("results").textContent = JSON.stringify(data, null, 2);
+        // Exibe o JSON formatado
+        resultArea.textContent = JSON.stringify(data, null, 2);
       })
       .catch(function(error) {
         console.error("Erro na requisição:", error);
-        document.getElementById("results").textContent = "Erro: " + error;
+        resultArea.innerHTML = '<span class="error">Erro: ' + error + '</span>';
       });
   }
 </script>
