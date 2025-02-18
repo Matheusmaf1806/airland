@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Exemplo de Requisição - Hotelbeds Activities API</title>
+  <!-- Importa a biblioteca CryptoJS para gerar a assinatura SHA-256 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    /* Estilos para evitar conflitos com o restante da página */
+    #hotelbeds-activities-container {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      border: 1px solid #ccc;
+      padding: 20px;
+    }
+    #hotelbeds-activities-container h1 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    #hotelbeds-activities-container button {
+      padding: 10px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    #hotelbeds-activities-result {
+      white-space: pre-wrap;
+      background-color: #f1f1f1;
+      padding: 10px;
+      overflow: auto;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div id="hotelbeds-activities-container">
+  <h1>Teste da API de Atividades da Hotelbeds</h1>
+  <!-- Botão para executar a requisição -->
+  <button onclick="fetchHotelbedsActivities()">Buscar Atividades</button>
+  <!-- Área onde mostraremos o resultado da resposta da API -->
+  <div id="hotelbeds-activities-result">O resultado da requisição aparecerá aqui.</div>
+</div>
+
+<script>
+  /**
+   * Função que faz a requisição à API de atividades da Hotelbeds em ambiente de teste.
+   */
+  function fetchHotelbedsActivities() {
+    // =====================================================
+    // 1. Credenciais de Teste (NÃO RECOMENDADO expor no Front-End em Produção)
+    // =====================================================
+    var apiKey = "995c89cbb1766da1785cfb394a630747";
+    var secret = "38ce721d98";
+
+    // =====================================================
+    // 2. Geração do Timestamp e da Assinatura
+    // =====================================================
+    // Gera o timestamp atual em segundos (Unix time)
+    var timestamp = Math.floor(Date.now() / 1000); 
+    // Monta a string que será usada na hash: apiKey + secret + timestamp
+    var signatureString = apiKey + secret + timestamp;
+    // Usa CryptoJS para gerar a hash SHA-256
+    var signature = CryptoJS.SHA256(signatureString).toString();
+
+    // =====================================================
+    // 3. Montagem da URL e dos parâmetros de busca
+    // =====================================================
+    // Exemplo de URL do ambiente de teste para Activities:
+    // https://api.test.hotelbeds.com/activity-api/3.0/activities
+    var endpoint = "https://api.test.hotelbeds.com/activity-api/3.0/activities";
+    // Parâmetros de exemplo (destination=BCN, de 10/05/2025 até 15/05/2025)
+    var queryParams = "?destination=BCN&from=2025-05-10&to=2025-05-15&language=ENG&useSecondaryLanguage=false";
+    var url = endpoint + queryParams;
+
+    // =====================================================
+    // 4. Configura o objeto de requisição (método, headers, etc.)
+    // =====================================================
+    var options = {
+      method: "GET",
+      headers: {
+        "Api-key": apiKey,
+        "X-Signature": signature,
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip"
+      }
+    };
+
+    // =====================================================
+    // 5. Faz a requisição via fetch e trata a resposta
+    // =====================================================
+    fetch(url, options)
+      .then(function(response) {
+        // Converte a resposta para JSON
+        return response.json();
+      })
+      .then(function(data) {
+        // Exibe o resultado no console do navegador (para debug)
+        console.log("Resposta da API:", data);
+        // E mostra na tela em formato "legível"
+        document.getElementById("hotelbeds-activities-result").textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(function(error) {
+        console.error("Erro na requisição:", error);
+        // Exibe o erro na tela
+        document.getElementById("hotelbeds-activities-result").textContent = "Erro: " + error;
+      });
+  }
+</script>
+
+</body>
+</html>
