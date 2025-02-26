@@ -4,181 +4,235 @@
   <meta charset="utf-8" />
   <title>Busca de Hotéis</title>
   <style>
-    /* Estilos básicos */
     body {
       font-family: sans-serif;
+      margin: 0; padding: 0;
       background: #f9f9f9;
-      margin: 0;
-      padding: 0;
     }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: #fff;
+    header {
+      background-color: #0068ef;
+      color: #fff;
       padding: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
-    h1 {
-      margin-top: 0;
-      color: #0068ef;
+    h1 { margin: 0; font-size: 1.5rem; }
+    main {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      margin-top: 20px;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     label {
-      display: block;
-      margin-top: 10px;
       font-weight: 600;
+      margin-bottom: 4px;
+      display: inline-block;
     }
-    input, button {
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-field input {
       padding: 8px;
-      margin-top: 4px;
-      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .form-group {
+      display: flex;
+      gap: 16px;
     }
     button {
-      background: #0068ef;
-      color: #fff;
+      padding: 10px 16px;
       border: none;
-      cursor: pointer;
-      margin-top: 16px;
       border-radius: 4px;
+      background-color: #0068ef;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
     }
     button:hover {
-      background: #0044aa;
+      background-color: #0044aa;
     }
-    #result {
-      margin-top: 20px;
-      background: #f1f1f1;
-      padding: 10px;
+    #loader {
+      margin-top: 16px;
+      color: #666;
+      display: none;
+    }
+    #hotelsList {
+      margin-top: 24px;
+    }
+    .hotel-item {
+      border: 1px solid #ccc;
+      padding: 12px;
       border-radius: 4px;
-      min-height: 50px;
+      margin-bottom: 16px;
     }
-    .error {
-      color: red;
+    .hotel-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .hotel-price {
+      color: #008f00;
+      font-weight: 700;
+    }
+    /* Responsivo simples */
+    @media (max-width: 600px) {
+      main { margin-top: 10px; box-shadow: none; }
+      form { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Busca de Hotéis</h1>
+<header>
+  <h1>Busca de Hotéis</h1>
+</header>
 
-    <!-- Campos para simular o que você usou no Postman -->
-    <label>Check-in:
-      <input type="date" id="checkIn" value="2025-03-21" />
-    </label>
-    <label>Check-out:
-      <input type="date" id="checkOut" value="2025-03-22" />
-    </label>
-    <label>Adultos:
-      <input type="number" id="adults" value="1" />
-    </label>
-    <label>Crianças:
-      <input type="number" id="children" value="0" />
-    </label>
-    <label>Quartos:
-      <input type="number" id="rooms" value="1" />
-    </label>
-    <label>Idade (Adulto):
-      <input type="number" id="age" value="30" />
-    </label>
+<main>
+  <form id="searchForm">
+    <div class="form-group">
+      <div class="form-field">
+        <label for="checkIn">Check-in</label>
+        <input type="date" id="checkIn" name="checkIn" required />
+      </div>
+      <div class="form-field">
+        <label for="checkOut">Check-out</label>
+        <input type="date" id="checkOut" name="checkOut" required />
+      </div>
+    </div>
 
-    <!-- Botão de busca -->
-    <button id="btnSearch">Buscar</button>
+    <div class="form-group">
+      <div class="form-field">
+        <label for="adults">Adultos</label>
+        <input type="number" id="adults" name="adults" min="1" value="1" required />
+      </div>
+      <div class="form-field">
+        <label for="children">Crianças</label>
+        <input type="number" id="children" name="children" min="0" value="0" required />
+      </div>
+    </div>
 
-    <!-- Área para exibir resultado -->
-    <div id="result"></div>
-  </div>
+    <div class="form-group">
+      <div class="form-field">
+        <label for="rooms">Quartos</label>
+        <input type="number" id="rooms" name="rooms" min="1" value="1" required />
+      </div>
+      <div class="form-field">
+        <label for="age">Idade do Adulto</label>
+        <input type="number" id="age" name="age" min="1" value="30" required />
+      </div>
+    </div>
 
-  <script>
-    document.getElementById('btnSearch').addEventListener('click', async () => {
-      // Obter valores do formulário
-      const checkIn = document.getElementById('checkIn').value;
-      const checkOut = document.getElementById('checkOut').value;
-      const adults = parseInt(document.getElementById('adults').value);
-      const children = parseInt(document.getElementById('children').value);
-      const rooms = parseInt(document.getElementById('rooms').value);
-      const age = parseInt(document.getElementById('age').value);
+    <div>
+      <button type="submit" id="searchBtn">Buscar</button>
+    </div>
+  </form>
 
-      // Montar body igual ao que funcionou no Postman
-      // Observando seu exemplo, usou "language": "CAS" e "platform": 80
-      // e um array de hotel IDs fixos (234673, etc.).
-      const bodyData = {
-        stay: {
-          checkIn: checkIn,
-          checkOut: checkOut,
-          allowOnlyShift: true
+  <div id="loader">Carregando...</div>
+
+  <div id="hotelsList"></div>
+</main>
+
+<script>
+  const form = document.getElementById('searchForm');
+  const hotelsList = document.getElementById('hotelsList');
+  const loader = document.getElementById('loader');
+
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    hotelsList.innerHTML = '';
+    loader.style.display = 'block';
+
+    // Obter valores do formulário
+    const checkIn  = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    const adults   = parseInt(document.getElementById('adults').value, 10);
+    const children = parseInt(document.getElementById('children').value, 10);
+    const rooms    = parseInt(document.getElementById('rooms').value, 10);
+    const age      = parseInt(document.getElementById('age').value, 10);
+
+    // Montar o JSON com a MESMA estrutura do Postman / search.php
+    const requestBody = {
+      "stay": {
+        "checkIn": checkIn,
+        "checkOut": checkOut,
+        "allowOnlyShift": true
+      },
+      "occupancies": [
+        {
+          "adults": adults,
+          "children": children,
+          "rooms": rooms,
+          "paxes": [
+            {
+              "type": "AD",
+              "age": age
+            }
+          ]
+        }
+      ],
+      "hotels": {
+        // Se quiser fixar alguns IDs, troque aqui
+        "hotel": [234673, 897496, 89413, 13204, 52174, 989016],
+        "included": "true",
+        "type": "HOTELBEDS"
+      },
+      "platform": 80,
+      "language": "ENG"
+    };
+
+    try {
+      // Ajuste a URL p/ onde está seu search.php
+      const response = await fetch('https://airland.com.br/search.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        occupancies: [
-          {
-            adults: adults,
-            children: children,
-            rooms: rooms,
-            paxes: [
-              {
-                type: "AD",
-                age: age
-              }
-            ]
-          }
-        ],
-        hotels: {
-          hotel: [234673, 897496, 89413, 13204, 52174, 989016],
-          included: "true",
-          type: "HOTELBEDS"
-        },
-        platform: 80,
-        language: "CAS"
-      };
+        body: JSON.stringify(requestBody)
+      });
 
-      // Limpar/Exibir algo no result
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = "Carregando...";
-
-      try {
-        // Ajuste a URL abaixo caso seu search.php esteja em outro domínio
-        const resp = await fetch('https://airland.com.br/search.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(bodyData)
-        });
-
-        if (!resp.ok) {
-          throw new Error(`Erro HTTP: ${resp.status}`);
-        }
-
-        const data = await resp.json();
-        console.log('Resposta da API:', data);
-
-        // Se "data" for um array de hotéis do seu script
-        if (Array.isArray(data)) {
-          if (data.length === 0) {
-            resultDiv.textContent = "Nenhum hotel encontrado.";
-            return;
-          }
-          // Renderizar cada hotel
-          let html = "<ul>";
-          data.forEach(hotel => {
-            html += `<li><strong>${hotel.name}</strong> - Preço: R$ ${hotel.finalPrice.toFixed(2)}</li>`;
-          });
-          html += "</ul>";
-          resultDiv.innerHTML = html;
-        }
-        // Se for o JSON cru da Hotelbeds (com 'auditData' e 'hotels')
-        else if (data.hotels && data.hotels.hotels) {
-          // Exiba em JSON
-          resultDiv.textContent = JSON.stringify(data, null, 2);
-        }
-        else if (data.error) {
-          // Caso retorne um objeto com { error: "..."}
-          resultDiv.innerHTML = `<p class="error">Erro da API: ${data.error}</p>`;
-        } else {
-          resultDiv.textContent = "Nenhum hotel encontrado.";
-        }
-
-      } catch (err) {
-        console.error(err);
-        resultDiv.innerHTML = `<p class="error">Ocorreu um erro: ${err.message}</p>`;
+      if (!response.ok) {
+        throw new Error('Erro HTTP ' + response.status);
       }
+
+      const data = await response.json();
+      renderHotels(data);
+    } catch (err) {
+      hotelsList.innerHTML = `<p style="color:red">Erro: ${err.message}</p>`;
+    } finally {
+      loader.style.display = 'none';
+    }
+  });
+
+  function renderHotels(hotelsArray) {
+    hotelsList.innerHTML = '';
+    if (!hotelsArray || hotelsArray.length === 0) {
+      hotelsList.innerHTML = '<p>Nenhum hotel encontrado.</p>';
+      return;
+    }
+
+    hotelsArray.forEach(hotel => {
+      const div = document.createElement('div');
+      div.className = 'hotel-item';
+
+      const nameElem = document.createElement('div');
+      nameElem.className = 'hotel-title';
+      nameElem.textContent = hotel.name;
+
+      const priceElem = document.createElement('div');
+      priceElem.className = 'hotel-price';
+      priceElem.textContent = `R$ ${hotel.finalPrice.toFixed(2)}`;
+
+      div.appendChild(nameElem);
+      div.appendChild(priceElem);
+      hotelsList.appendChild(div);
     });
-  </script>
+  }
+</script>
 </body>
 </html>
