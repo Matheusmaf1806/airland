@@ -1,204 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Busca de Hotéis</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        background: #f5f5f5;
-      }
-      h1 {
-        text-align: center;
-        color: #333;
-      }
-      form {
-        max-width: 400px;
-        margin: 0 auto 20px;
-        padding: 20px;
-        background: #fff;
-        border-radius: 4px;
-      }
-      form label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-      }
-      form input[type="date"],
-      form input[type="number"] {
-        width: 100%;
-        padding: 6px 8px;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-      }
-      form button {
-        cursor: pointer;
-        background: #0068ef;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        font-size: 16px;
-      }
-      form button:hover {
-        background: #004499;
-      }
-      #results {
-        max-width: 600px;
-        margin: 0 auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 4px;
-      }
-      .hotel-item {
-        border-bottom: 1px solid #ddd;
-        padding: 10px 0;
-      }
-      .hotel-name {
-        font-weight: bold;
-        color: #333;
-      }
-      .hotel-price {
-        color: #0068ef;
-      }
-      #loading {
-        text-align: center;
-        margin: 20px 0;
-        font-weight: bold;
-        color: #666;
-      }
-      #errorMsg {
-        color: red;
-        font-weight: bold;
-        text-align: center;
-        margin: 20px 0;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Busca de Hotéis</h1>
+<head>
+  <meta charset="UTF-8" />
+  <title>Busca de Hotéis</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    input, button { margin: 0.2rem; }
+    #hotelsList { margin-top: 1rem; }
+    .hotelItem { padding: 0.5rem; border-bottom: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Busca de Hotéis</h1>
 
-    <form id="searchForm">
-      <label for="checkIn">Check-In</label>
-      <input type="date" id="checkIn" name="checkIn" value="2025-03-21" />
+  <label>Check-in: <input id="checkIn" type="date" value="2025-03-21" /></label>
+  <label>Check-out: <input id="checkOut" type="date" value="2025-03-22" /></label>
+  <label>Adultos: <input id="adults" type="number" value="1" /></label>
+  <label>Crianças: <input id="children" type="number" value="0" /></label>
+  <label>Quartos: <input id="rooms" type="number" value="1" /></label>
+  <label>Margem da agência: <input id="agencyMargin" type="number" step="0.01" value="0.05" /></label>
+  <button id="btnSearch">Buscar</button>
 
-      <label for="checkOut">Check-Out</label>
-      <input type="date" id="checkOut" name="checkOut" value="2025-03-22" />
+  <div id="hotelsList"></div>
 
-      <label for="adults">Adultos</label>
-      <input type="number" id="adults" name="adults" value="1" min="1" />
+  <script>
+    const btn = document.getElementById('btnSearch');
+    const hotelsList = document.getElementById('hotelsList');
 
-      <label for="children">Crianças</label>
-      <input type="number" id="children" name="children" value="0" min="0" />
+    btn.addEventListener('click', () => {
+      const checkIn = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      const adults = document.getElementById('adults').value;
+      const children = document.getElementById('children').value;
+      const rooms = document.getElementById('rooms').value;
+      const agencyMargin = document.getElementById('agencyMargin').value;
 
-      <label for="rooms">Quartos</label>
-      <input type="number" id="rooms" name="rooms" value="1" min="1" />
+      // Montar querystring
+      // Se estiver rodando local, use `http://localhost:3000/hotels`.
+      // Se estiver em producao no business.airland.com.br/hosp/hotels, use URL relativa ou absoluta:
+      const baseURL = '/hotels'; // relativo (assumindo servidor roteado)
+      const qs = `?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&agencyMargin=${agencyMargin}`;
 
-      <label for="agencyMargin">
-        Margem da Agência (Ex: 0.05 = 5%)
-      </label>
-      <input type="number" step="0.01" id="agencyMargin" name="agencyMargin" value="0.1" />
-
-      <button type="submit">Buscar Hotéis</button>
-    </form>
-
-    <div id="loading" style="display: none;">Carregando...</div>
-    <div id="errorMsg"></div>
-
-    <div id="results"></div>
-
-    <script>
-      const form = document.getElementById("searchForm");
-      const resultsDiv = document.getElementById("results");
-      const loadingDiv = document.getElementById("loading");
-      const errorMsgDiv = document.getElementById("errorMsg");
-
-      form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-
-        // Limpa mensagens
-        resultsDiv.innerHTML = "";
-        errorMsgDiv.innerHTML = "";
-        loadingDiv.style.display = "block";
-
-        // Pega valores do form
-        const checkIn = document.getElementById("checkIn").value;
-        const checkOut = document.getElementById("checkOut").value;
-        const adults = document.getElementById("adults").value;
-        const children = document.getElementById("children").value;
-        const rooms = document.getElementById("rooms").value;
-        const agencyMargin = document.getElementById("agencyMargin").value;
-
-        try {
-          // Faz requisição ao seu backend
-          const response = await fetch("http://localhost:3000/hotels", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              stay: {
-                checkIn: checkIn,
-                checkOut: checkOut,
-                allowOnlyShift: true
-              },
-              occupancies: [
-                {
-                  adults: Number(adults),
-                  children: Number(children),
-                  rooms: Number(rooms),
-                  paxes: [
-                    {
-                      type: "AD",
-                      age: 30
-                    }
-                  ]
-                }
-              ],
-              hotels: {
-                hotel: [234673, 897496, 89413, 13204, 52174, 989016],
-                included: "true",
-                type: "HOTELBEDS"
-              },
-              platform: 80,
-              language: "ENG",
-              agencyMargin: Number(agencyMargin)
-            }),
-          });
-
-          // Se não for status 200-299, gera um erro
-          if (!response.ok) {
-            throw new Error(
-              "Erro ao buscar hotéis: status " + response.status
-            );
-          }
-
-          const data = await response.json();
-          // data.hotels deve ser um array, ex: data.hotels = [{name, price}, ...]
-
-          loadingDiv.style.display = "none";
-
-          if (!data.hotels || data.hotels.length === 0) {
-            resultsDiv.innerHTML = "<p>Nenhum hotel encontrado.</p>";
+      fetch(baseURL + qs)
+        .then(response => {
+          if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
+          return response.json();
+        })
+        .then(data => {
+          if (!data.success) {
+            hotelsList.innerHTML = '<p>Erro ao buscar hotéis</p>';
             return;
           }
-
-          // Renderiza no DOM
-          data.hotels.forEach((hotel) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "hotel-item";
-            itemDiv.innerHTML = `
-              <div class="hotel-name">${hotel.name || "Hotel sem nome"}</div>
-              <div class="hotel-price">R$ ${hotel.price}</div>
+          const { hotels } = data;
+          // Render
+          let html = '';
+          (hotels || []).forEach(h => {
+            html += `
+              <div class="hotelItem">
+                <p><strong>Nome:</strong> ${h.name || 'Sem Nome'}</p>
+                <p><strong>Preço Final:</strong> ${h.finalPrice.toFixed(2)}</p>
+              </div>
             `;
-            resultsDiv.appendChild(itemDiv);
           });
-        } catch (error) {
-          loadingDiv.style.display = "none";
-          errorMsgDiv.innerHTML = "Ocorreu um erro: " + error.message;
-        }
-      });
-    </script>
-  </body>
+          hotelsList.innerHTML = html;
+        })
+        .catch(err => {
+          hotelsList.innerHTML = '<p>Ocorreu um erro: ' + err.message + '</p>';
+        });
+    });
+  </script>
+</body>
 </html>
