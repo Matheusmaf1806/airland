@@ -1,73 +1,233 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Busca de Hotéis</title>
   <style>
-    body { font-family: sans-serif; margin: 20px; }
-    input, button { margin: 0.2rem; }
-    #hotelsList { margin-top: 1rem; }
-    .hotelItem { padding: 0.5rem; border-bottom: 1px solid #ccc; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background-color: #0068ef;
+      color: #fff;
+      padding: 16px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      margin-top: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-field input {
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 16px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #0068ef;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background-color: #0044aa;
+    }
+
+    #hotelsList {
+      margin-top: 24px;
+    }
+
+    .hotel-item {
+      border: 1px solid #ccc;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      transition: background 0.2s;
+    }
+
+    .hotel-item:hover {
+      background: #f2f6ff;
+    }
+
+    .hotel-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .hotel-price {
+      color: #008f00;
+      font-weight: 700;
+    }
+
+    .loading {
+      color: #666;
+      margin-top: 16px;
+    }
+
+    /* Responsivo simples */
+    @media (max-width: 600px) {
+      main {
+        margin-top: 10px;
+        box-shadow: none;
+      }
+      form {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Busca de Hotéis</h1>
 
-  <label>Check-in: <input id="checkIn" type="date" value="2025-03-21" /></label>
-  <label>Check-out: <input id="checkOut" type="date" value="2025-03-22" /></label>
-  <label>Adultos: <input id="adults" type="number" value="1" /></label>
-  <label>Crianças: <input id="children" type="number" value="0" /></label>
-  <label>Quartos: <input id="rooms" type="number" value="1" /></label>
-  <label>Margem da agência: <input id="agencyMargin" type="number" step="0.01" value="0.05" /></label>
-  <button id="btnSearch">Buscar</button>
+<header>
+  <h1>Busca de Hotéis</h1>
+</header>
+
+<main>
+  <form id="searchForm">
+    <div class="form-group">
+      <div class="form-field">
+        <label for="checkIn">Check-in</label>
+        <input type="date" id="checkIn" name="checkIn" required />
+      </div>
+      <div class="form-field">
+        <label for="checkOut">Check-out</label>
+        <input type="date" id="checkOut" name="checkOut" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-field">
+        <label for="adults">Adultos</label>
+        <input type="number" id="adults" name="adults" min="1" value="1" required />
+      </div>
+      <div class="form-field">
+        <label for="children">Crianças</label>
+        <input type="number" id="children" name="children" min="0" value="0" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-field">
+        <label for="rooms">Quartos</label>
+        <input type="number" id="rooms" name="rooms" min="1" value="1" required />
+      </div>
+      <div class="form-field">
+        <label for="age">Idade Adulto (Exemplo)</label>
+        <input type="number" id="age" name="age" min="1" value="30" />
+      </div>
+    </div>
+
+    <div>
+      <button type="submit" id="searchBtn">Buscar</button>
+    </div>
+  </form>
+
+  <div id="loader" class="loading" style="display: none;">Carregando...</div>
 
   <div id="hotelsList"></div>
+</main>
 
-  <script>
-    const btn = document.getElementById('btnSearch');
-    const hotelsList = document.getElementById('hotelsList');
+<script>
+  const form = document.getElementById('searchForm');
+  const hotelsList = document.getElementById('hotelsList');
+  const loader = document.getElementById('loader');
 
-    btn.addEventListener('click', () => {
-      const checkIn = document.getElementById('checkIn').value;
-      const checkOut = document.getElementById('checkOut').value;
-      const adults = document.getElementById('adults').value;
-      const children = document.getElementById('children').value;
-      const rooms = document.getElementById('rooms').value;
-      const agencyMargin = document.getElementById('agencyMargin').value;
+  form.addEventListener('submit', async function(evt) {
+    evt.preventDefault(); 
 
-      // Montar querystring
-      // Se estiver rodando local, use `http://localhost:3000/hotels`.
-      // Se estiver em producao no business.airland.com.br/hosp/hotels, use URL relativa ou absoluta:
-      const baseURL = '/hotels'; // relativo (assumindo servidor roteado)
-      const qs = `?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&agencyMargin=${agencyMargin}`;
+    hotelsList.innerHTML = '';
+    loader.style.display = 'block';
 
-      fetch(baseURL + qs)
-        .then(response => {
-          if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
-          return response.json();
-        })
-        .then(data => {
-          if (!data.success) {
-            hotelsList.innerHTML = '<p>Erro ao buscar hotéis</p>';
-            return;
-          }
-          const { hotels } = data;
-          // Render
-          let html = '';
-          (hotels || []).forEach(h => {
-            html += `
-              <div class="hotelItem">
-                <p><strong>Nome:</strong> ${h.name || 'Sem Nome'}</p>
-                <p><strong>Preço Final:</strong> ${h.finalPrice.toFixed(2)}</p>
-              </div>
-            `;
-          });
-          hotelsList.innerHTML = html;
-        })
-        .catch(err => {
-          hotelsList.innerHTML = '<p>Ocorreu um erro: ' + err.message + '</p>';
-        });
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    const adults = document.getElementById('adults').value;
+    const children = document.getElementById('children').value;
+    const rooms = document.getElementById('rooms').value;
+    const age = document.getElementById('age').value;
+
+    // Montar query string
+    const queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&age=${age}`;
+
+    try {
+      const response = await fetch('/hotels' + queryString, { method: 'GET' });
+      if (!response.ok) {
+        throw new Error('Erro: ' + response.statusText);
+      }
+      const data = await response.json(); 
+      renderHotels(data);
+    } catch (err) {
+      hotelsList.innerHTML = '<p style="color:red">Ocorreu um erro: ' + err.message + '</p>';
+    } finally {
+      loader.style.display = 'none';
+    }
+  });
+
+  function renderHotels(hotelsArray) {
+    hotelsList.innerHTML = '';
+
+    if (!hotelsArray || !hotelsArray.length) {
+      hotelsList.innerHTML = '<p>Nenhum hotel encontrado.</p>';
+      return;
+    }
+
+    hotelsArray.forEach((hotel) => {
+      const div = document.createElement('div');
+      div.className = 'hotel-item';
+
+      const nameElem = document.createElement('div');
+      nameElem.className = 'hotel-title';
+      nameElem.textContent = hotel.name;
+
+      const priceElem = document.createElement('div');
+      priceElem.className = 'hotel-price';
+      priceElem.textContent = `R$ ${hotel.finalPrice.toFixed(2)}`; 
+      // Ajuste se a currency vier diferente
+
+      div.appendChild(nameElem);
+      div.appendChild(priceElem);
+
+      hotelsList.appendChild(div);
     });
-  </script>
+  }
+</script>
 </body>
 </html>
