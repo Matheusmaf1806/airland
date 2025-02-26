@@ -54,7 +54,7 @@ async function fetchHotelsFromHotelbeds({ checkIn, checkOut, adults, children, r
 
     // 6) Fazer a requisição a Hotelbeds (URL fictícia ou real)
     //    Ajuste a URL exata do endpoint do seu integrador.
-    const url = 'https://api.hotelbeds.com/example/availability'; // EXEMPLO, troque pela real
+    const url = 'https://api.test.hotelbeds.com/hotel-api/1.0/hotels'; // EXEMPLO, troque pela real
 
     const response = await axios.post(url, requestBody, { headers });
 
