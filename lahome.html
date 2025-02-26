@@ -171,8 +171,13 @@
   const hotelsList = document.getElementById('hotelsList');
   const loader = document.getElementById('loader');
 
+  // Ajuste aqui a URL base
+  const BASE_URL = 'https://business.airland.com.br'; 
+  // Se a rota for "/hosp/hotels" no Express, então:
+  const HOTELS_ENDPOINT = '/hosp/hotels';
+
   form.addEventListener('submit', async function(evt) {
-    evt.preventDefault(); 
+    evt.preventDefault();
 
     hotelsList.innerHTML = '';
     loader.style.display = 'block';
@@ -184,15 +189,15 @@
     const rooms = document.getElementById('rooms').value;
     const age = document.getElementById('age').value;
 
-    // Montar query string
     const queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}&rooms=${rooms}&age=${age}`;
+    const url = `${BASE_URL}${HOTELS_ENDPOINT}${queryString}`;
 
     try {
-      const response = await fetch('/hotels' + queryString, { method: 'GET' });
+      const response = await fetch(url, { method: 'GET' });
       if (!response.ok) {
         throw new Error('Erro: ' + response.statusText);
       }
-      const data = await response.json(); 
+      const data = await response.json();
       renderHotels(data);
     } catch (err) {
       hotelsList.innerHTML = '<p style="color:red">Ocorreu um erro: ' + err.message + '</p>';
@@ -215,12 +220,12 @@
 
       const nameElem = document.createElement('div');
       nameElem.className = 'hotel-title';
-      nameElem.textContent = hotel.name;
+      nameElem.textContent = hotel.name; // <-- Ajuste caso a propriedade seja "hotel.name" ou "hotel.hotelName"
 
       const priceElem = document.createElement('div');
       priceElem.className = 'hotel-price';
-      priceElem.textContent = `R$ ${hotel.finalPrice.toFixed(2)}`; 
-      // Ajuste se a currency vier diferente
+      priceElem.textContent = `R$ ${hotel.finalPrice?.toFixed(2)}`; 
+      // Ajuste se a currency vier diferente, e verifique se finalPrice existe
 
       div.appendChild(nameElem);
       div.appendChild(priceElem);
