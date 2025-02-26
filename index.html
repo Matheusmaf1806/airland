@@ -4,11 +4,9 @@
   <meta charset="utf-8" />
   <title>Busca de Hotéis</title>
   <style>
-    /* Estilos básicos */
     body {
       font-family: sans-serif;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background: #f9f9f9;
     }
     header {
@@ -147,6 +145,7 @@
     <div id="loader">Carregando...</div>
     <div id="hotelsList"></div>
   </main>
+
   <script>
     const form = document.getElementById('searchForm');
     const hotelsList = document.getElementById('hotelsList');
@@ -165,7 +164,7 @@
       const rooms    = parseInt(document.getElementById('rooms').value, 10);
       const age      = parseInt(document.getElementById('age').value, 10);
 
-      // Montar o JSON com a mesma estrutura que você usou no Postman
+      // Montar o JSON com a mesma estrutura do Postman
       const requestBody = {
         "stay": {
           "checkIn": checkIn,
@@ -195,7 +194,7 @@
       };
 
       try {
-        // URL do seu search.php hospedado em airland.com.br
+        // Ajuste a URL para o seu search.php
         const response = await fetch('https://airland.com.br/search.php', {
           method: 'POST',
           headers: {
@@ -217,23 +216,52 @@
       }
     });
 
-    function renderHotels(hotelsArray) {
+    function renderHotels(data) {
       hotelsList.innerHTML = '';
-      // Verifica se a resposta é um array
-      if (Array.isArray(hotelsArray)) {
-        if (hotelsArray.length === 0) {
+
+      // 1) Se a API PHP retornar um array simples (ex. [ {name,finalPrice}, ... ])
+      if (Array.isArray(data)) {
+        if (data.length === 0) {
           hotelsList.innerHTML = '<p>Nenhum hotel encontrado.</p>';
           return;
         }
         let html = '<ul>';
-        hotelsArray.forEach(hotel => {
-          html += `<li class="hotel-item"><div class="hotel-title">${hotel.name}</div><div class="hotel-price">R$ ${hotel.finalPrice.toFixed(2)}</div></li>`;
+        data.forEach(hotel => {
+          html += `
+            <li class="hotel-item">
+              <div class="hotel-title">${hotel.name}</div>
+              <div class="hotel-price">R$ ${hotel.finalPrice?.toFixed(2) || 0}</div>
+            </li>`;
         });
         html += '</ul>';
         hotelsList.innerHTML = html;
-      } else if (hotelsArray.error) {
-        hotelsList.innerHTML = `<p class="error">Erro da API: ${hotelsArray.error}</p>`;
-      } else {
+      }
+      // 2) Se for o formato "hotelbeds" (auditData + hotels.hotels)
+      else if (data.hotels && data.hotels.hotels) {
+        const hotelbedsArray = data.hotels.hotels; // array de hoteis
+        if (hotelbedsArray.length === 0) {
+          hotelsList.innerHTML = '<p>Nenhum hotel retornado pela Hotelbeds.</p>';
+          return;
+        }
+        let html = '<ul>';
+        hotelbedsArray.forEach(h => {
+          // Exemplo: "name" do hotel, mas verifique se no JSON a key é "name" ou "hotel.name"
+          html += `
+            <li class="hotel-item">
+              <div class="hotel-title">${h.name || 'Sem Nome'}</div>
+              <!-- Você pode mostrar code, category, etc. -->
+              <div>Code: ${h.code || ''}</div>
+            </li>`;
+        });
+        html += '</ul>';
+        hotelsList.innerHTML = html;
+      }
+      // 3) Se houver "error" no objeto
+      else if (data.error) {
+        hotelsList.innerHTML = `<p style="color:red">Erro da API: ${data.error}</p>`;
+      }
+      // 4) Caso contrário
+      else {
         hotelsList.innerHTML = '<p>Formato inesperado da resposta.</p>';
       }
     }
