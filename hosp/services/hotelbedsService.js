@@ -1,71 +1,74 @@
-// services/hotelbedsService.js
-const axios = require('axios')
-const crypto = require('crypto')
-const { API_KEY, SECRET } = require('../config') // ou algo do tipo
+const crypto = require('crypto');
+const axios = require('axios');
+const { API_KEY, SECRET } = require('../config');
 
-function generateSignature(apiKey, secret) {
-  const timestamp = Math.floor(Date.now() / 1000)
-  const stringToHash = apiKey + secret + timestamp
-  const signatureHex = crypto
-    .createHash('sha256')
-    .update(stringToHash)
-    .digest('hex')
-  return signatureHex
-}
-
-async function searchHotels({ checkIn, checkOut, adults, children, rooms }) {
-  // 1) geramos a X-Signature
-  const xSignature = generateSignature(API_KEY, SECRET)
-
-  // 2) Montar payload no formato Hotelbeds (Exemplo simplificado)
-  const payload = {
-    stay: {
-      checkIn,
-      checkOut,
-      allowOnlyShift: true
-    },
-    occupancies: [
-      {
-        adults,
-        children,
-        rooms,
-        paxes: [
-          { type: 'AD', age: 30 } // etc. Ajuste conforme sua necessidade
-        ]
-      }
-    ],
-    hotels: {
-      hotel: [234673, 897496], // ou dinâmico
-      included: 'true',
-      type: 'HOTELBEDS'
-    },
-    platform: 80,
-    language: 'ENG'
-  }
-
+async function fetchHotelsFromHotelbeds({ checkIn, checkOut, adults, children, rooms, age }) {
   try {
-    // 3) Chamar a API
-    const response = await axios.post(
-      'https://api.test.hotelbeds.com/hotel-api/1.0/hotels',
-      payload,
-      {
-        headers: {
-          'Api-Key': API_KEY,
-          'X-Signature': xSignature,
-          'Accept': 'application/json',
-          'Accept-Encoding': 'gzip',
-          'Content-Type': 'application/json'
+    // 1) Montar o timestamp
+    const timestamp = Math.floor(Date.now() / 1000); // em segundos
+    // 2) String to hash = apiKey + secret + timestamp
+    const stringToHash = API_KEY + SECRET + timestamp;
+    // 3) Gerar o SHA-256
+    const signatureHex = crypto
+      .createHash('sha256')
+      .update(stringToHash)
+      .digest('hex');
+    // 4) Montar headers
+    const headers = {
+      'Api-Key': API_KEY,
+      'X-Signature': signatureHex,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    // 5) Montar o body conforme seu snippet
+    // Aqui, iremos supor que você queira mandar no body algo do tipo:
+    const requestBody = {
+      stay: {
+        checkIn: checkIn,   // "2025-03-21"
+        checkOut: checkOut, // "2025-03-22"
+        allowOnlyShift: true
+      },
+      occupancies: [
+        {
+          adults: parseInt(adults, 10),
+          children: parseInt(children, 10),
+          rooms: parseInt(rooms, 10),
+          paxes: [
+            {
+              type: 'AD', // Hardcoded
+              age: parseInt(age || 30, 10)
+            }
+          ]
         }
-      }
-    )
-    // 4) Retorna o JSON
-    return response.data
+      ],
+      // Exemplo fixo de hoteis
+      hotels: {
+        hotel: [234673, 897496, 89413, 13204, 52174, 989016],
+        included: 'true',
+        type: 'HOTELBEDS'
+      },
+      platform: 80,
+      language: 'ENG'
+    };
+
+    // 6) Fazer a requisição a Hotelbeds (URL fictícia ou real)
+    //    Ajuste a URL exata do endpoint do seu integrador.
+    const url = 'https://api.hotelbeds.com/example/availability'; // EXEMPLO, troque pela real
+
+    const response = await axios.post(url, requestBody, { headers });
+
+    // 7) Retornar a "lista" de hotéis.  
+    // O shape exato depende do que a Hotelbeds retorna. 
+    // Vamos supor que retorne algo tipo: { hotels: [ { id, name, price, currency }, ... ] }
+    // e chamaremos .data para extrair.
+    return response.data; 
   } catch (error) {
-    console.error('Erro na busca Hotelbeds:', error.message)
-    throw error // repasse o erro ou trate
+    console.error('Erro ao buscar na Hotelbeds:', error.message);
+    throw error;
   }
 }
 
 module.exports = {
-  searchHotels
-}
+  fetchHotelsFromHotelbeds
+};
