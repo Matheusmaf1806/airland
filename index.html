@@ -4,9 +4,11 @@
   <meta charset="utf-8" />
   <title>Busca de Hotéis</title>
   <style>
+    /* Estilos básicos */
     body {
       font-family: sans-serif;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: #f9f9f9;
     }
     header {
@@ -14,14 +16,16 @@
       color: #fff;
       padding: 16px;
     }
-    h1 { margin: 0; font-size: 1.5rem; }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
     main {
       max-width: 600px;
-      margin: 0 auto;
+      margin: 20px auto;
       padding: 16px;
       background: #fff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      margin-top: 20px;
     }
     form {
       display: flex;
@@ -36,6 +40,8 @@
     .form-field {
       display: flex;
       flex-direction: column;
+      flex: 1;
+      min-width: 200px;
     }
     .form-field input {
       padding: 8px;
@@ -45,6 +51,7 @@
     .form-group {
       display: flex;
       gap: 16px;
+      width: 100%;
     }
     button {
       padding: 10px 16px;
@@ -72,6 +79,10 @@
       padding: 12px;
       border-radius: 4px;
       margin-bottom: 16px;
+      transition: background 0.2s;
+    }
+    .hotel-item:hover {
+      background: #f2f6ff;
     }
     .hotel-title {
       font-weight: 600;
@@ -83,156 +94,149 @@
     }
     /* Responsivo simples */
     @media (max-width: 600px) {
-      main { margin-top: 10px; box-shadow: none; }
-      form { flex-direction: column; }
+      main {
+        margin-top: 10px;
+        box-shadow: none;
+      }
+      form {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-<header>
-  <h1>Busca de Hotéis</h1>
-</header>
-
-<main>
-  <form id="searchForm">
-    <div class="form-group">
-      <div class="form-field">
-        <label for="checkIn">Check-in</label>
-        <input type="date" id="checkIn" name="checkIn" required />
+  <header>
+    <h1>Busca de Hotéis</h1>
+  </header>
+  <main>
+    <form id="searchForm">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="checkIn">Check-in</label>
+          <input type="date" id="checkIn" name="checkIn" required />
+        </div>
+        <div class="form-field">
+          <label for="checkOut">Check-out</label>
+          <input type="date" id="checkOut" name="checkOut" required />
+        </div>
       </div>
-      <div class="form-field">
-        <label for="checkOut">Check-out</label>
-        <input type="date" id="checkOut" name="checkOut" required />
+      <div class="form-group">
+        <div class="form-field">
+          <label for="adults">Adultos</label>
+          <input type="number" id="adults" name="adults" min="1" value="1" required />
+        </div>
+        <div class="form-field">
+          <label for="children">Crianças</label>
+          <input type="number" id="children" name="children" min="0" value="0" required />
+        </div>
       </div>
-    </div>
-
-    <div class="form-group">
-      <div class="form-field">
-        <label for="adults">Adultos</label>
-        <input type="number" id="adults" name="adults" min="1" value="1" required />
+      <div class="form-group">
+        <div class="form-field">
+          <label for="rooms">Quartos</label>
+          <input type="number" id="rooms" name="rooms" min="1" value="1" required />
+        </div>
+        <div class="form-field">
+          <label for="age">Idade do Adulto</label>
+          <input type="number" id="age" name="age" min="1" value="30" required />
+        </div>
       </div>
-      <div class="form-field">
-        <label for="children">Crianças</label>
-        <input type="number" id="children" name="children" min="0" value="0" required />
+      <div>
+        <button type="submit" id="searchBtn">Buscar</button>
       </div>
-    </div>
+    </form>
+    <div id="loader">Carregando...</div>
+    <div id="hotelsList"></div>
+  </main>
+  <script>
+    const form = document.getElementById('searchForm');
+    const hotelsList = document.getElementById('hotelsList');
+    const loader = document.getElementById('loader');
 
-    <div class="form-group">
-      <div class="form-field">
-        <label for="rooms">Quartos</label>
-        <input type="number" id="rooms" name="rooms" min="1" value="1" required />
-      </div>
-      <div class="form-field">
-        <label for="age">Idade do Adulto</label>
-        <input type="number" id="age" name="age" min="1" value="30" required />
-      </div>
-    </div>
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      hotelsList.innerHTML = '';
+      loader.style.display = 'block';
 
-    <div>
-      <button type="submit" id="searchBtn">Buscar</button>
-    </div>
-  </form>
+      // Obter valores do formulário
+      const checkIn  = document.getElementById('checkIn').value;
+      const checkOut = document.getElementById('checkOut').value;
+      const adults   = parseInt(document.getElementById('adults').value, 10);
+      const children = parseInt(document.getElementById('children').value, 10);
+      const rooms    = parseInt(document.getElementById('rooms').value, 10);
+      const age      = parseInt(document.getElementById('age').value, 10);
 
-  <div id="loader">Carregando...</div>
-
-  <div id="hotelsList"></div>
-</main>
-
-<script>
-  const form = document.getElementById('searchForm');
-  const hotelsList = document.getElementById('hotelsList');
-  const loader = document.getElementById('loader');
-
-  form.addEventListener('submit', async function(event) {
-    event.preventDefault();
-    hotelsList.innerHTML = '';
-    loader.style.display = 'block';
-
-    // Obter valores do formulário
-    const checkIn  = document.getElementById('checkIn').value;
-    const checkOut = document.getElementById('checkOut').value;
-    const adults   = parseInt(document.getElementById('adults').value, 10);
-    const children = parseInt(document.getElementById('children').value, 10);
-    const rooms    = parseInt(document.getElementById('rooms').value, 10);
-    const age      = parseInt(document.getElementById('age').value, 10);
-
-    // Montar o JSON com a MESMA estrutura do Postman / search.php
-    const requestBody = {
-      "stay": {
-        "checkIn": checkIn,
-        "checkOut": checkOut,
-        "allowOnlyShift": true
-      },
-      "occupancies": [
-        {
-          "adults": adults,
-          "children": children,
-          "rooms": rooms,
-          "paxes": [
-            {
-              "type": "AD",
-              "age": age
-            }
-          ]
-        }
-      ],
-      "hotels": {
-        // Se quiser fixar alguns IDs, troque aqui
-        "hotel": [234673, 897496, 89413, 13204, 52174, 989016],
-        "included": "true",
-        "type": "HOTELBEDS"
-      },
-      "platform": 80,
-      "language": "ENG"
-    };
-
-    try {
-      // Ajuste a URL p/ onde está seu search.php
-      const response = await fetch('https://airland.com.br/search.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+      // Montar o JSON com a mesma estrutura que você usou no Postman
+      const requestBody = {
+        "stay": {
+          "checkIn": checkIn,
+          "checkOut": checkOut,
+          "allowOnlyShift": true
         },
-        body: JSON.stringify(requestBody)
-      });
+        "occupancies": [
+          {
+            "adults": adults,
+            "children": children,
+            "rooms": rooms,
+            "paxes": [
+              {
+                "type": "AD",
+                "age": age
+              }
+            ]
+          }
+        ],
+        "hotels": {
+          "hotel": [234673, 897496, 89413, 13204, 52174, 989016],
+          "included": "true",
+          "type": "HOTELBEDS"
+        },
+        "platform": 80,
+        "language": "ENG"
+      };
 
-      if (!response.ok) {
-        throw new Error('Erro HTTP ' + response.status);
+      try {
+        // URL do seu search.php hospedado em airland.com.br
+        const response = await fetch('https://airland.com.br/search.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro HTTP ' + response.status);
+        }
+
+        const data = await response.json();
+        renderHotels(data);
+      } catch (err) {
+        hotelsList.innerHTML = `<p style="color:red">Erro: ${err.message}</p>`;
+      } finally {
+        loader.style.display = 'none';
       }
-
-      const data = await response.json();
-      renderHotels(data);
-    } catch (err) {
-      hotelsList.innerHTML = `<p style="color:red">Erro: ${err.message}</p>`;
-    } finally {
-      loader.style.display = 'none';
-    }
-  });
-
-  function renderHotels(hotelsArray) {
-    hotelsList.innerHTML = '';
-    if (!hotelsArray || hotelsArray.length === 0) {
-      hotelsList.innerHTML = '<p>Nenhum hotel encontrado.</p>';
-      return;
-    }
-
-    hotelsArray.forEach(hotel => {
-      const div = document.createElement('div');
-      div.className = 'hotel-item';
-
-      const nameElem = document.createElement('div');
-      nameElem.className = 'hotel-title';
-      nameElem.textContent = hotel.name;
-
-      const priceElem = document.createElement('div');
-      priceElem.className = 'hotel-price';
-      priceElem.textContent = `R$ ${hotel.finalPrice.toFixed(2)}`;
-
-      div.appendChild(nameElem);
-      div.appendChild(priceElem);
-      hotelsList.appendChild(div);
     });
-  }
-</script>
+
+    function renderHotels(hotelsArray) {
+      hotelsList.innerHTML = '';
+      // Verifica se a resposta é um array
+      if (Array.isArray(hotelsArray)) {
+        if (hotelsArray.length === 0) {
+          hotelsList.innerHTML = '<p>Nenhum hotel encontrado.</p>';
+          return;
+        }
+        let html = '<ul>';
+        hotelsArray.forEach(hotel => {
+          html += `<li class="hotel-item"><div class="hotel-title">${hotel.name}</div><div class="hotel-price">R$ ${hotel.finalPrice.toFixed(2)}</div></li>`;
+        });
+        html += '</ul>';
+        hotelsList.innerHTML = html;
+      } else if (hotelsArray.error) {
+        hotelsList.innerHTML = `<p class="error">Erro da API: ${hotelsArray.error}</p>`;
+      } else {
+        hotelsList.innerHTML = '<p>Formato inesperado da resposta.</p>';
+      }
+    }
+  </script>
 </body>
 </html>
