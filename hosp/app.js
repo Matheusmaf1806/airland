@@ -1,25 +1,22 @@
+// hosp/app.js
 const express = require('express');
 const path = require('path');
-const { PORT } = require('./config');
-const hotelsRoute = require('./routes/hotelsRoute');
+require('dotenv').config(); // se quiser ler variáveis do .env
 
 const app = express();
-
-// Se precisar ler body JSON pra outras rotas:
 app.use(express.json());
 
-// Rota de "hotels"
-app.use('/hotels', hotelsRoute);
+// Importar rota
+const hotelsRoute = require('./routes/hotelsRoute');
 
-// Servir pasta de arquivos estáticos (onde estará o front "index.html")
+// Montar a rota em /hosp/hotels
+app.use('/hosp/hotels', hotelsRoute);
+
+// Se quiser servir um HTML estático, por ex.:
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Se quiser uma rota default:
-app.get('/', (req, res) => {
-  // Redirecionar pro front-end se quiser
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+// Subir o servidor local na porta 3000 (exemplo)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
