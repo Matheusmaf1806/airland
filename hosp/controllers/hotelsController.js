@@ -1,52 +1,50 @@
-// controllers/hotelsController.js
-const { searchHotels } = require('../services/hotelbedsService')
-const { OPERATOR_MARGIN } = require('../config')
+const { fetchHotelsFromHotelbeds } = require('../services/hotelbedsService');
+const { OPERATOR_MARGIN, AGENCY_MARGIN } = require('../config');
 
-/**
- * Exemplo de controller:
- * - Recebe req.body com checkIn, checkOut, etc.
- * - Chama searchHotels
- * - Para cada hotel, aplica as margens
- */
 async function getHotels(req, res) {
   try {
-    const { checkIn, checkOut, adults, children, rooms, agencyMargin = 0.05 } = req.body
+    // Pegar query params do front-end: /hotels?checkIn=2025-03-21&checkOut=2025-03-22&adults=1...
+    const { checkIn, checkOut, adults, children, rooms, age } = req.query;
 
-    // 1) Buscar no Hotelbeds
-    const hotelbedsData = await searchHotels({ checkIn, checkOut, adults, children, rooms })
+    // Chamar a service p/ buscar na Hotelbeds
+    const rawData = await fetchHotelsFromHotelbeds({ checkIn, checkOut, adults, children, rooms, age });
 
-    // Exemplo: supondo que hotelbedsData retorna algo como
-    // { hotels: [ { code: 123, netPrice: 100 }, ... ] }
-    // Ajuste para o JSON real do Hotelbeds
+    // Supondo que rawData seja algo tipo:
+    // {
+    //   hotels: [
+    //     { id: 234673, name: 'Hotel ABC', price: 100.0, currency: 'USD' },
+    //     { id: 897496, name: 'Hotel XYZ', price: 150.0, currency: 'USD' },
+    //     ...
+    //   ]
+    // }
+    // Ajuste conforme o que realmente retorna.
 
-    if (!hotelbedsData.hotels) {
-      return res.status(200).json({ hotels: [] })
-    }
+    const hotelsArray = rawData.hotels || [];
 
-    // 2) Aplica as margens
-    const hotelsWithMargins = hotelbedsData.hotels.map(hotel => {
-      const { netPrice } = hotel // ex
-      // sua "lógica de acréscimo" (ex: netPrice * (1 + OPERATOR_MARGIN) * (1 + agencyMargin))
-      const operatorPrice = netPrice * (1 + OPERATOR_MARGIN)
-      const finalPrice = operatorPrice * (1 + agencyMargin)
+    // Vamos aplicar a fórmula do “preço final”:
+    //   precoFinal = precoOriginal * (1 + OPERATOR_MARGIN) * (1 + AGENCY_MARGIN)
+    // Exemplo: se OPERATOR_MARGIN=0.10 e AGENCY_MARGIN=0.05 => total +15,5% total
+    const finalList = hotelsArray.map((hotel) => {
+      const originalPrice = hotel.price;
+      const withOperator = originalPrice * (1 + OPERATOR_MARGIN);
+      const withAgency = withOperator * (1 + AGENCY_MARGIN);
 
       return {
-        ...hotel,
-        netPrice,
-        finalPrice: parseFloat(finalPrice.toFixed(2)), // arredonda
-      }
-    })
+        id: hotel.id,
+        name: hotel.name,
+        originalPrice: hotel.price,
+        currency: hotel.currency,
+        finalPrice: parseFloat(withAgency.toFixed(2)) // ex: 115.5 => 115.50
+      };
+    });
 
-    // 3) Retorna pro front
-    res.status(200).json({
-      hotels: hotelsWithMargins
-    })
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: err.message })
+    return res.json(finalList);
+  } catch (error) {
+    console.error('Erro no getHotels:', error.message);
+    return res.status(500).json({ error: 'Erro interno ao buscar hotéis' });
   }
 }
 
 module.exports = {
   getHotels
-}
+};
