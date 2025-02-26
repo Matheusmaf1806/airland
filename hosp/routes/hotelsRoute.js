@@ -1,8 +1,9 @@
+// hosp/routes/hotelsRoute.js
 const express = require('express');
 const router = express.Router();
-const { getHotels } = require('../controllers/hotelsController');
+const hotelsController = require('../controllers/hotelsController');
 
-// Supondo que seja GET /hotels?checkIn=...&checkOut=...
-router.get('/', getHotels);
+// GET /hosp/hotels?checkIn=...&checkOut=...
+router.get('/', hotelsController.getHotels);
 
 module.exports = router;
