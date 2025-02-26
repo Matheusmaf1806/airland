@@ -5,43 +5,90 @@
   <title>Busca de Hotéis</title>
   <style>
     /* Estilos básicos */
-    body { font-family: sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 16px; }
-    input, select { padding: 6px; }
-    label { display: block; margin-top: 12px; }
-    button { margin-top: 12px; padding: 10px 16px; background: #0068ef; color: #fff; border: none; }
-    #result { margin-top: 20px; }
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    h1 {
+      margin-top: 0;
+      color: #0068ef;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    input, button {
+      padding: 8px;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+    button {
+      background: #0068ef;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 16px;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #0044aa;
+    }
+    #result {
+      margin-top: 20px;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 4px;
+      min-height: 50px;
+    }
+    .error {
+      color: red;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Busca de Hotéis</h1>
 
+    <!-- Campos para simular o que você usou no Postman -->
     <label>Check-in:
       <input type="date" id="checkIn" value="2025-03-21" />
     </label>
     <label>Check-out:
       <input type="date" id="checkOut" value="2025-03-22" />
     </label>
-    <label>Adults:
+    <label>Adultos:
       <input type="number" id="adults" value="1" />
     </label>
-    <label>Children:
+    <label>Crianças:
       <input type="number" id="children" value="0" />
     </label>
-    <label>Rooms:
+    <label>Quartos:
       <input type="number" id="rooms" value="1" />
     </label>
-    <label>Age of Adult:
+    <label>Idade (Adulto):
       <input type="number" id="age" value="30" />
     </label>
+
+    <!-- Botão de busca -->
     <button id="btnSearch">Buscar</button>
 
+    <!-- Área para exibir resultado -->
     <div id="result"></div>
   </div>
 
   <script>
     document.getElementById('btnSearch').addEventListener('click', async () => {
+      // Obter valores do formulário
       const checkIn = document.getElementById('checkIn').value;
       const checkOut = document.getElementById('checkOut').value;
       const adults = parseInt(document.getElementById('adults').value);
@@ -49,7 +96,9 @@
       const rooms = parseInt(document.getElementById('rooms').value);
       const age = parseInt(document.getElementById('age').value);
 
-      // Montar o body exatamente igual ao que funcionou no Postman
+      // Montar body igual ao que funcionou no Postman
+      // Observando seu exemplo, usou "language": "CAS" e "platform": 80
+      // e um array de hotel IDs fixos (234673, etc.).
       const bodyData = {
         stay: {
           checkIn: checkIn,
@@ -62,7 +111,10 @@
             children: children,
             rooms: rooms,
             paxes: [
-              { type: "AD", age: age }
+              {
+                type: "AD",
+                age: age
+              }
             ]
           }
         ],
@@ -72,10 +124,15 @@
           type: "HOTELBEDS"
         },
         platform: 80,
-        language: "CAS" // se no Postman é CAS
+        language: "CAS"
       };
 
+      // Limpar/Exibir algo no result
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "Carregando...";
+
       try {
+        // Ajuste a URL abaixo caso seu search.php esteja em outro domínio
         const resp = await fetch('https://airland.com.br/search.php', {
           method: 'POST',
           headers: {
@@ -85,36 +142,41 @@
         });
 
         if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
+          throw new Error(`Erro HTTP: ${resp.status}`);
         }
 
         const data = await resp.json();
-        console.log('RESPOSTA:', data);
+        console.log('Resposta da API:', data);
 
-        const resultDiv = document.getElementById('result');
-        if (data.error) {
-          resultDiv.textContent = `Erro: ${data.error}`;
-          return;
-        }
-
-        if (Array.isArray(data) && data.length > 0) {
-          // É o array de hotéis processado
-          let html = '<ul>';
-          data.forEach(h => {
-            html += `<li>${h.name} - R$ ${h.finalPrice.toFixed(2)}</li>`;
+        // Se "data" for um array de hotéis do seu script
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            resultDiv.textContent = "Nenhum hotel encontrado.";
+            return;
+          }
+          // Renderizar cada hotel
+          let html = "<ul>";
+          data.forEach(hotel => {
+            html += `<li><strong>${hotel.name}</strong> - Preço: R$ ${hotel.finalPrice.toFixed(2)}</li>`;
           });
-          html += '</ul>';
+          html += "</ul>";
           resultDiv.innerHTML = html;
-        } else if (data.hotels && data.hotels.hotels) {
-          // Caso você esteja retornando o JSON cru da Hotelbeds
+        }
+        // Se for o JSON cru da Hotelbeds (com 'auditData' e 'hotels')
+        else if (data.hotels && data.hotels.hotels) {
+          // Exiba em JSON
           resultDiv.textContent = JSON.stringify(data, null, 2);
+        }
+        else if (data.error) {
+          // Caso retorne um objeto com { error: "..."}
+          resultDiv.innerHTML = `<p class="error">Erro da API: ${data.error}</p>`;
         } else {
-          resultDiv.textContent = 'Nenhum hotel encontrado.';
+          resultDiv.textContent = "Nenhum hotel encontrado.";
         }
 
-      } catch (error) {
-        console.error(error);
-        document.getElementById('result').textContent = `Erro: ${error.message}`;
+      } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = `<p class="error">Ocorreu um erro: ${err.message}</p>`;
       }
     });
   </script>
