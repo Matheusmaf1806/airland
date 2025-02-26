@@ -1,9 +1,12 @@
 // hosp/routes/hotelsRoute.js
 const express = require('express');
 const router = express.Router();
-const hotelsController = require('../controllers/hotelsController');
+const { listHotels } = require('../controllers/hotelsController');
 
-// GET /hosp/hotels?checkIn=...&checkOut=...
-router.get('/', hotelsController.getHotels);
+// Exemplo: se no front usará fetch POST
+// router.post('/', listHotels);
+
+// Ou se quiser GET com query string
+router.get('/', listHotels);
 
 module.exports = router;
