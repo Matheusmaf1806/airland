@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header 2 Blocos - VMZ Viagens (Estilo Apple)</title>
+    <!-- Fonte Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Configurações globais */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f7f7f7;
+            line-height: 1.5; /* Maior espaçamento entre linhas para melhor leitura */
+        }
+
+        /******** BLOCO 1: TOP BAR ********/
+        .top-bar {
+            width: 100%;
+            background-color: #005CFF;  /* Azul Royal */
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px 20px;          /* Aumentando o padding para mais conforto */
+            font-size: 1rem;            /* Equivalente a 16px (padrão de leitura em iOS/Apple) */
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /******** BLOCO 2: HEADER PRINCIPAL ********/
+        header.main-header {
+            background-color: #FFFFFF;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra leve para destacar o header */
+        }
+
+        .header-content {
+            max-width: 1200px;   /* Largura máxima do container */
+            margin: 0 auto;      /* Centraliza horizontalmente */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;  /* Aumento do espaçamento para melhor UX */
+        }
+
+        /* Logo */
+        .logo {
+            width: 160px;  /* Tamanho levemente maior para destaque */
+            height: auto;
+        }
+
+        /* Navegação */
+        nav.nav-links {
+            display: flex;
+            gap: 40px;         /* Espaçamento entre os itens */
+            align-items: center;
+        }
+
+        nav.nav-links a {
+            text-decoration: none;
+            color: #333333;
+            display: flex;
+            flex-direction: column; /* Ícone em cima, texto embaixo */
+            align-items: center;    /* Centraliza ambos */
+            text-align: center;
+            font-size: 0.95rem;     /* Fica entre 15px e 16px, ideal para toque em telas menores */
+            position: relative;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        nav.nav-links a:hover {
+            color: #005CFF;       /* Tom de azul */
+            transform: translateY(-2px); /* Efeito sutil de “flutuar” */
+        }
+
+        nav.nav-links a.active {
+            color: #005CFF;       /* Estado ativo */
+        }
+
+        nav.nav-links a.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -6px;         /* Ajuste da posição da linha */
+            height: 2px;
+            width: 80%;           /* Largura da linha para destacar no estilo Apple */
+            background-color: #005CFF;
+            border-radius: 2px;
+        }
+
+        /* Ícones */
+        .icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            margin-bottom: 6px; /* Espaço entre o ícone e o texto */
+        }
+
+        /* Carrinho */
+        .cart-container {
+            display: flex;
+            align-items: center;
+            background-color: #005CFF; /* Fundo azul */
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid #005CFF;
+            transition: background-color 0.3s;
+            cursor: pointer;           /* Indica que é clicável */
+        }
+
+        .cart-container:hover {
+            background-color: #0041CC; /* Fundo levemente mais escuro no hover */
+        }
+
+        .cart-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .cart-text {
+            color: #FFFFFF;
+            font-size: 0.95rem; 
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+            nav.nav-links {
+                gap: 24px;
+                flex-wrap: wrap; /* Faz os itens quebrarem linha se necessário */
+                justify-content: center; /* Centraliza no mobile */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- BLOCO 1: Top Bar com destaque de desconto -->
+    <div class="top-bar">
+        SUPER DESCONTO NO PIX: 5% de desconto para qualquer pedido.
+    </div>
+
+    <!-- BLOCO 2: Header Principal com Logo, Navegação e Carrinho -->
+    <header class="main-header">
+        <div class="header-content">
+
+            <!-- Logo -->
+            <a href="#">
+                <img
+                    src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png" 
+                    alt="Logo VMZ Viagens" 
+                    class="logo"
+                >
+            </a>
+
+            <!-- Navegação com Ícones -->
+            <nav class="nav-links">
+                <a href="#">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Disney.png" class="icon" alt="Ingressos">
+                    Ingressos
+                </a>
+                <a href="#">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Universal.png" class="icon" alt="Universal">
+                    Universal
+                </a>
+                <a href="#">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Guia.png" class="icon" alt="Guia">
+                    Guia
+                </a>
+                <a href="#">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Carro.png" class="icon" alt="Carros">
+                    Carros
+                </a>
+                <a href="#" class="active">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel.png" class="icon" alt="Hotéis">
+                    Hotéis
+                </a>
+                <a href="#">
+                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Seguro-Viagem.png" class="icon" alt="Seguro">
+                    Seguro
+                </a>
+            </nav>
+
+            <!-- Carrinho -->
+            <div class="cart-container">
+                <img
+                    src="https://img.icons8.com/material-outlined/30/ffffff/shopping-cart.png"
+                    alt="Carrinho"
+                    class="cart-icon"
+                >
+                <span class="cart-text">02 Produtos de compra</span>
+            </div>
+
+        </div>
+    </header>
+
+</body>
+</html>
