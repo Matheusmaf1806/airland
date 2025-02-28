@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Header estilo Priceline</title>
+  <title>Header - Duas Faixas com Menu + Extras Direita</title>
 
   <!-- Fonte Montserrat -->
   <link
@@ -12,6 +12,7 @@
   />
 
   <style>
+    /* Reset e configurações iniciais */
     * {
       margin: 0;
       padding: 0;
@@ -22,7 +23,7 @@
       background-color: #f7f7f7;
     }
 
-    /* ====== Barra Superior ====== */
+    /* ====== Barra Superior (Ofertas, Avisos) ====== */
     .top-offer-bar {
       width: 100%;
       background-color: #005CFF; /* Azul intenso */
@@ -46,22 +47,22 @@
 
     /* Logo */
     .logo {
+      text-decoration: none; 
       display: flex;
       align-items: center;
-      text-decoration: none; 
     }
     .logo img {
       width: 120px; /* Ajuste conforme necessário */
       height: auto;
     }
 
-    /* Navegação */
+    /* Navegação principal */
     .nav-menu {
       display: flex;
-      gap: 30px; /* Espaçamento entre os itens */
+      gap: 30px;
       align-items: center;
-      flex: 1; /* Para ocupar o espaço entre logo e login */
-      margin-left: 40px; /* Dar um respiro em relação à logo */
+      margin-left: 40px; /* Respiro após a logo */
+      flex: 1; /* Ocupa o espaço livre entre logo e ações à direita */
     }
     .nav-item {
       text-decoration: none;
@@ -74,24 +75,55 @@
       color: #005CFF; /* Destaque no hover */
     }
 
-    /* Botão de Login/Conta */
-    .user-actions {
+    /* Área de ações à direita (Dúvidas, Dólar, Perfil) */
+    .right-actions {
       display: flex;
       align-items: center;
       gap: 20px;
     }
-    .login-button {
+
+    /* Link "Dúvidas" */
+    .help-link {
+      text-decoration: none;
+      font-size: 0.85rem;
+      color: #333;
+      transition: color 0.3s;
+    }
+    .help-link:hover {
+      color: #005CFF;
+    }
+
+    /* Bloco da cotação do dólar */
+    .dollar-quote {
+      display: flex;
+      align-items: center;
+      gap: 6px; /* Espaço entre a bandeira e o valor */
+      background-color: #f1f1f1;
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    .flag-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: cover; /* Mantém a proporção */
+      border-radius: 50%; /* Deixa a bandeira redonda, se preferir */
+    }
+
+    /* Link/Perfil */
+    .profile-link {
+      text-decoration: none;
+      font-size: 0.85rem;
+      color: #005CFF;
+      font-weight: 600;
       padding: 8px 16px;
       border: 1px solid #005CFF;
-      background-color: transparent;
-      color: #005CFF;
-      font-size: 0.85rem;
-      font-weight: 600;
       border-radius: 4px;
-      cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
     }
-    .login-button:hover {
+    .profile-link:hover {
       background-color: #005CFF;
       color: #fff;
     }
@@ -99,7 +131,7 @@
 </head>
 <body>
 
-<!-- Barra Superior com Oferta -->
+<!-- Barra Superior (Promoção ou informação) -->
 <div class="top-offer-bar">
   Spring Break Countdown: Descontos especiais! Use o código: <strong>SUNANDSAVE</strong>
 </div>
@@ -107,15 +139,15 @@
 <!-- Header Principal -->
 <header class="header-container">
 
-  <!-- Logo (substitua para o seu) -->
+  <!-- Logo -->
   <a href="#" class="logo">
-    <img 
+    <img
       src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png"
       alt="Logo Magic Travel"
     />
   </a>
 
-  <!-- Menu de Navegação -->
+  <!-- Navegação Principal -->
   <nav class="nav-menu">
     <a href="#" class="nav-item">Hotel</a>
     <a href="#" class="nav-item">Ingressos</a>
@@ -124,9 +156,23 @@
     <a href="#" class="nav-item">Seguro Viagem</a>
   </nav>
 
-  <!-- Botões de Conta/Login -->
-  <div class="user-actions">
-    <button class="login-button">Sign In</button>
+  <!-- Ações no canto direito: Dúvidas, Cotação Dólar, Perfil -->
+  <div class="right-actions">
+    <!-- Link Dúvidas -->
+    <a href="#" class="help-link">Dúvidas</a>
+
+    <!-- Cotação do Dólar -->
+    <div class="dollar-quote">
+      <img 
+        src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg"
+        alt="Bandeira EUA"
+        class="flag-icon"
+      />
+      <span>R$ 5,20</span>
+    </div>
+
+    <!-- Perfil -->
+    <a href="#" class="profile-link">Perfil</a>
   </div>
 
 </header>
