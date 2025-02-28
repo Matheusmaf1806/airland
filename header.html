@@ -1,204 +1,302 @@
+Header
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Header Minimalista</title>
-  <!-- Fonte Montserrat -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    /* Reinicio e configurações gerais */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMZ Viagens - Barra Superior</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Fonte padrão */
+            margin: 0;
+            padding: 0;
+            background-color: #005CFF;
+            box-sizing: border-box; /* Inclui padding e bordas no cálculo da largura */
+        }
 
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f7f7f7; /* Cor de fundo padrão */
-    }
+        /* Barra Superior */
+        .top-bar {
+            width: 100%; /* Ocupa 100% da largura */
+            color: white;
+            padding: 10px 0; /* Ajustando o padding */
+            box-sizing: border-box; /* Para incluir padding no cálculo */
+            display: flex; /* Usando flexbox */
+            justify-content: space-between; /* Espaço entre os itens */
+            align-items: center; /* Centraliza verticalmente */
+        }
 
-    /* Container geral da header */
-    .header-minimal {
-      width: 100%;
-      display: flex;
-      flex-direction: column; /* Organiza o topo e o bloco principal na vertical */
-    }
+        .top-bar-content {
+            max-width: 1200px; /* Largura máxima para o conteúdo */
+            margin: 0 auto; /* Centraliza o conteúdo */
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Centraliza verticalmente */
+            width: 100%; /* Ocupa toda a largura */
+            padding: 0 20px; /* Padding lateral */
+        }
 
-    /* Barra superior com a mensagem de desconto */
-    .top-message {
-      background-color: #005cff; /* Azul Royal */
-      color: #fff; /* Texto branco */
-      text-align: center;
-      padding: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
+        .contact-info {
+            display: flex;
+            align-items: center
+        }
 
-    /* Bloco principal da header */
-    .main-header {
-      width: 100%;
-      background-color: #ffffff; /* Fundo branco */
-      display: flex;
-      align-items: center; /* Centraliza verticalmente */
-      justify-content: space-between; /* Espaço entre logo, nav e carrinho */
-      padding: 10px 20px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Linha sutil abaixo */
-    }
+        .account-info {
+            display: flex; /* Usando flexbox para alinhar */
+            align-items: center; /* Centraliza verticalmente */
+        }
 
-    /* Logo */
-    .header-logo {
-      width: 150px; /* Ajuste se precisar maior/menor */
-      height: auto;
-    }
+        .account-info a,
+        .login-button {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.7rem; /* Tamanho da fonte padronizado */
+            padding: 10px 15px; /* Aumentando o padding do botão */
+            border: 1px solid white; /* Borda do botão */
+            border-radius: 5px; /* Bordas arredondadas */
+            transition: background 0.3s, color 0.3s; /* Transições suaves */
+            display: flex; /* Para centralização */
+            align-items: center; /* Centraliza verticalmente */
+        }
 
-    /* Navegação */
-    .nav-menu {
-      display: flex;
-      gap: 40px; /* Espaço horizontal entre os itens */
-      align-items: center;
-    }
+        .login-button {
+            background: none; /* Fundo transparente */
+        }
 
-    .nav-menu a {
-      text-decoration: none;
-      color: #333; /* Cor do texto do link */
-      display: flex;
-      flex-direction: column; /* Ícone em cima, texto embaixo */
-      align-items: center;
-      font-size: 0.8rem; /* Ajuste de tamanho da fonte */
-      transition: color 0.3s;
-    }
-
-    .nav-menu a:hover {
-      color: #005cff; /* Muda para o mesmo azul do topo ao passar o mouse */
-    }
-
-    /* Ícones da navegação */
-    .nav-icon {
-      width: 25px;
-      height: 25px;
-      margin-bottom: 5px; /* Distância entre ícone e texto */
-      object-fit: contain; /* Mantém a proporção */
-    }
-
-    /* Carrinho de compras */
-    .cart-container {
-      display: flex;
-      align-items: center;
-      background-color: #005cff; /* Fundo azul */
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer; /* Indica algo clicável */
-      transition: background-color 0.3s;
-    }
-
-    .cart-container:hover {
-      background-color: #0040c3; /* Azul levemente mais escuro no hover */
-    }
-
-    .cart-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-      filter: invert(100%); /* Garante que o ícone fique branco se for um SVG/PNG escuro */
-    }
-
-    .cart-text {
-      font-size: 0.8rem;
-      color: #ffffff;
-      font-weight: 500;
-    }
-  </style>
+        .login-button:hover {
+            background: white; /* Fundo claro no hover */
+            color: #07042F; /* Azul escuro no texto do hover */
+        }
+    </style>
 </head>
 <body>
 
-<!-- Início da Header Minimalista -->
-<div class="header-minimal">
-
-  <!-- Barra Superior: Mensagem de Desconto -->
-  <div class="top-message">
-    SUPER DESCONTO NO PIX: 5% de desconto para qualquer pedido.
-  </div>
-
-  <!-- Bloco Principal da Header -->
-  <div class="main-header">
-    <!-- Logo -->
-    <a href="#">
-      <img
-        src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png"
-        alt="Logo VMZ Viagens"
-        class="header-logo"
-      />
-    </a>
-
-    <!-- Menu de Navegação com Ícones -->
-    <nav class="nav-menu">
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Disney.png"
-          alt="Ingressos"
-          class="nav-icon"
-        />
-        Ingressos
-      </a>
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Universal.png"
-          alt="Universal"
-          class="nav-icon"
-        />
-        Universal
-      </a>
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Guia.png"
-          alt="Guia"
-          class="nav-icon"
-        />
-        Guia
-      </a>
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Carro.png"
-          alt="Carros"
-          class="nav-icon"
-        />
-        Carros
-      </a>
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel.png"
-          alt="Hotéis"
-          class="nav-icon"
-        />
-        Hotéis
-      </a>
-      <a href="#">
-        <img
-          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Seguro-Viagem.png"
-          alt="Seguro"
-          class="nav-icon"
-        />
-        Seguro
-      </a>
-    </nav>
-
-    <!-- Carrinho de Compras -->
-    <div class="cart-container">
-      <img
-        src="https://img.icons8.com/material-outlined/24/ffffff/shopping-cart.png"
-        alt="Carrinho"
-        class="cart-icon"
-      />
-      <span class="cart-text">02 Produtos</span>
+<!-- Barra Superior -->
+<div class="navbar">
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <div class="contact-info">
+                <span><b>SUPER DESCONTO NO PIX:</b> 5% de desconto para qualquer pedido.</span>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-<!-- Fim da Header Minimalista -->
 
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Fonte padrão */
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            box-sizing: border-box; /* Inclui padding e bordas no cálculo da largura */
+        }
+
+        /* Header */
+        .header-block {
+            display: flex;
+            align-items: center; /* Centraliza verticalmente */
+            justify-content: space-between; /* Espaço entre os itens */
+            padding: 10px 30px; /* Diminuindo o padding para altura menor */
+            background-color: #ffffff;
+            margin: 0; /* Remover margens */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Borda na parte inferior */
+            min-height: 70px; /* Definindo uma altura mínima para garantir centralização */
+        }
+
+        .logo {
+            width: 150px; /* Tamanho do logo */
+            height: auto; /* Mantém a proporção do logo */
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px; /* Espaçamento entre os links */
+            align-items: center; /* Centraliza os itens da nav */
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333; /* Cor igual à das outras partes */
+            padding: 5px; /* Diminuindo o padding dos links */
+            font-size: 0.9rem; /* Tamanho da fonte padronizado */
+            transition: color 0.3s; /* Transição suave para a cor */
+        }
+
+        .nav-link:hover {
+            color: #0056b3; /* Azul escuro no hover */
+        }
+
+        .dollar-quote {
+            font-size: 0.9rem; /* Tamanho da fonte padronizado */
+            color: #333; /* Cor do texto */
+            font-weight: 400; /* Peso normal */
+            padding: 8px 12px; /* Adicionando padding ao bloco da cotação */
+            border-radius: 20px; /* Bordas arredondadas para um estilo mais suave */
+            background-color: #e9ecef; /* Cor de fundo suave */
+            display: flex; /* Flexbox para alinhar */
+            align-items: center; /* Centralizando verticalmente */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Sombreamento leve */
+            border: 1px solid rgba(0, 0, 0, 0.1); /* Borda suave ao redor da cotação */
+            transition: background 0.3s; /* Efeito suave para hover */
+        }
+
+        .dollar-quote:hover {
+            background-color: #d0d0d0; /* Escurecendo a cor de fundo no hover */
+        }
+    </style>
+</head>
+<body>
+
+<!-- Bloco do Logo e Links -->
+<div class="header-block">
+    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png" class="logo" alt="Logo VMZ Viagens">
+    <div class="nav-links">
+        <a href="#" class="nav-link">Quem Somos</a>
+        <a href="#" class="nav-link">Blog</a>
+        <a href="#" class="nav-link">Depoimentos</a>
+        <a href="#" class="nav-link">Perguntas Frequentes</a>
+    </div>
+    <div class="dollar-quote">Cotação do Dólar: R$ 5,59</div>
+</div>
+
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VMZ Viagens - Navegação com Ícones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Fonte padrão */
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            box-sizing: border-box; /* Inclui padding e bordas no cálculo da largura */
+        }
+
+        /* Bloco de Navegação com Ícones */
+        header {
+            background-color: white;
+            padding: 10px 20px; /* Diminuindo o padding para altura menor */
+            display: flex;
+            justify-content: space-between; /* Espaço entre os itens */
+            align-items: center; /* Alinhando verticalmente */
+            margin: 0; /* Remover margens */
+        }
+
+        nav {
+            display: flex;
+            justify-content: flex-start; /* Alinhando itens à esquerda */
+            gap: 40px; /* Espaçamento uniforme entre os links */
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333; /* Cor dos ícones e textos dos links */
+            display: flex;
+            flex-direction: column; /* Alterando para coluna */
+            align-items: center; /* Centralizando os ícones e textos */
+            text-align: center; /* Centralizando o texto */
+            padding: 5px; /* Adicionando padding para espaço interno */
+            position: relative; /* Para o efeito de hover */
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #007bff; /* Azul no hover */
+        }
+
+        /* Adicionando a linha na parte inferior do link ativo */
+        nav a.active {
+            color: #007bff; /* Cor do texto ativo */
+        }
+
+        nav a.active::after {
+            content: ""; /* Necessário para adicionar um elemento */
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -5px; /* Distância da linha em relação ao texto */
+            height: 3px; /* Altura da linha */
+            background-color: #007bff; /* Cor da linha */
+            transition: all 0.3s; /* Transição suave */
+        }
+
+        .icon {
+            margin-bottom: 5px; /* Espaçamento entre o ícone e o texto */
+            width: 20px; /* Tamanho dos ícones */
+            height: 25px; /* Tamanho dos ícones */
+            object-fit: contain; /* Mantém a proporção da imagem */
+        }
+
+        .cart-container {
+            display: flex;
+            align-items: center; /* Alinhando verticalmente */
+            padding: 10px 15px; /* Espaçamento interno */
+            background-color: #007bff; /* Cor de fundo */
+            border-radius: 5px; /* Bordas arredondadas */
+            margin-left: auto; /* Empurrando para a direita */
+            border: 1px solid #007bff; /* Borda azul */
+            transition: background-color 0.3s; /* Efeito suave para hover */
+        }
+
+        .cart-container:hover {
+            background-color: #0056b3; /* Fundo mais escuro no hover */
+        }
+
+        .cart-icon {
+            width: 25px; /* Tamanho do ícone do carrinho */
+            height: 30px;
+            margin-right: 10px; /* Espaçamento à direita do ícone */
+        }
+
+        .cart-text {
+            font-size: 14px; /* Tamanho da fonte */
+            color: #FFFFFF; /* Cor do texto */
+        }
+    </style>
+</head>
+<body>
+
+<!-- Bloco de Navegação com Ícones -->
+<header>
+    <nav>
+        <a href="#"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Disney.png" class="icon" alt="Ingressos">Ingressos</a>
+        <a href="#"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Universal.png" class="icon" alt="Universal">Universal</a>
+        <a href="#"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Guia.png" class="icon" alt="Guia">Guia</a>
+        <a href="#"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Carro.png" class="icon" alt="Carros">Carros</a>
+        <a href="#" class="active"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel.png" class="icon" alt="Hotéis">Hotéis</a>
+        <a href="#"><img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Seguro-Viagem.png" class="icon" alt="Seguro">Seguro</a>
+    </nav>
+    <div class="cart-container">
+        <img src="https://img.icons8.com/material-outlined/30/ffffff/shopping-cart.png" class="cart-icon" alt="Carrinho">
+        <span class="cart-text">02 Produtos de compra</span>
+    </div>
+</header>
+
+</body>
+</html>
+
+
+
+Essa é minha header antiga quero que melhore muito no sentido de estar mais equilibrado e minimalista e quero também que o bloco superior tenha uma mensagem como:
+
+SUPER DESCONTO NO PIX: 5% de desconto para qualquer pedido.
