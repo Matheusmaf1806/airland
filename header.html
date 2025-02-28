@@ -1,213 +1,204 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Header 2 Blocos - VMZ Viagens (Estilo Apple)</title>
-    <!-- Fonte Montserrat -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Header Minimalista</title>
+  <!-- Fonte Montserrat -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Reinicio e configurações gerais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <style>
-        /* Reset básico */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f7f7f7; /* Cor de fundo padrão */
+    }
 
-        /* Configurações globais */
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f7f7f7;
-            line-height: 1.5; /* Maior espaçamento entre linhas para melhor leitura */
-        }
+    /* Container geral da header */
+    .header-minimal {
+      width: 100%;
+      display: flex;
+      flex-direction: column; /* Organiza o topo e o bloco principal na vertical */
+    }
 
-        /******** BLOCO 1: TOP BAR ********/
-        .top-bar {
-            width: 100%;
-            background-color: #005CFF;  /* Azul Royal */
-            color: #FFFFFF;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px 20px;          /* Aumentando o padding para mais conforto */
-            font-size: 1rem;            /* Equivalente a 16px (padrão de leitura em iOS/Apple) */
-            font-weight: 500;
-            text-align: center;
-        }
+    /* Barra superior com a mensagem de desconto */
+    .top-message {
+      background-color: #005cff; /* Azul Royal */
+      color: #fff; /* Texto branco */
+      text-align: center;
+      padding: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
 
-        /******** BLOCO 2: HEADER PRINCIPAL ********/
-        header.main-header {
-            background-color: #FFFFFF;
-            width: 100%;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra leve para destacar o header */
-        }
+    /* Bloco principal da header */
+    .main-header {
+      width: 100%;
+      background-color: #ffffff; /* Fundo branco */
+      display: flex;
+      align-items: center; /* Centraliza verticalmente */
+      justify-content: space-between; /* Espaço entre logo, nav e carrinho */
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Linha sutil abaixo */
+    }
 
-        .header-content {
-            max-width: 1200px;   /* Largura máxima do container */
-            margin: 0 auto;      /* Centraliza horizontalmente */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;  /* Aumento do espaçamento para melhor UX */
-        }
+    /* Logo */
+    .header-logo {
+      width: 150px; /* Ajuste se precisar maior/menor */
+      height: auto;
+    }
 
-        /* Logo */
-        .logo {
-            width: 160px;  /* Tamanho levemente maior para destaque */
-            height: auto;
-        }
+    /* Navegação */
+    .nav-menu {
+      display: flex;
+      gap: 40px; /* Espaço horizontal entre os itens */
+      align-items: center;
+    }
 
-        /* Navegação */
-        nav.nav-links {
-            display: flex;
-            gap: 40px;         /* Espaçamento entre os itens */
-            align-items: center;
-        }
+    .nav-menu a {
+      text-decoration: none;
+      color: #333; /* Cor do texto do link */
+      display: flex;
+      flex-direction: column; /* Ícone em cima, texto embaixo */
+      align-items: center;
+      font-size: 0.8rem; /* Ajuste de tamanho da fonte */
+      transition: color 0.3s;
+    }
 
-        nav.nav-links a {
-            text-decoration: none;
-            color: #333333;
-            display: flex;
-            flex-direction: column; /* Ícone em cima, texto embaixo */
-            align-items: center;    /* Centraliza ambos */
-            text-align: center;
-            font-size: 0.95rem;     /* Fica entre 15px e 16px, ideal para toque em telas menores */
-            position: relative;
-            transition: color 0.3s, transform 0.3s;
-        }
+    .nav-menu a:hover {
+      color: #005cff; /* Muda para o mesmo azul do topo ao passar o mouse */
+    }
 
-        nav.nav-links a:hover {
-            color: #005CFF;       /* Tom de azul */
-            transform: translateY(-2px); /* Efeito sutil de “flutuar” */
-        }
+    /* Ícones da navegação */
+    .nav-icon {
+      width: 25px;
+      height: 25px;
+      margin-bottom: 5px; /* Distância entre ícone e texto */
+      object-fit: contain; /* Mantém a proporção */
+    }
 
-        nav.nav-links a.active {
-            color: #005CFF;       /* Estado ativo */
-        }
+    /* Carrinho de compras */
+    .cart-container {
+      display: flex;
+      align-items: center;
+      background-color: #005cff; /* Fundo azul */
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer; /* Indica algo clicável */
+      transition: background-color 0.3s;
+    }
 
-        nav.nav-links a.active::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -6px;         /* Ajuste da posição da linha */
-            height: 2px;
-            width: 80%;           /* Largura da linha para destacar no estilo Apple */
-            background-color: #005CFF;
-            border-radius: 2px;
-        }
+    .cart-container:hover {
+      background-color: #0040c3; /* Azul levemente mais escuro no hover */
+    }
 
-        /* Ícones */
-        .icon {
-            width: 28px;
-            height: 28px;
-            object-fit: contain;
-            margin-bottom: 6px; /* Espaço entre o ícone e o texto */
-        }
+    .cart-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      filter: invert(100%); /* Garante que o ícone fique branco se for um SVG/PNG escuro */
+    }
 
-        /* Carrinho */
-        .cart-container {
-            display: flex;
-            align-items: center;
-            background-color: #005CFF; /* Fundo azul */
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: 1px solid #005CFF;
-            transition: background-color 0.3s;
-            cursor: pointer;           /* Indica que é clicável */
-        }
-
-        .cart-container:hover {
-            background-color: #0041CC; /* Fundo levemente mais escuro no hover */
-        }
-
-        .cart-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        .cart-text {
-            color: #FFFFFF;
-            font-size: 0.95rem; 
-        }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 16px;
-            }
-            nav.nav-links {
-                gap: 24px;
-                flex-wrap: wrap; /* Faz os itens quebrarem linha se necessário */
-                justify-content: center; /* Centraliza no mobile */
-            }
-        }
-
-    </style>
+    .cart-text {
+      font-size: 0.8rem;
+      color: #ffffff;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- BLOCO 1: Top Bar com destaque de desconto -->
-    <div class="top-bar">
-        SUPER DESCONTO NO PIX: 5% de desconto para qualquer pedido.
+<!-- Início da Header Minimalista -->
+<div class="header-minimal">
+
+  <!-- Barra Superior: Mensagem de Desconto -->
+  <div class="top-message">
+    SUPER DESCONTO NO PIX: 5% de desconto para qualquer pedido.
+  </div>
+
+  <!-- Bloco Principal da Header -->
+  <div class="main-header">
+    <!-- Logo -->
+    <a href="#">
+      <img
+        src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png"
+        alt="Logo VMZ Viagens"
+        class="header-logo"
+      />
+    </a>
+
+    <!-- Menu de Navegação com Ícones -->
+    <nav class="nav-menu">
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Disney.png"
+          alt="Ingressos"
+          class="nav-icon"
+        />
+        Ingressos
+      </a>
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Universal.png"
+          alt="Universal"
+          class="nav-icon"
+        />
+        Universal
+      </a>
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Guia.png"
+          alt="Guia"
+          class="nav-icon"
+        />
+        Guia
+      </a>
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Carro.png"
+          alt="Carros"
+          class="nav-icon"
+        />
+        Carros
+      </a>
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel.png"
+          alt="Hotéis"
+          class="nav-icon"
+        />
+        Hotéis
+      </a>
+      <a href="#">
+        <img
+          src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Seguro-Viagem.png"
+          alt="Seguro"
+          class="nav-icon"
+        />
+        Seguro
+      </a>
+    </nav>
+
+    <!-- Carrinho de Compras -->
+    <div class="cart-container">
+      <img
+        src="https://img.icons8.com/material-outlined/24/ffffff/shopping-cart.png"
+        alt="Carrinho"
+        class="cart-icon"
+      />
+      <span class="cart-text">02 Produtos</span>
     </div>
-
-    <!-- BLOCO 2: Header Principal com Logo, Navegação e Carrinho -->
-    <header class="main-header">
-        <div class="header-content">
-
-            <!-- Logo -->
-            <a href="#">
-                <img
-                    src="https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Lateralizado.png" 
-                    alt="Logo VMZ Viagens" 
-                    class="logo"
-                >
-            </a>
-
-            <!-- Navegação com Ícones -->
-            <nav class="nav-links">
-                <a href="#">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Disney.png" class="icon" alt="Ingressos">
-                    Ingressos
-                </a>
-                <a href="#">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Universal.png" class="icon" alt="Universal">
-                    Universal
-                </a>
-                <a href="#">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Guia.png" class="icon" alt="Guia">
-                    Guia
-                </a>
-                <a href="#">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Carro.png" class="icon" alt="Carros">
-                    Carros
-                </a>
-                <a href="#" class="active">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel.png" class="icon" alt="Hotéis">
-                    Hotéis
-                </a>
-                <a href="#">
-                    <img src="https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Seguro-Viagem.png" class="icon" alt="Seguro">
-                    Seguro
-                </a>
-            </nav>
-
-            <!-- Carrinho -->
-            <div class="cart-container">
-                <img
-                    src="https://img.icons8.com/material-outlined/30/ffffff/shopping-cart.png"
-                    alt="Carrinho"
-                    class="cart-icon"
-                >
-                <span class="cart-text">02 Produtos de compra</span>
-            </div>
-
-        </div>
-    </header>
+  </div>
+</div>
+<!-- Fim da Header Minimalista -->
 
 </body>
 </html>
