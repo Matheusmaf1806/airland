@@ -1676,3 +1676,234 @@ function esconderLoading() {
   </script>
 </body>
 </html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Ingressos - Estilo Bilhete (Único, Básico, Hopper)</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0; 
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2; 
+      padding: 30px;
+    }
+
+    /* Container principal: cor #2e3139 (pode trocar para #0068ef) */
+    .tickets-section {
+      background-color: #2e3139;  /* ou #0068ef se preferir */
+      padding: 40px 20px;
+      border-radius: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+
+      /* Três itens em uma só linha no desktop */
+      display: flex;
+      flex-wrap: nowrap;     /* não quebra linha se houver espaço */
+      gap: 30px;
+      justify-content: center;
+      overflow-x: auto;      /* se faltar espaço, rola horizontal */
+    }
+
+    /* Cada cartão de ingresso */
+    .ticket-bilhete {
+      width: 270px; 
+      background-color: #fff; 
+      color: #333;
+      position: relative;
+      border-radius: 12px; 
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+
+      /* Borda em volta do bilhete */
+      border: 2px solid #eee;
+      flex: 0 0 auto; /* garante que o item não se contraia */
+    }
+
+    .ticket-bilhete:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Recortes circulares nas laterais, simulando “furo” de bilhete */
+    .ticket-bilhete::before,
+    .ticket-bilhete::after {
+      content: "";
+      position: absolute;
+      width: 24px;  
+      height: 24px; 
+      background: #fff;
+      border-radius: 50%;
+      z-index: 2; 
+    }
+    /* “Furo” lateral esquerda */
+    .ticket-bilhete::before {
+      top: 50%;  
+      left: -12px; 
+      transform: translateY(-50%);
+    }
+    /* “Furo” lateral direita */
+    .ticket-bilhete::after {
+      top: 50%;
+      right: -12px;
+      transform: translateY(-50%);
+    }
+
+    /* Cabeçalho do ingresso: Logo + Título */
+    .ticket-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .ticket-logo img {
+      max-width: 130px;
+      height: auto;
+    }
+    .ticket-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #0b74c2; 
+      text-align: right;
+      flex: 1;
+      margin-left: 10px;
+    }
+
+    /* Conteúdo (texto descritivo) */
+    .ticket-content {
+      margin-bottom: 10px;
+    }
+    .ticket-content p {
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: #555;
+      margin-top: 8px;
+    }
+
+    /* Linha tracejada */
+    .ticket-dashed-line {
+      margin: 15px 0;
+      border-top: 1px dashed #ccc;
+    }
+
+    /* Código de barras / imagem de pagamento */
+    .ticket-barcode {
+      text-align: center;
+    }
+    .ticket-barcode img {
+      max-width: 160px;
+      height: auto;
+    }
+
+    /* Responsividade - se quiser forçar 1 linha mesmo no mobile, 
+       pode remover estas regras */
+    @media (max-width: 768px) {
+      .tickets-section {
+        flex-wrap: wrap;   /* agora quebra em múltiplas linhas no mobile */
+        justify-content: center;
+      }
+      .ticket-bilhete {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tickets-section">
+  <!-- Ingresso 1: Único -->
+  <div class="ticket-bilhete" onclick="selectTicket('Único')">
+    <div class="ticket-header">
+      <div class="ticket-logo">
+        <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png" 
+             alt="Walt Disney World Logo">
+      </div>
+      <h3 class="ticket-title">Único</h3>
+    </div>
+
+    <div class="ticket-content">
+      <p>
+        Permite visitar apenas 1 parque específico.
+        Ideal para quem quer uma experiência focada.
+      </p>
+    </div>
+
+    <div class="ticket-dashed-line"></div>
+
+    <div class="ticket-barcode">
+      <!-- Exemplo de imagem "pagamento seguro" -->
+      <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png"
+           alt="Pagamento Seguro">
+    </div>
+  </div>
+
+  <!-- Ingresso 2: Básico -->
+  <div class="ticket-bilhete" onclick="selectTicket('Básico')">
+    <div class="ticket-header">
+      <div class="ticket-logo">
+        <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png"
+             alt="Walt Disney World Logo">
+      </div>
+      <h3 class="ticket-title">Básico</h3>
+    </div>
+
+    <div class="ticket-content">
+      <p>
+        Permite visitar 1 parque por dia. 
+        Aproveite cada parque por completo, sem trocar no mesmo dia.
+      </p>
+    </div>
+
+    <div class="ticket-dashed-line"></div>
+
+    <div class="ticket-barcode">
+      <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png"
+           alt="Pagamento Seguro">
+    </div>
+  </div>
+
+  <!-- Ingresso 3: Hopper -->
+  <div class="ticket-bilhete" onclick="selectTicket('Hopper')">
+    <div class="ticket-header">
+      <div class="ticket-logo">
+        <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png"
+             alt="Walt Disney World Logo">
+      </div>
+      <h3 class="ticket-title">Hopper</h3>
+    </div>
+
+    <div class="ticket-content">
+      <p>
+        Permite “pular” entre os parques no mesmo dia. 
+        Ideal para quem quer ver mais atrações em menos tempo.
+      </p>
+    </div>
+
+    <div class="ticket-dashed-line"></div>
+
+    <div class="ticket-barcode">
+      <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png"
+           alt="Pagamento Seguro">
+    </div>
+  </div>
+</div>
+
+<script>
+  // Exemplo de função JavaScript para tratar o clique
+  function selectTicket(tipo) {
+    alert("Você selecionou o ingresso: " + tipo);
+    // Aqui você pode integrar com seu sistema,
+    // ex: selectedOptions.ticketType = tipo;
+  }
+</script>
+
+</body>
+</html>
