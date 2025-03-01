@@ -31,7 +31,6 @@
       flex-direction: column; /* Empilha o loader e o card verticalmente */
       align-items: center;    /* Centraliza horizontalmente */
       justify-content: flex-start; /* Alinhar ao topo */
-      gap: 2rem;             /* Espaço entre o loader e o card */
       max-width: 1200px;     /* Maior largura para preencher mais a tela */
       margin: 0 auto;        /* Centraliza no meio da página */
     }
@@ -228,12 +227,16 @@
   </style>
 </head>
 <body>
-
-  <!-- PUXANDO A HEADER.HTML -->
-  <!-- Exemplo em PHP:
-  <?php include("header.html"); ?>
-  -->
-  <!-- Caso seja outro ambiente (ASP, JSP, etc.), ajuste conforme necessário. -->
+  <!-- HEADER EXTERNO VIA FETCH -->
+  <div id="externalHeader"></div>
+  <script>
+    fetch("https://business.airland.com.br/header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("externalHeader").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header externa:", err));
+  </script>
 
   <!-- Container principal -->
   <div class="loading-container">
