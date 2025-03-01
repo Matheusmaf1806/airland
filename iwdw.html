@@ -125,48 +125,103 @@ body {
 }
 
 /**************************************************************************
- * PASSO 0 - TIPO DE INGRESSO
+ * PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT BILHETE)
  **************************************************************************/
-.ticket-container {
+.tickets-section {
+  padding: 40px 20px;
+  border-radius: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 30px;
+  flex-wrap: nowrap; /* 3 itens em 1 linha */
+  gap: 30px;
   justify-content: center;
+  overflow-x: auto; /* rolagem horizontal se precisar */
+  background: none; /* sem fundo extra */
 }
-.ticket {
-  flex: 1 1 250px;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  text-align: center;
-  padding: 25px 15px;
+.ticket-bilhete {
+  width: 270px;
+  background-color: #fff;
+  color: #333;
+  position: relative;
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
-  max-width: 320px;
+  border: 2px solid #eee; /* borda padrão */
+  flex: 0 0 auto; /* não encolhe */
 }
-.ticket:hover {
+.ticket-bilhete:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
-.ticket.selected {
-  border-color: #0b74c2;
-  box-shadow: 0 10px 30px rgba(11,116,194,0.3);
-  background-color: #edf6fb;
+.ticket-bilhete.selected {
+  border-color: #007aff !important;
+  box-shadow: 0 0 10px rgba(0,122,255,0.3);
+  transform: translateY(-8px);
+}
+/* “Furo” de bilhete */
+.ticket-bilhete::before,
+.ticket-bilhete::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 2;
+}
+.ticket-bilhete::before {
+  top: 50%;
+  left: -12px;
+  transform: translateY(-50%);
+}
+.ticket-bilhete::after {
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
 }
 .ticket-header {
-  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 15px;
-  color: #333;
 }
-.ticket p {
-  font-size: 0.95rem;
-  color: #777;
+.ticket-logo img {
+  max-width: 130px;
+  height: auto;
+}
+.ticket-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #0b74c2;
+  text-align: right;
+  flex: 1;
+  margin-left: 10px;
+}
+.ticket-content {
+  margin-bottom: 10px;
+}
+.ticket-content p {
+  font-size: 0.88rem;
   line-height: 1.4;
+  color: #555;
+  margin-top: 8px;
+}
+.ticket-dashed-line {
+  margin: 15px 0;
+  border-top: 1px dashed #ccc;
+}
+.ticket-barcode {
+  text-align: center;
+}
+.ticket-barcode img {
+  max-width: 160px;
+  height: auto;
 }
 
 /**************************************************************************
- * PASSO 1 - NÚMERO DE DIAS (.days-selector => .day)
+ * PASSO 02 - NÚMERO DE DIAS (.days-selector => .day)
  **************************************************************************/
 .days-selector-container {
   display: flex;
@@ -205,7 +260,7 @@ body {
 }
 
 /**************************************************************************
- * PASSO 2.1 - PARQUES (para Ingresso Único)
+ * PASSO 02.1 - PARQUES (para Ingresso Único)
  **************************************************************************/
 .park-selection {
   display: none;
@@ -531,15 +586,11 @@ body {
   .custom-ticket-form {
     margin: -30px auto 20px auto;
   }
-  .ticket-container,
   .ticket-section,
   .days-selector,
   .parks-container {
     flex-direction: column;
     align-items: center;
-  }
-  .ticket {
-    max-width: 100%;
   }
   .ticket-box {
     max-width: 100%;
@@ -716,23 +767,72 @@ body {
   <div class="custom-ticket-form">
     <div class="main-container">
 
-      <!-- PASSO 01 - TIPO DE INGRESSO -->
+      <!-- PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT) -->
       <h2>Passo 01 - Selecione o tipo de ingresso</h2>
       <p class="subtitle">Escolha o tipo de ingresso desejado e veja as regras de dias e validades.</p>
-      <div class="ticket-container">
-        <div class="ticket" data-type="Único" onclick="selectPark('Magic Kingdom', 'Único', '100',1)">
-          <div class="ticket-header">Ingresso Único</div>
-          <p>Escolha o parque que deseja visitar e selecione os dados específicos de sua visita.</p>
+
+      <div class="tickets-section">
+        <!-- Ingresso 1: Único -->
+        <div class="ticket-bilhete" onclick="selectTicket('Único','100',1,this)">
+          <div class="ticket-header">
+            <div class="ticket-logo">
+              <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png" alt="Walt Disney World Logo">
+            </div>
+            <h3 class="ticket-title">Único</h3>
+          </div>
+          <div class="ticket-content">
+            <p>
+              Permite visitar apenas 1 parque específico.
+              Ideal para quem quer uma experiência focada.
+            </p>
+          </div>
+          <div class="ticket-dashed-line"></div>
+          <div class="ticket-barcode">
+            <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
+          </div>
         </div>
-        <div class="ticket" data-type="Básico" onclick="selectTicket('Básico', '106',4)">
-          <div class="ticket-header">Ingresso Básico</div>
-          <p>Visite 1 parque por dia, sem necessidade de escolher previamente qual parque.</p>
+
+        <!-- Ingresso 2: Básico -->
+        <div class="ticket-bilhete" onclick="selectTicket('Básico','106',4,this)">
+          <div class="ticket-header">
+            <div class="ticket-logo">
+              <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png" alt="Walt Disney World Logo">
+            </div>
+            <h3 class="ticket-title">Básico</h3>
+          </div>
+          <div class="ticket-content">
+            <p>
+              Permite visitar 1 parque por dia. 
+              Aproveite cada parque por completo, sem trocar no mesmo dia.
+            </p>
+          </div>
+          <div class="ticket-dashed-line"></div>
+          <div class="ticket-barcode">
+            <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
+          </div>
         </div>
-        <div class="ticket" data-type="Hopper" onclick="selectTicket('Hopper','116',4)">
-          <div class="ticket-header">Ingresso Hopper</div>
-          <p>Permite visitar vários parques no mesmo dia, “pulando” de um parque para o outro.</p>
+
+        <!-- Ingresso 3: Hopper -->
+        <div class="ticket-bilhete" onclick="selectTicket('Hopper','116',4,this)">
+          <div class="ticket-header">
+            <div class="ticket-logo">
+              <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png" alt="Walt Disney World Logo">
+            </div>
+            <h3 class="ticket-title">Hopper</h3>
+          </div>
+          <div class="ticket-content">
+            <p>
+              Permite “pular” entre os parques no mesmo dia. 
+              Ideal para quem quer ver mais atrações em menos tempo.
+            </p>
+          </div>
+          <div class="ticket-dashed-line"></div>
+          <div class="ticket-barcode">
+            <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
+          </div>
         </div>
       </div>
+      <!-- FIM PASSO 01 -->
 
       <!-- PASSO 02 - SELEÇÃO DE DIAS -->
       <h2>Passo 02 - Selecione o Número de Dias</h2>
@@ -752,7 +852,7 @@ body {
         </div>
       </div>
 
-      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (Ingresso Único e 1 dia) -->
+      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (apenas para Ingresso Único e 1 dia) -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -846,56 +946,12 @@ body {
             <p id="total-price" class="price-bold"><strong>R$ 0,00</strong></p>
             <p class="pix-discount">Super desconto no Pix!</p>
             <p id="installment-price" class="installment-price">ou em 10x de R$ 0,00 no cartão</p>
+
             <!-- Primeiro Botão (classe .CartBtn) -->
             <button class="CartBtn">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <path
-                    fill="white"
-                    d="M1.55989957,5.41666667 L5.51582215,5.41666667 
-                      L4.47015462,0.108333333 L4.47015462,0.108333333 
-                      C4.47015462,0.0634601974 4.49708054,0.0249592654 
-                      4.5354546,0.00851337035 L4.57707145,0 L5.36229752,0 
-                      C5.43359776,0 5.50087375,0.028779451 5.55026392,
-                      0.0782711996 L5.59317877,0.134368264 L7.13659662,
-                      2.81558333 L8.29565964,2.81666667 C8.53185377,
-                      2.81666667 8.72332694,3.01067661 8.72332694,3.25 
-                      C8.72332694,3.48932339 8.53185377,3.68333333 
-                      8.29565964,3.68333333 L7.63589819,3.68225 
-                      L8.63450135,5.41666667 L11.9308317,5.41666667 
-                      C12.5213171,5.41666667 13,5.90169152 13,6.5 
-                      C13,7.09830848 12.5213171,7.58333333 11.9308317,
-                      7.58333333 L8.63450135,7.58333333 L7.63589819,
-                      9.31666667 L8.29565964,9.31666667 
-                      C8.53185377,9.31666667 8.72332694,9.51067661 
-                      8.72332694,9.75 C8.72332694,9.98932339 
-                      8.53185377,10.1833333 8.29565964,10.1833333 
-                      L7.13659662,10.1833333 L5.59317877,12.8656317 
-                      C5.55725264,12.9280353 5.49882018,12.9724157 
-                      5.43174295,12.9907056 L5.36229752,13 L4.57707145,
-                      13 L4.55610333,12.9978962 C4.51267695,12.9890959 
-                      4.48069792,12.9547924 4.47230803,12.9134397 
-                      L4.47223088,12.8704208 L5.51582215,7.58333333 
-                      L1.55989957,7.58333333 L0.891288881,8.55114605 
-                      C0.853775374,8.60544678 0.798421006,8.64327676 
-                      0.73629202,8.65879796 L0.672314689,8.66666667 
-                      L0.106844414,8.66666667 L0.0715243949,
-                      8.66058466 L0.0715243949,8.66058466 
-                      C0.0297243066,8.6457608 0.00275502199,
-                      8.60729104 0,8.5651586 L0.00593007386,
-                      8.52254537 L0.580855011,6.85813984 
-                      C0.64492547,6.67265611 0.6577034,6.47392717 
-                      0.619193545,6.28316421 L0.580694768,
-                      6.14191703 L0.00601851064,4.48064746 
-                      C0.00203480725,4.4691314 0,4.45701613 
-                      0,4.44481314 C0,4.39994001 0.0269259152,
-                      4.36143908 0.0652999725,4.34499318 
-                      L0.106916826,4.33647981 L0.672546853,
-                      4.33647981 C0.737865848,4.33647981 
-                      0.80011301,4.36066329 0.848265401,4.40322477 
-                      L0.89131128,4.45169723 
-                      L1.55989957,5.41666667 Z"
-                  ></path>
+                  <path fill="white" d="M1.55989957,5.41666667 ... L1.55989957,5.41666667 Z"></path>
                 </svg>
               </span>
               <p class="text">Comprar Ingresso</p>
@@ -915,16 +971,7 @@ body {
               </svg>
               Adicionar ao Carrinho
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
-                <path d="M211.8 0c7.8 0 14.3 5.7 16.7 13.2C240.8 51.9 
-                  277.1 80 320 80s79.2-28.1 91.5-66.8C413.9 5.7 
-                  420.4 0 428.2 0h12.6c22.5 0 44.2 7.9 61.5 22.3
-                  L628.5 127.4c6.6 5.5 10.7 13.5 11.4 22.1s-2.1 
-                  17.1-7.8 23.6l-56 64c-11.4 13.1-31.2 14.6-44.6 
-                  3.5L480 197.7V448c0 35.3-28.7 64-64 64H224c-35.3 
-                  0-64-28.7-64-64V197.7l-51.5 42.9c-13.3 11.1-33.1 
-                  9.6-44.6-3.5l-56-64c-5.7-6.5-8.5-15-7.8-23.6
-                  s4.8-16.6 11.4-22.1L137.7 22.3C155 7.9 176.7 
-                  0 199.2 0h12.6z"></path>
+                <path d="M211.8 0c7.8 0 14.3 5.7 ... 99.2 0h12.6z"></path>
               </svg>
             </button>
           </div>
@@ -943,11 +990,11 @@ body {
 
   <script>
     // Variáveis de estado
-  let selectedTicketUrl = '';
-  let counter = 0;
-  let ticketPrices = null;
-  let id_site = null;
-  let selectedOptions = {
+    let selectedTicketUrl = '';
+    let counter = 0;
+    let ticketPrices = null;
+    let id_site = null;
+    let selectedOptions = {
       ticketType: '',
       days: 0,
       adults: 0,
@@ -959,298 +1006,296 @@ body {
       startDate: null,
       endDate: null,
       selectedPark: ''
-  };
-  let isProcessing = false;
-  let carrinho = 0;
+    };
+    let isProcessing = false;
+    let carrinho = 0;
 
-  // Objeto para armazenar as opções selecionadas
-  selectedOptions = {
+    // Objeto para armazenar as opções selecionadas
+    selectedOptions = {
       adults: parseInt(document.getElementById("adult-ticket").value),
       children: parseInt(document.getElementById("child-ticket").value)
-  };
+    };
 
-  // Função para atualizar os valores do objeto selectedOptions
-  function updateSelectedOptions() {
+    // Função para atualizar os valores do objeto selectedOptions
+    function updateSelectedOptions() {
       selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
       selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
       console.log("Valores atualizados:", selectedOptions); // Para debug
-  }
+    }
 
-  // Função para consultar o token
-  async function getApiToken() {
+    // Função para consultar o token (exemplo)
+    async function getApiToken() {
       const response = await fetch('/wp-admin/admin-ajax.php?action=get_token');
       if (!response.ok) {
-          console.error('Erro ao obter o token:', response.statusText);
-          return null;
+        console.error('Erro ao obter o token:', response.statusText);
+        return null;
       }
       return await response.text();
-  }
+    }
 
-  // Busca a cotação mensal na API  
-  async function get_price_tickets(id_site, startDate, endDate) {
+    // Busca a cotação mensal na API  
+    async function get_price_tickets(id_site, startDate, endDate) {
       const url = "https://magictraveltur.com/wp-json/get-price/v1/price";
       const token = '@@Magic2024'; //await getApiToken();
       const data = { id_site:id_site, start_date: startDate, end_date: endDate };
       const timeout = 60000;
 
       const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout: A requisição demorou demais.')), timeout)
+        setTimeout(() => reject(new Error('Timeout: A requisição demorou demais.')), timeout)
       );
 
       try {
-          const response = await Promise.race([
-              fetch(url, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': token
-                  },
-                  body: JSON.stringify(data)
-              }),
-              timeoutPromise
-          ]);
+        const response = await Promise.race([
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token
+            },
+            body: JSON.stringify(data)
+          }),
+          timeoutPromise
+        ]);
 
-          if (!response.ok) {
-              console.error(`Erro: ${response.status} - ${await response.text()}`);
-              return null;
-          }
-
-          const result = await response.json();
-          return result;
-      } catch (error) {
-          console.error('Erro ao fazer a requisição:', error);
+        if (!response.ok) {
+          console.error(`Erro: ${response.status} - ${await response.text()}`);
           return null;
-      }
-  }
+        }
 
-  // Função para selecionar o tipo de ingresso
-  async function selectTicket(type, idSiteValue, day) {
-      if (counter == 1) {
-          document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-          const calendarGrid = document.getElementById('calendar-grid');
-          calendarGrid.innerHTML = '';
-          selectedOptions.days = 0;
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error('Erro ao fazer a requisição:', error);
+        return null;
       }
+    }
+
+    // Nova Função de Selecionar Ingresso - 4 parâmetros: (type, idSiteValue, day, el)
+    async function selectTicket(type, idSiteValue, day, el) {
+      if (counter == 1) {
+        document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+        const calendarGrid = document.getElementById('calendar-grid');
+        calendarGrid.innerHTML = '';
+        selectedOptions.days = 0;
+      }
+
       id_site = idSiteValue;
-      document.querySelectorAll('.ticket').forEach(ticket => ticket.classList.remove('selected'));
-      const selectedTicket = document.querySelector(`.ticket[data-type="${type}"]`);
-      selectedTicket.classList.add('selected');
+      // Remove 'selected' dos 3 bilhetes
+      document.querySelectorAll('.ticket-bilhete').forEach(ticket => ticket.classList.remove('selected'));
+      // Marca este bilhete como selecionado
+      if (el) el.classList.add('selected');
+
       selectedOptions.ticketType = type;
-      
+
       updateDaysOptions();
       selectDay(day);
-      if (type = 'Único'){
-          updateParkSelectionVisibility();
+      if (type === 'Único'){
+        updateParkSelectionVisibility();
       }
+
       if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
-          if (isProcessing) return;
-      
-          try {
-              isProcessing = true;
-              const loadingOverlay = document.getElementById("loadingOverlay");
-              loadingOverlay.style.display = "flex";
-              await generateCalendar(currentMonth, currentYear);
-          } finally {
-              isProcessing = false;
-              loadingOverlay.style.display = "none";
-          }
+        if (isProcessing) return;
+
+        try {
+          isProcessing = true;
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          loadingOverlay.style.display = "flex";
+          await generateCalendar(currentMonth, currentYear);
+        } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+        }
       }
       
       updateSummary();
-  }
+    }
 
-  // Função para obter dias disponíveis com base no tipo de ingresso
-  function getAvailableDays(ticketType) {
+    // Resto do código (funções selectDay, updateDaysOptions, etc.)
+    // ... (mantido igual)
+
+    function getAvailableDays(ticketType) {
       switch(ticketType) {
-          case 'Único':
-              return [1];
-          case 'Básico':
-              return [2, 3, 4, 5, 6, 7, 8, 9, 10];
-          case 'Hopper':
-              return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-          default:
-              return [];
+        case 'Único':
+          return [1];
+        case 'Básico':
+          return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+        case 'Hopper':
+          return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        default:
+          return [];
       }
-  }
+    }
 
-  // Função para atualizar as opções de dias com base no tipo de ingresso
-  function updateDaysOptions() {
+    function updateDaysOptions() {
       const availableDays = getAvailableDays(selectedOptions.ticketType);
       document.querySelectorAll('.day').forEach(dayElem => {
-          const day = parseInt(dayElem.textContent);
-          if (availableDays.includes(day)) {
-              dayElem.style.display = 'flex';
-          } else {
-              dayElem.style.display = 'none';
-              if (day === selectedOptions.days) {
-                  selectedOptions.days = 0;
-                  document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-              }
+        const day = parseInt(dayElem.textContent);
+        if (availableDays.includes(day)) {
+          dayElem.style.display = 'flex';
+        } else {
+          dayElem.style.display = 'none';
+          if (day === selectedOptions.days) {
+            selectedOptions.days = 0;
+            document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
           }
+        }
       });
-  }
+    }
 
-  // Função para selecionar o número de dias
-  async function selectDay(day) {
+    async function selectDay(day) {
+      // ... (mantido igual)
+      // Lógica do id_site etc.
       if ((id_site >= '104' && id_site <= '112') || id_site =='142'){
-          if (day == 2){id_site = '104';}
-          if (day == 3){id_site = '105';}
-          if (day == 4){
-              if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
-                  id_site = '142'
-              }
-              else{
-                  id_site = '106';
-              }
+        if (day == 2){id_site = '104';}
+        if (day == 3){id_site = '105';}
+        if (day == 4){
+          if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
+            id_site = '142';
+          } else {
+            id_site = '106';
           }
-          if (day == 5){id_site = '107';}
-          if (day == 6){id_site = '108';}
-          if (day == 7){id_site = '109';}
-          if (day == 8){id_site = '110';}
-          if (day == 9){id_site = '111';}
-          if (day == 10){id_site = '112';}           
+        }
+        if (day == 5){id_site = '107';}
+        if (day == 6){id_site = '108';}
+        if (day == 7){id_site = '109';}
+        if (day == 8){id_site = '110';}
+        if (day == 9){id_site = '111';}
+        if (day == 10){id_site = '112';}
       } 
-      
       if (id_site >= '113' && id_site <= '122'){
-          if (day == 1){id_site = '113';}
-          if (day == 2){id_site = '114';}
-          if (day == 3){id_site = '115';}
-          if (day == 4){id_site = '116';}
-          if (day == 5){id_site = '117';}
-          if (day == 6){id_site = '118';}
-          if (day == 7){id_site = '119';}
-          if (day == 8){id_site = '120';}
-          if (day == 9){id_site = '121';}
-          if (day == 10){id_site = '122';}            
+        if (day == 1){id_site = '113';}
+        if (day == 2){id_site = '114';}
+        if (day == 3){id_site = '115';}
+        if (day == 4){id_site = '116';}
+        if (day == 5){id_site = '117';}
+        if (day == 6){id_site = '118';}
+        if (day == 7){id_site = '119';}
+        if (day == 8){id_site = '120';}
+        if (day == 9){id_site = '121';}
+        if (day == 10){id_site = '122';}            
       }
-      
       if (id_site >= '123' && id_site <= '131'){
-          if (day == 2){id_site = '123';}
-          if (day == 3){id_site = '124';}
-          if (day == 4){id_site = '125';}
-          if (day == 5){id_site = '126';}
-          if (day == 6){id_site = '127';}
-          if (day == 7){id_site = '128';}
-          if (day == 8){id_site = '129';}
-          if (day == 9){id_site = '130';}
-          if (day == 10){id_site = '131';}           
+        if (day == 2){id_site = '123';}
+        if (day == 3){id_site = '124';}
+        if (day == 4){id_site = '125';}
+        if (day == 5){id_site = '126';}
+        if (day == 6){id_site = '127';}
+        if (day == 7){id_site = '128';}
+        if (day == 8){id_site = '129';}
+        if (day == 9){id_site = '130';}
+        if (day == 10){id_site = '131';}
       }
-      
       if (id_site >= '132' && id_site <= '141'){
-          if (day == 1){id_site = '132';}
-          if (day == 2){id_site = '133';}
-          if (day == 3){id_site = '134';}
-          if (day == 4){id_site = '135';}
-          if (day == 5){id_site = '136';}
-          if (day == 6){id_site = '137';}
-          if (day == 7){id_site = '138';}
-          if (day == 8){id_site = '139';}
-          if (day == 9){id_site = '140';}
-          if (day == 10){id_site = '141';}            
+        if (day == 1){id_site = '132';}
+        if (day == 2){id_site = '133';}
+        if (day == 3){id_site = '134';}
+        if (day == 4){id_site = '135';}
+        if (day == 5){id_site = '136';}
+        if (day == 6){id_site = '137';}
+        if (day == 7){id_site = '138';}
+        if (day == 8){id_site = '139';}
+        if (day == 9){id_site = '140';}
+        if (day == 10){id_site = '141';}            
       }
 
+      const calendarGrid = document.getElementById('calendar-grid');
       if (counter == 1) {
-          const calendarGrid = document.getElementById('calendar-grid');
-          calendarGrid.innerHTML = '';
+        calendarGrid.innerHTML = '';
       }
       const availableDays = getAvailableDays(selectedOptions.ticketType);
-      
+
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
       if (availableDays.length == 1){
-          selectedOptions.days = availableDays[0];
-
+        selectedOptions.days = availableDays[0];
       } else {
-          selectedOptions.days = day;
+        selectedOptions.days = day;
       }
 
-      document.querySelector(`.day[onclick="selectDay(${day})"]`).classList.add('active');      
-      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
-          if (isProcessing) return;
-      
-          try {
-              isProcessing = true;
-              const loadingOverlay = document.getElementById("loadingOverlay");
-              loadingOverlay.style.display = "flex";
-              await generateCalendar(currentMonth, currentYear);
-          } finally {
-              isProcessing = false;
-              loadingOverlay.style.display = "none";
-          }
-      }        
-      updateSummary();
-  }
+      document.querySelector(`.day[onclick="selectDay(${day})"]`).classList.add('active');
 
-  // Função para mostrar ou esconder a seleção de parques
-  function updateParkSelectionVisibility() {
+      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
+        if (isProcessing) return;
+        try {
+          isProcessing = true;
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          loadingOverlay.style.display = "flex";
+          await generateCalendar(currentMonth, currentYear);
+        } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+        }
+      }
+      updateSummary();
+    }
+
+    function updateParkSelectionVisibility() {
+      // ...
       const parkSelection = document.getElementById('park-selection');
       if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
-          parkSelection.style.display = 'flex';
+        parkSelection.style.display = 'flex';
       } else {
-          parkSelection.style.display = 'none';
-          selectedOptions.selectedPark = '';
-          document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
-          document.getElementById('selected-park-info').style.display = 'none';
+        parkSelection.style.display = 'none';
+        selectedOptions.selectedPark = '';
+        document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
+        document.getElementById('selected-park-info').style.display = 'none';
       }
-  }
+    }
 
-  // Função para selecionar o parque desejado
-  function selectPark(parkName, type, idSiteValue, day) {
+    function selectPark(parkName, type, idSiteValue, day) {
       document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
       const selectedPark = document.querySelector(`.park[data-type='${parkName}']`);
       selectedPark.classList.add('selected');
       selectedOptions.selectedPark = parkName;
-      selectTicket(type, idSiteValue, day);
+      selectTicket(type, idSiteValue, day, null);
       updateSummary();
-  }
+    }
 
-  // Funções para incrementar e decrementar ingressos
-  async function incrementTicket(type) {
-      if (isProcessing) return;     
+    async function incrementTicket(type) {
+      if (isProcessing) return;
       try {
-          isProcessing = true;        
-          const ticketInput = document.getElementById(`${type}-ticket`);
-          let count = parseInt(ticketInput.value);
-          ticketInput.value = ++count;
+        isProcessing = true;
+        const ticketInput = document.getElementById(`${type}-ticket`);
+        let count = parseInt(ticketInput.value);
+        ticketInput.value = ++count;
+        selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
+
+        updateSelectedOptions();
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "flex";
+        await generateCalendar(currentMonth, currentYear);
+        updateSummary();
+      } finally {
+        isProcessing = false;
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "none";
+      }
+    }
+
+    async function decrementTicket(type) {
+      if (isProcessing) return;
+      try {
+        isProcessing = true;
+        const ticketInput = document.getElementById(`${type}-ticket`);
+        let count = parseInt(ticketInput.value);
+
+        if (count > 0) {
+          ticketInput.value = --count;
           selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-              
+
           updateSelectedOptions();
           const loadingOverlay = document.getElementById("loadingOverlay");
           loadingOverlay.style.display = "flex";
           await generateCalendar(currentMonth, currentYear);
           updateSummary();
+        }
       } finally {
-          isProcessing = false;
-          loadingOverlay.style.display = "none";
+        isProcessing = false;
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "none";
       }
-  }
+    }
 
-  async function decrementTicket(type) {
-      if (isProcessing) return;
-          
-      try {
-          isProcessing = true;
-              
-          const ticketInput = document.getElementById(`${type}-ticket`);
-          let count = parseInt(ticketInput.value);
-              
-          if (count > 0) {
-              ticketInput.value = --count;
-              selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-                  
-              updateSelectedOptions();
-              const loadingOverlay = document.getElementById("loadingOverlay");
-              loadingOverlay.style.display = "flex";
-              await generateCalendar(currentMonth, currentYear);
-              updateSummary();
-          }
-      } finally {
-          isProcessing = false;
-          loadingOverlay.style.display = "none";
-      }
-  }
-
-  // Função para atualizar o resumo de seleção e preços
-  function updateSummary() {
+    function updateSummary() {
       const adultCount = selectedOptions.adults;
       const childCount = selectedOptions.children;
       const totalPeople = adultCount + childCount;
@@ -1263,234 +1308,201 @@ body {
       document.getElementById('selected-days').textContent = days || 0;
       document.getElementById('totalPeople').textContent = totalPeople;
 
-      // Atualiza a validade
       updateValidity();
 
-      // Calcula o preço total
       let totalPrice = 0;
       totalPrice = selectedOptions.adults * selectedOptions.price_adult + selectedOptions.children * selectedOptions.price_chd || 0;
 
-      if (days==0){
-          document.getElementById('usage-period').innerText = "Não selecionado";
-          totalPrice = 0;
+      if (days == 0) {
+        document.getElementById('usage-period').innerText = "Não selecionado";
+        totalPrice = 0;
       }
 
       document.getElementById('total-price').innerHTML = `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
-      document.getElementById('installment-price').textContent = `ou em 10x de R$ ${(totalPrice * (1 + TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')} no cartão`;
-  }
+      document.getElementById('installment-price').textContent =
+        `ou em 10x de R$ ${(totalPrice * (1 + TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')} no cartão`;
+    }
 
-// Função para mostrar o overlay (coloca 'display: block')
-function mostrarLoading() {
-  const overlay = document.getElementById("loadingOverlay");
-  if (overlay) {
-    overlay.style.display = "block";
-  }
-}
+    function mostrarLoading() {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) {
+        overlay.style.display = "block";
+      }
+    }
+    function esconderLoading() {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) {
+        overlay.style.display = "none";
+      }
+    }
 
-// Função para esconder o overlay (coloca 'display: none')
-function esconderLoading() {
-  const overlay = document.getElementById("loadingOverlay");
-  if (overlay) {
-    overlay.style.display = "none";
-  }
-}
-
-
-  // Função para atualizar a validade com base na data selecionada e dias
-  function updateValidity() {
+    function updateValidity() {
       const startDate = selectedOptions.startDate;
       let endDate = null;
       let validityText = "Não selecionado";
       if (startDate && selectedOptions.days) {
-          endDate = new Date(startDate);
+        endDate = new Date(startDate);
 
-          switch (selectedOptions.days) {
-              case 2:
-                  endDate.setDate(endDate.getDate() + 3); 
-                  break;
-              case 3:
-                  endDate.setDate(endDate.getDate() + 4); 
-                  break;
-              case 4:
-                  endDate.setDate(endDate.getDate() + 6);
-                  break;
-              case 5:
-                  endDate.setDate(endDate.getDate() + 7);
-                  break;
-              case 6:
-                  endDate.setDate(endDate.getDate() + 9);
-                  break;
-              case 7:
-                  endDate.setDate(endDate.getDate() + 10);
-                  break;
-              case 8:
-                  endDate.setDate(endDate.getDate() + 11);
-                  break;
-              case 9:
-                  endDate.setDate(endDate.getDate() + 12);
-                  break;
-              case 10:
-                  endDate.setDate(endDate.getDate() + 13);
-                  break;
-              default:
-                  // ...
-                  break;
-          }
-          if (endDate) {
-              selectedOptions.endDate = endDate;
-              const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-              const formattedStartDate = startDate.toLocaleDateString('pt-BR', options);
-              const formattedEndDate = endDate.toLocaleDateString('pt-BR', options);
-              validityText = `${formattedStartDate} até ${formattedEndDate}`;
-          }
-      }    
-
+        switch (selectedOptions.days) {
+          case 2:  endDate.setDate(endDate.getDate() + 3);  break;
+          case 3:  endDate.setDate(endDate.getDate() + 4);  break;
+          case 4:  endDate.setDate(endDate.getDate() + 6);  break;
+          case 5:  endDate.setDate(endDate.getDate() + 7);  break;
+          case 6:  endDate.setDate(endDate.getDate() + 9);  break;
+          case 7:  endDate.setDate(endDate.getDate() + 10); break;
+          case 8:  endDate.setDate(endDate.getDate() + 11); break;
+          case 9:  endDate.setDate(endDate.getDate() + 12); break;
+          case 10: endDate.setDate(endDate.getDate() + 13); break;
+          default: /* ... */ break;
+        }
+        if (endDate) {
+          selectedOptions.endDate = endDate;
+          const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+          const formattedStartDate = startDate.toLocaleDateString('pt-BR', options);
+          const formattedEndDate = endDate.toLocaleDateString('pt-BR', options);
+          validityText = `${formattedStartDate} até ${formattedEndDate}`;
+        }
+      }
       document.getElementById('usage-period').innerText = validityText;
-  }
+    }
 
-  // Função para selecionar uma data
-  function selectDate(year, month, day) {
+    function selectDate(year, month, day) {
       const selectedDate = new Date(year, month, day);
       selectedOptions.startDate = selectedDate;
-      
+
       document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-          card.classList.remove('selected', 'valid');
+        card.classList.remove('selected', 'valid');
       });
 
       const clickedDay = event.currentTarget;
       clickedDay.classList.add('selected');
 
       const formattedDate = selectedDate.toISOString().split('T')[0];
-      const ticket = Object.values(ticketPrices).find(ticket => 
-          ticket.forDate === formattedDate && ticket.price_type === 'ADULTO'
+      const ticket = Object.values(ticketPrices).find(t => 
+        t.forDate === formattedDate && t.price_type === 'ADULTO'
       );
-
-      const ticket_chd = Object.values(ticketPrices).find(ticket_chd => 
-          ticket_chd.forDate === formattedDate && ticket_chd.price_type === 'CRIANÇA'
+      const ticket_chd = Object.values(ticketPrices).find(tc => 
+        tc.forDate === formattedDate && tc.price_type === 'CRIANÇA'
       );
 
       if (ticket && !isNaN(parseFloat(ticket.price))) {
-          selectedOptions.price_adult = parseFloat(ticket.price);
-          selectedOptions.id_adult = parseFloat(ticket.ID);
+        selectedOptions.price_adult = parseFloat(ticket.price);
+        selectedOptions.id_adult = parseFloat(ticket.ID);
       } else {
-          selectedOptions.price_adult = 0;
-          selectedOptions.id_adult = 0;
-          console.warn('Adult ticket price not available for selected date');
+        selectedOptions.price_adult = 0;
+        selectedOptions.id_adult = 0;
+        console.warn('Adult ticket price not available for selected date');
       }
 
       if (ticket_chd && !isNaN(parseFloat(ticket_chd.price))) {
-          selectedOptions.price_chd = parseFloat(ticket_chd.price);
-          selectedOptions.id_chd = parseFloat(ticket_chd.ID);
+        selectedOptions.price_chd = parseFloat(ticket_chd.price);
+        selectedOptions.id_chd = parseFloat(ticket_chd.ID);
       } else {
-          selectedOptions.price_chd = 0;
-          selectedOptions.id_chd = 0;
-          console.warn('Child ticket price not available for selected date');
+        selectedOptions.price_chd = 0;
+        selectedOptions.id_chd = 0;
+        console.warn('Child ticket price not available for selected date');
       }
 
       updateValidity();
       updateCalendarSelection();
       updateSummary();
-  }
+    }
 
-  // Atualiza a seleção visual no calendário
-  function updateCalendarSelection() {
+    function updateCalendarSelection() {
       const startDate = selectedOptions.startDate;
       const endDate = selectedOptions.endDate;
       const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
 
       dayCards.forEach(card => {
-          const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-          const cardDate = new Date(currentYear, currentMonth, dayNumber);
-          card.classList.remove('selected', 'valid');
+        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
+        const cardDate = new Date(currentYear, currentMonth, dayNumber);
+        card.classList.remove('selected', 'valid');
 
-          if (startDate) {
-              if (cardDate.getTime() === startDate.getTime()) {
-                  card.classList.add('selected');
-              } else if (cardDate > startDate && cardDate <= endDate) {
-                  card.classList.add('valid');
-              }
+        if (startDate) {
+          if (cardDate.getTime() === startDate.getTime()) {
+            card.classList.add('selected');
+          } else if (cardDate > startDate && cardDate <= endDate) {
+            card.classList.add('valid');
           }
+        }
       });
-  }
+    }
 
-  // Funções para navegação e geração de calendário
-  let currentMonth = new Date().getMonth();
-  let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
 
-  async function prevMonth() {
-      if (isProcessing) return;        
+    async function prevMonth() {
+      if (isProcessing) return;
       try {
-          isProcessing = true;
-          currentMonth--;
-          if (currentMonth < 0) {
-              currentMonth = 11;
-              currentYear--;
-          }
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
-          await generateCalendar(currentMonth, currentYear);
+        isProcessing = true;
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "flex";
+        await generateCalendar(currentMonth, currentYear);
       } finally {
-          isProcessing = false;
-          loadingOverlay.style.display = "none";
+        isProcessing = false;
+        loadingOverlay.style.display = "none";
       }
-  }
+    }
 
-  async function nextMonth() {
-      if (isProcessing) return;        
+    async function nextMonth() {
+      if (isProcessing) return;
       try {
-          isProcessing = true;
-          currentMonth++;
-          if (currentMonth > 11) {
-              currentMonth = 0;
-              currentYear++;
-          }
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
-          await generateCalendar(currentMonth, currentYear);
+        isProcessing = true;
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "flex";
+        await generateCalendar(currentMonth, currentYear);
       } finally {
-          isProcessing = false;
-          loadingOverlay.style.display = "none";
+        isProcessing = false;
+        loadingOverlay.style.display = "none";
       }
-  }
+    }
 
-  async function generateCalendar(month, year) {
+    async function generateCalendar(month, year) {
       const calendarGrid = document.getElementById('calendar-grid');
-      calendarGrid.innerHTML = ''; // Limpa o calendário anterior
-      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      calendarGrid.innerHTML = '';
+      const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho',
+                          'Agosto','Setembro','Outubro','Novembro','Dezembro'];
       document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
 
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
 
-      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
-      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-      
-      if (id_site == 106 || id_site == 142){
-          if (month ==0 || month == 1 || month == 2){
-              id_site = 142;
-          }
-          else{
-              id_site = 106;
-          }
+      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
+      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
+
+      if (id_site == 106 || id_site == 142) {
+        if (month == 0 || month == 1 || month == 2){
+          id_site = 142;
+        } else {
+          id_site = 106;
+        }
       }
 
       ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
-                        
-      // Adiciona dias vazios para alinhar corretamente
+
+      // Dias vazios para alinhar
       for (let i = 0; i < firstDay.getDay(); i++) {
-          const emptyDay = document.createElement('div');
-          emptyDay.classList.add('day-card', 'empty');
-          calendarGrid.appendChild(emptyDay);
+        const emptyDay = document.createElement('div');
+        emptyDay.classList.add('day-card', 'empty');
+        calendarGrid.appendChild(emptyDay);
       }
 
-      // Adiciona os dias do mês
-      for (let day = 1; day <= lastDay.getDate(); day++) {
-          const dayCard = document.createElement('div');
-          dayCard.classList.add('day-card');
-          dayCard.innerHTML = `<div class="day-number">${day}</div>`;
-          dayCard.onclick = () => selectDate(year, month, day);
-          calendarGrid.appendChild(dayCard);
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dayCard = document.createElement('div');
+        dayCard.classList.add('day-card');
+        dayCard.innerHTML = `<div class="day-number">${d}</div>`;
+        dayCard.onclick = () => selectDate(year, month, d);
+        calendarGrid.appendChild(dayCard);
       }
 
       startDate = firstDay;
@@ -1498,32 +1510,26 @@ function esconderLoading() {
       const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
 
       dayCards.forEach(card => {
-          const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-          const cardDate = new Date(currentYear, currentMonth, dayNumber);
-          card.classList.remove('selected', 'valid');
+        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
+        const cardDate = new Date(currentYear, currentMonth, dayNumber);
+        card.classList.remove('selected','valid');
 
-          const formattedCardDate = cardDate.toISOString().split('T')[0];
+        const formattedCardDate = cardDate.toISOString().split('T')[0];
+        const ticket = Object.values(ticketPrices || {}).find(t => 
+          t?.forDate === formattedCardDate && t?.price_type === 'ADULTO'
+        );
+        const ticket_chd = Object.values(ticketPrices || {}).find(tc => 
+          tc?.forDate === formattedCardDate && tc?.price_type === 'CRIANÇA'
+        );
+        const pricePerAdult = ticket && ticket.price ? parseFloat(ticket.price)*selectedOptions.adults : 0;
+        const pricePerChild = ticket_chd && ticket_chd.price ? parseFloat(ticket_chd.price)*selectedOptions.children : 0;
+        const pricePerDay = pricePerAdult + pricePerChild;
 
-          // Busca o preço "ADULTO" para a data do card
-          const ticket = Object.values(ticketPrices || {}).find(ticket => 
-              ticket?.forDate === formattedCardDate && ticket?.price_type === 'ADULTO'
-          );
-          
-          // Busca o preço "CRIANÇA" para a data do card
-          const ticket_chd = Object.values(ticketPrices || {}).find(ticket_chd => 
-              ticket_chd?.forDate === formattedCardDate && ticket_chd?.price_type === 'CRIANÇA'
-          );
-
-          const pricePerAdult = ticket && ticket.price ? parseFloat(ticket.price) * selectedOptions.adults : 0;
-          const pricePerChild = ticket_chd && ticket_chd.price ? parseFloat(ticket_chd.price) * selectedOptions.children : 0;
-          const pricePerDay = pricePerAdult + pricePerChild;
-
-          // Atualiza o conteúdo do card
-          card.innerHTML = `<div class="day-number">${dayNumber}</div>
-                            <div class="price-info">R$ ${pricePerDay.toFixed(2).replace('.', ',')}</div>
-                            <small>Ou em 10x de R$ ${(pricePerDay * (1+ TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')}</small>`;
+        card.innerHTML = `<div class="day-number">${dayNumber}</div>
+                          <div class="price-info">R$ ${pricePerDay.toFixed(2).replace('.', ',')}</div>
+                          <small>Ou em 10x de R$ ${(pricePerDay*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.',',')}</small>`;
       });
-  }
+    }
 
   // Adiciona ao Carrinho
   async function addToCart() {
