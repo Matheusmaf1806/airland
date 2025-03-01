@@ -11,17 +11,14 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
   />
-
-  <!-- CSS externo (layout) -->
-  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body style="margin: 0; padding: 0;">
 
 <style>
 /**************************************************************************
  * RESET / BASE
  **************************************************************************/
- * {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -105,7 +102,7 @@ body {
  **************************************************************************/
 .custom-ticket-form {
   max-width: 1200px;
-  margin: 40px auto 40px auto; /* puxa sobre o banner */
+  margin: 40px auto 40px auto;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.07);
@@ -501,7 +498,7 @@ body {
 }
 
 /**************************************************************************
- * OVERLAY DE CARREGAMENTO
+ * OVERLAY DE CARREGAMENTO (IFRAME)
  **************************************************************************/
 #loadingOverlay {
   display: none;
@@ -517,6 +514,11 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 9999;
+}
+#loadingOverlay iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 /**************************************************************************
@@ -556,22 +558,132 @@ body {
     margin-bottom: 20px;
   }
 }
-    /**************************************************************
-     * OVERLAY DE CARREGAMENTO USANDO IFRAME
-    **************************************************************/
-    #loadingOverlay {
-      display: none;
-      position: fixed; 
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 9999;
-    }
-    #loadingOverlay iframe {
-      width: 100%; 
-      height: 100%;
-      border: none;
-    }
+
+/**********************************************************************
+ * Ajuste para os 2 BOTOES terem MESMO TAMANHO (155x50) E BORDAS (12px)
+ **********************************************************************/
+
+/* BOTÃO 1 (.CartBtn) */
+.CartBtn {
+  width: 155px;
+  height: 50px;
+  border-radius: 12px;
+  border: none;
+  background-color: rgb(0, 76, 255); /* Azul */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.5s;
+  overflow: hidden;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.103);
+  position: relative;
+}
+.IconContainer {
+  position: absolute;
+  left: -50px;
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.5s;
+}
+.icon {
+  border-radius: 1px;
+}
+.text {
+  height: 100%;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255, 255, 255);
+  z-index: 1;
+  transition-duration: 0.5s;
+  font-size: 1.04em;
+  font-weight: 600;
+}
+.CartBtn:hover .IconContainer {
+  transform: translateX(58px);
+  border-radius: 40px;
+  transition-duration: 0.5s;
+}
+.CartBtn:hover .text {
+  transform: translate(10px, 0px);
+  transition-duration: 0.5s;
+}
+.CartBtn:active {
+  transform: scale(0.95);
+  transition-duration: 0.5s;
+}
+
+/* BOTÃO 2 (.cartBtn) */
+.cartBtn {
+  width: 155px;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: white;
+  font-weight: 500;
+  position: relative;
+  background-color: rgb(29, 29, 29); /* Cinza */
+  box-shadow: 0 20px 30px -7px rgba(27, 27, 27, 0.219);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  overflow: hidden;
+}
+.cart {
+  z-index: 2;
+}
+.cartBtn:active {
+  transform: scale(0.96);
+}
+.product {
+  position: absolute;
+  width: 12px;
+  border-radius: 3px;
+  content: "";
+  left: 23px;
+  bottom: 23px;
+  opacity: 0;
+  z-index: 1;
+  fill: rgb(211, 211, 211);
+}
+.cartBtn:hover .product {
+  animation: slide-in-top 1.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+@keyframes slide-in-top {
+  0% {
+    transform: translateY(-30px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(-90deg);
+    opacity: 1;
+  }
+}
+.cartBtn:hover .cart {
+  animation: slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 </style>
 
   <!-- HEADER EXTERNO VIA FETCH -->
@@ -733,8 +845,87 @@ body {
             <p id="total-price" class="price-bold"><strong>R$ 0,00</strong></p>
             <p class="pix-discount">Super desconto no Pix!</p>
             <p id="installment-price" class="installment-price">ou em 10x de R$ 0,00 no cartão</p>
-            <button class="buy-btn" onclick="checkout()">Comprar</button>
-            <button class="add-cart-btn" onclick="addToCart()">Adicionar ao Carrinho</button>
+            <!-- Primeiro Botão (classe .CartBtn) -->
+            <button class="CartBtn">
+              <span class="IconContainer">
+                <svg viewBox="0 0 13 13" width="18px">
+                  <path
+                    fill="white"
+                    d="M1.55989957,5.41666667 L5.51582215,5.41666667 
+                      L4.47015462,0.108333333 L4.47015462,0.108333333 
+                      C4.47015462,0.0634601974 4.49708054,0.0249592654 
+                      4.5354546,0.00851337035 L4.57707145,0 L5.36229752,0 
+                      C5.43359776,0 5.50087375,0.028779451 5.55026392,
+                      0.0782711996 L5.59317877,0.134368264 L7.13659662,
+                      2.81558333 L8.29565964,2.81666667 C8.53185377,
+                      2.81666667 8.72332694,3.01067661 8.72332694,3.25 
+                      C8.72332694,3.48932339 8.53185377,3.68333333 
+                      8.29565964,3.68333333 L7.63589819,3.68225 
+                      L8.63450135,5.41666667 L11.9308317,5.41666667 
+                      C12.5213171,5.41666667 13,5.90169152 13,6.5 
+                      C13,7.09830848 12.5213171,7.58333333 11.9308317,
+                      7.58333333 L8.63450135,7.58333333 L7.63589819,
+                      9.31666667 L8.29565964,9.31666667 
+                      C8.53185377,9.31666667 8.72332694,9.51067661 
+                      8.72332694,9.75 C8.72332694,9.98932339 
+                      8.53185377,10.1833333 8.29565964,10.1833333 
+                      L7.13659662,10.1833333 L5.59317877,12.8656317 
+                      C5.55725264,12.9280353 5.49882018,12.9724157 
+                      5.43174295,12.9907056 L5.36229752,13 L4.57707145,
+                      13 L4.55610333,12.9978962 C4.51267695,12.9890959 
+                      4.48069792,12.9547924 4.47230803,12.9134397 
+                      L4.47223088,12.8704208 L5.51582215,7.58333333 
+                      L1.55989957,7.58333333 L0.891288881,8.55114605 
+                      C0.853775374,8.60544678 0.798421006,8.64327676 
+                      0.73629202,8.65879796 L0.672314689,8.66666667 
+                      L0.106844414,8.66666667 L0.0715243949,
+                      8.66058466 L0.0715243949,8.66058466 
+                      C0.0297243066,8.6457608 0.00275502199,
+                      8.60729104 0,8.5651586 L0.00593007386,
+                      8.52254537 L0.580855011,6.85813984 
+                      C0.64492547,6.67265611 0.6577034,6.47392717 
+                      0.619193545,6.28316421 L0.580694768,
+                      6.14191703 L0.00601851064,4.48064746 
+                      C0.00203480725,4.4691314 0,4.45701613 
+                      0,4.44481314 C0,4.39994001 0.0269259152,
+                      4.36143908 0.0652999725,4.34499318 
+                      L0.106916826,4.33647981 L0.672546853,
+                      4.33647981 C0.737865848,4.33647981 
+                      0.80011301,4.36066329 0.848265401,4.40322477 
+                      L0.89131128,4.45169723 
+                      L1.55989957,5.41666667 Z"
+                  ></path>
+                </svg>
+              </span>
+              <p class="text">Comprar</p>
+            </button>
+
+            <!-- Segundo Botão (classe .cartBtn) -->
+            <button class="cartBtn">
+              <svg class="cart" fill="white" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 
+                  50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 
+                  31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 
+                  19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 
+                  24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8
+                  -4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 
+                  48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 
+                  0 96 48 48 0 1 1 0-96z"></path>
+              </svg>
+              ADD TO CART
+              <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
+                <path d="M211.8 0c7.8 0 14.3 5.7 16.7 13.2C240.8 51.9 
+                  277.1 80 320 80s79.2-28.1 91.5-66.8C413.9 5.7 
+                  420.4 0 428.2 0h12.6c22.5 0 44.2 7.9 61.5 22.3
+                  L628.5 127.4c6.6 5.5 10.7 13.5 11.4 22.1s-2.1 
+                  17.1-7.8 23.6l-56 64c-11.4 13.1-31.2 14.6-44.6 
+                  3.5L480 197.7V448c0 35.3-28.7 64-64 64H224c-35.3 
+                  0-64-28.7-64-64V197.7l-51.5 42.9c-13.3 11.1-33.1 
+                  9.6-44.6-3.5l-56-64c-5.7-6.5-8.5-15-7.8-23.6
+                  s4.8-16.6 11.4-22.1L137.7 22.3C155 7.9 176.7 
+                  0 199.2 0h12.6z"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
