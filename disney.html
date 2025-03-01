@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <title>Ingressos - Estilo Bilhete (Único, Básico, Hopper)</title>
+  <title>Ingressos - Bilhete (Selecionável)</title>
   <style>
     /* Reset básico */
     * {
@@ -16,21 +16,18 @@
       padding: 30px;
     }
 
-    /* Container principal: cor #2e3139 (pode trocar para #0068ef) */
+    /* Container principal: cor #2e3139 (pode trocar para #0068ef se quiser) */
     .tickets-section {
-      background-color: #2e3139;  /* ou #0068ef se preferir */
       padding: 40px 20px;
       border-radius: 20px;
       max-width: 1200px;
       margin: 0 auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-
-      /* Três itens em uma só linha no desktop */
+      /* 3 itens numa linha */
       display: flex;
-      flex-wrap: nowrap;     /* não quebra linha se houver espaço */
+      flex-wrap: nowrap;
       gap: 30px;
       justify-content: center;
-      overflow-x: auto;      /* se faltar espaço, rola horizontal */
+      overflow-x: auto; /* se faltar espaço, rola horizontal *//
     }
 
     /* Cada cartão de ingresso */
@@ -43,15 +40,20 @@
       padding: 20px;
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
-
-      /* Borda em volta do bilhete */
-      border: 2px solid #eee;
-      flex: 0 0 auto; /* garante que o item não se contraia */
+      border: 2px solid #eee; /* borda padrão */
+      flex: 0 0 auto; /* garante que não encolha */
     }
 
     .ticket-bilhete:hover {
       transform: translateY(-5px);
       box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Quando selecionado, ganha destaque */
+    .ticket-bilhete.selected {
+      border-color: #007aff !important;
+      box-shadow: 0 0 10px rgba(0,122,255,0.3);
+      transform: translateY(-8px);
     }
 
     /* Recortes circulares nas laterais, simulando “furo” de bilhete */
@@ -124,11 +126,10 @@
       height: auto;
     }
 
-    /* Responsividade - se quiser forçar 1 linha mesmo no mobile, 
-       pode remover estas regras */
+    /* Responsividade */
     @media (max-width: 768px) {
       .tickets-section {
-        flex-wrap: wrap;   /* agora quebra em múltiplas linhas no mobile */
+        flex-wrap: wrap;  /* agora quebra em várias linhas no mobile */
         justify-content: center;
       }
       .ticket-bilhete {
@@ -141,7 +142,7 @@
 
 <div class="tickets-section">
   <!-- Ingresso 1: Único -->
-  <div class="ticket-bilhete" onclick="selectTicket('Único')">
+  <div class="ticket-bilhete" onclick="selectTicket(this, 'Único')">
     <div class="ticket-header">
       <div class="ticket-logo">
         <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png" 
@@ -167,7 +168,7 @@
   </div>
 
   <!-- Ingresso 2: Básico -->
-  <div class="ticket-bilhete" onclick="selectTicket('Básico')">
+  <div class="ticket-bilhete" onclick="selectTicket(this, 'Básico')">
     <div class="ticket-header">
       <div class="ticket-logo">
         <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png"
@@ -192,7 +193,7 @@
   </div>
 
   <!-- Ingresso 3: Hopper -->
-  <div class="ticket-bilhete" onclick="selectTicket('Hopper')">
+  <div class="ticket-bilhete" onclick="selectTicket(this, 'Hopper')">
     <div class="ticket-header">
       <div class="ticket-logo">
         <img src="https://logos-world.net/wp-content/uploads/2021/02/Walt-Disney-World-Logo.png"
@@ -218,11 +219,22 @@
 </div>
 
 <script>
-  // Exemplo de função JavaScript para tratar o clique
-  function selectTicket(tipo) {
-    alert("Você selecionou o ingresso: " + tipo);
-    // Aqui você pode integrar com seu sistema,
-    // ex: selectedOptions.ticketType = tipo;
+  /**
+   * Ao clicar em um ticket, remove .selected de todos e adiciona .selected no atual
+   * 'el' é o elemento clicado (this), 'tipo' é a string do ingresso
+   */
+  function selectTicket(el, tipo) {
+    // remove a classe 'selected' de todos os .ticket-bilhete
+    const allTickets = document.querySelectorAll('.ticket-bilhete');
+    allTickets.forEach(ticket => ticket.classList.remove('selected'));
+    
+    // adiciona 'selected' apenas no atual
+    el.classList.add('selected');
+    
+    // (Opcional) exibir um alerta ou integrar com seu script
+    console.log("Você selecionou o ingresso: " + tipo);
+    // Exemplo de teste:
+    alert("Selecionado: " + tipo);
   }
 </script>
 
