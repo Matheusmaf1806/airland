@@ -2,49 +2,46 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Loader Overlay sobre Card</title>
+  <title>Tela de Carregamento</title>
+
+  <!-- Importando a fonte Montserrat do Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    /*************************************************
-     * LAYOUT DE PÁGINA / OVERLAY
-     *************************************************/
-    /* Container geral que contém tudo */
-    .page-container {
-      /* Ajustes para demonstrar o card no centro, por exemplo */
-      width: 100%;
-      min-height: 100vh; /* altura total da viewport */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      /* Poderia ter um background, se quiser */
-      background: #f5f5f5;
-      position: relative; 
-      /* position: relative permite colocar overlay absoluto dentro dele */
+    /* Reset básico */
+    * {
       margin: 0;
-      padding: 2rem;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    /* Overlay que cobre tudo, inclusive o card */
-    .loader-overlay {
-      position: absolute; /* para ficar por cima do conteúdo */
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.9); /* Fundo semitransparente */
-      z-index: 9999; /* Garantir que fique acima do card */
+    /* Corpo da página */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f5f5f5;
+      padding: 2rem;
+      color: #2e2e2f;
+    }
+
+    /* Container geral para organizar o loader em cima e o card embaixo */
+    .loading-container {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column; /* Empilha o loader e o card verticalmente */
+      align-items: center;    /* Centraliza horizontalmente */
+      justify-content: flex-start; /* Alinhar ao topo */
+      gap: 2rem;             /* Espaço entre o loader e o card */
+      max-width: 800px;      /* Ajuste se quiser limitar largura total */
+      margin: 0 auto;        /* Centraliza no meio da página */
     }
 
     /*************************************************
-     * LOADER (animação + texto)
+     * LOADER (Bloco superior)
      *************************************************/
     .loader {
       width: 320px;
-      height: 180px;
+      min-height: 180px;
       border-radius: 10px;
       background: #fff;
       display: flex;
@@ -55,11 +52,11 @@
       box-shadow: 2px 2px 10px -5px lightgrey;
     }
 
+    /* Container dos pontinhos */
     .dots-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
       width: 100%;
     }
 
@@ -67,11 +64,10 @@
       height: 20px;
       width: 20px;
       margin-right: 10px;
-      border-radius: 10px;
+      border-radius: 50%;
       background-color: #b3d4fc;
       animation: pulse 1.5s infinite ease-in-out;
     }
-
     .dot:last-child {
       margin-right: 0;
     }
@@ -105,24 +101,21 @@
       }
     }
 
-    /* Texto principal “Carregando...” com animação de pulsar */
-    label {
+    /* Texto “Carregando...” */
+    .loader label {
       color: #002;
       font-size: 18px;
+      font-weight: 600;
       animation: bit 0.6s alternate infinite;
     }
 
     @keyframes bit {
-      from {
-        opacity: 0.3;
-      }
-      to {
-        opacity: 1;
-      }
+      from { opacity: 0.3; }
+      to   { opacity: 1; }
     }
 
     /* Mensagem complementar */
-    .message {
+    .loader .message {
       margin-top: 0.5rem;
       font-size: 14px;
       text-align: center;
@@ -130,18 +123,17 @@
     }
 
     /*************************************************
-     * CARD (ITEM) 
+     * CARD (Bloco inferior)
      *************************************************/
     .task {
       position: relative;
-      color: #2e2e2f;
-      cursor: move;
       background-color: #fff;
       padding: 1rem;
       border-radius: 8px;
       box-shadow: rgba(99, 99, 99, 0.1) 0px 2px 8px 0px;
       border: 3px dashed transparent;
-      max-width: 350px; /* Limite de largura do “cartão” */
+      max-width: 350px; /* Tamanho máximo do “cartão” */
+      width: 100%;      /* Pode deixar 100% pra responsivo dentro do container */
     }
 
     .task:hover {
@@ -152,6 +144,7 @@
     .task p {
       font-size: 15px;
       margin: 1.2rem 0;
+      line-height: 1.4;
     }
 
     .task img {
@@ -162,7 +155,7 @@
       border-radius: 8px;
     }
 
-    /* Definição do estilo para a tag */
+    /* Tag / Botão de Opções */
     .tag {
       border-radius: 100px;
       padding: 4px 13px;
@@ -171,36 +164,36 @@
       background-color: #1389eb;
     }
 
-    /* Cabeçalho (Tag + Botão Opções) */
     .tags {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      margin-bottom: 1rem; /* Espaço entre o título e a imagem */
     }
 
     .options {
       background: transparent;
       border: 0;
-      color: #c4cad3;
+      cursor: pointer;
       font-size: 17px;
     }
 
     .options svg {
       fill: #9fa4aa;
       width: 20px;
+      height: 20px;
     }
 
-    /* Barra de “stats” */
+    /* Seções de estatísticas (data, chat, curtidas, etc.) */
     .stats {
-      position: relative;
       width: 100%;
       color: #9fa4aa;
       font-size: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: 1rem;
     }
 
     .stats div {
@@ -210,14 +203,13 @@
       align-items: center;
       cursor: pointer;
     }
-
     .stats svg {
       margin-right: 5px;
       height: 100%;
       stroke: #9fa4aa;
     }
 
-    /* Avatares de “viewer” */
+    /* Icones de “viewer” */
     .viewer span {
       height: 30px;
       width: 30px;
@@ -232,31 +224,40 @@
       color: #fff;
       padding: 2px;
     }
-
     .viewer span svg {
       stroke: #fff;
     }
+
   </style>
 </head>
 <body>
 
-  <!-- EXEMPLO DE INCLUSÃO DA HEADER (Ajuste conforme seu ambiente):
-       <?php include "header.html"; ?> 
-       ou <jsp:include page="header.html"/> 
-       etc. -->
+  <!-- Container principal -->
+  <div class="loading-container">
 
-  <div class="page-container">
+    <!-- 1) LOADER ACIMA -->
+    <div class="loader">
+      <section class="dots-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </section>
 
-    <!-- 1) NOSSO CARD (ou item aleatório) JÁ ESTÁ EXIBIDO AO FUNDO -->
-    <div class="task" style="margin-right: 1rem;">
+      <label>Carregando...</label>
+      <p class="message">Estamos buscando ofertas extraordinárias!</p>
+    </div>
+
+    <!-- 2) CARD (exemplo de curiosidade Disney) ABAIXO -->
+    <div class="task" draggable="true">
       <div class="tags">
-        <span class="tag">Novidade Disney</span>
+        <span class="tag">Curiosidade Disney</span>
         <button class="options">
-          <!-- Ícone de opções (svg) -->
-          <svg xml:space="preserve" viewBox="0 0 41.915 41.916"
-               xmlns:xlink="http://www.w3.org/1999/xlink"
-               xmlns="http://www.w3.org/2000/svg" id="Capa_1"
-               version="1.1" fill="#000000" style="width:20px; height:20px;">
+          <svg xml:space="preserve" viewBox="0 0 41.915 41.916" 
+               xmlns:xlink="http://www.w3.org/1999/xlink" 
+               xmlns="http://www.w3.org/2000/svg" id="Capa_1" 
+               version="1.1" fill="#000000">
             <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
             <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
             <g id="SVGRepo_iconCarrier">
@@ -278,22 +279,22 @@
         </button>
       </div>
 
-      <img
-        src="https://www.vaipradisney.com/blog/wp-content/uploads/2024/08/WDW_Monsters_Street-View-2048x1180-1-780x449.jpg"
+      <img 
+        src="https://www.vaipradisney.com/blog/wp-content/uploads/2024/01/epic-universe-map-universal.jpg"
         alt="Banner da Magic Travel"
       >
 
       <p>
-        No Hollywood Studios uma nova área de “Monstros S.A”, que será inspirada
-        na cidade fictícia do filme, Monstrópolis. Uma montanha-russa suspensa
-        será inaugurada pela primeira vez, com portas penduradas como nas cenas da animação.
+        O <b>Epic Universe,</b> da Universal, abre em <b>22 de maio de 2025</b> em Orlando.
+        Será o quarto e maior parque do complexo, com cinco <b>mundos temáticos:</b>
+        Ministério da Magia (Harry Potter), Super Nintendo World, Ilha de Berk
+        (Como Treinar o Seu Dragão), Celestial Park e Dark Universe.
       </p>
 
       <div class="stats">
         <div>
           <div>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 style="width:16px; height:16px; vertical-align:middle;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -301,11 +302,10 @@
                 <circle stroke-width="2" r="9" cy="12" cx="12"></circle>
               </g>
             </svg>
-            Feb 24
+            Jan 09
           </div>
           <div>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 style="width:16px; height:16px; vertical-align:middle;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -316,12 +316,12 @@
                          C4.0328 15.6692 3 13.7383 3 10Z"></path>
               </g>
             </svg>
-            18
+            34
           </div>
           <div>
-            <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink"
-                 xmlns="http://www.w3.org/2000/svg" version="1.1"
-                 viewBox="-2.5 0 32 32" style="width:16px; height:16px; vertical-align:middle;">
+            <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                 xmlns="http://www.w3.org/2000/svg" version="1.1" 
+                 viewBox="-2.5 0 32 32">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -347,14 +347,13 @@
                 </path>
               </g>
             </svg>
-            7
+            12
           </div>
         </div>
 
         <div class="viewer">
           <span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 style="width:16px; height:16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -368,8 +367,7 @@
             </svg>
           </span>
           <span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 style="width:16px; height:16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -383,8 +381,7 @@
             </svg>
           </span>
           <span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                 style="width:16px; height:16px;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
               <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
               <g id="SVGRepo_iconCarrier">
@@ -397,41 +394,11 @@
               </g>
             </svg>
           </span>
-          <span>+31</span>
+          <span>+44</span>
         </div>
       </div>
     </div>
 
-    <!-- 2) OVERLAY DO LOADER (POR CIMA DO CARD) -->
-    <div class="loader-overlay" id="loaderOverlay">
-      <div class="loader">
-        <!-- Animação de pontinhos pulsantes -->
-        <section class="dots-container">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </section>
-
-        <!-- Texto principal “Carregando...” -->
-        <label>Carregando...</label>
-        
-        <!-- Mensagem complementar -->
-        <p class="message">
-          Estamos buscando ofertas extraordinárias!
-        </p>
-      </div>
-    </div>
   </div>
-
-  <script>
-    // Simula um carregamento de 3 segundos
-    setTimeout(function() {
-      // Esconde o overlay do loader, revelando o card no fundo
-      document.getElementById('loaderOverlay').style.display = 'none';
-    }, 3000);
-  </script>
-
 </body>
 </html>
