@@ -1,7 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seleção de Ingressos e Datas - Disney</title>
+  <?php wp_head(); ?>
+
+  <!-- FontAwesome para ícones -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+
+  <!-- CSS externo (layout) -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<style>
 /**************************************************************************
  * RESET / BASE
  **************************************************************************/
-* {
+ * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -536,24 +556,7 @@ body {
     margin-bottom: 20px;
   }
 }
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seleção de Ingressos e Datas - Disney</title>
-  <?php wp_head(); ?>
-
-  <!-- FontAwesome para ícones -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-  />
-
-  <!-- CSS externo (layout) -->
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+</style>
 
   <!-- HEADER EXTERNO VIA FETCH -->
   <div id="externalHeader"></div>
@@ -727,719 +730,722 @@ body {
 
   <!-- Script principal -->
   <script src="script.js"></script>
+
+  <script>
+    // Variáveis de estado
+  let selectedTicketUrl = '';
+  let counter = 0;
+  let ticketPrices = null;
+  let id_site = null;
+  let selectedOptions = {
+      ticketType: '',
+      days: 0,
+      adults: 0,
+      children: 0,
+      price_adult : 0,
+      price_chd : 0,
+      id_adult: 0, 
+      id_chd: 0,
+      startDate: null,
+      endDate: null,
+      selectedPark: ''
+  };
+  let isProcessing = false;
+  let carrinho = 0;
+
+  // Objeto para armazenar as opções selecionadas
+  selectedOptions = {
+      adults: parseInt(document.getElementById("adult-ticket").value),
+      children: parseInt(document.getElementById("child-ticket").value)
+  };
+
+  // Função para atualizar os valores do objeto selectedOptions
+  function updateSelectedOptions() {
+      selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
+      selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
+      console.log("Valores atualizados:", selectedOptions); // Para debug
+  }
+
+  // Função para consultar o token
+  async function getApiToken() {
+      const response = await fetch('/wp-admin/admin-ajax.php?action=get_token');
+      if (!response.ok) {
+          console.error('Erro ao obter o token:', response.statusText);
+          return null;
+      }
+      return await response.text();
+  }
+
+  // Busca a cotação mensal na API  
+  async function get_price_tickets(id_site, startDate, endDate) {
+      const url = "https://magictraveltur.com/wp-json/get-price/v1/price";
+      const token = '@@Magic2024'; //await getApiToken();
+      const data = { id_site:id_site, start_date: startDate, end_date: endDate };
+      const timeout = 60000;
+
+      const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout: A requisição demorou demais.')), timeout)
+      );
+
+      try {
+          const response = await Promise.race([
+              fetch(url, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': token
+                  },
+                  body: JSON.stringify(data)
+              }),
+              timeoutPromise
+          ]);
+
+          if (!response.ok) {
+              console.error(`Erro: ${response.status} - ${await response.text()}`);
+              return null;
+          }
+
+          const result = await response.json();
+          return result;
+      } catch (error) {
+          console.error('Erro ao fazer a requisição:', error);
+          return null;
+      }
+  }
+
+  // Função para selecionar o tipo de ingresso
+  async function selectTicket(type, idSiteValue, day) {
+      if (counter == 1) {
+          document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+          const calendarGrid = document.getElementById('calendar-grid');
+          calendarGrid.innerHTML = '';
+          selectedOptions.days = 0;
+      }
+      id_site = idSiteValue;
+      document.querySelectorAll('.ticket').forEach(ticket => ticket.classList.remove('selected'));
+      const selectedTicket = document.querySelector(`.ticket[data-type="${type}"]`);
+      selectedTicket.classList.add('selected');
+      selectedOptions.ticketType = type;
+      
+      updateDaysOptions();
+      selectDay(day);
+      if (type = 'Único'){
+          updateParkSelectionVisibility();
+      }
+      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
+          if (isProcessing) return;
+      
+          try {
+              isProcessing = true;
+              const loadingOverlay = document.getElementById("loadingOverlay");
+              loadingOverlay.style.display = "flex";
+              await generateCalendar(currentMonth, currentYear);
+          } finally {
+              isProcessing = false;
+              loadingOverlay.style.display = "none";
+          }
+      }
+      
+      updateSummary();
+  }
+
+  // Função para obter dias disponíveis com base no tipo de ingresso
+  function getAvailableDays(ticketType) {
+      switch(ticketType) {
+          case 'Único':
+              return [1];
+          case 'Básico':
+              return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+          case 'Hopper':
+              return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+          default:
+              return [];
+      }
+  }
+
+  // Função para atualizar as opções de dias com base no tipo de ingresso
+  function updateDaysOptions() {
+      const availableDays = getAvailableDays(selectedOptions.ticketType);
+      document.querySelectorAll('.day').forEach(dayElem => {
+          const day = parseInt(dayElem.textContent);
+          if (availableDays.includes(day)) {
+              dayElem.style.display = 'flex';
+          } else {
+              dayElem.style.display = 'none';
+              if (day === selectedOptions.days) {
+                  selectedOptions.days = 0;
+                  document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+              }
+          }
+      });
+  }
+
+  // Função para selecionar o número de dias
+  async function selectDay(day) {
+      if ((id_site >= '104' && id_site <= '112') || id_site =='142'){
+          if (day == 2){id_site = '104';}
+          if (day == 3){id_site = '105';}
+          if (day == 4){
+              if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
+                  id_site = '142'
+              }
+              else{
+                  id_site = '106';
+              }
+          }
+          if (day == 5){id_site = '107';}
+          if (day == 6){id_site = '108';}
+          if (day == 7){id_site = '109';}
+          if (day == 8){id_site = '110';}
+          if (day == 9){id_site = '111';}
+          if (day == 10){id_site = '112';}           
+      } 
+      
+      if (id_site >= '113' && id_site <= '122'){
+          if (day == 1){id_site = '113';}
+          if (day == 2){id_site = '114';}
+          if (day == 3){id_site = '115';}
+          if (day == 4){id_site = '116';}
+          if (day == 5){id_site = '117';}
+          if (day == 6){id_site = '118';}
+          if (day == 7){id_site = '119';}
+          if (day == 8){id_site = '120';}
+          if (day == 9){id_site = '121';}
+          if (day == 10){id_site = '122';}            
+      }
+      
+      if (id_site >= '123' && id_site <= '131'){
+          if (day == 2){id_site = '123';}
+          if (day == 3){id_site = '124';}
+          if (day == 4){id_site = '125';}
+          if (day == 5){id_site = '126';}
+          if (day == 6){id_site = '127';}
+          if (day == 7){id_site = '128';}
+          if (day == 8){id_site = '129';}
+          if (day == 9){id_site = '130';}
+          if (day == 10){id_site = '131';}           
+      }
+      
+      if (id_site >= '132' && id_site <= '141'){
+          if (day == 1){id_site = '132';}
+          if (day == 2){id_site = '133';}
+          if (day == 3){id_site = '134';}
+          if (day == 4){id_site = '135';}
+          if (day == 5){id_site = '136';}
+          if (day == 6){id_site = '137';}
+          if (day == 7){id_site = '138';}
+          if (day == 8){id_site = '139';}
+          if (day == 9){id_site = '140';}
+          if (day == 10){id_site = '141';}            
+      }
+
+      if (counter == 1) {
+          const calendarGrid = document.getElementById('calendar-grid');
+          calendarGrid.innerHTML = '';
+      }
+      const availableDays = getAvailableDays(selectedOptions.ticketType);
+      
+      document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+      if (availableDays.length == 1){
+          selectedOptions.days = availableDays[0];
+
+      } else {
+          selectedOptions.days = day;
+      }
+
+      document.querySelector(`.day[onclick="selectDay(${day})"]`).classList.add('active');      
+      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
+          if (isProcessing) return;
+      
+          try {
+              isProcessing = true;
+              const loadingOverlay = document.getElementById("loadingOverlay");
+              loadingOverlay.style.display = "flex";
+              await generateCalendar(currentMonth, currentYear);
+          } finally {
+              isProcessing = false;
+              loadingOverlay.style.display = "none";
+          }
+      }        
+      updateSummary();
+  }
+
+  // Função para mostrar ou esconder a seleção de parques
+  function updateParkSelectionVisibility() {
+      const parkSelection = document.getElementById('park-selection');
+      if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
+          parkSelection.style.display = 'flex';
+      } else {
+          parkSelection.style.display = 'none';
+          selectedOptions.selectedPark = '';
+          document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
+          document.getElementById('selected-park-info').style.display = 'none';
+      }
+  }
+
+  // Função para selecionar o parque desejado
+  function selectPark(parkName, type, idSiteValue, day) {
+      document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
+      const selectedPark = document.querySelector(`.park[data-type='${parkName}']`);
+      selectedPark.classList.add('selected');
+      selectedOptions.selectedPark = parkName;
+      selectTicket(type, idSiteValue, day);
+      updateSummary();
+  }
+
+  // Funções para incrementar e decrementar ingressos
+  async function incrementTicket(type) {
+      if (isProcessing) return;     
+      try {
+          isProcessing = true;        
+          const ticketInput = document.getElementById(`${type}-ticket`);
+          let count = parseInt(ticketInput.value);
+          ticketInput.value = ++count;
+          selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
+              
+          updateSelectedOptions();
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          loadingOverlay.style.display = "flex";
+          await generateCalendar(currentMonth, currentYear);
+          updateSummary();
+      } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+      }
+  }
+
+  async function decrementTicket(type) {
+      if (isProcessing) return;
+          
+      try {
+          isProcessing = true;
+              
+          const ticketInput = document.getElementById(`${type}-ticket`);
+          let count = parseInt(ticketInput.value);
+              
+          if (count > 0) {
+              ticketInput.value = --count;
+              selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
+                  
+              updateSelectedOptions();
+              const loadingOverlay = document.getElementById("loadingOverlay");
+              loadingOverlay.style.display = "flex";
+              await generateCalendar(currentMonth, currentYear);
+              updateSummary();
+          }
+      } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+      }
+  }
+
+  // Função para atualizar o resumo de seleção e preços
+  function updateSummary() {
+      const adultCount = selectedOptions.adults;
+      const childCount = selectedOptions.children;
+      const totalPeople = adultCount + childCount;
+      const ticketType = selectedOptions.ticketType;
+      const days = selectedOptions.days;
+
+      document.getElementById('adult-count').textContent = `${adultCount} adulto(s)`;
+      document.getElementById('child-count').textContent = `${childCount} criança(s)`;
+      document.getElementById('ticket-type-selection').textContent = ticketType || 'Nenhum';
+      document.getElementById('selected-days').textContent = days || 0;
+      document.getElementById('totalPeople').textContent = totalPeople;
+
+      // Atualiza a validade
+      updateValidity();
+
+      // Calcula o preço total
+      let totalPrice = 0;
+      totalPrice = selectedOptions.adults * selectedOptions.price_adult + selectedOptions.children * selectedOptions.price_chd || 0;
+
+      if (days==0){
+          document.getElementById('usage-period').innerText = "Não selecionado";
+          totalPrice = 0;
+      }
+
+      document.getElementById('total-price').innerHTML = `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
+      document.getElementById('installment-price').textContent = `ou em 10x de R$ ${(totalPrice * (1 + TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')} no cartão`;
+  }
+
+  // Função para atualizar a validade com base na data selecionada e dias
+  function updateValidity() {
+      const startDate = selectedOptions.startDate;
+      let endDate = null;
+      let validityText = "Não selecionado";
+      if (startDate && selectedOptions.days) {
+          endDate = new Date(startDate);
+
+          switch (selectedOptions.days) {
+              case 2:
+                  endDate.setDate(endDate.getDate() + 3); 
+                  break;
+              case 3:
+                  endDate.setDate(endDate.getDate() + 4); 
+                  break;
+              case 4:
+                  endDate.setDate(endDate.getDate() + 6);
+                  break;
+              case 5:
+                  endDate.setDate(endDate.getDate() + 7);
+                  break;
+              case 6:
+                  endDate.setDate(endDate.getDate() + 9);
+                  break;
+              case 7:
+                  endDate.setDate(endDate.getDate() + 10);
+                  break;
+              case 8:
+                  endDate.setDate(endDate.getDate() + 11);
+                  break;
+              case 9:
+                  endDate.setDate(endDate.getDate() + 12);
+                  break;
+              case 10:
+                  endDate.setDate(endDate.getDate() + 13);
+                  break;
+              default:
+                  // ...
+                  break;
+          }
+          if (endDate) {
+              selectedOptions.endDate = endDate;
+              const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+              const formattedStartDate = startDate.toLocaleDateString('pt-BR', options);
+              const formattedEndDate = endDate.toLocaleDateString('pt-BR', options);
+              validityText = `${formattedStartDate} até ${formattedEndDate}`;
+          }
+      }    
+
+      document.getElementById('usage-period').innerText = validityText;
+  }
+
+  // Função para selecionar uma data
+  function selectDate(year, month, day) {
+      const selectedDate = new Date(year, month, day);
+      selectedOptions.startDate = selectedDate;
+      
+      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
+          card.classList.remove('selected', 'valid');
+      });
+
+      const clickedDay = event.currentTarget;
+      clickedDay.classList.add('selected');
+
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      const ticket = Object.values(ticketPrices).find(ticket => 
+          ticket.forDate === formattedDate && ticket.price_type === 'ADULTO'
+      );
+
+      const ticket_chd = Object.values(ticketPrices).find(ticket_chd => 
+          ticket_chd.forDate === formattedDate && ticket_chd.price_type === 'CRIANÇA'
+      );
+
+      if (ticket && !isNaN(parseFloat(ticket.price))) {
+          selectedOptions.price_adult = parseFloat(ticket.price);
+          selectedOptions.id_adult = parseFloat(ticket.ID);
+      } else {
+          selectedOptions.price_adult = 0;
+          selectedOptions.id_adult = 0;
+          console.warn('Adult ticket price not available for selected date');
+      }
+
+      if (ticket_chd && !isNaN(parseFloat(ticket_chd.price))) {
+          selectedOptions.price_chd = parseFloat(ticket_chd.price);
+          selectedOptions.id_chd = parseFloat(ticket_chd.ID);
+      } else {
+          selectedOptions.price_chd = 0;
+          selectedOptions.id_chd = 0;
+          console.warn('Child ticket price not available for selected date');
+      }
+
+      updateValidity();
+      updateCalendarSelection();
+      updateSummary();
+  }
+
+  // Atualiza a seleção visual no calendário
+  function updateCalendarSelection() {
+      const startDate = selectedOptions.startDate;
+      const endDate = selectedOptions.endDate;
+      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+
+      dayCards.forEach(card => {
+          const dayNumber = parseInt(card.querySelector('.day-number').textContent);
+          const cardDate = new Date(currentYear, currentMonth, dayNumber);
+          card.classList.remove('selected', 'valid');
+
+          if (startDate) {
+              if (cardDate.getTime() === startDate.getTime()) {
+                  card.classList.add('selected');
+              } else if (cardDate > startDate && cardDate <= endDate) {
+                  card.classList.add('valid');
+              }
+          }
+      });
+  }
+
+  // Funções para navegação e geração de calendário
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+
+  async function prevMonth() {
+      if (isProcessing) return;        
+      try {
+          isProcessing = true;
+          currentMonth--;
+          if (currentMonth < 0) {
+              currentMonth = 11;
+              currentYear--;
+          }
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          loadingOverlay.style.display = "flex";
+          await generateCalendar(currentMonth, currentYear);
+      } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+      }
+  }
+
+  async function nextMonth() {
+      if (isProcessing) return;        
+      try {
+          isProcessing = true;
+          currentMonth++;
+          if (currentMonth > 11) {
+              currentMonth = 0;
+              currentYear++;
+          }
+          const loadingOverlay = document.getElementById("loadingOverlay");
+          loadingOverlay.style.display = "flex";
+          await generateCalendar(currentMonth, currentYear);
+      } finally {
+          isProcessing = false;
+          loadingOverlay.style.display = "none";
+      }
+  }
+
+  async function generateCalendar(month, year) {
+      const calendarGrid = document.getElementById('calendar-grid');
+      calendarGrid.innerHTML = ''; // Limpa o calendário anterior
+      const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+      document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
+      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+      
+      if (id_site == 106 || id_site == 142){
+          if (month ==0 || month == 1 || month == 2){
+              id_site = 142;
+          }
+          else{
+              id_site = 106;
+          }
+      }
+
+      ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
+                        
+      // Adiciona dias vazios para alinhar corretamente
+      for (let i = 0; i < firstDay.getDay(); i++) {
+          const emptyDay = document.createElement('div');
+          emptyDay.classList.add('day-card', 'empty');
+          calendarGrid.appendChild(emptyDay);
+      }
+
+      // Adiciona os dias do mês
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+          const dayCard = document.createElement('div');
+          dayCard.classList.add('day-card');
+          dayCard.innerHTML = `<div class="day-number">${day}</div>`;
+          dayCard.onclick = () => selectDate(year, month, day);
+          calendarGrid.appendChild(dayCard);
+      }
+
+      startDate = firstDay;
+      endDate = lastDay;
+      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+
+      dayCards.forEach(card => {
+          const dayNumber = parseInt(card.querySelector('.day-number').textContent);
+          const cardDate = new Date(currentYear, currentMonth, dayNumber);
+          card.classList.remove('selected', 'valid');
+
+          const formattedCardDate = cardDate.toISOString().split('T')[0];
+
+          // Busca o preço "ADULTO" para a data do card
+          const ticket = Object.values(ticketPrices || {}).find(ticket => 
+              ticket?.forDate === formattedCardDate && ticket?.price_type === 'ADULTO'
+          );
+          
+          // Busca o preço "CRIANÇA" para a data do card
+          const ticket_chd = Object.values(ticketPrices || {}).find(ticket_chd => 
+              ticket_chd?.forDate === formattedCardDate && ticket_chd?.price_type === 'CRIANÇA'
+          );
+
+          const pricePerAdult = ticket && ticket.price ? parseFloat(ticket.price) * selectedOptions.adults : 0;
+          const pricePerChild = ticket_chd && ticket_chd.price ? parseFloat(ticket_chd.price) * selectedOptions.children : 0;
+          const pricePerDay = pricePerAdult + pricePerChild;
+
+          // Atualiza o conteúdo do card
+          card.innerHTML = `<div class="day-number">${dayNumber}</div>
+                            <div class="price-info">R$ ${pricePerDay.toFixed(2).replace('.', ',')}</div>
+                            <small>Ou em 10x de R$ ${(pricePerDay * (1+ TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')}</small>`;
+      });
+  }
+
+  // Adiciona ao Carrinho
+  async function addToCart() {
+      try {
+          if (typeof selectedOptions === 'undefined') {
+              throw new Error('Dados de produtos não encontrados');
+              return false;
+          }
+
+          const products = [];
+          if (selectedOptions?.adults && selectedOptions?.id_adult) {
+              products.push({
+                  product_id: selectedOptions.id_adult,
+                  quantity: parseInt(selectedOptions.adults) || 1
+              });
+          }
+          if (selectedOptions?.children && selectedOptions?.id_chd) {
+              products.push({
+                  product_id: selectedOptions.id_chd,
+                  quantity: parseInt(selectedOptions.children) || 1
+              });
+          }
+          if (products.length === 0) {
+              throw new Error('Nenhum produto selecionado');
+              return false;
+          }
+
+          let requestSuccess = true;
+
+          for (const product of products) {
+              const formData = new FormData();
+            
+              formData.append('product_id', product.product_id);
+              formData.append('quantity', product.quantity);
+              formData.append('action', 'woocommerce_ajax_add_to_cart');
+        
+              if (typeof wc_add_to_cart_params !== 'undefined') {
+                  formData.append('security', wc_add_to_cart_params.nonce);
+              }
+
+              try {
+                  const response = await fetch(
+                    wc_add_to_cart_params?.wc_ajax_url?.toString().replace('%%endpoint%%', 'add_to_cart') || '/wp-admin/admin-ajax.php', 
+                    {
+                      method: 'POST',
+                      body: formData,
+                      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                      credentials: 'same-origin'
+                    }
+                  );
+
+                  console.log('Resposta do servidor:', response);
+
+                  if (!response.ok) {
+                      const responseText = await response.text();
+                      console.error('Resposta do servidor:', responseText);
+                      requestSuccess = false;
+                      throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
+                  }
+
+                  const data = await response.json();
+                  console.log('Dados da resposta:', data);
+
+                  if (data.error) {
+                      requestSuccess = false;
+                      throw new Error(data.message || 'Erro ao adicionar ao carrinho');
+                  }
+
+              } catch (fetchError) {
+                  console.error('Erro na requisição:', fetchError);
+                  requestSuccess = false;
+                  throw new Error(`Erro na comunicação com o servidor ao adicionar produto ID ${product.product_id}`);
+              }
+          }
+              
+          if (requestSuccess) {
+              showNotification('Produtos adicionados ao carrinho com sucesso!', 'success');
+              jQuery(document.body).trigger('added_to_cart');
+              carrinho = 1;
+              return true;
+          }
+          return false;
+              
+      } catch (error) {
+          console.error('Erro detalhado:', error);
+          showNotification(error.message, 'error');
+          return false;
+      }
+  }
+
+  // Função de checkout
+  async function checkout() {
+      if (carrinho == 1) {
+          window.location.href = 'https://www.magictraveltur.com/carrinho/';
+      } else {
+          const success = await addToCart();
+          if (success) {
+              setTimeout(() => {
+                  window.location.href = 'https://www.magictraveltur.com/carrinho/';
+              }, 500);
+          }
+      }
+  }
+
+  // Função auxiliar para mostrar notificações
+  function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 15px 25px;
+          background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+          color: white;
+          border-radius: 4px;
+          z-index: 1000;
+          animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      `;
+      notification.textContent = message;
+
+      const style = document.createElement('style');
+      style.textContent = `
+          @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-20px); }
+              to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes fadeOut {
+              from { opacity: 1; transform: translateY(0); }
+              to { opacity: 0; transform: translateY(-20px); }
+          }
+      `;
+      document.head.appendChild(style);
+
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+          notification.remove();
+      }, 3000);
+  }
+
+  // Inicialização ao carregar a página
+  window.onload = async () => {
+      counter=0;
+      selectTicket('Básico', '106',4); // ou outro default
+      document.addEventListener("DOMContentLoaded", updateSelectedOptions);
+      counter=1;
+  };
+  </script>
 </body>
 </html>
-// Variáveis de estado
-let selectedTicketUrl = '';
-let counter = 0;
-let ticketPrices = null;
-let id_site = null;
-let selectedOptions = {
-    ticketType: '',
-    days: 0,
-    adults: 0,
-    children: 0,
-    price_adult : 0,
-    price_chd : 0,
-    id_adult: 0, 
-    id_chd: 0,
-    startDate: null,
-    endDate: null,
-    selectedPark: ''
-};
-let isProcessing = false;
-let carrinho = 0;
-
-// Objeto para armazenar as opções selecionadas
-selectedOptions = {
-    adults: parseInt(document.getElementById("adult-ticket").value),
-    children: parseInt(document.getElementById("child-ticket").value)
-};
-
-// Função para atualizar os valores do objeto selectedOptions
-function updateSelectedOptions() {
-    selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
-    selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
-    console.log("Valores atualizados:", selectedOptions); // Para debug
-}
-
-// Função para consultar o token
-async function getApiToken() {
-    const response = await fetch('/wp-admin/admin-ajax.php?action=get_token');
-    if (!response.ok) {
-        console.error('Erro ao obter o token:', response.statusText);
-        return null;
-    }
-    return await response.text();
-}
-
-// Busca a cotação mensal na API  
-async function get_price_tickets(id_site, startDate, endDate) {
-    const url = "https://magictraveltur.com/wp-json/get-price/v1/price";
-    const token = '@@Magic2024'; //await getApiToken();
-    const data = { id_site:id_site, start_date: startDate, end_date: endDate };
-    const timeout = 60000;
-
-    const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout: A requisição demorou demais.')), timeout)
-    );
-
-    try {
-        const response = await Promise.race([
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token
-                },
-                body: JSON.stringify(data)
-            }),
-            timeoutPromise
-        ]);
-
-        if (!response.ok) {
-            console.error(`Erro: ${response.status} - ${await response.text()}`);
-            return null;
-        }
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error('Erro ao fazer a requisição:', error);
-        return null;
-    }
-}
-
-// Função para selecionar o tipo de ingresso
-async function selectTicket(type, idSiteValue, day) {
-    if (counter == 1) {
-        document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-        const calendarGrid = document.getElementById('calendar-grid');
-        calendarGrid.innerHTML = '';
-        selectedOptions.days = 0;
-    }
-    id_site = idSiteValue;
-    document.querySelectorAll('.ticket').forEach(ticket => ticket.classList.remove('selected'));
-    const selectedTicket = document.querySelector(`.ticket[data-type="${type}"]`);
-    selectedTicket.classList.add('selected');
-    selectedOptions.ticketType = type;
-    
-    updateDaysOptions();
-    selectDay(day);
-    if (type = 'Único'){
-        updateParkSelectionVisibility();
-    }
-    if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
-        if (isProcessing) return;
-    
-        try {
-            isProcessing = true;
-            const loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            await generateCalendar(currentMonth, currentYear);
-        } finally {
-            isProcessing = false;
-            loadingOverlay.style.display = "none";
-        }
-    }
-    
-    updateSummary();
-}
-
-// Função para obter dias disponíveis com base no tipo de ingresso
-function getAvailableDays(ticketType) {
-    switch(ticketType) {
-        case 'Único':
-            return [1];
-        case 'Básico':
-            return [2, 3, 4, 5, 6, 7, 8, 9, 10];
-        case 'Hopper':
-            return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        default:
-            return [];
-    }
-}
-
-// Função para atualizar as opções de dias com base no tipo de ingresso
-function updateDaysOptions() {
-    const availableDays = getAvailableDays(selectedOptions.ticketType);
-    document.querySelectorAll('.day').forEach(dayElem => {
-        const day = parseInt(dayElem.textContent);
-        if (availableDays.includes(day)) {
-            dayElem.style.display = 'flex';
-        } else {
-            dayElem.style.display = 'none';
-            if (day === selectedOptions.days) {
-                selectedOptions.days = 0;
-                document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-            }
-        }
-    });
-}
-
-// Função para selecionar o número de dias
-async function selectDay(day) {
-    if ((id_site >= '104' && id_site <= '112') || id_site =='142'){
-        if (day == 2){id_site = '104';}
-        if (day == 3){id_site = '105';}
-        if (day == 4){
-            if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
-                id_site = '142'
-            }
-            else{
-                id_site = '106';
-            }
-        }
-        if (day == 5){id_site = '107';}
-        if (day == 6){id_site = '108';}
-        if (day == 7){id_site = '109';}
-        if (day == 8){id_site = '110';}
-        if (day == 9){id_site = '111';}
-        if (day == 10){id_site = '112';}           
-    } 
-    
-    if (id_site >= '113' && id_site <= '122'){
-        if (day == 1){id_site = '113';}
-        if (day == 2){id_site = '114';}
-        if (day == 3){id_site = '115';}
-        if (day == 4){id_site = '116';}
-        if (day == 5){id_site = '117';}
-        if (day == 6){id_site = '118';}
-        if (day == 7){id_site = '119';}
-        if (day == 8){id_site = '120';}
-        if (day == 9){id_site = '121';}
-        if (day == 10){id_site = '122';}            
-    }
-    
-    if (id_site >= '123' && id_site <= '131'){
-        if (day == 2){id_site = '123';}
-        if (day == 3){id_site = '124';}
-        if (day == 4){id_site = '125';}
-        if (day == 5){id_site = '126';}
-        if (day == 6){id_site = '127';}
-        if (day == 7){id_site = '128';}
-        if (day == 8){id_site = '129';}
-        if (day == 9){id_site = '130';}
-        if (day == 10){id_site = '131';}           
-    }
-    
-    if (id_site >= '132' && id_site <= '141'){
-        if (day == 1){id_site = '132';}
-        if (day == 2){id_site = '133';}
-        if (day == 3){id_site = '134';}
-        if (day == 4){id_site = '135';}
-        if (day == 5){id_site = '136';}
-        if (day == 6){id_site = '137';}
-        if (day == 7){id_site = '138';}
-        if (day == 8){id_site = '139';}
-        if (day == 9){id_site = '140';}
-        if (day == 10){id_site = '141';}            
-    }
-
-    if (counter == 1) {
-        const calendarGrid = document.getElementById('calendar-grid');
-        calendarGrid.innerHTML = '';
-    }
-    const availableDays = getAvailableDays(selectedOptions.ticketType);
-    
-    document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-    if (availableDays.length == 1){
-        selectedOptions.days = availableDays[0];
-
-    } else {
-        selectedOptions.days = day;
-    }
-
-    document.querySelector(`.day[onclick="selectDay(${day})"]`).classList.add('active');      
-    if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
-        if (isProcessing) return;
-    
-        try {
-            isProcessing = true;
-            const loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            await generateCalendar(currentMonth, currentYear);
-        } finally {
-            isProcessing = false;
-            loadingOverlay.style.display = "none";
-        }
-    }        
-    updateSummary();
-}
-
-// Função para mostrar ou esconder a seleção de parques
-function updateParkSelectionVisibility() {
-    const parkSelection = document.getElementById('park-selection');
-    if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
-        parkSelection.style.display = 'flex';
-    } else {
-        parkSelection.style.display = 'none';
-        selectedOptions.selectedPark = '';
-        document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
-        document.getElementById('selected-park-info').style.display = 'none';
-    }
-}
-
-// Função para selecionar o parque desejado
-function selectPark(parkName, type, idSiteValue, day) {
-    document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
-    const selectedPark = document.querySelector(`.park[data-type='${parkName}']`);
-    selectedPark.classList.add('selected');
-    selectedOptions.selectedPark = parkName;
-    selectTicket(type, idSiteValue, day);
-    updateSummary();
-}
-
-// Funções para incrementar e decrementar ingressos
-async function incrementTicket(type) {
-    if (isProcessing) return;     
-    try {
-        isProcessing = true;        
-        const ticketInput = document.getElementById(`${type}-ticket`);
-        let count = parseInt(ticketInput.value);
-        ticketInput.value = ++count;
-        selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-            
-        updateSelectedOptions();
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
-        updateSummary();
-    } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-    }
-}
-
-async function decrementTicket(type) {
-    if (isProcessing) return;
-        
-    try {
-        isProcessing = true;
-            
-        const ticketInput = document.getElementById(`${type}-ticket`);
-        let count = parseInt(ticketInput.value);
-            
-        if (count > 0) {
-            ticketInput.value = --count;
-            selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-                
-            updateSelectedOptions();
-            const loadingOverlay = document.getElementById("loadingOverlay");
-            loadingOverlay.style.display = "flex";
-            await generateCalendar(currentMonth, currentYear);
-            updateSummary();
-        }
-    } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-    }
-}
-
-// Função para atualizar o resumo de seleção e preços
-function updateSummary() {
-    const adultCount = selectedOptions.adults;
-    const childCount = selectedOptions.children;
-    const totalPeople = adultCount + childCount;
-    const ticketType = selectedOptions.ticketType;
-    const days = selectedOptions.days;
-
-    document.getElementById('adult-count').textContent = `${adultCount} adulto(s)`;
-    document.getElementById('child-count').textContent = `${childCount} criança(s)`;
-    document.getElementById('ticket-type-selection').textContent = ticketType || 'Nenhum';
-    document.getElementById('selected-days').textContent = days || 0;
-    document.getElementById('totalPeople').textContent = totalPeople;
-
-    // Atualiza a validade
-    updateValidity();
-
-    // Calcula o preço total
-    let totalPrice = 0;
-    totalPrice = selectedOptions.adults * selectedOptions.price_adult + selectedOptions.children * selectedOptions.price_chd || 0;
-
-    if (days==0){
-        document.getElementById('usage-period').innerText = "Não selecionado";
-        totalPrice = 0;
-    }
-
-    document.getElementById('total-price').innerHTML = `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
-    document.getElementById('installment-price').textContent = `ou em 10x de R$ ${(totalPrice * (1 + TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')} no cartão`;
-}
-
-// Função para atualizar a validade com base na data selecionada e dias
-function updateValidity() {
-    const startDate = selectedOptions.startDate;
-    let endDate = null;
-    let validityText = "Não selecionado";
-    if (startDate && selectedOptions.days) {
-        endDate = new Date(startDate);
-
-        switch (selectedOptions.days) {
-            case 2:
-                endDate.setDate(endDate.getDate() + 3); 
-                break;
-            case 3:
-                endDate.setDate(endDate.getDate() + 4); 
-                break;
-            case 4:
-                endDate.setDate(endDate.getDate() + 6);
-                break;
-            case 5:
-                endDate.setDate(endDate.getDate() + 7);
-                break;
-            case 6:
-                endDate.setDate(endDate.getDate() + 9);
-                break;
-            case 7:
-                endDate.setDate(endDate.getDate() + 10);
-                break;
-            case 8:
-                endDate.setDate(endDate.getDate() + 11);
-                break;
-            case 9:
-                endDate.setDate(endDate.getDate() + 12);
-                break;
-            case 10:
-                endDate.setDate(endDate.getDate() + 13);
-                break;
-            default:
-                // ...
-                break;
-        }
-        if (endDate) {
-            selectedOptions.endDate = endDate;
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            const formattedStartDate = startDate.toLocaleDateString('pt-BR', options);
-            const formattedEndDate = endDate.toLocaleDateString('pt-BR', options);
-            validityText = `${formattedStartDate} até ${formattedEndDate}`;
-        }
-    }    
-
-    document.getElementById('usage-period').innerText = validityText;
-}
-
-// Função para selecionar uma data
-function selectDate(year, month, day) {
-    const selectedDate = new Date(year, month, day);
-    selectedOptions.startDate = selectedDate;
-    
-    document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-        card.classList.remove('selected', 'valid');
-    });
-
-    const clickedDay = event.currentTarget;
-    clickedDay.classList.add('selected');
-
-    const formattedDate = selectedDate.toISOString().split('T')[0];
-    const ticket = Object.values(ticketPrices).find(ticket => 
-        ticket.forDate === formattedDate && ticket.price_type === 'ADULTO'
-    );
-
-    const ticket_chd = Object.values(ticketPrices).find(ticket_chd => 
-        ticket_chd.forDate === formattedDate && ticket_chd.price_type === 'CRIANÇA'
-    );
-
-    if (ticket && !isNaN(parseFloat(ticket.price))) {
-        selectedOptions.price_adult = parseFloat(ticket.price);
-        selectedOptions.id_adult = parseFloat(ticket.ID);
-    } else {
-        selectedOptions.price_adult = 0;
-        selectedOptions.id_adult = 0;
-        console.warn('Adult ticket price not available for selected date');
-    }
-
-    if (ticket_chd && !isNaN(parseFloat(ticket_chd.price))) {
-        selectedOptions.price_chd = parseFloat(ticket_chd.price);
-        selectedOptions.id_chd = parseFloat(ticket_chd.ID);
-    } else {
-        selectedOptions.price_chd = 0;
-        selectedOptions.id_chd = 0;
-        console.warn('Child ticket price not available for selected date');
-    }
-
-    updateValidity();
-    updateCalendarSelection();
-    updateSummary();
-}
-
-// Atualiza a seleção visual no calendário
-function updateCalendarSelection() {
-    const startDate = selectedOptions.startDate;
-    const endDate = selectedOptions.endDate;
-    const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-
-    dayCards.forEach(card => {
-        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-        const cardDate = new Date(currentYear, currentMonth, dayNumber);
-        card.classList.remove('selected', 'valid');
-
-        if (startDate) {
-            if (cardDate.getTime() === startDate.getTime()) {
-                card.classList.add('selected');
-            } else if (cardDate > startDate && cardDate <= endDate) {
-                card.classList.add('valid');
-            }
-        }
-    });
-}
-
-// Funções para navegação e geração de calendário
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-
-async function prevMonth() {
-    if (isProcessing) return;        
-    try {
-        isProcessing = true;
-        currentMonth--;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        }
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
-    } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-    }
-}
-
-async function nextMonth() {
-    if (isProcessing) return;        
-    try {
-        isProcessing = true;
-        currentMonth++;
-        if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
-    } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-    }
-}
-
-async function generateCalendar(month, year) {
-    const calendarGrid = document.getElementById('calendar-grid');
-    calendarGrid.innerHTML = ''; // Limpa o calendário anterior
-    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
-
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-
-    const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
-    const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-    
-    if (id_site == 106 || id_site == 142){
-        if (month ==0 || month == 1 || month == 2){
-            id_site = 142;
-        }
-        else{
-            id_site = 106;
-        }
-    }
-
-    ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
-                      
-    // Adiciona dias vazios para alinhar corretamente
-    for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.classList.add('day-card', 'empty');
-        calendarGrid.appendChild(emptyDay);
-    }
-
-    // Adiciona os dias do mês
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayCard = document.createElement('div');
-        dayCard.classList.add('day-card');
-        dayCard.innerHTML = `<div class="day-number">${day}</div>`;
-        dayCard.onclick = () => selectDate(year, month, day);
-        calendarGrid.appendChild(dayCard);
-    }
-
-    startDate = firstDay;
-    endDate = lastDay;
-    const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-
-    dayCards.forEach(card => {
-        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-        const cardDate = new Date(currentYear, currentMonth, dayNumber);
-        card.classList.remove('selected', 'valid');
-
-        const formattedCardDate = cardDate.toISOString().split('T')[0];
-
-        // Busca o preço "ADULTO" para a data do card
-        const ticket = Object.values(ticketPrices || {}).find(ticket => 
-            ticket?.forDate === formattedCardDate && ticket?.price_type === 'ADULTO'
-        );
-        
-        // Busca o preço "CRIANÇA" para a data do card
-        const ticket_chd = Object.values(ticketPrices || {}).find(ticket_chd => 
-            ticket_chd?.forDate === formattedCardDate && ticket_chd?.price_type === 'CRIANÇA'
-        );
-
-        const pricePerAdult = ticket && ticket.price ? parseFloat(ticket.price) * selectedOptions.adults : 0;
-        const pricePerChild = ticket_chd && ticket_chd.price ? parseFloat(ticket_chd.price) * selectedOptions.children : 0;
-        const pricePerDay = pricePerAdult + pricePerChild;
-
-        // Atualiza o conteúdo do card
-        card.innerHTML = `<div class="day-number">${dayNumber}</div>
-                          <div class="price-info">R$ ${pricePerDay.toFixed(2).replace('.', ',')}</div>
-                          <small>Ou em 10x de R$ ${(pricePerDay * (1+ TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')}</small>`;
-    });
-}
-
-// Adiciona ao Carrinho
-async function addToCart() {
-    try {
-        if (typeof selectedOptions === 'undefined') {
-            throw new Error('Dados de produtos não encontrados');
-            return false;
-        }
-
-        const products = [];
-        if (selectedOptions?.adults && selectedOptions?.id_adult) {
-            products.push({
-                product_id: selectedOptions.id_adult,
-                quantity: parseInt(selectedOptions.adults) || 1
-            });
-        }
-        if (selectedOptions?.children && selectedOptions?.id_chd) {
-            products.push({
-                product_id: selectedOptions.id_chd,
-                quantity: parseInt(selectedOptions.children) || 1
-            });
-        }
-        if (products.length === 0) {
-            throw new Error('Nenhum produto selecionado');
-            return false;
-        }
-
-        let requestSuccess = true;
-
-        for (const product of products) {
-            const formData = new FormData();
-          
-            formData.append('product_id', product.product_id);
-            formData.append('quantity', product.quantity);
-            formData.append('action', 'woocommerce_ajax_add_to_cart');
-      
-            if (typeof wc_add_to_cart_params !== 'undefined') {
-                formData.append('security', wc_add_to_cart_params.nonce);
-            }
-
-            try {
-                const response = await fetch(
-                  wc_add_to_cart_params?.wc_ajax_url?.toString().replace('%%endpoint%%', 'add_to_cart') || '/wp-admin/admin-ajax.php', 
-                  {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin'
-                  }
-                );
-
-                console.log('Resposta do servidor:', response);
-
-                if (!response.ok) {
-                    const responseText = await response.text();
-                    console.error('Resposta do servidor:', responseText);
-                    requestSuccess = false;
-                    throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('Dados da resposta:', data);
-
-                if (data.error) {
-                    requestSuccess = false;
-                    throw new Error(data.message || 'Erro ao adicionar ao carrinho');
-                }
-
-            } catch (fetchError) {
-                console.error('Erro na requisição:', fetchError);
-                requestSuccess = false;
-                throw new Error(`Erro na comunicação com o servidor ao adicionar produto ID ${product.product_id}`);
-            }
-        }
-            
-        if (requestSuccess) {
-            showNotification('Produtos adicionados ao carrinho com sucesso!', 'success');
-            jQuery(document.body).trigger('added_to_cart');
-            carrinho = 1;
-            return true;
-        }
-        return false;
-            
-    } catch (error) {
-        console.error('Erro detalhado:', error);
-        showNotification(error.message, 'error');
-        return false;
-    }
-}
-
-// Função de checkout
-async function checkout() {
-    if (carrinho == 1) {
-        window.location.href = 'https://www.magictraveltur.com/carrinho/';
-    } else {
-        const success = await addToCart();
-        if (success) {
-            setTimeout(() => {
-                window.location.href = 'https://www.magictraveltur.com/carrinho/';
-            }, 500);
-        }
-    }
-}
-
-// Função auxiliar para mostrar notificações
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 25px;
-        background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
-        color: white;
-        border-radius: 4px;
-        z-index: 1000;
-        animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    `;
-    notification.textContent = message;
-
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-20px); }
-        }
-    `;
-    document.head.appendChild(style);
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// Inicialização ao carregar a página
-window.onload = async () => {
-    counter=0;
-    selectTicket('Básico', '106',4); // ou outro default
-    document.addEventListener("DOMContentLoaded", updateSelectedOptions);
-    counter=1;
-};
