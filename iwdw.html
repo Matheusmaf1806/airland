@@ -11,736 +11,761 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
   />
+  <style>
+    /**************************************************************************
+     * RESET / BASE
+     **************************************************************************/
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: white;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /**************************************************************************
+     * HEADER EXTERNO
+     **************************************************************************/
+    #externalHeader {
+      width: 100%;
+    }
+
+    /**************************************************************************
+     * HERO HEADER (banner)
+     **************************************************************************/
+    .hero-header {
+      width: 100%;
+      background: linear-gradient(60deg, #0b74c2 0%, #0583ce 100%);
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+    .hero-header p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero-icons {
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .hero-icon-item {
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      background-color: rgba(255,255,255,0.2);
+      padding: 8px 15px;
+      border-radius: 20px;
+      transition: background-color 0.3s;
+    }
+    .hero-icon-item:hover {
+      background-color: rgba(255,255,255,0.3);
+    }
+    .hero-icon-item i {
+      margin-right: 8px;
+    }
+    .hero-header::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.2;
+      background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg")
+                  center/cover no-repeat;
+      z-index: 0;
+    }
+    .hero-header > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /**************************************************************************
+     * CONTAINER PRINCIPAL (.custom-ticket-form)
+     **************************************************************************/
+    .custom-ticket-form {
+      max-width: 1200px;
+      margin: 40px auto 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.07);
+      position: relative;
+      z-index: 10;
+      padding: 20px;
+    }
+    .custom-ticket-form h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #0b74c2;
+      margin: 25px 0 10px;
+      text-align: center;
+    }
+    .custom-ticket-form p.subtitle {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /**************************************************************************
+     * PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT BILHETE)
+     **************************************************************************/
+    .tickets-section {
+      padding: 40px 20px;
+      border-radius: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: nowrap; /* 3 itens em 1 linha */
+      gap: 30px;
+      justify-content: center;
+      overflow-x: auto; /* rolagem horizontal se precisar */
+      background: none; /* sem fundo extra */
+    }
+    .ticket-bilhete {
+      width: 270px;
+      background-color: #fff;
+      color: #333;
+      position: relative;
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 2px solid #eee; /* borda do bilhete */
+      flex: 0 0 auto;
+      /* permite que os furos ultrapassem o contêiner sem serem cortados */
+      overflow: visible;
+    }
+    .ticket-bilhete:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
+    .ticket-bilhete.selected {
+      border-color: #007aff !important;
+      box-shadow: 0 0 10px rgba(0,122,255,0.3);
+      transform: translateY(-8px);
+    }
+    .ticket-bilhete::before,
+    .ticket-bilhete::after {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      z-index: 2;
+      /* borda no círculo igual ao bilhete */
+      border: 2px solid #eee;
+      box-sizing: border-box;
+    }
+    .ticket-bilhete::before {
+      top: 50%;
+      left: -14px; /* recuamos um pouco mais para a borda do círculo */
+      transform: translateY(-50%);
+    }
+    .ticket-bilhete::after {
+      top: 50%;
+      right: -14px;
+      transform: translateY(-50%);
+    }
+    .ticket-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .ticket-logo img {
+      max-width: 130px;
+      height: auto;
+    }
+    .ticket-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #0b74c2;
+      text-align: right;
+      flex: 1;
+      margin-left: 10px;
+    }
+    .ticket-content {
+      margin-bottom: 10px;
+    }
+    .ticket-content p {
+      font-size: 0.88rem;
+      line-height: 1.4;
+      color: #555;
+      margin-top: 8px;
+    }
+    .ticket-dashed-line {
+      margin: 15px 0;
+      border-top: 1px dashed #ccc;
+    }
+    .ticket-barcode {
+      text-align: center;
+    }
+    .ticket-barcode img {
+      max-width: 160px;
+      height: auto;
+    }
+
+    /**************************************************************************
+     * PASSO 02 - NÚMERO DE DIAS (.days-selector => .day)
+     **************************************************************************/
+    .days-selector-container {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .days-selector {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+    .day {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #0b74c2;
+      color: #0b74c2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .day:hover {
+      background-color: #f0f4f9;
+      transform: scale(1.05);
+    }
+    .day.active {
+      background-color: #0b74c2;
+      color: #fff;
+      transform: scale(1.15);
+    }
+
+    /**************************************************************************
+     * PASSO 02.1 - PARQUES (para Ingresso Único)
+     **************************************************************************/
+    .park-selection {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    .parks-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .park {
+      flex: 1 1 200px;
+      max-width: 200px;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-radius: 8px;
+      text-align: center;
+      padding: 15px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .park:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .park.selected {
+      border-color: #0b74c2;
+      background-color: #edf6fb;
+      box-shadow: 0 10px 30px rgba(11,116,194,0.3);
+    }
+    .park img {
+      width: 100%;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .park-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    /**************************************************************************
+     * PASSO 3 - SELEÇÃO DE INGRESSOS
+     **************************************************************************/
+    .ticket-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+    .ticket-box {
+      flex: 1 1 300px;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      max-width: 400px;
+    }
+    .ticket-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .ticket-info h3 {
+      font-size: 1rem;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .ticket-info p {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      color: #777;
+    }
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .quantity-selector button {
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      border: 2px solid #0b74c2;
+      color: #0b74c2;
+      background: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .quantity-selector button:hover {
+      background-color: #0b74c2;
+      color: #fff;
+    }
+    .quantity-selector input {
+      width: 50px;
+      height: 40px;
+      text-align: center;
+      border: 2px solid #0b74c2;
+      border-radius: 5px;
+      font-size: 1.1rem;
+    }
+
+    /**************************************************************************
+     * PASSO 4 - CALENDÁRIO + RESUMO
+     **************************************************************************/
+    .calendar-summary-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+    }
+    .calendar-section {
+      flex: 3;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-radius: 8px;
+      padding: 15px;
+      min-width: 320px;
+    }
+    .calendar-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .calendar-header-bar button {
+      background-color: #0b74c2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .calendar-header-bar button:hover {
+      background-color: #085a93;
+      transform: scale(1.05);
+    }
+    .calendar-header-bar h2 {
+      font-size: 1.4rem;
+      color: #333;
+      margin-left: 10px;
+    }
+
+    /* SELECTS de mês e ano */
+    .month-year-selects {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .month-year-selects select {
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .calendar-weekdays {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .calendar-weekdays div {
+      width: 14%;
+      text-align: center;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .day-card {
+      background: #fff;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+      padding: 8px 0;
+      transition: background-color 0.3s, transform 0.3s;
+      position: relative; /* para posicionar ícone de melhor valor */
+    }
+    .day-card:hover {
+      background-color: #f0f4f9;
+      transform: scale(1.02);
+    }
+    .day-card.empty {
+      background-color: transparent;
+      cursor: default;
+    }
+    .day-card.selected {
+      background-color: #0b74c2;
+      color: #fff;
+    }
+    .day-card.valid {
+      background-color: #d0eafc;
+    }
+    .day-card .day-number {
+      font-weight: bold;
+      font-size: 1rem;
+      color: #333;
+    }
+    .day-card.selected .day-number {
+      color: #fff;
+    }
+    .price-info {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    /* Ícone de “melhor valor” no canto superior direito */
+    .best-price-icon {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+    }
+
+    /* Resumo => .summary-section */
+    .summary-section {
+      flex: 1;
+      background: #fafafa;
+      border: 1px solid #ececec;
+      border-radius: 8px;
+      padding: 15px;
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .summary-section h2 {
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .info-item {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .info-item p {
+      margin: 0;
+    }
+    .total-price {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .price-bold {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 10px 0;
+      color: #0b74c2;
+    }
+    .pix-discount {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #2ecc71;
+      margin-bottom: 10px;
+    }
+    .installment-price {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 20px;
+    }
+    .buy-btn,
+    .add-cart-btn {
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s;
+      width: 100%;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .buy-btn {
+      background: #2ecc71;
+    }
+    .buy-btn:hover {
+      background: #27ae60;
+      transform: translateY(-3px);
+    }
+    .add-cart-btn {
+      background: #0b74c2;
+    }
+    .add-cart-btn:hover {
+      background: #085a93;
+      transform: translateY(-3px);
+    }
+
+    /**************************************************************************
+     * OVERLAY DE CARREGAMENTO (IFRAME)
+     **************************************************************************/
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #loadingOverlay iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /**************************************************************************
+     * RESPONSIVIDADE
+     **************************************************************************/
+    @media (max-width: 768px) {
+      .hero-header h1 {
+        font-size: 2rem;
+      }
+      .custom-ticket-form {
+        margin: -30px auto 20px auto;
+      }
+      .ticket-section,
+      .days-selector,
+      .parks-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .ticket-box {
+        max-width: 100%;
+      }
+      .day {
+        width: 45px;
+        height: 45px;
+        font-size: 14px;
+      }
+      .calendar-summary-container {
+        flex-direction: column;
+      }
+      .calendar-section,
+      .summary-section {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+    }
+
+    /**********************************************************************
+     * Ajuste para os 2 BOTOES terem MESMO TAMANHO (155x50) E BORDAS (12px)
+     **********************************************************************/
+
+    /* BOTÃO 1 (.CartBtn) */
+    .CartBtn {
+      width: 100%;
+      height: 50px;
+      border-radius: 12px;
+      border: none;
+      background-color: #2ecc71;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition-duration: 0.5s;
+      overflow: hidden;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.103);
+      position: relative;
+      margin-bottom: 10px;
+    }
+    .IconContainer {
+      position: absolute;
+      left: -50px;
+      width: 30px;
+      height: 30px;
+      background-color: transparent;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+      transition-duration: 0.5s;
+    }
+    .icon {
+      border-radius: 1px;
+    }
+    .text {
+      height: 100%;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgb(255, 255, 255);
+      z-index: 1;
+      transition-duration: 0.5s;
+      font-size: 1.04em;
+      font-weight: 600;
+    }
+    .CartBtn:hover .IconContainer {
+      transform: translateX(58px);
+      border-radius: 40px;
+      transition-duration: 0.5s;
+    }
+    .CartBtn:hover .text {
+      transform: translate(10px, 0px);
+      transition-duration: 0.5s;
+    }
+    .CartBtn:active {
+      transform: scale(0.95);
+      transition-duration: 0.5s;
+    }
+
+    /* BOTÃO 2 (.cartBtn) */
+    .cartBtn {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: white;
+      font-weight: 500;
+      position: relative;
+      background-color: #0b74c2;
+      box-shadow: 0 20px 30px -7px rgba(27, 27, 27, 0.219);
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .cart {
+      z-index: 2;
+    }
+    .cartBtn:active {
+      transform: scale(0.96);
+    }
+    .product {
+      position: absolute;
+      width: 12px;
+      border-radius: 3px;
+      content: "";
+      left: 23px;
+      bottom: 23px;
+      opacity: 0;
+      z-index: 1;
+      fill: rgb(211, 211, 211);
+    }
+    .cartBtn:hover .product {
+      animation: slide-in-top 1.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+    }
+    @keyframes slide-in-top {
+      0% {
+        transform: translateY(-30px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0) rotate(-90deg);
+        opacity: 1;
+      }
+    }
+    .cartBtn:hover .cart {
+      animation: slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+    }
+    @keyframes slide-in-left {
+      0% {
+        transform: translateX(-10px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body style="margin: 0; padding: 0;">
-
-<style>
-/**************************************************************************
- * RESET / BASE
- **************************************************************************/
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: white;
-  color: #333;
-  line-height: 1.5;
-}
-
-/**************************************************************************
- * HEADER EXTERNO
- **************************************************************************/
-#externalHeader {
-  width: 100%;
-}
-
-/**************************************************************************
- * HERO HEADER (banner)
- **************************************************************************/
-.hero-header {
-  width: 100%;
-  background: linear-gradient(60deg, #0b74c2 0%, #0583ce 100%);
-  color: #fff;
-  padding: 40px 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.hero-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-.hero-header p {
-  font-size: 1.2rem;
-  max-width: 700px;
-  margin: 0 auto;
-}
-.hero-icons {
-  margin-top: 25px;
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-.hero-icon-item {
-  display: flex;
-  align-items: center;
-  font-size: 1rem;
-  background-color: rgba(255,255,255,0.2);
-  padding: 8px 15px;
-  border-radius: 20px;
-  transition: background-color 0.3s;
-}
-.hero-icon-item:hover {
-  background-color: rgba(255,255,255,0.3);
-}
-.hero-icon-item i {
-  margin-right: 8px;
-}
-.hero-header::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.2;
-  background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg")
-              center/cover no-repeat;
-  z-index: 0;
-}
-.hero-header > * {
-  position: relative;
-  z-index: 1;
-}
-
-/**************************************************************************
- * CONTAINER PRINCIPAL (.custom-ticket-form)
- **************************************************************************/
-.custom-ticket-form {
-  max-width: 1200px;
-  margin: 40px auto 40px auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.07);
-  position: relative;
-  z-index: 10;
-  padding: 20px;
-}
-.custom-ticket-form h2 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #0b74c2;
-  margin: 25px 0 10px;
-  text-align: center;
-}
-.custom-ticket-form p.subtitle {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/**************************************************************************
- * PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT BILHETE)
- **************************************************************************/
-.tickets-section {
-  padding: 40px 20px;
-  border-radius: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: nowrap; /* 3 itens em 1 linha */
-  gap: 30px;
-  justify-content: center;
-  overflow-x: auto; /* rolagem horizontal se precisar */
-  background: none; /* sem fundo extra */
-}
-.ticket-bilhete {
-  width: 270px;
-  background-color: #fff;
-  color: #333;
-  position: relative;
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 2px solid #eee; /* borda do bilhete */
-  flex: 0 0 auto;
-  /* permite que os furos ultrapassem o contêiner sem serem cortados */
-  overflow: visible;
-}
-.ticket-bilhete:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-.ticket-bilhete.selected {
-  border-color: #007aff !important;
-  box-shadow: 0 0 10px rgba(0,122,255,0.3);
-  transform: translateY(-8px);
-}
-.ticket-bilhete::before,
-.ticket-bilhete::after {
-  content: "";
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  background: #fff;
-  border-radius: 50%;
-  z-index: 2;
-  /* borda no círculo igual ao bilhete */
-  border: 2px solid #eee;
-  box-sizing: border-box;
-}
-.ticket-bilhete::before {
-  top: 50%;
-  left: -14px; /* recuamos um pouco mais para a borda do círculo */
-  transform: translateY(-50%);
-}
-.ticket-bilhete::after {
-  top: 50%;
-  right: -14px;
-  transform: translateY(-50%);
-}
-.ticket-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-.ticket-logo img {
-  max-width: 130px;
-  height: auto;
-}
-.ticket-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #0b74c2;
-  text-align: right;
-  flex: 1;
-  margin-left: 10px;
-}
-.ticket-content {
-  margin-bottom: 10px;
-}
-.ticket-content p {
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: #555;
-  margin-top: 8px;
-}
-.ticket-dashed-line {
-  margin: 15px 0;
-  border-top: 1px dashed #ccc;
-}
-.ticket-barcode {
-  text-align: center;
-}
-.ticket-barcode img {
-  max-width: 160px;
-  height: auto;
-}
-
-/**************************************************************************
- * PASSO 02 - NÚMERO DE DIAS (.days-selector => .day)
- **************************************************************************/
-.days-selector-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-.days-selector {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
-.day {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid #0b74c2;
-  color: #0b74c2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-}
-.day:hover {
-  background-color: #f0f4f9;
-  transform: scale(1.05);
-}
-.day.active {
-  background-color: #0b74c2;
-  color: #fff;
-  transform: scale(1.15);
-}
-
-/**************************************************************************
- * PASSO 02.1 - PARQUES (para Ingresso Único)
- **************************************************************************/
-.park-selection {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 30px;
-}
-.parks-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  margin-top: 20px;
-}
-.park {
-  flex: 1 1 200px;
-  max-width: 200px;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  text-align: center;
-  padding: 15px;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.park:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-.park.selected {
-  border-color: #0b74c2;
-  background-color: #edf6fb;
-  box-shadow: 0 10px 30px rgba(11,116,194,0.3);
-}
-.park img {
-  width: 100%;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-.park-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #333;
-}
-
-/**************************************************************************
- * PASSO 3 - SELEÇÃO DE INGRESSOS
- **************************************************************************/
-.ticket-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  width: 100%;
-  margin-bottom: 30px;
-  justify-content: center;
-}
-.ticket-box {
-  flex: 1 1 300px;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  max-width: 400px;
-}
-.ticket-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-.ticket-info h3 {
-  font-size: 1rem;
-  margin-bottom: 5px;
-  color: #333;
-}
-.ticket-info p {
-  font-size: 0.8rem;
-  margin-top: 4px;
-  color: #777;
-}
-.quantity-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.quantity-selector button {
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  border: 2px solid #0b74c2;
-  color: #0b74c2;
-  background: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-.quantity-selector button:hover {
-  background-color: #0b74c2;
-  color: #fff;
-}
-.quantity-selector input {
-  width: 50px;
-  height: 40px;
-  text-align: center;
-  border: 2px solid #0b74c2;
-  border-radius: 5px;
-  font-size: 1.1rem;
-}
-
-/**************************************************************************
- * PASSO 4 - CALENDÁRIO + RESUMO
- **************************************************************************/
-.calendar-summary-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  width: 100%;
-}
-.calendar-section {
-  flex: 3;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  padding: 15px;
-  min-width: 320px;
-}
-.calendar-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.calendar-header-bar button {
-  background-color: #0b74c2;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: background-color 0.3s, transform 0.3s;
-}
-.calendar-header-bar button:hover {
-  background-color: #085a93;
-  transform: scale(1.05);
-}
-.calendar-header-bar h2 {
-  font-size: 1.4rem;
-  color: #333;
-  margin-left: 10px;
-}
-.calendar-weekdays {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-.calendar-weekdays div {
-  width: 14%;
-  text-align: center;
-}
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-}
-.day-card {
-  background: #fff;
-  border-radius: 5px;
-  text-align: center;
-  cursor: pointer;
-  padding: 8px 0;
-  transition: background-color 0.3s, transform 0.3s;
-}
-.day-card:hover {
-  background-color: #f0f4f9;
-  transform: scale(1.02);
-}
-.day-card.empty {
-  background-color: transparent;
-  cursor: default;
-}
-.day-card.selected {
-  background-color: #0b74c2;
-  color: #fff;
-}
-.day-card.valid {
-  background-color: #d0eafc;
-}
-.day-card .day-number {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #333;
-}
-.day-card.selected .day-number {
-  color: #fff;
-}
-.price-info {
-  font-size: 0.8rem;
-  color: #555;
-  margin-top: 4px;
-}
-
-/* Resumo => .summary-section */
-.summary-section {
-  flex: 1;
-  background: #fafafa;
-  border: 1px solid #ececec;
-  border-radius: 8px;
-  padding: 15px;
-  min-width: 280px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.summary-section h2 {
-  font-size: 1.3rem;
-  color: #333;
-  margin-bottom: 15px;
-}
-.info-item {
-  font-size: 0.95rem;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.info-item p {
-  margin: 0;
-}
-.total-price {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: #666;
-}
-.price-bold {
-  font-size: 2rem;
-  font-weight: 700;
-  text-align: center;
-  margin: 10px 0;
-  color: #0b74c2;
-}
-.pix-discount {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #2ecc71;
-  margin-bottom: 10px;
-}
-.installment-price {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #777;
-  margin-bottom: 20px;
-}
-.buy-btn,
-.add-cart-btn {
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  padding: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  width: 100%;
-  margin-bottom: 10px;
-  color: #fff;
-}
-.buy-btn {
-  background: #2ecc71;
-}
-.buy-btn:hover {
-  background: #27ae60;
-  transform: translateY(-3px);
-}
-.add-cart-btn {
-  background: #0b74c2;
-}
-.add-cart-btn:hover {
-  background: #085a93;
-  transform: translateY(-3px);
-}
-
-/**************************************************************************
- * OVERLAY DE CARREGAMENTO (IFRAME)
- **************************************************************************/
-#loadingOverlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-#loadingOverlay iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/**************************************************************************
- * RESPONSIVIDADE
- **************************************************************************/
-@media (max-width: 768px) {
-  .hero-header h1 {
-    font-size: 2rem;
-  }
-  .custom-ticket-form {
-    margin: -30px auto 20px auto;
-  }
-  .ticket-section,
-  .days-selector,
-  .parks-container {
-    flex-direction: column;
-    align-items: center;
-  }
-  .ticket-box {
-    max-width: 100%;
-  }
-  .day {
-    width: 45px;
-    height: 45px;
-    font-size: 14px;
-  }
-  .calendar-summary-container {
-    flex-direction: column;
-  }
-  .calendar-section,
-  .summary-section {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-}
-
-/**********************************************************************
- * Ajuste para os 2 BOTOES terem MESMO TAMANHO (155x50) E BORDAS (12px)
- **********************************************************************/
-
-/* BOTÃO 1 (.CartBtn) */
-.CartBtn {
-  width: 100%;
-  height: 50px;
-  border-radius: 12px;
-  border: none;
-  background-color: #2ecc71;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition-duration: 0.5s;
-  overflow: hidden;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.103);
-  position: relative;
-  margin-bottom: 10px;
-}
-.IconContainer {
-  position: absolute;
-  left: -50px;
-  width: 30px;
-  height: 30px;
-  background-color: transparent;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  z-index: 2;
-  transition-duration: 0.5s;
-}
-.icon {
-  border-radius: 1px;
-}
-.text {
-  height: 100%;
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgb(255, 255, 255);
-  z-index: 1;
-  transition-duration: 0.5s;
-  font-size: 1.04em;
-  font-weight: 600;
-}
-.CartBtn:hover .IconContainer {
-  transform: translateX(58px);
-  border-radius: 40px;
-  transition-duration: 0.5s;
-}
-.CartBtn:hover .text {
-  transform: translate(10px, 0px);
-  transition-duration: 0.5s;
-}
-.CartBtn:active {
-  transform: scale(0.95);
-  transition-duration: 0.5s;
-}
-
-/* BOTÃO 2 (.cartBtn) */
-.cartBtn {
-  width: 100%;
-  height: 50px;
-  border: none;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  color: white;
-  font-weight: 500;
-  position: relative;
-  background-color: #0b74c2;
-  box-shadow: 0 20px 30px -7px rgba(27, 27, 27, 0.219);
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-  overflow: hidden;
-}
-.cart {
-  z-index: 2;
-}
-.cartBtn:active {
-  transform: scale(0.96);
-}
-.product {
-  position: absolute;
-  width: 12px;
-  border-radius: 3px;
-  content: "";
-  left: 23px;
-  bottom: 23px;
-  opacity: 0;
-  z-index: 1;
-  fill: rgb(211, 211, 211);
-}
-.cartBtn:hover .product {
-  animation: slide-in-top 1.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-}
-@keyframes slide-in-top {
-  0% {
-    transform: translateY(-30px);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0) rotate(-90deg);
-    opacity: 1;
-  }
-}
-.cartBtn:hover .cart {
-  animation: slide-in-left 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-}
-@keyframes slide-in-left {
-  0% {
-    transform: translateX(-10px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-</style>
 
   <!-- HEADER EXTERNO VIA FETCH -->
   <div id="externalHeader"></div>
@@ -865,7 +890,18 @@ body {
             <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Banner.jpg" alt="Magic Kingdom">
             <div class="park-name">Magic Kingdom</div>
           </div>
-          <!-- Outras park (Animal Kingdom, Epcot, Hollywood, etc.) -->
+          <div class="park" data-type='Animal Kingdom' onclick="selectPark('Animal Kingdom','Único','102',1)">
+            <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Animal-Kingdom.jpg" alt="Animal Kingdom">
+            <div class="park-name">Animal Kingdom</div>
+          </div>
+          <div class="park" data-type='Epcot' onclick="selectPark('Epcot','Único','103',1)">
+            <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/EPCOT.jpg" alt="Epcot">
+            <div class="park-name">Epcot</div>
+          </div>
+          <div class="park" data-type='Hollywood Studios' onclick="selectPark('Hollywood Studios','Único','101',1)">
+            <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Hollywood-Studios.jpg" alt="Hollywood Studios">
+            <div class="park-name">Hollywood Studios</div>
+          </div>
         </div>
       </div>
 
@@ -905,6 +941,11 @@ body {
         <div class="calendar-section">
           <div class="calendar-header-bar">
             <button id="prevMonth" onclick="prevMonth()">‹</button>
+            <!-- SELECTS de mês e ano -->
+            <div class="month-year-selects">
+              <select id="monthSelect" onchange="onMonthYearChange()"></select>
+              <select id="yearSelect" onchange="onMonthYearChange()"></select>
+            </div>
             <h2 id="calendarTitle"></h2>
             <button id="nextMonth" onclick="nextMonth()">›</button>
           </div>
@@ -955,7 +996,7 @@ body {
             <button class="CartBtn">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <path fill="white" d="M1.55989957,5.41666667 ... L1.55989957,5.41666667 Z"></path>
+                  <path fill="white" d="M1.55989957,5.41666667 ..."></path>
                 </svg>
               </span>
               <p class="text">Comprar Ingresso</p>
@@ -964,18 +1005,11 @@ body {
             <!-- Segundo Botão (classe .cartBtn) -->
             <button class="cartBtn">
               <svg class="cart" fill="white" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 
-                  50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 
-                  31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 
-                  19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 
-                  24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8
-                  -4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 
-                  48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 
-                  0 96 48 48 0 1 1 0-96z"></path>
+                <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 ..."></path>
               </svg>
               Adicionar ao Carrinho
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
-                <path d="M211.8 0c7.8 0 14.3 5.7 ... 99.2 0h12.6z"></path>
+                <path d="M211.8 0c7.8 0 14.3 5.7 ..."></path>
               </svg>
             </button>
           </div>
@@ -993,19 +1027,19 @@ body {
   <script src="script.js"></script>
 
   <script>
-    // Variáveis de estado
+    // =========================== VARIÁVEIS DE ESTADO ===========================
     let selectedTicketUrl = '';
     let counter = 0;
-    let ticketPrices = null;
+    let ticketPrices = null;  // armazena os preços do mês atual (para adulto/criança)
     let id_site = null;
     let selectedOptions = {
       ticketType: '',
       days: 0,
       adults: 0,
       children: 0,
-      price_adult : 0,
-      price_chd : 0,
-      id_adult: 0, 
+      price_adult: 0,
+      price_chd: 0,
+      id_adult: 0,
       id_chd: 0,
       startDate: null,
       endDate: null,
@@ -1013,22 +1047,63 @@ body {
     };
     let isProcessing = false;
     let carrinho = 0;
+    const TX_ANTECIPACAO = 0.0; // Exemplo de taxa, se houver
 
-    // Objeto para armazenar as opções selecionadas
-    selectedOptions = {
-      adults: parseInt(document.getElementById("adult-ticket").value),
-      children: parseInt(document.getElementById("child-ticket").value)
-    };
+    // Inicia as quantidades
+    selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
+    selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
 
-    // Função para atualizar os valores do objeto selectedOptions
+    // =========================== FUNÇÕES DE CONFIGURAÇÃO ===========================
     function updateSelectedOptions() {
       selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
       selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
-      console.log("Valores atualizados:", selectedOptions); // Para debug
+      console.log("Valores atualizados:", selectedOptions);
     }
 
-    // Função para consultar o token (exemplo)
+    // Preenche selects de mês e ano
+    function populateMonthYearSelects() {
+      const monthSelect = document.getElementById('monthSelect');
+      const yearSelect = document.getElementById('yearSelect');
+      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+      monthSelect.innerHTML = "";
+      yearSelect.innerHTML = "";
+
+      // Preenche 12 meses
+      for (let m = 0; m < 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = monthNames[m];
+        monthSelect.appendChild(opt);
+      }
+      // Preenche 2 anos anteriores e 3 anos futuros, por exemplo
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear-1; y <= currentYear+3; y++) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      }
+    }
+
+    function onMonthYearChange() {
+      const monthSelect = document.getElementById('monthSelect');
+      const yearSelect = document.getElementById('yearSelect');
+      currentMonth = parseInt(monthSelect.value);
+      currentYear = parseInt(yearSelect.value);
+
+      // Gera o calendário para esse mês/ano
+      if (!isProcessing) {
+        mostrarLoading();
+        generateCalendar(currentMonth, currentYear)
+          .finally(() => esconderLoading());
+      }
+    }
+
+    // =========================== CHAMADA À API ===========================
     async function getApiToken() {
+      // Exemplo fictício se necessário
       const response = await fetch('/wp-admin/admin-ajax.php?action=get_token');
       if (!response.ok) {
         console.error('Erro ao obter o token:', response.statusText);
@@ -1037,10 +1112,9 @@ body {
       return await response.text();
     }
 
-    // Busca a cotação mensal na API  
     async function get_price_tickets(id_site, startDate, endDate) {
       const url = "https://magictraveltur.com/wp-json/get-price/v1/price";
-      const token = '@@Magic2024'; //await getApiToken();
+      const token = '@@Magic2024'; // await getApiToken();
       const data = { id_site:id_site, start_date: startDate, end_date: endDate };
       const timeout = 60000;
 
@@ -1074,9 +1148,10 @@ body {
       }
     }
 
-    // Nova Função de Selecionar Ingresso - 4 parâmetros: (type, idSiteValue, day, el)
+    // =========================== PASSO 01: SELEÇÃO DE TIPO DE INGRESSO ===========================
     async function selectTicket(type, idSiteValue, day, el) {
       if (counter == 1) {
+        // Se já tiver escolhido antes, resetar dias e calendário
         document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
         const calendarGrid = document.getElementById('calendar-grid');
         calendarGrid.innerHTML = '';
@@ -1084,50 +1159,33 @@ body {
       }
 
       id_site = idSiteValue;
-      // Remove 'selected' dos 3 bilhetes
+      // remove 'selected' de todos
       document.querySelectorAll('.ticket-bilhete').forEach(ticket => ticket.classList.remove('selected'));
-      // Marca este bilhete como selecionado
+      // marca esse
       if (el) el.classList.add('selected');
 
       selectedOptions.ticketType = type;
 
-      updateDaysOptions();
+      updateDaysOptions(); // atualiza quais dias são válidos
       selectDay(day);
-      if (type === 'Único'){
+
+      if (type === 'Único') {
         updateParkSelectionVisibility();
       }
 
-      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
+      // Se já tiver dias selecionados, gera o calendário
+      if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (isProcessing) return;
-
         try {
           isProcessing = true;
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
+          mostrarLoading();
           await generateCalendar(currentMonth, currentYear);
         } finally {
           isProcessing = false;
-          loadingOverlay.style.display = "none";
+          esconderLoading();
         }
       }
-      
       updateSummary();
-    }
-
-    // Resto do código (funções selectDay, updateDaysOptions, etc.)
-    // ... (mantido igual)
-
-    function getAvailableDays(ticketType) {
-      switch(ticketType) {
-        case 'Único':
-          return [1];
-        case 'Básico':
-          return [2, 3, 4, 5, 6, 7, 8, 9, 10];
-        case 'Hopper':
-          return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        default:
-          return [];
-      }
     }
 
     function updateDaysOptions() {
@@ -1146,9 +1204,18 @@ body {
       });
     }
 
+    function getAvailableDays(ticketType) {
+      switch(ticketType) {
+        case 'Único':  return [1];
+        case 'Básico': return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+        case 'Hopper': return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        default:       return [];
+      }
+    }
+
+    // =========================== PASSO 02: SELEÇÃO DE DIAS ===========================
     async function selectDay(day) {
-      // ... (mantido igual)
-      // Lógica do id_site etc.
+      // Ajustes de id_site (ingresso interno) se for maior que x, etc...
       if ((id_site >= '104' && id_site <= '112') || id_site =='142'){
         if (day == 2){id_site = '104';}
         if (day == 3){id_site = '105';}
@@ -1165,7 +1232,7 @@ body {
         if (day == 8){id_site = '110';}
         if (day == 9){id_site = '111';}
         if (day == 10){id_site = '112';}
-      } 
+      }
       if (id_site >= '113' && id_site <= '122'){
         if (day == 1){id_site = '113';}
         if (day == 2){id_site = '114';}
@@ -1176,7 +1243,7 @@ body {
         if (day == 7){id_site = '119';}
         if (day == 8){id_site = '120';}
         if (day == 9){id_site = '121';}
-        if (day == 10){id_site = '122';}            
+        if (day == 10){id_site = '122';}
       }
       if (id_site >= '123' && id_site <= '131'){
         if (day == 2){id_site = '123';}
@@ -1199,41 +1266,44 @@ body {
         if (day == 7){id_site = '138';}
         if (day == 8){id_site = '139';}
         if (day == 9){id_site = '140';}
-        if (day == 10){id_site = '141';}            
+        if (day == 10){id_site = '141';}
       }
 
       const calendarGrid = document.getElementById('calendar-grid');
       if (counter == 1) {
         calendarGrid.innerHTML = '';
       }
+
       const availableDays = getAvailableDays(selectedOptions.ticketType);
 
+      // Remove active de todos
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-      if (availableDays.length == 1){
+      if (availableDays.length == 1) {
         selectedOptions.days = availableDays[0];
       } else {
         selectedOptions.days = day;
       }
 
-      document.querySelector(`.day[onclick="selectDay(${day})"]`).classList.add('active');
+      // Marca esse dia
+      const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
+      if (dayElem) dayElem.classList.add('active');
 
-      if (selectedOptions.ticketType != '' && selectedOptions.days > 0){
+      if (selectedOptions.ticketType && selectedOptions.days > 0){
         if (isProcessing) return;
         try {
           isProcessing = true;
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
+          mostrarLoading();
           await generateCalendar(currentMonth, currentYear);
         } finally {
           isProcessing = false;
-          loadingOverlay.style.display = "none";
+          esconderLoading();
         }
       }
       updateSummary();
     }
 
+    // =========================== PASSO 02.1: SELEÇÃO DE PARQUE ===========================
     function updateParkSelectionVisibility() {
-      // ...
       const parkSelection = document.getElementById('park-selection');
       if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
         parkSelection.style.display = 'flex';
@@ -1248,12 +1318,13 @@ body {
     function selectPark(parkName, type, idSiteValue, day) {
       document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
       const selectedPark = document.querySelector(`.park[data-type='${parkName}']`);
-      selectedPark.classList.add('selected');
+      if (selectedPark) selectedPark.classList.add('selected');
       selectedOptions.selectedPark = parkName;
       selectTicket(type, idSiteValue, day, null);
       updateSummary();
     }
 
+    // =========================== PASSO 03: SELEÇÃO DE INGRESSOS ===========================
     async function incrementTicket(type) {
       if (isProcessing) return;
       try {
@@ -1264,14 +1335,13 @@ body {
         selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
 
         updateSelectedOptions();
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
+        mostrarLoading();  // exibe overlay
+        // Agora **não recarregamos** a API, pois já temos ticketPrices
+        await refreshCalendarPricesOnly();
         updateSummary();
       } finally {
         isProcessing = false;
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "none";
+        esconderLoading();
       }
     }
 
@@ -1281,24 +1351,242 @@ body {
         isProcessing = true;
         const ticketInput = document.getElementById(`${type}-ticket`);
         let count = parseInt(ticketInput.value);
-
         if (count > 0) {
           ticketInput.value = --count;
           selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
 
           updateSelectedOptions();
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
-          await generateCalendar(currentMonth, currentYear);
+          mostrarLoading();
+          // Também só recalculamos local
+          await refreshCalendarPricesOnly();
           updateSummary();
         }
       } finally {
         isProcessing = false;
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "none";
+        esconderLoading();
       }
     }
 
+    // =========================== PASSO 04: CALENDÁRIO ===========================
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    function onMonthYearChange() {
+      const monthSelect = document.getElementById('monthSelect');
+      const yearSelect = document.getElementById('yearSelect');
+      currentMonth = parseInt(monthSelect.value);
+      currentYear = parseInt(yearSelect.value);
+
+      if (!isProcessing) {
+        mostrarLoading();
+        generateCalendar(currentMonth, currentYear)
+          .finally(() => esconderLoading());
+      }
+    }
+
+    async function prevMonth() {
+      if (isProcessing) return;
+      try {
+        isProcessing = true;
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        mostrarLoading();
+        await generateCalendar(currentMonth, currentYear);
+      } finally {
+        isProcessing = false;
+        esconderLoading();
+      }
+    }
+
+    async function nextMonth() {
+      if (isProcessing) return;
+      try {
+        isProcessing = true;
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        mostrarLoading();
+        await generateCalendar(currentMonth, currentYear);
+      } finally {
+        isProcessing = false;
+        esconderLoading();
+      }
+    }
+
+    // Carrega e gera todo o calendário do mês
+    async function generateCalendar(month, year) {
+      const calendarGrid = document.getElementById('calendar-grid');
+      calendarGrid.innerHTML = '';
+      const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho',
+                          'Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+
+      // Ajusta selects
+      document.getElementById('monthSelect').value = month;
+      document.getElementById('yearSelect').value = year;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
+      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
+
+      // Ajuste de id_site se for 106 ou 142 e mês <= 2
+      if (id_site == 106 || id_site == 142) {
+        if (month == 0 || month == 1 || month == 2) {
+          id_site = 142;
+        } else {
+          id_site = 106;
+        }
+      }
+
+      // Chama API 1x para todo o mês
+      ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
+
+      // Monta o calendário
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.classList.add('day-card','empty');
+        calendarGrid.appendChild(emptyDay);
+      }
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dayCard = document.createElement('div');
+        dayCard.classList.add('day-card');
+        dayCard.innerHTML = `<div class="day-number">${d}</div>`;
+        dayCard.onclick = () => selectDate(year, month, d);
+        calendarGrid.appendChild(dayCard);
+      }
+
+      startDate = firstDay;
+      endDate = lastDay;
+
+      // Agora preenche os valores
+      await refreshCalendarPricesOnly();
+    }
+
+    // Apenas recalcula e atualiza os preços do dia, sem chamar a API novamente
+    async function refreshCalendarPricesOnly() {
+      if (!ticketPrices) return; // se ainda não tiver, nada a fazer
+      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+      let minPrice = Number.MAX_VALUE;
+      const daysData = [];
+
+      dayCards.forEach(card => {
+        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
+        const cardDate = new Date(currentYear, currentMonth, dayNumber);
+        const formattedCardDate = cardDate.toISOString().split('T')[0];
+
+        // Acha item “ADULTO” e “CRIANÇA”
+        const ticketAdult = Object.values(ticketPrices || {}).find(t =>
+          t?.forDate === formattedCardDate && t?.price_type === 'ADULTO'
+        );
+        const ticketChild = Object.values(ticketPrices || {}).find(tc =>
+          tc?.forDate === formattedCardDate && tc?.price_type === 'CRIANÇA'
+        );
+
+        const pricePerAdult = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price)*selectedOptions.adults : 0;
+        const pricePerChild = ticketChild && ticketChild.price ? parseFloat(ticketChild.price)*selectedOptions.children : 0;
+        const pricePerDay = pricePerAdult + pricePerChild;
+
+        if (pricePerDay < minPrice) {
+          minPrice = pricePerDay;
+        }
+
+        daysData.push({ card, dayNumber, price: pricePerDay });
+      });
+
+      // Segunda passagem: insere os dados no card e marca se for min
+      daysData.forEach(({card, price}) => {
+        // Limpamos o interior
+        const dayNumber = card.querySelector('.day-number')?.textContent || '';
+        card.innerHTML = `
+          <div class="day-number">${dayNumber}</div>
+          <div class="price-info">R$ ${price.toFixed(2).replace('.', ',')}</div>
+          <small>Ou em 10x de R$ ${(price*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.',',')}</small>
+        `;
+        // Se for melhor preço, coloca ícone
+        if (price === minPrice && price>0) {
+          const bestIcon = document.createElement('img');
+          bestIcon.src = "https://cdn-icons-png.flaticon.com/512/72/72668.png"; // ícone
+          bestIcon.classList.add('best-price-icon');
+          card.appendChild(bestIcon);
+        }
+      });
+
+      // Reaplica selected e valid
+      updateCalendarSelection();
+    }
+
+    // =========================== Seleciona data no calendário ===========================
+    function selectDate(year, month, day) {
+      const selectedDate = new Date(year, month, day);
+      selectedOptions.startDate = selectedDate;
+
+      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
+        card.classList.remove('selected','valid');
+      });
+      const clickedDay = event.currentTarget;
+      clickedDay.classList.add('selected');
+
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+
+      // Localiza no ticketPrices (já carregado) para esse dia
+      const ticketAdult = Object.values(ticketPrices).find(t =>
+        t.forDate === formattedDate && t.price_type === 'ADULTO'
+      );
+      const ticketChild = Object.values(ticketPrices).find(tc =>
+        tc.forDate === formattedDate && tc.price_type === 'CRIANÇA'
+      );
+
+      if (ticketAdult && !isNaN(parseFloat(ticketAdult.price))) {
+        selectedOptions.price_adult = parseFloat(ticketAdult.price);
+        selectedOptions.id_adult = parseFloat(ticketAdult.ID);
+      } else {
+        selectedOptions.price_adult = 0;
+        selectedOptions.id_adult = 0;
+      }
+
+      if (ticketChild && !isNaN(parseFloat(ticketChild.price))) {
+        selectedOptions.price_chd = parseFloat(ticketChild.price);
+        selectedOptions.id_chd = parseFloat(ticketChild.ID);
+      } else {
+        selectedOptions.price_chd = 0;
+        selectedOptions.id_chd = 0;
+      }
+
+      updateValidity();
+      updateCalendarSelection();
+      updateSummary();
+    }
+
+    function updateCalendarSelection() {
+      const startDate = selectedOptions.startDate;
+      const endDate = selectedOptions.endDate;
+      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+
+      dayCards.forEach(card => {
+        card.classList.remove('selected','valid');
+        const dayNumElem = card.querySelector('.day-number');
+        if (!dayNumElem) return;
+        const dayNumber = parseInt(dayNumElem.textContent);
+        const cardDate = new Date(currentYear, currentMonth, dayNumber);
+
+        if (startDate) {
+          if (cardDate.getTime() === startDate.getTime()) {
+            card.classList.add('selected');
+          } else if (cardDate > startDate && cardDate <= endDate) {
+            card.classList.add('valid');
+          }
+        }
+      });
+    }
+
+    // =========================== ATUALIZA SUMÁRIO ===========================
     function updateSummary() {
       const adultCount = selectedOptions.adults;
       const childCount = selectedOptions.children;
@@ -1314,29 +1602,31 @@ body {
 
       updateValidity();
 
-      let totalPrice = 0;
-      totalPrice = selectedOptions.adults * selectedOptions.price_adult + selectedOptions.children * selectedOptions.price_chd || 0;
+      let totalPrice = selectedOptions.adults*selectedOptions.price_adult
+                     + selectedOptions.children*selectedOptions.price_chd || 0;
 
-      if (days == 0) {
+      if (days === 0) {
         document.getElementById('usage-period').innerText = "Não selecionado";
         totalPrice = 0;
       }
 
-      document.getElementById('total-price').innerHTML = `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
+      document.getElementById('total-price').innerHTML =
+        `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
       document.getElementById('installment-price').textContent =
-        `ou em 10x de R$ ${(totalPrice * (1 + TX_ANTECIPACAO) / 10).toFixed(2).replace('.', ',')} no cartão`;
-    }
+        `ou em 10x de R$ ${(totalPrice*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.', ',')} no cartão`;
 
-    function mostrarLoading() {
-      const overlay = document.getElementById("loadingOverlay");
-      if (overlay) {
-        overlay.style.display = "block";
+      // Se for ingresso Único e dia=1, exibe parque-selection
+      if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
+        document.getElementById('park-selection').style.display = 'flex';
+      } else {
+        document.getElementById('park-selection').style.display = 'none';
+        selectedOptions.selectedPark = '';
+        document.getElementById('selected-park-info').style.display = 'none';
       }
-    }
-    function esconderLoading() {
-      const overlay = document.getElementById("loadingOverlay");
-      if (overlay) {
-        overlay.style.display = "none";
+      // Se tiver selectedPark, exibe info
+      if (selectedOptions.selectedPark) {
+        document.getElementById('selected-park').textContent = selectedOptions.selectedPark;
+        document.getElementById('selected-park-info').style.display = 'block';
       }
     }
 
@@ -1344,6 +1634,7 @@ body {
       const startDate = selectedOptions.startDate;
       let endDate = null;
       let validityText = "Não selecionado";
+
       if (startDate && selectedOptions.days) {
         endDate = new Date(startDate);
 
@@ -1357,332 +1648,171 @@ body {
           case 8:  endDate.setDate(endDate.getDate() + 11); break;
           case 9:  endDate.setDate(endDate.getDate() + 12); break;
           case 10: endDate.setDate(endDate.getDate() + 13); break;
-          default: /* ... */ break;
+          default: break;
         }
+
         if (endDate) {
           selectedOptions.endDate = endDate;
           const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-          const formattedStartDate = startDate.toLocaleDateString('pt-BR', options);
-          const formattedEndDate = endDate.toLocaleDateString('pt-BR', options);
-          validityText = `${formattedStartDate} até ${formattedEndDate}`;
+          const formattedStart = startDate.toLocaleDateString('pt-BR', options);
+          const formattedEnd   = endDate.toLocaleDateString('pt-BR', options);
+          validityText = `${formattedStart} até ${formattedEnd}`;
         }
       }
       document.getElementById('usage-period').innerText = validityText;
     }
 
-    function selectDate(year, month, day) {
-      const selectedDate = new Date(year, month, day);
-      selectedOptions.startDate = selectedDate;
-
-      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-        card.classList.remove('selected', 'valid');
-      });
-
-      const clickedDay = event.currentTarget;
-      clickedDay.classList.add('selected');
-
-      const formattedDate = selectedDate.toISOString().split('T')[0];
-      const ticket = Object.values(ticketPrices).find(t => 
-        t.forDate === formattedDate && t.price_type === 'ADULTO'
-      );
-      const ticket_chd = Object.values(ticketPrices).find(tc => 
-        tc.forDate === formattedDate && tc.price_type === 'CRIANÇA'
-      );
-
-      if (ticket && !isNaN(parseFloat(ticket.price))) {
-        selectedOptions.price_adult = parseFloat(ticket.price);
-        selectedOptions.id_adult = parseFloat(ticket.ID);
-      } else {
-        selectedOptions.price_adult = 0;
-        selectedOptions.id_adult = 0;
-        console.warn('Adult ticket price not available for selected date');
-      }
-
-      if (ticket_chd && !isNaN(parseFloat(ticket_chd.price))) {
-        selectedOptions.price_chd = parseFloat(ticket_chd.price);
-        selectedOptions.id_chd = parseFloat(ticket_chd.ID);
-      } else {
-        selectedOptions.price_chd = 0;
-        selectedOptions.id_chd = 0;
-        console.warn('Child ticket price not available for selected date');
-      }
-
-      updateValidity();
-      updateCalendarSelection();
-      updateSummary();
+    // =========================== LOADING OVERLAY ===========================
+    function mostrarLoading() {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) overlay.style.display = "block";
+    }
+    function esconderLoading() {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) overlay.style.display = "none";
     }
 
-    function updateCalendarSelection() {
-      const startDate = selectedOptions.startDate;
-      const endDate = selectedOptions.endDate;
-      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-
-      dayCards.forEach(card => {
-        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-        const cardDate = new Date(currentYear, currentMonth, dayNumber);
-        card.classList.remove('selected', 'valid');
-
-        if (startDate) {
-          if (cardDate.getTime() === startDate.getTime()) {
-            card.classList.add('selected');
-          } else if (cardDate > startDate && cardDate <= endDate) {
-            card.classList.add('valid');
-          }
-        }
-      });
-    }
-
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-
-    async function prevMonth() {
-      if (isProcessing) return;
+    // =========================== ADICIONAR AO CARRINHO / CHECKOUT ===========================
+    async function addToCart() {
       try {
-        isProcessing = true;
-        currentMonth--;
-        if (currentMonth < 0) {
-          currentMonth = 11;
-          currentYear--;
+        if (!selectedOptions) {
+          throw new Error('Dados de produtos não encontrados');
         }
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
-      } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-      }
-    }
-
-    async function nextMonth() {
-      if (isProcessing) return;
-      try {
-        isProcessing = true;
-        currentMonth++;
-        if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
+        const products = [];
+        if (selectedOptions?.adults && selectedOptions?.id_adult) {
+          products.push({
+            product_id: selectedOptions.id_adult,
+            quantity: parseInt(selectedOptions.adults) || 1
+          });
         }
-        const loadingOverlay = document.getElementById("loadingOverlay");
-        loadingOverlay.style.display = "flex";
-        await generateCalendar(currentMonth, currentYear);
-      } finally {
-        isProcessing = false;
-        loadingOverlay.style.display = "none";
-      }
-    }
-
-    async function generateCalendar(month, year) {
-      const calendarGrid = document.getElementById('calendar-grid');
-      calendarGrid.innerHTML = '';
-      const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho',
-                          'Agosto','Setembro','Outubro','Novembro','Dezembro'];
-      document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
-
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-
-      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
-      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
-
-      if (id_site == 106 || id_site == 142) {
-        if (month == 0 || month == 1 || month == 2){
-          id_site = 142;
-        } else {
-          id_site = 106;
+        if (selectedOptions?.children && selectedOptions?.id_chd) {
+          products.push({
+            product_id: selectedOptions.id_chd,
+            quantity: parseInt(selectedOptions.children) || 1
+          });
         }
-      }
+        if (products.length === 0) {
+          throw new Error('Nenhum produto selecionado');
+        }
 
-      ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
+        let requestSuccess = true;
+        for (const product of products) {
+          const formData = new FormData();
+          formData.append('product_id', product.product_id);
+          formData.append('quantity', product.quantity);
+          formData.append('action', 'woocommerce_ajax_add_to_cart');
 
-      // Dias vazios para alinhar
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.classList.add('day-card', 'empty');
-        calendarGrid.appendChild(emptyDay);
-      }
-
-      for (let d = 1; d <= lastDay.getDate(); d++) {
-        const dayCard = document.createElement('div');
-        dayCard.classList.add('day-card');
-        dayCard.innerHTML = `<div class="day-number">${d}</div>`;
-        dayCard.onclick = () => selectDate(year, month, d);
-        calendarGrid.appendChild(dayCard);
-      }
-
-      startDate = firstDay;
-      endDate = lastDay;
-      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-
-      dayCards.forEach(card => {
-        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-        const cardDate = new Date(currentYear, currentMonth, dayNumber);
-        card.classList.remove('selected','valid');
-
-        const formattedCardDate = cardDate.toISOString().split('T')[0];
-        const ticket = Object.values(ticketPrices || {}).find(t => 
-          t?.forDate === formattedCardDate && t?.price_type === 'ADULTO'
-        );
-        const ticket_chd = Object.values(ticketPrices || {}).find(tc => 
-          tc?.forDate === formattedCardDate && tc?.price_type === 'CRIANÇA'
-        );
-        const pricePerAdult = ticket && ticket.price ? parseFloat(ticket.price)*selectedOptions.adults : 0;
-        const pricePerChild = ticket_chd && ticket_chd.price ? parseFloat(ticket_chd.price)*selectedOptions.children : 0;
-        const pricePerDay = pricePerAdult + pricePerChild;
-
-        card.innerHTML = `<div class="day-number">${dayNumber}</div>
-                          <div class="price-info">R$ ${pricePerDay.toFixed(2).replace('.', ',')}</div>
-                          <small>Ou em 10x de R$ ${(pricePerDay*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.',',')}</small>`;
-      });
-    }
-
-  // Adiciona ao Carrinho
-  async function addToCart() {
-      try {
-          if (typeof selectedOptions === 'undefined') {
-              throw new Error('Dados de produtos não encontrados');
-              return false;
+          if (typeof wc_add_to_cart_params !== 'undefined') {
+            formData.append('security', wc_add_to_cart_params.nonce);
           }
-
-          const products = [];
-          if (selectedOptions?.adults && selectedOptions?.id_adult) {
-              products.push({
-                  product_id: selectedOptions.id_adult,
-                  quantity: parseInt(selectedOptions.adults) || 1
-              });
-          }
-          if (selectedOptions?.children && selectedOptions?.id_chd) {
-              products.push({
-                  product_id: selectedOptions.id_chd,
-                  quantity: parseInt(selectedOptions.children) || 1
-              });
-          }
-          if (products.length === 0) {
-              throw new Error('Nenhum produto selecionado');
-              return false;
-          }
-
-          let requestSuccess = true;
-
-          for (const product of products) {
-              const formData = new FormData();
-            
-              formData.append('product_id', product.product_id);
-              formData.append('quantity', product.quantity);
-              formData.append('action', 'woocommerce_ajax_add_to_cart');
-        
-              if (typeof wc_add_to_cart_params !== 'undefined') {
-                  formData.append('security', wc_add_to_cart_params.nonce);
+          try {
+            const response = await fetch(
+              wc_add_to_cart_params?.wc_ajax_url?.toString().replace('%%endpoint%%','add_to_cart')
+              || '/wp-admin/admin-ajax.php',
+              {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
               }
-
-              try {
-                  const response = await fetch(
-                    wc_add_to_cart_params?.wc_ajax_url?.toString().replace('%%endpoint%%', 'add_to_cart') || '/wp-admin/admin-ajax.php', 
-                    {
-                      method: 'POST',
-                      body: formData,
-                      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                      credentials: 'same-origin'
-                    }
-                  );
-
-                  console.log('Resposta do servidor:', response);
-
-                  if (!response.ok) {
-                      const responseText = await response.text();
-                      console.error('Resposta do servidor:', responseText);
-                      requestSuccess = false;
-                      throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
-                  }
-
-                  const data = await response.json();
-                  console.log('Dados da resposta:', data);
-
-                  if (data.error) {
-                      requestSuccess = false;
-                      throw new Error(data.message || 'Erro ao adicionar ao carrinho');
-                  }
-
-              } catch (fetchError) {
-                  console.error('Erro na requisição:', fetchError);
-                  requestSuccess = false;
-                  throw new Error(`Erro na comunicação com o servidor ao adicionar produto ID ${product.product_id}`);
-              }
+            );
+            if (!response.ok) {
+              const responseText = await response.text();
+              console.error('Resposta do servidor:', responseText);
+              requestSuccess = false;
+              throw new Error(`Erro do servidor: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.error) {
+              requestSuccess = false;
+              throw new Error(data.message || 'Erro ao adicionar ao carrinho');
+            }
+          } catch (fetchError) {
+            console.error('Erro na requisição:', fetchError);
+            requestSuccess = false;
+            throw new Error(`Erro na comunicação ao adicionar produto ID ${product.product_id}`);
           }
-              
-          if (requestSuccess) {
-              showNotification('Produtos adicionados ao carrinho com sucesso!', 'success');
-              jQuery(document.body).trigger('added_to_cart');
-              carrinho = 1;
-              return true;
-          }
-          return false;
-              
+        }
+        if (requestSuccess) {
+          showNotification('Produtos adicionados ao carrinho com sucesso!', 'success');
+          jQuery(document.body).trigger('added_to_cart');
+          carrinho = 1;
+          return true;
+        }
+        return false;
       } catch (error) {
-          console.error('Erro detalhado:', error);
-          showNotification(error.message, 'error');
-          return false;
+        console.error('Erro detalhado:', error);
+        showNotification(error.message, 'error');
+        return false;
       }
-  }
+    }
 
-  // Função de checkout
-  async function checkout() {
+    async function checkout() {
       if (carrinho == 1) {
-          window.location.href = 'https://www.magictraveltur.com/carrinho/';
+        window.location.href = 'https://www.magictraveltur.com/carrinho/';
       } else {
-          const success = await addToCart();
-          if (success) {
-              setTimeout(() => {
-                  window.location.href = 'https://www.magictraveltur.com/carrinho/';
-              }, 500);
-          }
+        const success = await addToCart();
+        if (success) {
+          setTimeout(() => {
+            window.location.href = 'https://www.magictraveltur.com/carrinho/';
+          }, 500);
+        }
       }
-  }
+    }
 
-  // Função auxiliar para mostrar notificações
-  function showNotification(message, type) {
+    // =========================== NOTIFICAÇÕES ===========================
+    function showNotification(message, type) {
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
       notification.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 15px 25px;
-          background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
-          color: white;
-          border-radius: 4px;
-          z-index: 1000;
-          animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        color: white;
+        border-radius: 4px;
+        z-index: 1000;
+        animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       `;
       notification.textContent = message;
 
       const style = document.createElement('style');
       style.textContent = `
-          @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-20px); }
-              to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes fadeOut {
-              from { opacity: 1; transform: translateY(0); }
-              to { opacity: 0; transform: translateY(-20px); }
-          }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(-20px); }
+        }
       `;
       document.head.appendChild(style);
 
       document.body.appendChild(notification);
-
       setTimeout(() => {
-          notification.remove();
+        notification.remove();
       }, 3000);
-  }
+    }
 
-  // Inicialização ao carregar a página
-  window.onload = async () => {
+    // =========================== ONLOAD ===========================
+    window.onload = async () => {
+      // Preenche selects de Mês/Ano
+      populateMonthYearSelects();
+
+      // Seleciona o mês e ano atuais
+      document.getElementById('monthSelect').value = currentMonth;
+      document.getElementById('yearSelect').value = currentYear;
+
+      // Força um "selectTicket('Básico', '106',4)" ao carregar
       counter=0;
-      selectTicket('Básico', '106',4); // ou outro default
+      selectTicket('Básico','106',4, null); 
       document.addEventListener("DOMContentLoaded", updateSelectedOptions);
       counter=1;
-  };
+    };
   </script>
+
 </body>
 </html>
