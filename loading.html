@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Tela de Carregamento + Cards Aleatórios</title>
+  <title>Tela de Carregamento</title>
 
   <!-- Importando a fonte Montserrat do Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,49 +10,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    /*************************************************
-     * Reset básico
-     *************************************************/
+    /* Reset básico */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /*************************************************
-     * BODY
-     *************************************************/
+    /* Corpo da página */
     body {
       font-family: 'Montserrat', sans-serif;
       background-color: #f5f5f5;
       color: #2e2e2f;
     }
 
-    /*************************************************
-     * HEADER EXTERNO (carregado via fetch)
-     *************************************************/
-    #externalHeader {
-      /* Se quiser estilizar a área onde será injetado o header */
-    }
-
-    /*************************************************
-     * CONTAINER PRINCIPAL (Loader em cima + Card embaixo)
-     *************************************************/
+    /* Container geral para organizar o loader em cima e o card embaixo */
     .loading-container {
       display: flex;
-      flex-direction: column; /* Empilhar loader e card verticalmente */
-      align-items: center;    
-      justify-content: flex-start;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem; /* Espaço interno */
+      flex-direction: column; /* Empilha o loader e o card verticalmente */
+      align-items: center;    /* Centraliza horizontalmente */
+      justify-content: flex-start; /* Alinhar ao topo */
+      max-width: 1200px;     /* Maior largura para preencher mais a tela */
+      margin: 0 auto;        /* Centraliza no meio da página */
+      padding: 2rem;         /* Espaço interno se desejar */
     }
 
     /*************************************************
-     * LOADER (Bloco superior)
+     * LOADER (Bloco superior, sem alterações)
      *************************************************/
     .loader {
-      width: 420px;
+      width: 420px;          /* Um pouco maior que 320px */
       min-height: 180px;
       border-radius: 10px;
       display: flex;
@@ -60,16 +47,16 @@
       align-items: center;
       justify-content: space-evenly;
       padding: 30px;
-      margin-bottom: 2rem; /* Espaço entre loader e card */
     }
 
-    /* Pontinhos animados */
+    /* Container dos pontinhos pulsantes */
     .dots-container {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
     }
+
     .dot {
       height: 20px;
       width: 20px;
@@ -81,6 +68,8 @@
     .dot:last-child {
       margin-right: 0;
     }
+
+    /* Delays diferentes para cada pontinho */
     .dot:nth-child(1) {
       animation-delay: -0.3s;
     }
@@ -122,7 +111,7 @@
       to   { opacity: 1; }
     }
 
-    /* Mensagem complementar do loader */
+    /* Mensagem complementar */
     .loader .message {
       margin-top: 0.5rem;
       font-size: 14px;
@@ -131,7 +120,7 @@
     }
 
     /*************************************************
-     * ESTILOS DOS CARDS (valem para Items 01..04)
+     * CARD (Bloco inferior, estilo original)
      *************************************************/
     .task {
       position: relative;
@@ -140,9 +129,9 @@
       border-radius: 8px;
       box-shadow: rgba(99, 99, 99, 0.1) 0px 2px 8px 0px;
       border: 3px dashed transparent;
-      max-width: 350px; /* Ajuste se quiser maior */
+      max-width: 500px;  /* Aumentamos para 500px */
       width: 100%;
-      margin-bottom: 1rem; /* Espaço se quiser inserir mais de um card */
+      margin-bottom: 1rem;
     }
 
     .task:hover {
@@ -160,11 +149,11 @@
       display: block;
       max-width: 100%;
       height: auto;
-      margin: 0 auto 1rem;
+      margin: 0 auto 1rem; /* Espaço abaixo da imagem */
       border-radius: 8px;
     }
 
-    /* Tag / Botão de opções */
+    /* Tag / Botão de Opções */
     .tag {
       border-radius: 100px;
       padding: 4px 13px;
@@ -172,13 +161,15 @@
       color: #ffffff;
       background-color: #1389eb;
     }
+
     .tags {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      margin-bottom: 1rem; /* Espaço entre o título e a imagem */
     }
+
     .options {
       background: transparent;
       border: 0;
@@ -186,13 +177,14 @@
       font-size: 17px;
       color: #c4cad3;
     }
+
     .options svg {
       fill: #9fa4aa;
       width: 20px;
       height: 20px;
     }
 
-    /* Stats */
+    /* Seções de estatísticas (data, chat, curtidas, etc.) */
     .stats {
       position: relative;
       width: 100%;
@@ -201,7 +193,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: 1rem;
     }
+
     .stats div {
       margin-right: 1rem;
       height: 20px;
@@ -209,13 +203,14 @@
       align-items: center;
       cursor: pointer;
     }
+
     .stats svg {
       margin-right: 5px;
       height: 100%;
       stroke: #9fa4aa;
     }
 
-    /* Avatares de viewer */
+    /* Icones de “viewer” */
     .viewer span {
       height: 30px;
       width: 30px;
@@ -236,23 +231,21 @@
   </style>
 </head>
 <body>
-
-  <!-- 1) HEADER EXTERNO (via fetch) -->
+  <!-- HEADER EXTERNO VIA FETCH (mesmo código) -->
   <div id="externalHeader"></div>
   <script>
-    // Carrega o header.html externamente
     fetch("https://business.airland.com.br/header.html")
-      .then(response => response.text())
+      .then(resp => resp.text())
       .then(html => {
         document.getElementById("externalHeader").innerHTML = html;
       })
       .catch(err => console.error("Erro ao carregar header externa:", err));
   </script>
 
-  <!-- 2) CONTAINER PRINCIPAL: Loader + Card Aleatório -->
+  <!-- Container principal -->
   <div class="loading-container">
-
-    <!-- LOADER SUPERIOR -->
+    
+    <!-- 1) LOADER ACIMA -->
     <div class="loader">
       <section class="dots-container">
         <div class="dot"></div>
@@ -265,36 +258,42 @@
       <p class="message">Estamos buscando ofertas extraordinárias!</p>
     </div>
 
-    <!-- DIV onde o card será injetado aleatoriamente -->
+    <!-- 2) Aqui inserimos o CARD aleatório -->
     <div id="randomCardContainer"></div>
+
   </div>
 
   <script>
-    /**********************************************************
-     *   DEFINIÇÃO DOS 4 ITENS (CARD 1, 2, 3 E 4)
-     **********************************************************/
+    /**************************************************************
+     * DEFINIÇÃO DOS 4 ITENS (com o HTML original que você passou)
+     **************************************************************/
+
+    /* ITEM 01 */
     var item1 = `
       <div class="task" draggable="true">
         <div class="tags">
           <span class="tag">Novidade Disney</span>
           <button class="options">
-            <svg xml:space="preserve" viewBox="0 0 41.915 41.916"
-                 xmlns:xlink="http://www.w3.org/1999/xlink"
-                 xmlns="http://www.w3.org/2000/svg" id="Capa_1"
+            <!-- SVG de opções (Capa_1) -->
+            <svg xml:space="preserve" viewBox="0 0 41.915 41.916" 
+                 xmlns:xlink="http://www.w3.org/1999/xlink" 
+                 xmlns="http://www.w3.org/2000/svg" id="Capa_1" 
                  version="1.1" fill="#000000">
-              <g stroke-width="0"></g>
-              <g stroke-linejoin="round" stroke-linecap="round"></g>
-              <g>
+              <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+              <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+              <g id="SVGRepo_iconCarrier">
                 <g>
-                  <path d="M11.214,20.956c0,3.091-2.509,5.589-5.607,5.589
-                           C2.51,26.544,0,24.046,0,20.956c0-3.082,2.511-5.585,5.607-5.585 
-                           C8.705,15.371,11.214,17.874,11.214,20.956z"></path>
-                  <path d="M26.564,20.956c0,3.091-2.509,5.589-5.606,5.589
-                           c-3.097,0-5.607-2.498-5.607-5.589c0-3.082,2.511-5.585,5.607-5.585 
-                           C24.056,15.371,26.564,17.874,26.564,20.956z"></path>
-                  <path d="M41.915,20.956c0,3.091-2.509,5.589-5.607,5.589
-                           c-3.097,0-5.606-2.498-5.606-5.589c0-3.082,2.511-5.585,5.606-5.585 
-                           C39.406,15.371,41.915,17.874,41.915,20.956z"></path>
+                  <g>
+                    <path d="M11.214,20.956c0,3.091-2.509,5.589-5.607,5.589
+                             C2.51,26.544,0,24.046,0,20.956c0-3.082,2.511-5.585,5.607-5.585 
+                             C8.705,15.371,11.214,17.874,11.214,20.956z"></path>
+                    <path d="M26.564,20.956c0,3.091-2.509,5.589-5.606,5.589
+                             c-3.097,0-5.607-2.498-5.607-5.589c0-3.082,2.511-5.585,5.607-5.585 
+                             C24.056,15.371,26.564,17.874,26.564,20.956z"></path>
+                    <path d="M41.915,20.956c0,3.091-2.509,5.589-5.607,5.589
+                             c-3.097,0-5.606-2.498-5.606-5.589c0-3.082,2.511-5.585,5.606-5.585 
+                             C39.406,15.371,41.915,17.874,41.915,20.956z"></path>
+                  </g>
                 </g>
               </g>
             </svg>
@@ -307,18 +306,16 @@
         >
 
         <p>
-          No Hollywood Studios uma nova área de “Monstros S.A”, inspirada em Monstrópolis.
-          Uma montanha-russa suspensa será inaugurada pela primeira vez, 
-          com portas penduradas como nas cenas da animação.
+          No Hollywood Studios uma nova área de “Monstros S.A”, que será inspirada na cidade fictícia do filme, Monstrópolis. Uma montanha-russa suspensa também será inaugurada pela primeira vez, com portas penduradas, assim como nas cenas da animação.
         </p>
 
         <div class="stats">
           <div>
             <div>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <g stroke-width="0"></g>
-                <g stroke-linejoin="round" stroke-linecap="round"></g>
-                <g>
+                <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+                <g id="SVGRepo_iconCarrier">
                   <path stroke-linecap="round" stroke-width="2" d="M12 8V12L15 15"></path>
                   <circle stroke-width="2" r="9" cy="12" cx="12"></circle>
                 </g>
@@ -340,13 +337,15 @@
               18
             </div>
             <div>
-              <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink"
-                   xmlns="http://www.w3.org/2000/svg" version="1.1"
+              <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                   xmlns="http://www.w3.org/2000/svg" version="1.1" 
                    viewBox="-2.5 0 32 32">
-                <g stroke-width="0"></g>
-                <g stroke-linejoin="round" stroke-linecap="round"></g>
-                <g>
-                  <path fill="#000000" d="M0 10.284l0.505 0.36c0.089 0.064..."></path>
+                <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <g id="icomoon-ignore"></g>
+                  <path fill="#000000" d="M0 10.284l0.505 0.36...
+                  "></path>
                 </g>
               </svg>
               7
@@ -356,16 +355,7 @@
           <div class="viewer">
             <span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <g stroke-width="0"></g>
-                <g stroke-linejoin="round" stroke-linecap="round"></g>
-                <g>
-                  <path stroke-width="2" stroke="#ffffff" d="M17 8C17 10.7614 14.7614 13 12 13
-                     C9.23858 13 7 10.7614 7 8C7 5.23858 9.23858 3 12 3
-                     C14.7614 3 17 5.23858 17 8Z"></path>
-                  <path stroke-linecap="round" stroke-width="2" stroke="#ffffff"
-                     d="M3 21C3.95728 17.9237 6.41998 17 12 17
-                     C17.58 17 20.0427 17.9237 21 21"></path>
-                </g>
+                ...
               </svg>
             </span>
             <span>
@@ -382,46 +372,54 @@
           </div>
         </div>
       </div>
-    `; // FIM do item1
+    `; // FIM ITEM 01
 
 
+    /* ITEM 02 (TROPICAL AMERICAS) */
     var item2 = `
       <div class="task" draggable="true">
         <div class="tags">
           <span class="tag">Novidade Disney</span>
           <button class="options">
-            <svg viewBox="0 0 41.915 41.916" fill="#000000">
+            <svg xml:space="preserve" viewBox="0 0 41.915 41.916" 
+                 xmlns:xlink="http://www.w3.org/1999/xlink" 
+                 xmlns="http://www.w3.org/2000/svg" id="Capa_1" 
+                 version="1.1" fill="#000000">
               ...
             </svg>
           </button>
         </div>
+      
         <img 
           src="https://www.indopraorlando.com.br/wp-content/uploads/2024/08/WDW_Tropical-Americas_Encanto_Casita_Exterior-601x292-3c857ab_Easy-Resize.com_.jpg"
           alt="Banner da Magic Travel"
         >
+      
         <p>
-          Tropical Americas será uma nova área no <b>Disney’s Animal Kingdom</b>, 
-          trazendo duas atrações inéditas: uma aventura com <b>Indiana Jones</b> 
-          em um templo maia e a Casita Madrigal de <b>“Encanto”</b>. 
-          Também haverá um carrossel inspirado em animais das histórias Disney. 
-          <b>A abertura está prevista para 2027.</b>
+          Tropical Americas será uma nova área no <b>Disney’s Animal Kingdom,</b> trazendo duas atrações inéditas: 
+          uma aventura com <b>Indiana Jones</b> em um templo maia e a Casita Madrigal 
+          de <b>“Encanto”</b>. Haverá também um carrossel inspirado em animais das 
+          histórias Disney. <b>A abertura está prevista para 2027.</b>
         </p>
+      
         <div class="stats">
           <div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               Jan 17
             </div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               18
             </div>
             <div>
-              <svg fill="#000000" viewBox="-2.5 0 32 32">
+              <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                   xmlns="http://www.w3.org/2000/svg" version="1.1" 
+                   viewBox="-2.5 0 32 32">
                 ...
               </svg>
               7
@@ -429,17 +427,17 @@
           </div>
           <div class="viewer">
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
@@ -447,63 +445,72 @@
           </div>
         </div>
       </div>
-    `; // FIM do item2
+    `; // FIM ITEM 02
 
 
+    /* ITEM 03 (CARROS NO MAGIC KINGDOM) */
     var item3 = `
       <div class="task" draggable="true">
         <div class="tags">
           <span class="tag">Novidade Disney</span>
           <button class="options">
-            <svg fill="#000000" viewBox="0 0 41.915 41.916">
+            <svg xml:space="preserve" viewBox="0 0 41.915 41.916" 
+                 xmlns:xlink="http://www.w3.org/1999/xlink" 
+                 xmlns="http://www.w3.org/2000/svg" id="Capa_1" 
+                 version="1.1" fill="#000000">
               ...
             </svg>
           </button>
         </div>
+      
         <img 
           src="https://www.indopraorlando.com.br/wp-content/uploads/2024/08/WDW_Cars_Attraction_Finish-Line-601x307-508907b_Easy-Resize.com_.jpg"
           alt="Banner da Magic Travel"
         >
+      
         <p>
-          <b>Carros</b> chega ao <b>Magic Kingdom</b> em uma Frontierland reinventada,
-          com duas novas atrações: uma corrida de <b>rally off-road</b> e outra 
-          para toda a família, inclusive os pequenos fãs de velocidade.
-          <b>A construção começa no início do próximo ano.</b>
+          <b>Carros</b> chega ao <b>Magic Kingdom</b> em uma Frontierland reinventada com duas novas atrações: 
+          uma corrida de <b>rally off-road</b> e outra para toda a família, 
+          inclusive os pequenos fãs de velocidade. <b>A construção começa no início do próximo ano.</b>
         </p>
+      
         <div class="stats">
           <div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               Feb 03
             </div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               18
             </div>
             <div>
-              <svg fill="#000000" viewBox="-2.5 0 32 32">
+              <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                   xmlns="http://www.w3.org/2000/svg" version="1.1" 
+                   viewBox="-2.5 0 32 32">
                 ...
               </svg>
               7
             </div>
           </div>
+      
           <div class="viewer">
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
@@ -511,63 +518,73 @@
           </div>
         </div>
       </div>
-    `; // FIM do item3
+    `; // FIM ITEM 03
 
 
+    /* ITEM 04 (CURIOSIDADE DISNEY - EPIC UNIVERSE) */
     var item4 = `
       <div class="task" draggable="true">
         <div class="tags">
           <span class="tag">Curiosidade Disney</span>
           <button class="options">
-            <svg fill="#000000" viewBox="0 0 41.915 41.916">
+            <svg xml:space="preserve" viewBox="0 0 41.915 41.916" 
+                 xmlns:xlink="http://www.w3.org/1999/xlink" 
+                 xmlns="http://www.w3.org/2000/svg" id="Capa_1" 
+                 version="1.1" fill="#000000">
               ...
             </svg>
           </button>
         </div>
+      
         <img 
           src="https://www.vaipradisney.com/blog/wp-content/uploads/2024/01/epic-universe-map-universal.jpg"
           alt="Banner da Magic Travel"
         >
+      
         <p>
-          O <b>Epic Universe</b>, da Universal, abre em <b>22 de maio de 2025</b> em Orlando.
-          Será o quarto e maior parque do complexo, com cinco <b>mundos temáticos:</b>
+          O <b>Epic Universe,</b> da Universal, abre em <b>22 de maio de 2025</b> em Orlando. 
+          Será o quarto e maior parque do complexo, com cinco <b>mundos temáticos:</b> 
           Ministério da Magia (Harry Potter), Super Nintendo World, Ilha de Berk 
           (Como Treinar o Seu Dragão), Celestial Park e Dark Universe.
         </p>
+      
         <div class="stats">
           <div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               Jan 09
             </div>
             <div>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
               34
             </div>
             <div>
-              <svg fill="#000000" viewBox="-2.5 0 32 32">
+              <svg fill="#000000" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                   xmlns="http://www.w3.org/2000/svg" version="1.1" 
+                   viewBox="-2.5 0 32 32">
                 ...
               </svg>
               12
             </div>
           </div>
+    
           <div class="viewer">
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
             <span>
-              <svg fill="none" viewBox="0 0 24 24">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 ...
               </svg>
             </span>
@@ -575,18 +592,14 @@
           </div>
         </div>
       </div>
-    `; // FIM do item4
+    `; // FIM ITEM 04
 
-
-    /**********************************************************
-     * 3) SORTEAR E INSERIR NO CONTAINER
-     **********************************************************/
+    /*****************************************************************
+     * APENAS o JavaScript para escolher um card e injetar no container
+     *****************************************************************/
     var items = [item1, item2, item3, item4];
     var randomIndex = Math.floor(Math.random() * items.length);
-
-    // Injetar o card escolhido dentro da div randomCardContainer
     document.getElementById("randomCardContainer").innerHTML = items[randomIndex];
-
   </script>
 </body>
 </html>
