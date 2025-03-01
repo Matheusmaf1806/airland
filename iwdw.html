@@ -148,8 +148,10 @@ body {
   padding: 20px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
-  border: 2px solid #eee; /* borda padrão */
-  flex: 0 0 auto; /* não encolhe */
+  border: 2px solid #eee; /* borda do bilhete */
+  flex: 0 0 auto;
+  /* permite que os furos ultrapassem o contêiner sem serem cortados */
+  overflow: visible;
 }
 .ticket-bilhete:hover {
   transform: translateY(-5px);
@@ -160,7 +162,6 @@ body {
   box-shadow: 0 0 10px rgba(0,122,255,0.3);
   transform: translateY(-8px);
 }
-/* “Furo” de bilhete */
 .ticket-bilhete::before,
 .ticket-bilhete::after {
   content: "";
@@ -170,15 +171,18 @@ body {
   background: #fff;
   border-radius: 50%;
   z-index: 2;
+  /* borda no círculo igual ao bilhete */
+  border: 2px solid #eee;
+  box-sizing: border-box;
 }
 .ticket-bilhete::before {
   top: 50%;
-  left: -12px;
+  left: -14px; /* recuamos um pouco mais para a borda do círculo */
   transform: translateY(-50%);
 }
 .ticket-bilhete::after {
   top: 50%;
-  right: -12px;
+  right: -14px;
   transform: translateY(-50%);
 }
 .ticket-header {
