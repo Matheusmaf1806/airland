@@ -1,7 +1,7 @@
 <?php
 // Início do script PHP para tratamento do login
 session_start();
-require_once 'airland.com.br/config.php'; // <-- Ajuste o path para o seu arquivo de conexão PDO ($pdo)
+require_once 'airland.com.br/Users/config.php'; // <-- Ajuste o path para o seu arquivo de conexão PDO ($pdo)
 
 $error = '';
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redireciona para a área logada do e-commerce
                 if ($user['role'] === 'USER') {
-                    header('Location: airland.com.br/dashboard.php');
+                    header('Location: airland.com.br/Users/dashboard.php');
                     exit;
                 } else {
                     // Se quiser redirecionar agentes/admins para outro lugar:
