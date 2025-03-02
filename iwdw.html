@@ -11,23 +11,14 @@
     /**************************************************************************
      * RESET / BASE
      **************************************************************************/
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background: white;
-      color: #333;
-      line-height: 1.5;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: white; color: #333; line-height: 1.5; }
+    
     /**************************************************************************
      * HEADER EXTERNO
      **************************************************************************/
-    #externalHeader {
-      width: 100%;
-    }
+    #externalHeader { width: 100%; }
+    
     /**************************************************************************
      * HERO HEADER (banner)
      **************************************************************************/
@@ -40,52 +31,23 @@
       position: relative;
       overflow: hidden;
     }
-    .hero-header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-    .hero-header p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    .hero-icons {
-      margin-top: 25px;
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-    .hero-icon-item {
-      display: flex;
-      align-items: center;
-      font-size: 1rem;
-      background-color: rgba(255,255,255,0.2);
-      padding: 8px 15px;
-      border-radius: 20px;
-      transition: background-color 0.3s;
-    }
-    .hero-icon-item:hover {
-      background-color: rgba(255,255,255,0.3);
-    }
-    .hero-icon-item i {
-      margin-right: 8px;
-    }
+    .hero-header h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 15px; }
+    .hero-header p { font-size: 1.2rem; max-width: 700px; margin: 0 auto; }
+    .hero-icons { margin-top: 25px; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .hero-icon-item { display: flex; align-items: center; font-size: 1rem; background-color: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; transition: background-color 0.3s; }
+    .hero-icon-item:hover { background-color: rgba(255,255,255,0.3); }
+    .hero-icon-item i { margin-right: 8px; }
     .hero-header::after {
       content: "";
       position: absolute;
       top: 0; left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       opacity: 0.2;
       background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg") center/cover no-repeat;
       z-index: 0;
     }
-    .hero-header > * {
-      position: relative;
-      z-index: 1;
-    }
+    .hero-header > * { position: relative; z-index: 1; }
+    
     /**************************************************************************
      * CONTAINER PRINCIPAL (.custom-ticket-form)
      **************************************************************************/
@@ -99,19 +61,9 @@
       z-index: 10;
       padding: 20px;
     }
-    .custom-ticket-form h2 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      color: #0b74c2;
-      margin: 25px 0 10px;
-      text-align: center;
-    }
-    .custom-ticket-form p.subtitle {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+    .custom-ticket-form h2 { font-size: 1.6rem; font-weight: 600; color: #0b74c2; margin: 25px 0 10px; text-align: center; }
+    .custom-ticket-form p.subtitle { font-size: 0.9rem; color: #666; margin-bottom: 20px; text-align: center; }
+    
     /**************************************************************************
      * PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT BILHETE)
      **************************************************************************/
@@ -140,10 +92,7 @@
       flex: 0 0 auto;
       overflow: visible;
     }
-    .ticket-bilhete:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
+    .ticket-bilhete:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
     .ticket-bilhete.selected {
       border-color: #007aff !important;
       box-shadow: 0 0 10px rgba(0,122,255,0.3);
@@ -153,589 +102,224 @@
     .ticket-bilhete::after {
       content: "";
       position: absolute;
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background: #fff;
       border-radius: 50%;
       z-index: 2;
       border: 2px solid #eee;
       box-sizing: border-box;
     }
-    .ticket-bilhete::before {
-      top: 50%;
-      left: -14px;
-      transform: translateY(-50%);
-    }
-    .ticket-bilhete::after {
-      top: 50%;
-      right: -14px;
-      transform: translateY(-50%);
-    }
-    .ticket-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
-    .ticket-logo img {
-      max-width: 130px;
-      height: auto;
-    }
-    .ticket-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #0b74c2;
-      text-align: right;
-      flex: 1;
-      margin-left: 10px;
-    }
-    .ticket-content {
-      margin-bottom: 10px;
-    }
-    .ticket-content p {
-      font-size: 0.88rem;
-      line-height: 1.4;
-      color: #555;
-      margin-top: 8px;
-    }
-    .ticket-dashed-line {
-      margin: 15px 0;
-      border-top: 1px dashed #ccc;
-    }
-    .ticket-barcode {
-      text-align: center;
-    }
-    .ticket-barcode img {
-      max-width: 160px;
-      height: auto;
-    }
+    .ticket-bilhete::before { top: 50%; left: -14px; transform: translateY(-50%); }
+    .ticket-bilhete::after { top: 50%; right: -14px; transform: translateY(-50%); }
+    .ticket-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .ticket-logo img { max-width: 130px; height: auto; }
+    .ticket-title { font-size: 1.2rem; font-weight: bold; color: #0b74c2; text-align: right; flex: 1; margin-left: 10px; }
+    .ticket-content { margin-bottom: 10px; }
+    .ticket-content p { font-size: 0.88rem; line-height: 1.4; color: #555; margin-top: 8px; }
+    .ticket-dashed-line { margin: 15px 0; border-top: 1px dashed #ccc; }
+    .ticket-barcode { text-align: center; }
+    .ticket-barcode img { max-width: 160px; height: auto; }
+    
     /**************************************************************************
      * PASSO 02 - NÚMERO DE DIAS (.days-selector => .day)
      **************************************************************************/
-    .days-selector-container {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
+    .days-selector-container { display: flex; justify-content: center; width: 100%; }
     .days-selector {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 20px;
-      margin-bottom: 30px;
+      display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+      margin-top: 20px; margin-bottom: 30px;
     }
     .day {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: 2px solid #0b74c2;
+      width: 50px; height: 50px;
+      border-radius: 50%; border: 2px solid #0b74c2;
       color: #0b74c2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
       transition: background-color 0.3s, transform 0.3s;
     }
-    .day:hover {
-      background-color: #f0f4f9;
-      transform: scale(1.05);
-    }
-    .day.active {
-      background-color: #0b74c2;
-      color: #fff;
-      transform: scale(1.15);
-    }
+    .day:hover { background-color: #f0f4f9; transform: scale(1.05); }
+    .day.active { background-color: #0b74c2; color: #fff; transform: scale(1.15); }
+    
     /**************************************************************************
      * PASSO 02.1 - PARQUES (para Ingresso Único)
      **************************************************************************/
-    .park-selection {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 30px;
-    }
-    .parks-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin-top: 20px;
-    }
+    .park-selection { display: none; flex-direction: column; align-items: center; width: 100%; margin-bottom: 30px; }
+    .parks-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 20px; }
     .park {
-      flex: 1 1 200px;
-      max-width: 200px;
-      background: #fafafa;
-      border: 1px solid #ececec;
-      border-radius: 8px;
-      text-align: center;
-      padding: 15px;
-      cursor: pointer;
+      flex: 1 1 200px; max-width: 200px;
+      background: #fafafa; border: 1px solid #ececec; border-radius: 8px;
+      text-align: center; padding: 15px; cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
     }
-    .park:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+    .park:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .park.selected {
-      border-color: #0b74c2;
-      background-color: #edf6fb;
-      box-shadow: 0 10px 30px rgba(11,116,194,0.3);
+      border-color: #0b74c2; background-color: #edf6fb; box-shadow: 0 10px 30px rgba(11,116,194,0.3);
     }
-    .park img {
-      width: 100%;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-    .park-name {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #333;
-    }
+    .park img { width: 100%; border-radius: 6px; margin-bottom: 10px; }
+    .park-name { font-size: 1rem; font-weight: 700; color: #333; }
+    
     /**************************************************************************
      * PASSO 03 - SELEÇÃO DE INGRESSOS
      **************************************************************************/
     .ticket-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      width: 100%;
-      margin-bottom: 30px;
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 20px; width: 100%; margin-bottom: 30px; justify-content: center;
     }
     .ticket-box {
-      flex: 1 1 300px;
-      background: #fafafa;
-      border: 1px solid #ececec;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      max-width: 400px;
+      flex: 1 1 300px; background: #fafafa; border: 1px solid #ececec; border-radius: 8px;
+      display: flex; justify-content: space-between; align-items: center; padding: 15px;
+      transition: transform 0.3s, box-shadow 0.3s; max-width: 400px;
     }
-    .ticket-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .ticket-info h3 {
-      font-size: 1rem;
-      margin-bottom: 5px;
-      color: #333;
-    }
-    .ticket-info p {
-      font-size: 0.8rem;
-      margin-top: 4px;
-      color: #777;
-    }
-    .quantity-selector {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .ticket-box:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .ticket-info h3 { font-size: 1rem; margin-bottom: 5px; color: #333; }
+    .ticket-info p { font-size: 0.8rem; margin-top: 4px; color: #777; }
+    .quantity-selector { display: flex; align-items: center; gap: 10px; }
     .quantity-selector button {
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      border: 2px solid #0b74c2;
-      color: #0b74c2;
-      background: #fff;
-      border-radius: 5px;
-      cursor: pointer;
+      width: 40px; height: 40px; font-size: 1.2rem; border: 2px solid #0b74c2;
+      color: #0b74c2; background: #fff; border-radius: 5px; cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
     }
-    .quantity-selector button:hover {
-      background-color: #0b74c2;
-      color: #fff;
-    }
+    .quantity-selector button:hover { background-color: #0b74c2; color: #fff; }
     .quantity-selector input {
-      width: 50px;
-      height: 40px;
-      text-align: center;
-      border: 2px solid #0b74c2;
-      border-radius: 5px;
-      font-size: 1.1rem;
+      width: 50px; height: 40px; text-align: center; border: 2px solid #0b74c2;
+      border-radius: 5px; font-size: 1.1rem;
     }
+    
     /**************************************************************************
      * PASSO 04 - CALENDÁRIO + RESUMO
      **************************************************************************/
     .calendar-summary-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      width: 100%;
+      display: flex; flex-wrap: wrap; gap: 20px; width: 100%;
     }
     .calendar-section {
-      flex: 3;
-      background: #fafafa;
-      border: 1px solid #ececec;
-      border-radius: 8px;
-      padding: 15px;
-      min-width: 320px;
+      flex: 3; background: #fafafa; border: 1px solid #ececec; border-radius: 8px;
+      padding: 15px; min-width: 320px;
     }
     .calendar-header-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      gap: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
     }
     .calendar-header-bar button {
-      background-color: #0b74c2;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      font-size: 1.2rem;
+      background-color: #0b74c2; color: #fff; border: none; border-radius: 4px;
+      width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem;
       transition: background-color 0.3s, transform 0.3s;
     }
-    .calendar-header-bar button:hover {
-      background-color: #085a93;
-      transform: scale(1.05);
-    }
-    .calendar-header-bar h2 {
-      font-size: 1.4rem;
-      color: #333;
-      margin-left: 10px;
-    }
+    .calendar-header-bar button:hover { background-color: #085a93; transform: scale(1.05); }
+    .calendar-header-bar h2 { font-size: 1.4rem; color: #333; margin-left: 10px; }
     /* SELECTS de mês e ano */
-    .month-year-selects {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    .month-year-selects { display: flex; align-items: center; gap: 5px; }
     .month-year-selects select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 0.9rem;
-      cursor: pointer;
+      padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; cursor: pointer;
     }
-    .calendar-weekdays {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-    .calendar-weekdays div {
-      width: 14%;
-      text-align: center;
-    }
+    .calendar-weekdays { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 10px; }
+    .calendar-weekdays div { width: 14%; text-align: center; }
     .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
     }
     .day-card {
-      background: #fff;
-      border-radius: 5px;
-      text-align: center;
-      cursor: pointer;
-      padding: 8px 0;
-      transition: background-color 0.3s, transform 0.3s;
+      background: #fff; border-radius: 5px; text-align: center; cursor: pointer;
+      padding: 8px 0; transition: background-color 0.3s, transform 0.3s;
       position: relative;
     }
-    .day-card:hover {
-      background-color: #f0f4f9;
-      transform: scale(1.02);
-    }
-    .day-card.empty {
-      background-color: transparent;
-      cursor: default;
-    }
-    .day-card.selected {
-      background-color: #0b74c2;
-      color: #fff;
-    }
-    .day-card.valid {
-      background-color: #d0eafc;
-    }
-    .day-card .day-number {
-      font-weight: bold;
-      font-size: 1rem;
-      color: #333;
-    }
-    .day-card.selected .day-number {
-      color: #fff;
-    }
-    .price-info {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 4px;
-    }
-    /* Ícone de “melhor valor” no canto superior direito */
-    .best-price-icon {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 24px;
-      height: 24px;
-      pointer-events: none;
-    }
-    /* Resumo => .summary-section */
+    .day-card:hover { background-color: #f0f4f9; transform: scale(1.02); }
+    .day-card.empty { background-color: transparent; cursor: default; }
+    .day-card.selected { background-color: #0b74c2; color: #fff; }
+    .day-card.valid { background-color: #d0eafc; }
+    .day-card .day-number { font-weight: bold; font-size: 1rem; color: #333; }
+    .day-card.selected .day-number { color: #fff; }
+    .price-info { font-size: 0.8rem; color: #555; margin-top: 4px; }
+    /* Ícone de “melhor valor” */
+    .best-price-icon { position: absolute; top: 2px; right: 2px; width: 24px; height: 24px; pointer-events: none; }
+    /* Resumo */
     .summary-section {
-      flex: 1;
-      background: #fafafa;
-      border: 1px solid #ececec;
-      border-radius: 8px;
-      padding: 15px;
-      min-width: 280px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      flex: 1; background: #fafafa; border: 1px solid #ececec; border-radius: 8px;
+      padding: 15px; min-width: 280px; display: flex; flex-direction: column; justify-content: space-between;
     }
-    .summary-section h2 {
-      font-size: 1.3rem;
-      color: #333;
-      margin-bottom: 15px;
-    }
+    .summary-section h2 { font-size: 1.3rem; color: #333; margin-bottom: 15px; }
     .info-item {
-      font-size: 0.95rem;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      font-size: 0.95rem; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .info-item p {
-      margin: 0;
+    .info-item p { margin: 0; }
+    .total-price { text-align: center; margin-top: 10px; font-size: 0.9rem; color: #666; }
+    .price-bold { font-size: 2rem; font-weight: 700; text-align: center; margin: 10px 0; color: #0b74c2; }
+    .pix-discount { text-align: center; font-size: 0.8rem; color: #2ecc71; margin-bottom: 10px; }
+    .installment-price { text-align: center; font-size: 0.8rem; color: #777; margin-bottom: 20px; }
+    .buy-btn, .add-cart-btn {
+      border: none; border-radius: 5px; font-size: 1rem; padding: 10px; cursor: pointer;
+      transition: background-color 0.3s, transform 0.3s; width: 100%; margin-bottom: 10px; color: #fff;
     }
-    .total-price {
-      text-align: center;
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .price-bold {
-      font-size: 2rem;
-      font-weight: 700;
-      text-align: center;
-      margin: 10px 0;
-      color: #0b74c2;
-    }
-    .pix-discount {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #2ecc71;
-      margin-bottom: 10px;
-    }
-    .installment-price {
-      text-align: center;
-      font-size: 0.8rem;
-      color: #777;
-      margin-bottom: 20px;
-    }
-    .buy-btn,
-    .add-cart-btn {
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      padding: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.3s;
-      width: 100%;
-      margin-bottom: 10px;
-      color: #fff;
-    }
-    .buy-btn {
-      background: #2ecc71;
-    }
-    .buy-btn:hover {
-      background: #27ae60;
-      transform: translateY(-3px);
-    }
-    .add-cart-btn {
-      background: #0b74c2;
-    }
-    .add-cart-btn:hover {
-      background: #085a93;
-      transform: translateY(-3px);
-    }
+    .buy-btn { background: #2ecc71; }
+    .buy-btn:hover { background: #27ae60; transform: translateY(-3px); }
+    .add-cart-btn { background: #0b74c2; }
+    .add-cart-btn:hover { background: #085a93; transform: translateY(-3px); }
+    
     /**************************************************************************
-     * OVERLAY DE CARREGAMENTO (IFRAME)
+     * OVERLAY DE CARREGAMENTO
      **************************************************************************/
     #loadingOverlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+      color: #fff; font-size: 1.5rem; display: flex;
+      align-items: center; justify-content: center; z-index: 9999;
     }
-    #loadingOverlay iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    #loadingOverlay iframe { width: 100%; height: 100%; border: none; }
+    
     /**************************************************************************
      * RESPONSIVIDADE
      **************************************************************************/
     @media (max-width: 768px) {
-      .hero-header h1 {
-        font-size: 2rem;
-      }
-      .custom-ticket-form {
-        margin: -30px auto 20px auto;
-      }
-      .ticket-section,
-      .days-selector,
-      .parks-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .ticket-box {
-        max-width: 100%;
-      }
-      .day {
-        width: 45px;
-        height: 45px;
-        font-size: 14px;
-      }
-      .calendar-summary-container {
-        flex-direction: column;
-      }
-      .calendar-section,
-      .summary-section {
-        width: 100%;
-        margin-bottom: 20px;
-      }
+      .hero-header h1 { font-size: 2rem; }
+      .custom-ticket-form { margin: -30px auto 20px auto; }
+      .ticket-section, .days-selector, .parks-container { flex-direction: column; align-items: center; }
+      .ticket-box { max-width: 100%; }
+      .day { width: 45px; height: 45px; font-size: 14px; }
+      .calendar-summary-container { flex-direction: column; }
+      .calendar-section, .summary-section { width: 100%; margin-bottom: 20px; }
     }
+    
     /**********************************************************************
-     * BOTOES (155x50 e bordas 12px)
+     * BOTÕES (155x50, bordas 12px)
      **********************************************************************/
     .CartBtn {
-      width: 100%;
-      height: 50px;
-      border-radius: 12px;
-      border: none;
-      background-color: #2ecc71;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition-duration: 0.5s;
-      overflow: hidden;
-      box-shadow: 0px 5px 10px rgba(0,0,0,0.103);
-      position: relative;
-      margin-bottom: 10px;
+      width: 100%; height: 50px; border-radius: 12px; border: none;
+      background-color: #2ecc71; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition-duration: 0.5s; overflow: hidden;
+      box-shadow: 0px 5px 10px rgba(0,0,0,0.103); position: relative; margin-bottom: 10px;
     }
     .IconContainer {
-      position: absolute;
-      left: -50px;
-      width: 30px;
-      height: 30px;
-      background-color: transparent;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      z-index: 2;
-      transition-duration: 0.5s;
+      position: absolute; left: -50px; width: 30px; height: 30px;
+      background-color: transparent; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      overflow: hidden; z-index: 2; transition-duration: 0.5s;
     }
-    .icon {
-      border-radius: 1px;
-    }
+    .icon { border-radius: 1px; }
     .text {
-      height: 100%;
-      width: fit-content;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      z-index: 1;
-      transition-duration: 0.5s;
-      font-size: 1.04em;
-      font-weight: 600;
+      height: 100%; width: fit-content; display: flex; align-items: center; justify-content: center;
+      color: #fff; z-index: 1; transition-duration: 0.5s; font-size: 1.04em; font-weight: 600;
     }
-    .CartBtn:hover .IconContainer {
-      transform: translateX(58px);
-      border-radius: 40px;
-      transition-duration: 0.5s;
-    }
-    .CartBtn:hover .text {
-      transform: translate(10px, 0px);
-      transition-duration: 0.5s;
-    }
-    .CartBtn:active {
-      transform: scale(0.95);
-      transition-duration: 0.5s;
-    }
+    .CartBtn:hover .IconContainer { transform: translateX(58px); border-radius: 40px; transition-duration: 0.5s; }
+    .CartBtn:hover .text { transform: translate(10px, 0px); transition-duration: 0.5s; }
+    .CartBtn:active { transform: scale(0.95); transition-duration: 0.5s; }
     .cartBtn {
-      width: 100%;
-      height: 50px;
-      border: none;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      color: white;
-      font-weight: 500;
-      position: relative;
-      background-color: #0b74c2;
-      box-shadow: 0 20px 30px -7px rgba(27,27,27,0.219);
-      transition: all 0.3s ease-in-out;
-      cursor: pointer;
-      overflow: hidden;
+      width: 100%; height: 50px; border: none; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      color: white; font-weight: 500; position: relative; background-color: #0b74c2;
+      box-shadow: 0 20px 30px -7px rgba(27,27,27,0.219); transition: all 0.3s ease-in-out;
+      cursor: pointer; overflow: hidden;
     }
-    .cart {
-      z-index: 2;
-    }
-    .cartBtn:active {
-      transform: scale(0.96);
-    }
+    .cart { z-index: 2; }
+    .cartBtn:active { transform: scale(0.96); }
     .product {
-      position: absolute;
-      width: 12px;
-      border-radius: 3px;
-      content: "";
-      left: 23px;
-      bottom: 23px;
-      opacity: 0;
-      z-index: 1;
-      fill: rgb(211,211,211);
+      position: absolute; width: 12px; border-radius: 3px; content: "";
+      left: 23px; bottom: 23px; opacity: 0; z-index: 1; fill: rgb(211,211,211);
     }
-    .cartBtn:hover .product {
-      animation: slide-in-top 1.2s cubic-bezier(0.25,0.46,0.45,0.94) both;
-    }
+    .cartBtn:hover .product { animation: slide-in-top 1.2s cubic-bezier(0.25,0.46,0.45,0.94) both; }
     @keyframes slide-in-top {
-      0% {
-        transform: translateY(-30px);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(0) rotate(-90deg);
-        opacity: 1;
-      }
+      0% { transform: translateY(-30px); opacity: 1; }
+      100% { transform: translateY(0) rotate(-90deg); opacity: 1; }
     }
-    .cartBtn:hover .cart {
-      animation: slide-in-left 1s cubic-bezier(0.25,0.46,0.45,0.94) both;
-    }
+    .cartBtn:hover .cart { animation: slide-in-left 1s cubic-bezier(0.25,0.46,0.45,0.94) both; }
     @keyframes slide-in-left {
-      0% {
-        transform: translateX(-10px);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      0% { transform: translateX(-10px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
@@ -745,9 +329,7 @@
   <script>
     fetch("https://business.airland.com.br/header.html")
       .then(resp => resp.text())
-      .then(html => {
-        document.getElementById("externalHeader").innerHTML = html;
-      })
+      .then(html => { document.getElementById("externalHeader").innerHTML = html; })
       .catch(err => console.error("Erro ao carregar header externa:", err));
   </script>
   <!-- HERO HEADER -->
@@ -755,12 +337,8 @@
     <h1>Walt Disney World</h1>
     <p>Descubra toda a magia com ingressos oficiais, brindes e muito mais!</p>
     <div class="hero-icons">
-      <div class="hero-icon-item">
-        <i class="fas fa-ticket-alt"></i> Ingressos Oficiais
-      </div>
-      <div class="hero-icon-item">
-        <i class="fas fa-gift"></i> Brindes Exclusivos
-      </div>
+      <div class="hero-icon-item"><i class="fas fa-ticket-alt"></i> Ingressos Oficiais</div>
+      <div class="hero-icon-item"><i class="fas fa-gift"></i> Brindes Exclusivos</div>
     </div>
   </section>
   <!-- CONTAINER PRINCIPAL DOS PASSOS -->
@@ -770,7 +348,7 @@
       <h2>Passo 01 - Selecione o tipo de ingresso</h2>
       <p class="subtitle">Escolha o tipo de ingresso desejado e veja as regras de dias e validades.</p>
       <div class="tickets-section">
-        <!-- Ingresso 1: Único -->
+        <!-- Único -->
         <div class="ticket-bilhete" onclick="selectTicket('Único','100',1,this)">
           <div class="ticket-header">
             <div class="ticket-logo">
@@ -786,7 +364,7 @@
             <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
           </div>
         </div>
-        <!-- Ingresso 2: Básico -->
+        <!-- Básico -->
         <div class="ticket-bilhete" onclick="selectTicket('Básico','106',4,this)">
           <div class="ticket-header">
             <div class="ticket-logo">
@@ -802,7 +380,7 @@
             <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
           </div>
         </div>
-        <!-- Ingresso 3: Hopper -->
+        <!-- Hopper -->
         <div class="ticket-bilhete" onclick="selectTicket('Hopper','116',4,this)">
           <div class="ticket-header">
             <div class="ticket-logo">
@@ -819,7 +397,7 @@
           </div>
         </div>
       </div>
-      <!-- PASSO 02 - SELEÇÃO DE DIAS -->
+      <!-- PASSO 02 - DIAS -->
       <h2>Passo 02 - Selecione o Número de Dias</h2>
       <p class="subtitle">Com tantas atrações, escolha quantos dias irá precisar para aproveitar!</p>
       <div class="days-selector-container">
@@ -836,7 +414,7 @@
           <span class="day" onclick="selectDay(10)">10</span>
         </div>
       </div>
-      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (apenas para Ingresso Único e 1 dia) -->
+      <!-- PASSO 02.1 - PARQUES -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -859,7 +437,7 @@
           </div>
         </div>
       </div>
-      <!-- PASSO 03 - SELEÇÃO DE INGRESSOS (Adultos x Crianças) -->
+      <!-- PASSO 03 - INGRESSOS -->
       <h2>Passo 03 - Selecione o Número de Ingressos</h2>
       <p class="subtitle">Importante: crianças menores de 3 anos não precisam de ingresso.</p>
       <div class="ticket-section">
@@ -894,7 +472,6 @@
         <div class="calendar-section">
           <div class="calendar-header-bar">
             <button id="prevMonth" onclick="prevMonth()">‹</button>
-            <!-- SELECTS de mês e ano -->
             <div class="month-year-selects">
               <select id="monthSelect" onchange="onMonthYearChange()"></select>
               <select id="yearSelect" onchange="onMonthYearChange()"></select>
@@ -943,12 +520,11 @@
             <p id="total-price" class="price-bold"><strong>R$ 0,00</strong></p>
             <p class="pix-discount">Super desconto no Pix!</p>
             <p id="installment-price" class="installment-price">ou em 10x de R$ 0,00 no cartão</p>
-
             <!-- Botões -->
             <button class="CartBtn">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 L4.47,0.11 C4.47,0.06 4.50,0.03 4.54,0.01 L4.58,0 L5.36,0 C5.43,0 5.50,0.03 5.55,0.08 L5.59,0.13 L7.14,2.82 L8.30,2.82 C8.53,2.82 8.72,3.01 8.72,3.25 C8.72,3.49 8.53,3.68 8.30,3.68 L7.64,3.68 L8.63,5.42 L11.93,5.42 C12.52,5.42 13,5.90 13,6.50 C13,7.10 12.52,7.58 11.93,7.58 L8.63,7.58 L7.64,9.32 L8.30,9.32 C8.53,9.32 8.72,9.51 8.72,9.75 C8.72,9.99 8.53,10.18 8.30,10.18 L7.14,10.18 L5.59,12.87 C5.56,12.93 5.50,12.97 5.43,12.99 L5.36,13 L4.58,13 L4.56,12.99 C4.51,12.99 4.48,12.95 4.47,12.91 L4.47,12.87 L5.52,7.58 L1.56,7.58 L0.89,8.55 C0.85,8.61 0.80,8.64 0.74,8.66 L0.67,8.67 L0.11,8.67 L0.07,8.66 L0.07,8.66 C0.03,8.65 0,8.61 0,8.57 L0.01,8.52 L0.58,6.86 C0.64,6.67 0.66,6.47 0.62,6.28 L0.58,6.14 L0.01,4.48 C0,4.47 0,4.46 0,4.44 C0,4.40 0.03,4.36 0.07,4.34 L0.11,4.34 L0.67,4.34 C0.74,4.34 0.80,4.36 0.85,4.40 L0.89,4.45 L1.56,5.42 Z"></path>
+                  <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 C4.47,0.06 4.50,0.03 4.54,0.01 L4.58,0 L5.36,0 C5.43,0 5.50,0.03 5.55,0.08 L5.59,0.13 L7.14,2.82 L8.30,2.82 C8.53,2.82 8.72,3.01 8.72,3.25 C8.72,3.49 8.53,3.68 8.30,3.68 L7.64,3.68 L8.63,5.42 L11.93,5.42 C12.52,5.42 13,5.90 13,6.50 C13,7.10 12.52,7.58 11.93,7.58 L8.63,7.58 L7.64,9.32 L8.30,9.32 C8.53,9.32 8.72,9.51 8.72,9.75 C8.72,9.99 8.53,10.18 8.30,10.18 L7.14,10.18 L5.59,12.87 C5.56,12.93 5.50,12.97 5.43,12.99 L5.36,13 L4.58,13 L4.56,12.99 C4.51,12.99 4.48,12.95 4.47,12.91 L4.47,12.87 L5.52,7.58 L1.56,7.58 L0.89,8.55 C0.85,8.61 0.80,8.64 0.74,8.66 L0.67,8.67 L0.11,8.67 L0.07,8.66 C0.03,8.65 0,8.61 0,8.57 L0.01,8.52 L0.58,6.86 C0.64,6.67 0.66,6.47 0.62,6.28 L0.58,6.14 L0.01,4.48 C0,4.47 0,4.46 0,4.44 C0,4.40 0.03,4.36 0.07,4.34 L0.11,4.34 L0.67,4.34 C0.74,4.34 0.80,4.36 0.85,4.40 L0.89,4.45 L1.56,5.42 Z"></path>
                 </svg>
               </span>
               <p class="text">Comprar Ingresso</p>
@@ -994,24 +570,23 @@
     };
     let isProcessing = false;
     let carrinho = 0;
-    const TX_ANTECIPACAO = 0.0; // Taxa de antecipação, se houver
-
+    const TX_ANTECIPACAO = 0.0;
+    
     // Inicializa quantidades
     selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
     selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
-
+    
     // =========================== FUNÇÕES DE CONFIGURAÇÃO ===========================
     function updateSelectedOptions() {
       selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
       selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
       console.log("Valores atualizados:", selectedOptions);
     }
-
+    
     function populateMonthYearSelects() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect = document.getElementById('yearSelect');
-      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
       monthSelect.innerHTML = "";
       yearSelect.innerHTML = "";
       for (let m = 0; m < 12; m++) {
@@ -1028,7 +603,7 @@
         yearSelect.appendChild(opt);
       }
     }
-
+    
     function onMonthYearChange() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect = document.getElementById('yearSelect');
@@ -1036,11 +611,10 @@
       currentYear = parseInt(yearSelect.value);
       if (!isProcessing) {
         mostrarLoading();
-        generateCalendar(currentMonth, currentYear)
-          .finally(() => esconderLoading());
+        generateCalendar(currentMonth, currentYear).finally(() => esconderLoading());
       }
     }
-
+    
     // =========================== CHAMADA À API ===========================
     async function get_price_tickets(id_site, startDate, endDate) {
       const url = "https://airland.com.br/get-price.php";
@@ -1055,7 +629,6 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
-              // Removido 'Authorization': token, pois token não está definido
             },
             body: JSON.stringify(data)
           }),
@@ -1072,13 +645,12 @@
         return null;
       }
     }
-
+    
     // =========================== PASSO 01: SELEÇÃO DE TIPO DE INGRESSO ===========================
     async function selectTicket(type, idSiteValue, day, el) {
       if (counter == 1) {
         document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-        const calendarGrid = document.getElementById('calendar-grid');
-        calendarGrid.innerHTML = '';
+        document.getElementById('calendar-grid').innerHTML = '';
         selectedOptions.days = 0;
       }
       id_site = idSiteValue;
@@ -1087,9 +659,7 @@
       selectedOptions.ticketType = type;
       updateDaysOptions();
       selectDay(day);
-      if (type === 'Único') {
-        updateParkSelectionVisibility();
-      }
+      if (type === 'Único') { updateParkSelectionVisibility(); }
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (isProcessing) return;
         try {
@@ -1103,7 +673,7 @@
       }
       updateSummary();
     }
-
+    
     function updateDaysOptions() {
       const availableDays = getAvailableDays(selectedOptions.ticketType);
       document.querySelectorAll('.day').forEach(dayElem => {
@@ -1119,7 +689,7 @@
         }
       });
     }
-
+    
     function getAvailableDays(ticketType) {
       switch(ticketType) {
         case 'Único':  return [1];
@@ -1128,18 +698,17 @@
         default:       return [];
       }
     }
-
+    
     // =========================== PASSO 02: SELEÇÃO DE DIAS ===========================
     async function selectDay(day) {
+      // Ajusta id_site conforme o dia selecionado
       if ((id_site >= '104' && id_site <= '112') || id_site == '142') {
         if (day == 2){ id_site = '104'; }
         if (day == 3){ id_site = '105'; }
         if (day == 4){
           if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
             id_site = '142';
-          } else {
-            id_site = '106';
-          }
+          } else { id_site = '106'; }
         }
         if (day == 5){ id_site = '107'; }
         if (day == 6){ id_site = '108'; }
@@ -1184,18 +753,12 @@
         if (day == 10){ id_site = '141'; }
       }
       const calendarGrid = document.getElementById('calendar-grid');
-      if (counter == 1) {
-        calendarGrid.innerHTML = '';
-      }
+      if (counter == 1) { calendarGrid.innerHTML = ''; }
       const availableDays = getAvailableDays(selectedOptions.ticketType);
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-      if (availableDays.length == 1) {
-        selectedOptions.days = availableDays[0];
-      } else {
-        selectedOptions.days = day;
-      }
+      selectedOptions.days = (availableDays.length === 1) ? availableDays[0] : day;
       const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
-      if (dayElem) dayElem.classList.add('active');
+      if (dayElem) { dayElem.classList.add('active'); }
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (isProcessing) return;
         try {
@@ -1209,7 +772,7 @@
       }
       updateSummary();
     }
-
+    
     // =========================== PASSO 02.1: SELEÇÃO DE PARQUE ===========================
     function updateParkSelectionVisibility() {
       const parkSelection = document.getElementById('park-selection');
@@ -1222,16 +785,16 @@
         document.getElementById('selected-park-info').style.display = 'none';
       }
     }
-
+    
     function selectPark(parkName, type, idSiteValue, day) {
       document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
       const selectedPark = document.querySelector(`.park[data-type='${parkName}']`);
-      if (selectedPark) selectedPark.classList.add('selected');
+      if (selectedPark) { selectedPark.classList.add('selected'); }
       selectedOptions.selectedPark = parkName;
       selectTicket(type, idSiteValue, day, null);
       updateSummary();
     }
-
+    
     // =========================== PASSO 03: SELEÇÃO DE INGRESSOS ===========================
     async function incrementTicket(type) {
       if (isProcessing) return;
@@ -1240,7 +803,7 @@
         const ticketInput = document.getElementById(`${type}-ticket`);
         let count = parseInt(ticketInput.value);
         ticketInput.value = ++count;
-        selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
+        selectedOptions[(type === 'adult' ? 'adults' : 'children')] = count;
         updateSelectedOptions();
         mostrarLoading();
         await refreshCalendarPricesOnly();
@@ -1250,7 +813,7 @@
         esconderLoading();
       }
     }
-
+    
     async function decrementTicket(type) {
       if (isProcessing) return;
       try {
@@ -1259,7 +822,7 @@
         let count = parseInt(ticketInput.value);
         if (count > 0) {
           ticketInput.value = --count;
-          selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
+          selectedOptions[(type === 'adult' ? 'adults' : 'children')] = count;
           updateSelectedOptions();
           mostrarLoading();
           await refreshCalendarPricesOnly();
@@ -1270,11 +833,11 @@
         esconderLoading();
       }
     }
-
+    
     // =========================== PASSO 04: CALENDÁRIO ===========================
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
-
+    
     function onMonthYearChange() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect = document.getElementById('yearSelect');
@@ -1285,16 +848,13 @@
         generateCalendar(currentMonth, currentYear).finally(() => esconderLoading());
       }
     }
-
+    
     async function prevMonth() {
       if (isProcessing) return;
       try {
         isProcessing = true;
         currentMonth--;
-        if (currentMonth < 0) {
-          currentMonth = 11;
-          currentYear--;
-        }
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
         mostrarLoading();
         await generateCalendar(currentMonth, currentYear);
       } finally {
@@ -1302,16 +862,13 @@
         esconderLoading();
       }
     }
-
+    
     async function nextMonth() {
       if (isProcessing) return;
       try {
         isProcessing = true;
         currentMonth++;
-        if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
-        }
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
         mostrarLoading();
         await generateCalendar(currentMonth, currentYear);
       } finally {
@@ -1319,7 +876,7 @@
         esconderLoading();
       }
     }
-
+    
     async function generateCalendar(month, year) {
       const calendarGrid = document.getElementById('calendar-grid');
       calendarGrid.innerHTML = '';
@@ -1332,11 +889,7 @@
       const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
       const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
       if (id_site == 106 || id_site == 142) {
-        if (month == 0 || month == 1 || month == 2) {
-          id_site = 142;
-        } else {
-          id_site = 106;
-        }
+        if (month == 0 || month == 1 || month == 2) { id_site = 142; } else { id_site = 106; }
       }
       ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
       for (let i = 0; i < firstDay.getDay(); i++) {
@@ -1348,14 +901,14 @@
         const dayCard = document.createElement('div');
         dayCard.classList.add('day-card');
         dayCard.innerHTML = `<div class="day-number">${d}</div>`;
-        dayCard.onclick = () => selectDate(year, month, d);
+        dayCard.onclick = (e) => selectDate(year, month, d, e);
         calendarGrid.appendChild(dayCard);
       }
-      startDate = firstDay;
-      endDate = lastDay;
+      selectedOptions.startDate = firstDay;
+      selectedOptions.endDate = lastDay;
       await refreshCalendarPricesOnly();
     }
-
+    
     async function refreshCalendarPricesOnly() {
       if (!ticketPrices) return;
       const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
@@ -1374,9 +927,7 @@
         const pricePerAdult = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
         const pricePerChild = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
         const pricePerDay = pricePerAdult + pricePerChild;
-        if (pricePerDay < minPrice) {
-          minPrice = pricePerDay;
-        }
+        if (pricePerDay < minPrice) { minPrice = pricePerDay; }
         daysData.push({ card, dayNumber, price: pricePerDay });
       });
       daysData.forEach(({card, price}) => {
@@ -1395,15 +946,12 @@
       });
       updateCalendarSelection();
     }
-
-    function selectDate(year, month, day) {
+    
+    function selectDate(year, month, day, e) {
       const selectedDate = new Date(year, month, day);
       selectedOptions.startDate = selectedDate;
-      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-        card.classList.remove('selected','valid');
-      });
-      const clickedDay = event.currentTarget;
-      clickedDay.classList.add('selected');
+      document.querySelectorAll('.calendar-grid .day-card').forEach(card => card.classList.remove('selected','valid'));
+      if (e && e.currentTarget) { e.currentTarget.classList.add('selected'); }
       const formattedDate = selectedDate.toISOString().split('T')[0];
       const ticketAdult = Object.values(ticketPrices).find(t =>
         t.forDate === formattedDate && t.price_type === 'ADULTO'
@@ -1429,7 +977,7 @@
       updateCalendarSelection();
       updateSummary();
     }
-
+    
     function updateCalendarSelection() {
       const startDate = selectedOptions.startDate;
       const endDate = selectedOptions.endDate;
@@ -1449,7 +997,7 @@
         }
       });
     }
-
+    
     function updateSummary() {
       const adultCount = selectedOptions.adults;
       const childCount = selectedOptions.children;
@@ -1481,7 +1029,7 @@
         document.getElementById('selected-park-info').style.display = 'block';
       }
     }
-
+    
     function updateValidity() {
       const startDate = selectedOptions.startDate;
       let endDate = null;
@@ -1504,13 +1052,13 @@
           selectedOptions.endDate = endDate;
           const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
           const formattedStart = startDate.toLocaleDateString('pt-BR', options);
-          const formattedEnd   = endDate.toLocaleDateString('pt-BR', options);
+          const formattedEnd = endDate.toLocaleDateString('pt-BR', options);
           validityText = `${formattedStart} até ${formattedEnd}`;
         }
       }
       document.getElementById('usage-period').innerText = validityText;
     }
-
+    
     function mostrarLoading() {
       const overlay = document.getElementById("loadingOverlay");
       if (overlay) overlay.style.display = "block";
@@ -1519,7 +1067,7 @@
       const overlay = document.getElementById("loadingOverlay");
       if (overlay) overlay.style.display = "none";
     }
-
+    
     // =========================== ADICIONAR AO CARRINHO / CHECKOUT ===========================
     async function addToCart() {
       try {
@@ -1527,23 +1075,20 @@
           throw new Error('Dados de produtos não encontrados');
         }
         const products = [];
-        if (selectedOptions?.adults && selectedOptions?.id_adult) {
+        if (selectedOptions.adults && selectedOptions.id_adult) {
           products.push({
             product_id: selectedOptions.id_adult,
             quantity: parseInt(selectedOptions.adults) || 1
           });
         }
-        if (selectedOptions?.children && selectedOptions?.id_chd) {
+        if (selectedOptions.children && selectedOptions.id_chd) {
           products.push({
             product_id: selectedOptions.id_chd,
             quantity: parseInt(selectedOptions.children) || 1
           });
         }
-        if (products.length === 0) {
-          throw new Error('Nenhum produto selecionado');
-        }
+        if (products.length === 0) { throw new Error('Nenhum produto selecionado'); }
         let requestSuccess = true;
-        // Endpoint custom para adicionar ao carrinho
         const addToCartUrl = '/custom-add-to-cart.php';
         for (const product of products) {
           const formData = new FormData();
@@ -1551,15 +1096,12 @@
           formData.append('quantity', product.quantity);
           formData.append('action', 'custom_add_to_cart');
           try {
-            const response = await fetch(
-              addToCartUrl,
-              {
-                method: 'POST',
-                body: formData,
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin'
-              }
-            );
+            const response = await fetch(addToCartUrl, {
+              method: 'POST',
+              body: formData,
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+              credentials: 'same-origin'
+            });
             if (!response.ok) {
               const responseText = await response.text();
               console.error('Resposta do servidor:', responseText);
@@ -1589,7 +1131,7 @@
         return false;
       }
     }
-
+    
     async function checkout() {
       if (carrinho == 1) {
         window.location.href = 'https://www.magictraveltur.com/carrinho/';
@@ -1602,7 +1144,7 @@
         }
       }
     }
-
+    
     // =========================== NOTIFICAÇÕES ===========================
     function showNotification(message, type) {
       const notification = document.createElement('div');
@@ -1633,11 +1175,9 @@
       `;
       document.head.appendChild(style);
       document.body.appendChild(notification);
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
+      setTimeout(() => { notification.remove(); }, 3000);
     }
-
+    
     // =========================== ONLOAD ===========================
     window.onload = async () => {
       populateMonthYearSelects();
