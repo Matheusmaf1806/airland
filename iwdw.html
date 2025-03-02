@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Seleção de Ingressos e Datas - Disney</title>
-  <?php /* Se estiver usando WordPress, descomente a linha abaixo: wp_head(); */ ?>
+  <?php /* Se estiver usando WordPress, descomente: wp_head(); */ ?>
 
   <!-- FontAwesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -795,7 +795,7 @@
             <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
           </div>
         </div>
-        <!-- Básico (este deve iniciar ativo) -->
+        <!-- Básico (inicia ativo) -->
         <div class="ticket-bilhete" onclick="selectTicket('Básico','106',4,this)">
           <div class="ticket-header">
             <div class="ticket-logo">
@@ -845,7 +845,7 @@
           <span class="day" onclick="selectDay(10)">10</span>
         </div>
       </div>
-      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (somente para Único com 1 dia) -->
+      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (ÚNICO com 1 dia) -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -947,7 +947,7 @@
             <button class="CartBtn">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <!-- Substitua o conteúdo de "d" abaixo pelo caminho SVG completo -->
+                  <!-- Substitua o atributo "d" abaixo pelo caminho SVG completo do ícone desejado -->
                   <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 C4.47,0.06 4.50,0.03 4.54,0.01 L4.58,0 L5.36,0 C5.43,0 5.50,0.03 5.55,0.08 L5.59,0.13 L7.14,2.82 L8.30,2.82 C8.53,2.82 8.72,3.01 8.72,3.25 C8.72,3.49 8.53,3.68 8.30,3.68 L7.64,3.68 L8.63,5.42 L11.93,5.42 C12.52,5.42 13,5.90 13,6.50 C13,7.10 12.52,7.58 11.93,7.58 L8.63,7.58 L7.64,9.32 L8.30,9.32 C8.53,9.32 8.72,9.51 8.72,9.75 C8.72,9.99 8.53,10.18 8.30,10.18 L7.14,10.18 L5.59,12.87 C5.56,12.93 5.50,12.97 5.43,12.99 L5.36,13 L4.58,13 L4.56,12.99 C4.51,12.99 4.48,12.95 4.47,12.91 L4.47,12.87 L5.52,7.58 L1.56,7.58 L0.89,8.55 C0.85,8.61 0.80,8.64 0.74,8.66 L0.67,8.67 L0.11,8.67 L0.07,8.66 C0.03,8.65 0,8.61 0,8.57 L0.01,8.52 L0.58,6.86 C0.64,6.67 0.66,6.47 0.62,6.28 L0.58,6.14 L0.01,4.48 C0,4.47 0,4.46 0,4.44 C0,4.40 0.03,4.36 0.07,4.34 L0.11,4.34 L0.67,4.34 C0.74,4.34 0.80,4.36 0.85,4.40 L0.89,4.45 L1.56,5.42 Z"></path>
                 </svg>
               </span>
@@ -955,12 +955,12 @@
             </button>
             <button class="cartBtn" onclick="checkout()">
               <svg class="cart" fill="white" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
-                <!-- Substitua o conteúdo de "d" abaixo pelo caminho SVG completo do carrinho -->
+                <!-- Substitua o atributo "d" abaixo pelo caminho SVG completo do ícone do carrinho -->
                 <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 ..."></path>
               </svg>
               Adicionar ao Carrinho
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
-                <!-- Substitua o conteúdo de "d" abaixo pelo caminho SVG completo do ícone do produto -->
+                <!-- Substitua o atributo "d" abaixo pelo caminho SVG completo do ícone do produto -->
                 <path d="M211.8 0c7.8 0 14.3 5.7 ..."></path>
               </svg>
             </button>
@@ -1111,7 +1111,7 @@
       const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
       if (dayElem) dayElem.classList.add('active');
       
-      // Ajusta o id_site conforme a lógica já existente
+      // Ajusta o id_site conforme a lógica (mantida a lógica de exemplo)
       if ((id_site >= '104' && id_site <= '112') || id_site === '142') {
         if (day == 2){ id_site = '104'; }
         if (day == 3){ id_site = '105'; }
@@ -1190,14 +1190,14 @@
       const pk = document.querySelector(`.park[data-type="${parkName}"]`);
       if (pk) pk.classList.add('selected');
       selectedOptions.selectedPark = parkName;
-      // Chama selectTicket para manter a coerência
+      // Para manter a coerência, chama selectTicket
       selectTicket(type, idSiteValue, day, null);
       updateSummary();
     }
     
     /***********************
      * PASSO 03: INGRESSOS (Adultos / Crianças)
-     * Atualiza apenas os totais sem chamar a API novamente.
+     * Atualiza apenas os totais (sem nova chamada à API)
      ***********************/
     async function incrementTicket(type) {
       if (isProcessing) return;
@@ -1208,8 +1208,7 @@
         inputEl.value = ++count;
         selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
         updateSelectedOptions();
-        // Atualiza os preços no calendário com base nas novas quantidades
-        refreshCalendarPrices();
+        refreshCalendarPrices(); // Atualiza os valores exibidos
         updateSummary();
       } finally {
         isProcessing = false;
@@ -1310,32 +1309,56 @@
         calGrid.appendChild(dayCard);
       }
       
-      // Atualiza os preços de cada dia (multiplicando pelas quantidades selecionadas)
+      // Atualiza os preços de cada dia (multiplicando pelas quantidades)
       refreshCalendarPrices();
       updateCalendarSelection();
     }
-    // Função para atualizar os preços dos dias usando os dados já carregados (ticketPrices)
+    
+    // Função para atualizar os preços dos dias com base nas quantidades já selecionadas
     function refreshCalendarPrices() {
       const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+      let daysData = [];
+      
       cards.forEach(card => {
         const dNum = parseInt(card.querySelector('.day-number').textContent);
         const cDate = new Date(currentYear, currentMonth, dNum);
         const fmtDate = cDate.toISOString().split('T')[0];
-        // Converte o price_type para maiúsculas para tratar "CRIANÇA" ou "CRIANCA"
+        // Filtra os preços de adulto e criança (usando toUpperCase para assegurar a comparação)
         const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type.toUpperCase() === 'ADULTO');
         const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && (t.price_type.toUpperCase() === 'CRIANÇA' || t.price_type.toUpperCase() === 'CRIANCA'));
         const priceA = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
         const priceC = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
         const priceDay = priceA + priceC;
-        const formattedPrice = priceDay.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        daysData.push({ card, price: priceDay, dayNumber: dNum });
+      });
+      
+      // Encontra os dois menores preços (maior que 0) do mês
+      let bestPrices = daysData
+                        .filter(d => d.price > 0)
+                        .sort((a, b) => a.price - b.price)
+                        .slice(0, 2)
+                        .map(d => d.price);
+      
+      // Atualiza cada card com os preços e insere o ícone se for um dos dois melhores
+      daysData.forEach(data => {
+        const { card, price, dayNumber } = data;
+        const formattedPrice = price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         card.innerHTML = `
-          <div class="day-number">${dNum}</div>
+          <div class="day-number">${dayNumber}</div>
           <div class="price-info">R$ ${formattedPrice}</div>
-          <small>Ou em 10x de R$ ${ (priceDay*(1+TX_ANTECIPACAO)/10)
-             .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }</small>
+          <small>Ou em 10x de R$ ${(price * (1 + TX_ANTECIPACAO) / 10)
+            .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</small>
         `;
+        // Se o preço deste dia for um dos dois melhores, insere o ícone (bilhete azul)
+        if (bestPrices.includes(price)) {
+          const bestIcon = document.createElement('img');
+          bestIcon.src = "https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Ticket%20best.png";
+          bestIcon.classList.add('best-price-icon');
+          card.appendChild(bestIcon);
+        }
       });
     }
+    
     async function get_price_tickets(id_site, startDate, endDate) {
       const url  = "https://airland.com.br/get-price.php";
       const data = { id_site, start_date: startDate, end_date: endDate };
@@ -1363,6 +1386,7 @@
         return [];
       }
     }
+    
     function selectDate(year, month, day) {
       const selDate = new Date(year, month, day);
       selectedOptions.startDate = selDate;
@@ -1394,6 +1418,7 @@
       updateCalendarSelection();
       updateSummary();
     }
+    
     function updateCalendarSelection() {
       const start = selectedOptions.startDate;
       const end = selectedOptions.endDate;
@@ -1411,6 +1436,7 @@
         }
       });
     }
+    
     function updateSummary() {
       const aCount = selectedOptions.adults;
       const cCount = selectedOptions.children;
@@ -1441,6 +1467,7 @@
         document.getElementById('selected-park-info').style.display = 'block';
       }
     }
+    
     function updateValidity() {
       const start = selectedOptions.startDate;
       let endDate = null;
