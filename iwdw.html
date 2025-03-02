@@ -4,15 +4,11 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Seleção de Ingressos e Datas - Disney</title>
-
-  <!-- (Se estiver usando WP, pode manter) -->
-  <?php /* wp_head(); */ ?>
+  <?php /* Se estiver usando WordPress, descomente: wp_head(); */ ?>
 
   <!-- FontAwesome para ícones -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
   <style>
     /**************************************************************************
      * RESET / BASE
@@ -28,14 +24,12 @@
       color: #333;
       line-height: 1.5;
     }
-
     /**************************************************************************
      * HEADER EXTERNO
      **************************************************************************/
     #externalHeader {
       width: 100%;
     }
-
     /**************************************************************************
      * HERO HEADER (banner)
      **************************************************************************/
@@ -87,15 +81,13 @@
       width: 100%;
       height: 100%;
       opacity: 0.2;
-      background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg")
-                  center/cover no-repeat;
+      background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg") center/cover no-repeat;
       z-index: 0;
     }
     .hero-header > * {
       position: relative;
       z-index: 1;
     }
-
     /**************************************************************************
      * CONTAINER PRINCIPAL (.custom-ticket-form)
      **************************************************************************/
@@ -105,9 +97,9 @@
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 15px rgba(0,0,0,0.07);
+      padding: 20px;
       position: relative;
       z-index: 10;
-      padding: 20px;
     }
     .custom-ticket-form h2 {
       font-size: 1.6rem;
@@ -122,9 +114,8 @@
       margin-bottom: 20px;
       text-align: center;
     }
-
     /**************************************************************************
-     * PASSO 01 - TIPO DE INGRESSO (NOVO LAYOUT BILHETE)
+     * PASSO 01 - TIPO DE INGRESSO (LAYOUT BILHETE)
      **************************************************************************/
     .tickets-section {
       padding: 40px 20px;
@@ -132,7 +123,7 @@
       max-width: 1200px;
       margin: 0 auto;
       display: flex;
-      flex-wrap: nowrap; 
+      flex-wrap: nowrap;
       gap: 30px;
       justify-content: center;
       overflow-x: auto;
@@ -220,9 +211,8 @@
       max-width: 160px;
       height: auto;
     }
-
     /**************************************************************************
-     * PASSO 02 - NÚMERO DE DIAS
+     * PASSO 02 - SELEÇÃO DE DIAS
      **************************************************************************/
     .days-selector-container {
       display: flex;
@@ -259,9 +249,8 @@
       color: #fff;
       transform: scale(1.15);
     }
-
     /**************************************************************************
-     * PASSO 02.1 - PARQUES
+     * PASSO 02.1 - SELEÇÃO DE PARQUE (ÚNICO, 1 dia)
      **************************************************************************/
     .park-selection {
       display: none;
@@ -307,9 +296,8 @@
       font-weight: 700;
       color: #333;
     }
-
     /**************************************************************************
-     * PASSO 3 - SELEÇÃO DE INGRESSOS
+     * PASSO 03 - SELEÇÃO DE INGRESSOS (Adultos / Crianças)
      **************************************************************************/
     .ticket-section {
       display: flex;
@@ -373,9 +361,8 @@
       border-radius: 5px;
       font-size: 1.1rem;
     }
-
     /**************************************************************************
-     * PASSO 4 - CALENDÁRIO + RESUMO
+     * PASSO 04 - CALENDÁRIO + RESUMO
      **************************************************************************/
     .calendar-summary-container {
       display: flex;
@@ -419,7 +406,6 @@
       color: #333;
       margin-left: 10px;
     }
-    /* SELECTS de mês e ano */
     .month-year-selects {
       display: flex;
       align-items: center;
@@ -485,7 +471,6 @@
       color: #555;
       margin-top: 4px;
     }
-    /* Ícone de “melhor valor” no canto superior direito */
     .best-price-icon {
       position: absolute;
       top: 2px;
@@ -494,7 +479,9 @@
       height: 24px;
       pointer-events: none;
     }
-    /* Resumo => .summary-section */
+    /**************************************************************************
+     * RESUMO (.summary-section)
+     **************************************************************************/
     .summary-section {
       flex: 1;
       background: #fafafa;
@@ -574,9 +561,8 @@
       background: #085a93;
       transform: translateY(-3px);
     }
-
     /**************************************************************************
-     * OVERLAY DE CARREGAMENTO (IFRAME)
+     * OVERLAY DE CARREGAMENTO
      **************************************************************************/
     #loadingOverlay {
       display: none;
@@ -598,7 +584,6 @@
       height: 100%;
       border: none;
     }
-
     /**************************************************************************
      * RESPONSIVIDADE
      **************************************************************************/
@@ -632,12 +617,9 @@
         margin-bottom: 20px;
       }
     }
-
     /**********************************************************************
-     * Ajuste para os 2 BOTOES terem MESMO TAMANHO (155x50) E BORDAS (12px)
+     * BOTOES (155x50 e bordas 12px)
      **********************************************************************/
-
-    /* BOTÃO 1 (.CartBtn) */
     .CartBtn {
       width: 100%;
       height: 50px;
@@ -696,8 +678,6 @@
       transform: scale(0.95);
       transition-duration: 0.5s;
     }
-
-    /* BOTÃO 2 (.cartBtn) */
     .cartBtn {
       width: 100%;
       height: 50px;
@@ -762,9 +742,11 @@
   </style>
 </head>
 <body style="margin: 0; padding: 0;">
-  <!-- HEADER EXTERNO VIA FETCH (OPCIONAL) -->
+
+  <!-- HEADER EXTERNO (opcional) -->
   <div id="externalHeader"></div>
   <script>
+    // Se houver um header externo, ele é carregado aqui
     fetch("https://business.airland.com.br/header.html")
       .then(resp => resp.text())
       .then(html => {
@@ -790,8 +772,7 @@
   <!-- CONTAINER PRINCIPAL -->
   <div class="custom-ticket-form">
     <div class="main-container">
-
-      <!-- PASSO 01 -->
+      <!-- PASSO 01 - TIPO DE INGRESSO -->
       <h2>Passo 01 - Selecione o tipo de ingresso</h2>
       <p class="subtitle">Escolha o tipo de ingresso desejado e veja as regras de dias e validades.</p>
       <div class="tickets-section">
@@ -811,7 +792,6 @@
             <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
           </div>
         </div>
-
         <!-- Básico -->
         <div class="ticket-bilhete" onclick="selectTicket('Básico','106',4,this)">
           <div class="ticket-header">
@@ -828,7 +808,6 @@
             <img src="https://orbisdobrasil.com.br/wp-content/uploads/2022/06/pagamento-seguro.png" alt="Pagamento Seguro">
           </div>
         </div>
-
         <!-- Hopper -->
         <div class="ticket-bilhete" onclick="selectTicket('Hopper','116',4,this)">
           <div class="ticket-header">
@@ -846,9 +825,7 @@
           </div>
         </div>
       </div>
-      <!-- FIM PASSO 01 -->
-
-      <!-- PASSO 02 -->
+      <!-- PASSO 02 - DIAS -->
       <h2>Passo 02 - Selecione o Número de Dias</h2>
       <p class="subtitle">Com tantas atrações, escolha quantos dias irá precisar para aproveitar!</p>
       <div class="days-selector-container">
@@ -865,8 +842,7 @@
           <span class="day" onclick="selectDay(10)">10</span>
         </div>
       </div>
-
-      <!-- PASSO 02.1 - PARQUE (somente para Único e 1 dia) -->
+      <!-- PASSO 02.1 - PARQUE (apenas para Único com 1 dia) -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -889,8 +865,7 @@
           </div>
         </div>
       </div>
-
-      <!-- PASSO 03 - Ingressos (Adultos / Crianças) -->
+      <!-- PASSO 03 - INGRESSOS -->
       <h2>Passo 03 - Selecione o Número de Ingressos</h2>
       <p class="subtitle">Importante: crianças menores de 3 anos não precisam de ingresso.</p>
       <div class="ticket-section">
@@ -917,12 +892,10 @@
           </div>
         </div>
       </div>
-
-      <!-- PASSO 04 - Calendário + Resumo -->
+      <!-- PASSO 04 - CALENDÁRIO + RESUMO -->
       <h2>Passo 04 - Selecione o Período da Viagem</h2>
       <p class="subtitle">Para acessar um parque da Disney, é preciso reservar a data no My Disney Experience.</p>
       <div class="calendar-summary-container">
-
         <!-- Calendário -->
         <div class="calendar-section">
           <div class="calendar-header-bar">
@@ -939,7 +912,6 @@
           </div>
           <div class="calendar-grid" id="calendar-grid"></div>
         </div>
-
         <!-- Resumo -->
         <div class="summary-section">
           <div class="summary-card">
@@ -968,25 +940,25 @@
             <p id="total-price" class="price-bold"><strong>R$ 0,00</strong></p>
             <p class="pix-discount">Super desconto no Pix!</p>
             <p id="installment-price" class="installment-price">ou em 10x de R$ 0,00 no cartão</p>
-
-            <!-- Botão 1 -->
-            <button class="CartBtn">
+            <!-- Botões -->
+            <button class="CartBtn" onclick="/* Aqui você pode vincular a ação de comprar */">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <path fill="white" d="M1.55989957,5.41666667 L5.51582215,5.41666667 ..."></path>
+                  <!-- Substitua o conteúdo de d abaixo pelo caminho SVG completo -->
+                  <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 L4.47,0.11 C4.47,0.06 4.50,0.03 4.54,0.01 L4.58,0 L5.36,0 C5.43,0 5.50,0.03 5.55,0.08 L5.59,0.13 L7.14,2.82 L8.30,2.82 C8.53,2.82 8.72,3.01 8.72,3.25 C8.72,3.49 8.53,3.68 8.30,3.68 L7.64,3.68 L8.63,5.42 L11.93,5.42 C12.52,5.42 13,5.90 13,6.50 C13,7.10 12.52,7.58 11.93,7.58 L8.63,7.58 L7.64,9.32 L8.30,9.32 C8.53,9.32 8.72,9.51 8.72,9.75 C8.72,9.99 8.53,10.18 8.30,10.18 L7.14,10.18 L5.59,12.87 C5.56,12.93 5.50,12.97 5.43,12.99 L5.36,13 L4.58,13 L4.56,12.99 C4.51,12.99 4.48,12.95 4.47,12.91 L4.47,12.87 L5.52,7.58 L1.56,7.58 L0.89,8.55 C0.85,8.61 0.80,8.64 0.74,8.66 L0.67,8.67 L0.11,8.67 L0.07,8.66 C0.03,8.65 0,8.61 0,8.57 L0.01,8.52 L0.58,6.86 C0.64,6.67 0.66,6.47 0.62,6.28 L0.58,6.14 L0.01,4.48 C0,4.47 0,4.46 0,4.44 C0,4.40 0.03,4.36 0.07,4.34 L0.11,4.34 L0.67,4.34 C0.74,4.34 0.80,4.36 0.85,4.40 L0.89,4.45 L1.56,5.42 Z"></path>
                 </svg>
               </span>
               <p class="text">Comprar Ingresso</p>
             </button>
-
-            <!-- Botão 2 -->
-            <button class="cartBtn">
+            <button class="cartBtn" onclick="checkout()">
               <svg class="cart" fill="white" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0 24C0 10.7 ..."></path>
+                <!-- Substitua o conteúdo de d abaixo pelo caminho SVG completo -->
+                <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 ..."></path>
               </svg>
               Adicionar ao Carrinho
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
-                <path d="M211.8 0c7.8 0 ..."></path>
+                <!-- Substitua o conteúdo de d abaixo pelo caminho SVG completo -->
+                <path d="M211.8 0c7.8 0 14.3 5.7 ..."></path>
               </svg>
             </button>
           </div>
@@ -995,19 +967,24 @@
     </div>
   </div>
 
-  <!-- OVERLAY -->
+  <!-- OVERLAY DE CARREGAMENTO -->
   <div id="loadingOverlay">
     <iframe src="loading.html"></iframe>
   </div>
 
-  <!-- Script Inline -->
+  <!-- SCRIPTS -->
   <script>
-    // =========================== VARIÁVEIS GLOBAIS ===========================
+    /***********************
+     * VARIÁVEIS GLOBAIS
+     ***********************/
     let ticketPrices = null;
     let id_site = null;
     let isProcessing = false;
     let carrinho = 0;
-
+    let currentMonth = new Date().getMonth();
+    let currentYear  = new Date().getFullYear();
+    const TX_ANTECIPACAO = 0.0;
+    
     let selectedOptions = {
       ticketType: '',
       days: 0,
@@ -1022,24 +999,29 @@
       selectedPark: ''
     };
 
-    let currentMonth = new Date().getMonth();
-    let currentYear  = new Date().getFullYear();
-    const TX_ANTECIPACAO = 0.0;
-
-    // =========================== FUNÇÕES ===========================
+    /***********************
+     * FUNÇÕES AUXILIARES DE LOADING
+     ***********************/
     function mostrarLoading() {
       document.getElementById("loadingOverlay").style.display = "flex";
     }
     function esconderLoading() {
       document.getElementById("loadingOverlay").style.display = "none";
     }
-
+    
+    /***********************
+     * FUNÇÃO updateSelectedOptions
+     ***********************/
     function updateSelectedOptions() {
       selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
       selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
       console.log("Valores atualizados:", selectedOptions);
     }
 
+    /***********************
+     * FUNÇÃO updateParkSelectionVisibility
+     * Exibe a área de parque somente se o ingresso for "Único" E o número de dias for 1.
+     ***********************/
     function updateParkSelectionVisibility() {
       const parkSelection = document.getElementById('park-selection');
       if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
@@ -1052,31 +1034,27 @@
       }
     }
 
-    // --------------------
-    // PASSO 01 - SELECT TICKET
-    // --------------------
+    /***********************
+     * PASSO 01: SELECT TICKET
+     ***********************/
     async function selectTicket(type, idSiteValue, day, el) {
-      // Se houver um ticket já selecionado, remove a classe
+      // Remover seleção de todos os bilhetes
       document.querySelectorAll('.ticket-bilhete').forEach(t => t.classList.remove('selected'));
       if (el) el.classList.add('selected');
-
       selectedOptions.ticketType = type;
       id_site = idSiteValue;
-
-      // Sempre ocultamos a parkSelection se não for Único+1
       updateParkSelectionVisibility();
-
-      // Reset days e grid
+      
+      // Resetar dias e limpar calendário
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
       document.getElementById('calendar-grid').innerHTML = '';
       selectedOptions.days = 0;
-
-      // Ajusta dias disponíveis
+      
       updateDaysOptions();
-      // Força o dia default
+      // Seleciona o dia padrão (por exemplo, 4)
       selectDay(day);
-
-      // Se já temos ticket e dia
+      
+      // Se ticket e dia já definidos, buscar dados da API
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (!isProcessing) {
           try {
@@ -1092,6 +1070,9 @@
       updateSummary();
     }
 
+    /***********************
+     * FUNÇÃO getAvailableDays
+     ***********************/
     function getAvailableDays(ticketType) {
       switch(ticketType) {
         case 'Único':  return [1];
@@ -1101,11 +1082,14 @@
       }
     }
 
+    /***********************
+     * FUNÇÃO updateDaysOptions
+     ***********************/
     function updateDaysOptions() {
-      const availableDays = getAvailableDays(selectedOptions.ticketType);
+      const available = getAvailableDays(selectedOptions.ticketType);
       document.querySelectorAll('.day').forEach(dayElem => {
         const d = parseInt(dayElem.textContent);
-        if (availableDays.includes(d)) {
+        if (available.includes(d)) {
           dayElem.style.display = 'flex';
         } else {
           dayElem.style.display = 'none';
@@ -1117,29 +1101,75 @@
       });
     }
 
-    // --------------------
-    // PASSO 02 - SELECT DAY
-    // --------------------
+    /***********************
+     * PASSO 02: SELECT DAY
+     ***********************/
     async function selectDay(day) {
       const available = getAvailableDays(selectedOptions.ticketType);
-
-      // Remove active de todos
+      // Remove classe active de todos os dias
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-
-      if (available.length === 1) {
-        selectedOptions.days = available[0];
-      } else {
-        selectedOptions.days = day;
-      }
-
+      // Se só houver um dia disponível, usa-o; senão, usa o clicado
+      selectedOptions.days = available.length === 1 ? available[0] : day;
+      
       const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
       if (dayElem) dayElem.classList.add('active');
-
-      // Ajusta id_site se estiver no range
-      // (manter a lógica que você já tinha)
-      // ...
-      // (exatamente como no seu snippet)
-
+      
+      // Ajusta id_site conforme sua lógica (mantive a lógica de exemplo abaixo)
+      if ((id_site >= '104' && id_site <= '112') || id_site === '142') {
+        if (day == 2){ id_site = '104'; }
+        if (day == 3){ id_site = '105'; }
+        if (day == 4){
+          if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
+            id_site = '142';
+          } else {
+            id_site = '106';
+          }
+        }
+        if (day == 5){ id_site = '107'; }
+        if (day == 6){ id_site = '108'; }
+        if (day == 7){ id_site = '109'; }
+        if (day == 8){ id_site = '110'; }
+        if (day == 9){ id_site = '111'; }
+        if (day == 10){ id_site = '112'; }
+      }
+      if (id_site >= '113' && id_site <= '122') {
+        if (day == 1){ id_site = '113'; }
+        if (day == 2){ id_site = '114'; }
+        if (day == 3){ id_site = '115'; }
+        if (day == 4){ id_site = '116'; }
+        if (day == 5){ id_site = '117'; }
+        if (day == 6){ id_site = '118'; }
+        if (day == 7){ id_site = '119'; }
+        if (day == 8){ id_site = '120'; }
+        if (day == 9){ id_site = '121'; }
+        if (day == 10){ id_site = '122'; }
+      }
+      if (id_site >= '123' && id_site <= '131') {
+        if (day == 2){ id_site = '123'; }
+        if (day == 3){ id_site = '124'; }
+        if (day == 4){ id_site = '125'; }
+        if (day == 5){ id_site = '126'; }
+        if (day == 6){ id_site = '127'; }
+        if (day == 7){ id_site = '128'; }
+        if (day == 8){ id_site = '129'; }
+        if (day == 9){ id_site = '130'; }
+        if (day == 10){ id_site = '131'; }
+      }
+      if (id_site >= '132' && id_site <= '141') {
+        if (day == 1){ id_site = '132'; }
+        if (day == 2){ id_site = '133'; }
+        if (day == 3){ id_site = '134'; }
+        if (day == 4){ id_site = '135'; }
+        if (day == 5){ id_site = '136'; }
+        if (day == 6){ id_site = '137'; }
+        if (day == 7){ id_site = '138'; }
+        if (day == 8){ id_site = '139'; }
+        if (day == 9){ id_site = '140'; }
+        if (day == 10){ id_site = '141'; }
+      }
+      
+      // Limpa a grid para que a nova consulta seja realizada
+      document.getElementById('calendar-grid').innerHTML = '';
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (!isProcessing) {
           try {
@@ -1155,23 +1185,23 @@
       updateSummary();
     }
 
-    // --------------------
-    // PASSO 02.1 - SELECT PARK
-    // --------------------
+    /***********************
+     * PASSO 02.1: SELECT PARK
+     ***********************/
     function selectPark(parkName, type, idSiteValue, day) {
       document.querySelectorAll('.park').forEach(pk => pk.classList.remove('selected'));
       const pk = document.querySelector(`.park[data-type="${parkName}"]`);
       if (pk) pk.classList.add('selected');
       selectedOptions.selectedPark = parkName;
-
-      // chama selectTicket p/ manter coerência
+      // Para manter a coerência, se um ingresso Único for selecionado, força a seleção
       selectTicket(type, idSiteValue, day, null);
       updateSummary();
     }
 
-    // --------------------
-    // PASSO 03 - ADULT/CHILD
-    // --------------------
+    /***********************
+     * PASSO 03: INGRESSOS (Adultos / Crianças)
+     * Aqui, para evitar reconsultar a API ao mudar a quantidade, apenas atualizamos os totais.
+     ***********************/
     async function incrementTicket(type) {
       if (isProcessing) return;
       try {
@@ -1180,18 +1210,13 @@
         let count = parseInt(inputEl.value);
         inputEl.value = ++count;
         selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-
         updateSelectedOptions();
-        mostrarLoading();
-        // Regera calendário c/ novos valores
-        await generateCalendar(currentMonth, currentYear);
+        // Apenas atualiza os totais (não chama a API novamente)
         updateSummary();
       } finally {
         isProcessing = false;
-        esconderLoading();
       }
     }
-
     async function decrementTicket(type) {
       if (isProcessing) return;
       try {
@@ -1201,38 +1226,29 @@
         if (count > 0) {
           inputEl.value = --count;
           selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-
           updateSelectedOptions();
-          mostrarLoading();
-          await generateCalendar(currentMonth, currentYear);
           updateSummary();
         }
       } finally {
         isProcessing = false;
-        esconderLoading();
       }
     }
 
-    // --------------------
-    // PASSO 04 - CALENDÁRIO
-    // --------------------
+    /***********************
+     * PASSO 04: CALENDÁRIO
+     ***********************/
     function populateMonthYearSelects() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect  = document.getElementById('yearSelect');
       const monthNames  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-
-      // limpar
       monthSelect.innerHTML = "";
       yearSelect.innerHTML  = "";
-
-      // 12 meses
       for (let m = 0; m < 12; m++) {
         const opt = document.createElement('option');
         opt.value = m;
         opt.textContent = monthNames[m];
         monthSelect.appendChild(opt);
       }
-      // anos
       const thisYear = new Date().getFullYear();
       for (let y = thisYear-1; y <= thisYear+3; y++) {
         const opt = document.createElement('option');
@@ -1241,7 +1257,6 @@
         yearSelect.appendChild(opt);
       }
     }
-
     function onMonthYearChange() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect  = document.getElementById('yearSelect');
@@ -1249,46 +1264,45 @@
       currentYear  = parseInt(yearSelect.value);
       if (!isProcessing) {
         mostrarLoading();
-        generateCalendar(currentMonth, currentYear).finally(() => esconderLoading());
+        generateCalendar(currentMonth, currentYear)
+          .finally(() => esconderLoading());
       }
     }
-
     async function generateCalendar(month, year) {
       const calGrid = document.getElementById('calendar-grid');
       calGrid.innerHTML = '';
-
       const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                           "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
       document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
-
-      // Ajusta selects
       document.getElementById('monthSelect').value = month;
       document.getElementById('yearSelect').value  = year;
-
+      
       const firstDay = new Date(year, month, 1);
       const lastDay  = new Date(year, month+1, 0);
-
+      
       const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
       const lastDay_f  = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
-
-      // Ajuste se id_site for 106 ou 142 (dependendo do mes)
+      
+      // Ajusta o id_site se for Básico ou Hopper conforme o mês
       if (id_site == 106 || id_site == 142) {
-        if (month == 0 || month == 1 || month == 2) {
+        if (month === 0 || month === 1 || month === 2) {
           id_site = 142;
         } else {
           id_site = 106;
         }
       }
-
+      
+      // Chama a API para buscar os preços do mês
       ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
-
-      // Dias vazios
+      
+      // Insere dias vazios para alinhar a grid
       for (let i = 0; i < firstDay.getDay(); i++) {
         const empty = document.createElement('div');
-        empty.classList.add('day-card','empty');
+        empty.classList.add('day-card', 'empty');
         calGrid.appendChild(empty);
       }
-      // Dias do mês
+      
+      // Cria os cards para os dias
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const dayCard = document.createElement('div');
         dayCard.classList.add('day-card');
@@ -1296,33 +1310,30 @@
         dayCard.onclick = () => selectDate(year, month, d);
         calGrid.appendChild(dayCard);
       }
-      // Preenche preço
-      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-      dayCards.forEach(card => {
-        const dayNumber = parseInt(card.querySelector('.day-number').textContent);
-        const cardDate  = new Date(year, month, dayNumber);
-        const fmtDate   = cardDate.toISOString().split('T')[0];
-
+      
+      // Atualiza os preços em cada dia (multiplicando pelas quantidades já selecionadas)
+      const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+      cards.forEach(card => {
+        const dNum = parseInt(card.querySelector('.day-number').textContent);
+        const cDate = new Date(year, month, dNum);
+        const fmtDate = cDate.toISOString().split('T')[0];
         const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'ADULTO');
         const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'CRIANÇA');
         const priceA = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
         const priceC = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
         const priceDay = priceA + priceC;
-
         card.innerHTML = `
-          <div class="day-number">${dayNumber}</div>
+          <div class="day-number">${dNum}</div>
           <div class="price-info">R$ ${priceDay.toFixed(2).replace('.', ',')}</div>
           <small>Ou em 10x de R$ ${(priceDay*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.',',')}</small>
         `;
       });
       updateCalendarSelection();
     }
-
     async function get_price_tickets(id_site, startDate, endDate) {
       const url  = "https://airland.com.br/get-price.php";
       const data = { id_site, start_date: startDate, end_date: endDate };
       const timeout = 60000;
-
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Timeout')), timeout)
       );
@@ -1346,50 +1357,44 @@
         return [];
       }
     }
-
     function selectDate(year, month, day) {
-      const selectedDate = new Date(year, month, day);
-      selectedOptions.startDate = selectedDate;
-
-      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-        card.classList.remove('selected','valid');
-      });
+      const selDate = new Date(year, month, day);
+      selectedOptions.startDate = selDate;
+      // Remove as classes de seleção
+      document.querySelectorAll('.calendar-grid .day-card').forEach(card => card.classList.remove('selected','valid'));
       const clicked = event.currentTarget;
       clicked.classList.add('selected');
-
-      const fmtDate = selectedDate.toISOString().split('T')[0];
-      const ticket = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'ADULTO');
-      const ticket_chd = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'CRIANÇA');
-
-      if (ticket && !isNaN(parseFloat(ticket.price))) {
-        selectedOptions.price_adult = parseFloat(ticket.price);
-        selectedOptions.id_adult    = parseFloat(ticket.ID);
+      const fmtDate = selDate.toISOString().split('T')[0];
+      const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'ADULTO');
+      const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'CRIANÇA');
+      if (ticketAdult && !isNaN(parseFloat(ticketAdult.price))) {
+        selectedOptions.price_adult = parseFloat(ticketAdult.price);
+        selectedOptions.id_adult = parseFloat(ticketAdult.ID);
       } else {
         selectedOptions.price_adult = 0;
-        selectedOptions.id_adult    = 0;
+        selectedOptions.id_adult = 0;
+        console.warn('Preço para adulto não disponível para a data selecionada');
       }
-      if (ticket_chd && !isNaN(parseFloat(ticket_chd.price))) {
-        selectedOptions.price_chd = parseFloat(ticket_chd.price);
-        selectedOptions.id_chd    = parseFloat(ticket_chd.ID);
+      if (ticketChild && !isNaN(parseFloat(ticketChild.price))) {
+        selectedOptions.price_chd = parseFloat(ticketChild.price);
+        selectedOptions.id_chd = parseFloat(ticketChild.ID);
       } else {
         selectedOptions.price_chd = 0;
-        selectedOptions.id_chd    = 0;
+        selectedOptions.id_chd = 0;
+        console.warn('Preço para criança não disponível para a data selecionada');
       }
       updateValidity();
       updateCalendarSelection();
       updateSummary();
     }
-
     function updateCalendarSelection() {
       const start = selectedOptions.startDate;
-      const end   = selectedOptions.endDate;
-      const dayCards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-
-      dayCards.forEach(card => {
+      const end = selectedOptions.endDate;
+      const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
+      cards.forEach(card => {
         card.classList.remove('selected','valid');
-        const dayNum = parseInt(card.querySelector('.day-number').textContent);
-        const cDate  = new Date(currentYear, currentMonth, dayNum);
-
+        const dNum = parseInt(card.querySelector('.day-number').textContent);
+        const cDate = new Date(currentYear, currentMonth, dNum);
         if (start) {
           if (cDate.getTime() === start.getTime()) {
             card.classList.add('selected');
@@ -1399,45 +1404,37 @@
         }
       });
     }
-
     function updateSummary() {
-      const adultCount = selectedOptions.adults;
-      const childCount = selectedOptions.children;
-      const totalPeople = adultCount + childCount;
-      const ticketType  = selectedOptions.ticketType;
-      const days        = selectedOptions.days;
-
-      document.getElementById('adult-count').textContent = `${adultCount} adulto(s)`;
-      document.getElementById('child-count').textContent = `${childCount} criança(s)`;
-      document.getElementById('ticket-type-selection').textContent = ticketType || 'Nenhum';
+      const aCount = selectedOptions.adults;
+      const cCount = selectedOptions.children;
+      const total = aCount + cCount;
+      const tType  = selectedOptions.ticketType;
+      const days   = selectedOptions.days;
+      document.getElementById('adult-count').textContent = `${aCount} adulto(s)`;
+      document.getElementById('child-count').textContent = `${cCount} criança(s)`;
+      document.getElementById('ticket-type-selection').textContent = tType || 'Nenhum';
       document.getElementById('selected-days').textContent = days || 0;
-      document.getElementById('totalPeople').textContent   = totalPeople;
-
+      document.getElementById('totalPeople').textContent = total;
       updateValidity();
-      let totalPrice = (selectedOptions.price_adult * adultCount) + (selectedOptions.price_chd * childCount);
-
+      let totalPrice = (selectedOptions.adults * selectedOptions.price_adult) +
+                       (selectedOptions.children * selectedOptions.price_chd);
       if (!days) {
         document.getElementById('usage-period').innerText = "Não selecionado";
         totalPrice = 0;
       }
       document.getElementById('total-price').innerHTML = `<strong>R$ ${totalPrice.toFixed(2).replace('.', ',')}</strong>`;
       document.getElementById('installment-price').textContent =
-        `ou em 10x de R$ ${(totalPrice*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.', ',')} no cartão`;
-
-      // se for Único e dia=1 => exibe park
+        `ou em 10x de R$ ${(totalPrice*(1+TX_ANTECIPACAO)/10).toFixed(2).replace('.',',')} no cartão`;
       updateParkSelectionVisibility();
-
       if (selectedOptions.selectedPark) {
         document.getElementById('selected-park').textContent = selectedOptions.selectedPark;
         document.getElementById('selected-park-info').style.display = 'block';
       }
     }
-
     function updateValidity() {
       const start = selectedOptions.startDate;
       let endDate = null;
       let validity = "Não selecionado";
-
       if (start && selectedOptions.days) {
         endDate = new Date(start);
         switch(selectedOptions.days) {
@@ -1450,19 +1447,19 @@
           case 8:  endDate.setDate(endDate.getDate() + 11); break;
           case 9:  endDate.setDate(endDate.getDate() + 12); break;
           case 10: endDate.setDate(endDate.getDate() + 13); break;
-          default: /* ... */ break;
+          default: break;
         }
         selectedOptions.endDate = endDate;
-
-        const opt = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        const st  = start.toLocaleDateString('pt-BR', opt);
-        const en  = endDate.toLocaleDateString('pt-BR', opt);
-        validity  = `${st} até ${en}`;
+        const opts = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        const st = start.toLocaleDateString('pt-BR', opts);
+        const en = endDate.toLocaleDateString('pt-BR', opts);
+        validity = `${st} até ${en}`;
       }
       document.getElementById('usage-period').innerText = validity;
     }
-
-    // Funções de Carrinho (exemplo)
+    /***********************
+     * FUNÇÕES DE CARRINHO (SIMULADAS)
+     ***********************/
     async function addToCart() {
       try {
         if (!selectedOptions) {
@@ -1470,59 +1467,44 @@
         }
         const products = [];
         if (selectedOptions.adults && selectedOptions.id_adult) {
-          products.push({
-            product_id: selectedOptions.id_adult,
-            quantity: selectedOptions.adults
-          });
+          products.push({ product_id: selectedOptions.id_adult, quantity: selectedOptions.adults });
         }
         if (selectedOptions.children && selectedOptions.id_chd) {
-          products.push({
-            product_id: selectedOptions.id_chd,
-            quantity: selectedOptions.children
-          });
+          products.push({ product_id: selectedOptions.id_chd, quantity: selectedOptions.children });
         }
         if (products.length === 0) {
           throw new Error("Nenhum produto selecionado");
         }
-        let requestSuccess = true;
-        // Exemplo de endpoint
-        // Ajuste a URL e a action para o seu carrinho
-        for (const prod of products) {
-          // ...
-          console.log("Adicionando ao carrinho (exemplo)", prod.product_id, prod.quantity);
-          // se fosse real, usaria fetch(...) etc.
-        }
-        if (requestSuccess) {
-          showNotification("Produtos adicionados ao carrinho com sucesso!", "success");
-          carrinho = 1;
-          return true;
-        }
-        return false;
+        // Aqui você integraria com sua API de carrinho. (Exemplo: apenas um console.log)
+        products.forEach(prod => {
+          console.log("Adicionando ao carrinho:", prod.product_id, prod.quantity);
+        });
+        showNotification("Produtos adicionados ao carrinho com sucesso!", "success");
+        carrinho = 1;
+        return true;
       } catch (err) {
         console.error("Erro carrinho:", err);
         showNotification(err.message, "error");
         return false;
       }
     }
-
     async function checkout() {
       if (carrinho === 1) {
         window.location.href = "https://www.magictraveltur.com/carrinho/";
       } else {
         const success = await addToCart();
         if (success) {
-          setTimeout(() => {
-            window.location.href = "https://www.magictraveltur.com/carrinho/";
-          }, 500);
+          setTimeout(() => { window.location.href = "https://www.magictraveltur.com/carrinho/"; }, 500);
         }
       }
     }
-
-    // Notificação
+    /***********************
+     * NOTIFICAÇÕES
+     ***********************/
     function showNotification(message, type) {
-      const notification = document.createElement("div");
-      notification.className = `notification ${type}`;
-      notification.style.cssText = `
+      const note = document.createElement("div");
+      note.className = `notification ${type}`;
+      note.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
@@ -1534,7 +1516,7 @@
         animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       `;
-      notification.textContent = message;
+      note.textContent = message;
       const style = document.createElement("style");
       style.textContent = `
         @keyframes fadeIn {
@@ -1547,24 +1529,23 @@
         }
       `;
       document.head.appendChild(style);
-      document.body.appendChild(notification);
-      setTimeout(() => { notification.remove(); }, 3000);
+      document.body.appendChild(note);
+      setTimeout(() => { note.remove(); }, 3000);
     }
-
-    // =========================== ONLOAD ===========================
+    /***********************
+     * ONLOAD: Estado Inicial
+     ***********************/
     window.onload = async () => {
-      // Preenche selects de Mês/Ano
       populateMonthYearSelects();
-      // Seleciona o mês/ano atuais
       document.getElementById('monthSelect').value = currentMonth;
       document.getElementById('yearSelect').value  = currentYear;
-
-      // Força um "selectTicket" (ex: Básico, id_site=106, 4 dias)
+      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto
+      // A API é chamada apenas uma vez aqui para carregar os preços do mês
       selectTicket('Básico','106',4, null);
-
-      // Se quiser, atualiza as quantidades do selectedOptions
       document.addEventListener("DOMContentLoaded", updateSelectedOptions);
     };
   </script>
+  <!-- Se houver um arquivo script.js externo, remova o <script src="script.js"></script> abaixo -->
+  <!-- <script src="script.js"></script> -->
 </body>
 </html>
