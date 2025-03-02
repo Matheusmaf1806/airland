@@ -8,7 +8,7 @@
 
   <!-- FontAwesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
+  
   <style>
     /**************************************************************************
      * RESET / BASE
@@ -77,12 +77,12 @@
     .hero-header::after {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       opacity: 0.2;
-      background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg") center/cover no-repeat;
+      background: url("https://produtos.magictraveltur.com/wp-content/uploads/2024/09/Banner.jpg")
+                  center/cover no-repeat;
       z-index: 0;
     }
     .hero-header > * {
@@ -251,7 +251,7 @@
       transform: scale(1.15);
     }
     /**************************************************************************
-     * PASSO 02.1 - SELEÇÃO DE PARQUE (ÚNICO, 1 dia)
+     * PASSO 02.1 - SELEÇÃO DE PARQUE (ÚNICO com 1 dia)
      **************************************************************************/
     .park-selection {
       display: none;
@@ -467,7 +467,7 @@
     .day-card.selected .day-number {
       color: #fff;
     }
-    /* Quando selecionado, o preço fica branco */
+    /* Quando o dia está selecionado, o texto dos preços ficará branco */
     .day-card.selected .price-info {
       color: #fff;
     }
@@ -576,7 +576,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       color: #fff;
       font-size: 1.5rem;
       display: flex;
@@ -753,7 +753,9 @@
   <script>
     fetch("https://business.airland.com.br/header.html")
       .then(resp => resp.text())
-      .then(html => { document.getElementById("externalHeader").innerHTML = html; })
+      .then(html => {
+        document.getElementById("externalHeader").innerHTML = html;
+      })
       .catch(err => console.error("Erro ao carregar header externa:", err));
   </script>
 
@@ -827,7 +829,7 @@
           </div>
         </div>
       </div>
-      <!-- PASSO 02 - DIAS -->
+      <!-- PASSO 02 - SELEÇÃO DE DIAS -->
       <h2>Passo 02 - Selecione o Número de Dias</h2>
       <p class="subtitle">Com tantas atrações, escolha quantos dias irá precisar para aproveitar!</p>
       <div class="days-selector-container">
@@ -844,7 +846,7 @@
           <span class="day" onclick="selectDay(10)">10</span>
         </div>
       </div>
-      <!-- PASSO 02.1 - PARQUE (Único com 1 dia) -->
+      <!-- PASSO 02.1 - SELEÇÃO DE PARQUE (ÚNICO com 1 dia) -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -867,7 +869,7 @@
           </div>
         </div>
       </div>
-      <!-- PASSO 03 - INGRESSOS -->
+      <!-- PASSO 03 - SELEÇÃO DE INGRESSOS -->
       <h2>Passo 03 - Selecione o Número de Ingressos</h2>
       <p class="subtitle">Importante: crianças menores de 3 anos não precisam de ingresso.</p>
       <div class="ticket-section">
@@ -943,23 +945,23 @@
             <p class="pix-discount">Super desconto no Pix!</p>
             <p id="installment-price" class="installment-price">ou em 10x de R$ 0,00 no cartão</p>
             <!-- Botões -->
-            <button class="CartBtn" onclick="/* Ação de comprar */">
+            <button class="CartBtn">
               <span class="IconContainer">
                 <svg viewBox="0 0 13 13" width="18px">
-                  <!-- Substitua com o caminho SVG completo -->
-                  <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 ..."></path>
+                  <!-- Caminho SVG completo para o ícone (ajuste conforme necessário) -->
+                  <path fill="white" d="M1.56,5.42 L5.52,5.42 L4.47,0.11 C4.47,0.06 4.50,0.03 4.54,0.01 L4.58,0 L5.36,0 C5.43,0 5.50,0.03 5.55,0.08 L5.59,0.13 L7.14,2.82 L8.30,2.82 C8.53,2.82 8.72,3.01 8.72,3.25 C8.72,3.49 8.53,3.68 8.30,3.68 L7.64,3.68 L8.63,5.42 L11.93,5.42 C12.52,5.42 13,5.90 13,6.50 C13,7.10 12.52,7.58 11.93,7.58 L8.63,7.58 L7.64,9.32 L8.30,9.32 C8.53,9.32 8.72,9.51 8.72,9.75 C8.72,9.99 8.53,10.18 8.30,10.18 L7.14,10.18 L5.59,12.87 C5.56,12.93 5.50,12.97 5.43,12.99 L5.36,13 L4.58,13 L4.56,12.99 C4.51,12.99 4.48,12.95 4.47,12.91 L4.47,12.87 L5.52,7.58 L1.56,7.58 L0.89,8.55 C0.85,8.61 0.80,8.64 0.74,8.66 L0.67,8.67 L0.11,8.67 L0.07,8.66 C0.03,8.65 0,8.61 0,8.57 L0.01,8.52 L0.58,6.86 C0.64,6.67 0.66,6.47 0.62,6.28 L0.58,6.14 L0.01,4.48 C0,4.47 0,4.46 0,4.44 C0,4.40 0.03,4.36 0.07,4.34 L0.11,4.34 L0.67,4.34 C0.74,4.34 0.80,4.36 0.85,4.40 L0.89,4.45 L1.56,5.42 Z"></path>
                 </svg>
               </span>
               <p class="text">Comprar Ingresso</p>
             </button>
             <button class="cartBtn" onclick="checkout()">
               <svg class="cart" fill="white" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
-                <!-- Substitua com o caminho SVG completo -->
+                <!-- Caminho SVG para carrinho (ajuste conforme necessário) -->
                 <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 ..."></path>
               </svg>
               Adicionar ao Carrinho
               <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512" class="product">
-                <!-- Substitua com o caminho SVG completo -->
+                <!-- Caminho SVG para o ícone do produto -->
                 <path d="M211.8 0c7.8 0 14.3 5.7 ..."></path>
               </svg>
             </button>
@@ -974,7 +976,7 @@
     <iframe src="loading.html"></iframe>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- SCRIPTS INLINE -->
   <script>
     /***********************
      * VARIÁVEIS GLOBAIS
@@ -984,9 +986,9 @@
     let isProcessing = false;
     let carrinho = 0;
     let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
+    let currentYear  = new Date().getFullYear();
     const TX_ANTECIPACAO = 0.0;
-
+    
     let selectedOptions = {
       ticketType: '',
       days: 0,
@@ -1010,7 +1012,7 @@
     function esconderLoading() {
       document.getElementById("loadingOverlay").style.display = "none";
     }
-
+    
     /***********************
      * FUNÇÃO updateSelectedOptions
      ***********************/
@@ -1019,7 +1021,7 @@
       selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
       console.log("Valores atualizados:", selectedOptions);
     }
-
+    
     /***********************
      * FUNÇÃO updateParkSelectionVisibility
      ***********************/
@@ -1034,13 +1036,16 @@
         document.getElementById('selected-park-info').style.display = 'none';
       }
     }
-
+    
     /***********************
      * PASSO 01: SELECT TICKET
      ***********************/
     async function selectTicket(type, idSiteValue, day, el) {
+      // Remover seleção de todos os bilhetes
       document.querySelectorAll('.ticket-bilhete').forEach(t => t.classList.remove('selected'));
-      if (el) el.classList.add('selected');
+      if (el) {
+        el.classList.add('selected');
+      }
       selectedOptions.ticketType = type;
       id_site = idSiteValue;
       updateParkSelectionVisibility();
@@ -1051,7 +1056,7 @@
       selectedOptions.days = 0;
       
       updateDaysOptions();
-      // Seleciona o dia padrão (ex.: 4)
+      // Seleciona o dia padrão
       selectDay(day);
       
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
@@ -1068,19 +1073,19 @@
       }
       updateSummary();
     }
-
+    
     /***********************
      * FUNÇÃO getAvailableDays
      ***********************/
     function getAvailableDays(ticketType) {
       switch(ticketType) {
         case 'Único':  return [1];
-        case 'Básico': return [2, 3, 4, 5, 6, 7, 8, 9, 10];
-        case 'Hopper': return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        case 'Básico': return [2,3,4,5,6,7,8,9,10];
+        case 'Hopper': return [1,2,3,4,5,6,7,8,9,10];
         default:       return [];
       }
     }
-
+    
     /***********************
      * FUNÇÃO updateDaysOptions
      ***********************/
@@ -1099,18 +1104,19 @@
         }
       });
     }
-
+    
     /***********************
      * PASSO 02: SELECT DAY
      ***********************/
     async function selectDay(day) {
       const available = getAvailableDays(selectedOptions.ticketType);
+      // Remove classe active de todos os dias
       document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
       selectedOptions.days = available.length === 1 ? available[0] : day;
       const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
       if (dayElem) dayElem.classList.add('active');
-
-      // Ajusta o id_site conforme a lógica (mantida conforme o exemplo)
+      
+      // Ajusta o id_site conforme sua lógica (mantida a mesma)
       if ((id_site >= '104' && id_site <= '112') || id_site === '142') {
         if (day == 2){ id_site = '104'; }
         if (day == 3){ id_site = '105'; }
@@ -1164,6 +1170,7 @@
         if (day == 10){ id_site = '141'; }
       }
       
+      // Limpa a grid para nova consulta
       document.getElementById('calendar-grid').innerHTML = '';
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
         if (!isProcessing) {
@@ -1179,7 +1186,7 @@
       }
       updateSummary();
     }
-
+    
     /***********************
      * PASSO 02.1: SELECT PARK
      ***********************/
@@ -1188,13 +1195,14 @@
       const pk = document.querySelector(`.park[data-type="${parkName}"]`);
       if (pk) pk.classList.add('selected');
       selectedOptions.selectedPark = parkName;
+      // Chama selectTicket para manter a coerência
       selectTicket(type, idSiteValue, day, null);
       updateSummary();
     }
-
+    
     /***********************
      * PASSO 03: INGRESSOS (Adultos / Crianças)
-     * Aqui, a chamada à API não é refeita quando a quantidade muda.
+     * Aqui, ao mudar a quantidade, os totais são atualizados sem reconsultar a API.
      ***********************/
     async function incrementTicket(type) {
       if (isProcessing) return;
@@ -1205,9 +1213,8 @@
         inputEl.value = ++count;
         selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
         updateSelectedOptions();
+        // Atualiza os totais imediatamente (regera apenas o resumo e os preços no calendário)
         updateSummary();
-        // Atualiza os preços no calendário com as novas quantidades
-        refreshCalendarPricesOnly();
       } finally {
         isProcessing = false;
       }
@@ -1223,23 +1230,22 @@
           selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
           updateSelectedOptions();
           updateSummary();
-          refreshCalendarPricesOnly();
         }
       } finally {
         isProcessing = false;
       }
     }
-
+    
     /***********************
-     * PASSO 04: CALENDÁRIO
+     * PASSO 04: CALENDÁRIO + RESUMO
      ***********************/
     function populateMonthYearSelects() {
       const monthSelect = document.getElementById('monthSelect');
-      const yearSelect = document.getElementById('yearSelect');
-      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+      const yearSelect  = document.getElementById('yearSelect');
+      const monthNames  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                           "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
       monthSelect.innerHTML = "";
-      yearSelect.innerHTML = "";
+      yearSelect.innerHTML  = "";
       for (let m = 0; m < 12; m++) {
         const opt = document.createElement('option');
         opt.value = m;
@@ -1247,7 +1253,7 @@
         monthSelect.appendChild(opt);
       }
       const thisYear = new Date().getFullYear();
-      for (let y = thisYear-1; y <= thisYear+3; y++) {
+      for (let y = thisYear - 1; y <= thisYear + 3; y++) {
         const opt = document.createElement('option');
         opt.value = y;
         opt.textContent = y;
@@ -1256,12 +1262,13 @@
     }
     function onMonthYearChange() {
       const monthSelect = document.getElementById('monthSelect');
-      const yearSelect = document.getElementById('yearSelect');
+      const yearSelect  = document.getElementById('yearSelect');
       currentMonth = parseInt(monthSelect.value);
-      currentYear = parseInt(yearSelect.value);
+      currentYear  = parseInt(yearSelect.value);
       if (!isProcessing) {
         mostrarLoading();
-        generateCalendar(currentMonth, currentYear).finally(() => esconderLoading());
+        generateCalendar(currentMonth, currentYear)
+          .finally(() => esconderLoading());
       }
     }
     async function generateCalendar(month, year) {
@@ -1271,14 +1278,14 @@
                           "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
       document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
       document.getElementById('monthSelect').value = month;
-      document.getElementById('yearSelect').value = year;
+      document.getElementById('yearSelect').value  = year;
       
       const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
-      const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+      const lastDay  = new Date(year, month + 1, 0);
+      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
+      const lastDay_f  = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
       
-      // Ajusta o id_site para "Básico" ou "Hopper" conforme o mês
+      // Ajusta id_site conforme o ticket selecionado (exemplo para Básico ou Hopper)
       if (id_site == 106 || id_site == 142) {
         if (month === 0 || month === 1 || month === 2) {
           id_site = 142;
@@ -1287,17 +1294,16 @@
         }
       }
       
-      // Chama a API para buscar os preços do mês
       ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
       
-      // Insere dias vazios para alinhar a grid
+      // Dias vazios para alinhar a grid
       for (let i = 0; i < firstDay.getDay(); i++) {
         const empty = document.createElement('div');
         empty.classList.add('day-card', 'empty');
         calGrid.appendChild(empty);
       }
       
-      // Cria os cards dos dias
+      // Cria os cards para os dias do mês
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const dayCard = document.createElement('div');
         dayCard.classList.add('day-card');
@@ -1306,36 +1312,35 @@
         calGrid.appendChild(dayCard);
       }
       
-      // Atualiza os preços no calendário com a multiplicação das quantidades
-      refreshCalendarPricesOnly();
-      updateCalendarSelection();
-    }
-    
-    // Função para atualizar os preços dos dias sem refazer a chamada à API
-    function refreshCalendarPricesOnly() {
+      // Atualiza os preços em cada dia
       const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
       cards.forEach(card => {
         const dNum = parseInt(card.querySelector('.day-number').textContent);
-        const cDate = new Date(currentYear, currentMonth, dNum);
+        const cDate = new Date(year, month, dNum);
         const fmtDate = cDate.toISOString().split('T')[0];
         const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'ADULTO');
         const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type === 'CRIANÇA');
-        const priceA = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
-        const priceC = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
+        const priceA = ticketAdult && ticketAdult.price 
+                       ? parseFloat(ticketAdult.price) * selectedOptions.adults 
+                       : 0;
+        const priceC = ticketChild && ticketChild.price 
+                       ? parseFloat(ticketChild.price) * selectedOptions.children 
+                       : 0;
         const priceDay = priceA + priceC;
-        // Formata o valor para o padrão brasileiro, com separador de milhar
+        // Formata o preço com separador de milhares (pt-BR)
         const formattedPrice = priceDay.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        const installment = (priceDay * (1 + TX_ANTECIPACAO) / 10).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         card.innerHTML = `
           <div class="day-number">${dNum}</div>
           <div class="price-info">R$ ${formattedPrice}</div>
-          <small>Ou em 10x de R$ ${installment}</small>
+          <small>Ou em 10x de R$ ${ (priceDay*(1+TX_ANTECIPACAO)/10)
+             .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+          </small>
         `;
       });
+      updateCalendarSelection();
     }
-    
     async function get_price_tickets(id_site, startDate, endDate) {
-      const url = "https://airland.com.br/get-price.php";
+      const url  = "https://airland.com.br/get-price.php";
       const data = { id_site, start_date: startDate, end_date: endDate };
       const timeout = 60000;
       const timeoutPromise = new Promise((_, reject) =>
@@ -1361,11 +1366,12 @@
         return [];
       }
     }
-    
     function selectDate(year, month, day) {
       const selDate = new Date(year, month, day);
       selectedOptions.startDate = selDate;
-      document.querySelectorAll('.calendar-grid .day-card').forEach(card => card.classList.remove('selected', 'valid'));
+      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
+        card.classList.remove('selected','valid');
+      });
       const clicked = event.currentTarget;
       clicked.classList.add('selected');
       const fmtDate = selDate.toISOString().split('T')[0];
@@ -1391,13 +1397,12 @@
       updateCalendarSelection();
       updateSummary();
     }
-    
     function updateCalendarSelection() {
       const start = selectedOptions.startDate;
       const end = selectedOptions.endDate;
       const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
       cards.forEach(card => {
-        card.classList.remove('selected', 'valid');
+        card.classList.remove('selected','valid');
         const dNum = parseInt(card.querySelector('.day-number').textContent);
         const cDate = new Date(currentYear, currentMonth, dNum);
         if (start) {
@@ -1409,13 +1414,12 @@
         }
       });
     }
-    
     function updateSummary() {
       const aCount = selectedOptions.adults;
       const cCount = selectedOptions.children;
       const total = aCount + cCount;
-      const tType = selectedOptions.ticketType;
-      const days = selectedOptions.days;
+      const tType  = selectedOptions.ticketType;
+      const days   = selectedOptions.days;
       document.getElementById('adult-count').textContent = `${aCount} adulto(s)`;
       document.getElementById('child-count').textContent = `${cCount} criança(s)`;
       document.getElementById('ticket-type-selection').textContent = tType || 'Nenhum';
@@ -1428,17 +1432,19 @@
         document.getElementById('usage-period').innerText = "Não selecionado";
         totalPrice = 0;
       }
+      // Formatação com separador de milhares (pt-BR)
       const formattedTotal = totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('total-price').innerHTML = `<strong>R$ ${formattedTotal}</strong>`;
-      const installment = (totalPrice * (1 + TX_ANTECIPACAO) / 10).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('installment-price').textContent = `ou em 10x de R$ ${installment} no cartão`;
+      const installment = (totalPrice * (1+TX_ANTECIPACAO)/10)
+                            .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('installment-price').textContent =
+        `ou em 10x de R$ ${installment} no cartão`;
       updateParkSelectionVisibility();
       if (selectedOptions.selectedPark) {
         document.getElementById('selected-park').textContent = selectedOptions.selectedPark;
         document.getElementById('selected-park-info').style.display = 'block';
       }
     }
-    
     function updateValidity() {
       const start = selectedOptions.startDate;
       let endDate = null;
@@ -1484,6 +1490,7 @@
         if (products.length === 0) {
           throw new Error("Nenhum produto selecionado");
         }
+        // Exemplo: Simula a adição ao carrinho
         products.forEach(prod => {
           console.log("Adicionando ao carrinho:", prod.product_id, prod.quantity);
         });
@@ -1496,7 +1503,6 @@
         return false;
       }
     }
-    
     async function checkout() {
       if (carrinho === 1) {
         window.location.href = "https://www.magictraveltur.com/carrinho/";
@@ -1509,7 +1515,7 @@
     }
     
     /***********************
-     * NOTIFICAÇÕES
+     * FUNÇÃO DE NOTIFICAÇÃO
      ***********************/
     function showNotification(message, type) {
       const note = document.createElement("div");
@@ -1549,16 +1555,14 @@
     window.onload = async () => {
       populateMonthYearSelects();
       document.getElementById('monthSelect').value = currentMonth;
-      document.getElementById('yearSelect').value = currentYear;
-      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto (já com preços carregados para o mês)
-      selectTicket('Básico', '106', 4, null);
+      document.getElementById('yearSelect').value  = currentYear;
+      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto.
+      // Para garantir que o bilhete "Básico" apareça ativo, buscamos o segundo .ticket-bilhete (índice 1)
+      const basicTicketElem = document.querySelectorAll('.ticket-bilhete')[1];
+      // Chama selectTicket passando o elemento para que ele receba a classe "selected"
+      selectTicket('Básico', '106', 4, basicTicketElem);
       document.addEventListener("DOMContentLoaded", updateSelectedOptions);
     };
   </script>
-  <!-- Se houver um arquivo script.js externo, remova o <script src="script.js"></script> abaixo -->
-  <!-- <script src="script.js"></script> -->
 </body>
 </html>
-
-
-
