@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Seleção de Ingressos e Datas - Disney</title>
   <?php /* Se estiver usando WordPress, descomente: wp_head(); */ ?>
 
@@ -63,13 +63,13 @@
       display: flex;
       align-items: center;
       font-size: 1rem;
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255,255,255,0.2);
       padding: 8px 15px;
       border-radius: 20px;
       transition: background-color 0.3s;
     }
     .hero-icon-item:hover {
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: rgba(255,255,255,0.3);
     }
     .hero-icon-item i {
       margin-right: 8px;
@@ -97,7 +97,7 @@
       margin: 40px auto;
       background: #fff;
       border-radius: 8px;
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.07);
+      box-shadow: 0 2px 15px rgba(0,0,0,0.07);
       padding: 20px;
       position: relative;
       z-index: 10;
@@ -145,11 +145,11 @@
     }
     .ticket-bilhete:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     }
     .ticket-bilhete.selected {
       border-color: #007aff !important;
-      box-shadow: 0 0 10px rgba(0, 122, 255, 0.3);
+      box-shadow: 0 0 10px rgba(0,122,255,0.3);
       transform: translateY(-8px);
     }
     .ticket-bilhete::before,
@@ -280,12 +280,12 @@
     }
     .park:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     .park.selected {
       border-color: #0b74c2;
       background-color: #edf6fb;
-      box-shadow: 0 10px 30px rgba(11, 116, 194, 0.3);
+      box-shadow: 0 10px 30px rgba(11,116,194,0.3);
     }
     .park img {
       width: 100%;
@@ -322,7 +322,7 @@
     }
     .ticket-box:hover {
       transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     .ticket-info h3 {
       font-size: 1rem;
@@ -467,7 +467,7 @@
     .day-card.selected .day-number {
       color: #fff;
     }
-    /* Quando o dia está selecionado, o preço fica branco */
+    /* Quando selecionado, o preço fica branco */
     .day-card.selected .price-info {
       color: #fff;
     }
@@ -637,7 +637,7 @@
       cursor: pointer;
       transition-duration: 0.5s;
       overflow: hidden;
-      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.103);
+      box-shadow: 0px 5px 10px rgba(0,0,0,0.103);
       position: relative;
       margin-bottom: 10px;
     }
@@ -696,7 +696,7 @@
       font-weight: 500;
       position: relative;
       background-color: #0b74c2;
-      box-shadow: 0 20px 30px -7px rgba(27, 27, 27, 0.219);
+      box-shadow: 0 20px 30px -7px rgba(27,27,27,0.219);
       transition: all 0.3s ease-in-out;
       cursor: pointer;
       overflow: hidden;
@@ -716,10 +716,10 @@
       bottom: 23px;
       opacity: 0;
       z-index: 1;
-      fill: rgb(211, 211, 211);
+      fill: rgb(211,211,211);
     }
     .cartBtn:hover .product {
-      animation: slide-in-top 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      animation: slide-in-top 1.2s cubic-bezier(0.25,0.46,0.45,0.94) both;
     }
     @keyframes slide-in-top {
       0% {
@@ -732,7 +732,7 @@
       }
     }
     .cartBtn:hover .cart {
-      animation: slide-in-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      animation: slide-in-left 1s cubic-bezier(0.25,0.46,0.45,0.94) both;
     }
     @keyframes slide-in-left {
       0% {
@@ -844,7 +844,7 @@
           <span class="day" onclick="selectDay(10)">10</span>
         </div>
       </div>
-      <!-- PASSO 02.1 - PARQUE (somente para Único com 1 dia) -->
+      <!-- PASSO 02.1 - PARQUE (Único com 1 dia) -->
       <div class="park-selection" id="park-selection">
         <h2>Passo 02.1 - Selecione o Parque desejado</h2>
         <p class="subtitle">Escolha o parque que você deseja visitar.</p>
@@ -986,7 +986,7 @@
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
     const TX_ANTECIPACAO = 0.0;
-    
+
     let selectedOptions = {
       ticketType: '',
       days: 0,
@@ -1051,6 +1051,7 @@
       selectedOptions.days = 0;
       
       updateDaysOptions();
+      // Seleciona o dia padrão (ex.: 4)
       selectDay(day);
       
       if (selectedOptions.ticketType && selectedOptions.days > 0) {
@@ -1074,8 +1075,8 @@
     function getAvailableDays(ticketType) {
       switch(ticketType) {
         case 'Único':  return [1];
-        case 'Básico': return [2,3,4,5,6,7,8,9,10];
-        case 'Hopper': return [1,2,3,4,5,6,7,8,9,10];
+        case 'Básico': return [2, 3, 4, 5, 6, 7, 8, 9, 10];
+        case 'Hopper': return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
         default:       return [];
       }
     }
@@ -1108,8 +1109,8 @@
       selectedOptions.days = available.length === 1 ? available[0] : day;
       const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
       if (dayElem) dayElem.classList.add('active');
-      
-      // (Mantém a lógica para ajustar id_site conforme seu modelo)
+
+      // Ajusta o id_site conforme a lógica (mantida conforme o exemplo)
       if ((id_site >= '104' && id_site <= '112') || id_site === '142') {
         if (day == 2){ id_site = '104'; }
         if (day == 3){ id_site = '105'; }
@@ -1193,7 +1194,7 @@
 
     /***********************
      * PASSO 03: INGRESSOS (Adultos / Crianças)
-     * Para não refazer a chamada à API ao alterar a quantidade, apenas atualizamos os totais
+     * Aqui, a chamada à API não é refeita quando a quantidade muda.
      ***********************/
     async function incrementTicket(type) {
       if (isProcessing) return;
@@ -1205,7 +1206,7 @@
         selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
         updateSelectedOptions();
         updateSummary();
-        // Atualiza preços no calendário (sem refazer a chamada à API)
+        // Atualiza os preços no calendário com as novas quantidades
         refreshCalendarPricesOnly();
       } finally {
         isProcessing = false;
@@ -1235,7 +1236,8 @@
     function populateMonthYearSelects() {
       const monthSelect = document.getElementById('monthSelect');
       const yearSelect = document.getElementById('yearSelect');
-      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
       monthSelect.innerHTML = "";
       yearSelect.innerHTML = "";
       for (let m = 0; m < 12; m++) {
@@ -1276,6 +1278,7 @@
       const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`;
       const lastDay_f = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
       
+      // Ajusta o id_site para "Básico" ou "Hopper" conforme o mês
       if (id_site == 106 || id_site == 142) {
         if (month === 0 || month === 1 || month === 2) {
           id_site = 142;
@@ -1284,7 +1287,7 @@
         }
       }
       
-      // Busca os preços via API
+      // Chama a API para buscar os preços do mês
       ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
       
       // Insere dias vazios para alinhar a grid
@@ -1303,12 +1306,12 @@
         calGrid.appendChild(dayCard);
       }
       
-      // Atualiza os preços no calendário
+      // Atualiza os preços no calendário com a multiplicação das quantidades
       refreshCalendarPricesOnly();
       updateCalendarSelection();
     }
     
-    // Função para atualizar os preços do calendário sem chamar a API novamente
+    // Função para atualizar os preços dos dias sem refazer a chamada à API
     function refreshCalendarPricesOnly() {
       const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
       cards.forEach(card => {
@@ -1320,7 +1323,7 @@
         const priceA = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
         const priceC = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
         const priceDay = priceA + priceC;
-        // Formatação para o padrão brasileiro (ex.: 22.233,90)
+        // Formata o valor para o padrão brasileiro, com separador de milhar
         const formattedPrice = priceDay.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const installment = (priceDay * (1 + TX_ANTECIPACAO) / 10).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         card.innerHTML = `
@@ -1493,6 +1496,7 @@
         return false;
       }
     }
+    
     async function checkout() {
       if (carrinho === 1) {
         window.location.href = "https://www.magictraveltur.com/carrinho/";
@@ -1546,12 +1550,15 @@
       populateMonthYearSelects();
       document.getElementById('monthSelect').value = currentMonth;
       document.getElementById('yearSelect').value = currentYear;
-      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto
+      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto (já com preços carregados para o mês)
       selectTicket('Básico', '106', 4, null);
       document.addEventListener("DOMContentLoaded", updateSelectedOptions);
     };
   </script>
-  <!-- Se você tiver um arquivo externo, remova este comentário -->
+  <!-- Se houver um arquivo script.js externo, remova o <script src="script.js"></script> abaixo -->
   <!-- <script src="script.js"></script> -->
 </body>
 </html>
+
+
+
