@@ -23,7 +23,7 @@
     }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #fafafa;
+      background: white;
       color: #333;
       line-height: 1.4;
     }
@@ -337,6 +337,40 @@
       color: #00a0e3;
     }
 
+    /* Tooltip Container */
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+      margin-left: 6px; /* um pequeno espaçamento à esquerda do ícone */
+    }
+
+    /* Texto do Tooltip */
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: auto;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 6px 8px;
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      line-height: 1.2;
+      white-space: nowrap; /* evita quebrar linha */
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 999; /* garante que fique por cima de outros elementos */
+    }
+
+    /* Exibe o tooltip ao hover */
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /****************************************************
      * RODAPÉ
      ****************************************************/
@@ -484,8 +518,11 @@
         </div>
         <div class="price-and-action">
           <div class="ticket-price">
-            R$ 9.693,94
-            <small>2 adultos / R$ 4.846,97 p/ cada</small>
+            Total para 2 Adultos: R$ 9.693,94
+            <small class="tooltip">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip-text">Valor para cada pessoa: R$ 4.846,97</span>
+            </small>
           </div>
           <!-- Parcelamento e Pix aqui -->
           <div class="installment-info-item">
