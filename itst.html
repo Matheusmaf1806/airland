@@ -81,7 +81,7 @@
       flex: 1;
       border-radius: 6px;
       width: 100%;
-      height: 80px; /* Se quiser manter altura fixada, mas sem distorcer */
+      height: 130px; /* Ajuste conforme preferir */
       object-fit: cover;
       background: #eee; /* cor neutra se a imagem falhar */
     }
@@ -132,7 +132,7 @@
     }
 
     /****************************************************
-     * BOX DE PREÇO / RESERVA
+     * BOX DE PREÇO / RESERVA (COLUNA DIREITA)
      ****************************************************/
     .price-box {
       background: #fff;
@@ -150,6 +150,15 @@
     .price-value {
       font-size: 1.4rem;
       font-weight: 600;
+    }
+    .installment-info,
+    .pix-discount {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount {
+      color: #27ae60; /* Verde, destacando desconto no Pix */
+      font-weight: 500;
     }
     .date-participants {
       display: flex;
@@ -268,6 +277,16 @@
       color: #777;
       margin-top: 2px;
     }
+    /* Infos adicionais (Parcelamento / Pix) */
+    .installment-info-item,
+    .pix-discount-item {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount-item {
+      color: #27ae60;
+      font-weight: 500;
+    }
     .reserve-now-btn {
       background: #00a0e3;
       color: #fff;
@@ -369,13 +388,13 @@
 
   <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
   <div class="main-container">
-
     <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
     <div class="left-column">
       <div class="main-banner">
-        <!-- Substitua para imagens válidas -->
-        <img src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png"
-             alt="Disney Banner">
+        <!-- Banner principal -->
+        <img 
+          src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png"
+          alt="Disney Banner">
       </div>
       <div class="mini-images">
         <!-- Ajuste para imagens que não quebrem -->
@@ -403,12 +422,20 @@
         <button><i class="far fa-heart"></i> Minha lista de desejos</button>
       </div>
 
+      <!-- BOX DE PREÇO / RESERVA -->
       <div class="price-box">
         <span class="price-label">A partir de</span>
         <div class="price-value">
           R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small>
         </div>
-        
+        <!-- Exemplo de parcelamento e Pix no box principal -->
+        <div class="installment-info">
+          em até 10x sem juros de R$ 235,32
+        </div>
+        <div class="pix-discount">
+          ou R$ 2.235,54 no Pix (5% off)
+        </div>
+
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
           <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
@@ -435,7 +462,6 @@
           Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
         </div>
       </div>
-
     </div><!-- /right-column -->
   </div><!-- /main-container -->
 
@@ -461,9 +487,17 @@
             R$ 9.693,94
             <small>2 adultos / R$ 4.846,97 p/ cada</small>
           </div>
+          <!-- Parcelamento e Pix aqui -->
+          <div class="installment-info-item">
+            até 10x de R$ 969,39 sem juros
+          </div>
+          <div class="pix-discount-item">
+            ou R$ 9.143,81 no Pix (5% off)
+          </div>
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
+
       <!-- Bilhete 2 -->
       <div class="ticket-item">
         <div class="ticket-info">
@@ -478,9 +512,16 @@
             R$ 6.171,70
             <small>2 adultos / R$ 3.085,85 p/ cada</small>
           </div>
+          <div class="installment-info-item">
+            até 10x de R$ 617,17 sem juros
+          </div>
+          <div class="pix-discount-item">
+            ou R$ 5.863,11 no Pix (5% off)
+          </div>
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
+
       <!-- Bilhete 3 -->
       <div class="ticket-item">
         <div class="ticket-info">
@@ -495,9 +536,16 @@
             R$ 8.828,80
             <small>2 adultos / R$ 4.414,40 p/ cada</small>
           </div>
+          <div class="installment-info-item">
+            até 10x de R$ 882,88 sem juros
+          </div>
+          <div class="pix-discount-item">
+            ou R$ 8.387,36 no Pix (5% off)
+          </div>
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
+
       <!-- Bilhete 4 -->
       <div class="ticket-item">
         <div class="ticket-info">
@@ -511,6 +559,12 @@
           <div class="ticket-price">
             R$ 7.872,54
             <small>2 adultos / R$ 3.936,27 p/ cada</small>
+          </div>
+          <div class="installment-info-item">
+            até 10x de R$ 787,25 sem juros
+          </div>
+          <div class="pix-discount-item">
+            ou R$ 7.478,91 no Pix (5% off)
           </div>
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
