@@ -5,167 +5,176 @@
   <title>Ingressos para Walt Disney World Resort</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Fonte opcional (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+
   <!-- Font Awesome para ícones (opcional) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
-    /***************************************************
-     * RESET / BASE
-     ***************************************************/
+    /****************************************************
+     * BASE E RESET
+     ****************************************************/
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f8f8;
+      font-family: 'Poppins', sans-serif;
+      background-color: #fafafa;
       color: #333;
+      line-height: 1.4;
     }
     a {
-      text-decoration: none;
       color: inherit;
+      text-decoration: none;
     }
     button {
       cursor: pointer;
+      font-family: inherit;
     }
 
-    /***************************************************
-     * HEADER / BANNER PRINCIPAL
-     ***************************************************/
-    .top-banner {
+    /****************************************************
+     * HEADER EXTERNO
+     ****************************************************/
+    #externalHeader {
       width: 100%;
-      background-color: #fafafa;
-      position: relative;
-      border-bottom: 1px solid #eee;
-    }
-    .top-banner-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px 16px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 24px;
+      margin-bottom: 0; /* Ajuste se precisar de espaçamento */
     }
 
-    /* ESQUERDA: Grande imagem ou slider */
-    .banner-images {
-      flex: 1 1 600px;
-      max-width: 720px;
-      background: #ccc;
-      border-radius: 6px;
-      overflow: hidden;
-      position: relative;
-      min-height: 300px;
-    }
-    .banner-images img {
+    /****************************************************
+     * HERO SECTION (BANNER)
+     ****************************************************/
+    .hero-section {
       width: 100%;
-      display: block;
-      object-fit: cover;
-    }
-
-    /* DIREITA: Título, avaliação, etc. */
-    .banner-info {
-      flex: 1 1 300px;
-      max-width: 420px;
+      background: #fff;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid #eee;
     }
-    .banner-info h1 {
+    .hero-inner {
+      width: 100%;
+      max-width: 1200px;
+      padding: 24px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .hero-image {
+      flex: 1 1 600px;
+      border-radius: 8px;
+      overflow: hidden;
+      min-height: 320px;
+      background: #ccc;
+    }
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero-content {
+      flex: 1 1 300px;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+    .hero-content h1 {
       font-size: 1.8rem;
-      color: #444;
-      margin-bottom: 4px;
+      font-weight: 600;
+      color: #333;
     }
-    .stars-reviews {
+    .hero-content .review-info {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-size: 0.9rem;
       color: #666;
     }
-    .stars-reviews i {
+    .hero-content .review-info i {
       color: #f1c40f;
     }
-    .banner-info .location {
-      font-size: 0.9rem;
-      color: #888;
+    .hero-content .location {
+      font-size: 0.85rem;
+      color: #999;
     }
-    .banner-actions {
+    .hero-buttons {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 12px;
+      margin-top: 12px;
     }
-    .banner-actions button {
+    .hero-buttons button {
       background: none;
       border: 1px solid #ccc;
-      border-radius: 4px;
       padding: 8px 12px;
+      border-radius: 4px;
       font-size: 0.85rem;
       color: #555;
       transition: background 0.2s;
     }
-    .banner-actions button:hover {
-      background: #e9e9e9;
+    .hero-buttons button:hover {
+      background: #f1f1f1;
     }
 
-    /***************************************************
-     * PREÇO E FORM DE RESERVA (similar ao Viator)
-     ***************************************************/
+    /****************************************************
+     * RESERVATION BOX (à la “Viator”)
+     ****************************************************/
     .reservation-box {
       width: 100%;
       max-width: 420px;
-      margin: 0 auto;
       background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 6px;
+      border: 1px solid #eee;
+      border-radius: 8px;
       padding: 16px;
-      margin-top: 15px;
+      margin-top: 12px;
     }
-    .price-label {
+    .price-heading {
       font-size: 0.8rem;
       color: #888;
     }
     .price-value {
       font-size: 1.4rem;
-      font-weight: bold;
+      font-weight: 600;
+      margin-bottom: 8px;
       color: #333;
-      margin-bottom: 12px;
     }
-    .date-participants-form {
+    .date-participants {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 12px;
     }
-    .date-participants-form label {
+    .date-participants label {
       font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-weight: 500;
     }
-    .date-participants-form input,
-    .date-participants-form select {
+    .date-participants input,
+    .date-participants select {
       width: 100%;
       height: 38px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
       padding: 0 8px;
       font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
-    .reserve-button {
+    .reservation-button {
       width: 100%;
-      padding: 12px 16px;
-      font-size: 1rem;
-      color: #fff;
       background: #059ddf;
+      color: #fff;
       border: none;
       border-radius: 6px;
-      font-weight: 600;
-      margin-top: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
       transition: background 0.3s;
     }
-    .reserve-button:hover {
+    .reservation-button:hover {
       background: #007cbf;
     }
     .non-refundable {
@@ -173,108 +182,139 @@
       font-size: 0.8rem;
       color: #999;
     }
-    .warning-message {
-      background: #fff3e0;
-      border: 1px solid #ffe0b2;
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 0.85rem;
+    .warning-box {
       margin-top: 12px;
-      color: #b38f44;
+      background: #fff7e6;
+      border: 1px solid #ffe4b8;
+      border-radius: 6px;
+      padding: 10px;
+      color: #aa6a1f;
+      font-size: 0.85rem;
+    }
+    .warning-box i {
+      margin-right: 4px;
     }
 
-    /***************************************************
-     * RESUMO DE INGRESSO (similar ao Viator - cards)
-     ***************************************************/
+    /****************************************************
+     * TICKET LIST (OPÇÕES DE INGRESSO)
+     ****************************************************/
     .ticket-list-container {
       max-width: 1200px;
-      margin: 20px auto;
+      margin: 30px auto 40px;
       padding: 0 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
     }
-    .ticket-intro {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 8px;
+    .ticket-top-text {
       font-size: 0.9rem;
       color: #666;
+      margin-bottom: 16px;
     }
-    .ticket-list {
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    /* Cada "card" de opção de ingresso */
-    .ticket-card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .ticket-card-content {
+    .tickets-grid {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 16px;
     }
-    .ticket-card h3 {
+    .ticket-item {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      transition: box-shadow 0.2s;
+    }
+    .ticket-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .ticket-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ticket-info h3 {
       font-size: 1rem;
-      margin-bottom: 4px;
+      font-weight: 600;
       color: #333;
     }
-    .ticket-card p {
+    .ticket-info p {
       font-size: 0.85rem;
       color: #777;
+      line-height: 1.3;
+    }
+    .price-and-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
     }
     .ticket-price {
       font-size: 1rem;
-      font-weight: bold;
+      font-weight: 600;
       color: #444;
     }
-    .ticket-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .ticket-price small {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: #777;
+      margin-top: 2px;
     }
-    .btn-reserve-now {
+    .reserve-now-btn {
       background: #059ddf;
       color: #fff;
       border: none;
       border-radius: 4px;
-      padding: 8px 14px;
+      padding: 10px 14px;
       font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 500;
+      transition: background 0.3s;
     }
-    .btn-reserve-now:hover {
+    .reserve-now-btn:hover {
       background: #007cbf;
     }
 
-    /***************************************************
-     * CALENDÁRIO / STEPS (do seu script)
-     * Para manter a funcionalidade, mas ocultamos
-     * ou reestilizamos conforme necessidade
-     ***************************************************/
-    .steps-container {
-      display: none; /* Por exemplo, escondido para ficar mais "Viator-like" */
+    /****************************************************
+     * GALERIA DE IMAGENS
+     ****************************************************/
+    .gallery-section {
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      padding: 0 16px;
+    }
+    .gallery-title {
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      object-fit: cover;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .gallery-grid img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    /***************************************************
+    /****************************************************
      * LOADING OVERLAY
-     ***************************************************/
+     ****************************************************/
     #loadingOverlay {
       position: fixed;
       top: 0; left: 0;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       background: rgba(0,0,0,0.3);
       display: none;
       align-items: center;
@@ -288,31 +328,45 @@
       border-top: 6px solid #059ddf;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      background: transparent;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    /***************************************************
+    /****************************************************
      * NOTIFICAÇÃO
-     ***************************************************/
+     ****************************************************/
     .notification {
       font-size: 0.95rem;
     }
 
-    /***************************************************
+    /****************************************************
+     * RODAPÉ
+     ****************************************************/
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #999;
+      padding: 20px 0;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+
+    /****************************************************
      * RESPONSIVIDADE
-     ***************************************************/
+     ****************************************************/
     @media (max-width: 768px) {
-      .top-banner-content {
+      .hero-inner {
         flex-direction: column;
       }
-      .banner-images, .banner-info {
+      .hero-content {
         max-width: 100%;
       }
-      .ticket-card {
+      .ticket-item {
         flex-direction: column;
+        align-items: flex-start;
+      }
+      .price-and-action {
         align-items: flex-start;
       }
     }
@@ -320,174 +374,203 @@
 </head>
 <body>
 
+  <!-- HEADER EXTERNO -->
+  <div id="externalHeader"></div>
+  <script>
+    fetch("https://business.airland.com.br/header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("externalHeader").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header externa:", err));
+  </script>
+
   <!-- LOADING OVERLAY -->
   <div id="loadingOverlay">
     <div class="spinner"></div>
   </div>
 
-  <!-- BANNER SUPERIOR / HEADER -->
-  <section class="top-banner">
-    <div class="top-banner-content">
-      <!-- Imagem destaque -->
-      <div class="banner-images">
-        <!-- Você pode criar um "carrossel" se desejar, aqui é apenas 1 imagem -->
-        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Disney-Kids.jpg"
-             alt="Crianças na Disney">
+  <!-- SEÇÃO HERO (BANNER) -->
+  <section class="hero-section">
+    <div class="hero-inner">
+      <div class="hero-image">
+        <img 
+          src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Disney-Kids.jpg"
+          alt="Disney Banner" />
       </div>
-      <!-- Informações do produto -->
-      <div class="banner-info">
+      <div class="hero-content">
         <h1>Walt Disney World Resort</h1>
-        <div class="stars-reviews">
-          <div class="stars">
-            <i class="fas fa-star"></i> <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+        <div class="review-info">
+          <span class="stars">
+            <i class="fas fa-star"></i> <i class="fas fa-star"></i> 
+            <i class="fas fa-star"></i> <i class="fas fa-star"></i> 
             <i class="fas fa-star-half-alt"></i>
-          </div>
-          <div class="review-count">79 avaliações</div>
+          </span>
+          <span>79 avaliações</span>
         </div>
         <p class="location">Orlando, Estados Unidos da América</p>
-        <div class="banner-actions">
+
+        <div class="hero-buttons">
           <button><i class="fas fa-share"></i> Compartilhar</button>
           <button><i class="far fa-heart"></i> Minha lista de desejos</button>
         </div>
 
-        <!-- Caixa lateral de reserva, igual ao "Viator" -->
+        <!-- Box de Reserva -->
         <div class="reservation-box">
-          <span class="price-label">A partir de</span>
-          <div class="price-value">R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small></div>
+          <span class="price-heading">A partir de</span>
+          <div class="price-value">
+            R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small>
+          </div>
 
-          <div class="date-participants-form">
+          <div class="date-participants">
             <div>
               <label for="arrival-date">Data e participantes</label>
               <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
             </div>
-            <div style="display: flex; gap:10px;">
+            <div style="display: flex; gap: 8px;">
               <select id="numAdults" style="flex:1;">
                 <option value="2" selected>2 adultos</option>
                 <option value="1">1 adulto</option>
                 <option value="3">3 adultos</option>
+                <option value="4">4 adultos</option>
               </select>
               <select id="numChildren" style="flex:1;">
                 <option value="0" selected>0 crianças</option>
                 <option value="1">1 criança</option>
                 <option value="2">2 crianças</option>
+                <option value="3">3 crianças</option>
               </select>
             </div>
           </div>
-          <button class="reserve-button" onclick="atualizarBusca()">Atualizar busca</button>
-          <div class="non-refundable"><strong>Não reembolsável!</strong> – Se você cancelar, não receberá um reembolso.</div>
-          <div class="warning-message">
-            <i class="fas fa-exclamation-triangle"></i> Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
+          <button class="reservation-button" onclick="atualizarBusca()">
+            Atualizar busca
+          </button>
+          <div class="non-refundable">
+            <strong>Não reembolsável!</strong> – Se você cancelar, não receberá um reembolso.
+          </div>
+          <div class="warning-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SEÇÃO INFORMAÇÕES DO PRODUTO / TIPOS DE INGRESSO -->
+  <!-- LISTA DE INGRESSOS (SIMILAR AO VIATOR) -->
   <div class="ticket-list-container">
-    <div class="ticket-intro">
-      <p><strong>1 a 10 dias</strong> (aproximadamente) • <strong>Ingresso digital</strong> • Garantia de menor preço</p>
-      <p>Escolha abaixo quantos dias você deseja e obtenha o valor final.</p>
+    <div class="ticket-top-text">
+      <p><strong>1 a 10 dias</strong> (aprox.) • <strong>Ingresso digital</strong> • Garantia de menor preço</p>
+      <p>Escolha abaixo quantos dias você deseja e obtenha o valor final. Confira também políticas de cancelamento e detalhes adicionais.</p>
     </div>
 
-    <!-- Lista de opções (similar a Viator) -->
-    <div class="ticket-list">
-      <!-- Exemplo de 7 dias -->
-      <div class="ticket-card">
-        <div class="ticket-card-content">
+    <div class="tickets-grid">
+      <!-- Exemplo 1 -->
+      <div class="ticket-item">
+        <div class="ticket-info">
           <h3>Bilhete base de 7 dias</h3>
-          <p>Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom.</p>
-          <p><em>Não reembolsável</em></p>
+          <p>
+            Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom.
+            <br><em>Não reembolsável</em>
+          </p>
         </div>
-        <div class="ticket-actions">
-          <div class="ticket-price">R$ 9.693,94 <br><small>2 adultos / R$ 4.846,97 p/ cada</small></div>
-          <button class="btn-reserve-now">Reserve agora</button>
+        <div class="price-and-action">
+          <div class="ticket-price">
+            R$ 9.693,94
+            <small>2 adultos / R$ 4.846,97 p/ cada</small>
+          </div>
+          <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
-
-      <!-- Exemplo de 3 dias -->
-      <div class="ticket-card">
-        <div class="ticket-card-content">
+      <!-- Exemplo 2 -->
+      <div class="ticket-item">
+        <div class="ticket-info">
           <h3>Bilhete base de 3 dias</h3>
-          <p>Três dias em um dos parques Disney. Flexível, mas não cumulativo.</p>
-          <p><em>Não reembolsável</em></p>
+          <p>
+            Três dias em um dos parques Disney. Flexível, mas não cumulativo.
+            <br><em>Não reembolsável</em>
+          </p>
         </div>
-        <div class="ticket-actions">
-          <div class="ticket-price">R$ 6.171,70 <br><small>2 adultos / R$ 3.085,85 p/ cada</small></div>
-          <button class="btn-reserve-now">Reserve agora</button>
+        <div class="price-and-action">
+          <div class="ticket-price">
+            R$ 6.171,70
+            <small>2 adultos / R$ 3.085,85 p/ cada</small>
+          </div>
+          <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
-
-      <!-- Exemplo de 5 dias -->
-      <div class="ticket-card">
-        <div class="ticket-card-content">
+      <!-- Exemplo 3 -->
+      <div class="ticket-item">
+        <div class="ticket-info">
           <h3>Bilhete base de 5 dias</h3>
-          <p>Validade ampla. Visite por 5 dias consecutivos ou conforme regras Disney.</p>
-          <p><em>Não reembolsável</em></p>
+          <p>
+            Validade ampla. Visite por 5 dias consecutivos ou conforme regras Disney.
+            <br><em>Não reembolsável</em>
+          </p>
         </div>
-        <div class="ticket-actions">
-          <div class="ticket-price">R$ 8.828,80 <br><small>2 adultos / R$ 4.414,40 p/ cada</small></div>
-          <button class="btn-reserve-now">Reserve agora</button>
+        <div class="price-and-action">
+          <div class="ticket-price">
+            R$ 8.828,80
+            <small>2 adultos / R$ 4.414,40 p/ cada</small>
+          </div>
+          <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
-
-      <!-- Exemplo de 4 dias -->
-      <div class="ticket-card">
-        <div class="ticket-card-content">
+      <!-- Exemplo 4 -->
+      <div class="ticket-item">
+        <div class="ticket-info">
           <h3>Bilhete base de 4 dias</h3>
-          <p>Visite 1 parque por dia, no período de 4 dias selecionado.</p>
-          <p><em>Não reembolsável</em></p>
+          <p>
+            Visite 1 parque por dia, no período de 4 dias selecionado.
+            <br><em>Não reembolsável</em>
+          </p>
         </div>
-        <div class="ticket-actions">
-          <div class="ticket-price">R$ 7.872,54 <br><small>2 adultos / R$ 3.936,27 p/ cada</small></div>
-          <button class="btn-reserve-now">Reserve agora</button>
+        <div class="price-and-action">
+          <div class="ticket-price">
+            R$ 7.872,54
+            <small>2 adultos / R$ 3.936,27 p/ cada</small>
+          </div>
+          <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- (Opcional) DIV OCULTA COM O STEPS (calendário, etc) DO SEU SCRIPT -->
-  <div class="steps-container">
-    <!-- Caso deseje exibir o calendário e as seleções passo-a-passo, 
-         insira aqui os elementos e IDs que o script espera. -->
-  </div>
+  <!-- GALERIA DE IMAGENS -->
+  <section class="gallery-section">
+    <h2 class="gallery-title">Momentos Disney</h2>
+    <div class="gallery-grid">
+      <!-- Adicionei as imagens que você enviou -->
+      <img 
+        src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png" 
+        alt="Personagens Disney com roupa de 50 anos" />
+      <img 
+        src="https://midias.correiobraziliense.com.br/_midias/jpg/2024/10/01/1000x1000/1_whatsapp_image_2024_10_01_at_09_20_34__1_-40348713.jpeg?20241001094518?20241001094518" 
+        alt="Turistas e personagens na Disney" />
+      <img 
+        src="https://www.experiencekissimmee.com/sites/default/files/styles/hero_md/public/2023-02/Mickey_and_Castle_0.jpg?h=7e09f859&itok=Al1spIlA" 
+        alt="Mickey e Castelo" />
+      <img 
+        src="https://www.hapfun.com.br/wp-content/uploads/2023/05/61c4c538e45a2-0914ZP_0076DR-scaled.jpeg" 
+        alt="Visitantes em atração da Disney" />
+      <img 
+        src="https://www.bloomberglinea.com/resizer/v2/3KW7JVLS55CG3KXGSRZG3EXN44.jpg?auth=fbb976df91f0957a0527a323245205bbedc8e350c5e6623529c40bdf5440c115&width=800&height=534&quality=80&smart=true" 
+        alt="Parque Temático" />
+      <img 
+        src="https://a.travel-assets.com/findyours-php/viewfinder/images/res70/555000/555496-walt-disney-worldr-resort.jpg"
+        alt="Walt Disney World Resort" />
+    </div>
+  </section>
 
-  <!-- RODAPÉ (SIMPLES) -->
-  <footer style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.9rem; color: #888;">
-    © 2025 - Exemplo de Layout Inspirado em Viator/AttractionTickets
+  <!-- RODAPÉ -->
+  <footer>
+    © 2025 - Exemplo de Layout Minimalista inspirado em Viator
   </footer>
 
-  <!-- SCRIPTS: Incluindo seu JavaScript de seleção de ingressos -->
+  <!-- SEU SCRIPT (lógica de busca, overlay, etc.) -->
   <script>
-    /***********************
-     * VARIÁVEIS GLOBAIS (do seu script)
-     ***********************/
-    let ticketPrices = null;
-    let id_site = null;
-    let isProcessing = false;
+    // Variáveis e overlay
     let carrinho = 0;
-    let currentMonth = new Date().getMonth();
-    let currentYear  = new Date().getFullYear();
-    const TX_ANTECIPACAO = 0.0;
-    
-    let selectedOptions = {
-      ticketType: '',
-      days: 0,
-      adults: 2,     //exemplo fixo
-      children: 0,   //exemplo fixo
-      price_adult: 0,
-      price_chd: 0,
-      id_adult: 0,
-      id_chd: 0,
-      startDate: null,
-      endDate: null,
-      selectedPark: ''
-    };
-
-    /***********************
-     * FUNÇÕES AUXILIARES DE LOADING
-     ***********************/
     function mostrarLoading() {
       document.getElementById("loadingOverlay").style.display = "flex";
     }
@@ -495,54 +578,15 @@
       document.getElementById("loadingOverlay").style.display = "none";
     }
 
-    /***********************
-     * Exemplo de "Atualizar Busca"
-     ***********************/
+    // Exemplo de lógica para o botão "Atualizar busca"
     function atualizarBusca() {
-      // Aqui você pode inserir a lógica para recalcular preços,
-      // revalidar datas, etc., conforme seu fluxo.
       const dateValue = document.getElementById('arrival-date').value;
       const numAdults = document.getElementById('numAdults').value;
       const numChildren = document.getElementById('numChildren').value;
-
-      console.log("Atualizar busca com:", dateValue, numAdults, numChildren);
       alert("Busca atualizada!\nData: "+dateValue+"\nAdultos: "+numAdults+"\nCrianças: "+numChildren);
     }
 
-    /***********************
-     * Se quiser manter partes do script original, cole-as aqui
-     * Ex: selectTicket(), selectDay(), etc.
-     ***********************/
-    // function selectTicket(...) { ... }
-
-    /***********************
-     * CARRINHO / CHECKOUT
-     ***********************/
-    async function addToCart() {
-      try {
-        // Exemplo básico
-        showNotification("Item adicionado ao carrinho!", "success");
-        carrinho = 1;
-      } catch (err) {
-        console.error("Erro carrinho:", err);
-        showNotification(err.message, "error");
-        return false;
-      }
-    }
-    async function checkout() {
-      if (carrinho === 1) {
-        alert("Ir para checkout...");
-      } else {
-        const success = await addToCart();
-        if (success) {
-          setTimeout(() => { alert("Indo ao carrinho/checkout..."); }, 500);
-        }
-      }
-    }
-
-    /***********************
-     * FUNÇÃO DE NOTIFICAÇÃO
-     ***********************/
+    // Notificação (opcional)
     function showNotification(message, type) {
       const note = document.createElement("div");
       note.className = `notification ${type}`;
@@ -575,12 +619,8 @@
       setTimeout(() => { note.remove(); }, 3000);
     }
 
-    /***********************
-     * ONLOAD
-     ***********************/
     window.onload = () => {
-      // Exemplo: se quiser iniciar algo ao carregar
-      console.log("Página carregada! Layout estilo Viator.");
+      console.log("Página carregada com layout minimalista e galeria de imagens.");
     };
   </script>
 
