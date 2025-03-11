@@ -269,13 +269,8 @@
       font-weight: 600;
       color: #444;
       text-align: right;
-    }
-    .ticket-price small {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: #777;
-      margin-top: 2px;
+      /* importante para manter o texto + tooltip na mesma linha */
+      white-space: nowrap; 
     }
     /* Infos adicionais (Parcelamento / Pix) */
     .installment-info-item,
@@ -341,9 +336,8 @@
     .tooltip {
       position: relative;
       cursor: pointer;
-      margin-left: 6px; /* um pequeno espaçamento à esquerda do ícone */
+      margin-left: 6px; /* espaçamento à esquerda do ícone */
     }
-
     /* Texto do Tooltip */
     .tooltip .tooltip-text {
       visibility: hidden;
@@ -364,7 +358,6 @@
       transition: opacity 0.2s ease;
       z-index: 999; /* garante que fique por cima de outros elementos */
     }
-
     /* Exibe o tooltip ao hover */
     .tooltip:hover .tooltip-text {
       visibility: visible;
@@ -403,6 +396,7 @@
       }
       .ticket-price {
         text-align: left;
+        white-space: normal; /* permitir quebra em telas pequenas */
       }
     }
   </style>
@@ -518,10 +512,10 @@
         </div>
         <div class="price-and-action">
           <div class="ticket-price">
-            Total para 2 Adultos: R$ 9.693,94
+            R$ 9.693,94
             <small class="tooltip">
               <i class="fas fa-info-circle"></i>
-              <span class="tooltip-text">Valor para cada pessoa: R$ 4.846,97</span>
+              <span class="tooltip-text">2 adultos / R$ 4.846,97 p/ cada</span>
             </small>
           </div>
           <!-- Parcelamento e Pix aqui -->
@@ -547,13 +541,16 @@
         <div class="price-and-action">
           <div class="ticket-price">
             R$ 6.171,70
-            <small>2 adultos / R$ 3.085,85 p/ cada</small>
+            <small class="tooltip">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip-text">Super desconto de 5% no Pix</span>
+            </small>
           </div>
           <div class="installment-info-item">
-            até 10x de R$ 617,17 sem juros
+            2 adultos x R$ 3.085,85
           </div>
           <div class="pix-discount-item">
-            ou R$ 5.863,11 no Pix (5% off)
+            em até 10x Sem Juros
           </div>
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
@@ -571,7 +568,10 @@
         <div class="price-and-action">
           <div class="ticket-price">
             R$ 8.828,80
-            <small>2 adultos / R$ 4.414,40 p/ cada</small>
+            <small class="tooltip">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip-text">2 adultos / R$ 4.414,40 p/ cada</span>
+            </small>
           </div>
           <div class="installment-info-item">
             até 10x de R$ 882,88 sem juros
@@ -595,7 +595,10 @@
         <div class="price-and-action">
           <div class="ticket-price">
             R$ 7.872,54
-            <small>2 adultos / R$ 3.936,27 p/ cada</small>
+            <small class="tooltip">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip-text">2 adultos / R$ 3.936,27 p/ cada</span>
+            </small>
           </div>
           <div class="installment-info-item">
             até 10x de R$ 787,25 sem juros
