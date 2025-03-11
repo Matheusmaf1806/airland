@@ -2,319 +2,278 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Walt Disney World Tickets</title>
+  <title>Ingressos para Walt Disney World Resort</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Font Awesome para ícones (opcional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
   <style>
-    /* RESET BÁSICO */
+    /***************************************************
+     * RESET / BASE
+     ***************************************************/
     * {
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: Arial, sans-serif;
-      background: #f7f7f7;
+      background-color: #f8f8f8;
       color: #333;
-      line-height: 1.4;
     }
-
-    header {
-      background: #043973;
-      color: white;
-      padding: 16px;
-      text-align: center;
+    a {
+      text-decoration: none;
+      color: inherit;
     }
-    header h1 {
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    header p {
-      font-size: 14px;
-    }
-
-    main {
-      max-width: 1200px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-
-    h2.step-title {
-      margin: 20px 0 10px 0;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #222;
-    }
-
-    /*****************************************
-     * STEP CONTAINER
-     *****************************************/
-    .ticket-step {
-      background: #fff;
-      border-radius: 8px;
-      margin-bottom: 24px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .step-content {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 12px;
-      align-items: center;
-    }
-
-    /*****************************************
-     * PASSO 1: TIPO DE INGRESSO
-     *****************************************/
-    .ticket-bilhete {
-      width: 120px;
-      text-align: center;
-      background: #ededed;
-      border: 2px solid transparent;
-      border-radius: 6px;
-      padding: 12px;
+    button {
       cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .ticket-bilhete:hover {
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-    }
-    .ticket-bilhete.selected {
-      border-color: #0067d0;
-      background: #dde9f5;
     }
 
-    /*****************************************
-     * PASSO 2: SELEÇÃO DE DIAS
-     *****************************************/
-    .days-container {
-      display: flex;
-      gap: 8px;
-    }
-    .day {
-      width: 40px;
-      height: 40px;
-      background: #ededed;
-      border-radius: 4px;
-      color: #333;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .day.active {
-      background: #0067d0;
-      color: #fff;
-    }
-    .day:hover {
-      background: #ccc;
-    }
-
-    /*****************************************
-     * PASSO 2.1: SELEÇÃO DE PARQUE (APENAS PARA ÚNICO)
-     *****************************************/
-    #park-selection {
-      display: none;
-      gap: 8px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .park {
-      flex: 1 1 130px;
-      min-width: 120px;
-      text-align: center;
-      background: #ededed;
-      border-radius: 6px;
-      padding: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .park.selected {
-      border-color: #0067d0;
-      background: #dde9f5;
-    }
-
-    #selected-park-info {
-      display: none;
-      background: #ffeecb;
-      padding: 10px;
-      margin-top: 12px;
-      border-radius: 4px;
-      border: 1px solid #fddc99;
-    }
-
-    /*****************************************
-     * PASSO 3: ADULTOS / CRIANÇAS
-     *****************************************/
-    .tickets-quantity {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .quantity-control {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .quantity-control button {
-      width: 30px;
-      height: 30px;
-      border: none;
-      background: #0067d0;
-      color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .quantity-control input {
-      width: 40px;
-      text-align: center;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      height: 30px;
-      font-size: 16px;
-    }
-
-    /*****************************************
-     * PASSO 4: CALENDÁRIO
-     *****************************************/
-    .calendar-container {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-top: 16px;
-    }
-    .calendar-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .calendar-header select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      grid-gap: 10px;
-    }
-    .day-card {
-      background: #ededed;
-      padding: 8px;
-      border-radius: 6px;
-      text-align: center;
-      cursor: pointer;
+    /***************************************************
+     * HEADER / BANNER PRINCIPAL
+     ***************************************************/
+    .top-banner {
+      width: 100%;
+      background-color: #fafafa;
       position: relative;
-      min-height: 60px;
+      border-bottom: 1px solid #eee;
+    }
+    .top-banner-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    /* ESQUERDA: Grande imagem ou slider */
+    .banner-images {
+      flex: 1 1 600px;
+      max-width: 720px;
+      background: #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      min-height: 300px;
+    }
+    .banner-images img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* DIREITA: Título, avaliação, etc. */
+    .banner-info {
+      flex: 1 1 300px;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      gap: 8px;
     }
-    .day-card.empty {
-      background: transparent;
-      cursor: default;
-    }
-    .day-card .day-number {
-      font-weight: bold;
+    .banner-info h1 {
+      font-size: 1.8rem;
+      color: #444;
       margin-bottom: 4px;
     }
-    .day-card.selected {
-      background: #0067d0;
-      color: #fff;
-    }
-    .day-card.valid {
-      background: #bbe3ff;
-    }
-    .day-card:hover:not(.empty) {
-      background: #ccc;
-    }
-    .price-info {
-      font-size: 0.9rem;
-      color: #333;
-    }
-    .best-price-icon {
-      width: 18px;
-      height: 18px;
-      position: absolute;
-      top: 6px;
-      right: 6px;
-    }
-
-    /*****************************************
-     * RESUMO
-     *****************************************/
-    .summary-container {
-      margin-top: 16px;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .summary-grid div {
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 4px;
-      padding: 12px;
-    }
-    .summary-total {
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    .summary-total strong {
-      color: #27ae60;
-    }
-    .summary-installment {
+    .stars-reviews {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 0.9rem;
       color: #666;
     }
-
-    /*****************************************
-     * BOTÕES DE AÇÃO
-     *****************************************/
-    .actions-container {
-      text-align: right;
-      margin-top: 16px;
+    .stars-reviews i {
+      color: #f1c40f;
     }
-    .action-btn {
-      border: none;
-      background: #f39c12;
-      color: #fff;
-      padding: 12px 20px;
-      font-size: 1rem;
-      cursor: pointer;
+    .banner-info .location {
+      font-size: 0.9rem;
+      color: #888;
+    }
+    .banner-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .banner-actions button {
+      background: none;
+      border: 1px solid #ccc;
       border-radius: 4px;
-      margin-left: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #555;
       transition: background 0.2s;
     }
-    .action-btn:hover {
-      background: #e67e22;
-    }
-    .action-btn#bt-checkout {
-      background: #27ae60;
-    }
-    .action-btn#bt-checkout:hover {
-      background: #2ecc71;
+    .banner-actions button:hover {
+      background: #e9e9e9;
     }
 
-    /*****************************************
+    /***************************************************
+     * PREÇO E FORM DE RESERVA (similar ao Viator)
+     ***************************************************/
+    .reservation-box {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 15px;
+    }
+    .price-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .price-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .date-participants-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .date-participants-form label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .date-participants-form input,
+    .date-participants-form select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 0.9rem;
+    }
+    .reserve-button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1rem;
+      color: #fff;
+      background: #059ddf;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-top: 8px;
+      transition: background 0.3s;
+    }
+    .reserve-button:hover {
+      background: #007cbf;
+    }
+    .non-refundable {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #999;
+    }
+    .warning-message {
+      background: #fff3e0;
+      border: 1px solid #ffe0b2;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      color: #b38f44;
+    }
+
+    /***************************************************
+     * RESUMO DE INGRESSO (similar ao Viator - cards)
+     ***************************************************/
+    .ticket-list-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .ticket-intro {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .ticket-list {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    /* Cada "card" de opção de ingresso */
+    .ticket-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .ticket-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ticket-card h3 {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      color: #333;
+    }
+    .ticket-card p {
+      font-size: 0.85rem;
+      color: #777;
+    }
+    .ticket-price {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #444;
+    }
+    .ticket-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-reserve-now {
+      background: #059ddf;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-reserve-now:hover {
+      background: #007cbf;
+    }
+
+    /***************************************************
+     * CALENDÁRIO / STEPS (do seu script)
+     * Para manter a funcionalidade, mas ocultamos
+     * ou reestilizamos conforme necessidade
+     ***************************************************/
+    .steps-container {
+      display: none; /* Por exemplo, escondido para ficar mais "Viator-like" */
+    }
+
+    /***************************************************
      * LOADING OVERLAY
-     *****************************************/
+     ***************************************************/
     #loadingOverlay {
       position: fixed;
-      top: 0; left: 0; 
+      top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.3);
       display: none;
@@ -323,10 +282,10 @@
       z-index: 9999;
     }
     #loadingOverlay .spinner {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border: 6px solid #ccc;
-      border-top: 6px solid #0067d0;
+      border-top: 6px solid #059ddf;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       background: transparent;
@@ -335,176 +294,174 @@
       to { transform: rotate(360deg); }
     }
 
-    /*****************************************
-     * NOTIFICAÇÃO (Dinâmica via JS)
-     *****************************************/
+    /***************************************************
+     * NOTIFICAÇÃO
+     ***************************************************/
     .notification {
       font-size: 0.95rem;
+    }
+
+    /***************************************************
+     * RESPONSIVIDADE
+     ***************************************************/
+    @media (max-width: 768px) {
+      .top-banner-content {
+        flex-direction: column;
+      }
+      .banner-images, .banner-info {
+        max-width: 100%;
+      }
+      .ticket-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- OVERLAY DE CARREGAMENTO -->
+
+  <!-- LOADING OVERLAY -->
   <div id="loadingOverlay">
     <div class="spinner"></div>
   </div>
 
-  <!-- CABEÇALHO -->
-  <header>
-    <h1>Walt Disney World Resort</h1>
-    <p>Selecione seus ingressos e datas para aproveitar ao máximo!</p>
-  </header>
-
-  <!-- CONTEÚDO PRINCIPAL -->
-  <main>
-    <!-- PASSO 01: SELECIONE O TIPO DE INGRESSO -->
-    <div class="ticket-step">
-      <h2 class="step-title">Passo 01 - Selecione o tipo de ingresso</h2>
-      <div class="step-content">
-        <div class="ticket-bilhete" onclick="selectTicket('Único','104',1,this)">
-          Ingresso Único
-        </div>
-        <div class="ticket-bilhete" onclick="selectTicket('Básico','106',4,this)">
-          Ingresso Básico
-        </div>
-        <div class="ticket-bilhete" onclick="selectTicket('Hopper','113',1,this)">
-          Ingresso Hopper
-        </div>
+  <!-- BANNER SUPERIOR / HEADER -->
+  <section class="top-banner">
+    <div class="top-banner-content">
+      <!-- Imagem destaque -->
+      <div class="banner-images">
+        <!-- Você pode criar um "carrossel" se desejar, aqui é apenas 1 imagem -->
+        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Disney-Kids.jpg"
+             alt="Crianças na Disney">
       </div>
-    </div>
+      <!-- Informações do produto -->
+      <div class="banner-info">
+        <h1>Walt Disney World Resort</h1>
+        <div class="stars-reviews">
+          <div class="stars">
+            <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+          </div>
+          <div class="review-count">79 avaliações</div>
+        </div>
+        <p class="location">Orlando, Estados Unidos da América</p>
+        <div class="banner-actions">
+          <button><i class="fas fa-share"></i> Compartilhar</button>
+          <button><i class="far fa-heart"></i> Minha lista de desejos</button>
+        </div>
 
-    <!-- PASSO 02: SELECIONE O NÚMERO DE DIAS (1..10) -->
-    <div class="ticket-step">
-      <h2 class="step-title">Passo 02 - Selecione o número de dias</h2>
-      <div class="step-content days-container">
-        <div class="day" onclick="selectDay(1)">1</div>
-        <div class="day" onclick="selectDay(2)">2</div>
-        <div class="day" onclick="selectDay(3)">3</div>
-        <div class="day" onclick="selectDay(4)">4</div>
-        <div class="day" onclick="selectDay(5)">5</div>
-        <div class="day" onclick="selectDay(6)">6</div>
-        <div class="day" onclick="selectDay(7)">7</div>
-        <div class="day" onclick="selectDay(8)">8</div>
-        <div class="day" onclick="selectDay(9)">9</div>
-        <div class="day" onclick="selectDay(10)">10</div>
-      </div>
+        <!-- Caixa lateral de reserva, igual ao "Viator" -->
+        <div class="reservation-box">
+          <span class="price-label">A partir de</span>
+          <div class="price-value">R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small></div>
 
-      <!-- Seleção de Parque (visível apenas se for "Único" com 1 dia) -->
-      <div id="park-selection">
-        <div class="park" data-type="Magic Kingdom" 
-             onclick="selectPark('Magic Kingdom','Único','104',1)">
-          Magic Kingdom
-        </div>
-        <div class="park" data-type="Epcot" 
-             onclick="selectPark('Epcot','Único','104',1)">
-          Epcot
-        </div>
-        <div class="park" data-type="Hollywood Studios" 
-             onclick="selectPark('Hollywood Studios','Único','104',1)">
-          Hollywood Studios
-        </div>
-        <div class="park" data-type="Animal Kingdom" 
-             onclick="selectPark('Animal Kingdom','Único','104',1)">
-          Animal Kingdom
-        </div>
-      </div>
-      <div id="selected-park-info">
-        Parque selecionado: <span id="selected-park" style="font-weight: bold;"></span>
-      </div>
-    </div>
-
-    <!-- PASSO 03: INGRESSOS (Adultos / Crianças) -->
-    <div class="ticket-step">
-      <h2 class="step-title">Passo 03 - Selecione a quantidade de ingressos</h2>
-      <div class="step-content tickets-quantity">
-        <div class="quantity-control">
-          <label for="adult-ticket">Adultos (10+ anos):</label>
-          <button type="button" onclick="decrementTicket('adult')">-</button>
-          <input type="number" id="adult-ticket" value="1" min="0" readonly>
-          <button type="button" onclick="incrementTicket('adult')">+</button>
-        </div>
-        <div class="quantity-control">
-          <label for="child-ticket">Crianças (3 a 9 anos):</label>
-          <button type="button" onclick="decrementTicket('child')">-</button>
-          <input type="number" id="child-ticket" value="0" min="0" readonly>
-          <button type="button" onclick="incrementTicket('child')">+</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- PASSO 04: CALENDÁRIO -->
-    <div class="ticket-step">
-      <h2 class="step-title">Passo 04 - Selecione o período da viagem</h2>
-      <div class="calendar-container">
-        <div class="calendar-header">
-          <div id="calendarTitle">Mês Ano</div>
-          <div>
-            <label for="monthSelect">Mês:</label>
-            <select id="monthSelect" onchange="onMonthYearChange()"></select>
-            <label for="yearSelect">Ano:</label>
-            <select id="yearSelect" onchange="onMonthYearChange()"></select>
+          <div class="date-participants-form">
+            <div>
+              <label for="arrival-date">Data e participantes</label>
+              <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
+            </div>
+            <div style="display: flex; gap:10px;">
+              <select id="numAdults" style="flex:1;">
+                <option value="2" selected>2 adultos</option>
+                <option value="1">1 adulto</option>
+                <option value="3">3 adultos</option>
+              </select>
+              <select id="numChildren" style="flex:1;">
+                <option value="0" selected>0 crianças</option>
+                <option value="1">1 criança</option>
+                <option value="2">2 crianças</option>
+              </select>
+            </div>
+          </div>
+          <button class="reserve-button" onclick="atualizarBusca()">Atualizar busca</button>
+          <div class="non-refundable"><strong>Não reembolsável!</strong> – Se você cancelar, não receberá um reembolso.</div>
+          <div class="warning-message">
+            <i class="fas fa-exclamation-triangle"></i> Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
           </div>
         </div>
-        <div class="calendar-grid" id="calendar-grid">
-          <!-- Dias do mês serão gerados dinamicamente -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO INFORMAÇÕES DO PRODUTO / TIPOS DE INGRESSO -->
+  <div class="ticket-list-container">
+    <div class="ticket-intro">
+      <p><strong>1 a 10 dias</strong> (aproximadamente) • <strong>Ingresso digital</strong> • Garantia de menor preço</p>
+      <p>Escolha abaixo quantos dias você deseja e obtenha o valor final.</p>
+    </div>
+
+    <!-- Lista de opções (similar a Viator) -->
+    <div class="ticket-list">
+      <!-- Exemplo de 7 dias -->
+      <div class="ticket-card">
+        <div class="ticket-card-content">
+          <h3>Bilhete base de 7 dias</h3>
+          <p>Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom.</p>
+          <p><em>Não reembolsável</em></p>
+        </div>
+        <div class="ticket-actions">
+          <div class="ticket-price">R$ 9.693,94 <br><small>2 adultos / R$ 4.846,97 p/ cada</small></div>
+          <button class="btn-reserve-now">Reserve agora</button>
+        </div>
+      </div>
+
+      <!-- Exemplo de 3 dias -->
+      <div class="ticket-card">
+        <div class="ticket-card-content">
+          <h3>Bilhete base de 3 dias</h3>
+          <p>Três dias em um dos parques Disney. Flexível, mas não cumulativo.</p>
+          <p><em>Não reembolsável</em></p>
+        </div>
+        <div class="ticket-actions">
+          <div class="ticket-price">R$ 6.171,70 <br><small>2 adultos / R$ 3.085,85 p/ cada</small></div>
+          <button class="btn-reserve-now">Reserve agora</button>
+        </div>
+      </div>
+
+      <!-- Exemplo de 5 dias -->
+      <div class="ticket-card">
+        <div class="ticket-card-content">
+          <h3>Bilhete base de 5 dias</h3>
+          <p>Validade ampla. Visite por 5 dias consecutivos ou conforme regras Disney.</p>
+          <p><em>Não reembolsável</em></p>
+        </div>
+        <div class="ticket-actions">
+          <div class="ticket-price">R$ 8.828,80 <br><small>2 adultos / R$ 4.414,40 p/ cada</small></div>
+          <button class="btn-reserve-now">Reserve agora</button>
+        </div>
+      </div>
+
+      <!-- Exemplo de 4 dias -->
+      <div class="ticket-card">
+        <div class="ticket-card-content">
+          <h3>Bilhete base de 4 dias</h3>
+          <p>Visite 1 parque por dia, no período de 4 dias selecionado.</p>
+          <p><em>Não reembolsável</em></p>
+        </div>
+        <div class="ticket-actions">
+          <div class="ticket-price">R$ 7.872,54 <br><small>2 adultos / R$ 3.936,27 p/ cada</small></div>
+          <button class="btn-reserve-now">Reserve agora</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- RESUMO -->
-    <div class="summary-container">
-      <h2 class="step-title">Resumo da Seleção</h2>
-      <div class="summary-grid">
-        <div>
-          <strong>Tipo de Ingresso:</strong> 
-          <p id="ticket-type-selection">Nenhum</p>
-        </div>
-        <div>
-          <strong>Dias selecionados:</strong>
-          <p id="selected-days">0</p>
-        </div>
-        <div>
-          <strong>Quantidade de Adultos:</strong>
-          <p id="adult-count">0 adulto(s)</p>
-        </div>
-        <div>
-          <strong>Quantidade de Crianças:</strong>
-          <p id="child-count">0 criança(s)</p>
-        </div>
-        <div>
-          <strong>Validade do Ingresso:</strong>
-          <p id="usage-period">Não selecionado</p>
-        </div>
-        <div>
-          <strong>Total de Pessoas:</strong>
-          <p id="totalPeople">0</p>
-        </div>
-      </div>
-      <div class="summary-total">
-        Total: <span id="total-price"><strong>R$ 0,00</strong></span>
-      </div>
-      <div class="summary-installment" id="installment-price">
-        ou em 10x de R$ 0,00 no cartão
-      </div>
-      <div class="actions-container">
-        <button class="action-btn" id="bt-add-cart" onclick="addToCart()">
-          Adicionar ao Carrinho
-        </button>
-        <button class="action-btn" id="bt-checkout" onclick="checkout()">
-          Finalizar Compra
-        </button>
-      </div>
-    </div>
-  </main>
+  <!-- (Opcional) DIV OCULTA COM O STEPS (calendário, etc) DO SEU SCRIPT -->
+  <div class="steps-container">
+    <!-- Caso deseje exibir o calendário e as seleções passo-a-passo, 
+         insira aqui os elementos e IDs que o script espera. -->
+  </div>
 
-  <footer style="text-align:center; margin: 24px 0; color: #666;">
-    <p>&copy; 2025 - Magic Travel Tur</p>
+  <!-- RODAPÉ (SIMPLES) -->
+  <footer style="margin-top: 40px; padding: 20px; text-align: center; font-size: 0.9rem; color: #888;">
+    © 2025 - Exemplo de Layout Inspirado em Viator/AttractionTickets
   </footer>
 
-  <!-- SCRIPTS: Inclua abaixo o JavaScript fornecido -->
+  <!-- SCRIPTS: Incluindo seu JavaScript de seleção de ingressos -->
   <script>
     /***********************
-     * VARIÁVEIS GLOBAIS
+     * VARIÁVEIS GLOBAIS (do seu script)
      ***********************/
     let ticketPrices = null;
     let id_site = null;
@@ -517,8 +474,8 @@
     let selectedOptions = {
       ticketType: '',
       days: 0,
-      adults: parseInt(document.getElementById("adult-ticket").value),
-      children: parseInt(document.getElementById("child-ticket").value),
+      adults: 2,     //exemplo fixo
+      children: 0,   //exemplo fixo
       price_adult: 0,
       price_chd: 0,
       id_adult: 0,
@@ -527,7 +484,7 @@
       endDate: null,
       selectedPark: ''
     };
-    
+
     /***********************
      * FUNÇÕES AUXILIARES DE LOADING
      ***********************/
@@ -537,513 +494,35 @@
     function esconderLoading() {
       document.getElementById("loadingOverlay").style.display = "none";
     }
-    
+
     /***********************
-     * FUNÇÃO updateSelectedOptions
+     * Exemplo de "Atualizar Busca"
      ***********************/
-    function updateSelectedOptions() {
-      selectedOptions.adults = parseInt(document.getElementById("adult-ticket").value);
-      selectedOptions.children = parseInt(document.getElementById("child-ticket").value);
-      console.log("Valores atualizados:", selectedOptions);
+    function atualizarBusca() {
+      // Aqui você pode inserir a lógica para recalcular preços,
+      // revalidar datas, etc., conforme seu fluxo.
+      const dateValue = document.getElementById('arrival-date').value;
+      const numAdults = document.getElementById('numAdults').value;
+      const numChildren = document.getElementById('numChildren').value;
+
+      console.log("Atualizar busca com:", dateValue, numAdults, numChildren);
+      alert("Busca atualizada!\nData: "+dateValue+"\nAdultos: "+numAdults+"\nCrianças: "+numChildren);
     }
-    
+
     /***********************
-     * FUNÇÃO updateParkSelectionVisibility
+     * Se quiser manter partes do script original, cole-as aqui
+     * Ex: selectTicket(), selectDay(), etc.
      ***********************/
-    function updateParkSelectionVisibility() {
-      const parkSelection = document.getElementById('park-selection');
-      if (selectedOptions.ticketType === 'Único' && selectedOptions.days === 1) {
-        parkSelection.style.display = 'flex';
-      } else {
-        parkSelection.style.display = 'none';
-        selectedOptions.selectedPark = '';
-        document.querySelectorAll('.park').forEach(park => park.classList.remove('selected'));
-        document.getElementById('selected-park-info').style.display = 'none';
-      }
-    }
-    
+    // function selectTicket(...) { ... }
+
     /***********************
-     * PASSO 01: SELECT TICKET
-     ***********************/
-    async function selectTicket(type, idSiteValue, day, el) {
-      document.querySelectorAll('.ticket-bilhete').forEach(t => t.classList.remove('selected'));
-      if (el) el.classList.add('selected');
-      selectedOptions.ticketType = type;
-      id_site = idSiteValue;
-      updateParkSelectionVisibility();
-      
-      // Resetar dias e limpar calendário
-      document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-      document.getElementById('calendar-grid').innerHTML = '';
-      selectedOptions.days = 0;
-      
-      updateDaysOptions();
-      // Seleciona o dia padrão
-      selectDay(day);
-      
-      if (selectedOptions.ticketType && selectedOptions.days > 0) {
-        if (!isProcessing) {
-          try {
-            isProcessing = true;
-            mostrarLoading();
-            await generateCalendar(currentMonth, currentYear);
-          } finally {
-            isProcessing = false;
-            esconderLoading();
-          }
-        }
-      }
-      updateSummary();
-    }
-    
-    /***********************
-     * FUNÇÃO getAvailableDays
-     ***********************/
-    function getAvailableDays(ticketType) {
-      switch(ticketType) {
-        case 'Único':  return [1];
-        case 'Básico': return [2,3,4,5,6,7,8,9,10];
-        case 'Hopper': return [1,2,3,4,5,6,7,8,9,10];
-        default:       return [];
-      }
-    }
-    
-    /***********************
-     * FUNÇÃO updateDaysOptions
-     ***********************/
-    function updateDaysOptions() {
-      const available = getAvailableDays(selectedOptions.ticketType);
-      document.querySelectorAll('.day').forEach(dayElem => {
-        const d = parseInt(dayElem.textContent);
-        if (available.includes(d)) {
-          dayElem.style.display = 'flex';
-        } else {
-          dayElem.style.display = 'none';
-          if (selectedOptions.days === d) {
-            selectedOptions.days = 0;
-            dayElem.classList.remove('active');
-          }
-        }
-      });
-    }
-    
-    /***********************
-     * PASSO 02: SELECT DAY
-     ***********************/
-    async function selectDay(day) {
-      const available = getAvailableDays(selectedOptions.ticketType);
-      document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-      selectedOptions.days = available.length === 1 ? available[0] : day;
-      const dayElem = document.querySelector(`.day[onclick="selectDay(${day})"]`);
-      if (dayElem) dayElem.classList.add('active');
-      
-      // Ajusta o id_site conforme a lógica
-      if ((id_site >= '104' && id_site <= '112') || id_site === '142') {
-        if (day == 2){ id_site = '104'; }
-        if (day == 3){ id_site = '105'; }
-        if (day == 4){
-          if(selectedOptions.startDate >= new Date("2025-01-05") && selectedOptions.startDate <= new Date("2025-03-29")){
-            id_site = '142';
-          } else {
-            id_site = '106';
-          }
-        }
-        if (day == 5){ id_site = '107'; }
-        if (day == 6){ id_site = '108'; }
-        if (day == 7){ id_site = '109'; }
-        if (day == 8){ id_site = '110'; }
-        if (day == 9){ id_site = '111'; }
-        if (day == 10){ id_site = '112'; }
-      }
-      if (id_site >= '113' && id_site <= '122') {
-        if (day == 1){ id_site = '113'; }
-        if (day == 2){ id_site = '114'; }
-        if (day == 3){ id_site = '115'; }
-        if (day == 4){ id_site = '116'; }
-        if (day == 5){ id_site = '117'; }
-        if (day == 6){ id_site = '118'; }
-        if (day == 7){ id_site = '119'; }
-        if (day == 8){ id_site = '120'; }
-        if (day == 9){ id_site = '121'; }
-        if (day == 10){ id_site = '122'; }
-      }
-      if (id_site >= '123' && id_site <= '131') {
-        if (day == 2){ id_site = '123'; }
-        if (day == 3){ id_site = '124'; }
-        if (day == 4){ id_site = '125'; }
-        if (day == 5){ id_site = '126'; }
-        if (day == 6){ id_site = '127'; }
-        if (day == 7){ id_site = '128'; }
-        if (day == 8){ id_site = '129'; }
-        if (day == 9){ id_site = '130'; }
-        if (day == 10){ id_site = '131'; }
-      }
-      if (id_site >= '132' && id_site <= '141') {
-        if (day == 1){ id_site = '132'; }
-        if (day == 2){ id_site = '133'; }
-        if (day == 3){ id_site = '134'; }
-        if (day == 4){ id_site = '135'; }
-        if (day == 5){ id_site = '136'; }
-        if (day == 6){ id_site = '137'; }
-        if (day == 7){ id_site = '138'; }
-        if (day == 8){ id_site = '139'; }
-        if (day == 9){ id_site = '140'; }
-        if (day == 10){ id_site = '141'; }
-      }
-      
-      // Limpa a grid para nova consulta
-      document.getElementById('calendar-grid').innerHTML = '';
-      if (selectedOptions.ticketType && selectedOptions.days > 0) {
-        if (!isProcessing) {
-          try {
-            isProcessing = true;
-            mostrarLoading();
-            await generateCalendar(currentMonth, currentYear);
-          } finally {
-            isProcessing = false;
-            esconderLoading();
-          }
-        }
-      }
-      updateSummary();
-    }
-    
-    /***********************
-     * PASSO 02.1: SELECT PARK
-     ***********************/
-    function selectPark(parkName, type, idSiteValue, day) {
-      document.querySelectorAll('.park').forEach(pk => pk.classList.remove('selected'));
-      const pk = document.querySelector(`.park[data-type="${parkName}"]`);
-      if (pk) pk.classList.add('selected');
-      selectedOptions.selectedPark = parkName;
-      // Para manter a coerência, chama selectTicket
-      selectTicket(type, idSiteValue, day, null);
-      updateSummary();
-    }
-    
-    /***********************
-     * PASSO 03: INGRESSOS
-     ***********************/
-    async function incrementTicket(type) {
-      if (isProcessing) return;
-      try {
-        isProcessing = true;
-        const inputEl = document.getElementById(`${type}-ticket`);
-        let count = parseInt(inputEl.value);
-        inputEl.value = ++count;
-        selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-        updateSelectedOptions();
-        refreshCalendarPrices();
-        updateSummary();
-      } finally {
-        isProcessing = false;
-      }
-    }
-    async function decrementTicket(type) {
-      if (isProcessing) return;
-      try {
-        isProcessing = true;
-        const inputEl = document.getElementById(`${type}-ticket`);
-        let count = parseInt(inputEl.value);
-        if (count > 0) {
-          inputEl.value = --count;
-          selectedOptions[type === 'adult' ? 'adults' : 'children'] = count;
-          updateSelectedOptions();
-          refreshCalendarPrices();
-          updateSummary();
-        }
-      } finally {
-        isProcessing = false;
-      }
-    }
-    
-    /***********************
-     * PASSO 04: CALENDÁRIO + RESUMO
-     ***********************/
-    function populateMonthYearSelects() {
-      const monthSelect = document.getElementById('monthSelect');
-      const yearSelect  = document.getElementById('yearSelect');
-      const monthNames  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                           "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-      monthSelect.innerHTML = "";
-      yearSelect.innerHTML  = "";
-      for (let m = 0; m < 12; m++) {
-        const opt = document.createElement('option');
-        opt.value = m;
-        opt.textContent = monthNames[m];
-        monthSelect.appendChild(opt);
-      }
-      const thisYear = new Date().getFullYear();
-      for (let y = thisYear - 1; y <= thisYear + 3; y++) {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
-      }
-    }
-    function onMonthYearChange() {
-      const monthSelect = document.getElementById('monthSelect');
-      const yearSelect  = document.getElementById('yearSelect');
-      currentMonth = parseInt(monthSelect.value);
-      currentYear  = parseInt(yearSelect.value);
-      if (!isProcessing) {
-        mostrarLoading();
-        generateCalendar(currentMonth, currentYear)
-          .finally(() => esconderLoading());
-      }
-    }
-    async function generateCalendar(month, year) {
-      const calGrid = document.getElementById('calendar-grid');
-      calGrid.innerHTML = '';
-      const monthNames = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-      document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
-      document.getElementById('monthSelect').value = month;
-      document.getElementById('yearSelect').value  = year;
-      
-      const firstDay = new Date(year, month, 1);
-      const lastDay  = new Date(year, month + 1, 0);
-      const firstDay_f = `${firstDay.getFullYear()}-${String(firstDay.getMonth()+1).padStart(2,'0')}-${String(firstDay.getDate()).padStart(2,'0')}`;
-      const lastDay_f  = `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
-      
-      // Ajusta id_site para ticket "Básico" ou "Hopper" (exemplo)
-      if (id_site == 106 || id_site == 142) {
-        if (month === 0 || month === 1 || month === 2) {
-          id_site = 142;
-        } else {
-          id_site = 106;
-        }
-      }
-      
-      // Chama a API para buscar os preços do mês
-      ticketPrices = await get_price_tickets(id_site, firstDay_f, lastDay_f);
-      
-      // Dias vazios para alinhar a grid
-      for (let i = 0; i < firstDay.getDay(); i++) {
-        const empty = document.createElement('div');
-        empty.classList.add('day-card', 'empty');
-        calGrid.appendChild(empty);
-      }
-      
-      // Cria os cards para os dias do mês
-      for (let d = 1; d <= lastDay.getDate(); d++) {
-        const dayCard = document.createElement('div');
-        dayCard.classList.add('day-card');
-        dayCard.innerHTML = `<div class="day-number">${d}</div>`;
-        dayCard.onclick = () => selectDate(year, month, d);
-        calGrid.appendChild(dayCard);
-      }
-      
-      // Atualiza preços de cada dia
-      refreshCalendarPrices();
-      updateCalendarSelection();
-    }
-    
-    // Função para atualizar os preços dos dias
-    function refreshCalendarPrices() {
-      const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-      let daysData = [];
-      
-      cards.forEach(card => {
-        const dNum = parseInt(card.querySelector('.day-number').textContent);
-        const cDate = new Date(currentYear, currentMonth, dNum);
-        const fmtDate = cDate.toISOString().split('T')[0];
-        // Filtra preços adulto/criança
-        const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type.toUpperCase() === 'ADULTO');
-        const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && (t.price_type.toUpperCase() === 'CRIANÇA' || t.price_type.toUpperCase() === 'CRIANCA'));
-        const priceA = ticketAdult && ticketAdult.price ? parseFloat(ticketAdult.price) * selectedOptions.adults : 0;
-        const priceC = ticketChild && ticketChild.price ? parseFloat(ticketChild.price) * selectedOptions.children : 0;
-        const priceDay = priceA + priceC;
-        daysData.push({ card, price: priceDay, dayNumber: dNum });
-      });
-      
-      // Encontra dois menores preços do mês
-      let bestPrices = daysData
-                        .filter(d => d.price > 0)
-                        .sort((a, b) => a.price - b.price)
-                        .slice(0, 2)
-                        .map(d => d.price);
-      
-      // Atualiza cada card
-      daysData.forEach(data => {
-        const { card, price, dayNumber } = data;
-        const formattedPrice = price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        card.innerHTML = `
-          <div class="day-number">${dayNumber}</div>
-          <div class="price-info">R$ ${formattedPrice}</div>
-          <small>Ou em 10x de R$ ${(price * (1 + TX_ANTECIPACAO) / 10)
-            .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</small>
-        `;
-        // Se for um dos dois melhores preços
-        if (bestPrices.includes(price) && price > 0) {
-          const bestIcon = document.createElement('img');
-          bestIcon.src = "https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Ticket%20best.png";
-          bestIcon.classList.add('best-price-icon');
-          card.appendChild(bestIcon);
-        }
-      });
-    }
-    
-    async function get_price_tickets(id_site, startDate, endDate) {
-      const url  = "https://airland.com.br/get-price.php";
-      const data = { id_site, start_date: startDate, end_date: endDate };
-      const timeout = 60000;
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout')), timeout)
-      );
-      try {
-        const response = await Promise.race([
-          fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          }),
-          timeoutPromise
-        ]);
-        if (!response.ok) {
-          console.error("Erro na fetch:", await response.text());
-          return [];
-        }
-        const result = await response.json();
-        return result;
-      } catch (err) {
-        console.error("Erro ao buscar tickets:", err);
-        return [];
-      }
-    }
-    
-    function selectDate(year, month, day) {
-      const selDate = new Date(year, month, day);
-      selectedOptions.startDate = selDate;
-      document.querySelectorAll('.calendar-grid .day-card').forEach(card => {
-        card.classList.remove('selected','valid');
-      });
-      const clicked = event.currentTarget;
-      clicked.classList.add('selected');
-      const fmtDate = selDate.toISOString().split('T')[0];
-      const ticketAdult = (ticketPrices || []).find(t => t.forDate === fmtDate && t.price_type.toUpperCase() === 'ADULTO');
-      const ticketChild = (ticketPrices || []).find(t => t.forDate === fmtDate && (t.price_type.toUpperCase() === 'CRIANÇA' || t.price_type.toUpperCase() === 'CRIANCA'));
-      if (ticketAdult && !isNaN(parseFloat(ticketAdult.price))) {
-        selectedOptions.price_adult = parseFloat(ticketAdult.price);
-        selectedOptions.id_adult = parseFloat(ticketAdult.ID);
-      } else {
-        selectedOptions.price_adult = 0;
-        selectedOptions.id_adult = 0;
-        console.warn('Preço para adulto não disponível para a data selecionada');
-      }
-      if (ticketChild && !isNaN(parseFloat(ticketChild.price))) {
-        selectedOptions.price_chd = parseFloat(ticketChild.price);
-        selectedOptions.id_chd = parseFloat(ticketChild.ID);
-      } else {
-        selectedOptions.price_chd = 0;
-        selectedOptions.id_chd = 0;
-        console.warn('Preço para criança não disponível para a data selecionada');
-      }
-      updateValidity();
-      updateCalendarSelection();
-      updateSummary();
-    }
-    
-    function updateCalendarSelection() {
-      const start = selectedOptions.startDate;
-      const end = selectedOptions.endDate;
-      const cards = document.querySelectorAll('.calendar-grid .day-card:not(.empty)');
-      cards.forEach(card => {
-        card.classList.remove('selected','valid');
-        const dNum = parseInt(card.querySelector('.day-number').textContent);
-        const cDate = new Date(currentYear, currentMonth, dNum);
-        if (start) {
-          if (cDate.getTime() === start.getTime()) {
-            card.classList.add('selected');
-          } else if (cDate > start && cDate <= end) {
-            card.classList.add('valid');
-          }
-        }
-      });
-    }
-    
-    function updateSummary() {
-      const aCount = selectedOptions.adults;
-      const cCount = selectedOptions.children;
-      const total = aCount + cCount;
-      const tType  = selectedOptions.ticketType;
-      const days   = selectedOptions.days;
-      document.getElementById('adult-count').textContent = `${aCount} adulto(s)`;
-      document.getElementById('child-count').textContent = `${cCount} criança(s)`;
-      document.getElementById('ticket-type-selection').textContent = tType || 'Nenhum';
-      document.getElementById('selected-days').textContent = days || 0;
-      document.getElementById('totalPeople').textContent = total;
-      updateValidity();
-      let totalPrice = (selectedOptions.adults * selectedOptions.price_adult) +
-                       (selectedOptions.children * selectedOptions.price_chd);
-      if (!days) {
-        document.getElementById('usage-period').innerText = "Não selecionado";
-        totalPrice = 0;
-      }
-      const formattedTotal = totalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('total-price').innerHTML = `<strong>R$ ${formattedTotal}</strong>`;
-      const installment = (totalPrice * (1 + TX_ANTECIPACAO) / 10)
-                            .toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      document.getElementById('installment-price').textContent =
-        `ou em 10x de R$ ${installment} no cartão`;
-      updateParkSelectionVisibility();
-      if (selectedOptions.selectedPark) {
-        document.getElementById('selected-park').textContent = selectedOptions.selectedPark;
-        document.getElementById('selected-park-info').style.display = 'block';
-      }
-    }
-    
-    function updateValidity() {
-      const start = selectedOptions.startDate;
-      let endDate = null;
-      let validity = "Não selecionado";
-      if (start && selectedOptions.days) {
-        endDate = new Date(start);
-        switch(selectedOptions.days) {
-          case 2:  endDate.setDate(endDate.getDate() + 3); break;
-          case 3:  endDate.setDate(endDate.getDate() + 4); break;
-          case 4:  endDate.setDate(endDate.getDate() + 6); break;
-          case 5:  endDate.setDate(endDate.getDate() + 7); break;
-          case 6:  endDate.setDate(endDate.getDate() + 9); break;
-          case 7:  endDate.setDate(endDate.getDate() + 10); break;
-          case 8:  endDate.setDate(endDate.getDate() + 11); break;
-          case 9:  endDate.setDate(endDate.getDate() + 12); break;
-          case 10: endDate.setDate(endDate.getDate() + 13); break;
-          default: break;
-        }
-        selectedOptions.endDate = endDate;
-        const opts = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        const st = start.toLocaleDateString('pt-BR', opts);
-        const en = endDate.toLocaleDateString('pt-BR', opts);
-        validity = `${st} até ${en}`;
-      }
-      document.getElementById('usage-period').innerText = validity;
-    }
-    
-    /***********************
-     * FUNÇÕES DE CARRINHO
+     * CARRINHO / CHECKOUT
      ***********************/
     async function addToCart() {
       try {
-        if (!selectedOptions) {
-          throw new Error("Dados de produtos não encontrados");
-        }
-        const products = [];
-        if (selectedOptions.adults && selectedOptions.id_adult) {
-          products.push({ product_id: selectedOptions.id_adult, quantity: selectedOptions.adults });
-        }
-        if (selectedOptions.children && selectedOptions.id_chd) {
-          products.push({ product_id: selectedOptions.id_chd, quantity: selectedOptions.children });
-        }
-        if (products.length === 0) {
-          throw new Error("Nenhum produto selecionado");
-        }
-        products.forEach(prod => {
-          console.log("Adicionando ao carrinho:", prod.product_id, prod.quantity);
-        });
-        showNotification("Produtos adicionados ao carrinho com sucesso!", "success");
+        // Exemplo básico
+        showNotification("Item adicionado ao carrinho!", "success");
         carrinho = 1;
-        return true;
       } catch (err) {
         console.error("Erro carrinho:", err);
         showNotification(err.message, "error");
@@ -1052,15 +531,15 @@
     }
     async function checkout() {
       if (carrinho === 1) {
-        window.location.href = "https://www.magictraveltur.com/carrinho/";
+        alert("Ir para checkout...");
       } else {
         const success = await addToCart();
         if (success) {
-          setTimeout(() => { window.location.href = "https://www.magictraveltur.com/carrinho/"; }, 500);
+          setTimeout(() => { alert("Indo ao carrinho/checkout..."); }, 500);
         }
       }
     }
-    
+
     /***********************
      * FUNÇÃO DE NOTIFICAÇÃO
      ***********************/
@@ -1095,19 +574,15 @@
       document.body.appendChild(note);
       setTimeout(() => { note.remove(); }, 3000);
     }
-    
+
     /***********************
-     * ONLOAD: Estado Inicial
+     * ONLOAD
      ***********************/
-    window.onload = async () => {
-      populateMonthYearSelects();
-      document.getElementById('monthSelect').value = currentMonth;
-      document.getElementById('yearSelect').value  = currentYear;
-      // Estado inicial: ingresso "Básico", id_site "106", 4 dias, 1 adulto.
-      const basicTicketElem = document.querySelectorAll('.ticket-bilhete')[1];
-      selectTicket('Básico', '106', 4, basicTicketElem);
-      document.addEventListener("DOMContentLoaded", updateSelectedOptions);
+    window.onload = () => {
+      // Exemplo: se quiser iniciar algo ao carregar
+      console.log("Página carregada! Layout estilo Viator.");
     };
   </script>
+
 </body>
 </html>
