@@ -243,11 +243,12 @@
       flex-wrap: wrap;
       gap: 10px;
       transition: box-shadow 0.2s, border 0.2s;
+      cursor: pointer; /* Para indicar que é clicável */
     }
     .ticket-item:hover {
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    /* Destaque para "ativo" */
+    /* Destaque para "ativo" (somente um de cada vez) */
     .ticket-item.active {
       border: 2px solid #00a0e3;
       box-shadow: 0 2px 8px rgba(0,160,227,0.15);
@@ -300,6 +301,7 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: background 0.3s;
+      cursor: pointer; /* Garantir pointer em buttons */
     }
     .reserve-now-btn:hover {
       background: #008dc8;
@@ -341,7 +343,7 @@
       color: #00a0e3;
     }
 
-    /* Tooltip Container (exemplo) */
+    /* Tooltip Container (opcional) */
     .tooltip {
       position: relative;
       cursor: pointer;
@@ -424,7 +426,6 @@
 
   <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
   <div class="main-container">
-
     <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
     <div class="left-column">
       <div class="main-banner">
@@ -434,7 +435,7 @@
           alt="Disney Banner">
       </div>
       <div class="mini-images">
-        <!-- Ajuste para imagens que não quebrem -->
+        <!-- Ajuste para imagens válidas se quiser -->
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/EPCOT.jpg" alt="Epcot" />
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Hollywood-Studios.jpg" alt="Hollywood Studios" />
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Animal-Kingdom.jpg" alt="Animal Kingdom" />
@@ -659,9 +660,13 @@
       alert("Data: " + dateValue + "\nAdultos: " + numAdults + "\nCrianças: " + numChildren);
     }
 
-    // Exemplo de toggling "ativo" no card
+    // Garante que somente um card fique ativo por vez
     function toggleActive(element) {
-      element.classList.toggle('active');
+      // Remove classe 'active' de todos os tickets
+      const allTickets = document.querySelectorAll('.ticket-item');
+      allTickets.forEach(ticket => ticket.classList.remove('active'));
+      // Adiciona 'active' somente no clicado
+      element.classList.add('active');
     }
   </script>
 </body>
