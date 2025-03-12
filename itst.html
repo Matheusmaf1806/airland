@@ -17,9 +17,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
-    /****************************************************
-     * RESET / BASE
-     ****************************************************/
+    /* RESET / BASE */
     * {
       margin: 0;
       padding: 0;
@@ -30,15 +28,9 @@
       background: white;
       color: #333;
       line-height: 1.4;
-      position: relative; /* Para facilitar posicionar alertas absolutos, se quiser */
+      position: relative;
     }
     input, select, textarea, button {
-      font-family: 'Montserrat', sans-serif !important;
-    }
-    input[type="date"] {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
       font-family: 'Montserrat', sans-serif !important;
     }
     a {
@@ -47,20 +39,15 @@
     }
     button {
       cursor: pointer;
-      font-family: inherit;
     }
     
-    /****************************************************
-     * HEADER EXTERNO
-     ****************************************************/
+    /* HEADER EXTERNO */
     #externalHeader {
       width: 100%;
       border-bottom: 1px solid #eee;
     }
 
-    /****************************************************
-     * MAIN CONTAINER (DUAS COLUNAS)
-     ****************************************************/
+    /* CONTÊINER PRINCIPAL (DUAS COLUNAS) */
     .main-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -145,9 +132,7 @@
       background: #f1f1f1;
     }
 
-    /****************************************************
-     * BOX DE PREÇO / RESERVA (COLUNA DIREITA)
-     ****************************************************/
+    /* BOX DE PREÇO / RESERVA (COLUNA DIREITA) */
     .price-box {
       background: #fff;
       border: 1px solid #eee;
@@ -224,9 +209,7 @@
       color: #aa6a1f;
     }
 
-    /****************************************************
-     * SEÇÃO DE INGRESSOS (LISTA)
-     ****************************************************/
+    /* SEÇÃO DE INGRESSOS (LISTA) */
     .ticket-section {
       max-width: 1200px;
       margin: 20px auto 40px;
@@ -316,9 +299,7 @@
       background: #008dc8;
     }
 
-    /****************************************************
-     * SEÇÃO DE CONTEÚDO ADICIONAL
-     ****************************************************/
+    /* SEÇÃO DE CONTEÚDO ADICIONAL */
     .content-section {
       max-width: 1200px;
       margin: 20px auto;
@@ -381,9 +362,7 @@
       opacity: 1;
     }
 
-    /****************************************************
-     * RODAPÉ
-     ****************************************************/
+    /* RODAPÉ */
     footer {
       text-align: center;
       font-size: 0.85rem;
@@ -393,86 +372,89 @@
       background: #fff;
     }
 
-    /****************************************************
-     * RESPONSIVIDADE
-     ****************************************************/
-    @media (max-width: 768px) {
-      .main-container {
-        flex-direction: column;
-      }
-      .left-column,
-      .right-column {
-        max-width: 100%;
-      }
-      .ticket-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .price-and-action {
-        align-items: flex-start;
-      }
-      .ticket-price {
-        text-align: left;
-        white-space: normal;
-      }
+    /* ---------------------------
+       ESTILOS DO CARRINHO SUSPENSO
+       --------------------------- */
+
+    /* Container do Carrinho */
+    .cart-container {
+      /* Já definido acima, mas lembre-se que ele ficará fixo à direita */
     }
 
-    /****************************************************
-     * ALERTAS PERSONALIZADOS
-     ****************************************************/
-    .alert-list-wrapper {
-      position: fixed; 
-      top: 20px; 
-      right: 20px; 
-      z-index: 9999; 
-      max-width: 320px;
+    /* Rodapé fixo do carrinho (cupom e totais) */
+    .cart-footer {
+      flex-shrink: 0;
+      border-top: 1px solid #eee;
+      padding: 1rem;
+      background: #fff;
+      /* Sempre no final do carrinho */
     }
-    .alert-box {
+    /* Cupom de desconto (com ícone 30x30) */
+    .coupon-section {
       display: flex;
-      margin-bottom: 15px; /* espaço entre múltiplos alertas */
-      border-radius: 4px;
-      overflow: hidden;
+      align-items: center;
+      gap: 8px;
+      border: 1px dashed #ccc;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 1rem;
+      background: #fcfcfc;
     }
-    .alert-box .left {
-      width: 60px; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
+    .coupon-icon {
+      width: 30px;
+      height: 30px;
+      fill: #666;
       flex-shrink: 0;
     }
-    .alert-box .left h5 {
-      transform: rotate(-90deg);
-      white-space: nowrap;
+    .coupon-input-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .coupon-input-box label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .coupon-input-box input {
+      width: 100%;
+      height: 32px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .price-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .price-line .green {
+      color: #2a942f;
+      font-weight: 600;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin: 0.5rem 0 1rem;
+    }
+    .checkout-btn {
+      width: 100%;
+      background: #35b473;
+      border: none;
       color: #fff;
-      margin: 0;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      padding: 0.7rem;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .alert {
-      padding: 10px 15px;
-      width: 100%;
-    }
-    .text-bold {
-      font-weight: 600;
-    }
-    .text-medium {
-      font-size: 0.85rem;
-    }
-
-    /* Alert Primary */
-    .primary-alert .left {
-      background: #365CF5;
-    }
-    .primary-alert .alert {
-      color: #365CF5;
-      border: 1px solid #365CF5;
-      background: rgba(54, 92, 245, 0.2);
-      width: 100%;
-    }
-    .primary-alert .alert .alert-heading {
-      color: #365CF5;
-      margin-bottom: 15px;
-      font-size: 1rem;
-      font-weight: 600;
+    .checkout-btn:hover {
+      background: #2d9e64;
     }
   </style>
 </head>
@@ -597,7 +579,7 @@
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
-      <!-- Você pode repetir para outros tickets -->
+      <!-- (Repita ou adicione outros bilhetes se necessário) -->
     </div>
   </section>
 
@@ -644,54 +626,19 @@
       allTickets.forEach(ticket => ticket.classList.remove('active'));
       element.classList.add('active');
     }
-
-    /**
-     * Exibe um alerta de "adicionado ao carrinho" no canto superior direito
-     * e remove após alguns segundos.
-     */
-    function showCartAlert() {
-      // Cria o HTML do alerta
-      const alertHtml = `
-        <div class="alert-list-wrapper" id="cartAlertWrapper">
-          <div class="alert-box primary-alert pl-100">
-            <div class="left">
-              <h5 class="text-bold">Adicionado</h5>
-            </div>
-            <div class="alert">
-              <h4 class="alert-heading">Adicionado com Sucesso ao Carrinho</h4>
-              <p class="text-medium">
-                Continue comprando ou finalize sua compra agora mesmo.
-              </p>
-            </div>
-          </div>
-        </div>
-      `;
-      // Insere no body
-      document.body.insertAdjacentHTML('beforeend', alertHtml);
-
-      // Remove o alerta depois de 3 segundos
-      setTimeout(() => {
-        const alertWrapper = document.getElementById('cartAlertWrapper');
-        if (alertWrapper) {
-          alertWrapper.remove();
-        }
-      }, 3000);
-    }
   </script>
 
-  <!-- INCLUSÃO DO global-cart.js (carrinho) -->
+  <!-- INCLUSÃO DO global-cart.js -->
   <script src="global-cart.js"></script>
-
-  <!-- SCRIPT: Listener para os botões "Reserve agora" -->
+  
+  <!-- Exemplo: Listener para os botões "Reserve agora" -->
   <script>
-    // Adiciona listener para os botões "Reserve agora"
     document.querySelectorAll('.reserve-now-btn').forEach(button => {
       button.addEventListener('click', function(e) {
-        e.stopPropagation(); // Impede que o clique afete o ticket-item
+        e.stopPropagation();
         const ticketItem = this.closest('.ticket-item');
         const title = ticketItem.querySelector('.ticket-info h3').textContent.trim();
         
-        // Extrai o preço usando regex (assumindo o formato "R$ 6.171,70")
         let price = 0;
         const priceText = ticketItem.querySelector('.ticket-price').textContent;
         const priceMatch = priceText.match(/R\$[\s]?([\d.,]+)/);
@@ -700,23 +647,19 @@
           price = parseFloat(normalized);
         }
         
-        // Pega a data escolhida (ou usa um valor padrão)
         const dateElement = document.getElementById('arrival-date');
         const date = dateElement ? dateElement.value : "2025-04-12";
         
-        // Cria o objeto do item
         const item = {
           name: title,
           category: "INGRESSOS",
           date: date,
-          price: price
+          price: price,
+          adults: parseInt(document.getElementById('numAdults').value) || 0,
+          children: parseInt(document.getElementById('numChildren').value) || 0
         };
         
-        // Adiciona o item ao carrinho (função definida no global-cart.js)
         addItemToCart(item);
-
-        // Exibe o alerta personalizado
-        showCartAlert();
       });
     });
   </script>
