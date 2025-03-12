@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Ajustes Finais</title>
+  <title>Carrinho Suspenso - Ícones e Divisória</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -21,8 +21,7 @@
     /* CARRINHO FIXO NA DIREITA */
     .cart-container {
       position: fixed;
-      top: 0; 
-      right: 0;
+      top: 0; right: 0;
       width: 380px;
       height: 100vh;
       background: #fff;
@@ -31,8 +30,7 @@
       flex-direction: column;
       z-index: 1000;
     }
-
-    /* HEADER DO CARRINHO */
+    /* HEADER */
     .cart-header {
       padding: 1rem;
       border-bottom: 1px solid #eee;
@@ -54,7 +52,7 @@
       padding: 0.3rem 0.5rem;
     }
 
-    /* CORPO DO CARRINHO */
+    /* CORPO */
     .cart-body {
       flex: 1;
       overflow-y: auto;
@@ -80,7 +78,6 @@
     .cart-item:hover {
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-    /* Ícone de lixeira */
     .trash-btn {
       position: absolute;
       top: 10px; 
@@ -95,7 +92,6 @@
     .trash-btn:hover {
       color: #e00;
     }
-    /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
       background: #ffefcc;
@@ -114,7 +110,7 @@
       font-size: 0.9rem;
     }
 
-    /* Data + ícone */
+    /* DATA COM ÍCONE DE CALENDÁRIO */
     .item-date {
       display: flex;
       align-items: center;
@@ -123,26 +119,23 @@
       color: #666;
       margin: 0.3rem 0;
     }
-    /* Ícone de calendário corrigido */
-    .item-date i {
-      display: inline-block;
-      width: 16px; 
+    .calendar-icon {
+      width: 16px;
       height: 16px;
-      background: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUgMTUiIGZpbGw9IiM2NjYiIHdpZHRoPSIxNXB4IiBoZWlnaHQ9IjE1cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHRpdGxlPkNhbGVuZGFyPC90aXRsZT48cGF0aCBkPSJNMTQuNCAyLjc1aC0uNXYtLjZhLjYyLjYyIDAgMCAwLTEuMjQgMHYuNmgtMmEuNjIuNjIgMCAwIDAgLjA3LjI2bC4zOC44NmgtOC4xN2wuMzgtLjg2YS42Mi42MiAwIDAgMCAuMDctLjI2aC0ydi0uNmEuNjIuNjIgMCAwIDAtMS4yNCAwdi42aC0uN1Y0YTQuMjIuMjIgMCAwIDAtLjItLjczQS42Mi42MiAwIDAgMCAwIDMuNDVoMTVhLjYyLjYyIDAgMCAwLS4yLS43M3oiLz48cGF0aCBkPSJNMS4zNSA0LjQyYTEuMjIuMjIgMCAwIDEgLjIuMDNIMTMuNWEuNjIuNjIgMCAwIDEgLjYyLjYyVjE0YS42Mi42MiAwIDAgMS0uNjIuNjJIMi4wN2EuNjIuNjIgMCAwIDEtLjYyLS42MlY1LjA1Yy4wLS4xMS4wNi0uMjIuMTIuMzdsLjM4Ljg2SDIuNTNhLjYyLjYyIDAgMCAwIC42Mi0uNjJsLjItLjg5eiIvPjwvc3ZnPg==') no-repeat center/contain;
-      background-size: contain;
+      vertical-align: middle;
     }
 
-    /* Container para Crianças e Adultos */
+    /* CRIANÇAS E ADULTOS, LADO A LADO, DIVISÓRIA, ÍCONES, BOTOES +/– */
     .item-quantities {
       margin-top: 0.5rem;
-      position: relative;
       display: flex;
-      align-items: flex-start; 
+      align-items: center;
       justify-content: space-between;
+      position: relative;
     }
-    /* Lado esquerdo: labels e ícones em cima, quantidades e botões embaixo */
     .quantities-left {
       display: flex;
+      align-items: flex-start;
       gap: 20px;
     }
     .quant-column {
@@ -151,36 +144,26 @@
       align-items: center;
     }
     .quant-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #666;
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.75rem;
-      font-weight: 600;
       margin-bottom: 4px;
-      color: #666;
       text-transform: capitalize;
     }
-    .icon-child, .icon-adult {
-      width:16px; 
-      height:16px;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
+    .quant-label img {
+      width:16px; height:16px;
+      vertical-align: middle;
     }
-    .icon-child {
-      background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==');
-    }
-    .icon-adult {
-      background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3oiPjwvcGF0aD48L3N2Zz4=');
-    }
-    /* Botoes +/– com qtd no meio (horizontal) */
     .plusminus-row {
       display: flex;
       align-items: center;
       gap: 4px;
     }
     .plusminus-btn {
-      width: 24px;
+      width: 24px; 
       height: 24px;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -192,12 +175,17 @@
     .plusminus-btn:hover {
       background: #f2f2f2;
     }
+    .divider {
+      border-left: 1px solid #ccc;
+      height: 40px;
+      margin-top: 8px;
+    }
 
     /* PREÇO NO CANTO INFERIOR + “até 10x sem juros” */
     .item-price {
       position: absolute;
       right: 1rem;
-      bottom: 1.2rem;
+      bottom: 1rem;
       font-weight: 600;
       font-size: 0.85rem;
       color: #333;
@@ -285,15 +273,14 @@
 </head>
 <body>
 
-<!-- CARRINHO FIXO NA DIREITA -->
 <div class="cart-container">
-  <!-- HEADER -->
+  <!-- HEADER DO CARRINHO -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
     <span class="timer-info" id="timerValue">01:02</span>
   </div>
 
-  <!-- CORPO -->
+  <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
     <div class="section-title">Ingressos</div>
 
@@ -303,19 +290,27 @@
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data com ícone de calendário corrigido -->
+      <!-- Data com ícone de calendário -->
       <div class="item-date">
-        <i></i>
+        <img 
+          src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUgMTUiIGZpbGw9IiM2NjYiIHdpZHRoPSIxNXB4IiBoZWlnaHQ9IjE1cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHRpdGxlPkNhbGVuZGFyPC90aXRsZT48cGF0aCBkPSJNMTQuNCAyLjc1aC0uNXYtLjZhLjYyLjYyIDAgMCAwLTEuMjQgMHYuNmgtMmEuNjIuNjIgMCAwIDAgLjA3LjI2bC4zOC44NmgtOC4xN2wuMzgtLjg2YS42Mi42MiAwIDAgMCAuMDctLjI2aC0ydi0uNmEuNjIuNjIgMCAwIDAtMS4yNCAwdi42aC0uN1Y0YTQuMjIuMjIgMCAwIDAtLjItLjczQS42Mi42MiAwIDAgMCAwIDMuNDVoMTVhLjYyLjYyIDAgMCAwLS4yLS43M3oiLz48cGF0aCBkPSJNMS4zNSA0LjQyYTEuMjIuMjIgMCAwIDEgLjIuMDNIMTMuNWEuNjIuNjIgMCAwIDEgLjYyLjYyVjE0YS42Mi42MiAwIDAgMS0uNjIuNjJIMi4wN2EuNjIuNjIgMCAwIDEtLjYyLS42MlY1LjA1Yy4wLS4xMS4wNi0uMjIuMTIuMzdsLjM4Ljg2SDIuNTNhLjYyLjYyIDAgMCAwIC42Mi0uNjJsLjItLjg5eiIvPjwvc3ZnPg==" 
+          alt="Data" 
+          class="calendar-icon"
+        >
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos, com ícones, divisória, e +/– horizontal -->
+      <!-- Crianças e Adultos com nomes e ícones acima, +/– no meio, divisória -->
       <div class="item-quantities">
         <div class="quantities-left">
           <!-- Crianças -->
           <div class="quant-column">
             <div class="quant-label">
-              <span class="icon-child"></span>
+              <img 
+                src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==" 
+                alt="Crianças" 
+                style="width:16px; height:16px;"
+              >
               <span>Crianças</span>
             </div>
             <div class="plusminus-row">
@@ -325,13 +320,17 @@
             </div>
           </div>
 
-          <!-- Divisória vertical -->
+          <!-- Divisória -->
           <div class="divider"></div>
 
           <!-- Adultos -->
           <div class="quant-column">
             <div class="quant-label">
-              <span class="icon-adult"></span>
+              <img
+                src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3oiPjwvc3ZnPg==" 
+                alt="Adultos"
+                style="width:16px; height:16px;"
+              >
               <span>Adultos</span>
             </div>
             <div class="plusminus-row">
@@ -342,7 +341,7 @@
           </div>
         </div>
 
-        <!-- Preço e 10x no canto inferior direito -->
+        <!-- PREÇO no canto inferior direito -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -350,7 +349,7 @@
       </div>
     </div>
 
-    <!-- Subtotal, desconto, total -->
+    <!-- SUBTOTAL / DESCONTO / TOTAL -->
     <div class="price-line">
       <span>Subtotal</span>
       <span id="subtotalValue">R$ 100,00</span>
@@ -381,7 +380,7 @@
 
 <script>
   /*
-    Código completo:
+    CÓDIGO COMPLETO:
     - shareCart => POST /shareCart
     - updateCartServer => POST /updateCart
     - loadCartFromServer => GET /cart/:shareId
@@ -389,7 +388,7 @@
     - Lê/Escreve shareId no localStorage
     - 1 item local
   */
-  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend
+  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node
   let shareId = null;
 
   let item = {
@@ -422,11 +421,11 @@
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-    // Exibe preço + "10x sem juros"
+    // Exibe preço
     document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    // Subtotal = totalItem, desconto=0, total= totalItem
+    // Subtotal, desconto=0, total
     document.getElementById("subtotalValue").textContent =
       "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
@@ -434,7 +433,7 @@
       "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
 
-  // Botões +/-
+  // +/-
   function incChildren(){
     item.children++;
     renderItem();
@@ -458,14 +457,14 @@
 
   // Remover item
   function removeItem(){
-    item.children=0;
+    item.children=0; 
     item.adults=0;
     renderItem();
     updateCartServer();
     alert("Item removido");
   }
 
-  // shareCart => se shareId não existe => POST /shareCart
+  // shareCart => se shareId não existe => /shareCart
   async function shareCart(){
     if(item.adults===0 && item.children===0){
       alert("Item vazio, nada a compartilhar!");
@@ -511,7 +510,7 @@
     }
   }
 
-  // updateCart => se shareId => POST /updateCart
+  // updateCart => se shareId => /updateCart
   async function updateCartServer(){
     if(!shareId) return;
     const items = [{
@@ -558,10 +557,10 @@
     }
   }
 
-  // clearCartServer => se shareId => POST /clearCart
+  // clearCartServer => se shareId => /clearCart
   async function clearCartServer(){
     if(!shareId){
-      item.adults=0;
+      item.adults=0; 
       item.children=0;
       renderItem();
       alert("Carrinho local limpo!");
@@ -576,7 +575,7 @@
       const data = await resp.json();
       if(data.success){
         alert("Carrinho removido do servidor!");
-        item.adults=0;
+        item.adults=0; 
         item.children=0;
         renderItem();
         shareId=null;
