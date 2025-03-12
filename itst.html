@@ -20,37 +20,26 @@
     /****************************************************
      * RESET / BASE
      ****************************************************/
-    /* RESET / BASE */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
-      font-family: 'Montserrat', sans-serif; /* Fonte global */
+      font-family: 'Montserrat', sans-serif;
       background: white;
       color: #333;
       line-height: 1.4;
     }
-
-    /* Forçar Montserrat nos elementos de formulário */
-    input,
-    select,
-    textarea,
-    button {
+    input, select, textarea, button {
       font-family: 'Montserrat', sans-serif !important;
     }
-
-    /* Ajuste para inputs de data */
     input[type="date"] {
-      -webkit-appearance: none; /* Remove estilo padrão do Chrome/Safari */
-      -moz-appearance: none;    /* Remove estilo padrão do Firefox */
-      appearance: none; 
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
       font-family: 'Montserrat', sans-serif !important;
     }
-
-    /* Resto do seu CSS aqui */
     a {
       color: inherit;
       text-decoration: none;
@@ -59,7 +48,7 @@
       cursor: pointer;
       font-family: inherit;
     }
-
+    
     /****************************************************
      * HEADER EXTERNO
      ****************************************************/
@@ -93,7 +82,7 @@
     }
     .main-banner img {
       width: 100%;
-      height: auto; 
+      height: auto;
       display: block;
       object-fit: cover;
     }
@@ -168,7 +157,7 @@
       gap: 8px;
     }
     .price-label {
-      font-size: 0.8rem; 
+      font-size: 0.8rem;
       color: #888;
     }
     .price-value {
@@ -181,7 +170,7 @@
       color: #666;
     }
     .pix-discount {
-      color: #27ae60; 
+      color: #27ae60;
       font-weight: 500;
     }
     .date-participants {
@@ -201,7 +190,7 @@
     }
     .price-box button {
       width: 100%;
-      background: #00a0e3; 
+      background: #00a0e3;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -263,12 +252,11 @@
       flex-wrap: wrap;
       gap: 10px;
       transition: box-shadow 0.2s, border 0.2s;
-      cursor: pointer; /* Para indicar que é clicável */
+      cursor: pointer;
     }
     .ticket-item:hover {
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    /* Destaque para "ativo" (somente um de cada vez) */
     .ticket-item.active {
       border: 2px solid #00a0e3;
       box-shadow: 0 2px 8px rgba(0,160,227,0.15);
@@ -321,7 +309,7 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: background 0.3s;
-      cursor: pointer; /* Garantir pointer em buttons */
+      cursor: pointer;
     }
     .reserve-now-btn:hover {
       background: #008dc8;
@@ -362,8 +350,6 @@
     .highlights-list li i {
       color: #00a0e3;
     }
-
-    /* Tooltip Container (opcional) */
     .tooltip {
       position: relative;
       cursor: pointer;
@@ -449,13 +435,9 @@
     <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
     <div class="left-column">
       <div class="main-banner">
-        <!-- Banner principal -->
-        <img 
-          src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png"
-          alt="Disney Banner">
+        <img src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png" alt="Disney Banner">
       </div>
       <div class="mini-images">
-        <!-- Ajuste para imagens válidas se quiser -->
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/EPCOT.jpg" alt="Epcot" />
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Hollywood-Studios.jpg" alt="Hollywood Studios" />
         <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Animal-Kingdom.jpg" alt="Animal Kingdom" />
@@ -486,7 +468,6 @@
         <div class="price-value">
           R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small>
         </div>
-        <!-- Exemplo de parcelamento e Pix no box principal -->
         <div class="installment-info">
           em até 10x sem juros de R$ 235,32
         </div>
@@ -520,8 +501,8 @@
           Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
         </div>
       </div>
-    </div><!-- /right-column -->
-  </div><!-- /main-container -->
+    </div>
+  </div>
 
   <!-- SEÇÃO DE INGRESSOS (LISTA) -->
   <section class="ticket-section">
@@ -557,87 +538,7 @@
           <button class="reserve-now-btn">Reserve agora</button>
         </div>
       </div>
-
-      <!-- Bilhete 2 -->
-      <div class="ticket-item" onclick="toggleActive(this)">
-        <div class="ticket-info">
-          <h3>Bilhete base de 3 dias</h3>
-          <p>
-            Três dias em um dos parques Disney. Flexível, mas não cumulativo.
-            <br><em>Não reembolsável</em>
-          </p>
-        </div>
-        <div class="price-and-action">
-          <div class="ticket-price">
-            R$ 6.171,70
-            <small class="tooltip">
-              <i class="fas fa-info-circle"></i>
-              <span class="tooltip-text">Super desconto de 5% no Pix = R$ 5.863,11</span>
-            </small>
-          </div>
-          <div class="installment-info-item">
-            2 adultos x R$ 3.085,85
-          </div>
-          <div class="pix-discount-item">
-            em até 10x Sem Juros
-          </div>
-          <button class="reserve-now-btn">Reserve agora</button>
-        </div>
-      </div>
-
-      <!-- Bilhete 3 -->
-      <div class="ticket-item" onclick="toggleActive(this)">
-        <div class="ticket-info">
-          <h3>Bilhete base de 5 dias</h3>
-          <p>
-            Validade ampla. Visite por 5 dias consecutivos ou conforme regras Disney.
-            <br><em>Não reembolsável</em>
-          </p>
-        </div>
-        <div class="price-and-action">
-          <div class="ticket-price">
-            R$ 6.171,70
-            <small class="tooltip">
-              <i class="fas fa-info-circle"></i>
-              <span class="tooltip-text">Super desconto de 5% no Pix = R$ 5.863,11</span>
-            </small>
-          </div>
-          <div class="installment-info-item">
-            2 adultos x R$ 3.085,85
-          </div>
-          <div class="pix-discount-item">
-            em até 10x Sem Juros
-          </div>
-          <button class="reserve-now-btn">Reserve agora</button>
-        </div>
-      </div>
-
-      <!-- Bilhete 4 -->
-      <div class="ticket-item" onclick="toggleActive(this)">
-        <div class="ticket-info">
-          <h3>Bilhete base de 4 dias</h3>
-          <p>
-            Visite 1 parque por dia, no período de 4 dias selecionado.
-            <br><em>Não reembolsável</em>
-          </p>
-        </div>
-        <div class="price-and-action">
-          <div class="ticket-price">
-            R$ 6.171,70
-            <small class="tooltip">
-              <i class="fas fa-info-circle"></i>
-              <span class="tooltip-text">Super desconto de 5% no Pix = R$ 5.863,11</span>
-            </small>
-          </div>
-          <div class="installment-info-item">
-            2 adultos x R$ 3.085,85
-          </div>
-          <div class="pix-discount-item">
-            em até 10x Sem Juros
-          </div>
-          <button class="reserve-now-btn">Reserve agora</button>
-        </div>
-      </div>
+      <!-- Você pode repetir para outros tickets -->
     </div>
   </section>
 
@@ -671,7 +572,7 @@
     © 2025 - Layout estilo Airland • Todos os direitos reservados
   </footer>
 
-  <!-- SCRIPT (busca, etc.) -->
+  <!-- SCRIPT: Funções de busca, toggle, etc. -->
   <script>
     function atualizarBusca() {
       const dateValue = document.getElementById('arrival-date').value;
@@ -679,15 +580,51 @@
       const numChildren = document.getElementById('numChildren').value;
       alert("Data: " + dateValue + "\nAdultos: " + numAdults + "\nCrianças: " + numChildren);
     }
-
-    // Garante que somente um card fique ativo por vez
     function toggleActive(element) {
-      // Remove classe 'active' de todos os tickets
       const allTickets = document.querySelectorAll('.ticket-item');
       allTickets.forEach(ticket => ticket.classList.remove('active'));
-      // Adiciona 'active' somente no clicado
       element.classList.add('active');
     }
+  </script>
+
+  <!-- INCLUSÃO DO global-cart.js -->
+  <script src="global-cart.js"></script>
+
+  <!-- SCRIPT: Listener para os botões "Reserve agora" -->
+  <script>
+    // Adiciona listener para os botões "Reserve agora"
+    document.querySelectorAll('.reserve-now-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation(); // Impede que o clique afete o ticket-item
+        const ticketItem = this.closest('.ticket-item');
+        const title = ticketItem.querySelector('.ticket-info h3').textContent.trim();
+        
+        // Extrai o preço usando uma regex (assumindo o formato "R$ 6.171,70")
+        let price = 0;
+        const priceText = ticketItem.querySelector('.ticket-price').textContent;
+        const priceMatch = priceText.match(/R\$[\s]?([\d.,]+)/);
+        if (priceMatch && priceMatch[1]) {
+          let normalized = priceMatch[1].replace(/\./g, '').replace(',', '.');
+          price = parseFloat(normalized);
+        }
+        
+        // Pega a data escolhida (ou usa um valor padrão)
+        const dateElement = document.getElementById('arrival-date');
+        const date = dateElement ? dateElement.value : "2025-04-12";
+        
+        // Cria o objeto do item
+        const item = {
+          name: title,
+          category: "INGRESSOS",
+          date: date,
+          price: price
+        };
+        
+        // Adiciona o item ao carrinho
+        addItemToCart(item);
+        alert("Item adicionado ao carrinho: " + title);
+      });
+    });
   </script>
 </body>
 </html>
