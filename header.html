@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Header - Airland</title>
+  <title>Header - Duas Faixas com Menu + Extras Direita</title>
 
   <!-- Fonte Montserrat -->
   <link
@@ -55,7 +55,7 @@
       align-items: center;
     }
     .logo img {
-      width: 80px;
+      width: 80px; 
       height: auto;
     }
 
@@ -84,8 +84,10 @@
       align-items: center;
       gap: 20px;
     }
-    .dollar-quote {
-      display: flex;
+
+    /* Estilo "bolha" para todos os botões (Dúvidas, Dólar, Perfil, etc.) */
+    .bubble-btn {
+      display: inline-flex;
       align-items: center;
       gap: 6px;
       background-color: #f1f1f1;
@@ -94,43 +96,30 @@
       font-size: 0.85rem;
       color: #333;
       border: 1px solid #ddd;
+      text-decoration: none;
+      position: relative; /* Para podermos posicionar o badge do carrinho */
     }
+    .bubble-btn:hover {
+      background-color: #e9e9e9;
+    }
+
+    /* Bandeira */
     .flag-icon {
       width: 20px;
       height: 20px;
       object-fit: cover;
       border-radius: 50%;
     }
-    .profile-link, .dollar-quote.profile {
-      text-decoration: none;
-      font-size: 0.85rem;
-      color: #005CFF;
-      font-weight: 600;
-      padding: 8px 16px;
-      border: 1px solid #005CFF;
-      border-radius: 4px;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    .profile-link:hover, .dollar-quote.profile:hover {
-      background-color: #005CFF;
-      color: #fff;
-    }
 
-    /* Botão do Carrinho */
+    /* Botão do carrinho em estilo bolha */
     .cart-btn {
-      position: relative;
       cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      color: #333;
-      display: flex;
-      align-items: center;
     }
-    .cart-btn .cart-count {
+    /* Badge de contagem de itens no carrinho */
+    .cart-count {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: -6px;
+      right: -6px;
       background: #e00;
       color: #fff;
       border-radius: 50%;
@@ -150,7 +139,10 @@
   <header class="header-container">
     <!-- Logo -->
     <a href="#" class="logo">
-      <img src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png" alt="Logo Magic Travel" />
+      <img 
+        src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png"
+        alt="Logo Magic Travel"
+      />
     </a>
 
     <!-- Navegação Principal -->
@@ -164,27 +156,32 @@
 
     <!-- Ações à Direita -->
     <div class="right-actions">
-      <!-- Link Dúvidas -->
-      <a href="#" class="dollar-quote">Dúvidas</a>
+      <!-- Dúvidas -->
+      <a href="#" class="bubble-btn">Dúvidas</a>
 
       <!-- Cotação do Dólar -->
-      <div class="dollar-quote">
-        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Bandeira EUA" class="flag-icon" />
+      <div class="bubble-btn">
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg"
+          alt="Bandeira EUA"
+          class="flag-icon"
+        />
         <span>R$ 5,20</span>
       </div>
-      
+
       <!-- Botão do Carrinho -->
-      <div class="cart-btn" onclick="toggleCart()">
+      <div class="bubble-btn cart-btn" onclick="toggleCart()">
         <i class="fas fa-shopping-cart"></i>
+        <!-- Badge com a contagem de itens no carrinho -->
         <span class="cart-count">0</span>
       </div>
 
       <!-- Perfil -->
-      <a href="#" class="dollar-quote profile">Perfil</a>
+      <a href="#" class="bubble-btn">Perfil</a>
     </div>
   </header>
 
-  <!-- Exemplo de função toggleCart, idealmente definida no global-cart.js -->
+  <!-- Exemplo de função para abrir/fechar carrinho -->
   <script>
     function toggleCart() {
       const cartContainer = document.querySelector('.cart-container');
@@ -193,6 +190,5 @@
       }
     }
   </script>
-
 </body>
 </html>
