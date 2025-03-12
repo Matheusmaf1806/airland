@@ -128,7 +128,7 @@
       background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjguMjI5IDEgLjUgMUg2LjI3QzYuMjgzIDEuMDU5IDYuMjk1IDEuMTEzIDYuMyAxLjE4OEw1LjYyMiAxLjM0NyA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
     }
 
-    /* Crianças/Adultos com ícones e divisória, +/– no meio */
+    /* Crianças/Adultos com ícones e divisória, +/– no meio (horizontal) */
     .item-quantities {
       display: flex;
       align-items: center;
@@ -272,35 +272,35 @@
 </head>
 <body>
 
-<!-- Carrinho fixo na direita -->
+<!-- CARRINHO FIXO NA DIREITA -->
 <div class="cart-container">
-  <!-- Cabeçalho do carrinho -->
+  <!-- HEADER DO CARRINHO -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
     <span class="timer-info" id="timerValue">01:02</span>
   </div>
 
-  <!-- Corpo do carrinho -->
+  <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
     <div class="section-title">Ingressos</div>
 
-    <!-- Card do item -->
+    <!-- CARD DO ITEM -->
     <div class="cart-item">
       <!-- Ícone de lixeira -->
       <button class="trash-btn" onclick="removeItem()">🗑</button>
-      <!-- Tag e título -->
+      <!-- Tag e Título -->
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data com ícone -->
+      <!-- Data (com ícone) -->
       <div class="item-date">
         <i></i>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos, com ícones, divisória e botões +/– no meio -->
+      <!-- Crianças e Adultos, cada um com ícone e divisória, +/– horizontal -->
       <div class="item-quantities">
-        <!-- Crianças -->
+        <!-- BLOCO CRIANÇAS -->
         <div class="quant-block">
           <span class="icon-child"></span>
           <div class="quant-box">
@@ -310,10 +310,10 @@
           </div>
         </div>
 
-        <!-- Divisória vertical -->
+        <!-- DIVISÓRIA VERTICAL -->
         <div class="divider"></div>
 
-        <!-- Adultos -->
+        <!-- BLOCO ADULTOS -->
         <div class="quant-block">
           <span class="icon-adult"></span>
           <div class="quant-box">
@@ -323,7 +323,7 @@
           </div>
         </div>
 
-        <!-- Preço no canto + “ate 10x sem juros” -->
+        <!-- PREÇO E 10X SEM JUROS -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -331,7 +331,7 @@
       </div>
     </div>
 
-    <!-- Subtotal, desconto, total -->
+    <!-- SUBTOTAL / DESCONTO / TOTAL -->
     <div class="price-line">
       <span>Subtotal</span>
       <span id="subtotalValue">R$ 100,00</span>
@@ -347,7 +347,7 @@
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- Rodapé do carrinho -->
+  <!-- RODAPÉ DO CARRINHO -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -362,14 +362,19 @@
 
 <script>
   /* 
-     Código COMPLETO com shareCart, updateCart, loadCartFromServer, clearCartServer 
-     e localStorage do shareId
+    CÓDIGO COMPLETO: 
+    - shareCart => POST /shareCart
+    - updateCartServer => POST /updateCart
+    - loadCartFromServer => GET /cart/:shareId
+    - clearCartServer => POST /clearCart
+    - Lê/Escreve shareId no localStorage
+    - 1 item local (se quiser vários, faça array)
   */
 
-  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node/Express
+  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend
   let shareId = null;
 
-  // Representa um único item (caso queira vários, faça array)
+  // Único item
   let item = {
     children: 0,
     adults: 1,
@@ -378,11 +383,11 @@
     basePriceChild: 60
   };
 
-  // Ao carregar, checa shareId no localStorage e na URL
+  // Ao carregar, checa localStorage e ?shareId
   window.onload = () => {
-    const localS = localStorage.getItem("shareId");
-    if(localS){
-      shareId = localS;
+    const stored = localStorage.getItem("shareId");
+    if(stored){
+      shareId = stored;
       loadCartFromServer(shareId);
     }
     const params = new URLSearchParams(window.location.search);
@@ -395,23 +400,24 @@
     renderItem();
   };
 
-  // Render local do item (quantidades, preço, subtotal, total)
+  // Render local
   function renderItem(){
+    // Exibe quantidades
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
+    // Calcula preco local
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-    document.getElementById("priceVal").innerHTML =
+    // Exibe no canto
+    document.getElementById("priceVal").innerHTML = 
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
     // Subtotal, desconto=0, total
-    document.getElementById("subtotalValue").textContent =
-      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("subtotalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent =
-      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("totalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
 
-  // Botões +/-
+  // +/– Crianças
   function incChildren(){
     item.children++;
     renderItem();
@@ -422,6 +428,8 @@
     renderItem();
     updateCartServer();
   }
+
+  // +/– Adultos
   function incAdults(){
     item.adults++;
     renderItem();
@@ -435,15 +443,14 @@
 
   // Remover item
   function removeItem(){
-    // zera quantidades
-    item.adults=0; 
-    item.children=0;
+    item.children=0; 
+    item.adults=0;
     renderItem();
     updateCartServer();
     alert("Item removido.");
   }
 
-  // shareCart => se shareId não existe => POST /shareCart
+  // SHARE CART => se shareId não existe => /shareCart
   async function shareCart(){
     if(item.adults===0 && item.children===0){
       alert("Item vazio, nada a compartilhar!");
@@ -489,7 +496,7 @@
     }
   }
 
-  // updateCart => se shareId existe => POST /updateCart
+  // UPDATE CART => se shareId => /updateCart
   async function updateCartServer(){
     if(!shareId) return;
     const items = [{
@@ -515,7 +522,7 @@
     }
   }
 
-  // loadCartFromServer => GET /cart/:shareId
+  // LOAD CART => se shareId => GET /cart/:shareId
   async function loadCartFromServer(sId){
     try {
       const resp = await fetch(`${BASE_URL}/cart/${sId}`);
@@ -536,7 +543,7 @@
     }
   }
 
-  // clearCartServer => se shareId => POST /clearCart
+  // CLEAR CART => se shareId => POST /clearCart
   async function clearCartServer(){
     if(!shareId){
       item.adults=0; 
