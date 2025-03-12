@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Header - Duas Faixas com Menu + Extras Direita</title>
+  <title>Header - Airland</title>
 
   <!-- Fonte Montserrat -->
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap"
     rel="stylesheet"
   />
+
+  <!-- Font Awesome para o ícone do carrinho -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
   <style>
     /* Reset e configurações iniciais */
@@ -26,7 +29,7 @@
     /* ====== Barra Superior (Ofertas, Avisos) ====== */
     .top-offer-bar {
       width: 100%;
-      background-color: #005CFF; /* Azul intenso */
+      background-color: #005CFF;
       color: #fff;
       padding: 20px 15px;
       text-align: center;
@@ -52,17 +55,17 @@
       align-items: center;
     }
     .logo img {
-      width: 80px; /* Ajuste conforme necessário */
+      width: 80px;
       height: auto;
     }
 
-    /* Navegação principal */
+    /* Navegação Principal */
     .nav-menu {
       display: flex;
       gap: 30px;
       align-items: center;
-      margin-left: 40px; /* Respiro após a logo */
-      flex: 1; /* Ocupa o espaço livre entre logo e ações à direita */
+      margin-left: 40px;
+      flex: 1;
     }
     .nav-item {
       text-decoration: none;
@@ -72,32 +75,19 @@
       transition: color 0.3s;
     }
     .nav-item:hover {
-      color: #005CFF; /* Destaque no hover */
+      color: #005CFF;
     }
 
-    /* Área de ações à direita (Dúvidas, Dólar, Perfil) */
+    /* Área de Ações à Direita */
     .right-actions {
       display: flex;
       align-items: center;
       gap: 20px;
     }
-
-    /* Link "Dúvidas" */
-    .help-link {
-      text-decoration: none;
-      font-size: 0.85rem;
-      color: #333;
-      transition: color 0.3s;
-    }
-    .help-link:hover {
-      color: #005CFF;
-    }
-
-    /* Bloco da cotação do dólar */
     .dollar-quote {
       display: flex;
       align-items: center;
-      gap: 6px; /* Espaço entre a bandeira e o valor */
+      gap: 6px;
       background-color: #f1f1f1;
       border-radius: 16px;
       padding: 6px 12px;
@@ -108,12 +98,10 @@
     .flag-icon {
       width: 20px;
       height: 20px;
-      object-fit: cover; /* Mantém a proporção */
-      border-radius: 50%; /* Deixa a bandeira redonda, se preferir */
+      object-fit: cover;
+      border-radius: 50%;
     }
-
-    /* Link/Perfil */
-    .profile-link {
+    .profile-link, .dollar-quote.profile {
       text-decoration: none;
       font-size: 0.85rem;
       color: #005CFF;
@@ -123,59 +111,88 @@
       border-radius: 4px;
       transition: background-color 0.3s, color 0.3s;
     }
-    .profile-link:hover {
+    .profile-link:hover, .dollar-quote.profile:hover {
       background-color: #005CFF;
       color: #fff;
+    }
+
+    /* Botão do Carrinho */
+    .cart-btn {
+      position: relative;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+    .cart-btn .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #e00;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      padding: 2px 6px;
     }
   </style>
 </head>
 <body>
 
-<!-- Barra Superior (Promoção ou informação) -->
-<div class="top-offer-bar">
-  <strong>SUPER DESCONTO NO PIX:</strong> 5% de desconto para qualquer pedido.
-</div>
-
-<!-- Header Principal -->
-<header class="header-container">
-
-  <!-- Logo -->
-  <a href="#" class="logo">
-    <img
-      src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png"
-      alt="Logo Magic Travel"
-    />
-  </a>
-
-  <!-- Navegação Principal -->
-  <nav class="nav-menu">
-    <a href="#" class="nav-item">Hotel</a>
-    <a href="#" class="nav-item">Ingressos</a>
-    <a href="#" class="nav-item">Transfer</a>
-    <a href="#" class="nav-item">Guiamento Remoto</a>
-    <a href="#" class="nav-item">Seguro Viagem</a>
-  </nav>
-
-  <!-- Ações no canto direito: Dúvidas, Cotação Dólar, Perfil -->
-  <div class="right-actions">
-    <!-- Link Dúvidas -->
-    <a href="#" class="dollar-quote">Dúvidas</a>
-
-    <!-- Cotação do Dólar -->
-    <div class="dollar-quote">
-      <img 
-        src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg"
-        alt="Bandeira EUA"
-        class="flag-icon"
-      />
-      <span>R$ 5,20</span>
-    </div>
-
-    <!-- Perfil -->
-    <a href="#" class="dollar-quote">Perfil</a>
+  <!-- Barra Superior -->
+  <div class="top-offer-bar">
+    <strong>SUPER DESCONTO NO PIX:</strong> 5% de desconto para qualquer pedido.
   </div>
 
-</header>
+  <!-- Header Principal -->
+  <header class="header-container">
+    <!-- Logo -->
+    <a href="#" class="logo">
+      <img src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png" alt="Logo Magic Travel" />
+    </a>
+
+    <!-- Navegação Principal -->
+    <nav class="nav-menu">
+      <a href="#" class="nav-item">Hotel</a>
+      <a href="#" class="nav-item">Ingressos</a>
+      <a href="#" class="nav-item">Transfer</a>
+      <a href="#" class="nav-item">Guiamento Remoto</a>
+      <a href="#" class="nav-item">Seguro Viagem</a>
+    </nav>
+
+    <!-- Ações à Direita -->
+    <div class="right-actions">
+      <!-- Link Dúvidas -->
+      <a href="#" class="dollar-quote">Dúvidas</a>
+
+      <!-- Cotação do Dólar -->
+      <div class="dollar-quote">
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Bandeira EUA" class="flag-icon" />
+        <span>R$ 5,20</span>
+      </div>
+      
+      <!-- Botão do Carrinho -->
+      <div class="cart-btn" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span>
+      </div>
+
+      <!-- Perfil -->
+      <a href="#" class="dollar-quote profile">Perfil</a>
+    </div>
+  </header>
+
+  <!-- Exemplo de função toggleCart, idealmente definida no global-cart.js -->
+  <script>
+    function toggleCart() {
+      const cartContainer = document.querySelector('.cart-container');
+      if (cartContainer) {
+        cartContainer.classList.toggle('open');
+      }
+    }
+  </script>
 
 </body>
 </html>
