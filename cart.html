@@ -1,175 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Exemplo - Carrinho Slide-over (Tailwind)</title>
+  <meta charset="UTF-8" />
+  <title>Exemplo - Slide-over Carrinho (Tailwind)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Tailwind CSS via CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css" rel="stylesheet" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
 
   <style>
-    /* Oculta painel e overlay por padrão */
-    #cartOverlay.hidden {
-      display: none;
-    }
+    /* Oculta o overlay e painel por padrão */
+    #cartOverlay.hidden,
     #cartPanel.hidden {
       display: none;
     }
-    /* Simples transição para slide */
+    /* Transição slide */
     .slide-in {
       transform: translateX(0%);
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease;
     }
     .slide-out {
       transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease;
     }
   </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
 
-<!-- HEADER / BOTÃO DO CARRINHO -->
-<header class="bg-gray-800 text-white p-4">
-  <div class="max-w-5xl mx-auto flex justify-between items-center">
-    <h1 class="text-xl font-bold">Exemplo Slide-over</h1>
-    <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onclick="openCart()">
-      Meu Carrinho
-    </button>
-  </div>
+<!-- Cabeçalho simples -->
+<header class="bg-gray-800 text-white p-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">Tailwind Slide-over</h1>
+  <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onclick="openCart()">
+    Meu Carrinho
+  </button>
 </header>
 
-<!-- LISTA DE PRODUTOS -->
-<main class="max-w-5xl mx-auto p-4">
-  <p class="mb-4">Selecione ingressos abaixo e adicione ao carrinho local.</p>
+<!-- CONTEÚDO (EXEMPLO DE PRODUTOS) -->
+<main class="max-w-4xl mx-auto p-4">
+  <p class="mb-4">Selecione itens e clique em "Adicionar ao Carrinho".</p>
   
-  <!-- Exemplo de grid de produtos -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <!-- Produto 1 -->
-    <div class="bg-white border p-3">
-      <h2 class="text-lg font-semibold">Ingresso 3 Dias</h2>
-      <label class="block mt-2">Quantidade:
-        <input type="number" id="qtd-p1" value="1" min="1" class="border p-1 w-16">
+    <div class="bg-white border rounded p-4">
+      <img
+        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
+        alt="Salmon orange fabric pouch"
+        class="w-full h-48 object-cover mb-3"
+      />
+      <h2 class="text-lg font-semibold">Throwback Hip Bag</h2>
+      <p class="text-gray-500 text-sm">Salmon</p>
+      <p class="mt-2 font-medium text-gray-900">$90.00</p>
+      <label class="block mt-2 text-sm">
+        Qtd:
+        <input
+          type="number"
+          id="qtd-hipbag"
+          value="1"
+          min="1"
+          class="border rounded w-16 ml-1 p-1"
+        />
       </label>
-      <button 
-        class="mt-2 bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded"
-        onclick="addLocal('p1')">
+      <button
+        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
+        onclick="addLocal('Throwback Hip Bag', 90, 'hipbag')"
+      >
         Adicionar
       </button>
     </div>
+
     <!-- Produto 2 -->
-    <div class="bg-white border p-3">
-      <h2 class="text-lg font-semibold">Ingresso 5 Dias</h2>
-      <label class="block mt-2">Quantidade:
-        <input type="number" id="qtd-p2" value="1" min="1" class="border p-1 w-16">
+    <div class="bg-white border rounded p-4">
+      <img
+        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-02.jpg"
+        alt="Medium Stuff Satchel"
+        class="w-full h-48 object-cover mb-3"
+      />
+      <h2 class="text-lg font-semibold">Medium Stuff Satchel</h2>
+      <p class="text-gray-500 text-sm">Blue</p>
+      <p class="mt-2 font-medium text-gray-900">$32.00</p>
+      <label class="block mt-2 text-sm">
+        Qtd:
+        <input
+          type="number"
+          id="qtd-satchel"
+          value="1"
+          min="1"
+          class="border rounded w-16 ml-1 p-1"
+        />
       </label>
-      <button 
-        class="mt-2 bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded"
-        onclick="addLocal('p2')">
+      <button
+        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
+        onclick="addLocal('Medium Stuff Satchel', 32, 'satchel')"
+      >
         Adicionar
       </button>
     </div>
+
     <!-- Produto 3 -->
-    <div class="bg-white border p-3">
-      <h2 class="text-lg font-semibold">Ingresso 7 Dias</h2>
-      <label class="block mt-2">Quantidade:
-        <input type="number" id="qtd-p3" value="1" min="1" class="border p-1 w-16">
+    <div class="bg-white border rounded p-4">
+      <img
+        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-03.jpg"
+        alt="Zip Tote Basket"
+        class="w-full h-48 object-cover mb-3"
+      />
+      <h2 class="text-lg font-semibold">Zip Tote Basket</h2>
+      <p class="text-gray-500 text-sm">White and black</p>
+      <p class="mt-2 font-medium text-gray-900">$140.00</p>
+      <label class="block mt-2 text-sm">
+        Qtd:
+        <input
+          type="number"
+          id="qtd-ziptote"
+          value="1"
+          min="1"
+          class="border rounded w-16 ml-1 p-1"
+        />
       </label>
-      <button 
-        class="mt-2 bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded"
-        onclick="addLocal('p3')">
+      <button
+        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
+        onclick="addLocal('Zip Tote Basket', 140, 'ziptote')"
+      >
         Adicionar
       </button>
     </div>
   </div>
 </main>
 
-<!-- OVERLAY (fundo escuro) -->
-<div id="cartOverlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-10 hidden" 
-     onclick="closeCart()">
-</div>
+<!-- OVERLAY (BG ESCURO) -->
+<div
+  id="cartOverlay"
+  class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-10 hidden"
+  onclick="closeCart()"
+></div>
 
-<!-- SLIDE-OVER (snippet) -->
-<div id="cartPanel" class="relative z-10 hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-  <!-- 
-    De acordo com o snippet:
-    <div class="fixed inset-0 overflow-hidden">
-      ...
-    -->
+<!-- SLIDE-OVER (painel lateral) -->
+<div
+  id="cartPanel"
+  class="relative z-10 hidden"
+  aria-labelledby="slide-over-title"
+  role="dialog"
+  aria-modal="true"
+>
   <div class="fixed inset-0 overflow-hidden">
     <div class="absolute inset-0 overflow-hidden">
       <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-
-        <!-- Painel em si -->
-        <div id="cartContainer" 
-             class="pointer-events-auto w-screen max-w-md bg-white shadow-xl flex flex-col slide-out">
-          <!-- Cabeçalho -->
+        <!-- Conteúdo do painel -->
+        <div
+          id="cartContainer"
+          class="pointer-events-auto w-screen max-w-md bg-white shadow-xl flex flex-col slide-out"
+        >
+          <!-- Header -->
           <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
             <div class="flex items-start justify-between">
-              <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">Shopping cart</h2>
+              <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
+                Shopping cart
+              </h2>
               <div class="ml-3 flex h-7 items-center">
-                <button type="button" class="-m-2 p-2 text-gray-400 hover:text-gray-500" onclick="closeCart()">
+                <button
+                  type="button"
+                  class="-m-2 p-2 text-gray-400 hover:text-gray-500"
+                  onclick="closeCart()"
+                >
                   <span class="sr-only">Close panel</span>
-                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                  <!-- Icon -->
+                  <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
             </div>
 
-            <!-- LISTA DE ITENS NO CARRINHO LOCAL -->
-            <div class="mt-8">
-              <div class="flow-root">
-                <ul id="localCartList" role="list" class="-my-6 divide-y divide-gray-200">
-                  <!-- Inserido via JS -->
-                </ul>
-              </div>
-            </div>
-
-            <!-- AFFILIATE, AGENT e COMPARTILHAR -->
-            <div class="mt-4">
-              <label class="block text-sm text-gray-700">Affiliate ID</label>
-              <input type="text" id="affiliateId" value="aff123" class="border p-1 w-full mt-1"/>
-              <label class="block text-sm text-gray-700 mt-2">Agent ID</label>
-              <input type="text" id="agentId" value="agt567" class="border p-1 w-full mt-1"/>
-              <button
-                class="w-full bg-blue-600 text-white rounded py-2 mt-3 hover:bg-blue-700"
-                onclick="shareCart()">
-                Compartilhar Carrinho
-              </button>
-            </div>
-
-            <!-- Carrinho Remoto (se ?shareId=...) -->
-            <div class="mt-8">
-              <h3 class="text-md font-semibold text-gray-900">Carrinho Compartilhado</h3>
-              <ul id="remoteCartList" class="mt-2 -my-6 divide-y divide-gray-200"></ul>
-              <button id="btnClearRemote"
-                class="mt-3 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded hidden"
-                onclick="clearRemoteCart()">
-                Limpar Carrinho Compartilhado
-              </button>
+            <!-- LISTA DE ITENS DO CARRINHO -->
+            <div class="mt-8 flow-root">
+              <ul id="cartList" role="list" class="-my-6 divide-y divide-gray-200">
+                <!-- Itens via JS -->
+              </ul>
             </div>
           </div>
 
-          <!-- RODAPÉ (Subtotal, Botão Checkout, Continue Shopping) -->
+          <!-- Rodapé: Subtotal + Checkout -->
           <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
             <div class="flex justify-between text-base font-medium text-gray-900">
               <p>Subtotal</p>
-              <p id="localSubtotal">R$ 0,00</p>
+              <p id="cartSubtotal">$0.00</p>
             </div>
-            <p class="mt-0.5 text-sm text-gray-500">Impostos e frete calculados no checkout.</p>
+            <p class="mt-0.5 text-sm text-gray-500">
+              Shipping and taxes calculated at checkout.
+            </p>
             <div class="mt-6">
-              <a href="#" 
-                 class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 
-                        px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">
+              <a
+                href="#"
+                class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+              >
                 Checkout
               </a>
             </div>
             <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
-              <p>ou
-                <button type="button" 
-                  class="font-medium text-indigo-600 hover:text-indigo-500" 
-                  onclick="closeCart()">
+              <p>
+                or
+                <button
+                  type="button"
+                  class="font-medium text-indigo-600 hover:text-indigo-500"
+                  onclick="closeCart()"
+                >
                   Continue Shopping
                   <span aria-hidden="true"> &rarr;</span>
                 </button>
@@ -177,206 +223,105 @@
             </div>
           </div>
         </div>
-        <!-- Fim do Painel -->
+        <!-- /Painel -->
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  /* Ajuste a URL do backend Node: */
-  const BASE_URL = "http://localhost:3000"; 
+  // Se quiser integrar com backend Node, ajuste:
+  // const BASE_URL = "http://localhost:3000";
 
-  /* CARRINHO LOCAL (armazenado no localStorage) */
-  let localCart = [];
+  let cart = []; // [{ name, price, quantity }, ...]
 
-  function loadLocalCart() {
-    const stored = localStorage.getItem("localCart");
-    if (stored) localCart = JSON.parse(stored);
-    else localCart = [];
+  // Carregamento no localStorage
+  function loadCart() {
+    const stored = localStorage.getItem("tailwindCart");
+    if (stored) cart = JSON.parse(stored);
+    else cart = [];
   }
-  function saveLocalCart() {
-    localStorage.setItem("localCart", JSON.stringify(localCart));
+  function saveCart() {
+    localStorage.setItem("tailwindCart", JSON.stringify(cart));
   }
 
-  function renderLocalCart() {
-    const list = document.getElementById("localCartList");
-    list.innerHTML = "";
+  // Renderizar carrinho no slide-over
+  function renderCart() {
+    const listEl = document.getElementById("cartList");
+    listEl.innerHTML = "";
     let subtotal = 0;
 
-    localCart.forEach((item, idx) => {
-      // Exemplo: cada item = R$100 * quantity (você pode buscar do seu catálago real)
-      const price = 100;
-      const totalItem = price * item.quantity;
-      subtotal += totalItem;
+    cart.forEach((item, idx) => {
+      const itemTotal = item.price * item.quantity;
+      subtotal += itemTotal;
 
       const li = document.createElement("li");
       li.className = "flex py-6";
       li.innerHTML = `
-        <div class="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200 w-16 h-16 
-                    flex items-center justify-center text-sm text-gray-500">
-          ${item.id}
+        <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 flex items-center justify-center text-sm text-gray-500">
+          <span>${item.name}</span>
         </div>
         <div class="ml-4 flex flex-1 flex-col">
           <div class="flex justify-between text-base font-medium text-gray-900">
-            <h3>Produto: ${item.id}</h3>
-            <p class="ml-4">R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>
+            <h3>${item.name}</h3>
+            <p class="ml-4">$${itemTotal.toFixed(2)}</p>
           </div>
-          <p class="mt-1 text-sm text-gray-500">Qtd: ${item.quantity}</p>
+          <p class="mt-1 text-sm text-gray-500">Qty ${item.quantity}</p>
           <div class="flex flex-1 items-end justify-between text-sm">
-            <button 
-              class="font-medium text-red-600 hover:text-red-800 mt-2"
-              onclick="removeLocalItem(${idx})">
-              Remover
-            </button>
+            <button class="font-medium text-indigo-600 hover:text-indigo-500" onclick="removeItem(${idx})">Remove</button>
           </div>
         </div>
       `;
-      list.appendChild(li);
+      listEl.appendChild(li);
     });
-    document.getElementById("localSubtotal").textContent = 
-      "R$ " + subtotal.toLocaleString('pt-BR',{minimumFractionDigits:2});
+
+    document.getElementById("cartSubtotal").textContent = "$" + subtotal.toFixed(2);
   }
 
-  function removeLocalItem(index) {
-    localCart.splice(index,1);
-    saveLocalCart();
-    renderLocalCart();
+  function removeItem(idx) {
+    cart.splice(idx,1);
+    saveCart();
+    renderCart();
   }
 
-  function addLocal(prodId) {
-    const qtdEl = document.getElementById("qtd-" + prodId);
-    const quantity = parseInt(qtdEl.value) || 1;
-    const found = localCart.find(it => it.id === prodId);
-    if(found){
-      found.quantity += quantity;
-    } else {
-      localCart.push({ id: prodId, quantity });
-    }
-    saveLocalCart();
-    renderLocalCart();
+  function addLocal(name, price, fieldId) {
+    const qtdEl = document.getElementById("qtd-" + fieldId);
+    const q = parseInt(qtdEl.value) || 1;
+    let found = cart.find(i => i.name===name);
+    if(found) found.quantity += q;
+    else cart.push({ name, price, quantity: q });
+    saveCart();
+    renderCart();
     openCart();
   }
 
-  /* SLIDE-OVER: abrir/fechar */
+  // Slide-over: abrir / fechar
   function openCart() {
     document.getElementById("cartOverlay").classList.remove("hidden");
     document.getElementById("cartPanel").classList.remove("hidden");
-    const panel = document.getElementById("cartContainer");
-    panel.classList.remove("slide-out");
-    panel.classList.add("slide-in");
+    const cont = document.getElementById("cartContainer");
+    cont.classList.remove("slide-out");
+    cont.classList.add("slide-in");
   }
   function closeCart() {
     document.getElementById("cartOverlay").classList.add("hidden");
-    const panel = document.getElementById("cartContainer");
-    panel.classList.remove("slide-in");
-    panel.classList.add("slide-out");
-    // Após a transição, some o cartPanel
+    const cont = document.getElementById("cartContainer");
+    cont.classList.remove("slide-in");
+    cont.classList.add("slide-out");
     setTimeout(()=>{
       document.getElementById("cartPanel").classList.add("hidden");
     },300);
   }
 
-  /* COMPARTILHAR CARRINHO */
-  async function shareCart() {
-    if(localCart.length===0){
-      alert("Carrinho local vazio!");
-      return;
-    }
-    const affiliateId = document.getElementById("affiliateId").value.trim();
-    const agentId = document.getElementById("agentId").value.trim();
-    if(!affiliateId || !agentId){
-      alert("Preencha Affiliate e Agent ID!");
-      return;
-    }
-    try {
-      const resp = await fetch(BASE_URL + "/shareCart", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ affiliateId, agentId, items: localCart })
-      });
-      const data = await resp.json();
-      if(data.success){
-        const shareUrl = window.location.origin + window.location.pathname + "?shareId=" + data.shareId;
-        alert("Carrinho compartilhado!\n"+shareUrl);
-      } else {
-        alert("Erro: " + (data.error||"desconhecido"));
-      }
-    } catch(err){
-      console.error(err);
-      alert("Falha ao compartilhar carrinho");
-    }
-  }
+  // Exemplo se quiser "compartilhar"
+  // function shareCart() {
+  //   // Chamar POST /shareCart com 'cart'
+  // }
 
-  /* SE TIVER ?shareId=..., CARREGAR REMOTO */
-  async function checkShareId(){
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-    if(!shareId) return;
-    // GET /cart/xxx
-    try {
-      const resp = await fetch(BASE_URL+"/cart/"+shareId);
-      const data = await resp.json();
-      if(!data.success){
-        console.error(data.error);
-        return;
-      }
-      // Exibe no remoteCartList
-      const remoteList = document.getElementById("remoteCartList");
-      remoteList.innerHTML="";
-      data.items.forEach(it=>{
-        const li = document.createElement("li");
-        li.className="flex py-6";
-        li.innerHTML=`
-          <div class="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200 w-16 h-16 
-                      flex items-center justify-center text-sm text-gray-500">
-            ${it.id}
-          </div>
-          <div class="ml-4 flex flex-1 flex-col">
-            <div class="flex justify-between text-base font-medium text-gray-900">
-              <h3>${it.id}</h3>
-            </div>
-            <p class="mt-1 text-sm text-gray-500">Qtd: ${it.quantity}</p>
-          </div>
-        `;
-        remoteList.appendChild(li);
-      });
-      document.getElementById("btnClearRemote").classList.remove("hidden");
-      openCart();
-    } catch(err){
-      console.error(err);
-    }
-  }
-
-  /* LIMPAR CARRINHO REMOTO */
-  async function clearRemoteCart(){
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-    if(!shareId) return;
-    try {
-      const resp = await fetch(BASE_URL+"/clearCart", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ shareId })
-      });
-      const data = await resp.json();
-      if(data.success){
-        alert("Carrinho remoto removido!");
-        document.getElementById("remoteCartList").innerHTML="";
-      } else {
-        alert("Erro ao limpar remoto: " + (data.error||"desconhecido"));
-      }
-    } catch(err){
-      console.error(err);
-      alert("Falha ao limpar carrinho remoto");
-    }
-  }
-
-  /* INIT */
+  // Onload
   window.onload = () => {
-    loadLocalCart();
-    renderLocalCart();
-    checkShareId();
+    loadCart();
+    renderCart();
   };
 </script>
 
