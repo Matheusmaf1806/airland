@@ -2,12 +2,14 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Card Único</title>
+  <title>Carrinho Suspenso - Card com +/– Embaixo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     /* RESET / BASE */
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -28,6 +30,7 @@
       flex-direction: column;
       z-index: 1000;
     }
+    /* HEADER DO CARRINHO */
     .cart-header {
       padding: 1rem;
       border-bottom: 1px solid #eee;
@@ -40,7 +43,7 @@
       font-size: 0.95rem;
       font-weight: 600;
     }
-    .cart-header .timer-info {
+    .timer-info {
       font-size: 0.75rem;
       color: #2a942f;
       background: #ebfaeb;
@@ -49,6 +52,7 @@
       padding: 0.3rem 0.5rem;
     }
 
+    /* CORPO DO CARRINHO */
     .cart-body {
       flex: 1;
       overflow-y: auto;
@@ -76,8 +80,7 @@
     }
     .trash-btn {
       position: absolute;
-      top: 10px; 
-      right: 10px;
+      top: 10px; right: 10px;
       background: none;
       border: none;
       font-size: 1rem;
@@ -88,7 +91,6 @@
     .trash-btn:hover {
       color: #e00;
     }
-
     /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
@@ -121,26 +123,41 @@
       display: inline-block;
       width: 16px;
       height: 16px;
-      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjggLjIyOSAxIC41IDFINi4yN0M2LjI4MyAxLjA1OSA2LjI5NSAxLjExMyA2LjMgMS4xODhDNS42MjIgMS4zNDcgNSAxLjgzNCA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
+      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjguMjI5IDEgLjUgMUg2LjI3QzYuMjgzIDEuMDU5IDYuMjk1IDEuMTEzIDYuMyAxLjE4OEw1LjYyMiAxLjM0NyA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
     }
 
-    /* Linha “0 Crianças [ + - ] 1 Adulto(s) [ + - ]” */
+    /* Adultos / Crianças com +/– embaixo do número */
     .item-quantities {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      align-items: flex-start; /* alinha ao topo do texto */
+      gap: 16px;
       font-size: 0.8rem;
       color: #666;
       margin: 0.3rem 0;
     }
-    .quantity-group {
+    .quant-group {
       display: flex;
+      flex-direction: column;
       align-items: center;
+    }
+    .quant-label {
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: #444;
+      font-weight: 500;
+    }
+    .quant-value {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+    .plusminus-box {
+      display: flex;
+      flex-direction: row; /* se quiser lado a lado, troque para row */
       gap: 4px;
     }
     .plusminus-btn {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border: 1px solid #ccc;
       border-radius: 4px;
       background: #fff;
@@ -244,55 +261,53 @@
 </head>
 <body>
 
-<!-- HEADER (opcional) -->
-<header>
-  <h1>Carrinho Suspenso (Exemplo)</h1>
-</header>
-
-<!-- CART FIXO NA DIREITA COM 1 ITEM DE EXEMPLO -->
+<!-- Carrinho fixo na direita -->
 <div class="cart-container">
-  <!-- HEADER DO CARRINHO -->
+  <!-- Cabeçalho do carrinho -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
-    <span class="timer-info">09:02</span>
+    <span class="timer-info" id="timerValue">09:02</span>
   </div>
 
-  <!-- CORPO DO CARRINHO -->
+  <!-- Corpo do carrinho -->
   <div class="cart-body">
-    <!-- Título: Ingressos -->
     <div class="section-title">Ingressos</div>
 
     <!-- Card do item -->
-    <div id="cartItem" class="cart-item">
+    <div class="cart-item">
       <button class="trash-btn" onclick="removeItem()">🗑</button>
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data com ícone de calendário -->
+      <!-- Data c/ icone -->
       <div class="item-date">
-        <i></i> <!-- ícone background -->
+        <i></i>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos na mesma linha, com +/– embaixo do número -->
+      <!-- Adultos / Crianças “na mesma linha” mas +/– embaixo -->
       <div class="item-quantities">
-        <div class="quantity-group">
-          <span id="childCount">0 Crianças</span>
-          <div style="display:flex; flex-direction: column;">
+        <!-- Crianças -->
+        <div class="quant-group">
+          <span class="quant-label">Crianças</span>
+          <span class="quant-value" id="childCount">0</span>
+          <div class="plusminus-box">
             <button class="plusminus-btn" onclick="decChildren()">-</button>
             <button class="plusminus-btn" onclick="incChildren()">+</button>
           </div>
         </div>
-        <div class="quantity-group">
-          <span id="adultCount">1 Adulto(s)</span>
-          <div style="display:flex; flex-direction: column;">
+        <!-- Adultos -->
+        <div class="quant-group">
+          <span class="quant-label">Adultos</span>
+          <span class="quant-value" id="adultCount">1</span>
+          <div class="plusminus-box">
             <button class="plusminus-btn" onclick="decAdults()">-</button>
             <button class="plusminus-btn" onclick="incAdults()">+</button>
           </div>
         </div>
       </div>
 
-      <!-- Preço no canto inferior + “até 10x sem juros” -->
+      <!-- Preço no canto + “ate 10x sem juros” -->
       <div class="item-price" id="priceVal">
         R$ 100,00
         <div class="installment-info">até 10x sem juros</div>
@@ -315,7 +330,7 @@
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- RODAPÉ DO CARRINHO -->
+  <!-- Rodapé do carrinho -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -329,28 +344,21 @@
 </div>
 
 <script>
-  /* 
-     Exemplo: 1 item
-     { type, name, date, adults, children, price } 
-     Sem DB p/ preço; exibindo local
-  */
-  const BASE_URL = "http://localhost:3000"; // Ajustar p/ seu backend
-  let shareId = null; // guardado se /shareCart for chamado
-  // item local
+  /* Exemplo de item local (sem DB p/ preço). Ajustar p/ multi-itens se quiser */
+  const BASE_URL = "http://localhost:3000";
+  let shareId = null;
   let item = {
-    type: "INGRESSOS",
-    name: "WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
-    date: "2025-04-12",
-    adults: 1,
     children: 0,
-    basePriceAdult: 100, // Exemplo
+    adults: 1,
+    date: "2025-04-12",
+    basePriceAdult: 100,
     basePriceChild: 60
   };
 
-  // Ao carregar, checa se shareId existe no localStorage ou ?shareId
+  // Ao carregar, checa shareId no localStorage / ?shareId
   window.onload = () => {
     const localS = localStorage.getItem("shareId");
-    if(localS) {
+    if(localS){
       shareId = localS;
       loadCartFromServer(shareId);
     }
@@ -365,24 +373,18 @@
   };
 
   function renderItem(){
-    // data
-    document.getElementById("dateVal").textContent = item.date;
-    // children
-    document.getElementById("childCount").textContent = item.children+" Crianças";
-    // adults
-    document.getElementById("adultCount").textContent = item.adults+" Adulto(s)";
-    // price
+    // exibe children e adults
+    document.getElementById("childCount").textContent = item.children;
+    document.getElementById("adultCount").textContent = item.adults;
+    // calcula preco
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
     document.getElementById("priceVal").innerHTML = 
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    // Subtotal, desconto, total
-    document.getElementById("subtotalValue").textContent = 
-      "R$ "+ totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
-    // Exemplo: sem desconto
+    // Subtotal = totalItem, desc=0, total= totalItem
+    document.getElementById("subtotalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent = 
-      "R$ "+ totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("totalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
 
   function incChildren(){
@@ -405,21 +407,17 @@
     renderItem();
     updateCartServer();
   }
-
   function removeItem(){
-    // Zera item e exibe algo
-    item.adults=0; 
-    item.children=0;
+    item.children=0; item.adults=0;
     renderItem();
     updateCartServer();
-    alert("Item removido (lixeira). Se fosse multi-itens, removeria do array.");
+    alert("Item removido");
   }
 
-  /* SHARE CART => se shareId nao existe => /shareCart */
+  // SHARE => se shareId nao existe => /shareCart
   async function shareCart(){
-    // se item "vazio"?
     if(item.adults===0 && item.children===0){
-      alert("Item vazio, nada a compartilhar!");
+      alert("Item vazio!");
       return;
     }
     if(shareId){
@@ -432,11 +430,11 @@
       alert("Informe affiliateId e agentId!");
       return;
     }
-    // Enviamos items = array c/ 1 item sem preco
-    const itemsToSend = [{
-      type: item.type,
-      category: "WALT DISNEY WORLD", // ou extrair do name
-      nameDays: item.name, // 
+    // enviamos array c/ 1 item sem preco
+    const items = [{
+      type: "INGRESSOS",
+      category: "WALT DISNEY WORLD",
+      nameDays: "INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
       date: item.date,
       adults: item.adults,
       children: item.children
@@ -445,20 +443,16 @@
       const resp = await fetch(`${BASE_URL}/shareCart`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
-          affiliateId,
-          agentId,
-          items: itemsToSend
-        })
+        body: JSON.stringify({ affiliateId, agentId, items })
       });
       const data = await resp.json();
       if(data.success){
         shareId = data.shareId;
         localStorage.setItem("shareId", shareId);
-        const link = window.location.origin + window.location.pathname + "?shareId="+shareId;
+        const link = window.location.origin+window.location.pathname+"?shareId="+shareId;
         alert("Carrinho compartilhado!\n"+link);
       } else {
-        alert("Erro ao compartilhar: "+(data.error||"desconhecido"));
+        alert("Erro: "+(data.error||"desconhecido"));
       }
     } catch(e){
       console.error(e);
@@ -466,14 +460,13 @@
     }
   }
 
-  /* updateCart => se shareId */
+  // UPDATE => se shareId
   async function updateCartServer(){
     if(!shareId) return;
-    // Mandar array c/ 1 item sem preco
-    const itemsToSend = [{
-      type: item.type,
+    const items = [{
+      type: "INGRESSOS",
       category: "WALT DISNEY WORLD",
-      nameDays: item.name,
+      nameDays: "INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
       date: item.date,
       adults: item.adults,
       children: item.children
@@ -482,7 +475,7 @@
       const resp = await fetch(`${BASE_URL}/updateCart`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ shareId, items: itemsToSend })
+        body: JSON.stringify({ shareId, items })
       });
       const data = await resp.json();
       if(!data.success){
@@ -493,7 +486,7 @@
     }
   }
 
-  /* loadCart => se shareId => recupera do DB (apenas 1 item) */
+  // LOAD => se shareId
   async function loadCartFromServer(sId){
     try {
       const resp = await fetch(`${BASE_URL}/cart/${sId}`);
@@ -502,14 +495,11 @@
         console.error("Erro loadCart:", data.error);
         return;
       }
-      // data.items => array
       if(data.items.length>0){
         const i = data.items[0];
-        item.type = i.type;
-        item.name = i.nameDays;
-        item.date = i.date;
         item.adults = i.adults;
         item.children = i.children;
+        item.date = i.date;
       }
       renderItem();
     } catch(e){
@@ -517,10 +507,9 @@
     }
   }
 
-  /* CLEAR => se shareId => /clearCart, senão local */
+  // CLEAR => se shareId => /clearCart
   async function clearCartServer(){
     if(!shareId){
-      // zera item local
       item.adults=0; item.children=0;
       renderItem();
       alert("Carrinho local limpo!");
@@ -535,10 +524,9 @@
       const data = await resp.json();
       if(data.success){
         alert("Carrinho removido do servidor!");
-        // zera local
         item.adults=0; item.children=0;
         renderItem();
-        shareId = null;
+        shareId=null;
         localStorage.removeItem("shareId");
       } else {
         alert("Erro ao limpar: "+(data.error||"desconhecido"));
