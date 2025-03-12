@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Crianças/Adultos + Divisória</title>
+  <title>Carrinho Suspenso - Card Completo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -128,7 +128,7 @@
       background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjguMjI5IDEgLjUgMUg2LjI3QzYuMjgzIDEuMDU5IDYuMjk1IDEuMTEzIDYuMyAxLjE4OEw1LjYyMiAxLjM0NyA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
     }
 
-    /* Adultos / Crianças com +/– no meio e divisória */
+    /* Crianças/Adultos com ícones e divisória, +/– no meio */
     .item-quantities {
       display: flex;
       align-items: center;
@@ -161,7 +161,6 @@
       height: 30px;
       margin: 0 8px;
     }
-
     .quant-box {
       display: flex;
       align-items: center;
@@ -273,6 +272,7 @@
 </head>
 <body>
 
+<!-- Carrinho fixo na direita -->
 <div class="cart-container">
   <!-- Cabeçalho do carrinho -->
   <div class="cart-header">
@@ -286,17 +286,19 @@
 
     <!-- Card do item -->
     <div class="cart-item">
+      <!-- Ícone de lixeira -->
       <button class="trash-btn" onclick="removeItem()">🗑</button>
+      <!-- Tag e título -->
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data c/ icone -->
+      <!-- Data com ícone -->
       <div class="item-date">
         <i></i>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Adultos / Crianças “na mesma linha” com ícones e divisória -->
+      <!-- Crianças e Adultos, com ícones, divisória e botões +/– no meio -->
       <div class="item-quantities">
         <!-- Crianças -->
         <div class="quant-block">
@@ -321,7 +323,7 @@
           </div>
         </div>
 
-        <!-- Preço e 10x no canto -->
+        <!-- Preço no canto + “ate 10x sem juros” -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -353,43 +355,217 @@
     </div>
     <div class="footer-actions">
       <button class="btn-mini" onclick="shareCart()">Compartilhar</button>
-      <button class="btn-mini btn-mini-danger" onclick="clearCart()">Limpar</button>
+      <button class="btn-mini btn-mini-danger" onclick="clearCartServer()">Limpar</button>
     </div>
   </div>
 </div>
 
 <script>
-  // Exemplo local sem DB
+  /* 
+     Código COMPLETO com shareCart, updateCart, loadCartFromServer, clearCartServer 
+     e localStorage do shareId
+  */
+
+  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node/Express
+  let shareId = null;
+
+  // Representa um único item (caso queira vários, faça array)
   let item = {
     children: 0,
     adults: 1,
+    date: "2025-04-12",
     basePriceAdult: 100,
     basePriceChild: 60
   };
 
+  // Ao carregar, checa shareId no localStorage e na URL
+  window.onload = () => {
+    const localS = localStorage.getItem("shareId");
+    if(localS){
+      shareId = localS;
+      loadCartFromServer(shareId);
+    }
+    const params = new URLSearchParams(window.location.search);
+    const paramS = params.get("shareId");
+    if(paramS){
+      shareId = paramS;
+      localStorage.setItem("shareId", shareId);
+      loadCartFromServer(shareId);
+    }
+    renderItem();
+  };
+
+  // Render local do item (quantidades, preço, subtotal, total)
   function renderItem(){
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
-    const total = item.adults*item.basePriceAdult + item.children*item.basePriceChild;
-    document.getElementById("priceVal").innerHTML = 
-      `R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+    const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+    document.getElementById("priceVal").innerHTML =
+      `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    document.getElementById("subtotalValue").textContent = "R$ " + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    // Subtotal, desconto=0, total
+    document.getElementById("subtotalValue").textContent =
+      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("totalValue").textContent =
+      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
-  function incChildren(){ item.children++; renderItem(); }
-  function decChildren(){ if(item.children>0) item.children--; renderItem(); }
-  function incAdults(){ item.adults++; renderItem(); }
-  function decAdults(){ if(item.adults>0) item.adults--; renderItem(); }
-  function removeItem(){
-    item.children=0; item.adults=0;
+
+  // Botões +/-
+  function incChildren(){
+    item.children++;
     renderItem();
+    updateCartServer();
+  }
+  function decChildren(){
+    if(item.children>0) item.children--;
+    renderItem();
+    updateCartServer();
+  }
+  function incAdults(){
+    item.adults++;
+    renderItem();
+    updateCartServer();
+  }
+  function decAdults(){
+    if(item.adults>0) item.adults--;
+    renderItem();
+    updateCartServer();
+  }
+
+  // Remover item
+  function removeItem(){
+    // zera quantidades
+    item.adults=0; 
+    item.children=0;
+    renderItem();
+    updateCartServer();
     alert("Item removido.");
   }
-  function shareCart(){ alert("POST /shareCart"); }
-  function clearCart(){ item.children=0; item.adults=0; renderItem(); alert("Limpo."); }
-  window.onload = renderItem;
+
+  // shareCart => se shareId não existe => POST /shareCart
+  async function shareCart(){
+    if(item.adults===0 && item.children===0){
+      alert("Item vazio, nada a compartilhar!");
+      return;
+    }
+    if(shareId){
+      alert("Carrinho já possui shareId: "+shareId);
+      return;
+    }
+    const affiliateId = document.getElementById("affiliateId").value.trim();
+    const agentId = document.getElementById("agentId").value.trim();
+    if(!affiliateId || !agentId){
+      alert("Informe affiliateId e agentId!");
+      return;
+    }
+    // Mandamos array c/ 1 item sem preço
+    const items = [{
+      type: "INGRESSOS",
+      category: "WALT DISNEY WORLD",
+      nameDays: "INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
+      date: item.date,
+      adults: item.adults,
+      children: item.children
+    }];
+    try {
+      const resp = await fetch(`${BASE_URL}/shareCart`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ affiliateId, agentId, items })
+      });
+      const data = await resp.json();
+      if(data.success){
+        shareId = data.shareId;
+        localStorage.setItem("shareId", shareId);
+        const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
+        alert("Carrinho compartilhado!\n"+link);
+      } else {
+        alert("Erro ao compartilhar: "+(data.error||"desconhecido"));
+      }
+    } catch(err){
+      console.error(err);
+      alert("Falha ao compartilhar carrinho!");
+    }
+  }
+
+  // updateCart => se shareId existe => POST /updateCart
+  async function updateCartServer(){
+    if(!shareId) return;
+    const items = [{
+      type: "INGRESSOS",
+      category: "WALT DISNEY WORLD",
+      nameDays: "INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
+      date: item.date,
+      adults: item.adults,
+      children: item.children
+    }];
+    try {
+      const resp = await fetch(`${BASE_URL}/updateCart`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ shareId, items })
+      });
+      const data = await resp.json();
+      if(!data.success){
+        console.error("Erro updateCart:", data.error);
+      }
+    } catch(err){
+      console.error(err);
+    }
+  }
+
+  // loadCartFromServer => GET /cart/:shareId
+  async function loadCartFromServer(sId){
+    try {
+      const resp = await fetch(`${BASE_URL}/cart/${sId}`);
+      const data = await resp.json();
+      if(!data.success){
+        console.error("Erro loadCart:", data.error);
+        return;
+      }
+      if(data.items.length>0){
+        const i = data.items[0];
+        item.adults = i.adults;
+        item.children = i.children;
+        item.date = i.date;
+      }
+      renderItem();
+    } catch(err){
+      console.error(err);
+    }
+  }
+
+  // clearCartServer => se shareId => POST /clearCart
+  async function clearCartServer(){
+    if(!shareId){
+      item.adults=0; 
+      item.children=0;
+      renderItem();
+      alert("Carrinho local limpo!");
+      return;
+    }
+    try {
+      const resp = await fetch(`${BASE_URL}/clearCart`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ shareId })
+      });
+      const data = await resp.json();
+      if(data.success){
+        alert("Carrinho removido do servidor!");
+        item.adults=0; 
+        item.children=0;
+        renderItem();
+        shareId=null;
+        localStorage.removeItem("shareId");
+      } else {
+        alert("Erro ao limpar: "+(data.error||"desconhecido"));
+      }
+    } catch(err){
+      console.error(err);
+    }
+  }
 </script>
 </body>
 </html>
