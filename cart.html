@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - 3 Cards Internos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho Suspenso - Card Único</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     /* RESET / BASE */
@@ -16,23 +16,10 @@
       color: #333;
     }
 
-    /* CABEÇALHO (opcional) */
-    header {
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      padding: 1rem 2rem;
-    }
-    header h1 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-
     /* CARRINHO FIXO NA DIREITA */
     .cart-container {
       position: fixed;
-      top: 0; 
-      right: 0;
+      top: 0; right: 0;
       width: 380px;
       height: 100vh;
       background: #fff;
@@ -75,7 +62,7 @@
       color: #444;
     }
 
-    /* CARD DE ITEM */
+    /* ITEM CARD */
     .cart-item {
       background: #fff;
       border: 1px solid #ddd;
@@ -89,7 +76,8 @@
     }
     .trash-btn {
       position: absolute;
-      top: 10px; right: 10px;
+      top: 10px; 
+      right: 10px;
       background: none;
       border: none;
       font-size: 1rem;
@@ -100,6 +88,8 @@
     .trash-btn:hover {
       color: #e00;
     }
+
+    /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
       background: #ffefcc;
@@ -115,16 +105,35 @@
       font-weight: 600;
       margin: 0.2rem 0;
       color: #333;
+      font-size: 0.9rem;
     }
-    .item-details {
+
+    /* Data + ícone */
+    .item-date {
       display: flex;
-      gap: 8px;
+      align-items: center;
+      gap: 4px;
       font-size: 0.8rem;
       color: #666;
       margin: 0.3rem 0;
-      flex-wrap: wrap;
     }
-    .item-line {
+    .item-date i {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjggLjIyOSAxIC41IDFINi4yN0M2LjI4MyAxLjA1OSA2LjI5NSAxLjExMyA2LjMgMS4xODhDNS42MjIgMS4zNDcgNSAxLjgzNCA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
+    }
+
+    /* Linha “0 Crianças [ + - ] 1 Adulto(s) [ + - ]” */
+    .item-quantities {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0.3rem 0;
+    }
+    .quantity-group {
       display: flex;
       align-items: center;
       gap: 4px;
@@ -142,12 +151,21 @@
     .plusminus-btn:hover {
       background: #f2f2f2;
     }
+
+    /* PREÇO NO CANTO INFERIOR + “até 10x sem juros” */
     .item-price {
       position: absolute;
-      right: 1rem; bottom: 1rem;
+      right: 1rem;
+      bottom: 1.2rem;
       font-weight: 600;
       font-size: 0.85rem;
       color: #333;
+      text-align: right;
+    }
+    .installment-info {
+      font-size: 0.7rem;
+      color: #999;
+      margin-top: 2px;
     }
 
     /* SUBTOTAL, DESCONTO, TOTAL */
@@ -226,28 +244,65 @@
 </head>
 <body>
 
+<!-- HEADER (opcional) -->
 <header>
   <h1>Carrinho Suspenso (Exemplo)</h1>
 </header>
 
-<!-- CARRINHO FIXO NA DIREITA, com 3 CARDS já dentro -->
+<!-- CART FIXO NA DIREITA COM 1 ITEM DE EXEMPLO -->
 <div class="cart-container">
-  <!-- Header do carrinho -->
+  <!-- HEADER DO CARRINHO -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
-    <span class="timer-info" id="timerValue">09:02</span>
+    <span class="timer-info">09:02</span>
   </div>
 
-  <!-- Corpo do carrinho -->
+  <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
+    <!-- Título: Ingressos -->
     <div class="section-title">Ingressos</div>
-    <!-- Aqui ficam os 3 “cards” (itens) -->
-    <div id="cartItems"></div>
+
+    <!-- Card do item -->
+    <div id="cartItem" class="cart-item">
+      <button class="trash-btn" onclick="removeItem()">🗑</button>
+      <span class="tag-ingresso">INGRESSOS</span>
+      <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
+
+      <!-- Data com ícone de calendário -->
+      <div class="item-date">
+        <i></i> <!-- ícone background -->
+        <span id="dateVal">2025-04-12</span>
+      </div>
+
+      <!-- Crianças e Adultos na mesma linha, com +/– embaixo do número -->
+      <div class="item-quantities">
+        <div class="quantity-group">
+          <span id="childCount">0 Crianças</span>
+          <div style="display:flex; flex-direction: column;">
+            <button class="plusminus-btn" onclick="decChildren()">-</button>
+            <button class="plusminus-btn" onclick="incChildren()">+</button>
+          </div>
+        </div>
+        <div class="quantity-group">
+          <span id="adultCount">1 Adulto(s)</span>
+          <div style="display:flex; flex-direction: column;">
+            <button class="plusminus-btn" onclick="decAdults()">-</button>
+            <button class="plusminus-btn" onclick="incAdults()">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preço no canto inferior + “até 10x sem juros” -->
+      <div class="item-price" id="priceVal">
+        R$ 100,00
+        <div class="installment-info">até 10x sem juros</div>
+      </div>
+    </div>
 
     <!-- Subtotal, desconto, total -->
     <div class="price-line">
       <span>Subtotal</span>
-      <span id="subtotalValue">R$ 0,00</span>
+      <span id="subtotalValue">R$ 100,00</span>
     </div>
     <div class="price-line">
       <span>Desconto</span>
@@ -255,12 +310,12 @@
     </div>
     <div class="total-line">
       <span>Total do pedido</span>
-      <span id="totalValue">R$ 0,00</span>
+      <span id="totalValue">R$ 100,00</span>
     </div>
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- Rodapé do carrinho -->
+  <!-- RODAPÉ DO CARRINHO -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -275,47 +330,27 @@
 
 <script>
   /* 
-     EXEMPLO:
-     Teremos 3 itens “cards” dentro do carrinho
-     Cada item: { type, category, nameDays, adults, children, date }
-     E iremos exibir +/– p/ adults/children, e trash icon
+     Exemplo: 1 item
+     { type, name, date, adults, children, price } 
+     Sem DB p/ preço; exibindo local
   */
+  const BASE_URL = "http://localhost:3000"; // Ajustar p/ seu backend
+  let shareId = null; // guardado se /shareCart for chamado
+  // item local
+  let item = {
+    type: "INGRESSOS",
+    name: "WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
+    date: "2025-04-12",
+    adults: 1,
+    children: 0,
+    basePriceAdult: 100, // Exemplo
+    basePriceChild: 60
+  };
 
-  const BASE_URL = "http://localhost:3000"; // Ajuste para seu backend
-  let shareId = null;
-
-  // Nosso “cart” já começa com 3 itens
-  let cart = [
-    {
-      type: "Ingressos",
-      category: "WALT DISNEY WORLD",
-      nameDays: "INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
-      date: "2025-04-12",
-      adults: 1,
-      children: 0
-    },
-    {
-      type: "Ingressos",
-      category: "WALT DISNEY WORLD",
-      nameDays: "INGRESSO 3 DIAS PARK HOPPER",
-      date: "2025-05-10",
-      adults: 2,
-      children: 1
-    },
-    {
-      type: "Ingressos",
-      category: "WALT DISNEY WORLD",
-      nameDays: "INGRESSO 5 DIAS BASE TICKET",
-      date: "2025-06-01",
-      adults: 2,
-      children: 0
-    }
-  ];
-
-  // Ao carregar, se existir shareId no localStorage ou ?shareId=..., carrega do server
+  // Ao carregar, checa se shareId existe no localStorage ou ?shareId
   window.onload = () => {
     const localS = localStorage.getItem("shareId");
-    if(localS){
+    if(localS) {
       shareId = localS;
       loadCartFromServer(shareId);
     }
@@ -326,88 +361,65 @@
       localStorage.setItem("shareId", shareId);
       loadCartFromServer(shareId);
     }
-    renderCart();
+    renderItem();
   };
 
-  // RENDERIZA OS 3 CARDS
-  function renderCart(){
-    const container = document.getElementById("cartItems");
-    container.innerHTML = "";
-    let subtotal = 0;
-
-    cart.forEach((item, idx) => {
-      // Exemplo: adult=100, child=60
-      const itemPrice = item.adults * 100 + item.children * 60;
-      subtotal += itemPrice;
-
-      const div = document.createElement("div");
-      div.className = "cart-item";
-      div.innerHTML = `
-        <button class="trash-btn" onclick="removeItem(${idx})">🗑</button>
-        <span class="tag-ingresso">${item.type}</span>
-        <div class="item-title">${item.category} - ${item.nameDays}</div>
-        <div class="item-details">
-          <span>${item.date}</span>
-          <span class="item-line">
-            ${item.children} Crianças 
-            <button class="plusminus-btn" onclick="decChildren(${idx})">-</button>
-            <button class="plusminus-btn" onclick="incChildren(${idx})">+</button>
-          </span>
-          <span class="item-line">
-            ${item.adults} Adulto(s)
-            <button class="plusminus-btn" onclick="decAdults(${idx})">-</button>
-            <button class="plusminus-btn" onclick="incAdults(${idx})">+</button>
-          </span>
-        </div>
-        <span class="item-price">R$ ${itemPrice.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
-      `;
-      container.appendChild(div);
-    });
-    // Exemplo: 10% discount
-    const discount = subtotal * 0.1;
-    const total = subtotal - discount;
-
+  function renderItem(){
+    // data
+    document.getElementById("dateVal").textContent = item.date;
+    // children
+    document.getElementById("childCount").textContent = item.children+" Crianças";
+    // adults
+    document.getElementById("adultCount").textContent = item.adults+" Adulto(s)";
+    // price
+    const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+    document.getElementById("priceVal").innerHTML = 
+      `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
+       <div class="installment-info">até 10x sem juros</div>`;
+    // Subtotal, desconto, total
     document.getElementById("subtotalValue").textContent = 
-      "R$ " + subtotal.toLocaleString('pt-BR',{minimumFractionDigits:2});
-    document.getElementById("discountValue").textContent = 
-      "- R$ " + discount.toLocaleString('pt-BR',{minimumFractionDigits:2});
-    document.getElementById("totalValue").textContent =
-      "R$ " + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+      "R$ "+ totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    // Exemplo: sem desconto
+    document.getElementById("discountValue").textContent = "- R$ 0,00";
+    document.getElementById("totalValue").textContent = 
+      "R$ "+ totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
 
-  // FUNÇÕES +/-
-  function incAdults(idx){
-    cart[idx].adults++;
-    renderCart();
+  function incChildren(){
+    item.children++;
+    renderItem();
     updateCartServer();
   }
-  function decAdults(idx){
-    if(cart[idx].adults>0) cart[idx].adults--;
-    renderCart();
+  function decChildren(){
+    if(item.children>0) item.children--;
+    renderItem();
     updateCartServer();
   }
-  function incChildren(idx){
-    cart[idx].children++;
-    renderCart();
+  function incAdults(){
+    item.adults++;
+    renderItem();
     updateCartServer();
   }
-  function decChildren(idx){
-    if(cart[idx].children>0) cart[idx].children--;
-    renderCart();
-    updateCartServer();
-  }
-
-  // REMOVER ITEM
-  function removeItem(idx){
-    cart.splice(idx,1);
-    renderCart();
+  function decAdults(){
+    if(item.adults>0) item.adults--;
+    renderItem();
     updateCartServer();
   }
 
-  // SHARE CART => se shareId nao existe => /shareCart
+  function removeItem(){
+    // Zera item e exibe algo
+    item.adults=0; 
+    item.children=0;
+    renderItem();
+    updateCartServer();
+    alert("Item removido (lixeira). Se fosse multi-itens, removeria do array.");
+  }
+
+  /* SHARE CART => se shareId nao existe => /shareCart */
   async function shareCart(){
-    if(cart.length===0){
-      alert("Carrinho vazio!");
+    // se item "vazio"?
+    if(item.adults===0 && item.children===0){
+      alert("Item vazio, nada a compartilhar!");
       return;
     }
     if(shareId){
@@ -420,6 +432,15 @@
       alert("Informe affiliateId e agentId!");
       return;
     }
+    // Enviamos items = array c/ 1 item sem preco
+    const itemsToSend = [{
+      type: item.type,
+      category: "WALT DISNEY WORLD", // ou extrair do name
+      nameDays: item.name, // 
+      date: item.date,
+      adults: item.adults,
+      children: item.children
+    }];
     try {
       const resp = await fetch(`${BASE_URL}/shareCart`, {
         method:"POST",
@@ -427,7 +448,7 @@
         body: JSON.stringify({
           affiliateId,
           agentId,
-          items: cart
+          items: itemsToSend
         })
       });
       const data = await resp.json();
@@ -445,14 +466,23 @@
     }
   }
 
-  // UPDATE CART => se shareId
+  /* updateCart => se shareId */
   async function updateCartServer(){
     if(!shareId) return;
+    // Mandar array c/ 1 item sem preco
+    const itemsToSend = [{
+      type: item.type,
+      category: "WALT DISNEY WORLD",
+      nameDays: item.name,
+      date: item.date,
+      adults: item.adults,
+      children: item.children
+    }];
     try {
       const resp = await fetch(`${BASE_URL}/updateCart`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ shareId, items: cart })
+        body: JSON.stringify({ shareId, items: itemsToSend })
       });
       const data = await resp.json();
       if(!data.success){
@@ -463,7 +493,7 @@
     }
   }
 
-  // LOAD CART FROM SERVER
+  /* loadCart => se shareId => recupera do DB (apenas 1 item) */
   async function loadCartFromServer(sId){
     try {
       const resp = await fetch(`${BASE_URL}/cart/${sId}`);
@@ -472,18 +502,27 @@
         console.error("Erro loadCart:", data.error);
         return;
       }
-      cart = data.items;
-      renderCart();
+      // data.items => array
+      if(data.items.length>0){
+        const i = data.items[0];
+        item.type = i.type;
+        item.name = i.nameDays;
+        item.date = i.date;
+        item.adults = i.adults;
+        item.children = i.children;
+      }
+      renderItem();
     } catch(e){
       console.error(e);
     }
   }
 
-  // CLEAR CART => se shareId => /clearCart
+  /* CLEAR => se shareId => /clearCart, senão local */
   async function clearCartServer(){
     if(!shareId){
-      cart = [];
-      renderCart();
+      // zera item local
+      item.adults=0; item.children=0;
+      renderItem();
       alert("Carrinho local limpo!");
       return;
     }
@@ -496,8 +535,9 @@
       const data = await resp.json();
       if(data.success){
         alert("Carrinho removido do servidor!");
-        cart = [];
-        renderCart();
+        // zera local
+        item.adults=0; item.children=0;
+        renderItem();
         shareId = null;
         localStorage.removeItem("shareId");
       } else {
