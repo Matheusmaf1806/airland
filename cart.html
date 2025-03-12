@@ -44,6 +44,14 @@
       font-size: 0.95rem;
       font-weight: 600;
     }
+    .timer-info {
+      font-size: 0.75rem;
+      color: #2a942f;
+      background: #ebfaeb;
+      border: 1px solid #c8eac7;
+      border-radius: 6px;
+      padding: 0.3rem 0.5rem;
+    }
 
     /* CORPO DO CARRINHO */
     .cart-body {
@@ -85,6 +93,7 @@
     .trash-btn:hover {
       color: #e00;
     }
+    /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
       background: #ffefcc;
@@ -103,44 +112,60 @@
       font-size: 0.9rem;
     }
 
-    /* LINHA DE QUANTIDADES E PREÇO (UM AO LADO DO OUTRO) */
-    .item-row {
+    /* Data + ícone */
+    .item-date {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: #666;
+      margin: 0.3rem 0;
+    }
+    .item-date i {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjguMjI5IDEgLjUgMUg2LjI3QzYuMjgzIDEuMDU5IDYuMjk1IDEuMTEzIDYuMyAxLjE4OEw1LjYyMiAxLjM0NyA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
+    }
+
+    /* Adultos / Crianças com +/– no meio e divisória */
+    .item-quantities {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #666;
       position: relative;
-    }
-
-    /* BLOCO DE CRIANÇAS/ADULTOS COM ÍCONE, BOTÕES, DIVISÓRIA */
-    .quantities-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
     }
     .quant-block {
       display: flex;
       align-items: center;
       gap: 6px;
     }
+    .icon-child, .icon-adult {
+      width:16px; height:16px;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
     .icon-child {
-      width: 16px; height:16px;
-      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==');
     }
     .icon-adult {
-      width:16px; height:16px;
-      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3ptLTItNi4yaC0xbC0uOC0uOC0uOC44aC0xdjFsLjggLjguOC0uOGguOTJsLjgtLjguOC44aDEuMXYtMWwtLjgtLjguOC0uOHptMCAwbC0uOC0uOC0uOC44aC0xbC0uOC0uOC0uOC44aC0xdjFsLjguOC44LS44aDEuMXYtMWwtLjgtLjguOC0uOGguOTJsLjguLjguOC0uOGguOS4zLjcgLS4yIDEuM2MuMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDBsLjIuMy0uMy0uM3oiPjwvcGF0aD48L3N2Zz4=') no-repeat center/contain;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3oiPjwvcGF0aD48L3N2Zz4=');
+    }
+    .divider {
+      width: 1px;
+      background: #ccc;
+      height: 30px;
+      margin: 0 8px;
     }
 
-    .plusminus-column {
+    .quant-box {
       display: flex;
-      flex-direction: column;
       align-items: center;
       gap: 4px;
-    }
-    .number-val {
-      font-size: 0.85rem;
-      font-weight: 500;
     }
     .plusminus-btn {
       width: 24px;
@@ -156,25 +181,20 @@
       background: #f2f2f2;
     }
 
-    /* PREÇO E 10x */
-    .price-container {
-      text-align: right;
-      margin-left: auto;
-      font-size: 0.85rem;
+    /* PREÇO NO CANTO INFERIOR + “até 10x sem juros” */
+    .item-price {
+      position: absolute;
+      right: 1rem;
+      bottom: 1.2rem;
       font-weight: 600;
+      font-size: 0.85rem;
+      color: #333;
+      text-align: right;
     }
     .installment-info {
       font-size: 0.7rem;
       color: #999;
       margin-top: 2px;
-    }
-
-    /* LINHA DIVISÓRIA */
-    .divider {
-      width: 1px;
-      background: #ccc;
-      height: 40px;
-      margin: 0 8px;
     }
 
     /* SUBTOTAL, DESCONTO, TOTAL */
@@ -209,7 +229,7 @@
       background: #2d9e64;
     }
 
-    /* RODAPÉ */
+    /* RODAPÉ DO CARRINHO */
     .cart-footer {
       border-top: 1px solid #eee;
       padding: 1rem;
@@ -254,63 +274,62 @@
 <body>
 
 <div class="cart-container">
-  <!-- HEADER DO CARRINHO -->
+  <!-- Cabeçalho do carrinho -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
-    <span class="timer-info">01:02</span>
+    <span class="timer-info" id="timerValue">01:02</span>
   </div>
 
-  <!-- CORPO DO CARRINHO -->
+  <!-- Corpo do carrinho -->
   <div class="cart-body">
     <div class="section-title">Ingressos</div>
 
-    <!-- CARD ÚNICO -->
+    <!-- Card do item -->
     <div class="cart-item">
       <button class="trash-btn" onclick="removeItem()">🗑</button>
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data -->
+      <!-- Data c/ icone -->
       <div class="item-date">
         <i></i>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- CRIANÇAS E ADULTOS (icones + divisoria + +/– embaixo) -->
-      <div class="item-row">
-        <div class="quantities-row">
-          <!-- Crianças -->
-          <div class="quant-block">
-            <span class="icon-child"></span>
-            <div class="plusminus-column">
-              <button class="plusminus-btn" onclick="decChildren()">-</button>
-              <span class="number-val" id="childCount">0</span>
-              <button class="plusminus-btn" onclick="incChildren()">+</button>
-            </div>
-          </div>
-
-          <!-- Divisória vertical -->
-          <div class="divider"></div>
-
-          <!-- Adultos -->
-          <div class="quant-block">
-            <span class="icon-adult"></span>
-            <div class="plusminus-column">
-              <button class="plusminus-btn" onclick="decAdults()">-</button>
-              <span class="number-val" id="adultCount">1</span>
-              <button class="plusminus-btn" onclick="incAdults()">+</button>
-            </div>
+      <!-- Adultos / Crianças “na mesma linha” com ícones e divisória -->
+      <div class="item-quantities">
+        <!-- Crianças -->
+        <div class="quant-block">
+          <span class="icon-child"></span>
+          <div class="quant-box">
+            <button class="plusminus-btn" onclick="decChildren()">-</button>
+            <span id="childCount">0</span>
+            <button class="plusminus-btn" onclick="incChildren()">+</button>
           </div>
         </div>
-        <!-- PREÇO E 10x -->
-        <div class="price-container" id="priceVal">
+
+        <!-- Divisória vertical -->
+        <div class="divider"></div>
+
+        <!-- Adultos -->
+        <div class="quant-block">
+          <span class="icon-adult"></span>
+          <div class="quant-box">
+            <button class="plusminus-btn" onclick="decAdults()">-</button>
+            <span id="adultCount">1</span>
+            <button class="plusminus-btn" onclick="incAdults()">+</button>
+          </div>
+        </div>
+
+        <!-- Preço e 10x no canto -->
+        <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
         </div>
       </div>
     </div>
 
-    <!-- SUBTOTAL, DESCONTO, TOTAL -->
+    <!-- Subtotal, desconto, total -->
     <div class="price-line">
       <span>Subtotal</span>
       <span id="subtotalValue">R$ 100,00</span>
@@ -326,7 +345,7 @@
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- RODAPÉ -->
+  <!-- Rodapé do carrinho -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -340,17 +359,10 @@
 </div>
 
 <script>
-  /*
-    Exemplo de item local (sem DB p/ preço).
-    Se quiser integrar c/ /shareCart, /updateCart, /clearCart, basta ajustar:
-    - shareCart() -> POST /shareCart
-    - updateCart() -> POST /updateCart
-    - clearCart() -> POST /clearCart
-  */
+  // Exemplo local sem DB
   let item = {
     children: 0,
     adults: 1,
-    date: "2025-04-12",
     basePriceAdult: 100,
     basePriceChild: 60
   };
@@ -358,50 +370,26 @@
   function renderItem(){
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
-    const total = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-    document.getElementById("priceVal").innerHTML =
+    const total = item.adults*item.basePriceAdult + item.children*item.basePriceChild;
+    document.getElementById("priceVal").innerHTML = 
       `R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    document.getElementById("subtotalValue").textContent =
-      "R$ "+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("subtotalValue").textContent = "R$ " + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent =
-      "R$ "+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
-  function incChildren(){
-    item.children++;
-    renderItem();
-  }
-  function decChildren(){
-    if(item.children>0) item.children--;
-    renderItem();
-  }
-  function incAdults(){
-    item.adults++;
-    renderItem();
-  }
-  function decAdults(){
-    if(item.adults>0) item.adults--;
-    renderItem();
-  }
+  function incChildren(){ item.children++; renderItem(); }
+  function decChildren(){ if(item.children>0) item.children--; renderItem(); }
+  function incAdults(){ item.adults++; renderItem(); }
+  function decAdults(){ if(item.adults>0) item.adults--; renderItem(); }
   function removeItem(){
     item.children=0; item.adults=0;
     renderItem();
     alert("Item removido.");
   }
-  function shareCart(){
-    alert("Exemplo: POST /shareCart");
-  }
-  function clearCart(){
-    item.children=0; item.adults=0;
-    renderItem();
-    alert("Carrinho limpo.");
-  }
-
-  // Render inicial
-  window.onload = () => {
-    renderItem();
-  };
+  function shareCart(){ alert("POST /shareCart"); }
+  function clearCart(){ item.children=0; item.adults=0; renderItem(); alert("Limpo."); }
+  window.onload = renderItem;
 </script>
 </body>
 </html>
