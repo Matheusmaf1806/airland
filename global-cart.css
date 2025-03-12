@@ -1,11 +1,6 @@
 /* global-cart.css */
 
-/* Reset básico */
-* {
-  box-sizing: border-box;
-}
-
-/* Container principal do carrinho */
+/* Container principal do carrinho - inicialmente oculto (fora da tela) */
 .cart-container {
   position: fixed;
   top: 0;
@@ -17,6 +12,13 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  transform: translateX(100%); /* Esconde fora da tela à direita */
+  transition: transform 0.3s ease;
+}
+
+/* Quando o carrinho está aberto, remova o translate para exibi-lo */
+.cart-container.open {
+  transform: translateX(0);
 }
 
 /* Cabeçalho do carrinho */
@@ -37,7 +39,6 @@
   color: #333;
 }
 
-/* Botão de compartilhar carrinho */
 .share-cart-btn {
   background: #007bff;
   color: #fff;
@@ -96,7 +97,7 @@
   color: #1a56b0;
 }
 
-/* Item do carrinho */
+/* Itens do carrinho */
 .cart-item {
   background: #fff;
   border: 1px solid #ddd;
@@ -192,7 +193,7 @@
   background: #fff;
 }
 
-/* Seção do cupom */
+/* Seção de cupom */
 .coupon-section {
   display: flex;
   align-items: center;
