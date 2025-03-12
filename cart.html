@@ -2,328 +2,454 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Exemplo - Slide-over Carrinho (Tailwind)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Tailwind CSS via CDN -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css"
-    rel="stylesheet"
-  />
+  <title>Carrinho Suspenso - Exemplo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    /* Oculta o overlay e painel por padrão */
-    #cartOverlay.hidden,
-    #cartPanel.hidden {
-      display: none;
+    /* Layout geral */
+    body {
+      margin: 0; 
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
     }
-    /* Transição slide */
-    .slide-in {
-      transform: translateX(0%);
-      transition: transform 0.3s ease;
+    header {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .slide-out {
+    main {
+      padding: 20px;
+    }
+
+    /* Botão que abre o carrinho */
+    #openCartBtn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    #openCartBtn:hover {
+      background: #005dc1;
+    }
+
+    /* Carrinho flutuante (suspenso) */
+    #cartOverlay {
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none; /* oculto por padrão */
+    }
+    #cartPanel {
+      position: fixed;
+      top: 0; 
+      right: 0;
+      width: 350px;
+      height: 100vh;
+      background: #fff;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
       transform: translateX(100%);
       transition: transform 0.3s ease;
     }
+    #cartPanel.open {
+      transform: translateX(0);
+    }
+    #cartHeader {
+      padding: 10px;
+      background: #007bff;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #cartBody {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    #cartFooter {
+      border-top: 1px solid #ddd;
+      padding: 10px;
+    }
+
+    /* Cart items */
+    .cart-item {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 8px; 
+      right: 8px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #f00;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .row label {
+      margin-right: 5px;
+    }
+    .quantity-box {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .quantity-box button {
+      width: 30px; 
+      height: 30px;
+      cursor: pointer;
+    }
+    .btn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #005dc1;
+    }
+    .danger {
+      background: #dc3545;
+    }
+    .danger:hover {
+      background: #a71d2a;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Exemplo de forms p/ affiliateId e agentId */
+    .inline-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .inline-form label {
+      font-weight: bold;
+    }
+
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body>
 
-<!-- Cabeçalho simples -->
-<header class="bg-gray-800 text-white p-4 flex justify-between items-center">
-  <h1 class="text-xl font-bold">Tailwind Slide-over</h1>
-  <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onclick="openCart()">
-    Meu Carrinho
-  </button>
+<header>
+  <h1>Carrinho Suspenso (Sem Preço)</h1>
+  <button id="openCartBtn">Meu Carrinho</button>
 </header>
 
-<!-- CONTEÚDO (EXEMPLO DE PRODUTOS) -->
-<main class="max-w-4xl mx-auto p-4">
-  <p class="mb-4">Selecione itens e clique em "Adicionar ao Carrinho".</p>
-  
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    <!-- Produto 1 -->
-    <div class="bg-white border rounded p-4">
-      <img
-        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
-        alt="Salmon orange fabric pouch"
-        class="w-full h-48 object-cover mb-3"
-      />
-      <h2 class="text-lg font-semibold">Throwback Hip Bag</h2>
-      <p class="text-gray-500 text-sm">Salmon</p>
-      <p class="mt-2 font-medium text-gray-900">$90.00</p>
-      <label class="block mt-2 text-sm">
-        Qtd:
-        <input
-          type="number"
-          id="qtd-hipbag"
-          value="1"
-          min="1"
-          class="border rounded w-16 ml-1 p-1"
-        />
-      </label>
-      <button
-        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
-        onclick="addLocal('Throwback Hip Bag', 90, 'hipbag')"
-      >
-        Adicionar
-      </button>
-    </div>
+<main>
+  <p>Adicione alguns itens de exemplo:</p>
 
-    <!-- Produto 2 -->
-    <div class="bg-white border rounded p-4">
-      <img
-        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-02.jpg"
-        alt="Medium Stuff Satchel"
-        class="w-full h-48 object-cover mb-3"
-      />
-      <h2 class="text-lg font-semibold">Medium Stuff Satchel</h2>
-      <p class="text-gray-500 text-sm">Blue</p>
-      <p class="mt-2 font-medium text-gray-900">$32.00</p>
-      <label class="block mt-2 text-sm">
-        Qtd:
-        <input
-          type="number"
-          id="qtd-satchel"
-          value="1"
-          min="1"
-          class="border rounded w-16 ml-1 p-1"
-        />
-      </label>
-      <button
-        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
-        onclick="addLocal('Medium Stuff Satchel', 32, 'satchel')"
-      >
-        Adicionar
-      </button>
-    </div>
+  <!-- Form para adicionar um item -->
+  <div style="margin-bottom:20px; background:#fff; padding:10px; border-radius:6px;">
+    <h2>Novo Item</h2>
+    <label>Type:</label>
+    <input type="text" id="typeInput" value="Ingressos"><br><br>
 
-    <!-- Produto 3 -->
-    <div class="bg-white border rounded p-4">
-      <img
-        src="https://tailwindui.com/plus-assets/img/ecommerce-images/shopping-cart-page-04-product-03.jpg"
-        alt="Zip Tote Basket"
-        class="w-full h-48 object-cover mb-3"
-      />
-      <h2 class="text-lg font-semibold">Zip Tote Basket</h2>
-      <p class="text-gray-500 text-sm">White and black</p>
-      <p class="mt-2 font-medium text-gray-900">$140.00</p>
-      <label class="block mt-2 text-sm">
-        Qtd:
-        <input
-          type="number"
-          id="qtd-ziptote"
-          value="1"
-          min="1"
-          class="border rounded w-16 ml-1 p-1"
-        />
-      </label>
-      <button
-        class="bg-green-600 text-white px-3 py-1 rounded mt-3 hover:bg-green-700"
-        onclick="addLocal('Zip Tote Basket', 140, 'ziptote')"
-      >
-        Adicionar
-      </button>
-    </div>
+    <label>Categoria:</label>
+    <input type="text" id="categoryInput" value="Walt Disney World"><br><br>
+
+    <label>Nome e Dias:</label>
+    <input type="text" id="nameDaysInput" value="Base Tickets - 03 Dias"><br><br>
+
+    <label>Adultos:</label>
+    <input type="number" id="adultsInput" value="2" min="0" style="width:60px;">
+    <label>Crianças:</label>
+    <input type="number" id="childrenInput" value="1" min="0" style="width:60px;"><br><br>
+
+    <button class="btn" onclick="addItem()">Adicionar Item</button>
   </div>
+
+  <p>Quando você abrir o carrinho, pode compartilhar, atualizar e limpar seguindo as regras.</p>
 </main>
 
-<!-- OVERLAY (BG ESCURO) -->
-<div
-  id="cartOverlay"
-  class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-10 hidden"
-  onclick="closeCart()"
-></div>
+<!-- Overlay -->
+<div id="cartOverlay" onclick="closeCart()"></div>
 
-<!-- SLIDE-OVER (painel lateral) -->
-<div
-  id="cartPanel"
-  class="relative z-10 hidden"
-  aria-labelledby="slide-over-title"
-  role="dialog"
-  aria-modal="true"
->
-  <div class="fixed inset-0 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden">
-      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-        <!-- Conteúdo do painel -->
-        <div
-          id="cartContainer"
-          class="pointer-events-auto w-screen max-w-md bg-white shadow-xl flex flex-col slide-out"
-        >
-          <!-- Header -->
-          <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-            <div class="flex items-start justify-between">
-              <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">
-                Shopping cart
-              </h2>
-              <div class="ml-3 flex h-7 items-center">
-                <button
-                  type="button"
-                  class="-m-2 p-2 text-gray-400 hover:text-gray-500"
-                  onclick="closeCart()"
-                >
-                  <span class="sr-only">Close panel</span>
-                  <!-- Icon -->
-                  <svg
-                    class="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M6 18 18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- LISTA DE ITENS DO CARRINHO -->
-            <div class="mt-8 flow-root">
-              <ul id="cartList" role="list" class="-my-6 divide-y divide-gray-200">
-                <!-- Itens via JS -->
-              </ul>
-            </div>
-          </div>
-
-          <!-- Rodapé: Subtotal + Checkout -->
-          <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
-            <div class="flex justify-between text-base font-medium text-gray-900">
-              <p>Subtotal</p>
-              <p id="cartSubtotal">$0.00</p>
-            </div>
-            <p class="mt-0.5 text-sm text-gray-500">
-              Shipping and taxes calculated at checkout.
-            </p>
-            <div class="mt-6">
-              <a
-                href="#"
-                class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-              >
-                Checkout
-              </a>
-            </div>
-            <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
-              <p>
-                or
-                <button
-                  type="button"
-                  class="font-medium text-indigo-600 hover:text-indigo-500"
-                  onclick="closeCart()"
-                >
-                  Continue Shopping
-                  <span aria-hidden="true"> &rarr;</span>
-                </button>
-              </p>
-            </div>
-          </div>
-        </div>
-        <!-- /Painel -->
-      </div>
+<!-- Painel do carrinho -->
+<div id="cartPanel">
+  <div id="cartHeader">
+    <h2 style="margin:0;">Meu Carrinho</h2>
+    <button class="close-btn" onclick="closeCart()">X</button>
+  </div>
+  <div id="cartBody">
+    <!-- Itens irão aqui -->
+    <div id="cartItems"></div>
+  </div>
+  <div id="cartFooter">
+    <!-- Campos de affiliate/agent + botões -->
+    <div class="inline-form">
+      <label for="affiliateId">Affiliate:</label>
+      <input type="text" id="affiliateId" value="aff123">
+      <label for="agentId">Agent:</label>
+      <input type="text" id="agentId" value="agt567">
     </div>
+    <button class="btn" style="margin-top:10px;" onclick="shareCart()">Compartilhar Carrinho</button>
+    <button class="danger btn" style="margin-top:10px;" onclick="clearCartServer()">Limpar Carrinho</button>
   </div>
 </div>
 
 <script>
-  // Se quiser integrar com backend Node, ajuste:
-  // const BASE_URL = "http://localhost:3000";
+  /* Ajustar p/ seu backend Node */
+  const BASE_URL = "http://localhost:3000";
 
-  let cart = []; // [{ name, price, quantity }, ...]
+  /* Itens do carrinho local (nao salva preco) = { type, category, nameDays, adults, children } */
+  let cart = [];
+  let shareId = null; // guardamos se ja compartilhado
 
-  // Carregamento no localStorage
-  function loadCart() {
-    const stored = localStorage.getItem("tailwindCart");
-    if (stored) cart = JSON.parse(stored);
-    else cart = [];
-  }
-  function saveCart() {
-    localStorage.setItem("tailwindCart", JSON.stringify(cart));
-  }
-
-  // Renderizar carrinho no slide-over
-  function renderCart() {
-    const listEl = document.getElementById("cartList");
-    listEl.innerHTML = "";
-    let subtotal = 0;
-
-    cart.forEach((item, idx) => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
-
-      const li = document.createElement("li");
-      li.className = "flex py-6";
-      li.innerHTML = `
-        <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 flex items-center justify-center text-sm text-gray-500">
-          <span>${item.name}</span>
-        </div>
-        <div class="ml-4 flex flex-1 flex-col">
-          <div class="flex justify-between text-base font-medium text-gray-900">
-            <h3>${item.name}</h3>
-            <p class="ml-4">$${itemTotal.toFixed(2)}</p>
-          </div>
-          <p class="mt-1 text-sm text-gray-500">Qty ${item.quantity}</p>
-          <div class="flex flex-1 items-end justify-between text-sm">
-            <button class="font-medium text-indigo-600 hover:text-indigo-500" onclick="removeItem(${idx})">Remove</button>
-          </div>
-        </div>
-      `;
-      listEl.appendChild(li);
-    });
-
-    document.getElementById("cartSubtotal").textContent = "$" + subtotal.toFixed(2);
-  }
-
-  function removeItem(idx) {
-    cart.splice(idx,1);
-    saveCart();
+  /* Ao carregar, checa se tem shareId na URL ou localStorage, e carrega do server */
+  window.onload = () => {
+    const localShare = localStorage.getItem("shareId");
+    if(localShare) {
+      shareId = localShare;
+      loadCartFromServer(shareId);
+    }
+    // Se a URL tiver ?shareId=..., prioriza
+    const params = new URLSearchParams(window.location.search);
+    const paramShare = params.get("shareId");
+    if(paramShare) {
+      shareId = paramShare;
+      localStorage.setItem("shareId", shareId);
+      loadCartFromServer(shareId);
+    }
     renderCart();
-  }
+  };
 
-  function addLocal(name, price, fieldId) {
-    const qtdEl = document.getElementById("qtd-" + fieldId);
-    const q = parseInt(qtdEl.value) || 1;
-    let found = cart.find(i => i.name===name);
-    if(found) found.quantity += q;
-    else cart.push({ name, price, quantity: q });
-    saveCart();
-    renderCart();
-    openCart();
-  }
-
-  // Slide-over: abrir / fechar
+  /* ABRIR / FECHAR Carrinho */
   function openCart() {
-    document.getElementById("cartOverlay").classList.remove("hidden");
-    document.getElementById("cartPanel").classList.remove("hidden");
-    const cont = document.getElementById("cartContainer");
-    cont.classList.remove("slide-out");
-    cont.classList.add("slide-in");
+    document.getElementById("cartOverlay").style.display = "block";
+    const panel = document.getElementById("cartPanel");
+    panel.classList.add("open");
+    panel.style.display = "flex";
   }
   function closeCart() {
-    document.getElementById("cartOverlay").classList.add("hidden");
-    const cont = document.getElementById("cartContainer");
-    cont.classList.remove("slide-in");
-    cont.classList.add("slide-out");
+    document.getElementById("cartOverlay").style.display = "none";
+    const panel = document.getElementById("cartPanel");
+    panel.classList.remove("open");
+    panel.style.display = "flex"; // mantem flex pro anim
+    panel.style.transform = "translateX(100%)";
     setTimeout(()=>{
-      document.getElementById("cartPanel").classList.add("hidden");
+      panel.style.display="none";
     },300);
   }
 
-  // Exemplo se quiser "compartilhar"
-  // function shareCart() {
-  //   // Chamar POST /shareCart com 'cart'
-  // }
+  /* ADICIONAR ITEM (local) */
+  function addItem(){
+    const type = document.getElementById("typeInput").value;
+    const category = document.getElementById("categoryInput").value;
+    const nameDays = document.getElementById("nameDaysInput").value;
+    const adults = parseInt(document.getElementById("adultsInput").value)||0;
+    const children = parseInt(document.getElementById("childrenInput").value)||0;
 
-  // Onload
-  window.onload = () => {
-    loadCart();
+    const newItem = { type, category, nameDays, adults, children };
+    cart.push(newItem);
     renderCart();
-  };
-</script>
+    // se ja tem shareId => updateCart
+    updateCartServer();
+    openCart();
+  }
 
+  /* RENDERIZAR CARRINHO */
+  function renderCart(){
+    const container = document.getElementById("cartItems");
+    container.innerHTML = "";
+    cart.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "cart-item";
+
+      div.innerHTML = `
+        <button class="remove-btn" onclick="removeItem(${index})">🗑</button>
+        <p><strong>Type:</strong> ${item.type}</p>
+        <p><strong>Categoria:</strong> ${item.category}</p>
+        <p><strong>Nome/Dias:</strong> ${item.nameDays}</p>
+        <div class="row">
+          <div class="quantity-box">
+            <label>Adultos:</label>
+            <button onclick="decAdults(${index})">-</button>
+            <span>${item.adults}</span>
+            <button onclick="incAdults(${index})">+</button>
+          </div>
+          <div class="quantity-box">
+            <label>Crianças:</label>
+            <button onclick="decChildren(${index})">-</button>
+            <span>${item.children}</span>
+            <button onclick="incChildren(${index})">+</button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  /* FUNÇÕES inc/dec */
+  function incAdults(idx){
+    cart[idx].adults++;
+    renderCart();
+    updateCartServer();
+  }
+  function decAdults(idx){
+    if(cart[idx].adults>0) cart[idx].adults--;
+    renderCart();
+    updateCartServer();
+  }
+  function incChildren(idx){
+    cart[idx].children++;
+    renderCart();
+    updateCartServer();
+  }
+  function decChildren(idx){
+    if(cart[idx].children>0) cart[idx].children--;
+    renderCart();
+    updateCartServer();
+  }
+
+  /* REMOVER ITEM */
+  function removeItem(idx){
+    cart.splice(idx,1);
+    renderCart();
+    updateCartServer();
+  }
+
+  /* SHARE CART (Criar no DB) */
+  async function shareCart(){
+    if(cart.length===0){
+      alert("Carrinho vazio, adicione itens antes de compartilhar.");
+      return;
+    }
+    // Se ja existe shareId, so update
+    if(shareId){
+      alert("Carrinho ja possui shareId: "+shareId+" (basta mandar o link).");
+      return;
+    }
+    const affiliateId = document.getElementById("affiliateId").value.trim();
+    const agentId = document.getElementById("agentId").value.trim();
+    if(!affiliateId || !agentId){
+      alert("Informe affiliateId e agentId");
+      return;
+    }
+    try {
+      const resp = await fetch(`${BASE_URL}/shareCart`, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          affiliateId,
+          agentId,
+          items: cart
+        })
+      });
+      const data = await resp.json();
+      if(data.success){
+        shareId = data.shareId;
+        localStorage.setItem("shareId", shareId);
+        const shareUrl = window.location.origin+window.location.pathname+"?shareId="+shareId;
+        alert("Carrinho compartilhado!\nLink: "+shareUrl);
+      } else {
+        alert("Erro: "+ data.error);
+      }
+    } catch(err){
+      console.error(err);
+      alert("Falha ao compartilhar carrinho!");
+    }
+  }
+
+  /* updateCartServer => se shareId existe, chamamos /updateCart p/ manter item e quant */
+  async function updateCartServer(){
+    if(!shareId) return; // so atualiza se ja compartilhado
+    try {
+      const resp = await fetch(`${BASE_URL}/updateCart`, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          shareId,
+          items: cart
+        })
+      });
+      const data = await resp.json();
+      if(!data.success){
+        console.error("Erro updateCart:", data.error);
+      }
+    } catch(err){
+      console.error("Falha updateCart:",err);
+    }
+  }
+
+  /* Carrega carrinho de um shareId do server */
+  async function loadCartFromServer(sId){
+    try {
+      const resp = await fetch(`${BASE_URL}/cart/${sId}`);
+      const data = await resp.json();
+      if(!data.success){
+        console.error("Erro loadCart:", data.error);
+        return;
+      }
+      // data.items => array
+      cart = data.items; 
+      renderCart();
+    } catch(err){
+      console.error("Falha loadCart:",err);
+    }
+  }
+
+  /* Limpar Carrinho => /clearCart e localStorage */
+  async function clearCartServer(){
+    if(!shareId){
+      // Se nao temos shareId, so limpa local
+      cart = [];
+      renderCart();
+      alert("Carrinho local limpo!");
+      return;
+    }
+    try {
+      const resp = await fetch(`${BASE_URL}/clearCart`, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ shareId })
+      });
+      const data = await resp.json();
+      if(data.success){
+        alert("Carrinho removido do servidor!");
+        // zera local
+        cart = [];
+        renderCart();
+        // remove shareId
+        shareId = null;
+        localStorage.removeItem("shareId");
+      } else {
+        alert("Erro ao limpar: "+ (data.error||"desconhecido"));
+      }
+    } catch(err){
+      console.error("Falha clearCart:",err);
+    }
+  }
+
+</script>
 </body>
 </html>
