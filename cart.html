@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Card Completo</title>
+  <title>Carrinho Suspenso - Ajustes Finais</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -31,6 +31,7 @@
       flex-direction: column;
       z-index: 1000;
     }
+
     /* HEADER DO CARRINHO */
     .cart-header {
       padding: 1rem;
@@ -67,7 +68,7 @@
       color: #444;
     }
 
-    /* ITEM CARD */
+    /* CARD DO ITEM */
     .cart-item {
       background: #fff;
       border: 1px solid #ddd;
@@ -79,6 +80,7 @@
     .cart-item:hover {
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
+    /* Ícone de lixeira */
     .trash-btn {
       position: absolute;
       top: 10px; 
@@ -121,30 +123,46 @@
       color: #666;
       margin: 0.3rem 0;
     }
+    /* Ícone de calendário corrigido */
     .item-date i {
       display: inline-block;
-      width: 16px;
+      width: 16px; 
       height: 16px;
-      background: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTkgM0gxMFYxSDEyVjNMOSAzWk0yIDNIMFYxSDEyVjNIMTBWMS41QzEwIDEuMjI4IDkuNzcxIDEgOS41IDFWMC41QzkuNS4yMjkgOS4yMjggMCA5IDBIM0MwLjIyOSAwIDAgMC4yMjkgMCAwLjVWMWMwIC4yMjguMjI5IDEgLjUgMUg2LjI3QzYuMjgzIDEuMDU5IDYuMjk1IDEuMTEzIDYuMyAxLjE4OEw1LjYyMiAxLjM0NyA1IDIuN1YzWiI+PC9wYXRoPjwvc3ZnPg==') no-repeat center/contain;
+      background: url('data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUgMTUiIGZpbGw9IiM2NjYiIHdpZHRoPSIxNXB4IiBoZWlnaHQ9IjE1cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHRpdGxlPkNhbGVuZGFyPC90aXRsZT48cGF0aCBkPSJNMTQuNCAyLjc1aC0uNXYtLjZhLjYyLjYyIDAgMCAwLTEuMjQgMHYuNmgtMmEuNjIuNjIgMCAwIDAgLjA3LjI2bC4zOC44NmgtOC4xN2wuMzgtLjg2YS42Mi42MiAwIDAgMCAuMDctLjI2aC0ydi0uNmEuNjIuNjIgMCAwIDAtMS4yNCAwdi42aC0uN1Y0YTQuMjIuMjIgMCAwIDAtLjItLjczQS42Mi42MiAwIDAgMCAwIDMuNDVoMTVhLjYyLjYyIDAgMCAwLS4yLS43M3oiLz48cGF0aCBkPSJNMS4zNSA0LjQyYTEuMjIuMjIgMCAwIDEgLjIuMDNIMTMuNWEuNjIuNjIgMCAwIDEgLjYyLjYyVjE0YS42Mi42MiAwIDAgMS0uNjIuNjJIMi4wN2EuNjIuNjIgMCAwIDEtLjYyLS42MlY1LjA1Yy4wLS4xMS4wNi0uMjIuMTIuMzdsLjM4Ljg2SDIuNTNhLjYyLjYyIDAgMCAwIC42Mi0uNjJsLjItLjg5eiIvPjwvc3ZnPg==') no-repeat center/contain;
+      background-size: contain;
     }
 
-    /* Crianças/Adultos com ícones e divisória, +/– no meio (horizontal) */
+    /* Container para Crianças e Adultos */
     .item-quantities {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       margin-top: 0.5rem;
-      font-size: 0.8rem;
-      color: #666;
       position: relative;
+      display: flex;
+      align-items: flex-start; 
+      justify-content: space-between;
     }
-    .quant-block {
+    /* Lado esquerdo: labels e ícones em cima, quantidades e botões embaixo */
+    .quantities-left {
+      display: flex;
+      gap: 20px;
+    }
+    .quant-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .quant-label {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #666;
+      text-transform: capitalize;
     }
     .icon-child, .icon-adult {
-      width:16px; height:16px;
+      width:16px; 
+      height:16px;
       background-repeat: no-repeat;
       background-position: center;
       background-size: contain;
@@ -155,13 +173,8 @@
     .icon-adult {
       background-image: url('data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3oiPjwvcGF0aD48L3N2Zz4=');
     }
-    .divider {
-      width: 1px;
-      background: #ccc;
-      height: 30px;
-      margin: 0 8px;
-    }
-    .quant-box {
+    /* Botoes +/– com qtd no meio (horizontal) */
+    .plusminus-row {
       display: flex;
       align-items: center;
       gap: 4px;
@@ -274,56 +287,62 @@
 
 <!-- CARRINHO FIXO NA DIREITA -->
 <div class="cart-container">
-  <!-- HEADER DO CARRINHO -->
+  <!-- HEADER -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
     <span class="timer-info" id="timerValue">01:02</span>
   </div>
 
-  <!-- CORPO DO CARRINHO -->
+  <!-- CORPO -->
   <div class="cart-body">
     <div class="section-title">Ingressos</div>
 
     <!-- CARD DO ITEM -->
     <div class="cart-item">
-      <!-- Ícone de lixeira -->
       <button class="trash-btn" onclick="removeItem()">🗑</button>
-      <!-- Tag e Título -->
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data (com ícone) -->
+      <!-- Data com ícone de calendário corrigido -->
       <div class="item-date">
         <i></i>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos, cada um com ícone e divisória, +/– horizontal -->
+      <!-- Crianças e Adultos, com ícones, divisória, e +/– horizontal -->
       <div class="item-quantities">
-        <!-- BLOCO CRIANÇAS -->
-        <div class="quant-block">
-          <span class="icon-child"></span>
-          <div class="quant-box">
-            <button class="plusminus-btn" onclick="decChildren()">-</button>
-            <span id="childCount">0</span>
-            <button class="plusminus-btn" onclick="incChildren()">+</button>
+        <div class="quantities-left">
+          <!-- Crianças -->
+          <div class="quant-column">
+            <div class="quant-label">
+              <span class="icon-child"></span>
+              <span>Crianças</span>
+            </div>
+            <div class="plusminus-row">
+              <button class="plusminus-btn" onclick="decChildren()">-</button>
+              <span id="childCount">0</span>
+              <button class="plusminus-btn" onclick="incChildren()">+</button>
+            </div>
+          </div>
+
+          <!-- Divisória vertical -->
+          <div class="divider"></div>
+
+          <!-- Adultos -->
+          <div class="quant-column">
+            <div class="quant-label">
+              <span class="icon-adult"></span>
+              <span>Adultos</span>
+            </div>
+            <div class="plusminus-row">
+              <button class="plusminus-btn" onclick="decAdults()">-</button>
+              <span id="adultCount">1</span>
+              <button class="plusminus-btn" onclick="incAdults()">+</button>
+            </div>
           </div>
         </div>
 
-        <!-- DIVISÓRIA VERTICAL -->
-        <div class="divider"></div>
-
-        <!-- BLOCO ADULTOS -->
-        <div class="quant-block">
-          <span class="icon-adult"></span>
-          <div class="quant-box">
-            <button class="plusminus-btn" onclick="decAdults()">-</button>
-            <span id="adultCount">1</span>
-            <button class="plusminus-btn" onclick="incAdults()">+</button>
-          </div>
-        </div>
-
-        <!-- PREÇO E 10X SEM JUROS -->
+        <!-- Preço e 10x no canto inferior direito -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -331,7 +350,7 @@
       </div>
     </div>
 
-    <!-- SUBTOTAL / DESCONTO / TOTAL -->
+    <!-- Subtotal, desconto, total -->
     <div class="price-line">
       <span>Subtotal</span>
       <span id="subtotalValue">R$ 100,00</span>
@@ -347,7 +366,7 @@
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- RODAPÉ DO CARRINHO -->
+  <!-- RODAPÉ -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -361,20 +380,18 @@
 </div>
 
 <script>
-  /* 
-    CÓDIGO COMPLETO: 
+  /*
+    Código completo:
     - shareCart => POST /shareCart
     - updateCartServer => POST /updateCart
     - loadCartFromServer => GET /cart/:shareId
     - clearCartServer => POST /clearCart
     - Lê/Escreve shareId no localStorage
-    - 1 item local (se quiser vários, faça array)
+    - 1 item local
   */
-
   const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend
   let shareId = null;
 
-  // Único item
   let item = {
     children: 0,
     adults: 1,
@@ -383,7 +400,7 @@
     basePriceChild: 60
   };
 
-  // Ao carregar, checa localStorage e ?shareId
+  // Ao carregar, checa shareId no localStorage e ?shareId
   window.onload = () => {
     const stored = localStorage.getItem("shareId");
     if(stored){
@@ -402,22 +419,22 @@
 
   // Render local
   function renderItem(){
-    // Exibe quantidades
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
-    // Calcula preco local
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-    // Exibe no canto
-    document.getElementById("priceVal").innerHTML = 
+    // Exibe preço + "10x sem juros"
+    document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    // Subtotal, desconto=0, total
-    document.getElementById("subtotalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    // Subtotal = totalItem, desconto=0, total= totalItem
+    document.getElementById("subtotalValue").textContent =
+      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent = "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById("totalValue").textContent =
+      "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
   }
 
-  // +/– Crianças
+  // Botões +/-
   function incChildren(){
     item.children++;
     renderItem();
@@ -428,8 +445,6 @@
     renderItem();
     updateCartServer();
   }
-
-  // +/– Adultos
   function incAdults(){
     item.adults++;
     renderItem();
@@ -443,14 +458,14 @@
 
   // Remover item
   function removeItem(){
-    item.children=0; 
+    item.children=0;
     item.adults=0;
     renderItem();
     updateCartServer();
-    alert("Item removido.");
+    alert("Item removido");
   }
 
-  // SHARE CART => se shareId não existe => /shareCart
+  // shareCart => se shareId não existe => POST /shareCart
   async function shareCart(){
     if(item.adults===0 && item.children===0){
       alert("Item vazio, nada a compartilhar!");
@@ -485,18 +500,18 @@
       if(data.success){
         shareId = data.shareId;
         localStorage.setItem("shareId", shareId);
-        const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
+        const link = window.location.origin + window.location.pathname + "?shareId="+shareId;
         alert("Carrinho compartilhado!\n"+link);
       } else {
         alert("Erro ao compartilhar: "+(data.error||"desconhecido"));
       }
-    } catch(err){
-      console.error(err);
+    } catch(e){
+      console.error(e);
       alert("Falha ao compartilhar carrinho!");
     }
   }
 
-  // UPDATE CART => se shareId => /updateCart
+  // updateCart => se shareId => POST /updateCart
   async function updateCartServer(){
     if(!shareId) return;
     const items = [{
@@ -517,12 +532,12 @@
       if(!data.success){
         console.error("Erro updateCart:", data.error);
       }
-    } catch(err){
-      console.error(err);
+    } catch(e){
+      console.error(e);
     }
   }
 
-  // LOAD CART => se shareId => GET /cart/:shareId
+  // loadCartFromServer => GET /cart/:shareId
   async function loadCartFromServer(sId){
     try {
       const resp = await fetch(`${BASE_URL}/cart/${sId}`);
@@ -538,15 +553,15 @@
         item.date = i.date;
       }
       renderItem();
-    } catch(err){
-      console.error(err);
+    } catch(e){
+      console.error(e);
     }
   }
 
-  // CLEAR CART => se shareId => POST /clearCart
+  // clearCartServer => se shareId => POST /clearCart
   async function clearCartServer(){
     if(!shareId){
-      item.adults=0; 
+      item.adults=0;
       item.children=0;
       renderItem();
       alert("Carrinho local limpo!");
@@ -561,7 +576,7 @@
       const data = await resp.json();
       if(data.success){
         alert("Carrinho removido do servidor!");
-        item.adults=0; 
+        item.adults=0;
         item.children=0;
         renderItem();
         shareId=null;
@@ -569,8 +584,8 @@
       } else {
         alert("Erro ao limpar: "+(data.error||"desconhecido"));
       }
-    } catch(err){
-      console.error(err);
+    } catch(e){
+      console.error(e);
     }
   }
 </script>
