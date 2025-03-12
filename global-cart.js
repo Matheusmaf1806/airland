@@ -3,12 +3,13 @@
 // URL base do seu backend
 const BASE_URL = "http://localhost:3000";
 
-// Obtenha affiliateId e agentId da sessão (injetados via template, por exemplo)
+// Obtenha affiliateId e agentId (pode ser injetado via template ou definido como padrão)
 const affiliateId = window.affiliateId || "default_affiliate";
 const agentId = window.agentId || "default_agent";
 
-// Array para armazenar os itens adicionados
+// Array para armazenar os itens adicionados ao carrinho
 let cartItems = [];
+
 // Variável para armazenar o shareId retornado pelo servidor
 let shareId = null;
 
@@ -19,6 +20,8 @@ function openCart() {
   const cartContainer = document.querySelector('.cart-container');
   if (cartContainer) {
     cartContainer.classList.add('open');
+    // Se preferir, você pode ajustar o estilo diretamente:
+    // cartContainer.style.transform = "translateX(0)";
   }
 }
 
@@ -29,20 +32,21 @@ function closeCart() {
   const cartContainer = document.querySelector('.cart-container');
   if (cartContainer) {
     cartContainer.classList.remove('open');
+    // cartContainer.style.transform = "translateX(100%)";
   }
 }
 
 /**
  * Adiciona um item ao carrinho, atualiza o localStorage, renderiza os itens,
  * atualiza o carrinho no servidor (se necessário) e abre o carrinho.
- * @param {Object} item - Objeto com informações do item (ex: {name, category, date, price})
+ * @param {Object} item - Objeto com informações do item (ex: {name, category, date, price, adults, children})
  */
 function addItemToCart(item) {
   cartItems.push(item);
   localStorage.setItem("cartItems", JSON.stringify(cartItems));
   renderCartItems();
   updateCartServer(); // Se já houver shareId, atualiza o carrinho no servidor
-  openCart(); // Abre o carrinho no canto direito
+  openCart(); // Abre o painel do carrinho
 }
 
 /**
@@ -52,7 +56,7 @@ function renderCartItems() {
   const cartBody = document.querySelector('.cart-body');
   if (!cartBody) return;
   
-  // Limpa o conteúdo e adiciona a linha de título
+  // Reinicia o conteúdo com a linha de título
   cartBody.innerHTML = `
     <div class="section-line">
       <span class="section-title">Itens</span>
@@ -60,7 +64,7 @@ function renderCartItems() {
     </div>
   `;
   
-  // Adiciona cada item do array no HTML
+  // Para cada item, adiciona o HTML correspondente
   cartItems.forEach((item, index) => {
     cartBody.innerHTML += `
       <div class="cart-item" data-index="${index}">
@@ -82,12 +86,11 @@ function renderCartItems() {
     `;
   });
   
-  // Atualiza os totais
   updateTotals();
 }
 
 /**
- * Formata o valor para o padrão de preço brasileiro.
+ * Formata um valor para o padrão de preço brasileiro.
  */
 function formatPrice(value) {
   return "R$ " + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -104,12 +107,12 @@ function removeItem(index) {
 }
 
 /**
- * Calcula e atualiza os totais (subtotal, desconto e total) do carrinho.
+ * Calcula e atualiza os totais do carrinho.
  */
 function updateTotals() {
   let subtotal = 0;
   cartItems.forEach(item => {
-    subtotal += item.price; // Considerando que "price" já é o valor total do item
+    subtotal += item.price; // Considerando que o preço já é o valor total do item
   });
   
   const subtotalEl = document.getElementById("subtotalValue");
@@ -161,7 +164,7 @@ async function shareCart() {
 }
 
 /**
- * Atualiza o carrinho no servidor, se o shareId já estiver definido.
+ * Atualiza o carrinho no servidor (se shareId já existir).
  */
 async function updateCartServer() {
   if (!shareId) return;
@@ -186,7 +189,38 @@ async function updateCartServer() {
 }
 
 /**
- * Limpa o carrinho tanto localmente quanto no servidor.
+ * Carrega o carrinho do servidor (GET /cart/:shareId).
+ */
+async function loadCartFromServer(sId) {
+  try {
+    const response = await fetch(`${BASE_URL}/cart/${sId}`);
+    const data = await response.json();
+    if (!data.success) {
+      console.error("Erro ao carregar carrinho:", data.error);
+      return;
+    }
+    if (data.items.length > 0) {
+      const i = data.items[0];
+      // Atualiza o item local com os dados do servidor
+      // Note: aqui esperamos que os itens tenham propriedades: adults, children, date, price, etc.
+      // Se o servidor não armazenar o preço, você pode calcular o preço com base em preços atuais.
+      // Neste exemplo, usamos os dados carregados.
+      item = {
+        adults: i.adults,
+        children: i.children,
+        date: i.date,
+        basePriceAdult: 80, // ou atualize conforme necessário
+        basePriceChild: 60
+      };
+    }
+    renderItem();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Limpa o carrinho no servidor e localmente.
  */
 async function clearCartServer() {
   if (!shareId) {
