@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Ícones Uniformes</title>
+  <title>Carrinho Suspenso - Ajustes (Compartilhar/ Limpar / Cupom)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -21,7 +21,7 @@
     /* CARRINHO FIXO NA DIREITA */
     .cart-container {
       position: fixed;
-      top: 0;
+      top: 0; 
       right: 0;
       width: 380px;
       height: 100vh;
@@ -31,7 +31,8 @@
       flex-direction: column;
       z-index: 1000;
     }
-    /* HEADER */
+
+    /* HEADER (Título + Botão Compartilhar) */
     .cart-header {
       padding: 1rem;
       border-bottom: 1px solid #eee;
@@ -41,30 +42,53 @@
     }
     .cart-header h2 {
       margin: 0;
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
     }
-    .timer-info {
+    .share-cart-btn {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 0.4rem 0.8rem;
       font-size: 0.75rem;
-      color: #2a942f;
-      background: #ebfaeb;
-      border: 1px solid #c8eac7;
-      border-radius: 6px;
-      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .share-cart-btn:hover {
+      background: #005bb5;
     }
 
-    /* CORPO */
+    /* CORPO DO CARRINHO */
     .cart-body {
       flex: 1;
       overflow-y: auto;
       padding: 1rem;
       background: #fafafa;
     }
+
+    /* Linha com “Ingressos” e “Limpar Carrinho” */
+    .section-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
     .section-title {
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
       color: #444;
+    }
+    .clear-cart-btn {
+      background: none;
+      border: none;
+      color: #d93025;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .clear-cart-btn:hover {
+      color: #b0241a;
     }
 
     /* CARD DO ITEM */
@@ -79,7 +103,7 @@
     .cart-item:hover {
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-    /* Ícone de lixeira */
+    /* Ícone de lixeira (remover item) */
     .trash-btn {
       position: absolute;
       top: 10px; 
@@ -122,7 +146,7 @@
       vertical-align: middle;
     }
 
-    /* DATA COM ÍCONE DE CALENDÁRIO => tbm .icon para uniformizar */
+    /* DATA COM ÍCONE DE CALENDÁRIO => tbm .icon p/ 16×16, fill #666 */
     .item-date {
       display: flex;
       align-items: center;
@@ -183,7 +207,7 @@
       margin-top: 8px;
     }
 
-    /* PREÇO NO CANTO INFERIOR DIREITO + “até 10x sem juros” em azul + “5% OFF no Pix” em verde */
+    /* PREÇO NO CANTO INFERIOR DIREITO + “até 10x sem juros” e “5% OFF no Pix” */
     .item-price {
       position: absolute;
       right: 0.1rem;
@@ -204,6 +228,27 @@
       margin-top: 2px;
     }
 
+    /* CUPOM DE DESCONTO */
+    .coupon-section {
+      margin-bottom: 1rem;
+    }
+    .coupon-section label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #555;
+    }
+    .coupon-section input {
+      width: 100%;
+      height: 32px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
     /* SUBTOTAL, DESCONTO, TOTAL */
     .price-line {
       display: flex;
@@ -221,6 +266,8 @@
       font-weight: 600;
       margin: 0.5rem 0 1rem;
     }
+
+    /* BOTÃO FINAL */
     .checkout-btn {
       width: 100%;
       background: #35b473;
@@ -235,61 +282,25 @@
     .checkout-btn:hover {
       background: #2d9e64;
     }
-
-    /* RODAPÉ DO CARRINHO */
-    .cart-footer {
-      border-top: 1px solid #eee;
-      padding: 1rem;
-      background: #fff;
-    }
-    .footer-actions {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    .footer-actions input {
-      flex: 1;
-      min-width: 0;
-      padding: 0.3rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 0.85rem;
-    }
-    .footer-actions .btn-mini {
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.75rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .footer-actions .btn-mini:hover {
-      background: #005bb5;
-    }
-    .footer-actions .btn-mini-danger {
-      background: #d93025;
-    }
-    .footer-actions .btn-mini-danger:hover {
-      background: #b0241a;
-    }
   </style>
 </head>
 <body>
 
 <div class="cart-container">
-  <!-- HEADER DO CARRINHO -->
+
+  <!-- HEADER: Título + Botão "Compartilhar Carrinho" -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
-    <span class="timer-info" id="timerValue">01:02</span>
+    <button class="share-cart-btn" onclick="shareCart()">Compartilhar Carrinho</button>
   </div>
 
   <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
-    <div class="section-title">Ingressos</div>
+    <!-- Linha com "Ingressos" e "Limpar Carrinho" -->
+    <div class="section-line">
+      <span class="section-title">Ingressos</span>
+      <button class="clear-cart-btn" onclick="clearCartServer()">Limpar Carrinho</button>
+    </div>
 
     <!-- CARD DO ITEM -->
     <div class="cart-item">
@@ -297,9 +308,9 @@
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data com ícone de calendário (classe .icon) -->
+      <!-- Data com ícone de calendário -->
       <div class="item-date">
-        <svg class="icon calendar-icon" viewBox="0 0 16 16">
+        <svg class="icon" viewBox="0 0 16 16">
           <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 
 1 0V1h.5A1.5 1.5 0 0 1 15 
 2.5v11A1.5 1.5 0 0 1 13.5 
@@ -315,14 +326,13 @@
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos, cada um com ícone, divisória, +/– horizontal -->
+      <!-- Crianças e Adultos -->
       <div class="item-quantities">
         <div class="quantities-left">
           <!-- Crianças -->
           <div class="quant-column">
             <div class="quant-label">
-              <!-- Ícone de criança => classe .icon p/ 16×16, fill #666 -->
-              <svg class="icon" id="Icons_Baby" viewBox="0 0 96 96">
+              <svg class="icon" viewBox="0 0 96 96">
                 <circle cx="48" cy="20.5" r="12.5"/>
                 <path d="M57 62.5C57 62.6 57 62.7 57 62.8C53.5 63.1 50.9 66 51 69.5C51 70.5 51.3 71.5 51.8 72.3C50.7 72.7 49.3 72.9 47.8 72.9C46.2 72.9 44.9 72.7 43.9 72.3C45.4 70.1 45.4 67.1 43.8 64.8C42.6 63.2 40.9 62.2 39 62L39 60L57 60L57 62.5ZM76.2 44.2L59 35.2C58.6 35.1 58.2 35 57.8 35L39 35C38.5 35 38.1 35.1 37.6 35.2L19.6 45.2C17.5 46 16.5 48.3 17.2 50.3C17.8 52 19.4 53 21 53C21.5 53 21.9 52.9 22.4 52.8L35 46.2C35 46.2 35 62.7 35 63C34.8 63.1 26.8 68.7 26.8 68.7C25.1 69.9 24.6 72.3 25.7 74.1L32.7 85.1C33.9 87 36.4 87.5 38.2 86.3C40 85.1 40.6 82.6 39.4 80.8L36 75.3L38.2 75.3C38.9 75.3 39.6 75.2 40.3 75C42.1 76.2 44.5 76.9 47.7 76.9C50.7 76.9 53.1 76.2 55 75.2C55.8 75.6 56.8 75.7 57.8 75.7L59.6 75.6L56 80.6C54.7 82.4 55.1 84.9 56.9 86.2C58.7 87.5 61.2 87.1 62.5 85.3L70.5 74.3C70.6 74.2 70.7 74.1 70.7 73.9C71.8 72 71.1 69.5 69.2 68.4L61 63.8C61 63.4 61 45.8 61 45.8L73.8 51.9C74.2 52 74.6 52.1 75 52.1C76.7 52.1 78.3 51 78.8 49.3C79.5 47.1 78.3 44.9 76.2 44.2Z"/>
               </svg>
@@ -334,28 +344,25 @@
               <button class="plusminus-btn" onclick="incChildren()">+</button>
             </div>
           </div>
-
-          <!-- Divisória vertical -->
+          <!-- Divisória -->
           <div class="divider"></div>
-
           <!-- Adultos -->
           <div class="quant-column">
             <div class="quant-label">
-              <!-- Ícone de adulto => classe .icon p/ 16×16, fill #666 -->
-              <svg class="icon" version="1.1" id="Capa_1" viewBox="0 0 575.28 575.28">
+              <svg class="icon" viewBox="0 0 575.28 575.28">
                 <path d="M290.088,230.112c-15.912,0-30.906-2.958-44.982-8.874c-14.076-5.916-26.316-14.076-36.72-24.48
-	c-10.404-10.404-18.564-22.644-24.48-36.72c-5.916-14.076-8.874-29.07-8.874-44.982s2.958-30.804,8.874-44.676
-	c5.916-13.872,14.076-26.01,24.48-36.414S231.03,15.3,245.106,9.18C259.182,3.06,274.176,0,290.088,0s30.804,3.06,44.676,9.18
-	s26.01,14.382,36.414,24.786s18.666,22.542,24.786,36.414s9.18,28.764,9.18,44.676s-3.06,30.906-9.18,44.982
-	s-14.382,26.316-24.786,36.72s-22.542,18.564-36.414,24.48S306,230.112,290.088,230.112z M383.112,253.98
-	c21.216,0,39.678,4.182,55.386,12.546c15.708,8.364,28.56,19.278,38.556,32.742s17.442,28.864,22.338,46.206
-	c4.896,17.34,7.345,34.983,7.345,52.938v167.076c0,6.528-3.265,9.792-9.791,9.792h-60.59c-6.525,0-9.792-3.264-9.792-9.792
-	V419.832c0-2.854-1.122-5.916-3.363-9.18c-2.244-3.264-5.814-4.896-10.71-4.896s-8.469,1.635-10.71,4.896
-	c-2.244,3.264-3.366,6.324-3.366,9.18v145.656c0,2.856-1.021,5.202-3.063,7.038s-4.485,2.754-7.344,2.754H185.436
-	c-6.528,0-9.792-3.264-9.792-9.792V419.832c0-2.854-0.918-5.916-2.754-9.18s-5.61-4.896-11.322-4.896s-9.486,1.635-11.322,4.896
-	c-1.836,3.264-2.754,6.324-2.754,9.18v145.656c0,2.856-1.02,5.202-3.06,7.038c-2.04,1.836-4.488,2.754-7.344,2.754h-58.14
-	c-6.936,0-10.404-3.264-10.404-9.792V398.412c0-17.952,2.448-35.598,7.344-52.938c4.896-17.343,12.444-32.742,22.644-46.206
-	s23.052-24.378,38.556-32.742s34.068-12.546,55.692-12.546h97.308H383.112L383.112,253.98z"/>
+  c-10.404-10.404-18.564-22.644-24.48-36.72c-5.916-14.076-8.874-29.07-8.874-44.982s2.958-30.804,8.874-44.676
+  c5.916-13.872,14.076-26.01,24.48-36.414S231.03,15.3,245.106,9.18C259.182,3.06,274.176,0,290.088,0s30.804,3.06,44.676,9.18
+  s26.01,14.382,36.414,24.786s18.666,22.542,24.786,36.414s9.18,28.764,9.18,44.676s-3.06,30.906-9.18,44.982
+  s-14.382,26.316-24.786,36.72s-22.542,18.564-36.414,24.48S306,230.112,290.088,230.112z M383.112,253.98
+  c21.216,0,39.678,4.182,55.386,12.546c15.708,8.364,28.56,19.278,38.556,32.742s17.442,28.864,22.338,46.206
+  c4.896,17.34,7.345,34.983,7.345,52.938v167.076c0,6.528-3.265,9.792-9.791,9.792h-60.59c-6.525,0-9.792-3.264-9.792-9.792
+  V419.832c0-2.854-1.122-5.916-3.363-9.18c-2.244-3.264-5.814-4.896-10.71-4.896s-8.469,1.635-10.71,4.896
+  c-2.244,3.264-3.366,6.324-3.366,9.18v145.656c0,2.856-1.021,5.202-3.063,7.038s-4.485,2.754-7.344,2.754H185.436
+  c-6.528,0-9.792-3.264-9.792-9.792V419.832c0-2.854-0.918-5.916-2.754-9.18s-5.61-4.896-11.322-4.896s-9.486,1.635-11.322,4.896
+  c-1.836,3.264-2.754,6.324-2.754,9.18v145.656c0,2.856-1.02,5.202-3.06,7.038c-2.04,1.836-4.488,2.754-7.344,2.754h-58.14
+  c-6.936,0-10.404-3.264-10.404-9.792V398.412c0-17.952,2.448-35.598,7.344-52.938c4.896-17.343,12.444-32.742,22.644-46.206
+  s23.052-24.378,38.556-32.742s34.068-12.546,55.692-12.546h97.308H383.112L383.112,253.98z"/>
               </svg>
               <span>Adultos</span>
             </div>
@@ -376,6 +383,12 @@
       </div>
     </div>
 
+    <!-- Campo de cupom acima do subtotal -->
+    <div class="coupon-section">
+      <label for="couponInput">Cupom de Desconto</label>
+      <input type="text" id="couponInput" placeholder="Ex: DESCONTO10">
+    </div>
+
     <!-- Subtotal, desconto, total -->
     <div class="price-line">
       <span>Subtotal</span>
@@ -389,19 +402,9 @@
       <span>Total do pedido</span>
       <span id="totalValue">R$ 160,00</span>
     </div>
-    <button class="checkout-btn">Ir para o checkout</button>
-  </div>
 
-  <!-- RODAPÉ DO CARRINHO -->
-  <div class="cart-footer">
-    <div class="footer-actions">
-      <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
-      <input type="text" id="agentId" value="agt567" placeholder="Agent">
-    </div>
-    <div class="footer-actions">
-      <button class="btn-mini" onclick="shareCart()">Compartilhar</button>
-      <button class="btn-mini btn-mini-danger" onclick="clearCartServer()">Limpar</button>
-    </div>
+    <!-- Botão final -->
+    <button class="checkout-btn">Ir para o checkout</button>
   </div>
 </div>
 
@@ -414,9 +417,8 @@
     - clearCartServer => POST /clearCart
     - Lê/Escreve shareId no localStorage
     - 1 item local
-    - Exibe quantidades como "01", "02", etc. via padStart(2,'0')
-    - Exibe "5% OFF no Pix" abaixo de "até 10x sem juros"
-    - Ícones todos .icon => 16×16, fill #666
+    - "Compartilhar Carrinho" no topo, "Limpar Carrinho" na linha de "Ingressos"
+    - Campo de cupom acima de Subtotal
   */
   const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node
   let shareId = null;
@@ -426,8 +428,8 @@
     children: 0,
     adults: 1,
     date: "2025-04-12",
-    basePriceAdult: 80, // Ajuste conforme desejar
-    basePriceChild: 60  // Ajuste conforme desejar
+    basePriceAdult: 80,
+    basePriceChild: 60
   };
 
   // Ao carregar, checa shareId no localStorage e ?shareId
@@ -449,7 +451,7 @@
 
   // Render local
   function renderItem(){
-    // Exibe quantidades como "01", "02", etc
+    // Exibe quantidades como "01", "02" etc
     const childStr = item.children.toString().padStart(2, '0');
     const adultStr = item.adults.toString().padStart(2, '0');
 
@@ -457,8 +459,7 @@
     document.getElementById("adultCount").textContent = adultStr;
 
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-
-    // Exibe preço e "até 10x sem juros" em azul + "5% OFF no Pix" em verde
+    // Exibe preço e "até 10x sem juros" + "5% OFF no Pix"
     document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>
@@ -496,7 +497,7 @@
 
   // Remover item
   function removeItem(){
-    item.children=0;
+    item.children=0; 
     item.adults=0;
     renderItem();
     updateCartServer();
@@ -506,20 +507,17 @@
   // shareCart => se shareId não existe => POST /shareCart
   async function shareCart(){
     if(item.adults===0 && item.children===0){
-      alert("Item vazio, nada a compartilhar!");
+      alert("Carrinho vazio, não há o que compartilhar!");
       return;
     }
     if(shareId){
-      alert("Carrinho já possui shareId: "+shareId);
+      alert("Carrinho já possui shareId: " + shareId);
       return;
     }
-    const affiliateId = document.getElementById("affiliateId").value.trim();
-    const agentId = document.getElementById("agentId").value.trim();
-    if(!affiliateId || !agentId){
-      alert("Informe affiliateId e agentId!");
-      return;
-    }
-    // Mandamos array c/ 1 item sem preço
+    // Ajuste se quiser "Affiliate" e "Agent" etc. (removido para simplificar)
+    const affiliateId = "aff123";
+    const agentId = "agt567";
+
     const items = [{
       type: "INGRESSOS",
       category: "WALT DISNEY WORLD",
@@ -538,10 +536,10 @@
       if(data.success){
         shareId = data.shareId;
         localStorage.setItem("shareId", shareId);
-        const link = window.location.origin + window.location.pathname + "?shareId="+shareId;
-        alert("Carrinho compartilhado!\n"+link);
+        const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
+        alert("Carrinho compartilhado!\n" + link);
       } else {
-        alert("Erro ao compartilhar: "+(data.error||"desconhecido"));
+        alert("Erro ao compartilhar: " + (data.error||"desconhecido"));
       }
     } catch(e){
       console.error(e);
@@ -599,6 +597,7 @@
   // clearCartServer => se shareId => POST /clearCart
   async function clearCartServer(){
     if(!shareId){
+      // Limpa local
       item.adults=0; 
       item.children=0;
       renderItem();
@@ -620,7 +619,7 @@
         shareId=null;
         localStorage.removeItem("shareId");
       } else {
-        alert("Erro ao limpar: "+(data.error||"desconhecido"));
+        alert("Erro ao limpar: " + (data.error||"desconhecido"));
       }
     } catch(e){
       console.error(e);
