@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Ícones e Divisória</title>
+  <title>Carrinho Suspenso - Ajustado Final</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -21,7 +21,8 @@
     /* CARRINHO FIXO NA DIREITA */
     .cart-container {
       position: fixed;
-      top: 0; right: 0;
+      top: 0;
+      right: 0;
       width: 380px;
       height: 100vh;
       background: #fff;
@@ -30,6 +31,7 @@
       flex-direction: column;
       z-index: 1000;
     }
+
     /* HEADER */
     .cart-header {
       padding: 1rem;
@@ -78,6 +80,7 @@
     .cart-item:hover {
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
+    /* Ícone de lixeira */
     .trash-btn {
       position: absolute;
       top: 10px; 
@@ -92,6 +95,8 @@
     .trash-btn:hover {
       color: #e00;
     }
+
+    /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
       background: #ffefcc;
@@ -110,32 +115,30 @@
       font-size: 0.9rem;
     }
 
-    /* DATA COM ÍCONE DE CALENDÁRIO */
+    /* Data com ícone */
     .item-date {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       font-size: 0.8rem;
       color: #666;
-      margin: 0.3rem 0;
+      margin: 0.4rem 0;
     }
-    .calendar-icon {
+    .item-date img {
       width: 16px;
       height: 16px;
-      vertical-align: middle;
     }
 
-    /* CRIANÇAS E ADULTOS, LADO A LADO, DIVISÓRIA, ÍCONES, BOTOES +/– */
+    /* CRIANÇAS E ADULTOS, DIVISÓRIA, BOTOES +/–, ETC. */
     .item-quantities {
-      margin-top: 0.5rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      margin-top: 0.4rem;
       position: relative;
+      justify-content: space-between;
     }
     .quantities-left {
       display: flex;
-      align-items: flex-start;
       gap: 20px;
     }
     .quant-column {
@@ -155,7 +158,6 @@
     }
     .quant-label img {
       width:16px; height:16px;
-      vertical-align: middle;
     }
     .plusminus-row {
       display: flex;
@@ -163,7 +165,7 @@
       gap: 4px;
     }
     .plusminus-btn {
-      width: 24px; 
+      width: 24px;
       height: 24px;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -181,7 +183,7 @@
       margin-top: 8px;
     }
 
-    /* PREÇO NO CANTO INFERIOR + “até 10x sem juros” */
+    /* PREÇO NO CANTO INFERIOR DIREITO + “até 10x sem juros” em azul */
     .item-price {
       position: absolute;
       right: 1rem;
@@ -193,7 +195,7 @@
     }
     .installment-info {
       font-size: 0.7rem;
-      color: #999;
+      color: #007bff; /* azul */
       margin-top: 2px;
     }
 
@@ -273,14 +275,15 @@
 </head>
 <body>
 
+<!-- CARRINHO FIXO NA DIREITA -->
 <div class="cart-container">
-  <!-- HEADER DO CARRINHO -->
+  <!-- HEADER -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
     <span class="timer-info" id="timerValue">01:02</span>
   </div>
 
-  <!-- CORPO DO CARRINHO -->
+  <!-- CORPO -->
   <div class="cart-body">
     <div class="section-title">Ingressos</div>
 
@@ -300,13 +303,13 @@
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos com nomes e ícones acima, +/– no meio, divisória -->
+      <!-- Crianças e Adultos, cada um com ícone e nome acima, +/–, e divisória -->
       <div class="item-quantities">
         <div class="quantities-left">
           <!-- Crianças -->
           <div class="quant-column">
             <div class="quant-label">
-              <img 
+              <img
                 src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==" 
                 alt="Crianças" 
                 style="width:16px; height:16px;"
@@ -320,7 +323,7 @@
             </div>
           </div>
 
-          <!-- Divisória -->
+          <!-- Divisória vertical -->
           <div class="divider"></div>
 
           <!-- Adultos -->
@@ -341,7 +344,7 @@
           </div>
         </div>
 
-        <!-- PREÇO no canto inferior direito -->
+        <!-- PREÇO E 10x EM AZUL -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -349,7 +352,7 @@
       </div>
     </div>
 
-    <!-- SUBTOTAL / DESCONTO / TOTAL -->
+    <!-- Subtotal, desconto, total -->
     <div class="price-line">
       <span>Subtotal</span>
       <span id="subtotalValue">R$ 100,00</span>
@@ -421,11 +424,9 @@
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
-    // Exibe preço
     document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
-    // Subtotal, desconto=0, total
     document.getElementById("subtotalValue").textContent =
       "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
@@ -457,14 +458,14 @@
 
   // Remover item
   function removeItem(){
-    item.children=0; 
+    item.children=0;
     item.adults=0;
     renderItem();
     updateCartServer();
     alert("Item removido");
   }
 
-  // shareCart => se shareId não existe => /shareCart
+  // shareCart => se shareId não existe => POST /shareCart
   async function shareCart(){
     if(item.adults===0 && item.children===0){
       alert("Item vazio, nada a compartilhar!");
@@ -510,7 +511,7 @@
     }
   }
 
-  // updateCart => se shareId => /updateCart
+  // updateCart => se shareId => POST /updateCart
   async function updateCartServer(){
     if(!shareId) return;
     const items = [{
@@ -557,7 +558,7 @@
     }
   }
 
-  // clearCartServer => se shareId => /clearCart
+  // clearCartServer => se shareId => POST /clearCart
   async function clearCartServer(){
     if(!shareId){
       item.adults=0; 
