@@ -1,4 +1,11 @@
 /* global-cart.css */
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+}
+
+/* Container principal do carrinho */
 .cart-container {
   position: fixed;
   top: 0;
@@ -11,6 +18,8 @@
   flex-direction: column;
   z-index: 1000;
 }
+
+/* Cabeçalho do carrinho */
 .cart-header {
   height: 60px;
   padding: 0 1rem;
@@ -20,6 +29,15 @@
   align-items: center;
   flex-shrink: 0;
 }
+
+.cart-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Botão de compartilhar carrinho */
 .share-cart-btn {
   background: #007bff;
   color: #fff;
@@ -31,5 +49,224 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: background 0.2s;
 }
-/* Continue com os demais estilos (cart-body, cart-item, cart-footer, etc.) */
+
+.share-cart-btn:hover {
+  background: #005bb5;
+}
+
+.share-icon {
+  width: 14px;
+  height: 14px;
+  fill: #fff;
+}
+
+/* Área dos itens */
+.cart-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.section-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.clear-cart-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clear-cart-btn:hover {
+  color: #1a56b0;
+}
+
+/* Item do carrinho */
+.cart-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.cart-item:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.trash-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.trash-btn:hover {
+  color: #e00;
+}
+
+.tag-ingresso {
+  display: inline-block;
+  background: #e0e5f6;
+  color: #365CF5;
+  border: 1px solid #365CF5;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.item-title {
+  font-weight: 600;
+  margin: 0.2rem 0;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.item-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0.4rem 0;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: #666;
+  vertical-align: middle;
+}
+
+/* Preço e informações de parcelamento */
+.item-price {
+  position: relative;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #333;
+  text-align: right;
+  margin-top: 0.5rem;
+}
+
+.installment-info {
+  font-size: 0.7rem;
+  color: #007bff;
+  margin-top: 2px;
+}
+
+.pix-off {
+  font-size: 0.7rem;
+  color: #35b473;
+  margin-top: 2px;
+}
+
+/* Rodapé do carrinho */
+.cart-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #eee;
+  padding: 1rem;
+  background: #fff;
+}
+
+/* Seção do cupom */
+.coupon-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 1rem;
+  background: #fcfcfc;
+}
+
+.coupon-icon {
+  width: 30px;
+  height: 30px;
+  fill: #666;
+  flex-shrink: 0;
+}
+
+.coupon-input-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.coupon-input-box label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.coupon-input-box input {
+  width: 100%;
+  height: 32px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* Linhas de preço */
+.price-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+
+.price-line .green {
+  color: #2a942f;
+  font-weight: 600;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Botão de checkout */
+.checkout-btn {
+  width: 100%;
+  background: #35b473;
+  border: none;
+  color: #fff;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  padding: 0.7rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.checkout-btn:hover {
+  background: #2d9e64;
+}
