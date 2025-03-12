@@ -3,8 +3,7 @@
 // URL base do seu backend
 const BASE_URL = "http://localhost:3000";
 
-// Obtenha affiliateId e agentId da sessão (injetados via template no HTML, por exemplo)
-// Se não estiverem definidos, você pode definir um valor padrão ou tratar a ausência.
+// Obtenha affiliateId e agentId da sessão (injetados via template, por exemplo)
 const affiliateId = window.affiliateId || "default_affiliate";
 const agentId = window.agentId || "default_agent";
 
@@ -14,28 +13,46 @@ let cartItems = [];
 let shareId = null;
 
 /**
- * Adiciona um item ao carrinho.
- * @param {Object} item - Objeto com as informações do item, ex:
- * { name: "WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]",
- *   category: "INGRESSOS",
- *   date: "2025-04-12",
- *   price: 160.00 }
+ * Abre o carrinho adicionando a classe "open" ao container.
+ */
+function openCart() {
+  const cartContainer = document.querySelector('.cart-container');
+  if (cartContainer) {
+    cartContainer.classList.add('open');
+  }
+}
+
+/**
+ * Fecha o carrinho removendo a classe "open".
+ */
+function closeCart() {
+  const cartContainer = document.querySelector('.cart-container');
+  if (cartContainer) {
+    cartContainer.classList.remove('open');
+  }
+}
+
+/**
+ * Adiciona um item ao carrinho, atualiza o localStorage, renderiza os itens,
+ * atualiza o carrinho no servidor (se necessário) e abre o carrinho.
+ * @param {Object} item - Objeto com informações do item (ex: {name, category, date, price})
  */
 function addItemToCart(item) {
   cartItems.push(item);
   localStorage.setItem("cartItems", JSON.stringify(cartItems));
   renderCartItems();
-  updateCartServer(); // Se o carrinho já tiver sido compartilhado, atualiza no servidor
+  updateCartServer(); // Se já houver shareId, atualiza o carrinho no servidor
+  openCart(); // Abre o carrinho no canto direito
 }
 
 /**
- * Renderiza os itens do carrinho na área designada (.cart-body).
+ * Renderiza os itens do carrinho na área (.cart-body).
  */
 function renderCartItems() {
   const cartBody = document.querySelector('.cart-body');
   if (!cartBody) return;
   
-  // Limpa o conteúdo atual e adiciona a linha de título
+  // Limpa o conteúdo e adiciona a linha de título
   cartBody.innerHTML = `
     <div class="section-line">
       <span class="section-title">Itens</span>
@@ -43,7 +60,7 @@ function renderCartItems() {
     </div>
   `;
   
-  // Para cada item, cria o HTML correspondente
+  // Adiciona cada item do array no HTML
   cartItems.forEach((item, index) => {
     cartBody.innerHTML += `
       <div class="cart-item" data-index="${index}">
@@ -65,14 +82,12 @@ function renderCartItems() {
     `;
   });
   
-  // Atualiza os totais do carrinho
+  // Atualiza os totais
   updateTotals();
 }
 
 /**
- * Formata um número para o padrão de preço em Reais.
- * @param {number} value - Valor a formatar.
- * @returns {string} - Valor formatado.
+ * Formata o valor para o padrão de preço brasileiro.
  */
 function formatPrice(value) {
   return "R$ " + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -80,7 +95,6 @@ function formatPrice(value) {
 
 /**
  * Remove um item do carrinho com base no índice.
- * @param {number} index - Índice do item a remover.
  */
 function removeItem(index) {
   cartItems.splice(index, 1);
@@ -90,12 +104,12 @@ function removeItem(index) {
 }
 
 /**
- * Calcula e atualiza os totais do carrinho (subtotal, desconto e total).
+ * Calcula e atualiza os totais (subtotal, desconto e total) do carrinho.
  */
 function updateTotals() {
   let subtotal = 0;
   cartItems.forEach(item => {
-    subtotal += item.price; // Cada item deve ter o valor total em "price"
+    subtotal += item.price; // Considerando que "price" já é o valor total do item
   });
   
   const subtotalEl = document.getElementById("subtotalValue");
@@ -103,12 +117,12 @@ function updateTotals() {
   const totalEl = document.getElementById("totalValue");
   
   if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-  if (discountEl) discountEl.textContent = "- R$ 0,00"; // Exemplo fixo (sem desconto)
+  if (discountEl) discountEl.textContent = "- R$ 0,00"; // Exemplo sem desconto
   if (totalEl) totalEl.textContent = formatPrice(subtotal);
 }
 
 /**
- * Compartilha o carrinho no servidor, gerando um shareId se necessário.
+ * Compartilha o carrinho no servidor (gera um shareId se necessário).
  */
 async function shareCart() {
   if (cartItems.length === 0) {
@@ -147,10 +161,10 @@ async function shareCart() {
 }
 
 /**
- * Atualiza os itens do carrinho no servidor (se já tiver sido compartilhado).
+ * Atualiza o carrinho no servidor, se o shareId já estiver definido.
  */
 async function updateCartServer() {
-  if (!shareId) return; // Se o carrinho ainda não foi compartilhado, não atualiza
+  if (!shareId) return;
   const payload = {
     shareId: shareId,
     items: cartItems
@@ -172,7 +186,7 @@ async function updateCartServer() {
 }
 
 /**
- * Limpa o carrinho, removendo os itens localmente e do servidor.
+ * Limpa o carrinho tanto localmente quanto no servidor.
  */
 async function clearCartServer() {
   if (!shareId) {
@@ -205,7 +219,7 @@ async function clearCartServer() {
   }
 }
 
-// Ao carregar a página, carrega os itens e o shareId salvos no localStorage e renderiza o carrinho.
+// Ao carregar a página, recupera itens e shareId do localStorage e renderiza o carrinho.
 document.addEventListener('DOMContentLoaded', () => {
   const storedItems = localStorage.getItem("cartItems");
   if (storedItems) {
