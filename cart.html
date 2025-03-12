@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Ajustado Final</title>
+  <title>Carrinho Suspenso - Ícones Inline SVG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -21,7 +21,7 @@
     /* CARRINHO FIXO NA DIREITA */
     .cart-container {
       position: fixed;
-      top: 0;
+      top: 0; 
       right: 0;
       width: 380px;
       height: 100vh;
@@ -31,8 +31,7 @@
       flex-direction: column;
       z-index: 1000;
     }
-
-    /* HEADER */
+    /* HEADER DO CARRINHO */
     .cart-header {
       padding: 1rem;
       border-bottom: 1px solid #eee;
@@ -54,7 +53,7 @@
       padding: 0.3rem 0.5rem;
     }
 
-    /* CORPO */
+    /* CORPO DO CARRINHO */
     .cart-body {
       flex: 1;
       overflow-y: auto;
@@ -115,7 +114,7 @@
       font-size: 0.9rem;
     }
 
-    /* Data com ícone */
+    /* DATA COM ÍCONE (inline SVG) */
     .item-date {
       display: flex;
       align-items: center;
@@ -124,18 +123,20 @@
       color: #666;
       margin: 0.4rem 0;
     }
-    .item-date img {
+    .calendar-icon {
       width: 16px;
       height: 16px;
+      fill: #666;
+      vertical-align: middle;
     }
 
-    /* CRIANÇAS E ADULTOS, DIVISÓRIA, BOTOES +/–, ETC. */
+    /* CRIANÇAS E ADULTOS, DIVISÓRIA, ÍCONES, BOTOES +/– */
     .item-quantities {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       margin-top: 0.4rem;
       position: relative;
-      justify-content: space-between;
     }
     .quantities-left {
       display: flex;
@@ -152,12 +153,14 @@
       color: #666;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       margin-bottom: 4px;
       text-transform: capitalize;
     }
-    .quant-label img {
-      width:16px; height:16px;
+    .quant-label .icon {
+      width: 16px;
+      height: 16px;
+      fill: #666;
     }
     .plusminus-row {
       display: flex;
@@ -275,9 +278,8 @@
 </head>
 <body>
 
-<!-- CARRINHO FIXO NA DIREITA -->
 <div class="cart-container">
-  <!-- HEADER -->
+  <!-- HEADER DO CARRINHO -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
     <span class="timer-info" id="timerValue">01:02</span>
@@ -293,27 +295,41 @@
       <span class="tag-ingresso">INGRESSOS</span>
       <div class="item-title">WALT DISNEY WORLD - INGRESSO 1 DIA MAGIC KINGDOM [1 dia]</div>
 
-      <!-- Data com ícone de calendário -->
+      <!-- Data com ícone (inline SVG) -->
       <div class="item-date">
-        <img 
-          src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMTUgMTUiIGZpbGw9IiM2NjYiIHdpZHRoPSIxNXB4IiBoZWlnaHQ9IjE1cHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHRpdGxlPkNhbGVuZGFyPC90aXRsZT48cGF0aCBkPSJNMTQuNCAyLjc1aC0uNXYtLjZhLjYyLjYyIDAgMCAwLTEuMjQgMHYuNmgtMmEuNjIuNjIgMCAwIDAgLjA3LjI2bC4zOC44NmgtOC4xN2wuMzgtLjg2YS42Mi42MiAwIDAgMCAuMDctLjI2aC0ydi0uNmEuNjIuNjIgMCAwIDAtMS4yNCAwdi42aC0uN1Y0YTQuMjIuMjIgMCAwIDAtLjItLjczQS42Mi42MiAwIDAgMCAwIDMuNDVoMTVhLjYyLjYyIDAgMCAwLS4yLS43M3oiLz48cGF0aCBkPSJNMS4zNSA0LjQyYTEuMjIuMjIgMCAwIDEgLjIuMDNIMTMuNWEuNjIuNjIgMCAwIDEgLjYyLjYyVjE0YS42Mi42MiAwIDAgMS0uNjIuNjJIMi4wN2EuNjIuNjIgMCAwIDEtLjYyLS42MlY1LjA1Yy4wLS4xMS4wNi0uMjIuMTIuMzdsLjM4Ljg2SDIuNTNhLjYyLjYyIDAgMCAwIC42Mi0uNjJsLjItLjg5eiIvPjwvc3ZnPg==" 
-          alt="Data" 
-          class="calendar-icon"
-        >
+        <svg class="calendar-icon" viewBox="0 0 16 16">
+          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 
+1 1 0V1h.5A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 
+0 1 13.5 15h-11A1.5 1.5 0 0 1 1 
+13.5v-11A1.5 1.5 0 0 1 2.5 
+1H3V.5a.5.5 0 0 1 .5-.5zM2.5 
+2a.5.5 0 0 0-.5.5V4h12V2.5a.5.5 
+0 0 0-.5-.5h-11zM14 5H2v8.5a.5.5 
+0 0 0 .5.5h11a.5.5 0 0 0 
+.5-.5V5z"/>
+        </svg>
         <span id="dateVal">2025-04-12</span>
       </div>
 
-      <!-- Crianças e Adultos, cada um com ícone e nome acima, +/–, e divisória -->
+      <!-- Crianças e Adultos (inline SVG icons), divisória, +/– -->
       <div class="item-quantities">
         <div class="quantities-left">
           <!-- Crianças -->
           <div class="quant-column">
             <div class="quant-label">
-              <img
-                src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgMy4yQzUuNSAzLjIgNiAzLjYgNiA0LjIgNiA0LjggNS41IDUuMiA1IDUuMkMzLjkgNS4yIDMuMiA0LjUgMy4yIDMuMiAzLjIgMi45IDMuNCAyLjUgMy43IDIuNUg0LjNDNC43IDIuNSA1IDIuNyA1IDMuMiI+PC9wYXRoPjwvc3ZnPg==" 
-                alt="Crianças" 
-                style="width:16px; height:16px;"
-              >
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M9 2C9 3.105 8.105 4 7 4S5 3.105 5 
+2s.895-2 2-2 2 .895 2 2zM3.5 
+5.5a.5.5 0 0 1 .5.5v2.5H4v4.5a1.5 
+1.5 0 0 1-3 0v-3A1.5 1.5 0 0 
+1 2.5 8H3V6a.5.5 0 0 1 
+.5-.5zM14 8h.5A1.5 1.5 0 0 1 
+16 9.5v3a1.5 1.5 0 0 1-3 
+0V8.5h-.5A1.5 1.5 0 0 
+1 11 7v-.5a.5.5 0 0 
+1 .5-.5H12V6a.5.5 0 0 1 
+.5-.5h1z"/>
+              </svg>
               <span>Crianças</span>
             </div>
             <div class="plusminus-row">
@@ -329,11 +345,12 @@
           <!-- Adultos -->
           <div class="quant-column">
             <div class="quant-label">
-              <img
-                src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjNjY2IiB2aWV3Qm94PSIwIDAgMTIgMTIiIHdpZHRoPSIxMnB4IiBoZWlnaHQ9IjEycHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTUgM2MwLS41LjUtMSAxLTFzMSAuNSAxIDFjMCAuNi0uNSAxLTEgMXMtMS0uNC0xLSAxem0tMyAxMC4yaDMuMmMwLS43LjQtMS4yIDEuMy0xLjV2LS44YzAtLjMtLjItLjYtLjUtLjggLS45LS40LTEuMy0uOC0xLjMtMi4yIDAtLjkuNy0xLjUgMS41LTEuNXMuOS42LjkgMS41YzAgMS40LS40IDEuOC0xLjMgMi4yLS4zLjItLjUuNS0uNS44di44YzAgLjUgLjUgMS4yIDEuNSAxLjJoMy4yYy41IDAgMS0uNCAxLS45IDAtMi4xLTIuNC0zLTMuNy0zLS4xIDAtLjMuMS0uNC4yLS44LjctMiAxLjItMy4yIDEuMi0yLjYgMC00LjcgMS42LTQuNyAzLjMgMCAuNS41LjkgMSAuOS45IDAgMS44LjggMy40IDIuMWMuMy4yLjUuNC43LjYuMy4zLjQuNi40LjkgMCAxLjMtLjkgMi4yLTEuNSAyLjItMS44IDAtMy43LjktMy43IDJsLjIuN3oiPjwvc3ZnPg==" 
-                alt="Adultos"
-                style="width:16px; height:16px;"
-              >
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M8 2a2 2 0 1 0 0 4 2 2 0 0 0 
+0-4zM4.216 
+8A2.238 2.238 0 0 0 2 10.236V14h12v-3.764A2.238 
+2.238 0 0 0 11.784 8H4.216z"/>
+              </svg>
               <span>Adultos</span>
             </div>
             <div class="plusminus-row">
@@ -344,7 +361,7 @@
           </div>
         </div>
 
-        <!-- PREÇO E 10x EM AZUL -->
+        <!-- PREÇO no canto inferior direito + “até 10x sem juros” em azul -->
         <div class="item-price" id="priceVal">
           R$ 100,00
           <div class="installment-info">até 10x sem juros</div>
@@ -368,7 +385,7 @@
     <button class="checkout-btn">Ir para o checkout</button>
   </div>
 
-  <!-- RODAPÉ -->
+  <!-- RODAPÉ DO CARRINHO -->
   <div class="cart-footer">
     <div class="footer-actions">
       <input type="text" id="affiliateId" value="aff123" placeholder="Affiliate">
@@ -389,11 +406,12 @@
     - loadCartFromServer => GET /cart/:shareId
     - clearCartServer => POST /clearCart
     - Lê/Escreve shareId no localStorage
-    - 1 item local
+    - 1 item local (se quiser vários, basta usar array)
   */
-  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node
+  const BASE_URL = "http://localhost:3000"; // Ajuste para seu backend Node
   let shareId = null;
 
+  // Único item
   let item = {
     children: 0,
     adults: 1,
@@ -424,9 +442,11 @@
     document.getElementById("childCount").textContent = item.children;
     document.getElementById("adultCount").textContent = item.adults;
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+    // Exibe preço e "até 10x sem juros"
     document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
        <div class="installment-info">até 10x sem juros</div>`;
+    // Subtotal = totalItem, desconto=0, total= totalItem
     document.getElementById("subtotalValue").textContent =
       "R$ " + totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ 0,00";
@@ -458,7 +478,7 @@
 
   // Remover item
   function removeItem(){
-    item.children=0;
+    item.children=0; 
     item.adults=0;
     renderItem();
     updateCartServer();
