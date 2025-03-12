@@ -30,6 +30,7 @@
       background: white;
       color: #333;
       line-height: 1.4;
+      position: relative; /* Para facilitar posicionar alertas absolutos, se quiser */
     }
     input, select, textarea, button {
       font-family: 'Montserrat', sans-serif !important;
@@ -415,6 +416,64 @@
         white-space: normal;
       }
     }
+
+    /****************************************************
+     * ALERTAS PERSONALIZADOS
+     ****************************************************/
+    .alert-list-wrapper {
+      position: fixed; 
+      top: 20px; 
+      right: 20px; 
+      z-index: 9999; 
+      max-width: 320px;
+    }
+    .alert-box {
+      display: flex;
+      margin-bottom: 15px; /* espaço entre múltiplos alertas */
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .alert-box .left {
+      width: 60px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      flex-shrink: 0;
+    }
+    .alert-box .left h5 {
+      transform: rotate(-90deg);
+      white-space: nowrap;
+      color: #fff;
+      margin: 0;
+      font-size: 0.85rem;
+    }
+    .alert {
+      padding: 10px 15px;
+      width: 100%;
+    }
+    .text-bold {
+      font-weight: 600;
+    }
+    .text-medium {
+      font-size: 0.85rem;
+    }
+
+    /* Alert Primary */
+    .primary-alert .left {
+      background: #365CF5;
+    }
+    .primary-alert .alert {
+      color: #365CF5;
+      border: 1px solid #365CF5;
+      background: rgba(54, 92, 245, 0.2);
+      width: 100%;
+    }
+    .primary-alert .alert .alert-heading {
+      color: #365CF5;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -585,9 +644,42 @@
       allTickets.forEach(ticket => ticket.classList.remove('active'));
       element.classList.add('active');
     }
+
+    /**
+     * Exibe um alerta de "adicionado ao carrinho" no canto superior direito
+     * e remove após alguns segundos.
+     */
+    function showCartAlert() {
+      // Cria o HTML do alerta
+      const alertHtml = `
+        <div class="alert-list-wrapper" id="cartAlertWrapper">
+          <div class="alert-box primary-alert pl-100">
+            <div class="left">
+              <h5 class="text-bold">Adicionado</h5>
+            </div>
+            <div class="alert">
+              <h4 class="alert-heading">Adicionado com Sucesso ao Carrinho</h4>
+              <p class="text-medium">
+                Continue comprando ou finalize sua compra agora mesmo.
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+      // Insere no body
+      document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+      // Remove o alerta depois de 3 segundos
+      setTimeout(() => {
+        const alertWrapper = document.getElementById('cartAlertWrapper');
+        if (alertWrapper) {
+          alertWrapper.remove();
+        }
+      }, 3000);
+    }
   </script>
 
-  <!-- INCLUSÃO DO global-cart.js -->
+  <!-- INCLUSÃO DO global-cart.js (carrinho) -->
   <script src="global-cart.js"></script>
 
   <!-- SCRIPT: Listener para os botões "Reserve agora" -->
@@ -599,7 +691,7 @@
         const ticketItem = this.closest('.ticket-item');
         const title = ticketItem.querySelector('.ticket-info h3').textContent.trim();
         
-        // Extrai o preço usando uma regex (assumindo o formato "R$ 6.171,70")
+        // Extrai o preço usando regex (assumindo o formato "R$ 6.171,70")
         let price = 0;
         const priceText = ticketItem.querySelector('.ticket-price').textContent;
         const priceMatch = priceText.match(/R\$[\s]?([\d.,]+)/);
@@ -620,9 +712,11 @@
           price: price
         };
         
-        // Adiciona o item ao carrinho
+        // Adiciona o item ao carrinho (função definida no global-cart.js)
         addItemToCart(item);
-        alert("Item adicionado ao carrinho: " + title);
+
+        // Exibe o alerta personalizado
+        showCartAlert();
       });
     });
   </script>
