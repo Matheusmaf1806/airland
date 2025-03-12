@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Exemplo - Carrinho Compartilhado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Minimal CSS (exemplo) -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0; 
+      padding: 20px;
+    }
+    .product-list, .shared-cart {
+      margin-bottom: 20px;
+    }
+    .product {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      cursor: pointer;
+    }
+    .cart-item {
+      border-bottom: 1px solid #ddd;
+      padding: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Exemplo de Carrinho Compartilhável</h1>
+
+<div class="product-list">
+  <h2>Ingressos Disponíveis</h2>
+
+  <!-- Exemplo de produto 1 -->
+  <div class="product" data-id="p1" data-name="Bilhete 3 dias">
+    <p><strong>Bilhete 3 dias</strong></p>
+    <p>ID: <span class="prod-id">p1</span></p>
+    <p>Quantidade: 
+      <input type="number" value="1" min="1" id="qtd-p1" style="width:50px;">
+    </p>
+    <button onclick="addLocal('p1')">Adicionar ao Carrinho Local</button>
+  </div>
+
+  <!-- Exemplo de produto 2 -->
+  <div class="product" data-id="p2" data-name="Bilhete 5 dias">
+    <p><strong>Bilhete 5 dias</strong></p>
+    <p>ID: <span class="prod-id">p2</span></p>
+    <p>Quantidade: 
+      <input type="number" value="1" min="1" id="qtd-p2" style="width:50px;">
+    </p>
+    <button onclick="addLocal('p2')">Adicionar ao Carrinho Local</button>
+  </div>
+</div>
+
+<div class="shared-cart">
+  <h2>Carrinho Local</h2>
+  <ul id="localCart"></ul>
+
+  <div>
+    <label>Affiliate ID: <input type="text" id="affiliateId" value="aff123"></label>
+    <label>Agent ID: <input type="text" id="agentId" value="agt567"></label>
+  </div>
+  <button onclick="shareCart()">Compartilhar Carrinho</button>
+</div>
+
+<div>
+  <h2>Carrinho Carregado via shareId</h2>
+  <p>Se esta página for acessada com ?shareId=algum-valor, carregamos do backend.</p>
+  <ul id="remoteCart"></ul>
+  <button id="btnClear" onclick="clearRemoteCart()" style="display: none;">
+    Limpar Carrinho Compartilhado
+  </button>
+</div>
+
+<script>
+  // URL do Backend
+  const BASE_URL = "http://localhost:3000";
+
+  // Carrinho local (array de { id, quantity })
+  let localItems = [];
+
+  // Adiciona item ao carrinho local
+  function addLocal(productId) {
+    const qtdEl = document.getElementById("qtd-"+productId);
+    const quantity = parseInt(qtdEl.value) || 1;
+
+    // Se já existe no localItems, incrementa
+    const existing = localItems.find(it => it.id === productId);
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      localItems.push({ id: productId, quantity });
+    }
+    renderLocalCart();
+  }
+
+  // Render carrinho local
+  function renderLocalCart() {
+    const ul = document.getElementById("localCart");
+    ul.innerHTML = "";
+    localItems.forEach((item, idx) => {
+      const li = document.createElement("li");
+      li.textContent = `Produto: ${item.id} - Qtd: ${item.quantity}`;
+      ul.appendChild(li);
+    });
+  }
+
+  // Compartilhar carrinho local no backend
+  async function shareCart() {
+    const affiliateId = document.getElementById("affiliateId").value.trim();
+    const agentId = document.getElementById("agentId").value.trim();
+
+    if (!affiliateId || !agentId) {
+      alert("Informe affiliateId e agentId!");
+      return;
+    }
+    if (localItems.length === 0) {
+      alert("Carrinho local vazio!");
+      return;
+    }
+
+    try {
+      const resp = await fetch(`${BASE_URL}/shareCart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          affiliateId,
+          agentId,
+          items: localItems
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        const shareUrl = `${window.location.origin}${window.location.pathname}?shareId=${data.shareId}`;
+        alert("Carrinho compartilhado!\nLink: " + shareUrl);
+      } else {
+        alert("Erro ao compartilhar: " + (data.error || "desconhecido"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro na requisição ao compartilhar.");
+    }
+  }
+
+  // Carregar carrinho remoto se ?shareId=...
+  async function loadShareCart() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareId = urlParams.get("shareId");
+    if (!shareId) return; // nada a fazer
+
+    try {
+      const resp = await fetch(`${BASE_URL}/cart/${shareId}`);
+      const data = await resp.json();
+      if (!data.success) {
+        console.error(data.error);
+        return;
+      }
+      // data.items -> array de { id, quantity }
+      const remoteUl = document.getElementById("remoteCart");
+      remoteUl.innerHTML = "";
+      data.items.forEach((it, idx) => {
+        const li = document.createElement("li");
+        li.textContent = `Produto: ${it.id}, Qtd: ${it.quantity}`;
+        // Adicionar um botão remover? Você então chamaria updateCart sem esse item
+        remoteUl.appendChild(li);
+      });
+
+      // Exibe botão de limpar carrinho
+      document.getElementById("btnClear").style.display = "inline-block";
+    } catch (err) {
+      console.error("Falha ao carregar carrinho compartilhado:", err);
+    }
+  }
+
+  // Limpar carrinho remoto
+  async function clearRemoteCart() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareId = urlParams.get("shareId");
+    if (!shareId) return;
+
+    try {
+      const resp = await fetch(`${BASE_URL}/clearCart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareId })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        alert("Carrinho foi limpo/removido!");
+        // Remove da tela
+        document.getElementById("remoteCart").innerHTML = "";
+      } else {
+        alert("Erro ao limpar: " + (data.error || "desconhecido"));
+      }
+    } catch (err) {
+      console.error("Erro ao limpar carrinho:", err);
+    }
+  }
+
+  // Carrega (se houver) carrinho remoto
+  loadShareCart();
+</script>
+
+</body>
+</html>
