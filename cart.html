@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Carrinho Suspenso (Layout Exemplo)</title>
+  <title>Carrinho Suspenso (Exemplo com 3 Cards)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -52,52 +52,68 @@
       margin: 2rem auto;
       padding: 0 1rem;
     }
-    .new-item-form {
+    .intro-text {
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      color: #666;
+    }
+    .cards-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* CARD DE INGRESSO */
+    .product-card {
       background: #fff;
       border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 1rem 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .new-item-form h2 {
-      margin: 0 0 1rem;
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
-    .form-row {
-      margin-bottom: 1rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: center;
+      flex-direction: column;
+      gap: 0.6rem;
     }
-    .form-row label {
-      min-width: 80px;
+    .product-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+    }
+    .product-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #444;
+    }
+    .product-card label {
+      display: inline-block;
+      width: auto;
       font-weight: 500;
-      color: #555;
+      margin-right: 6px;
     }
-    .form-row input {
+    .product-card input {
       padding: 0.3rem;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 0.85rem;
       outline: none;
-      font-size: 0.9rem;
-      transition: border 0.2s;
     }
-    .form-row input:focus {
+    .product-card input:focus {
       border-color: #007bff;
     }
-    .btn-primary {
+    .product-card .card-actions {
+      margin-top: 0.5rem;
+    }
+    .product-card .btn-add {
       background: #007bff;
       color: #fff;
       border: none;
       border-radius: 20px;
-      padding: 0.4rem 1rem;
-      font-size: 0.85rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: background 0.2s;
     }
-    .btn-primary:hover {
+    .product-card .btn-add:hover {
       background: #005bb5;
     }
 
@@ -239,7 +255,7 @@
       color: #333;
     }
 
-    /* RODAPÉ: SUBTOTAL, DESCONTO, TOTAL */
+    /* SUBTOTAL, DESCONTO, TOTAL */
     .price-line {
       display: flex;
       justify-content: space-between;
@@ -271,7 +287,7 @@
       background: #2d9e64;
     }
 
-    /* FOOTER DO CARRINHO */
+    /* RODAPÉ DO CARRINHO */
     .cart-footer {
       border-top: 1px solid #eee;
       padding: 1rem;
@@ -311,7 +327,6 @@
     .footer-actions .btn-mini-danger:hover {
       background: #b0241a;
     }
-
   </style>
 </head>
 <body>
@@ -322,34 +337,60 @@
   <button id="openCartBtn" class="cart-btn">Meu Carrinho</button>
 </header>
 
-<!-- MAIN -->
+<!-- MAIN com 3 cards -->
 <main>
-  <div class="new-item-form">
-    <h2>Novo Item</h2>
-
-    <div class="form-row">
-      <label>Type:</label>
-      <input type="text" id="typeInput" value="Ingressos">
+  <p class="intro-text">
+    Selecione o ingresso desejado, escolha data e quantidades, e clique em “Adicionar”.
+  </p>
+  <div class="cards-container">
+    <!-- Card 1 -->
+    <div class="product-card">
+      <h2>WALT DISNEY WORLD - 1 DIA MAGIC KINGDOM</h2>
+      <p>Data: <input type="date" id="dateCard1" value="2025-04-12" style="width:140px;"></p>
+      <p>
+        <label>Adultos:</label>
+        <input type="number" id="adultsCard1" value="1" min="0" style="width:60px;">
+        <label>Crianças:</label>
+        <input type="number" id="childrenCard1" value="0" min="0" style="width:60px;">
+      </p>
+      <div class="card-actions">
+        <button class="btn-add" onclick="addCardItem('Ingressos','Walt Disney World','1 DIA MAGIC KINGDOM', 'dateCard1','adultsCard1','childrenCard1')">
+          Adicionar
+        </button>
+      </div>
     </div>
-    <div class="form-row">
-      <label>Categoria:</label>
-      <input type="text" id="categoryInput" value="Walt Disney World">
+    <!-- Card 2 -->
+    <div class="product-card">
+      <h2>WALT DISNEY WORLD - 3 DIAS PARK HOPPER</h2>
+      <p>Data: <input type="date" id="dateCard2" value="2025-05-10" style="width:140px;"></p>
+      <p>
+        <label>Adultos:</label>
+        <input type="number" id="adultsCard2" value="2" min="0" style="width:60px;">
+        <label>Crianças:</label>
+        <input type="number" id="childrenCard2" value="1" min="0" style="width:60px;">
+      </p>
+      <div class="card-actions">
+        <button class="btn-add" onclick="addCardItem('Ingressos','Walt Disney World','3 DIAS PARK HOPPER','dateCard2','adultsCard2','childrenCard2')">
+          Adicionar
+        </button>
+      </div>
     </div>
-    <div class="form-row">
-      <label>Nome e Dias:</label>
-      <input type="text" id="nameDaysInput" value="1 DIA MAGIC KINGDOM">
+    <!-- Card 3 -->
+    <div class="product-card">
+      <h2>WALT DISNEY WORLD - 5 DIAS BASE TICKET</h2>
+      <p>Data: <input type="date" id="dateCard3" value="2025-06-01" style="width:140px;"></p>
+      <p>
+        <label>Adultos:</label>
+        <input type="number" id="adultsCard3" value="2" min="0" style="width:60px;">
+        <label>Crianças:</label>
+        <input type="number" id="childrenCard3" value="0" min="0" style="width:60px;">
+      </p>
+      <div class="card-actions">
+        <button class="btn-add" onclick="addCardItem('Ingressos','Walt Disney World','5 DIAS BASE TICKET','dateCard3','adultsCard3','childrenCard3')">
+          Adicionar
+        </button>
+      </div>
     </div>
-    <div class="form-row">
-      <label>Data:</label>
-      <input type="date" id="dateInput" value="2025-04-12">
-    </div>
-    <div class="form-row">
-      <label>Adultos:</label>
-      <input type="number" id="adultsInput" value="1" min="0" style="width:60px;">
-      <label>Crianças:</label>
-      <input type="number" id="childrenInput" value="0" min="0" style="width:60px;">
-    </div>
-    <button class="btn-primary" onclick="addItem()">Adicionar Item</button>
   </div>
 </main>
 
@@ -366,12 +407,10 @@
 
   <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
-    <!-- Banner verde + timer -->
     <div class="alert-green">
       <span>Preço(s) atualizado(s) a cada 25. Garanta já o(s) produto(s) com o preço atual</span>
       <span class="timer" id="timerValue">01:02</span>
     </div>
-
     <div class="section-title" style="margin-top:0;">Ingressos</div>
     <div id="cartItems"></div>
 
@@ -406,14 +445,9 @@
 </div>
 
 <script>
-  /* Ajustar p/ seu backend Node */
-  const BASE_URL = "http://localhost:3000";
+  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend
 
-  /* 
-    Carrinho local => { type, category, nameDays, date, adults, children }
-    shareId => null até /shareCart
-  */
-  let cart = [];
+  let cart = []; // array local
   let shareId = null;
 
   // Ao carregar, checa localStorage e ?shareId
@@ -433,7 +467,7 @@
     renderCart();
   };
 
-  // Abrir/fechar
+  // Função p/ ABRIR / FECHAR carrinho
   document.getElementById("openCartBtn").addEventListener("click", openCart);
   function openCart(){
     document.getElementById("cartOverlay").style.display = "block";
@@ -444,16 +478,13 @@
     document.getElementById("cartPanel").classList.remove("open");
   }
 
-  // Adicionar item
-  function addItem(){
-    const type = document.getElementById("typeInput").value.trim();
-    const category = document.getElementById("categoryInput").value.trim();
-    const nameDays = document.getElementById("nameDaysInput").value.trim();
-    const date = document.getElementById("dateInput").value;
-    const adults = parseInt(document.getElementById("adultsInput").value)||0;
-    const children = parseInt(document.getElementById("childrenInput").value)||0;
+  // Adicionar item a partir de um "card"
+  function addCardItem(type, category, nameDays, dateId, adultsId, childrenId){
+    const dateVal = document.getElementById(dateId).value;
+    const adultsVal = parseInt(document.getElementById(adultsId).value)||0;
+    const childrenVal = parseInt(document.getElementById(childrenId).value)||0;
 
-    const newItem = { type, category, nameDays, date, adults, children };
+    const newItem = { type, category, nameDays, date: dateVal, adults: adultsVal, children: childrenVal };
     cart.push(newItem);
     renderCart();
     updateCartServer();
@@ -467,8 +498,8 @@
     let sub = 0;
 
     cart.forEach((item, idx) => {
-      // Exemplo de preço local (sem DB): adult=100, child=60
-      const itemPrice = (item.adults * 100) + (item.children * 60);
+      // Exemplo: adult=100, child=60
+      const itemPrice = item.adults*100 + item.children*60;
       sub += itemPrice;
 
       const div = document.createElement("div");
@@ -486,9 +517,7 @@
       `;
       container.appendChild(div);
     });
-
-    // Exemplo de 10% de desconto
-    const discount = sub * 0.10;
+    const discount = sub * 0.1; // 10% ex
     const total = sub - discount;
     document.getElementById("subtotalValue").textContent = "R$ " + sub.toLocaleString('pt-BR',{minimumFractionDigits:2});
     document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR',{minimumFractionDigits:2});
@@ -501,7 +530,7 @@
     updateCartServer();
   }
 
-  // shareCart
+  // shareCart => se shareId nao existe => /shareCart
   async function shareCart(){
     if(cart.length===0){
       alert("Carrinho vazio!");
@@ -518,7 +547,7 @@
       return;
     }
     try {
-      const resp = await fetch(`${BASE_URL}/shareCart`,{
+      const resp = await fetch(`${BASE_URL}/shareCart`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
@@ -531,10 +560,10 @@
       if(data.success){
         shareId = data.shareId;
         localStorage.setItem("shareId", shareId);
-        const link = window.location.origin+window.location.pathname+"?shareId="+shareId;
+        const link = window.location.origin + window.location.pathname + "?shareId="+shareId;
         alert("Carrinho compartilhado!\n"+link);
       } else {
-        alert("Erro ao compartilhar: "+(data.error||"desconhecido"));
+        alert("Erro: "+ (data.error||"desconhecido"));
       }
     } catch(e){
       console.error(e);
@@ -542,11 +571,11 @@
     }
   }
 
-  // updateCart se shareId
+  // updateCart => se shareId
   async function updateCartServer(){
     if(!shareId) return;
     try {
-      const resp = await fetch(`${BASE_URL}/updateCart`,{
+      const resp = await fetch(`${BASE_URL}/updateCart`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ shareId, items: cart })
@@ -576,7 +605,7 @@
     }
   }
 
-  // clearCart
+  // clearCart => se shareId, /clearCart, senão local
   async function clearCartServer(){
     if(!shareId){
       cart = [];
