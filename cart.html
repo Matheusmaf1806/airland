@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Carrinho Suspenso - Ajustes (Compartilhar/ Limpar / Cupom)</title>
+  <title>Carrinho Suspenso - Ajustes Finais</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -49,14 +49,24 @@
       background: #007bff;
       color: #fff;
       border: none;
-      border-radius: 20px;
+      border-radius: 4px;
       padding: 0.4rem 0.8rem;
       font-size: 0.75rem;
       cursor: pointer;
       transition: background 0.2s;
+      display: flex;
+      align-items: center; /* Para alinhar o ícone ao texto */
+      gap: 6px; /* Espaço entre texto e ícone */
     }
     .share-cart-btn:hover {
       background: #005bb5;
+    }
+
+    /* ÍCONE DE COMPARTILHAR (injetado inline) */
+    .share-icon {
+      width: 14px;
+      height: 14px;
+      fill: #fff;
     }
 
     /* CORPO DO CARRINHO */
@@ -67,7 +77,7 @@
       background: #fafafa;
     }
 
-    /* Linha com “Ingressos” e “Limpar Carrinho” */
+    /* Linha com “Itens” e “Limpar Carrinho” */
     .section-line {
       display: flex;
       justify-content: space-between;
@@ -82,13 +92,13 @@
     .clear-cart-btn {
       background: none;
       border: none;
-      color: #d93025;
+      color: #666;
       font-size: 0.75rem;
       cursor: pointer;
       transition: color 0.2s;
     }
     .clear-cart-btn:hover {
-      color: #b0241a;
+      color: #1a56b0;
     }
 
     /* CARD DO ITEM */
@@ -122,12 +132,12 @@
     /* Tag “INGRESSOS” */
     .tag-ingresso {
       display: inline-block;
-      background: #ffefcc;
-      color: #ff9900;
-      border: 1px solid #ffd899;
+      background: #e0e5f6;
+      color: #365CF5;
+      border: 1px solid #365CF5;
       font-size: 0.65rem;
       padding: 2px 6px;
-      border-radius: 12px;
+      border-radius: 4px;
       text-transform: uppercase;
       margin-bottom: 0.4rem;
     }
@@ -224,22 +234,39 @@
     }
     .pix-off {
       font-size: 0.7rem;
-      color: #2ecc71; /* verde */
+      color: #35b473; /* verde */
       margin-top: 2px;
     }
 
-    /* CUPOM DE DESCONTO */
+    /* CUPOM DE DESCONTO (melhorado) */
     .coupon-section {
       margin-bottom: 1rem;
+      border: 1px dashed #ccc;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fcfcfc;
     }
-    .coupon-section label {
-      display: block;
+    .coupon-icon {
+      width: 18px;
+      height: 18px;
+      fill: #666;
+      flex-shrink: 0;
+    }
+    .coupon-input-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .coupon-input-box label {
       font-size: 0.8rem;
       font-weight: 500;
-      margin-bottom: 4px;
       color: #555;
     }
-    .coupon-section input {
+    .coupon-input-box input {
       width: 100%;
       height: 32px;
       border: 1px solid #ccc;
@@ -291,18 +318,35 @@
   <!-- HEADER: Título + Botão "Compartilhar Carrinho" -->
   <div class="cart-header">
     <h2>Resumo do pedido</h2>
-    <button class="share-cart-btn" onclick="shareCart()">Compartilhar Carrinho</button>
+    <button class="share-cart-btn" onclick="shareCart()">
+      Compartilhar Carrinho
+      <!-- Ícone grande inline, redimensionado para ~14px -->
+      <svg class="share-icon" version="1.0" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1274.000000 1280.000000" preserveAspectRatio="xMidYMid meet">
+        <g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)"
+           fill="#ffffff" stroke="none">
+          <path d="M5946 12377 c-178 -232 -815 -1061 -1415 -1842 l-1091 -1420 1098 -5
+          c1090 -5 1097 -5 1095 -25 -2 -11 -7 -49 -13 -85 -7 -44 -10 -815 -8 -2420 4
+          -2571 -1 -2369 58 -2510 167 -396 645 -556 1027 -345 43 24 100 70 155 125 72
+          72 94 103 132 181 83 171 77 -49 73 2624 -2 1309 -7 2397 -12 2417 l-7 38
+          1032 2 1032 3 -599 780 c-330 429 -967 1258 -1416 1842 l-816 1063 -325 -423z"/>
+          <path d="M0 3730 l0 -3730 6370 0 6370 0 0 3730 0 3730 -2055 0 -2055 0 0
+          -660 0 -660 1265 0 1265 0 0 -2410 0 -2410 -4790 0 -4790 0 0 2410 0 2410
+          1365 0 1365 0 -2 658 -3 657 -2152 3 -2153 2 0 -3730z"/>
+        </g>
+      </svg>
+    </button>
   </div>
 
   <!-- CORPO DO CARRINHO -->
   <div class="cart-body">
-    <!-- Linha com "Ingressos" e "Limpar Carrinho" -->
+    <!-- Linha com "Itens" e "Limpar Carrinho" -->
     <div class="section-line">
-      <span class="section-title">Ingressos</span>
+      <span class="section-title">Itens</span>
       <button class="clear-cart-btn" onclick="clearCartServer()">Limpar Carrinho</button>
     </div>
 
-    <!-- CARD DO ITEM -->
+    <!-- CARD DO ITEM (exemplo) -->
     <div class="cart-item">
       <button class="trash-btn" onclick="removeItem()">🗑</button>
       <span class="tag-ingresso">INGRESSOS</span>
@@ -383,10 +427,16 @@
       </div>
     </div>
 
-    <!-- Campo de cupom acima do subtotal -->
+    <!-- Campo de cupom acima do subtotal (melhorado) -->
     <div class="coupon-section">
-      <label for="couponInput">Cupom de Desconto</label>
-      <input type="text" id="couponInput" placeholder="Ex: DESCONTO10">
+      <!-- Ícone de cupom / tag (exemplo) -->
+      <svg class="coupon-icon" viewBox="0 0 24 24">
+        <path d="M21 7.5c-0.003-0.827-0.674-1.5-1.5-1.5h-3.086c-0.379 0-0.743-0.144-1.027-0.406l-2.648-2.435c-0.35-0.322-0.815-0.499-1.293-0.499h-3.294c-0.896 0-1.624 0.728-1.624 1.624v15.752c0 0.896 0.728 1.624 1.624 1.624h8.377c0.379 0 0.743-0.144 1.027-0.406l2.648-2.435c0.35-0.322 0.815-0.499 1.293-0.499h3.086c0.827 0 1.5-0.673 1.5-1.5v-6c0-0.827-0.673-1.5-1.5-1.5h-1.5v-3c0-0.827-0.673-1.5-1.5-1.5zM4.5 3c-0.827 0-1.5 0.673-1.5 1.5v15c0 0.827 0.673 1.5 1.5 1.5h1.5v-18h-1.5z"></path>
+      </svg>
+      <div class="coupon-input-box">
+        <label for="couponInput">Cupom de Desconto</label>
+        <input type="text" id="couponInput" placeholder="Ex: DESCONTO10">
+      </div>
     </div>
 
     <!-- Subtotal, desconto, total -->
@@ -411,19 +461,18 @@
 <script>
   /*
     CÓDIGO COMPLETO:
-    - shareCart => POST /shareCart
+    - shareCart => POST /shareCart (com ícone no botão)
     - updateCartServer => POST /updateCart
     - loadCartFromServer => GET /cart/:shareId
     - clearCartServer => POST /clearCart
     - Lê/Escreve shareId no localStorage
     - 1 item local
-    - "Compartilhar Carrinho" no topo, "Limpar Carrinho" na linha de "Ingressos"
-    - Campo de cupom acima de Subtotal
+    - Cupom de Desconto em destaque, no final da página
   */
-  const BASE_URL = "http://localhost:3000"; // Ajuste p/ seu backend Node
+  const BASE_URL = "http://localhost:3000"; // Ajuste para seu backend Node
   let shareId = null;
 
-  // Único item
+  // Exemplo de item local
   let item = {
     children: 0,
     adults: 1,
@@ -459,6 +508,7 @@
     document.getElementById("adultCount").textContent = adultStr;
 
     const totalItem = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+
     // Exibe preço e "até 10x sem juros" + "5% OFF no Pix"
     document.getElementById("priceVal").innerHTML =
       `R$ ${totalItem.toLocaleString('pt-BR',{minimumFractionDigits:2})}
@@ -497,7 +547,7 @@
 
   // Remover item
   function removeItem(){
-    item.children=0; 
+    item.children=0;
     item.adults=0;
     renderItem();
     updateCartServer();
@@ -514,7 +564,7 @@
       alert("Carrinho já possui shareId: " + shareId);
       return;
     }
-    // Ajuste se quiser "Affiliate" e "Agent" etc. (removido para simplificar)
+    // Exemplo fixo (se quiser affiliate e agent)
     const affiliateId = "aff123";
     const agentId = "agt567";
 
