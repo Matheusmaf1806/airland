@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const mysql = require("mysql2/promise");
 const { v4: uuidv4 } = require("uuid");
@@ -5,7 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 app.use(express.json());
 
-// Conexão ao MySQL (ajuste credenciais)
+// Conexão ao MySQL (ajuste as credenciais conforme necessário)
 let pool;
 (async function initDB() {
   pool = await mysql.createPool({
@@ -13,16 +14,16 @@ let pool;
     user: "crassu24_matheus",
     password: "ek6khHvk*zJKvFk",
     database: "crassu24_airlandbd",
-    port: 3306,                       // se precisar explicitamente
+    port: 3306,                       // se necessário
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-  });  
+  });
   console.log("Conexão MySQL estabelecida.");
 })();
 
 // Rota: Criar/Compartilhar carrinho
-// Recebe affiliateId, agentId, items = [{id: "...", quantity: 2}, ...]
+// Recebe affiliateId, agentId e items (array de objetos, ex: [{ id: "...", quantity: 2 }, ...])
 // Retorna shareId
 app.post("/shareCart", async (req, res) => {
   try {
@@ -33,10 +34,10 @@ app.post("/shareCart", async (req, res) => {
 
     // Gera share_id (UUID)
     const shareId = uuidv4();
-    // items será salvo como JSON
+    // Converte os itens para JSON
     const itemsJson = JSON.stringify(items);
 
-    // Salva no banco
+    // Insere no banco de dados
     const sql = `
       INSERT INTO shared_carts (share_id, affiliate_id, agent_id, items)
       VALUES (?, ?, ?, ?)
@@ -72,7 +73,7 @@ app.get("/cart/:shareId", async (req, res) => {
       shareId: cart.share_id,
       affiliateId: cart.affiliate_id,
       agentId: cart.agent_id,
-      items: JSON.parse(cart.items), // sem preços
+      items: JSON.parse(cart.items), // os itens são enviados sem preço
       createdAt: cart.created_at,
       updatedAt: cart.updated_at
     });
@@ -82,15 +83,16 @@ app.get("/cart/:shareId", async (req, res) => {
   }
 });
 
-// Rota: Atualizar carrinho (usuario remove item, muda quantidade, etc.)
-// Recebe: shareId, items
+// Rota: Atualizar carrinho (POST /updateCart)
+// Recebe shareId e items atualizados
 app.post("/updateCart", async (req, res) => {
   try {
     const { shareId, items } = req.body;
     if (!shareId || !items) {
       return res.status(400).json({ error: "shareId e items são obrigatórios" });
     }
-    // Busca se existe
+
+    // Verifica se o carrinho existe
     const checkSql = `SELECT * FROM shared_carts WHERE share_id = ? LIMIT 1`;
     const conn = await pool.getConnection();
     const [rows] = await conn.query(checkSql, [shareId]);
@@ -98,7 +100,8 @@ app.post("/updateCart", async (req, res) => {
       conn.release();
       return res.status(404).json({ error: "Carrinho não encontrado" });
     }
-    // Atualiza
+
+    // Atualiza os itens
     const itemsJson = JSON.stringify(items);
     const updateSql = `
       UPDATE shared_carts
@@ -116,9 +119,8 @@ app.post("/updateCart", async (req, res) => {
   }
 });
 
-// Rota: Limpar carrinho
-// Pode remover do DB ou zerar items
-// Aqui optamos por remover a row
+// Rota: Limpar carrinho (POST /clearCart)
+// Remove a linha do carrinho do banco de dados
 app.post("/clearCart", async (req, res) => {
   try {
     const { shareId } = req.body;
@@ -126,13 +128,13 @@ app.post("/clearCart", async (req, res) => {
       return res.status(400).json({ error: "shareId é obrigatório" });
     }
     const conn = await pool.getConnection();
-    // Verifica se existe
+    // Verifica se o carrinho existe
     const [rows] = await conn.query(`SELECT * FROM shared_carts WHERE share_id=? LIMIT 1`, [shareId]);
     if (rows.length === 0) {
       conn.release();
       return res.status(404).json({ error: "Carrinho não encontrado." });
     }
-    // Remove
+    // Remove o carrinho
     await conn.query(`DELETE FROM shared_carts WHERE share_id=? LIMIT 1`, [shareId]);
     conn.release();
 
@@ -144,5 +146,5 @@ app.post("/clearCart", async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Server rodando em http://localhost:3000");
+  console.log("Servidor rodando em http://localhost:3000");
 });
