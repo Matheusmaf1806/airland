@@ -45,134 +45,39 @@ async function getAllowedOrigins() {
   );
 })();
 
-// 🔹 Definição de rotas da API
-
-// 📌 Criar/Cadastrar Ingresso Compartilhado
-app.post("/shareCart", async (req, res) => {
-  try {
-    const { affiliateId, agentId, items } = req.body;
-    if (!affiliateId || !agentId || !items) {
-      return res.status(400).json({ error: "affiliateId, agentId e items são obrigatórios." });
-    }
-
-    const shareId = crypto.randomUUID();
-    const { error } = await supabase
-      .from("shared_carts")
-      .insert([{ share_id: shareId, affiliate_id: affiliateId, agent_id: agentId, items }]);
-
-    if (error) throw error;
-    return res.json({ success: true, shareId });
-  } catch (err) {
-    console.error("Erro ao criar ingresso compartilhado:", err);
-    return res.status(500).json({ error: "Erro interno ao criar ingresso compartilhado" });
+// 🔹 Rota dinâmica para detalhes do parque
+app.get("/park-details/:id", async (req, res) => {
+  const { id } = req.params;
+  
+  // Aqui você deve fazer a lógica para buscar as informações do parque pelo ID
+  const { data, error } = await supabase
+    .from("parks")
+    .select("*")
+    .eq("id", id)
+    .single();
+  
+  if (error) {
+    return res.status(404).json({ error: "Parque não encontrado" });
   }
+  
+  // Exemplo de como renderizar o HTML para o cliente (poderia ser um template dinâmico)
+  const parkDetails = `
+    <html>
+      <head>
+        <title>${data.name} - Walt Disney World Resort</title>
+      </head>
+      <body>
+        <h1>${data.name}</h1>
+        <p>${data.description}</p>
+        <img src="${data.images.cover}" alt="${data.name}" />
+      </body>
+    </html>
+  `;
+  
+  res.send(parkDetails);
 });
 
-// 📌 Buscar Ingresso Compartilhado
-app.get("/cart/:shareId", async (req, res) => {
-  try {
-    const { shareId } = req.params;
-    const { data, error } = await supabase
-      .from("shared_carts")
-      .select("*")
-      .eq("share_id", shareId)
-      .single();
-
-    if (error) return res.status(404).json({ error: "Ingresso compartilhado não encontrado" });
-
-    return res.json({ success: true, ...data });
-  } catch (err) {
-    console.error("Erro ao buscar ingresso compartilhado:", err);
-    return res.status(500).json({ error: "Erro interno ao buscar ingresso compartilhado" });
-  }
-});
-
-// 📌 Atualizar Ingresso Compartilhado
-app.post("/updateCart", async (req, res) => {
-  try {
-    const { shareId, items } = req.body;
-    if (!shareId || !items) {
-      return res.status(400).json({ error: "shareId e items são obrigatórios" });
-    }
-
-    const { error } = await supabase
-      .from("shared_carts")
-      .update({ items })
-      .eq("share_id", shareId);
-
-    if (error) throw error;
-
-    return res.json({ success: true, shareId });
-  } catch (err) {
-    console.error("Erro ao atualizar ingresso compartilhado:", err);
-    return res.status(500).json({ error: "Erro interno ao atualizar ingresso compartilhado" });
-  }
-});
-
-// 📌 Limpar Ingresso Compartilhado
-app.post("/clearCart", async (req, res) => {
-  try {
-    const { shareId } = req.body;
-    if (!shareId) {
-      return res.status(400).json({ error: "shareId é obrigatório" });
-    }
-
-    const { error } = await supabase
-      .from("shared_carts")
-      .delete()
-      .eq("share_id", shareId);
-
-    if (error) throw error;
-
-    return res.json({ success: true, message: "Ingresso removido" });
-  } catch (err) {
-    console.error("Erro ao limpar ingresso compartilhado:", err);
-    return res.status(500).json({ error: "Erro interno ao limpar ingresso compartilhado" });
-  }
-});
-
-// 📌 Buscar Preços dos Ingressos
-app.get("/prices", async (req, res) => {
-  try {
-    const { id_site, start_date, end_date } = req.query;
-
-    if (!id_site || !start_date || !end_date) {
-      return res.status(400).json({ error: "id_site, start_date e end_date são obrigatórios" });
-    }
-
-    const { data, error } = await supabase
-      .from("bd_net")
-      .select("*")
-      .eq("id_site", id_site)
-      .gte("forDate", start_date)
-      .lte("forDate", end_date);
-
-    if (error) throw error;
-
-    res.json(data);
-  } catch (err) {
-    console.error("Erro ao buscar preços dos ingressos:", err);
-    res.status(500).json({ error: "Erro ao buscar preços dos ingressos" });
-  }
-});
-
-// 📌 Buscar Margens dos Afiliados
-app.get("/margins/affiliates", async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("affiliate_categories_margin")
-      .select("*");
-
-    if (error) throw error;
-
-    res.json(data);
-  } catch (err) {
-    console.error("Erro ao buscar margens dos afiliados:", err);
-    res.status(500).json({ error: "Erro ao buscar margens dos afiliados" });
-  }
-});
-
-// 📌 Adicionando uma resposta para a rota `/` para evitar erro "Cannot GET /"
+// 🔹 Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
