@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import fetch from "node-fetch"; // Para fazer requisição HTTP
-import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
+import dotenv from "dotenv"; // Para carregar variáveis de ambiente
 
 // Carregar variáveis do .env
 dotenv.config();
