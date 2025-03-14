@@ -1,7 +1,7 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql2/promise");
+const { Pool } = require("pg");  // Usando pg (PostgreSQL)
 const { v4: uuidv4 } = require("uuid");
 
 const app = express();
@@ -11,26 +11,23 @@ app.use(cors());
 
 let pool;
 
-// Função para inicializar a conexão com o MySQL
+// Função para inicializar a conexão com o PostgreSQL
 async function initDB() {
-  pool = await mysql.createPool({
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "crassu24_matheus",
-    password: process.env.DB_PASS || "ek6khHvk*zJKvFk",
-    database: process.env.DB_NAME || "crassu24_airlandbd",
-    port: process.env.DB_PORT || 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  pool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT || 5432,  // Usando a porta do PostgreSQL
   });
-  console.log("Conexão MySQL estabelecida.");
+  console.log("Conexão PostgreSQL estabelecida.");
 }
 
-// Função para buscar os domínios permitidos na tabela de afiliados
+// Função para buscar os domínios permitidos
 async function getAllowedOrigins() {
   try {
-    const [rows] = await pool.query("SELECT domain FROM affiliates");
-    return rows.map(row => row.domain);
+    const res = await pool.query("SELECT domain FROM affiliates");
+    return res.rows.map(row => row.domain);
   } catch (err) {
     console.error("Erro ao buscar domínios permitidos:", err);
     return [];
@@ -50,9 +47,9 @@ function initRoutes() {
       const itemsJson = JSON.stringify(items);
       const sql = `
         INSERT INTO shared_carts (share_id, affiliate_id, agent_id, items)
-        VALUES (?, ?, ?, ?)
+        VALUES ($1, $2, $3, $4)
       `;
-      const conn = await pool.getConnection();
+      const conn = await pool.connect();
       await conn.query(sql, [shareId, affiliateId, agentId, itemsJson]);
       conn.release();
       return res.json({ success: true, shareId });
@@ -66,9 +63,9 @@ function initRoutes() {
   app.get("/cart/:shareId", async (req, res) => {
     try {
       const { shareId } = req.params;
-      const sql = "SELECT * FROM shared_carts WHERE share_id = ? LIMIT 1";
-      const conn = await pool.getConnection();
-      const [rows] = await conn.query(sql, [shareId]);
+      const sql = "SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1";
+      const conn = await pool.connect();
+      const { rows } = await conn.query(sql, [shareId]);
       conn.release();
       if (rows.length === 0) {
         return res.status(404).json({ error: "Carrinho não encontrado" });
@@ -96,15 +93,15 @@ function initRoutes() {
       if (!shareId || !items) {
         return res.status(400).json({ error: "shareId e items são obrigatórios" });
       }
-      const checkSql = "SELECT * FROM shared_carts WHERE share_id = ? LIMIT 1";
-      const conn = await pool.getConnection();
-      const [rows] = await conn.query(checkSql, [shareId]);
+      const checkSql = "SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1";
+      const conn = await pool.connect();
+      const { rows } = await conn.query(checkSql, [shareId]);
       if (rows.length === 0) {
         conn.release();
         return res.status(404).json({ error: "Carrinho não encontrado" });
       }
       const itemsJson = JSON.stringify(items);
-      const updateSql = "UPDATE shared_carts SET items = ? WHERE share_id = ? LIMIT 1";
+      const updateSql = "UPDATE shared_carts SET items = $1 WHERE share_id = $2 LIMIT 1";
       await conn.query(updateSql, [itemsJson, shareId]);
       conn.release();
       return res.json({ success: true, shareId });
@@ -121,13 +118,13 @@ function initRoutes() {
       if (!shareId) {
         return res.status(400).json({ error: "shareId é obrigatório" });
       }
-      const conn = await pool.getConnection();
-      const [rows] = await conn.query("SELECT * FROM shared_carts WHERE share_id = ? LIMIT 1", [shareId]);
+      const conn = await pool.connect();
+      const { rows } = await conn.query("SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1", [shareId]);
       if (rows.length === 0) {
         conn.release();
         return res.status(404).json({ error: "Carrinho não encontrado" });
       }
-      await conn.query("DELETE FROM shared_carts WHERE share_id = ? LIMIT 1", [shareId]);
+      await conn.query("DELETE FROM shared_carts WHERE share_id = $1 LIMIT 1", [shareId]);
       conn.release();
       return res.json({ success: true, message: "Carrinho removido" });
     } catch (err) {
@@ -140,8 +137,8 @@ function initRoutes() {
   app.get("/prices", async (req, res) => {
     try {
       const { id_site, start_date, end_date } = req.query;
-      const [rows] = await pool.query(
-        "SELECT * FROM bd_net WHERE id_site = ? AND forDate BETWEEN ? AND ?",
+      const { rows } = await pool.query(
+        "SELECT * FROM bd_net WHERE id_site = $1 AND forDate BETWEEN $2 AND $3",
         [id_site, start_date, end_date]
       );
       res.json(rows);
@@ -154,7 +151,7 @@ function initRoutes() {
   // Endpoint para obter margens dos afiliados
   app.get("/margins/affiliates", async (req, res) => {
     try {
-      const [rows] = await pool.query("SELECT * FROM affiliate_categories_margin");
+      const { rows } = await pool.query("SELECT * FROM affiliate_categories_margin");
       res.json(rows);
     } catch (err) {
       console.error(err);
