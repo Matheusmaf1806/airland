@@ -13,7 +13,7 @@ const supabase = createClient(
 const app = express();
 app.use(express.json());
 
-// Serve arquivos estáticos da pasta "public"
+// Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
