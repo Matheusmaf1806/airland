@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import fetch from "node-fetch"; // Para fazer a requisição HTTP
 import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
+import crypto from "crypto"; // Para gerar a assinatura SHA-256
 dotenv.config();
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
@@ -24,7 +25,6 @@ async function getAllowedOrigins() {
     const { data, error } = await supabase.from("affiliates").select("domain");
     if (error) throw error;
 
-    // Remover valores nulos antes de retornar
     return data.map((row) => row.domain).filter((domain) => domain);
   } catch (err) {
     console.error("Erro ao buscar domínios permitidos:", err);
@@ -50,6 +50,18 @@ async function getAllowedOrigins() {
     })
   );
 })();
+
+// 🔹 Função para gerar a assinatura X-Signature
+function generateSignature() {
+  const publicKey = process.env.API_KEY_HH;
+  const privateKey = process.env.SECRET_KEY_HH;
+  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
+  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
+
+  // Criptografia SHA-256 da combinação
+  const hash = crypto.createHash("sha256").update(assemble).digest("hex");
+  return hash;
+}
 
 // 🔹 Rota para buscar dados de hotéis via Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
@@ -92,21 +104,6 @@ app.post("/proxy-hotelbeds", async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
   }
 });
-
-// 🔹 Função para gerar a assinatura X-Signature
-function generateSignature() {
-  const publicKey = process.env.API_KEY_HH;
-  const privateKey = process.env.SECRET_KEY_HH;
-  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
-  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
-
-  // Criptografia SHA-256 da combinação
-  const hash = require("crypto")
-    .createHash("sha256")
-    .update(assemble)
-    .digest("hex");
-  return hash;
-}
 
 // 🔹 Rota dinâmica para detalhes do parque
 app.get("/park-details/:id", async (req, res) => {
