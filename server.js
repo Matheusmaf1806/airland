@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
-import { getHotelData } from "./api/hht.js";  // Importa a função que vai fazer a requisição
+import { getHotelData } from "./api/hht.js"; // Importa a função que vai fazer a requisição aos dados dos hotéis
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
@@ -52,18 +52,18 @@ async function getAllowedOrigins() {
 // 🔹 Rota dinâmica para detalhes do parque
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
-
+  
   // Aqui você deve fazer a lógica para buscar as informações do parque pelo ID
   const { data, error } = await supabase
     .from("parks")
     .select("*")
     .eq("id", id)
     .single();
-
+  
   if (error) {
     return res.status(404).json({ error: "Parque não encontrado" });
   }
-
+  
   // Exemplo de como renderizar o HTML para o cliente (poderia ser um template dinâmico)
   const parkDetails = `
     <html>
@@ -77,7 +77,7 @@ app.get("/park-details/:id", async (req, res) => {
       </body>
     </html>
   `;
-
+  
   res.send(parkDetails);
 });
 
