@@ -1,6 +1,3 @@
-// Importando o CryptoJS diretamente da CDN
-import CryptoJS from 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js';
-
 // Função para gerar a assinatura X-Signature
 function generateSignature(publicKey, privateKey) {
   const utcDate = Math.floor(new Date().getTime() / 1000);  // Timestamp UTC (em segundos)
@@ -79,11 +76,26 @@ function displayHotels(data) {
     data.hotels.forEach(hotel => {
       const hotelElement = document.createElement('div');
       hotelElement.classList.add('hotel-item');
+      
+      // Extrair informações dos quartos e taxas
+      let roomDetails = '';
+      hotel.rooms.forEach(room => {
+        roomDetails += `
+          <div>
+            <strong>${room.name}</strong>
+            <p>Preço: ${room.rates[0].net} ${data.currency}</p>
+            <p>Tipo de Tarifa: ${room.rates[0].rateClass}</p>
+            <p>Política de Cancelamento: ${room.rates[0].cancellationPolicies[0].amount} antes de ${room.rates[0].cancellationPolicies[0].from}</p>
+          </div>
+        `;
+      });
+
       hotelElement.innerHTML = `
         <h3>${hotel.name}</h3>
-        <p>${hotel.description}</p>
-        <p>Preço: ${hotel.price.total} ${hotel.price.currency}</p>
-        <p>Avaliação: ${hotel.hotel_rating} estrelas</p>
+        <p>Categoria: ${hotel.categoryName}</p>
+        <p>Localização: ${hotel.zoneName}, ${hotel.destinationName}</p>
+        <p>Latitude: ${hotel.latitude}, Longitude: ${hotel.longitude}</p>
+        ${roomDetails}
       `;
       hotelsList.appendChild(hotelElement);
     });
