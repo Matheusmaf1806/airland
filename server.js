@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import { getHotelData } from './api/hht.js';  // Função para fazer requisição da API de hotéis
 
