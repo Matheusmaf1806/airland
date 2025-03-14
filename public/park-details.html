@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Walt Disney World Resort - Ingressos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- META TAGS PARA SEO -->
+  <meta name="description" content="Compre ingressos para o Walt Disney World Resort com até 10x sem juros e desconto no Pix. Aproveite Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom em Orlando, Estados Unidos.">
+  <meta name="keywords" content="Disney, Ingressos, Orlando, Walt Disney World, Magic Kingdom, Epcot, Hollywood Studios, Animal Kingdom, Desconto, Pix, Parcelamento">
+
+  <!-- FONTE MONTSERRAT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+
+  <!-- Font Awesome (opcional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    /* Inclua aqui seu CSS conforme necessário */
+  </style>
+</head>
+<body>
+
+  <!-- HEADER EXTERNO -->
+  <div id="externalHeader"></div>
+  <script>
+    fetch("https://business.airland.com.br/header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("externalHeader").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header externa:", err));
+  </script>
+
+  <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
+  <div class="main-container">
+    <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
+    <div class="left-column">
+      <div class="main-banner">
+        <img id="park-cover-img" src="" alt="Disney Banner" />
+      </div>
+      <div class="mini-images">
+        <!-- Exibir mini imagens dinâmicas do parque -->
+        <img id="park-img-1" src="" alt="Park Image 1" />
+        <img id="park-img-2" src="" alt="Park Image 2" />
+        <img id="park-img-3" src="" alt="Park Image 3" />
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA: Título, Avaliações, Box de Preço -->
+    <div class="right-column">
+      <h1 id="product-title" class="product-title"></h1>
+      <div id="stars-reviews" class="stars-reviews">
+        <!-- Avaliações do parque -->
+      </div>
+      <div id="park-location" class="location"></div>
+
+      <div class="action-buttons">
+        <button><i class="fas fa-share"></i> Compartilhar</button>
+        <button><i class="far fa-heart"></i> Minha lista de desejos</button>
+      </div>
+
+      <!-- BOX DE PREÇO / RESERVA -->
+      <div id="price-box" class="price-box">
+        <span class="price-label">A partir de</span>
+        <div id="price-value" class="price-value"></div>
+        <div id="installment-info" class="installment-info"></div>
+        <div id="pix-discount" class="pix-discount"></div>
+
+        <div class="date-participants">
+          <label for="arrival-date">Data e participantes</label>
+          <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
+          <div style="display: flex; gap:8px;">
+            <select id="numAdults" style="flex:1;">
+              <option value="2" selected>2 adultos</option>
+              <option value="1">1 adulto</option>
+              <option value="3">3 adultos</option>
+              <option value="4">4 adultos</option>
+            </select>
+            <select id="numChildren" style="flex:1;">
+              <option value="0" selected>0 crianças</option>
+              <option value="1">1 criança</option>
+              <option value="2">2 crianças</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="atualizarBusca()">Atualizar busca</button>
+        <div class="non-refundable">
+          <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO DE INGRESSOS (LISTA) -->
+  <section id="ticket-section" class="ticket-section">
+    <div id="ticket-top-text" class="ticket-top-text">
+      <!-- Texto sobre os ingressos do parque -->
+    </div>
+    <div id="ticket-list" class="ticket-list">
+      <!-- Ingressos serão preenchidos aqui -->
+    </div>
+  </section>
+
+  <!-- SEÇÃO DE CONTEÚDO ADICIONAL -->
+  <div id="content-section" class="content-section">
+    <h2>Sobre o Produto</h2>
+    <p id="product-description"></p>
+
+    <h2>Destaques</h2>
+    <ul id="highlights-list" class="highlights-list">
+      <!-- Destaques do parque -->
+    </ul>
+
+    <h2>Política de Cancelamento</h2>
+    <p id="cancellation-policy"></p>
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer>
+    © 2025 - Layout estilo Airland • Todos os direitos reservados
+  </footer>
+
+  <!-- SCRIPT: Funções de busca, toggle, etc. -->
+  <script src="bdinh.js"></script>
+
+  <script>
+    // Função para buscar detalhes do parque selecionado e preencher os dados na página
+    function loadParkDetails(parkId) {
+      mostrarDetalhesParque(parkId);
+      listarProdutosDoParque(parkId);
+    }
+
+    // Carregar os detalhes do parque na página com base no ID do parque
+    window.onload = function() {
+      // Exemplo: Carregar o parque com um ID específico (exemplo: '807136dc-4ec2-4be1-895f-d298c166e3d8')
+      const parkId = '807136dc-4ec2-4be1-895f-d298c166e3d8';
+      loadParkDetails(parkId);
+    };
+  </script>
+</body>
+</html>
