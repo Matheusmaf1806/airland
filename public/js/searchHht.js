@@ -1,3 +1,6 @@
+// Importando o CryptoJS diretamente da CDN
+import CryptoJS from 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js';
+
 // Função para gerar a assinatura X-Signature
 function generateSignature(publicKey, privateKey) {
   const utcDate = Math.floor(new Date().getTime() / 1000);  // Timestamp UTC (em segundos)
