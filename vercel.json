@@ -4,13 +4,10 @@
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    {
-      "src": "/park-details/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
-    }
+    // Serve a página de detalhes do parque de forma dinâmica
+    { "src": "/park-details/(.*)", "dest": "/server.js" },
+    
+    // Serve todas as outras rotas com express, como a página inicial
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
