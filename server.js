@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import { getHotelData } from './api/hht.js';  // Função para fazer requisição da API de hotéis
 
@@ -12,12 +11,10 @@ const supabase = createClient(
 );
 
 const app = express();
-
-// Middlewares
 app.use(express.json());
 
 // Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
-app.use(express.static(path.join(process.cwd(), 'public')));  // Ajuste no caminho estático para o Vercel
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
 async function getAllowedOrigins() {
@@ -25,6 +22,7 @@ async function getAllowedOrigins() {
     const { data, error } = await supabase.from("affiliates").select("domain");
     if (error) throw error;
 
+    // Remover valores nulos antes de retornar
     return data.map(row => row.domain).filter(domain => domain);
   } catch (err) {
     console.error("Erro ao buscar domínios permitidos:", err);
@@ -40,7 +38,7 @@ async function getAllowedOrigins() {
   app.use(
     cors({
       origin: function (origin, callback) {
-        if (!origin) return callback(null, true);  // Permite sem origem (ex: quando vem diretamente do cliente sem origin)
+        if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) {
           return callback(null, true);
         } else {
@@ -66,18 +64,19 @@ app.get('/hotel-data', async (req, res) => {
 // 🔹 Rota dinâmica para detalhes do parque
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
-
-  // Busca as informações do parque pelo ID
+  
+  // Aqui você deve fazer a lógica para buscar as informações do parque pelo ID
   const { data, error } = await supabase
     .from("parks")
     .select("*")
     .eq("id", id)
     .single();
-
+  
   if (error) {
     return res.status(404).json({ error: "Parque não encontrado" });
   }
-
+  
+  // Exemplo de como renderizar o HTML para o cliente (poderia ser um template dinâmico)
   const parkDetails = `
     <html>
       <head>
@@ -90,13 +89,14 @@ app.get("/park-details/:id", async (req, res) => {
       </body>
     </html>
   `;
+  
   res.send(parkDetails);
 });
 
-// Rota principal de teste
+// 🔹 Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
-// Exporta o app para a Vercel
+// 🔹 Exporta o app para a Vercel
 export default app;
