@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto"; // Importado para gerar UUID corretamente
+import path from "path"; // Para lidar com caminhos de arquivos estáticos
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
@@ -11,6 +12,9 @@ const supabase = createClient(
 
 const app = express();
 app.use(express.json());
+
+// Serve arquivos estáticos da pasta "public"
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
 async function getAllowedOrigins() {
