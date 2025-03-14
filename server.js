@@ -1,11 +1,12 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
-import fetch from "node-fetch"; // Para fazer a requisição HTTP
-import crypto from "crypto"; // Para gerar a assinatura SHA-256
+import fetch from "node-fetch"; // Para fazer requisição HTTP
 import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
 
+// Carregar variáveis do .env
 dotenv.config();
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
@@ -17,11 +18,9 @@ const supabase = createClient(
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para aceitar JSON
+// Middlewares
 app.use(express.json());
-
-// Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
@@ -70,6 +69,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   try {
     const response = await fetch(url, requestOptions);
     const result = await response.json();
+    console.log(result); // Log da resposta para debug
     if (result.error) {
       throw new Error(result.error);
     }
@@ -84,30 +84,35 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
 
-  // Busca as informações do parque pelo ID
-  const { data, error } = await supabase
-    .from("parks")
-    .select("*")
-    .eq("id", id)
-    .single();
+  try {
+    // Busca as informações do parque pelo ID
+    const { data, error } = await supabase
+      .from("parks")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (error) {
-    return res.status(404).json({ error: "Parque não encontrado" });
+    if (error) {
+      return res.status(404).json({ error: "Parque não encontrado" });
+    }
+
+    const parkDetails = `
+      <html>
+        <head>
+          <title>${data.name} - Walt Disney World Resort</title>
+        </head>
+        <body>
+          <h1>${data.name}</h1>
+          <p>${data.description}</p>
+          <img src="${data.images.cover}" alt="${data.name}" />
+        </body>
+      </html>
+    `;
+    res.send(parkDetails);
+  } catch (error) {
+    console.error("Erro ao buscar parque:", error);
+    res.status(500).json({ error: "Erro ao buscar parque" });
   }
-
-  const parkDetails = `
-    <html>
-      <head>
-        <title>${data.name} - Walt Disney World Resort</title>
-      </head>
-      <body>
-        <h1>${data.name}</h1>
-        <p>${data.description}</p>
-        <img src="${data.images.cover}" alt="${data.name}" />
-      </body>
-    </html>
-  `;
-  res.send(parkDetails);
 });
 
 // Rota principal de teste
