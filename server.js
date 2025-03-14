@@ -3,8 +3,9 @@ import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import fetch from "node-fetch"; // Para fazer a requisição HTTP
-import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
 import crypto from "crypto"; // Para gerar a assinatura SHA-256
+import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
+
 dotenv.config();
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
@@ -14,42 +15,13 @@ const supabase = createClient(
 );
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware para aceitar JSON
 app.use(express.json());
 
 // Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
 app.use(express.static(path.join(__dirname, "public")));
-
-// 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
-async function getAllowedOrigins() {
-  try {
-    const { data, error } = await supabase.from("affiliates").select("domain");
-    if (error) throw error;
-
-    return data.map((row) => row.domain).filter((domain) => domain);
-  } catch (err) {
-    console.error("Erro ao buscar domínios permitidos:", err);
-    return [];
-  }
-}
-
-// 🔹 Configuração do CORS com base na tabela `affiliates`
-(async function configureCors() {
-  const allowedOrigins = await getAllowedOrigins();
-  console.log("Domínios permitidos:", allowedOrigins);
-
-  app.use(
-    cors({
-      origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        } else {
-          return callback(new Error("Origin not allowed by CORS"));
-        }
-      },
-    })
-  );
-})();
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
@@ -73,8 +45,8 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 
   const raw = JSON.stringify({
     stay: {
-      checkIn: req.body.checkIn || "2025-06-15", // Pode ser dinâmico a partir do corpo da requisição
-      checkOut: req.body.checkOut || "2025-06-16",
+      checkIn: req.body.checkIn || "2025-06-15", // Padrão para o check-in
+      checkOut: req.body.checkOut || "2025-06-16", // Padrão para o check-out
     },
     occupancies: [
       {
@@ -84,7 +56,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
       },
     ],
     destination: {
-      code: req.body.destination || "MCO", // Padrão para Orlando
+      code: req.body.destination || "MCO", // Padrão para Orlando (MCO)
     },
   });
 
@@ -98,6 +70,9 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   try {
     const response = await fetch(url, requestOptions);
     const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error);
+    }
     res.json(result); // Retorna os dados recebidos da API Hotelbeds
   } catch (error) {
     console.error("Erro ao buscar dados dos hotéis:", error);
@@ -140,5 +115,9 @@ app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
-// 🔹 Exporta o app para a Vercel
+// Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 export default app;
