@@ -14,7 +14,9 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
+
+// Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
+app.use(express.static(path.join(process.cwd(), 'public')));  // Ajuste no caminho estático para o Vercel
 
 // 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
 async function getAllowedOrigins() {
@@ -37,7 +39,7 @@ async function getAllowedOrigins() {
   app.use(
     cors({
       origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
+        if (!origin) return callback(null, true);  // Permite sem origem (ex: quando vem diretamente do cliente sem origin)
         if (allowedOrigins.includes(origin)) {
           return callback(null, true);
         } else {
