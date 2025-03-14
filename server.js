@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
+import { getHotelData } from './api/hht.js';  // Importa a função que vai fazer a requisição para Hotelbeds
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
@@ -11,9 +11,11 @@ const supabase = createClient(
 );
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(express.json());
 
-// Serve arquivos estáticos da pasta "public" (os arquivos precisam estar dentro dessa pasta)
+// Serve arquivos estáticos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
@@ -53,7 +55,6 @@ async function getAllowedOrigins() {
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
   
-  // Aqui você deve fazer a lógica para buscar as informações do parque pelo ID
   const { data, error } = await supabase
     .from("parks")
     .select("*")
@@ -63,8 +64,7 @@ app.get("/park-details/:id", async (req, res) => {
   if (error) {
     return res.status(404).json({ error: "Parque não encontrado" });
   }
-  
-  // Exemplo de como renderizar o HTML para o cliente (poderia ser um template dinâmico)
+
   const parkDetails = `
     <html>
       <head>
@@ -79,6 +79,17 @@ app.get("/park-details/:id", async (req, res) => {
   `;
   
   res.send(parkDetails);
+});
+
+// 🔹 Nova Rota para buscar dados do Hotelbeds
+app.get('/hotel-data', async (req, res) => {
+  try {
+    const destination = req.query.destination || 'MCO';  // Define um destino padrão (Orlando)
+    const hotelData = await getHotelData(destination);  // Chama a função para buscar os dados
+    res.json(hotelData);  // Retorna os dados recebidos da API
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // 🔹 Rota principal de teste
