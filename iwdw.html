@@ -1359,34 +1359,56 @@
       });
     }
     
+    // Função para buscar preços dos ingressos
     async function get_price_tickets(id_site, startDate, endDate) {
-      const url  = "https://airland.com.br/get-price.php";
-      const data = { id_site, start_date: startDate, end_date: endDate };
-      const timeout = 60000;
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout')), timeout)
-      );
+      const url = `https://airland.vercel.app/api/prices?id_site=${id_site}&start_date=${startDate}&end_date=${endDate}`;
+      
       try {
-        const response = await Promise.race([
-          fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          }),
-          timeoutPromise
-        ]);
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        // Verifica se a resposta da API foi bem-sucedida
         if (!response.ok) {
-          console.error("Erro na fetch:", await response.text());
+          console.error("Erro ao buscar preços:", await response.text());
           return [];
         }
-        const result = await response.json();
-        return result;
+
+        // Retorna os preços dos ingressos
+        const prices = await response.json();
+        return prices;
       } catch (err) {
-        console.error("Erro ao buscar tickets:", err);
+        console.error("Erro ao buscar preços:", err);
         return [];
       }
     }
-    
+
+    // Função para exibir os preços no frontend
+    async function displayTicketPrices(id_site, startDate, endDate) {
+      const prices = await get_price_tickets(id_site, startDate, endDate);
+
+      if (prices.length === 0) {
+        alert("Nenhum preço encontrado.");
+        return;
+      }
+
+      // Aqui você pode manipular o DOM para exibir os preços. Exemplo:
+      const priceListContainer = document.getElementById('price-list');
+      priceListContainer.innerHTML = ''; // Limpa a lista de preços
+
+      prices.forEach((price) => {
+        const priceElement = document.createElement('div');
+        priceElement.classList.add('price-item');
+        priceElement.innerHTML = `
+          <p><strong>Ingressos para ${price.date}:</strong></p>
+          <p>Preço Adulto: R$ ${price.adult_price}</p>
+          <p>Preço Criança: R$ ${price.child_price}</p>
+        `;
+        priceListContainer.appendChild(priceElement);
+      });
+    }
+
     function selectDate(year, month, day) {
       const selDate = new Date(year, month, day);
       selectedOptions.startDate = selDate;
