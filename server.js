@@ -52,18 +52,18 @@ async function getAllowedOrigins() {
 // 🔹 Rota dinâmica para detalhes do parque
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
-  
+
   // Aqui você deve fazer a lógica para buscar as informações do parque pelo ID
   const { data, error } = await supabase
     .from("parks")
     .select("*")
     .eq("id", id)
     .single();
-  
+
   if (error) {
     return res.status(404).json({ error: "Parque não encontrado" });
   }
-  
+
   // Exemplo de como renderizar o HTML para o cliente (poderia ser um template dinâmico)
   const parkDetails = `
     <html>
@@ -77,7 +77,7 @@ app.get("/park-details/:id", async (req, res) => {
       </body>
     </html>
   `;
-  
+
   res.send(parkDetails);
 });
 
@@ -88,6 +88,7 @@ app.get('/hotel-data', async (req, res) => {
     const hotelData = await getHotelData(destination);  // Chama a função para buscar os dados
     res.json(hotelData);  // Retorna os dados recebidos da API
   } catch (error) {
+    console.error("Erro ao buscar dados dos hotéis:", error);
     res.status(500).json({ error: error.message });
   }
 });
