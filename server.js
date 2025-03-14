@@ -1,57 +1,45 @@
-// server.js
-const express = require("express");
-const cors = require("cors");
-const { Pool } = require("pg");  // Usando pg (PostgreSQL)
-const { v4: uuidv4 } = require("uuid");
+import express from "express";
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
+
+// Criando cliente do Supabase com as variáveis de ambiente da Vercel
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 const app = express();
 app.use(express.json());
-// Use o CORS; as configurações podem ser personalizadas via variáveis de ambiente
 app.use(cors());
 
-let pool;
-
-// Função para inicializar a conexão com o PostgreSQL
-async function initDB() {
-  pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT || 5432,  // Usando a porta do PostgreSQL
-  });
-  console.log("Conexão PostgreSQL estabelecida.");
-}
-
-// Função para buscar os domínios permitidos
+// 🔹 Função para buscar os domínios permitidos na tabela "affiliates"
 async function getAllowedOrigins() {
   try {
-    const res = await pool.query("SELECT domain FROM affiliates");
-    return res.rows.map(row => row.domain);
+    const { data, error } = await supabase.from("affiliates").select("domain");
+    if (error) throw error;
+    return data.map(row => row.domain);
   } catch (err) {
     console.error("Erro ao buscar domínios permitidos:", err);
     return [];
   }
 }
 
-// Função para definir as rotas da API
+// 🔹 Definição de rotas da API
 function initRoutes() {
-  // Endpoint para criar/cadastrar carrinho
+  // 📌 Criar/Cadastrar carrinho
   app.post("/shareCart", async (req, res) => {
     try {
       const { affiliateId, agentId, items } = req.body;
       if (!affiliateId || !agentId || !items) {
         return res.status(400).json({ error: "affiliateId, agentId e items são obrigatórios." });
       }
-      const shareId = uuidv4();
-      const itemsJson = JSON.stringify(items);
-      const sql = `
-        INSERT INTO shared_carts (share_id, affiliate_id, agent_id, items)
-        VALUES ($1, $2, $3, $4)
-      `;
-      const conn = await pool.connect();
-      await conn.query(sql, [shareId, affiliateId, agentId, itemsJson]);
-      conn.release();
+
+      const shareId = crypto.randomUUID();
+      const { error } = await supabase
+        .from("shared_carts")
+        .insert([{ share_id: shareId, affiliate_id: affiliateId, agent_id: agentId, items }]);
+
+      if (error) throw error;
       return res.json({ success: true, shareId });
     } catch (err) {
       console.error(err);
@@ -59,73 +47,62 @@ function initRoutes() {
     }
   });
 
-  // Endpoint para obter o carrinho
+  // 📌 Buscar carrinho
   app.get("/cart/:shareId", async (req, res) => {
     try {
       const { shareId } = req.params;
-      const sql = "SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1";
-      const conn = await pool.connect();
-      const { rows } = await conn.query(sql, [shareId]);
-      conn.release();
-      if (rows.length === 0) {
-        return res.status(404).json({ error: "Carrinho não encontrado" });
-      }
-      const cart = rows[0];
-      return res.json({
-        success: true,
-        shareId: cart.share_id,
-        affiliateId: cart.affiliate_id,
-        agentId: cart.agent_id,
-        items: JSON.parse(cart.items),
-        createdAt: cart.created_at,
-        updatedAt: cart.updated_at
-      });
+      const { data, error } = await supabase
+        .from("shared_carts")
+        .select("*")
+        .eq("share_id", shareId)
+        .single();
+
+      if (error) return res.status(404).json({ error: "Carrinho não encontrado" });
+
+      return res.json({ success: true, ...data });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: "Erro interno ao buscar carrinho" });
     }
   });
 
-  // Endpoint para atualizar o carrinho
+  // 📌 Atualizar carrinho
   app.post("/updateCart", async (req, res) => {
     try {
       const { shareId, items } = req.body;
       if (!shareId || !items) {
-        return res.status(400).json({ error: "shareId e items são obrigatórios" });
+        return res.status(400).json({ error: "shareId e items são obrigatórios." });
       }
-      const checkSql = "SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1";
-      const conn = await pool.connect();
-      const { rows } = await conn.query(checkSql, [shareId]);
-      if (rows.length === 0) {
-        conn.release();
-        return res.status(404).json({ error: "Carrinho não encontrado" });
-      }
-      const itemsJson = JSON.stringify(items);
-      const updateSql = "UPDATE shared_carts SET items = $1 WHERE share_id = $2 LIMIT 1";
-      await conn.query(updateSql, [itemsJson, shareId]);
-      conn.release();
-      return res.json({ success: true, shareId });
+
+      const { data, error } = await supabase
+        .from("shared_carts")
+        .update({ items })
+        .eq("share_id", shareId);
+
+      if (error) throw error;
+
+      return res.json({ success: true, shareId, data });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: "Erro interno ao atualizar carrinho" });
     }
   });
 
-  // Endpoint para limpar o carrinho
+  // 📌 Limpar carrinho
   app.post("/clearCart", async (req, res) => {
     try {
       const { shareId } = req.body;
       if (!shareId) {
         return res.status(400).json({ error: "shareId é obrigatório" });
       }
-      const conn = await pool.connect();
-      const { rows } = await conn.query("SELECT * FROM shared_carts WHERE share_id = $1 LIMIT 1", [shareId]);
-      if (rows.length === 0) {
-        conn.release();
-        return res.status(404).json({ error: "Carrinho não encontrado" });
-      }
-      await conn.query("DELETE FROM shared_carts WHERE share_id = $1 LIMIT 1", [shareId]);
-      conn.release();
+
+      const { error } = await supabase
+        .from("shared_carts")
+        .delete()
+        .eq("share_id", shareId);
+
+      if (error) throw error;
+
       return res.json({ success: true, message: "Carrinho removido" });
     } catch (err) {
       console.error(err);
@@ -133,26 +110,36 @@ function initRoutes() {
     }
   });
 
-  // Endpoint para obter preços dos ingressos
+  // 📌 Buscar preços
   app.get("/prices", async (req, res) => {
     try {
       const { id_site, start_date, end_date } = req.query;
-      const { rows } = await pool.query(
-        "SELECT * FROM bd_net WHERE id_site = $1 AND forDate BETWEEN $2 AND $3",
-        [id_site, start_date, end_date]
-      );
-      res.json(rows);
+      const { data, error } = await supabase
+        .from("bd_net")
+        .select("*")
+        .eq("id_site", id_site)
+        .gte("forDate", start_date)
+        .lte("forDate", end_date);
+
+      if (error) throw error;
+
+      res.json(data);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Erro ao buscar preços" });
     }
   });
 
-  // Endpoint para obter margens dos afiliados
+  // 📌 Buscar margens dos afiliados
   app.get("/margins/affiliates", async (req, res) => {
     try {
-      const { rows } = await pool.query("SELECT * FROM affiliate_categories_margin");
-      res.json(rows);
+      const { data, error } = await supabase
+        .from("affiliate_categories_margin")
+        .select("*");
+
+      if (error) throw error;
+
+      res.json(data);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Erro ao buscar margens dos afiliados" });
@@ -160,24 +147,21 @@ function initRoutes() {
   });
 }
 
-// Inicia o servidor e configura o CORS com os domínios permitidos
+// 🔹 Inicializar o servidor e configurar o CORS com os domínios permitidos
 (async function startServer() {
   try {
-    await initDB();
     const allowedOrigins = await getAllowedOrigins();
     console.log("Domínios permitidos:", allowedOrigins);
 
-    // Se nenhum domínio for encontrado na tabela, permite todas as origens (não é ideal para produção)
     if (allowedOrigins.length === 0) {
       app.use(cors());
       console.warn("Nenhum domínio permitido encontrado; permitindo todas as origens.");
     } else {
-      // Reconfigura o CORS para aceitar apenas os domínios da lista
       app.use(
         cors({
           origin: function (origin, callback) {
             if (!origin) return callback(null, true);
-            if (allowedOrigins.indexOf(origin) !== -1) {
+            if (allowedOrigins.includes(origin)) {
               return callback(null, true);
             } else {
               return callback(new Error("Origin not allowed by CORS"));
@@ -189,8 +173,7 @@ function initRoutes() {
 
     initRoutes();
 
-    // Se estiver rodando na Vercel (variável de ambiente VERCEL definida) exporta o app para funcionar como função serverless;
-    // caso contrário, inicia o servidor normalmente.
+    // Exporta o app para Vercel ou inicia localmente
     if (process.env.VERCEL) {
       module.exports = app;
     } else {
