@@ -1,21 +1,25 @@
+// Certifique-se de que o script CryptoJS está sendo carregado corretamente
+import CryptoJS from 'crypto-js';
+
+const apiKey = '8b4f5d1990d4ad509b5c9a55e6928c30'; // Sua API Key
+const secretKey = '1b5746196b'; // Sua Secret Key
+const endpoint = 'https://api.test.hotelbeds.com/hotel-api/1.0/hotels';
+
 // Função para gerar a assinatura X-Signature
 function generateSignature() {
-  const publicKey = "8b4f5d1990d4ad509b5c9a55e6928c30";  // Sua chave pública
-  const privateKey = "1b5746196b"; // Sua chave secreta
-
-  const utcDate = Math.floor(new Date().getTime() / 1000);  // Timestamp UTC (em segundos)
-  const assemble = `${publicKey}${privateKey}${utcDate}`;  // Combina os dados necessários para gerar a assinatura
-  
-  // Criptografia SHA-256 da combinação
-  const hash = CryptoJS.SHA256(assemble).toString(CryptoJS.enc.Hex);
+  const utcDate = Math.floor(new Date().getTime() / 1000); // Obtém o timestamp UTC
+  const assemble = apiKey + secretKey + utcDate;  // Combina os dados necessários para gerar a assinatura
+  const hash = CryptoJS.SHA256(assemble).toString(CryptoJS.enc.Hex); // Criptografa com SHA-256
   return hash;
 }
 
-// Função para buscar os dados dos hotéis
+// Função para buscar os hotéis com base no destino e nas datas
 async function fetchHotelData(destination) {
-  const signature = generateSignature();  // Gera a assinatura necessária para a requisição
+  const signature = generateSignature();  // Gera a assinatura necessária
+
+  // Cabeçalhos da requisição
   const myHeaders = new Headers();
-  myHeaders.append("Api-key", "8b4f5d1990d4ad509b5c9a55e6928c30");
+  myHeaders.append("Api-key", apiKey);
   myHeaders.append("X-Signature", signature);
   myHeaders.append("Accept", "application/json");
   myHeaders.append("Content-Type", "application/json");
@@ -33,10 +37,11 @@ async function fetchHotelData(destination) {
       }
     ],
     "destination": {
-      "code": destination
+      "code": destination // O código do destino (ex: MCO)
     }
   });
 
+  // Configuração da requisição
   const requestOptions = {
     method: "POST",
     headers: myHeaders,
@@ -44,40 +49,43 @@ async function fetchHotelData(destination) {
     redirect: "follow"
   };
 
+  // Faz a requisição para a API Hotelbeds
   try {
-    const response = await fetch("https://api.test.hotelbeds.com/hotel-api/1.0/hotels", requestOptions);
+    const response = await fetch(endpoint, requestOptions);
     const result = await response.json();
-    displayHotels(result); // Exibe os dados dos hotéis na tela
+
+    if (response.ok) {
+      displayHotels(result);
+    } else {
+      throw new Error(result.error || 'Erro desconhecido ao buscar hotéis');
+    }
   } catch (error) {
     console.error("Erro ao buscar hotéis:", error);
+    document.getElementById("hotels-list").innerHTML = "Erro ao buscar hotéis: " + error.message;
   }
 }
 
-// Função para exibir os hotéis na página
-function displayHotels(data) {
+// Função para exibir os hotéis no front-end
+function displayHotels(hotelsData) {
   const hotelsList = document.getElementById("hotels-list");
-  hotelsList.innerHTML = "";  // Limpa a lista de hotéis antes de adicionar os novos
+  hotelsList.innerHTML = ''; // Limpa a lista de hotéis antes de adicionar novos
 
-  // Verifica se há hotéis na resposta
-  if (data && data.hotels) {
-    data.hotels.forEach(hotel => {
-      const hotelItem = document.createElement("div");
-      hotelItem.className = "hotel-item";
-      hotelItem.innerHTML = `
-        <h3>${hotel.name}</h3>
-        <p>${hotel.categoryName}</p>
-        <p>${hotel.destinationName}</p>
-        <p>Preço: ${hotel.minRate} ${hotel.currency}</p>
-      `;
-      hotelsList.appendChild(hotelItem);  // Adiciona o item na lista
-    });
-  } else {
-    hotelsList.innerHTML = "<p>Nenhum hotel encontrado.</p>";
-  }
+  hotelsData.hotels.forEach(hotel => {
+    const hotelItem = document.createElement("div");
+    hotelItem.className = "hotel-item";
+    hotelItem.innerHTML = `
+      <h3>${hotel.name}</h3>
+      <p><strong>Categoria:</strong> ${hotel.categoryName}</p>
+      <p><strong>Localização:</strong> ${hotel.destinationName}</p>
+      <p><strong>Preço mínimo:</strong> ${hotel.minRate} ${hotel.currency}</p>
+      <button onclick="alert('Reservado: ${hotel.name}')">Reservar</button>
+    `;
+    hotelsList.appendChild(hotelItem);
+  });
 }
 
-// Evento de clique no botão para buscar hotéis
-document.getElementById("search-btn").addEventListener("click", () => {
-  const destination = document.getElementById("destination").value || "MCO";  // Valor padrão "MCO" para Orlando
-  fetchHotelData(destination);  // Chama a função para buscar os dados
+// Função chamada ao clicar no botão de buscar hotéis
+document.getElementById("search-btn").addEventListener("click", function() {
+  const destination = document.getElementById("destination").value || 'MCO'; // Define 'MCO' como destino padrão
+  fetchHotelData(destination); // Chama a função para buscar hotéis
 });
