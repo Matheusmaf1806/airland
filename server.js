@@ -23,49 +23,54 @@ app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos est�
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
-  const publicKey = process.env.API_KEY_HH;
-  const privateKey = process.env.SECRET_KEY_HH;
-  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
-  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
+  try {
+    const publicKey = process.env.API_KEY_HH;
+    const privateKey = process.env.SECRET_KEY_HH;
+    const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
+    const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
 
-  // Criptografia SHA-256 da combinação
-  const hash = crypto.createHash("sha256").update(assemble).digest("hex");
-  return hash;
+    // Criptografia SHA-256 da combinação
+    const hash = crypto.createHash("sha256").update(assemble).digest("hex");
+    return hash;
+  } catch (error) {
+    console.error("Erro ao gerar assinatura:", error);
+    throw new Error("Erro ao gerar assinatura");
+  }
 }
 
 // 🔹 Rota para buscar dados de hotéis via Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
-  const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
-  const myHeaders = new Headers();
-  myHeaders.append("Api-key", process.env.API_KEY_HH);
-  myHeaders.append("X-Signature", generateSignature());
-  myHeaders.append("Content-Type", "application/json");
-
-  const raw = JSON.stringify({
-    stay: {
-      checkIn: req.body.checkIn || "2025-06-15", // Padrão para o check-in
-      checkOut: req.body.checkOut || "2025-06-16", // Padrão para o check-out
-    },
-    occupancies: [
-      {
-        rooms: 1,
-        adults: 1,
-        children: 0,
-      },
-    ],
-    destination: {
-      code: req.body.destination || "MCO", // Padrão para Orlando (MCO)
-    },
-  });
-
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
-  };
-
   try {
+    const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+    const myHeaders = new Headers();
+    myHeaders.append("Api-key", process.env.API_KEY_HH);
+    myHeaders.append("X-Signature", generateSignature());
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      stay: {
+        checkIn: req.body.checkIn || "2025-06-15", // Padrão para o check-in
+        checkOut: req.body.checkOut || "2025-06-16", // Padrão para o check-out
+      },
+      occupancies: [
+        {
+          rooms: 1,
+          adults: 1,
+          children: 0,
+        },
+      ],
+      destination: {
+        code: req.body.destination || "MCO", // Padrão para Orlando (MCO)
+      },
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
     const response = await fetch(url, requestOptions);
     const result = await response.json();
     console.log(result); // Log da resposta para debug
