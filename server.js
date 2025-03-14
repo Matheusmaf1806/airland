@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto"; // Importado para gerar UUID corretamente
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
-import { getHotelData } from "./api/hht.js"; // Importa a função que vai fazer a requisição aos dados dos hotéis
 
 // Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
@@ -79,18 +79,6 @@ app.get("/park-details/:id", async (req, res) => {
   `;
   
   res.send(parkDetails);
-});
-
-// 🔹 Rota para buscar dados dos hotéis
-app.get('/hotel-data', async (req, res) => {
-  try {
-    const destination = req.query.destination || 'MCO';  // Define um destino padrão (Orlando)
-    const hotelData = await getHotelData(destination);  // Chama a função para buscar os dados
-    res.json(hotelData);  // Retorna os dados recebidos da API
-  } catch (error) {
-    console.error("Erro ao buscar dados dos hotéis:", error);
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // 🔹 Rota principal de teste
