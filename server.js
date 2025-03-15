@@ -138,6 +138,6 @@ app.listen(PORT, () => {
 
 app.use("/api/hotelbeds", hotelbedsRoutes);
 
-app.use("/api/image-proxy", imageProxyRoutes);
+app.use("/api/imageProxyhh", imageProxyRoutes);
 
 export default app;
