@@ -50,6 +50,16 @@ app.get("/", (req, res) => {
   res.send("Olá, API rodando com ESM e Express!");
 });
 
+app.get("/api/ticketsgenie/parks", (req, res) => {
+  // Exemplo de resposta simples:
+  const parks = [
+    { name: "Disney Orlando", location: "Orlando" },
+    { name: "Universal Orlando", location: "Orlando" }
+    // ...
+  ];
+  res.json({ parks });
+});
+
 ///////////////////////////////////////////////////////////
 // Exemplo: Função para gerar assinatura de requests (Hotelbeds)
 ///////////////////////////////////////////////////////////
