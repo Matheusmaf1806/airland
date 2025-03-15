@@ -17,7 +17,7 @@ async function fetchHotelData(destination) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error || "Erro desconhecido ao buscar hotéis");
+      throw new Error(result.error || "Erro desconhecido");
     }
 
     displayHotels(result);
@@ -26,6 +26,13 @@ async function fetchHotelData(destination) {
     document.getElementById("hotels-list").innerHTML = `<p>Erro: ${error.message}</p>`;
   }
 }
+
+// Evento de clique no botão de busca
+document.getElementById("search-btn").addEventListener("click", function () {
+  const destination = document.getElementById("destination").value || "MCO";
+  fetchHotelData(destination);
+});
+
 
 // Função para exibir os hotéis no front-end
 function displayHotels(hotelsData) {
