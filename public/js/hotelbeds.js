@@ -1,48 +1,63 @@
+import express from "express";
 import fetch from "node-fetch";
-import CryptoJS from "crypto-js";
+import crypto from "crypto";
 import dotenv from "dotenv";
 
-dotenv.config(); // Carrega as variáveis de ambiente
+dotenv.config();
+const router = express.Router();
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
-
-  const { destination } = req.body;
-  if (!destination) {
-    return res.status(400).json({ error: "Destino é obrigatório" });
-  }
-
-  const apiKey = process.env.API_KEY_HH;
-  const secretKey = process.env.SECRET_KEY_HH;
+// 🔹 Função para gerar a assinatura X-Signature
+function generateSignature() {
+  const publicKey = process.env.API_KEY_HH;
+  const privateKey = process.env.SECRET_KEY_HH;
   const utcDate = Math.floor(new Date().getTime() / 1000);
-  const signature = CryptoJS.SHA256(apiKey + secretKey + utcDate).toString(CryptoJS.enc.Hex);
+  return crypto.createHash("sha256").update(publicKey + privateKey + utcDate).digest("hex");
+}
 
-  const headers = {
-    "Api-key": apiKey,
-    "X-Signature": signature,
-    "Accept": "application/json",
+// 🔹 Rota para buscar dados de hotéis via Hotelbeds
+router.post("/", async (req, res) => {
+  const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+
+  const myHeaders = {
+    "Api-key": process.env.API_KEY_HH,
+    "X-Signature": generateSignature(),
     "Content-Type": "application/json",
   };
 
-  const body = JSON.stringify({
-    stay: { checkIn: "2025-06-15", checkOut: "2025-06-16" },
-    occupancies: [{ rooms: 1, adults: 1, children: 0 }],
-    destination: { code: destination },
+  const raw = JSON.stringify({
+    stay: {
+      checkIn: req.body.checkIn || "2025-06-15",
+      checkOut: req.body.checkOut || "2025-06-16",
+    },
+    occupancies: [
+      {
+        rooms: 1,
+        adults: 1,
+        children: 0,
+      },
+    ],
+    destination: {
+      code: req.body.destination || "MCO",
+    },
   });
 
-  try {
-    const response = await fetch("https://api.test.hotelbeds.com/hotel-api/1.0/hotels", {
-      method: "POST",
-      headers,
-      body,
-    });
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+  };
 
-    const data = await response.json();
-    res.json(data);
+  try {
+    const response = await fetch(url, requestOptions);
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    res.json(result);
   } catch (error) {
     console.error("Erro ao buscar hotéis:", error);
-    res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+    res.status(500).json({ error: "Erro ao buscar hotéis" });
   }
-}
+});
+
+export { router };
