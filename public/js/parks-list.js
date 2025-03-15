@@ -1,31 +1,44 @@
-document.addEventListener("DOMContentLoaded", async function() {
-  const parkListContainer = document.getElementById("park-list");
+// parks-list.js
 
-  try {
-    const response = await fetch("/api/ticketsgenie/parks");
-    if (!response.ok) throw new Error("Erro ao buscar parques");
+// Função para buscar a lista de parques via proxy do servidor
+function listarParques() {
+  fetch("/api/ticketsgenie/parks") 
+    .then(response => {
+      if (!response.ok) throw new Error("Erro ao buscar parques");
+      return response.json();
+    })
+    .then(data => {
+      const parksListEl = document.getElementById("parks-list");
+      parksListEl.innerHTML = ""; // Limpa lista anterior
 
-    const data = await response.json();
-    
-    data.parks.forEach(park => {
-      const parkItem = document.createElement("div");
-      parkItem.classList.add("park-item");
+      // Cada parque do array data.parks
+      data.parks.forEach(park => {
+        // Cria um elemento div
+        const parkEl = document.createElement("div");
+        parkEl.classList.add("park-item");
 
-      parkItem.innerHTML = `
-        <img src="${park.images.thumbnail}" alt="${park.name}">
-        <h3>${park.name}</h3>
-        <p>${park.location}</p>
-      `;
+        // Monta o HTML interno do item
+        parkEl.innerHTML = `
+          <h3>${park.name}</h3>
+          <p>${park.description}</p>
+          <button onclick="irParaIngressos('${park.code}')">Ver Ingressos</button>
+        `;
 
-      // Adiciona evento de clique para abrir os detalhes do parque
-      parkItem.addEventListener("click", () => {
-        window.location.href = `/park-details.html?id=${park.code}`;
+        // Adiciona ao container
+        parksListEl.appendChild(parkEl);
       });
-
-      parkListContainer.appendChild(parkItem);
+    })
+    .catch(err => {
+      console.error("Erro ao listar parques:", err);
+      alert("Não foi possível carregar os parques.");
     });
-  } catch (error) {
-    console.error("Erro ao carregar parques:", error);
-    parkListContainer.innerHTML = "<p>Erro ao carregar parques. Tente novamente mais tarde.</p>";
-  }
-});
+}
+
+// Função que redireciona para a página de ingressos
+function irParaIngressos(parkCode) {
+  // Monta a URL do tickets-list.html com query param ?park=parkCode
+  window.location.href = `tickets-list.html?park=${parkCode}`;
+}
+
+// Ao carregar a página, chamar listarParques()
+window.addEventListener("DOMContentLoaded", listarParques);
