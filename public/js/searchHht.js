@@ -1,11 +1,9 @@
-// Certifique-se de que o script CryptoJS está sendo carregado corretamente
+// Certifique-se de que o script CryptoJS está carregado corretamente
 async function loadCryptoJS() {
   if (typeof CryptoJS === "undefined") {
     await import("https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js");
   }
 }
-
-const endpoint = "/hotel-data"; // Chama o backend em vez de acessar diretamente a API externa
 
 // Função para buscar os hotéis com base no destino e nas datas
 async function fetchHotelData(destination) {
@@ -19,7 +17,7 @@ async function fetchHotelData(destination) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error || "Erro desconhecido");
+      throw new Error(result.error || "Erro desconhecido ao buscar hotéis");
     }
 
     displayHotels(result);
@@ -41,9 +39,9 @@ function displayHotels(hotelsData) {
       hotelItem.className = "hotel-item";
       hotelItem.innerHTML = `
         <h3>${hotel.name}</h3>
-        <p><strong>Categoria:</strong> ${hotel.categoryName}</p>
-        <p><strong>Localização:</strong> ${hotel.destinationName}</p>
-        <p><strong>Preço mínimo:</strong> ${hotel.minRate} ${hotel.currency}</p>
+        <p><strong>Categoria:</strong> ${hotel.categoryName || "N/A"}</p>
+        <p><strong>Localização:</strong> ${hotel.destinationName || "N/A"}</p>
+        <p><strong>Preço mínimo:</strong> ${hotel.minRate ? `${hotel.minRate} ${hotel.currency}` : "N/A"}</p>
         <button onclick="alert('Reservado: ${hotel.name}')">Reservar</button>
       `;
       hotelsList.appendChild(hotelItem);
@@ -54,10 +52,9 @@ function displayHotels(hotelsData) {
 }
 
 // Função chamada ao clicar no botão de buscar hotéis
-document
-  .getElementById("search-btn")
-  .addEventListener("click", function () {
-    const destination =
-      document.getElementById("destination").value || "MCO"; // Define 'MCO' como destino padrão
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("search-btn").addEventListener("click", function () {
+    const destination = document.getElementById("destination").value || "MCO"; // Define 'MCO' como destino padrão
     fetchHotelData(destination); // Chama a função para buscar hotéis
   });
+});
