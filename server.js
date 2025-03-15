@@ -1,21 +1,19 @@
-import express from "express";
-import cors from "cors";
-import { createClient } from "@supabase/supabase-js";
-import path from "path";
-import { fileURLToPath } from "url";
-import dotenv from "dotenv";
-import crypto from "crypto";
-import fetch from "node-fetch";
+const express = require("express");
+const cors = require("cors");
+const { createClient } = require("@supabase/supabase-js");
+const path = require("path");
+const dotenv = require("dotenv");
+const crypto = require("crypto");
+const fetch = require("node-fetch");
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
 
-// 🔹 Configuração correta para servir arquivos na Vercel
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // 🔹 Inicializar Express
 const app = express();
+
+// 🔹 Definir caminho base para compatibilidade com CommonJS
+const __dirname = path.resolve();
 
 // 🔹 Criar cliente do Supabase
 const supabase = createClient(
@@ -25,7 +23,7 @@ const supabase = createClient(
 
 // 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Habilita CORS
+app.use(cors()); // Evita problemas de CORS
 app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos
 app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve JS corretamente
 
@@ -119,5 +117,11 @@ app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
+// 🔹 Inicia o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+});
+
 // 🔹 Exporta o app para a Vercel
-export default app;
+module.exports = app;
