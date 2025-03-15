@@ -156,4 +156,6 @@ app.get("/park-details/:id", async (req, res) => {
 ///////////////////////////////////////////////////////////
 // 6) Exportar app para a Vercel (sem app.listen duplicado)
 ///////////////////////////////////////////////////////////
+// Na Vercel, não chamamos app.listen() diretamente.
+// Basta exportar:
 export default app;
