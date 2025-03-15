@@ -1,101 +1,127 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import path from "path"; // Para servir arquivos estáticos
-import fetch from "node-fetch"; // Para fazer requisições externas
-import CryptoJS from "crypto-js"; // Para gerar a assinatura X-Signature
-import dotenv from "dotenv"; // Para carregar as variáveis de ambiente
+import path from "path"; // Para lidar com caminhos de arquivos estáticos
+import fetch from "node-fetch"; // Para fazer requisição HTTP
+import dotenv from "dotenv"; // Para carregar variáveis de ambiente
 
-dotenv.config(); // Carrega as variáveis do .env
+// Carregar variáveis do .env
+dotenv.config();
 
-// 🔹 Criando cliente do Supabase com as variáveis de ambiente da Vercel
+// Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
 const app = express();
-app.use(express.json());
-app.use(cors()); // Habilita CORS para evitar bloqueios
-app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos da pasta "public"
+const PORT = process.env.PORT || 3000;
 
-// 🔹 Chaves da API da Hotelbeds
-const apiKey = process.env.API_KEY_HH;
-const secretKey = process.env.SECRET_KEY_HH;
-const endpoint = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+// Middlewares
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
-  const utcDate = Math.floor(new Date().getTime() / 1000);
-  const assemble = apiKey + secretKey + utcDate;
-  return CryptoJS.SHA256(assemble).toString(CryptoJS.enc.Hex);
+  const publicKey = process.env.API_KEY_HH;
+  const privateKey = process.env.SECRET_KEY_HH;
+  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
+  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
+
+  // Criptografia SHA-256 da combinação
+  const hash = crypto.createHash("sha256").update(assemble).digest("hex");
+  return hash;
 }
 
-// 🔹 Rota para buscar dados de hotéis (o frontend chamará esta rota)
-app.post("/hotel-data", async (req, res) => {
+// 🔹 Rota para buscar dados de hotéis via Hotelbeds
+app.post("/proxy-hotelbeds", async (req, res) => {
+  const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+  const myHeaders = new Headers();
+  myHeaders.append("Api-key", process.env.API_KEY_HH);
+  myHeaders.append("X-Signature", generateSignature());
+  myHeaders.append("Content-Type", "application/json");
+
+  const raw = JSON.stringify({
+    stay: {
+      checkIn: req.body.checkIn || "2025-06-15", // Padrão para o check-in
+      checkOut: req.body.checkOut || "2025-06-16", // Padrão para o check-out
+    },
+    occupancies: [
+      {
+        rooms: 1,
+        adults: 1,
+        children: 0,
+      },
+    ],
+    destination: {
+      code: req.body.destination || "MCO", // Padrão para Orlando (MCO)
+    },
+  });
+
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
+
   try {
-    const { destination } = req.body;
-    const signature = generateSignature();
-
-    const myHeaders = {
-      "Api-key": apiKey,
-      "X-Signature": signature,
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-    };
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify({
-        stay: { checkIn: "2025-06-15", checkOut: "2025-06-16" },
-        occupancies: [{ rooms: 1, adults: 1, children: 0 }],
-        destination: { code: destination },
-      }),
-    };
-
-    const response = await fetch(endpoint, requestOptions);
-    const data = await response.json();
-
-    res.json(data); // Retorna os dados para o frontend
+    const response = await fetch(url, requestOptions);
+    const result = await response.json();
+    console.log(result); // Log da resposta para debug
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    res.json(result); // Retorna os dados recebidos da API Hotelbeds
   } catch (error) {
-    console.error("Erro ao buscar hotéis:", error);
-    res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+    console.error("Erro ao buscar dados dos hotéis:", error);
+    res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
   }
 });
 
 // 🔹 Rota dinâmica para detalhes do parque
 app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
-  const { data, error } = await supabase
-    .from("parks")
-    .select("*")
-    .eq("id", id)
-    .single();
 
-  if (error) {
-    return res.status(404).json({ error: "Parque não encontrado" });
+  try {
+    // Busca as informações do parque pelo ID
+    const { data, error } = await supabase
+      .from("parks")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      return res.status(404).json({ error: "Parque não encontrado" });
+    }
+
+    const parkDetails = `
+      <html>
+        <head>
+          <title>${data.name} - Walt Disney World Resort</title>
+        </head>
+        <body>
+          <h1>${data.name}</h1>
+          <p>${data.description}</p>
+          <img src="${data.images.cover}" alt="${data.name}" />
+        </body>
+      </html>
+    `;
+    res.send(parkDetails);
+  } catch (error) {
+    console.error("Erro ao buscar parque:", error);
+    res.status(500).json({ error: "Erro ao buscar parque" });
   }
-
-  const parkDetails = `
-    <html>
-      <head>
-        <title>${data.name} - Walt Disney World Resort</title>
-      </head>
-      <body>
-        <h1>${data.name}</h1>
-        <p>${data.description}</p>
-        <img src="${data.images.cover}" alt="${data.name}" />
-      </body>
-    </html>
-  `;
-  res.send(parkDetails);
 });
 
-// 🔹 Rota principal de teste
+// Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
-// 🔹 Exporta o app para a Vercel
+// Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 export default app;
