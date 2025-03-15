@@ -11,15 +11,14 @@ import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
 
-// 🔹 Configuração do caminho correto para servir arquivos estáticos na Vercel
+// 🔹 Configuração correta para servir arquivos na Vercel
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // 🔹 Inicializar Express
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// 🔹 Criar cliente do Supabase com variáveis de ambiente da Vercel
+// 🔹 Criar cliente do Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -27,20 +26,20 @@ const supabase = createClient(
 
 // 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Habilita CORS para evitar problemas com requisições externas
-app.use(express.static(path.join(__dirname, "public"))); // Servir arquivos estáticos da pasta "public"
+app.use(cors()); // Evita problemas de CORS
+app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos da pasta "public"
+app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve arquivos JS corretamente
 
 // 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
 function generateSignature() {
   const publicKey = process.env.API_KEY_HH;
   const privateKey = process.env.SECRET_KEY_HH;
-  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
-  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
-
+  const utcDate = Math.floor(new Date().getTime() / 1000);
+  const assemble = `${publicKey}${privateKey}${utcDate}`;
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// 🔹 Rota Proxy para Hotelbeds
+// 🔹 Proxy para Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
   const signature = generateSignature();
@@ -61,20 +60,42 @@ app.post("/proxy-hotelbeds", async (req, res) => {
     destination: { code: req.body.destination || "MCO" }
   };
 
-  const requestOptions = { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) };
-
   try {
-    const response = await fetch(url, requestOptions);
+    const response = await fetch(url, { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) });
     const result = await response.json();
 
-    if (response.ok) {
-      res.json(result);
-    } else {
-      throw new Error(result.error || "Erro desconhecido na API Hotelbeds");
+    if (!response.ok) {
+      return res.status(response.status).json({ error: result.error || "Erro desconhecido na API Hotelbeds" });
     }
+
+    res.json(result);
   } catch (error) {
-    console.error("Erro ao buscar dados dos hotéis:", error);
+    console.error("Erro ao buscar hotéis:", error);
     res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
+  }
+});
+
+// 🔹 Proxy para TicketsGenie (evita erro de CORS)
+app.get("/api/ticketsgenie/parks", async (req, res) => {
+  try {
+    const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
+      method: "GET",
+      headers: {
+        "x-api-key": process.env.TICKETSGENIE_API_KEY,
+        "x-api-secret": process.env.TICKETSGENIE_API_SECRET,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: "Erro ao buscar dados da API TicketsGenie" });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error("Erro ao buscar parques:", error);
+    res.status(500).json({ error: "Erro ao buscar parques" });
   }
 });
 
@@ -111,9 +132,6 @@ app.get("/park-details/:id", async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar parque" });
   }
 });
-
-// 🔹 Servir arquivos estáticos da pasta "public/js/"
-app.use("/js", express.static(path.join(__dirname, "public/js")));
 
 // 🔹 Rota principal de teste
 app.get("/", (req, res) => {
