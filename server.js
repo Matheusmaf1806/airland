@@ -20,7 +20,6 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json());
-app.use(cors()); // Habilita CORS
 app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
 
 app.use("/api/hotelbeds", hotelbedsRoutes);
