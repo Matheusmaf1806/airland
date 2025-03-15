@@ -1,48 +1,50 @@
 import express from "express";
 import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
-import path from "path"; // Para lidar com caminhos de arquivos estáticos
-import fetch from "node-fetch"; // Para fazer requisição HTTP
-import dotenv from "dotenv"; // Para carregar variáveis de ambiente
-import crypto from "crypto"; // Corrige a importação do módulo nativo de criptografia
+import path from "path";
+import { fileURLToPath } from "url";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import crypto from "crypto";
 import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
 
-// Carregar variáveis do .env
+// 🔹 Carregar variáveis de ambiente
 dotenv.config();
 
-// Criando cliente do Supabase com as variáveis de ambiente da Vercel
+// 🔹 Configuração do caminho correto para servir arquivos estáticos na Vercel
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 🔹 Inicializar Express
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// 🔹 Criar cliente do Supabase com variáveis de ambiente da Vercel
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middlewares
+// 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Habilita CORS
-app.use(express.static(path.resolve("public")));  // Serve arquivos estáticos da pasta "public"
+app.use(cors()); // Habilita CORS para evitar problemas com requisições externas
+app.use(express.static(path.join(__dirname, "public"))); // Servir arquivos estáticos da pasta "public"
 
-// 🔹 Função para gerar a assinatura X-Signature
+// 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
 function generateSignature() {
   const publicKey = process.env.API_KEY_HH;
   const privateKey = process.env.SECRET_KEY_HH;
   const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
   const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
 
-  // Criptografia SHA-256 da combinação
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// 🔹 Rota para buscar dados de hotéis via Hotelbeds
+// 🔹 Rota Proxy para Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
-  
-  // Gera a assinatura necessária
   const signature = generateSignature();
-  
-  // Cabeçalhos da requisição
+
   const myHeaders = {
     "Api-key": process.env.API_KEY_HH,
     "X-Signature": signature,
@@ -50,34 +52,20 @@ app.post("/proxy-hotelbeds", async (req, res) => {
     "Accept": "application/json"
   };
 
-  // Corpo da requisição (padrões aplicados se não vier do frontend)
   const bodyData = {
     stay: {
       checkIn: req.body.checkIn || "2025-06-15",
       checkOut: req.body.checkOut || "2025-06-16"
     },
-    occupancies: [
-      {
-        rooms: 1,
-        adults: 1,
-        children: 0
-      }
-    ],
-    destination: {
-      code: req.body.destination || "MCO"
-    }
+    occupancies: [{ rooms: 1, adults: 1, children: 0 }],
+    destination: { code: req.body.destination || "MCO" }
   };
 
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: JSON.stringify(bodyData),
-  };
+  const requestOptions = { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) };
 
   try {
     const response = await fetch(url, requestOptions);
     const result = await response.json();
-    console.log(result); // Log da resposta para debug
 
     if (response.ok) {
       res.json(result);
@@ -95,7 +83,6 @@ app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Busca as informações do parque pelo ID
     const { data, error } = await supabase
       .from("parks")
       .select("*")
@@ -125,16 +112,16 @@ app.get("/park-details/:id", async (req, res) => {
   }
 });
 
-// Rota principal de teste
+// 🔹 Servir arquivos estáticos da pasta "public/js/"
+app.use("/js", express.static(path.join(__dirname, "public/js")));
+
+// 🔹 Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
-// Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
+// 🔹 Middleware para Hotelbeds
 app.use("/api/hotelbeds", hotelbedsRoutes);
 
+// 🔹 Exporta o app para a Vercel
 export default app;
