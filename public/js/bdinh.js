@@ -1,17 +1,10 @@
-// Função para buscar a lista de parques
+// Função para buscar a lista de parques via proxy
 function listarParques() {
-  const myHeaders = new Headers();
-  myHeaders.append("x-api-key", "1234567890");
-  myHeaders.append("x-api-secret", "Magic Lamp");
-
-  const requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
-
-  fetch("https://devapi.ticketsgenie.app/v1/parks", requestOptions)
-    .then(response => response.json())
+  fetch("/api/ticketsgenie/parks")
+    .then(response => {
+      if (!response.ok) throw new Error("Erro ao buscar parques");
+      return response.json();
+    })
     .then(result => {
       const parksList = document.getElementById('parks-list');
       parksList.innerHTML = '';
@@ -28,23 +21,16 @@ function listarParques() {
         parksList.appendChild(parkElement);
       });
     })
-    .catch(error => console.log('Error fetching parks:', error));
+    .catch(error => console.error("Erro ao buscar parques:", error));
 }
 
 // Função para buscar os detalhes do parque selecionado
 function mostrarDetalhesParque(parkCode) {
-  const myHeaders = new Headers();
-  myHeaders.append("x-api-key", "1234567890");
-  myHeaders.append("x-api-secret", "Magic Lamp");
-
-  const requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
-
-  fetch(`https://devapi.ticketsgenie.app/v1/parks/${parkCode}`, requestOptions)
-    .then(response => response.json())
+  fetch(`/api/ticketsgenie/parks/${parkCode}`)
+    .then(response => {
+      if (!response.ok) throw new Error("Erro ao buscar detalhes do parque");
+      return response.json();
+    })
     .then(result => {
       const parkDetails = document.getElementById('park-details');
       parkDetails.innerHTML = `
@@ -56,23 +42,16 @@ function mostrarDetalhesParque(parkCode) {
         <button onclick="listarProdutosDoParque('${parkCode}')">Ver Produtos</button>
       `;
     })
-    .catch(error => console.log('Error fetching park details:', error));
+    .catch(error => console.error("Erro ao buscar detalhes do parque:", error));
 }
 
 // Função para listar os produtos de um parque
 function listarProdutosDoParque(parkCode) {
-  const myHeaders = new Headers();
-  myHeaders.append("x-api-key", "1234567890");
-  myHeaders.append("x-api-secret", "Magic Lamp");
-
-  const requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
-  };
-
-  fetch(`https://devapi.ticketsgenie.app/v1/parks/${parkCode}/products`, requestOptions)
-    .then(response => response.json())
+  fetch(`/api/ticketsgenie/parks/${parkCode}/products`)
+    .then(response => {
+      if (!response.ok) throw new Error("Erro ao buscar produtos");
+      return response.json();
+    })
     .then(result => {
       const productsList = document.getElementById('products-list');
       productsList.innerHTML = '';
@@ -89,7 +68,7 @@ function listarProdutosDoParque(parkCode) {
         productsList.appendChild(productElement);
       });
     })
-    .catch(error => console.log('Error fetching products:', error));
+    .catch(error => console.error("Erro ao buscar produtos:", error));
 }
 
 // Carregar a lista de parques assim que a página carregar
