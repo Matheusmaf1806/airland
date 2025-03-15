@@ -6,7 +6,7 @@ function listarParques() {
       return response.json();
     })
     .then(result => {
-      const parksList = document.getElementById('parks-list');
+      const parksList = document.getElementById('park-list'); // Corrigido o ID
       parksList.innerHTML = '';
 
       result.parks.forEach(park => {
