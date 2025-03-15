@@ -24,8 +24,6 @@ app.use(express.json());
 app.use(cors()); // Habilita CORS
 app.use(express.static(path.resolve("public")));  // Serve arquivos estáticos da pasta "public"
 
-app.use("/api/hotelbeds", hotelbedsRoutes);
-
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
   const publicKey = process.env.API_KEY_HH;
@@ -136,5 +134,7 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+app.use("/api/hotelbeds", hotelbedsRoutes);
 
 export default app;
