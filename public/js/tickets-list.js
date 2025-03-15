@@ -1,33 +1,44 @@
-document.addEventListener("DOMContentLoaded", () => {
-  listarIngressos();
+// tickets-list.js
+
+// Ao carregar a página, buscar o param "park" na query string
+window.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const parkCode = urlParams.get("park");
+
+  if (!parkCode) {
+    alert("Nenhum parque selecionado!");
+    return;
+  }
+
+  listarIngressos(parkCode);
 });
 
-function listarIngressos() {
-  fetch("/api/noamtickets/parks")
+function listarIngressos(parkCode) {
+  // Exemplo de rota que retorna a lista de products do parque
+  // /api/ticketsgenie/parks/:id/products
+  fetch(`/api/ticketsgenie/parks/${parkCode}/products`)
     .then(response => {
       if (!response.ok) throw new Error("Erro ao buscar ingressos");
       return response.json();
     })
-    .then(result => {
-      const ticketsList = document.getElementById('tickets-list');
-      ticketsList.innerHTML = '';
+    .then(data => {
+      const ticketsListEl = document.getElementById("tickets-list");
+      ticketsListEl.innerHTML = ""; // Limpa qualquer conteúdo anterior
 
-      result.products.forEach(ticket => {
-        const ticketElement = document.createElement('div');
-        ticketElement.classList.add('ticket-item');
-        ticketElement.innerHTML = `
-          <img src="${ticket.extensions.ticketBanner}" alt="${ticket.ticketName}">
-          <h3>${ticket.ticketName}</h3>
-          <p>${ticket.extensions.aboutTicket}</p>
-          <p><strong>Preço:</strong> ${ticket.startingPrice.usdbrl.symbol}${ticket.startingPrice.usdbrl.amount}</p>
-          <button onclick="abrirDetalhesIngresso('${ticket.code}')">Ver Detalhes</button>
+      data.products.forEach(product => {
+        const itemEl = document.createElement("div");
+        itemEl.classList.add("ticket-item");
+
+        itemEl.innerHTML = `
+          <h3>${product.ticketName}</h3>
+          <p><strong>Sobre:</strong> ${product.extensions.aboutTicket}</p>
+          <p><strong>Preço Inicial:</strong> ${product.startingPrice.usdbrl.symbol} ${product.startingPrice.usdbrl.amount}</p>
         `;
-        ticketsList.appendChild(ticketElement);
+        ticketsListEl.appendChild(itemEl);
       });
     })
-    .catch(error => console.error("Erro ao buscar ingressos:", error));
-}
-
-function abrirDetalhesIngresso(ticketCode) {
-  window.location.href = `ticket-details.html?id=${ticketCode}`;
+    .catch(err => {
+      console.error("Erro ao listar ingressos:", err);
+      alert("Não foi possível carregar ingressos.");
+    });
 }
