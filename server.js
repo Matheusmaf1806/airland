@@ -1,17 +1,21 @@
-const express = require("express");
-const cors = require("cors");
-const { createClient } = require("@supabase/supabase-js");
-const path = require("path");
-const dotenv = require("dotenv");
-const crypto = require("crypto");
-const fetch = require("node-fetch");
+import express from "express";
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
+import path from "path";
+import { fileURLToPath } from "url";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import crypto from "crypto";
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
 
+// 🔹 Configuração correta para servir arquivos na Vercel
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // 🔹 Inicializar Express
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // 🔹 Criar cliente do Supabase
 const supabase = createClient(
@@ -22,8 +26,11 @@ const supabase = createClient(
 // 🔹 Middlewares
 app.use(express.json());
 app.use(cors()); // Evita problemas de CORS
-app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos
-app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve arquivos JS corretamente
+
+// 🔹 Servindo arquivos estáticos corretamente
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/js", express.static(path.join(__dirname, "public/js")));
+app.use("/css", express.static(path.join(__dirname, "public/css")));
 
 // 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
 function generateSignature() {
@@ -34,7 +41,7 @@ function generateSignature() {
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// 🔹 Proxy para Hotelbeds (Busca de Hotéis)
+// 🔹 Proxy para Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
   const signature = generateSignature();
@@ -70,7 +77,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (Lista de parques)
+// 🔹 Proxy para TicketsGenie (evita erro de CORS)
 app.get("/api/ticketsgenie/parks", async (req, res) => {
   try {
     const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
@@ -94,7 +101,7 @@ app.get("/api/ticketsgenie/parks", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (Detalhes do Parque)
+// 🔹 Proxy para TicketsGenie (Parque específico)
 app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -146,49 +153,16 @@ app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
   }
 });
 
-// 🔹 Rota dinâmica para detalhes do parque
-app.get("/park-details/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const { data, error } = await supabase
-      .from("parks")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      return res.status(404).json({ error: "Parque não encontrado" });
-    }
-
-    const parkDetails = `
-      <html>
-        <head>
-          <title>${data.name} - Walt Disney World Resort</title>
-        </head>
-        <body>
-          <h1>${data.name}</h1>
-          <p>${data.description}</p>
-          <img src="${data.images.cover}" alt="${data.name}" />
-        </body>
-      </html>
-    `;
-    res.send(parkDetails);
-  } catch (error) {
-    console.error("Erro ao buscar parque:", error);
-    res.status(500).json({ error: "Erro ao buscar parque" });
-  }
-});
-
 // 🔹 Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
 // 🔹 Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
 
 // 🔹 Exporta o app para a Vercel
-module.exports = app;
+export default app;
