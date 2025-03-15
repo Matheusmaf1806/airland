@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import CryptoJS from "crypto-js";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); // Carrega as variáveis de ambiente
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,7 +10,9 @@ export default async function handler(req, res) {
   }
 
   const { destination } = req.body;
-  if (!destination) return res.status(400).json({ error: "Destino é obrigatório" });
+  if (!destination) {
+    return res.status(400).json({ error: "Destino é obrigatório" });
+  }
 
   const apiKey = process.env.API_KEY_HH;
   const secretKey = process.env.SECRET_KEY_HH;
