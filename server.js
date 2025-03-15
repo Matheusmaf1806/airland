@@ -3,10 +3,8 @@ import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import path from "path";
 import { fileURLToPath } from "url";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
 import crypto from "crypto";
-import hotelbedsRoutes from "./api/hotelbeds.js"; // ✅ Corrigida a importação
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
@@ -26,9 +24,9 @@ const supabase = createClient(
 
 // 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // ✅ Evita problemas de CORS
-app.use(express.static(path.join(__dirname, "public"))); // ✅ Servir arquivos estáticos da pasta "public"
-app.use("/js", express.static(path.join(__dirname, "public/js"))); // ✅ Servir arquivos JS corretamente
+app.use(cors()); // Evita problemas de CORS
+app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos
+app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve JS corretamente
 
 // 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
 function generateSignature() {
@@ -154,15 +152,6 @@ app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
 // 🔹 Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
-});
-
-// 🔹 Middleware para Hotelbeds
-app.use("/api/hotelbeds", hotelbedsRoutes);
-
-// 🔹 Inicia o servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
 
 // 🔹 Exporta o app para a Vercel
