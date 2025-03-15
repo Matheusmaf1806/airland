@@ -48,4 +48,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chamar a função para exibir as imagens
     displayImages(images);
 });
- 
