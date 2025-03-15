@@ -1,43 +1,48 @@
-const express = require("express");
-const cors = require("cors");
-const { createClient } = require("@supabase/supabase-js");
-const path = require("path");
-const fetch = require("node-fetch");
-const dotenv = require("dotenv");
-const crypto = require("crypto");
+import express from "express";
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
+import path from "path"; // Para lidar com caminhos de arquivos estáticos
+import fetch from "node-fetch"; // Para fazer requisição HTTP
+import dotenv from "dotenv"; // Para carregar variáveis de ambiente
+import crypto from "crypto"; // Corrige a importação do módulo nativo de criptografia
+import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
 
-// Carregar variáveis de ambiente
+// Carregar variáveis do .env
 dotenv.config();
 
-// Criando cliente do Supabase
+// Criando cliente do Supabase com as variáveis de ambiente da Vercel
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json());
-app.use(cors()); // Evita problemas de CORS
+app.use(cors()); // Habilita CORS
+app.use(express.static(path.join(__dirname, "public")));  // Serve arquivos estáticos da pasta "public"
 
-// Configuração para servir arquivos estáticos da pasta "public"
-app.use(express.static(path.join(__dirname, "public"))); // A pasta public
-
-// Função para gerar a assinatura X-Signature
+// 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
   const publicKey = process.env.API_KEY_HH;
   const privateKey = process.env.SECRET_KEY_HH;
-  const utcDate = Math.floor(new Date().getTime() / 1000);
-  const assemble = `${publicKey}${privateKey}${utcDate}`;
+  const utcDate = Math.floor(new Date().getTime() / 1000); // Timestamp UTC (em segundos)
+  const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
+
+  // Criptografia SHA-256 da combinação
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// Proxy para Hotelbeds
+// 🔹 Rota para buscar dados de hotéis via Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+  
+  // Gera a assinatura necessária
   const signature = generateSignature();
-
+  
+  // Cabeçalhos da requisição
   const myHeaders = {
     "Api-key": process.env.API_KEY_HH,
     "X-Signature": signature,
@@ -45,103 +50,78 @@ app.post("/proxy-hotelbeds", async (req, res) => {
     "Accept": "application/json"
   };
 
+  // Corpo da requisição (padrões aplicados se não vier do frontend)
   const bodyData = {
     stay: {
       checkIn: req.body.checkIn || "2025-06-15",
       checkOut: req.body.checkOut || "2025-06-16"
     },
-    occupancies: [{ rooms: 1, adults: 1, children: 0 }],
-    destination: { code: req.body.destination || "MCO" }
+    occupancies: [
+      {
+        rooms: 1,
+        adults: 1,
+        children: 0
+      }
+    ],
+    destination: {
+      code: req.body.destination || "MCO"
+    }
+  };
+
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify(bodyData),
   };
 
   try {
-    const response = await fetch(url, { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) });
+    const response = await fetch(url, requestOptions);
     const result = await response.json();
+    console.log(result); // Log da resposta para debug
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: result.error || "Erro desconhecido na API Hotelbeds" });
+    if (response.ok) {
+      res.json(result);
+    } else {
+      throw new Error(result.error || "Erro desconhecido na API Hotelbeds");
     }
-
-    res.json(result);
   } catch (error) {
-    console.error("Erro ao buscar hotéis:", error);
+    console.error("Erro ao buscar dados dos hotéis:", error);
     res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
   }
 });
 
-// Proxy para TicketsGenie (evita erro de CORS)
-app.get("/api/ticketsgenie/parks", async (req, res) => {
-  try {
-    const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
-      method: "GET",
-      headers: {
-        "x-api-key": process.env.TICKETSGENIE_API_KEY,
-        "x-api-secret": process.env.TICKETSGENIE_API_SECRET,
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: "Erro ao buscar dados da API TicketsGenie" });
-    }
-
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error("Erro ao buscar parques:", error);
-    res.status(500).json({ error: "Erro ao buscar parques" });
-  }
-});
-
-// Proxy para TicketsGenie (Parque específico)
-app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
+// 🔹 Rota dinâmica para detalhes do parque
+app.get("/park-details/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const response = await fetch(`https://devapi.ticketsgenie.app/v1/parks/${id}`, {
-      method: "GET",
-      headers: {
-        "x-api-key": process.env.TICKETSGENIE_API_KEY,
-        "x-api-secret": process.env.TICKETSGENIE_API_SECRET,
-        "Content-Type": "application/json"
-      }
-    });
+    // Busca as informações do parque pelo ID
+    const { data, error } = await supabase
+      .from("parks")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: "Erro ao buscar detalhes do parque" });
+    if (error) {
+      return res.status(404).json({ error: "Parque não encontrado" });
     }
 
-    const data = await response.json();
-    res.json(data);
+    const parkDetails = `
+      <html>
+        <head>
+          <title>${data.name} - Walt Disney World Resort</title>
+        </head>
+        <body>
+          <h1>${data.name}</h1>
+          <p>${data.description}</p>
+          <img src="${data.images.cover}" alt="${data.name}" />
+        </body>
+      </html>
+    `;
+    res.send(parkDetails);
   } catch (error) {
-    console.error("Erro ao buscar detalhes do parque:", error);
-    res.status(500).json({ error: "Erro ao buscar detalhes do parque" });
-  }
-});
-
-// Proxy para TicketsGenie (Produtos do Parque)
-app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const response = await fetch(`https://devapi.ticketsgenie.app/v1/parks/${id}/products`, {
-      method: "GET",
-      headers: {
-        "x-api-key": process.env.TICKETSGENIE_API_KEY,
-        "x-api-secret": process.env.TICKETSGENIE_API_SECRET,
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: "Erro ao buscar produtos do parque" });
-    }
-
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error("Erro ao buscar produtos do parque:", error);
-    res.status(500).json({ error: "Erro ao buscar produtos do parque" });
+    console.error("Erro ao buscar parque:", error);
+    res.status(500).json({ error: "Erro ao buscar parque" });
   }
 });
 
@@ -151,10 +131,10 @@ app.get("/", (req, res) => {
 });
 
 // Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-// Exporta o app para a Vercel
-module.exports = app;
+app.use("/api/hotelbeds", hotelbedsRoutes);
+
+export default app;
