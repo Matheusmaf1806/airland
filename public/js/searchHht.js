@@ -7,24 +7,24 @@ async function loadCryptoJS() {
 
 // Função para buscar os hotéis com base no destino e nas datas
 async function fetchHotelData(destination) {
-  try {
-    const response = await fetch("/api/hotelbeds", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ destination }),
-    });
+    try {
+        const response = await fetch("/api/hotelbeds", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ destination }),
+        });
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if (!response.ok) {
-      throw new Error(result.error || "Erro desconhecido");
+        if (!response.ok) {
+            throw new Error(result.error || "Erro desconhecido");
+        }
+
+        displayHotels(result);
+    } catch (error) {
+        console.error("Erro ao buscar hotéis:", error);
+        document.getElementById("hotels-list").innerHTML = `<p>Erro: ${error.message}</p>`;
     }
-
-    displayHotels(result);
-  } catch (error) {
-    console.error("Erro ao buscar hotéis:", error);
-    document.getElementById("hotels-list").innerHTML = `<p>Erro: ${error.message}</p>`;
-  }
 }
 
 // Evento de clique no botão de busca
