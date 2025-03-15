@@ -6,7 +6,7 @@ import fetch from "node-fetch"; // Para fazer requisição HTTP
 import dotenv from "dotenv"; // Para carregar variáveis de ambiente
 import crypto from "crypto"; // Corrige a importação do módulo nativo de criptografia
 import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
-import { imageProxyRoutes } from "./api/imageProxy.js";
+import { imageProxyRoutes } from "./api/imageProxyhh.js";
 
 // Carregar variáveis do .env
 dotenv.config();
