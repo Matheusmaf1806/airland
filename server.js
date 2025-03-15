@@ -50,14 +50,36 @@ app.get("/", (req, res) => {
   res.send("Olá, API rodando com ESM e Express!");
 });
 
-app.get("/api/ticketsgenie/parks", (req, res) => {
-  // Exemplo de resposta simples:
-  const parks = [
-    { name: "Disney Orlando", location: "Orlando" },
-    { name: "Universal Orlando", location: "Orlando" }
-    // ...
-  ];
-  res.json({ parks });
+///////////////////////////////////////////////////////////
+// Rota para buscar lista de parques da Tickets Genie
+///////////////////////////////////////////////////////////
+app.get("/api/ticketsgenie/parks", async (req, res) => {
+  try {
+    // Se quiser, use variáveis de ambiente ao invés de strings fixas.
+    // Ex.: process.env.TG_API_KEY e process.env.TG_API_SECRET
+    const myHeaders = {
+      "x-api-key": "1234567890",    // Ajuste conforme necessário
+      "x-api-secret": "Magic Lamp"  // Ajuste conforme necessário
+    };
+
+    const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
+      method: "GET",
+      headers: myHeaders
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro na API (status: ${response.status})`);
+    }
+
+    const data = await response.json();
+
+    // Retorna o JSON para o cliente (navegador ou front-end)
+    res.json(data);
+
+  } catch (error) {
+    console.error("Erro ao buscar dados da TicketsGenie:", error);
+    res.status(500).json({ error: "Erro interno ao buscar parques" });
+  }
 });
 
 ///////////////////////////////////////////////////////////
@@ -166,6 +188,4 @@ app.get("/park-details/:id", async (req, res) => {
 ///////////////////////////////////////////////////////////
 // 6) Exportar app para a Vercel (sem app.listen duplicado)
 ///////////////////////////////////////////////////////////
-// Na Vercel, não chamamos app.listen() diretamente.
-// Basta exportar:
 export default app;
