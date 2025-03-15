@@ -1,47 +1,110 @@
+// server.js (ESM)
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import fetch from "node-fetch";
 import crypto from "crypto";
-import supabaseClient from "./api/supabaseClient.js"; // 🔹 Módulo para conexão com Supabase
-import hbhospRoutes from "./api/hbhosp.js";  // 🔹 Proxy Hotelbeds (Busca de Hotéis)
-import noamticketsRoutes from "./api/noamtickets.js";  // 🔹 Proxy TicketsGenie (Ingressos)
+import fetch from "node-fetch";
+import { createClient } from "@supabase/supabase-js";
 
+// 1) Carregar variáveis de ambiente (na Vercel você configura no Dashboard)
 dotenv.config();
 
+// 2) Resolver __dirname em modo ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 3) Criar cliente Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+// 4) Iniciar Express
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Habilita CORS
-app.use(express.static(path.join(process.cwd(), "public")));  // 🔹 Serve arquivos estáticos corretamente
+app.use(cors());
 
-// 🔹 Rotas Modulares
-app.use("/api/hoteis", hbhospRoutes);
-app.use("/api/ingressos", noamticketsRoutes);
+// 5) Servir estáticos da pasta /public
+app.use(express.static(path.join(__dirname, "public")));
 
-// 🔹 Rota dinâmica para detalhes do parque (usando Supabase)
-app.get("/park-details/:id", async (req, res) => {
-  const { id } = req.params;
+// 6) Exemplo de rota principal
+app.get("/", (req, res) => {
+  res.send("Hello from ESM + Express on Vercel!");
+});
 
+// Exemplo de função (Hotelbeds) para assinar requests
+function generateSignature() {
+  const publicKey  = process.env.API_KEY_HH;    // Exemplo
+  const privateKey = process.env.SECRET_KEY_HH; // Exemplo
+  const utcDate    = Math.floor(Date.now() / 1000); 
+  const assemble   = `${publicKey}${privateKey}${utcDate}`;
+
+  return crypto.createHash("sha256").update(assemble).digest("hex");
+}
+
+// Exemplo de rota POST para "proxy-hotelbeds"
+app.post("/proxy-hotelbeds", async (req, res) => {
   try {
-    const { data, error } = await supabaseClient
+    const signature = generateSignature();
+    const url       = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+
+    const myHeaders = {
+      "Api-key": process.env.API_KEY_HH,
+      "X-Signature": signature,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    };
+
+    // Corpo (exemplo)
+    const bodyData = {
+      stay: {
+        checkIn: req.body.checkIn || "2025-06-15",
+        checkOut: req.body.checkOut || "2025-06-16"
+      },
+      occupancies: [{ rooms: 1, adults: 1, children: 0 }],
+      destination: { code: req.body.destination || "MCO" }
+    };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(bodyData)
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      return res
+        .status(response.status)
+        .json({ error: result.error || "Erro na API Hotelbeds" });
+    }
+
+    return res.json(result);
+  } catch (err) {
+    console.error("Erro ao buscar dados dos hotéis:", err);
+    res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+  }
+});
+
+// Exemplo de rota dinâmica usando Supabase
+app.get("/park-details/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data, error } = await supabase
       .from("parks")
       .select("*")
       .eq("id", id)
       .single();
 
-    if (error) {
+    if (error || !data) {
       return res.status(404).json({ error: "Parque não encontrado" });
     }
 
+    // Exemplo enviando HTML
     const parkDetails = `
       <html>
-        <head>
-          <title>${data.name} - Walt Disney World Resort</title>
-        </head>
+        <head><title>${data.name}</title></head>
         <body>
           <h1>${data.name}</h1>
           <p>${data.description}</p>
@@ -50,20 +113,12 @@ app.get("/park-details/:id", async (req, res) => {
       </html>
     `;
     res.send(parkDetails);
-  } catch (error) {
-    console.error("Erro ao buscar parque:", error);
-    res.status(500).json({ error: "Erro ao buscar parque" });
+  } catch (err) {
+    console.error("Erro ao buscar parque:", err);
+    res.status(500).json({ error: "Erro interno ao buscar parque" });
   }
 });
 
-// 🔹 Rota Principal de Teste
-app.get("/", (req, res) => {
-  res.send("API Airland está rodando 🚀");
-});
-
-// 🔹 Iniciar o Servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
-
+// 7) Não fazemos app.listen() se estivermos na Vercel
+//    A Vercel internamente faz esse bind. Basta exportar:
 export default app;
