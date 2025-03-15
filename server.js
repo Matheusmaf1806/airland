@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import fetch from "node-fetch"; // Para fazer requisição HTTP
 import dotenv from "dotenv"; // Para carregar variáveis de ambiente
+import crypto from "crypto"; // Corrige a importação do módulo nativo de criptografia
 
 // Carregar variáveis do .env
 dotenv.config();
@@ -20,9 +21,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(express.json());
 app.use(cors()); // Habilita CORS
-app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
-
-
+app.use(express.static(path.resolve("public")));  // Serve arquivos estáticos da pasta "public"
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
@@ -32,50 +31,58 @@ function generateSignature() {
   const assemble = `${publicKey}${privateKey}${utcDate}`; // Combina os dados necessários para gerar a assinatura
 
   // Criptografia SHA-256 da combinação
-  const hash = crypto.createHash("sha256").update(assemble).digest("hex");
-  return hash;
+  return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
 // 🔹 Rota para buscar dados de hotéis via Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
-  const myHeaders = new Headers();
-  myHeaders.append("Api-key", process.env.API_KEY_HH);
-  myHeaders.append("X-Signature", generateSignature());
-  myHeaders.append("Content-Type", "application/json");
+  
+  // Gera a assinatura necessária
+  const signature = generateSignature();
+  
+  // Cabeçalhos da requisição
+  const myHeaders = {
+    "Api-key": process.env.API_KEY_HH,
+    "X-Signature": signature,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  };
 
-  const raw = JSON.stringify({
+  // Corpo da requisição (padrões aplicados se não vier do frontend)
+  const bodyData = {
     stay: {
-      checkIn: req.body.checkIn || "2025-06-15", // Padrão para o check-in
-      checkOut: req.body.checkOut || "2025-06-16", // Padrão para o check-out
+      checkIn: req.body.checkIn || "2025-06-15",
+      checkOut: req.body.checkOut || "2025-06-16"
     },
     occupancies: [
       {
         rooms: 1,
         adults: 1,
-        children: 0,
-      },
+        children: 0
+      }
     ],
     destination: {
-      code: req.body.destination || "MCO", // Padrão para Orlando (MCO)
-    },
-  });
+      code: req.body.destination || "MCO"
+    }
+  };
 
   const requestOptions = {
     method: "POST",
     headers: myHeaders,
-    body: raw,
-    redirect: "follow",
+    body: JSON.stringify(bodyData),
   };
 
   try {
     const response = await fetch(url, requestOptions);
     const result = await response.json();
     console.log(result); // Log da resposta para debug
-    if (result.error) {
-      throw new Error(result.error);
+
+    if (response.ok) {
+      res.json(result);
+    } else {
+      throw new Error(result.error || "Erro desconhecido na API Hotelbeds");
     }
-    res.json(result); // Retorna os dados recebidos da API Hotelbeds
   } catch (error) {
     console.error("Erro ao buscar dados dos hotéis:", error);
     res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
