@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Exemplo completo
+// server.js (ESM)
 ///////////////////////////////////////////////////////////
 import express from "express";
 import cors from "cors";
@@ -10,97 +10,59 @@ import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-///////////////////////////////////////////////////////////
-// 1) Carregar variáveis do .env (ou configuradas na Vercel)
-///////////////////////////////////////////////////////////
-dotenv.config(); // dotenv carrega as variáveis de ambiente
+// 1) Carregar variáveis do .env
+dotenv.config();
 
-///////////////////////////////////////////////////////////
 // 2) Resolver __dirname em modo ESM
-///////////////////////////////////////////////////////////
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
-///////////////////////////////////////////////////////////
 // 3) Criar cliente do Supabase (exemplo)
-///////////////////////////////////////////////////////////
 const supabase = createClient(
-  process.env.SUPABASE_URL, 
+  process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-///////////////////////////////////////////////////////////
 // 4) Inicializar Express
-///////////////////////////////////////////////////////////
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-///////////////////////////////////////////////////////////
 // 5) Servir arquivos estáticos a partir de /public
-///////////////////////////////////////////////////////////
-// Agora todos os arquivos dentro de "public/" ficarão disponíveis.
-// Exemplo: "public/js/parks-list.js" -> acessível em "/js/parks-list.js"
 app.use(express.static(path.join(__dirname, "public")));
 
-///////////////////////////////////////////////////////////
-// Exemplo: rota principal
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
+// IMPORTAR O SEU ROUTER PARA A TICKETS GENIE
+// ------------------------------------------------------
+import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
+
+// USAR O ROUTER em "/api/ticketsgenie"
+// Ex: GET /api/ticketsgenie/parks => chama a rota do ticketsGenieRouter
+app.use("/api/ticketsgenie", ticketsGenieRouter);
+
+// ------------------------------------------------------
+// Rota principal (teste)
 app.get("/", (req, res) => {
   res.send("Olá, API rodando com ESM e Express!");
 });
 
-///////////////////////////////////////////////////////////
-// Rota para buscar lista de parques da Tickets Genie
-///////////////////////////////////////////////////////////
-app.get("/api/ticketsgenie/parks", async (req, res) => {
-  try {
-    // Se quiser, use variáveis de ambiente ao invés de strings fixas.
-    // Ex.: process.env.TG_API_KEY e process.env.TG_API_SECRET
-    const myHeaders = {
-      "x-api-key": "1234567890",    // Ajuste conforme necessário
-      "x-api-secret": "Magic Lamp"  // Ajuste conforme necessário
-    };
-
-    const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
-      method: "GET",
-      headers: myHeaders
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erro na API (status: ${response.status})`);
-    }
-
-    const data = await response.json();
-
-    // Retorna o JSON para o cliente (navegador ou front-end)
-    res.json(data);
-
-  } catch (error) {
-    console.error("Erro ao buscar dados da TicketsGenie:", error);
-    res.status(500).json({ error: "Erro interno ao buscar parques" });
-  }
-});
-
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
 // Exemplo: Função para gerar assinatura de requests (Hotelbeds)
-///////////////////////////////////////////////////////////
 function generateSignature() {
-  const publicKey  = process.env.API_KEY_HH;    // Ajuste
-  const privateKey = process.env.SECRET_KEY_HH; // Ajuste
+  const publicKey  = process.env.API_KEY_HH;
+  const privateKey = process.env.SECRET_KEY_HH;
   const utcDate    = Math.floor(Date.now() / 1000);
   const assemble   = `${publicKey}${privateKey}${utcDate}`;
 
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
 // Exemplo: rota POST para "proxy-hotelbeds"
-///////////////////////////////////////////////////////////
 app.post("/proxy-hotelbeds", async (req, res) => {
   try {
     const signature = generateSignature();
-    const url       = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+    const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 
     const myHeaders = {
       "Api-key": process.env.API_KEY_HH,
@@ -150,9 +112,8 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   }
 });
 
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
 // Exemplo: rota dinâmica usando Supabase (busca "parks")
-///////////////////////////////////////////////////////////
 app.get("/park-details/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -185,7 +146,7 @@ app.get("/park-details/:id", async (req, res) => {
   }
 });
 
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
 // 6) Exportar app para a Vercel (sem app.listen duplicado)
-///////////////////////////////////////////////////////////
+// ------------------------------------------------------
 export default app;
