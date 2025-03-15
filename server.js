@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import path from "path"; // Para lidar com caminhos de arquivos estáticos
 import fetch from "node-fetch"; // Para fazer requisição HTTP
 import dotenv from "dotenv"; // Para carregar variáveis de ambiente
+import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
 
 // Carregar variáveis do .env
 dotenv.config();
@@ -19,7 +20,10 @@ const PORT = process.env.PORT || 3000;
 
 // Middlewares
 app.use(express.json());
+app.use(cors()); // Habilita CORS
 app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
+
+app.use("/api/hotelbeds", hotelbedsRoutes);
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
