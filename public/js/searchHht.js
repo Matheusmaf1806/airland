@@ -9,30 +9,23 @@ const endpoint = "/hotel-data"; // Chama o backend em vez de acessar diretamente
 
 // Função para buscar os hotéis com base no destino e nas datas
 async function fetchHotelData(destination) {
-  await loadCryptoJS(); // Garante que o CryptoJS foi carregado
-
-  // Configuração da requisição
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ destination }),
-  };
-
   try {
-    const response = await fetch(endpoint, requestOptions);
+    const response = await fetch("/api/hotelbeds", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ destination }),
+    });
+
     const result = await response.json();
 
-    if (response.ok) {
-      displayHotels(result); // Se a resposta for ok, exibe os hotéis
-    } else {
-      throw new Error(result.error || "Erro desconhecido ao buscar hotéis");
+    if (!response.ok) {
+      throw new Error(result.error || "Erro desconhecido");
     }
+
+    displayHotels(result);
   } catch (error) {
     console.error("Erro ao buscar hotéis:", error);
-    document.getElementById("hotels-list").innerHTML =
-      "Erro ao buscar hotéis: " + error.message; // Exibe erro na tela
+    document.getElementById("hotels-list").innerHTML = `<p>Erro: ${error.message}</p>`;
   }
 }
 
