@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(express.json());
 app.use(cors()); // Habilita CORS
-app.use(express.static(path.join(__dirname, "public")));  // Serve arquivos estáticos da pasta "public"
+app.use(express.static(path.resolve("public")));  // Serve arquivos estáticos da pasta "public"
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
