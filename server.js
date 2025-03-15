@@ -6,31 +6,25 @@ const fetch = require("node-fetch");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
 
-// 🔹 Carregar variáveis de ambiente
+// Carregar variáveis de ambiente
 dotenv.config();
 
-// 🔹 Configuração correta para servir arquivos na Vercel
-const __dirname = path.resolve();
-
-// 🔹 Inicializar Express
-const app = express();
-
-// 🔹 Criar cliente do Supabase
+// Criando cliente do Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// 🔹 Middlewares
+const app = express();
+
+// Middlewares
 app.use(express.json());
 app.use(cors()); // Evita problemas de CORS
 
-// 🔹 Servindo arquivos estáticos corretamente
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/js", express.static(path.join(__dirname, "public/js")));
-app.use("/css", express.static(path.join(__dirname, "public/css")));
+// Configuração para servir arquivos estáticos da pasta "public"
+app.use(express.static(path.join(__dirname, "public"))); // A pasta public
 
-// 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
+// Função para gerar a assinatura X-Signature
 function generateSignature() {
   const publicKey = process.env.API_KEY_HH;
   const privateKey = process.env.SECRET_KEY_HH;
@@ -39,7 +33,7 @@ function generateSignature() {
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// 🔹 Proxy para Hotelbeds
+// Proxy para Hotelbeds
 app.post("/proxy-hotelbeds", async (req, res) => {
   const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
   const signature = generateSignature();
@@ -75,7 +69,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (evita erro de CORS)
+// Proxy para TicketsGenie (evita erro de CORS)
 app.get("/api/ticketsgenie/parks", async (req, res) => {
   try {
     const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
@@ -99,7 +93,7 @@ app.get("/api/ticketsgenie/parks", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (Parque específico)
+// Proxy para TicketsGenie (Parque específico)
 app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -125,7 +119,7 @@ app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (Produtos do Parque)
+// Proxy para TicketsGenie (Produtos do Parque)
 app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
   const { id } = req.params;
 
@@ -151,16 +145,16 @@ app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
   }
 });
 
-// 🔹 Rota principal de teste
+// Rota principal de teste
 app.get("/", (req, res) => {
   res.send("API Airland está rodando 🚀");
 });
 
-// 🔹 Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
+// Inicia o servidor na porta 3000 ou na porta configurada pela Vercel
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
 
-// 🔹 Exporta o app para a Vercel
+// Exporta o app para a Vercel
 module.exports = app;
