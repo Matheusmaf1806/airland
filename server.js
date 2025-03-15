@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(cors()); // Habilita CORS
 app.use(express.static(path.join(__dirname, 'public')));  // Serve arquivos estáticos da pasta "public"
 
-app.use("/api/hotelbeds", hotelbedsRoutes);
+
 
 // 🔹 Função para gerar a assinatura X-Signature
 function generateSignature() {
