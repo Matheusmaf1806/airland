@@ -1,18 +1,16 @@
-import express from "express";
-import cors from "cors";
-import { createClient } from "@supabase/supabase-js";
-import path from "path";
-import { fileURLToPath } from "url";
-import fetch from "node-fetch";
-import dotenv from "dotenv";
-import crypto from "crypto";
+const express = require("express");
+const cors = require("cors");
+const { createClient } = require("@supabase/supabase-js");
+const path = require("path");
+const fetch = require("node-fetch");
+const dotenv = require("dotenv");
+const crypto = require("crypto");
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
 
 // 🔹 Configuração correta para servir arquivos na Vercel
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
 
 // 🔹 Inicializar Express
 const app = express();
@@ -165,4 +163,4 @@ app.listen(PORT, () => {
 });
 
 // 🔹 Exporta o app para a Vercel
-export default app;
+module.exports = app;
