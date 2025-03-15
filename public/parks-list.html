@@ -2,105 +2,35 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Parques - Ingressos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Parques</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- META TAGS PARA SEO -->
-  <meta name="description" content="Veja todos os parques da Disney e Universal. Encontre ingressos para os parques em Orlando, Califórnia, e muito mais!">
-  <meta name="keywords" content="Parques, Orlando, Disney, Universal, Ingressos, Viagem">
-
-  <!-- FONTE MONTSERRAT -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
-
-  <!-- Font Awesome (opcional) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
+  <!-- Estilos básicos (você pode usar CSS separado) -->
   <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      margin: 0;
-      padding: 0;
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .header { background: #00a0e3; color: #fff; padding: 20px; text-align: center; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .park-item { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-bottom: 10px; }
+    .park-item h3 { margin-top: 0; color: #333; }
+    .park-item p { margin: 6px 0; color: #666; }
+    .park-item button {
+      background: #00a0e3; color: #fff; border: none; border-radius: 5px;
+      padding: 8px 12px; cursor: pointer;
     }
-
-    .header {
-      background-color: #00a0e3;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .park-list-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      padding: 20px;
-      justify-content: center;
-    }
-
-    .park-item {
-      background-color: white;
-      border-radius: 8px;
-      padding: 16px;
-      width: 250px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .park-item img {
-      width: 100%;
-      border-radius: 8px;
-      height: 150px;
-      object-fit: cover;
-    }
-
-    .park-item:hover {
-      transform: scale(1.05);
-    }
-
-    .park-item h3 {
-      font-size: 1.2rem;
-      margin: 12px 0;
-    }
-
-    .park-item p {
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .footer {
-      background-color: #00a0e3;
-      color: white;
-      text-align: center;
-      padding: 20px;
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-    }
+    .park-item button:hover { background: #008dc8; }
   </style>
 </head>
 <body>
-
-  <!-- HEADER -->
   <div class="header">
     <h1>Parques Disponíveis</h1>
   </div>
 
-  <!-- LISTAGEM DE PARQUES -->
-  <div class="park-list-container" id="park-list">
-    <!-- A lista de parques será preenchida aqui dinamicamente -->
+  <div class="container">
+    <!-- LISTA DE PARQUES RENDERIZADA PELO JS -->
+    <div id="parks-list"></div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    © 2025 - Todos os direitos reservados
-  </div>
-
-  <!-- Corrigido os caminhos dos scripts -->
-  <script src="/js/bdinh.js"></script>
-  <script src="/js/parks-list.js"></script>
+  <!-- Script que contém a lógica de listagem de parques -->
+  <script src="js/parks-list.js"></script>
 </body>
 </html>
