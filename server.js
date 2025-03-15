@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import crypto from "crypto";
-import { router as hotelbedsRoutes } from "./api/hotelbeds.js";
+import hotelbedsRoutes from "./api/hotelbeds.js"; // ✅ Corrigida a importação
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
@@ -26,9 +26,54 @@ const supabase = createClient(
 
 // 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Evita problemas de CORS
-app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos da pasta "public"
-app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve arquivos JS corretamente
+app.use(cors()); // ✅ Evita problemas de CORS
+app.use(express.static(path.join(__dirname, "public"))); // ✅ Servir arquivos estáticos da pasta "public"
+app.use("/js", express.static(path.join(__dirname, "public/js"))); // ✅ Servir arquivos JS corretamente
+
+// 🔹 Função para gerar a assinatura X-Signature (Hotelbeds)
+function generateSignature() {
+  const publicKey = process.env.API_KEY_HH;
+  const privateKey = process.env.SECRET_KEY_HH;
+  const utcDate = Math.floor(new Date().getTime() / 1000);
+  const assemble = `${publicKey}${privateKey}${utcDate}`;
+  return crypto.createHash("sha256").update(assemble).digest("hex");
+}
+
+// 🔹 Proxy para Hotelbeds
+app.post("/proxy-hotelbeds", async (req, res) => {
+  const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+  const signature = generateSignature();
+
+  const myHeaders = {
+    "Api-key": process.env.API_KEY_HH,
+    "X-Signature": signature,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  };
+
+  const bodyData = {
+    stay: {
+      checkIn: req.body.checkIn || "2025-06-15",
+      checkOut: req.body.checkOut || "2025-06-16"
+    },
+    occupancies: [{ rooms: 1, adults: 1, children: 0 }],
+    destination: { code: req.body.destination || "MCO" }
+  };
+
+  try {
+    const response = await fetch(url, { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) });
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: result.error || "Erro desconhecido na API Hotelbeds" });
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Erro ao buscar hotéis:", error);
+    res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
+  }
+});
 
 // 🔹 Proxy para TicketsGenie (evita erro de CORS)
 app.get("/api/ticketsgenie/parks", async (req, res) => {
@@ -54,10 +99,10 @@ app.get("/api/ticketsgenie/parks", async (req, res) => {
   }
 });
 
-// 🔹 Rota para buscar detalhes de um parque
+// 🔹 Proxy para TicketsGenie (Parque específico)
 app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     const response = await fetch(`https://devapi.ticketsgenie.app/v1/parks/${id}`, {
       method: "GET",
@@ -80,7 +125,7 @@ app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   }
 });
 
-// 🔹 Rota para listar produtos de um parque
+// 🔹 Proxy para TicketsGenie (Produtos do Parque)
 app.get("/api/ticketsgenie/parks/:id/products", async (req, res) => {
   const { id } = req.params;
 
@@ -113,6 +158,12 @@ app.get("/", (req, res) => {
 
 // 🔹 Middleware para Hotelbeds
 app.use("/api/hotelbeds", hotelbedsRoutes);
+
+// 🔹 Inicia o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+});
 
 // 🔹 Exporta o app para a Vercel
 export default app;
