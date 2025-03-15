@@ -12,9 +12,6 @@ dotenv.config();
 // 🔹 Inicializar Express
 const app = express();
 
-// 🔹 Definir caminho base para compatibilidade com CommonJS
-const __dirname = path.resolve();
-
 // 🔹 Criar cliente do Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
