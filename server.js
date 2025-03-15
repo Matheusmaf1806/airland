@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import fetch from "node-fetch";
 
 // 🔹 Carregar variáveis de ambiente
 dotenv.config();
@@ -24,7 +25,7 @@ const supabase = createClient(
 
 // 🔹 Middlewares
 app.use(express.json());
-app.use(cors()); // Evita problemas de CORS
+app.use(cors()); // Habilita CORS
 app.use(express.static(path.join(__dirname, "public"))); // Serve arquivos estáticos
 app.use("/js", express.static(path.join(__dirname, "public/js"))); // Serve JS corretamente
 
@@ -37,43 +38,7 @@ function generateSignature() {
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
-// 🔹 Proxy para Hotelbeds
-app.post("/proxy-hotelbeds", async (req, res) => {
-  const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
-  const signature = generateSignature();
-
-  const myHeaders = {
-    "Api-key": process.env.API_KEY_HH,
-    "X-Signature": signature,
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-  };
-
-  const bodyData = {
-    stay: {
-      checkIn: req.body.checkIn || "2025-06-15",
-      checkOut: req.body.checkOut || "2025-06-16"
-    },
-    occupancies: [{ rooms: 1, adults: 1, children: 0 }],
-    destination: { code: req.body.destination || "MCO" }
-  };
-
-  try {
-    const response = await fetch(url, { method: "POST", headers: myHeaders, body: JSON.stringify(bodyData) });
-    const result = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: result.error || "Erro desconhecido na API Hotelbeds" });
-    }
-
-    res.json(result);
-  } catch (error) {
-    console.error("Erro ao buscar hotéis:", error);
-    res.status(500).json({ error: "Erro ao buscar dados dos hotéis" });
-  }
-});
-
-// 🔹 Proxy para TicketsGenie (evita erro de CORS)
+// 🔹 Proxy para TicketsGenie (Lista de parques)
 app.get("/api/ticketsgenie/parks", async (req, res) => {
   try {
     const response = await fetch("https://devapi.ticketsgenie.app/v1/parks", {
@@ -97,7 +62,7 @@ app.get("/api/ticketsgenie/parks", async (req, res) => {
   }
 });
 
-// 🔹 Proxy para TicketsGenie (Parque específico)
+// 🔹 Proxy para TicketsGenie (Detalhes do Parque)
 app.get("/api/ticketsgenie/parks/:id", async (req, res) => {
   const { id } = req.params;
 
