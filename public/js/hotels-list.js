@@ -39,7 +39,7 @@ function adicionarQuarto() {
 
   div.id = roomId;
 
-  // Evento "Remover"
+  // Configura o evento de clique do botão "Remover"
   const removeBtn = div.querySelector(".remove-room-btn");
   removeBtn.addEventListener("click", () => {
     roomsWrapper.removeChild(div);
@@ -50,7 +50,7 @@ function adicionarQuarto() {
   reindexRooms();
 }
 
-// Reindexa nomes dos quartos após remoção
+// Reindexa os nomes dos quartos após remoção
 function reindexRooms() {
   const rows = roomsWrapper.querySelectorAll(".room-row");
   rows.forEach((row, idx) => {
@@ -73,7 +73,7 @@ async function buscarHoteis() {
   statusEl.textContent = "Carregando hotéis...";
   statusEl.style.display = "block";
 
-  // Montar query string
+  // Montar query string a partir dos parâmetros e dos quartos selecionados
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
   let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
 
@@ -86,7 +86,7 @@ async function buscarHoteis() {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // Faz GET na rota do back-end
+  // URL para chamar o backend
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -98,7 +98,7 @@ async function buscarHoteis() {
 
     const data = await resp.json();
 
-    // Tenta usar data.combined; se não existir, fallback p/ data.hotels.hotels
+    // Tenta usar data.combined; se não existir, fallback para data.hotels.hotels
     const hotelsArray = data.combined || data?.hotels?.hotels || [];
 
     if (!hotelsArray.length) {
@@ -108,28 +108,26 @@ async function buscarHoteis() {
 
     statusEl.style.display = "none";
 
-    // Exibir cada hotel
+    // Para cada hotel, exibe as informações unificadas (disponibilidade + conteúdo)
     hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
-      // Nome e categoria (prioriza content se existir)
+      // Se houver conteúdo detalhado, prioriza os dados do content; senão, usa os dados do booking
       const name = hotel.content?.name || hotel.name || "Hotel sem nome";
       const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
-
-      // Descrição
       const description = hotel.content?.description || "Não informado";
 
-      // Imagem (se content e imagens existirem)
+      // Para a imagem: se o conteúdo possui imagens, utiliza a primeira; senão, usa placeholder
       let imageUrl = "https://via.placeholder.com/80";
       if (hotel.content && hotel.content.images && hotel.content.images.length) {
+        // Aqui você pode ajustar caso a API retorne a URL com subdiretórios ou outros formatos
         imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
       }
 
-      // Faixa de preço
+      // Faixa de preço baseada na disponibilidade
       const priceRange = `${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}`;
 
-      // Monta HTML
       item.innerHTML = `
         <div class="hotel-header">
           <img src="${imageUrl}" alt="${name}">
