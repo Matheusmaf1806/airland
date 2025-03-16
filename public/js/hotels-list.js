@@ -92,8 +92,8 @@ async function buscarHoteis() {
     }
     const data = await resp.json();
 
-    // Espera receber { availability, contentRaw, combined }
-    const hotelsArray = data.combined || [];
+    // Verifica se o array de hotéis foi retornado corretamente
+    const hotelsArray = data.combined || data.hotels?.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
@@ -102,8 +102,16 @@ async function buscarHoteis() {
     
     statusEl.style.display = "none";
 
-    // Exibe cada hotel na página
-    hotelsArray.forEach((hotel) => {
+    // Agora, fazemos uma segunda chamada para obter conteúdo (imagens e descrições)
+    for (let hotel of hotelsArray) {
+      // Realizando a segunda requisição para obter as imagens e descrição
+      const hotelContent = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
+      const contentData = await hotelContent.json();
+
+      // Atualiza os dados do hotel com as informações do conteúdo
+      hotel.content = contentData?.hotels?.[0] || {};
+
+      // Exibe o hotel na página
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
@@ -135,7 +143,8 @@ async function buscarHoteis() {
         <div class="hotel-price">Preço: ${priceRange}</div>
       `;
       hotelsListEl.appendChild(item);
-    });
+    }
+
   } catch (err) {
     console.error("Erro:", err);
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
