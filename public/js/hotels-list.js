@@ -93,7 +93,7 @@ async function buscarHoteis(page = 1) {
     const data = await resp.json();
 
     // Verificar a estrutura correta de dados, caso esteja vindo com um objeto de 'hotels'
-    const hotelsArray = data.hotels || []; // A resposta contém um objeto 'hotels' que é um array
+    const hotelsArray = data.hotels.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
