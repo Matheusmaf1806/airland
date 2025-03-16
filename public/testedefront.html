@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Hotel</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Seu arquivo CSS -->
+</head>
+<body>
+  <!-- Header -->
+  <div id="header"></div>
+
+  <!-- Loading -->
+  <div id="loading" style="display: block;">
+    <img src="/loading.html" alt="Carregando...">
+  </div>
+
+  <!-- Card de Hotel -->
+  <div id="hotel-card" style="display: none;">
+    <div class="hotel-card">
+      <!-- Imagem -->
+      <div class="hotel-image">
+        <img id="hotel-image" src="" alt="Imagem do Hotel">
+      </div>
+
+      <!-- Nome do Hotel -->
+      <div class="hotel-name">
+        <h2 id="hotel-name">Courtyard By Marriott Aventura Mall</h2>
+      </div>
+
+      <!-- Rating -->
+      <div class="hotel-rating">
+        <span id="hotel-rating">4 Estrelas</span>
+      </div>
+
+      <!-- Endereço -->
+      <div class="hotel-address">
+        <p id="hotel-address">2825 Ne 191St St, Aventura, FL, Estados Unidos</p>
+      </div>
+
+      <!-- Pontos Interessantes -->
+      <div class="hotel-interest-points">
+        <h3>Pontos de Interesse:</h3>
+        <ul id="interest-points">
+          <li>Dave & Buster's - 13.84 km</li>
+          <li>Jungle Island - 28.32 km</li>
+        </ul>
+      </div>
+
+      <!-- Preço -->
+      <div class="hotel-price">
+        <p id="price-per-night">Preço por diária: R$ 500,00</p>
+        <p id="price-installments">Em até 10x de R$ 50,00 sem juros</p>
+        <p id="pix-discount">5% OFF no Pix</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Mock dos dados recebidos da API
+    const hotelData = {
+      images: [{ path: "08/089383/089383a_hb_a_010.jpg" }],
+      name: "Courtyard By Marriott Aventura Mall",
+      category: { description: { content: "4 STARS" } },
+      address: { content: "2825 Ne 191St St" },
+      interestPoints: [
+        { poiName: "Dave & Buster's", distance: "13840" },
+        { poiName: "Jungle Island", distance: "28324" }
+      ],
+      pricePerNight: 500,
+      currency: "BRL"
+    };
+
+    // Função para converter milhas para km
+    function milesToKm(miles) {
+      return (miles * 1.60934).toFixed(2);
+    }
+
+    // Atualizando o card com os dados do hotel
+    window.onload = function() {
+      // Esconder loading
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('hotel-card').style.display = 'block';
+
+      // Definindo a imagem
+      const imageUrl = `https://photos.hotelbeds.com/giata/xl/${hotelData.images[0].path}`;
+      document.getElementById('hotel-image').src = imageUrl;
+
+      // Nome do hotel
+      document.getElementById('hotel-name').innerText = hotelData.name;
+
+      // Rating
+      document.getElementById('hotel-rating').innerText = hotelData.category.description.content;
+
+      // Endereço
+      document.getElementById('hotel-address').innerText = hotelData.address.content;
+
+      // Pontos de interesse
+      const interestPointsList = document.getElementById('interest-points');
+      hotelData.interestPoints.forEach(point => {
+        const listItem = document.createElement('li');
+        const distanceInKm = milesToKm(parseFloat(point.distance) / 1000);
+        listItem.innerText = `${point.poiName} - ${distanceInKm} km`;
+        interestPointsList.appendChild(listItem);
+      });
+
+      // Preço por diária e condições
+      document.getElementById('price-per-night').innerText = `Preço por diária: R$ ${hotelData.pricePerNight.toFixed(2)}`;
+      const installmentPrice = (hotelData.pricePerNight / 10).toFixed(2);
+      document.getElementById('price-installments').innerText = `Em até 10x de R$ ${installmentPrice} sem juros`;
+      document.getElementById('pix-discount').innerText = '5% OFF no Pix';
+    };
+  </script>
+</body>
+</html>
