@@ -100,18 +100,19 @@ async function buscarHoteis() {
     }
 
     const data = await resp.json();
-    console.log("Resposta Hotelbeds:", data);
 
-    const hotels = data.hotels || [];
-    if (!hotels.length) {
+    // Observando que a estrutura real é data.hotels.hotels (ou similar):
+    const hotelsArray = data?.hotels?.hotels || [];
+    
+    // Se não vier nada, exibir mensagem
+    if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-
-    // Oculta status, renderizar
+    
+    // Se chegou aqui, exibe os hotéis
     statusEl.style.display = "none";
-
-    hotels.forEach((hotel) => {
+    hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
