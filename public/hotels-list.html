@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Busca de Hotéis - Hotelbeds (Quartos ilimitados)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- FONTE -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap"/>
+  <!-- FONT AWESOME (opcional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <!-- NOSSO CSS EXTERNO -->
+  <link rel="stylesheet" href="css/hotels-list.css" />
+</head>
+<body>
+  <header>
+    <h1>Busca de Hotéis - Hotelbeds</h1>
+  </header>
+
+  <div class="container">
+    <!-- CAMPOS DE BUSCA: check-in, check-out, destino -->
+    <div class="search-box">
+      <label>Check-In:</label>
+      <input type="date" id="checkIn" value="2025-06-15">
+      
+      <label>Check-Out:</label>
+      <input type="date" id="checkOut" value="2025-06-16">
+
+      <label>Destino (ex: MCO):</label>
+      <input type="text" id="destination" placeholder="MCO">
+    </div>
+
+    <!-- DIV DE QUARTOS -->
+    <div class="occupancies" id="occupanciesContainer">
+      <h2>Quartos / Ocupações</h2>
+      <!-- Botão para adicionar quarto -->
+      <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
+      <!-- Quadro onde adicionamos room-rows -->
+      <div id="roomsWrapper"></div>
+    </div>
+
+    <!-- BOTÃO PARA BUSCAR -->
+    <div class="search-box">
+      <button onclick="buscarHoteis()">Buscar Hotéis</button>
+    </div>
+
+    <!-- STATUS E LISTA -->
+    <div id="status" class="loading" style="display:none;"></div>
+    <div id="hotelsList" class="hotels-list"></div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 - Exemplo Hotelbeds (quartos ilimitados)</p>
+  </footer>
+
+  <!-- SCRIPT EXTERNO -->
+  <script src="js/hotels-list.js"></script>
+</body>
+</html>
