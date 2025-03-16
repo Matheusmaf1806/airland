@@ -63,7 +63,10 @@ router.get("/hotels", async (req, res) => {
       destination: { code: destination }
     };
 
-    const respBooking = await fetch(BOOKING_URL, {
+    // Adicionar o limite de 20 resultados
+    const limit = 20;
+
+    const respBooking = await fetch(`${BOOKING_URL}?limit=${limit}`, {
       method: "POST",
       headers: bookingHeaders,
       body: JSON.stringify(bodyData)
