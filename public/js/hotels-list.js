@@ -55,7 +55,7 @@ function reindexRooms() {
 }
 
 // Função principal: chamar a rota do backend para buscar hotéis
-async function buscarHoteis() {
+async function buscarHoteis(page = 1) {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
   const destination = document.getElementById("destination").value || "MCO";
@@ -70,7 +70,7 @@ async function buscarHoteis() {
 
   // Montar query string a partir dos parâmetros e dos quartos selecionados
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
-  let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
+  let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}`;
 
   roomRows.forEach((row, index) => {
     const i = index + 1;
@@ -81,7 +81,7 @@ async function buscarHoteis() {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // URL para chamar o backend (rota que retorna combined)
+  // URL para chamar o backend (rota que retorna hotels)
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -92,8 +92,7 @@ async function buscarHoteis() {
     }
     const data = await resp.json();
 
-    // Verifica se o array de hotéis foi retornado corretamente
-    const hotelsArray = data.combined || data.hotels?.hotels || [];
+    const hotelsArray = data.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
@@ -102,34 +101,23 @@ async function buscarHoteis() {
     
     statusEl.style.display = "none";
 
-    // Agora, fazemos uma segunda chamada para obter conteúdo (imagens e descrições)
-    for (let hotel of hotelsArray) {
-      // Realizando a segunda requisição para obter as imagens e descrição
-      const hotelContent = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
-      const contentData = await hotelContent.json();
-
-      // Atualiza os dados do hotel com as informações do conteúdo
-      hotel.content = contentData?.hotels?.[0] || {};
-
-      // Exibe o hotel na página
+    // Exibe cada hotel na página
+    hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
       // Nome e categoria: priorizando dados de conteúdo (se existir)
-      const name = hotel.content?.name || hotel.name || "Hotel sem nome";
-      const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
+      const name = hotel.name || "Hotel sem nome";
+      const category = hotel.categoryName || hotel.categoryCode || "";
       
       // Descrição: do conteúdo detalhado ou mensagem padrão
-      const description = hotel.content?.description || "Não informado";
+      const description = hotel.description || "Não informado";
 
       // Imagem: se houver dados de conteúdo com imagens, usar a URL com "bigger"; senão, fallback
       let imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
-      if (hotel.content && hotel.content.images && hotel.content.images.length) {
-        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.content.images[0].path}`;
+      if (hotel.images && hotel.images.length > 0) {
+        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.images[0].path}`;
       }
-
-      // Faixa de preço
-      const priceRange = `${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}`;
 
       item.innerHTML = `
         <div class="hotel-header">
@@ -140,13 +128,20 @@ async function buscarHoteis() {
           </div>
         </div>
         <div class="hotel-description">Descrição: ${description}</div>
-        <div class="hotel-price">Preço: ${priceRange}</div>
       `;
       hotelsListEl.appendChild(item);
-    }
+    });
 
+    // Verifica se há mais hotéis e exibe botões de paginação
+    if (data.totalPages > page) {
+      const nextButton = document.createElement("button");
+      nextButton.textContent = "Próxima Página";
+      nextButton.onclick = () => buscarHoteis(page + 1);
+      hotelsListEl.appendChild(nextButton);
+    }
   } catch (err) {
     console.error("Erro:", err);
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
+
