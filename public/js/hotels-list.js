@@ -1,6 +1,9 @@
 // LÓGICA PRINCIPAL DE BUSCA DE HOTÉIS
 
 const roomsWrapper = document.getElementById("roomsWrapper");
+const statusEl = document.getElementById("status");
+const hotelsListEl = document.getElementById("hotelsList");
+let currentPage = 1;  // Página atual
 
 // Ao carregar a página, cria pelo menos 1 quarto
 window.addEventListener("DOMContentLoaded", () => {
@@ -54,14 +57,13 @@ function reindexRooms() {
   });
 }
 
-// Função principal: chamar a rota do backend para buscar hotéis
+// Função para buscar hotéis com paginação
 async function buscarHoteis(page = 1) {
+  currentPage = page;  // Atualiza a página atual
+
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
   const destination = document.getElementById("destination").value || "MCO";
-
-  const statusEl = document.getElementById("status");
-  const hotelsListEl = document.getElementById("hotelsList");
 
   // Limpa a lista e exibe "carregando"
   hotelsListEl.innerHTML = "";
@@ -81,7 +83,7 @@ async function buscarHoteis(page = 1) {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // URL para chamar o backend (rota que retorna os 20 primeiros hotéis)
+  // URL para chamar o backend (rota que retorna hotéis com paginação e limite de 20)
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -142,15 +144,33 @@ async function buscarHoteis(page = 1) {
       hotelsListEl.appendChild(item);
     }
 
-    // Verifica se há mais hotéis e exibe botões de paginação
-    if (data.totalPages > page) {
-      const nextButton = document.createElement("button");
-      nextButton.textContent = "Próxima Página";
-      nextButton.onclick = () => buscarHoteis(page + 1);
-      hotelsListEl.appendChild(nextButton);
-    }
+    // Exibe botões de navegação
+    exibirPaginacao(data.totalPages, page);
   } catch (err) {
     console.error("Erro:", err);
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
+
+// Função para exibir botões de navegação
+function exibirPaginacao(totalPages, currentPage) {
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML = "";
+
+  // Botão para página anterior
+  if (currentPage > 1) {
+    const previousButton = document.createElement("button");
+    previousButton.textContent = "Anterior";
+    previousButton.onclick = () => buscarHoteis(currentPage - 1);
+    pagination.appendChild(previousButton);
+  }
+
+  // Botão para página seguinte
+  if (currentPage < totalPages) {
+    const nextButton = document.createElement("button");
+    nextButton.textContent = "Próxima Página";
+    nextButton.onclick = () => buscarHoteis(currentPage + 1);
+    pagination.appendChild(nextButton);
+  }
+}
+
