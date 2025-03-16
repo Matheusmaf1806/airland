@@ -1,15 +1,18 @@
-// LÓGICA PRINCIPAL DE BUSCA DE HOTÉIS
+let currentPage = 1; // Página atual
+let totalHotels = 0;  // Total de hotéis (será atualizado com a resposta)
+let hotelsPerPage = 20; // Quantidade de hotéis por página
 
 const roomsWrapper = document.getElementById("roomsWrapper");
 
 // Ao carregar a página, cria pelo menos 1 quarto
 window.addEventListener("DOMContentLoaded", () => {
   adicionarQuarto();
+  buscarHoteis(currentPage); // Carregar os hotéis para a página 1
 });
 
 // Função para adicionar dinamicamente um quarto
 function adicionarQuarto() {
-  const roomIndex = roomsWrapper.children.length + 1; // ex.: se já tem 2, o índice do novo será 3
+  const roomIndex = roomsWrapper.children.length + 1;
   const div = document.createElement("div");
   div.classList.add("room-row");
   const roomId = `room_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -54,8 +57,8 @@ function reindexRooms() {
   });
 }
 
-// Função principal: chamar a rota do backend para buscar hotéis
-async function buscarHoteis() {
+// Função para buscar hotéis com paginação
+async function buscarHoteis(page = 1) {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
   const destination = document.getElementById("destination").value || "MCO";
@@ -68,22 +71,8 @@ async function buscarHoteis() {
   statusEl.textContent = "Carregando hotéis...";
   statusEl.style.display = "block";
 
-  // Montar query string a partir dos parâmetros e dos quartos selecionados
-  const roomRows = roomsWrapper.querySelectorAll(".room-row");
-  let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
-
-  roomRows.forEach((row, index) => {
-    const i = index + 1;
-    const adultsSelect = row.querySelector(".adultsSelect");
-    const childrenSelect = row.querySelector(".childrenSelect");
-    const adValue = adultsSelect.value;
-    const chValue = childrenSelect.value;
-    queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
-  });
-
-  // URL para chamar o backend (rota que retorna combined)
+  const queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&page=${page}&limit=${hotelsPerPage}`;
   const url = `/api/hotelbeds/hotels${queryString}`;
-  console.log("Requisição:", url);
 
   try {
     const resp = await fetch(url);
@@ -91,18 +80,16 @@ async function buscarHoteis() {
       throw new Error(`Erro ao buscar hotéis. Status: ${resp.status}`);
     }
     const data = await resp.json();
+    const hotelsArray = data.hotels || [];
 
-    // Espera receber { availability, contentRaw, combined }
-    const hotelsArray = data.combined || [];
-
+    totalHotels = data.total || 0;  // Atualizar o total de hotéis
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-    
+
     statusEl.style.display = "none";
 
-    // Exibe cada hotel na página
     hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
@@ -110,7 +97,7 @@ async function buscarHoteis() {
       // Nome e categoria: priorizando dados de conteúdo (se existir)
       const name = hotel.content?.name || hotel.name || "Hotel sem nome";
       const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
-      
+
       // Descrição: do conteúdo detalhado ou mensagem padrão
       const description = hotel.content?.description || "Não informado";
 
@@ -141,3 +128,24 @@ async function buscarHoteis() {
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
+
+// Função para ir para a próxima página
+function nextPage() {
+  if ((currentPage * hotelsPerPage) < totalHotels) {
+    currentPage++;
+    buscarHoteis(currentPage);
+  }
+}
+
+// Função para ir para a página anterior
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    buscarHoteis(currentPage);
+  }
+}
+
+// Função para carregar os resultados da primeira página
+document.addEventListener("DOMContentLoaded", () => {
+  buscarHoteis(currentPage);
+});
