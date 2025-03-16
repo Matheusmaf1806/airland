@@ -97,7 +97,7 @@ async function buscarHoteis(page = 1) {
     }
     const data = await resp.json();
 
-    // Verifica se há hotéis retornados e se existe o array 'hotels'
+    // Verificar a estrutura correta de dados
     const hotelsArray = data.hotels || [];
 
     if (!hotelsArray.length) {
@@ -116,8 +116,10 @@ async function buscarHoteis(page = 1) {
           const hotelContent = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
           const contentData = await hotelContent.json();
 
-          // Atualiza os dados do hotel com as informações do conteúdo
-          hotel.content = contentData?.hotels?.[0] || {};
+          // Verifica se os dados de conteúdo estão disponíveis
+          if (contentData?.hotels?.[0]) {
+            hotel.content = contentData.hotels[0];
+          }
 
           // Exibe o hotel na página
           const item = document.createElement("div");
