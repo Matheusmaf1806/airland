@@ -92,13 +92,14 @@ async function buscarHoteis(page = 1) {
     }
     const data = await resp.json();
 
-    const hotelsArray = data.hotels || [];
+    // Verificar a estrutura correta de dados, caso esteja vindo com um objeto de 'hotels'
+    const hotelsArray = data.hotels || []; // A resposta contém um objeto 'hotels' que é um array
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-    
+
     statusEl.style.display = "none";
 
     // Exibe cada hotel na página
@@ -109,7 +110,7 @@ async function buscarHoteis(page = 1) {
       // Nome e categoria: priorizando dados de conteúdo (se existir)
       const name = hotel.name || "Hotel sem nome";
       const category = hotel.categoryName || hotel.categoryCode || "";
-      
+
       // Descrição: do conteúdo detalhado ou mensagem padrão
       const description = hotel.description || "Não informado";
 
