@@ -119,6 +119,7 @@ async function buscarHoteis(page = 1) {
         imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.images[0].path}`;
       }
 
+      // Adiciona apenas informações que você quer mostrar, sem preços
       item.innerHTML = `
         <div class="hotel-header">
           <img src="${imageUrl}" alt="${name}">
@@ -144,4 +145,3 @@ async function buscarHoteis(page = 1) {
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
-
