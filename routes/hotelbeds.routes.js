@@ -1,88 +1,60 @@
 ////////////////////////////////////////////////////////////////////////
 // hotelbeds.routes.js
-// Combina Disponibilidade/Preços (Booking API) + Conteúdo (Content API)
-// em uma só rota GET /api/hotelbeds/hotels
+// Rota que combina Disponibilidade + Conteúdo (fotos/descrições) numa só chamada
 ////////////////////////////////////////////////////////////////////////
-
 import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
 
-//////////////////////////////////////////////////////////////////////
-// 1) Função para gerar X-Signature (pode ser usada p/ Booking e Content)
-//////////////////////////////////////////////////////////////////////
-function generateSignature(apiKey, secretKey) {
-  const timestamp = Math.floor(Date.now() / 1000); // SEGUNDOS
-  const dataToSign = `${apiKey}${secretKey}${timestamp}`;
-
-  return crypto
-    .createHash("sha256")
-    .update(dataToSign)
-    .digest("hex");
+// A) Gera assinatura para X-Signature (Booking e Content usam o mesmo método)
+function generateSignature(apiKey, secret) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const dataToSign = `${apiKey}${secret}${timestamp}`;
+  return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
-//////////////////////////////////////////////////////////////////////
-// 2) URLs base das APIs
-//    (Se estiver em produção, troque "api.test" por "api.")
-//////////////////////////////////////////////////////////////////////
+// B) URLs base de teste (sandbox). Em produção, troque "api.test" por "api."
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-// Router do Express
+// Cria o router Express
 const router = Router();
 
 /**
- * GET /api/hotelbeds/hotels
- * Exemplos de uso:
- *   /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO
- *   &rooms=2&adults1=2&children1=1&adults2=2&children2=0
+ * GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO&rooms=1&adults1=2...
  *
- * 1) Faz POST no endpoint Booking (/hotel-api/1.0/hotels) p/ obter disponibilidade e preços
- * 2) Extrai os códigos de hotel
- * 3) Faz GET no endpoint Content (/hotel-content-api/1.0/hotels) p/ obter fotos, descrições, etc.
- * 4) Combina tudo em um array final
+ * Faz 2 chamadas:
+ * 1) POST na Booking API (/hotels) p/ obter disponibilidade e preços
+ * 2) GET na Content API (/hotel-content-api) p/ buscar fotos e descrições
+ * 3) Combina tudo e devolve no campo "combined"
  */
 router.get("/hotels", async (req, res) => {
   try {
-    //////////////////////////////////////////////////////////////
-    // A) Ler variáveis de ambiente (API_KEY_HH, SECRET_KEY_HH)
-    //////////////////////////////////////////////////////////////
-    const apiKey = process.env.API_KEY_HH;
-    const secretKey = process.env.SECRET_KEY_HH;
-    if (!apiKey || !secretKey) {
-      return res
-        .status(500)
-        .json({ error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH) no .env" });
+    // 1) Ler chaves do .env
+    const apiKey    = process.env.API_KEY_HH;    
+    const apiSecret = process.env.SECRET_KEY_HH; 
+    if (!apiKey || !apiSecret) {
+      return res.status(500).json({
+        error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH) no ambiente."
+      });
     }
 
-    // Gera a signature. Se for usar a mesma credencial para as duas APIs, 1x basta.
-    const signature = generateSignature(apiKey, secretKey);
+    // 2) Gerar a assinatura (vale p/ Booking e Content)
+    const signature = generateSignature(apiKey, apiSecret);
 
-    //////////////////////////////////////////////////////////////
-    // B) Ler Query Params, com fallback se não vier
-    //////////////////////////////////////////////////////////////
-    // Exemplo de query:
-    // ?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO
-    // &rooms=2&adults1=2&children1=1&adults2=2&children2=0
+    // 3) Ler query params do front (ex.: checkIn, checkOut, destination, rooms, etc.)
     const {
       checkIn     = "2025-06-15",
       checkOut    = "2025-06-20",
-      destination = "MCO"          // pode ser uma city code ou IATA
+      destination = "MCO"
     } = req.query;
 
-    // Lê a quantidade de “blocos” de quartos para extrair adX/childX
+    // Monta array de occupancies de acordo com "rooms" e adults/children
     const roomsCount = parseInt(req.query.rooms || "1", 10);
-
-    // Montar array 'occupancies'
     let occupancies = [];
     for (let i = 1; i <= roomsCount; i++) {
-      // ex.: adults1=2, children1=1
-      const adParam = `adults${i}`;
-      const chParam = `children${i}`;
-
-      // fallback
-      const ad = parseInt(req.query[adParam] || "2", 10);
-      const ch = parseInt(req.query[chParam] || "0", 10);
+      const ad = parseInt(req.query[`adults${i}`]   || "2", 10);
+      const ch = parseInt(req.query[`children${i}`] || "0", 10);
 
       occupancies.push({
         rooms: 1,
@@ -90,14 +62,13 @@ router.get("/hotels", async (req, res) => {
         children: ch
       });
     }
-    // Se nada vier, fallback 1 quarto, 2 adultos
     if (occupancies.length === 0) {
-      occupancies.push({ rooms: 1, adults: 2, children: 0 });
+      occupancies.push({ rooms:1, adults:2, children:0 });
     }
 
-    //////////////////////////////////////////////////////////////
-    // C) Chamar a Booking API /hotels (POST) p/ Disponibilidade
-    //////////////////////////////////////////////////////////////
+    // -----------------------------------------------------
+    // 4) POST /hotels (Booking API) para disponibilidade
+    // -----------------------------------------------------
     const bookingHeaders = {
       "Api-key": apiKey,
       "X-Signature": signature,
@@ -105,7 +76,6 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
 
-    // Montar body p/ POST
     const bodyData = {
       stay: {
         checkIn,
@@ -115,10 +85,8 @@ router.get("/hotels", async (req, res) => {
       destination: {
         code: destination
       }
-      // se precisar de boards, geolocation, filters, etc. adicione aqui
     };
 
-    // Faz a requisição
     const respBooking = await fetch(BOOKING_URL, {
       method: "POST",
       headers: bookingHeaders,
@@ -126,7 +94,6 @@ router.get("/hotels", async (req, res) => {
     });
     const bookingJson = await respBooking.json();
 
-    // Se a API Hotelbeds (booking) retornar erro, pare e devolva
     if (!respBooking.ok) {
       return res.status(respBooking.status).json({
         error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
@@ -134,44 +101,31 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // bookingJson.hotels.hotels => array de hoteis
-    const hotelsBooking = bookingJson?.hotels?.hotels || [];
-    if (!hotelsBooking.length) {
-      // Se 0 hoteis retornados, devolve
+    // bookingJson.hotels.hotels => array de hotéis
+    const hotelsArray = bookingJson?.hotels?.hotels || [];
+    if (!hotelsArray.length) {
+      // Se não há hotéis, já devolve
       return res.json({
         availability: bookingJson,
         combined: []
       });
     }
 
-    //////////////////////////////////////////////////////////////
-    // D) Extrair os “hotelCodes” para buscar o Conteúdo
-    //////////////////////////////////////////////////////////////
-    // Atenção p/ chunk (no doc: max 2000 codes por request)
-    // Para simplificar, assumindo que a gente não exceda 2000
-    // Se exceder, seria preciso chunkar o array e fazer + de 1 GET
-    const allCodes = hotelsBooking.map(h => h.code);
-    const codesCsv = allCodes.join(",");
+    // -----------------------------------------------------
+    // 5) GET /hotel-content-api p/ buscar fotos e descrições
+    // -----------------------------------------------------
+    // Pega lista de codes [1234, 5678...]
+    const codes = hotelsArray.map(h => h.code);
+    const codesCsv = codes.join(",");
 
-    //////////////////////////////////////////////////////////////
-    // E) Chamar a Content API /hotel-content-api/1.0/hotels (GET)
-    //////////////////////////////////////////////////////////////
-    // Poderia usar outro par de credenciais se fosse diferente.
     const contentHeaders = {
-      "Api-Key": apiKey,
+      "Api-key": apiKey,
       "X-Signature": signature,
       "Accept": "application/json"
     };
 
-    // Parâmetros. Ex.: language=ENG, fields=all
-    // Ajuste se quiser, inclusive para ler language do front
-    const language = "ENG";
-    const fields   = "all";
-
-    // Montar URL
-    // Exemplo: https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels?codes=1234,5678&language=ENG&fields=all
-    const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=${language}&fields=${fields}`;
-
+    // Exemplo: language=ENG, fields=all
+    const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
     const respContent = await fetch(contentUrl, {
       method: "GET",
       headers: contentHeaders
@@ -185,69 +139,62 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // contentJson.hotels => array de hoteis com dados extras (fotos, descrições)
-    const hotelsContent = contentJson?.hotels || [];
+    // contentJson.hotels => array com dados (imagens, descrições etc.)
+    const contentHotels = contentJson?.hotels || [];
 
-    // Montar MAP p/ lookup: { code: { ...dados... } }
-    let mapContent = {};
-    hotelsContent.forEach((hc) => {
-      mapContent[hc.code] = hc;
+    // Transforma em map p/ lookup rápido: { [hotelCode]: { ...conteúdo... } }
+    let contentMap = {};
+    contentHotels.forEach(ch => {
+      contentMap[ch.code] = ch;
     });
 
-    //////////////////////////////////////////////////////////////
-    // F) Combinar Booking e Content
-    //////////////////////////////////////////////////////////////
-    // Ex. final: 
-    // {
-    //   code: 1234,
-    //   name: "Hotel do booking",
-    //   minRate, maxRate, currency, rooms: [ ... ],
-    //   content: {
-    //     name, description, categoryName, images: [ ... ]
-    //   }
-    // }
-    const combined = hotelsBooking.map((bk) => {
-      const cData = mapContent[bk.code] || null;
+    // -----------------------------------------------------
+    // 6) Combina as duas fontes num array "combined"
+    // -----------------------------------------------------
+    const combined = hotelsArray.map((bkHotel) => {
+      const code = bkHotel.code;
+      const contentData = contentMap[code] || null;
 
       return {
-        code: bk.code,
-        name: bk.name,
-        currency: bk.currency,
-        minRate: bk.minRate,
-        maxRate: bk.maxRate,
-        rooms: bk.rooms, // array de rooms e suas rates
+        code,
+        // Dados da parte de disponibilidade
+        name: bkHotel.name,
+        categoryCode: bkHotel.categoryCode,
+        categoryName: bkHotel.categoryName,
+        minRate: bkHotel.minRate,
+        maxRate: bkHotel.maxRate,
+        currency: bkHotel.currency,
+        rooms: bkHotel.rooms, // array de rooms/rates
 
-        content: cData ? {
-          name: cData.name,
-          categoryName: cData.categoryName,
-          description: cData.description?.content,
-          images: (cData.images || []).map(img => ({
-            path: img.path,
-            type: img.type
-          })),
-          // ... adicione outras props se precisar
-        } : null
+        // Dados de conteúdo (descrição, imagens, etc.)
+        content: contentData
+          ? {
+              name: contentData.name,
+              description: contentData.description?.content,
+              categoryName: contentData.categoryName,
+              images: (contentData.images || []).map(img => ({
+                path: img.path,
+                type: img.type
+              }))
+            }
+          : null
       };
     });
 
-    //////////////////////////////////////////////////////////////
-    // G) Devolver ao front
-    //////////////////////////////////////////////////////////////
-    // availability => json completo do booking
-    // contentRaw   => opcional, se quiser ver o bruto
-    // combined     => array final unificado
+    // -----------------------------------------------------
+    // 7) Retorna ao front
+    // -----------------------------------------------------
     return res.json({
-      availability: bookingJson,
-      contentRaw: contentJson,
-      combined
+      availability: bookingJson,  // a resposta original do booking
+      contentRaw: contentJson,    // opcional
+      combined                    // array final unificado
     });
 
   } catch (err) {
-    console.error("Erro geral /api/hotelbeds/hotels:", err);
-    return res
-      .status(500)
-      .json({ error: "Erro interno ao buscar Disponibilidade + Conteúdo" });
+    console.error("Erro /api/hotelbeds/hotels =>", err);
+    return res.status(500).json({ error: "Erro interno ao buscar Disponibilidade + Conteúdo" });
   }
 });
 
+// Exporta o router
 export default router;
