@@ -9,16 +9,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Função para adicionar dinamicamente um quarto
 function adicionarQuarto() {
-  const roomIndex = roomsWrapper.children.length + 1; // ex.: se já tem 2, o índice do novo será 3
-
-  // Cria o container .room-row
+  const roomIndex = roomsWrapper.children.length + 1;
   const div = document.createElement("div");
   div.classList.add("room-row");
 
-  // ID único para identificação e remoção
+  // Cria um ID único para o quarto
   const roomId = `room_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-
-  // Monta o HTML interno do quarto
   div.innerHTML = `
     <strong>Quarto ${roomIndex}:</strong>
     <label>Adultos:</label>
@@ -36,10 +32,9 @@ function adicionarQuarto() {
     </select>
     <button type="button" class="remove-room-btn">Remover</button>
   `;
-
   div.id = roomId;
 
-  // Configura o evento de clique do botão "Remover"
+  // Evento para remover o quarto
   const removeBtn = div.querySelector(".remove-room-btn");
   removeBtn.addEventListener("click", () => {
     roomsWrapper.removeChild(div);
@@ -59,7 +54,7 @@ function reindexRooms() {
   });
 }
 
-// Função principal: chamar a rota do backend para buscar hotéis
+// Função principal para buscar hotéis via back-end
 async function buscarHoteis() {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
@@ -68,25 +63,22 @@ async function buscarHoteis() {
   const statusEl = document.getElementById("status");
   const hotelsListEl = document.getElementById("hotelsList");
 
-  // Limpa a lista e mostra "carregando"
+  // Limpa a lista e mostra mensagem de carregando
   hotelsListEl.innerHTML = "";
   statusEl.textContent = "Carregando hotéis...";
   statusEl.style.display = "block";
 
-  // Montar query string a partir dos parâmetros e dos quartos selecionados
+  // Monta a query string com base nos inputs e quartos
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
   let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
-
   roomRows.forEach((row, index) => {
     const i = index + 1;
-    const adultsSelect = row.querySelector(".adultsSelect");
-    const childrenSelect = row.querySelector(".childrenSelect");
-    const adValue = adultsSelect.value;
-    const chValue = childrenSelect.value;
-    queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
+    const adultsValue = row.querySelector(".adultsSelect").value;
+    const childrenValue = row.querySelector(".childrenSelect").value;
+    queryString += `&adults${i}=${adultsValue}&children${i}=${childrenValue}`;
   });
 
-  // URL para chamar o backend
+  // Faz GET na rota do back-end
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -95,12 +87,10 @@ async function buscarHoteis() {
     if (!resp.ok) {
       throw new Error(`Erro ao buscar hotéis. Status: ${resp.status}`);
     }
-
     const data = await resp.json();
 
-    // Tenta usar data.combined; se não existir, fallback para data.hotels.hotels
+    // Usa a resposta combinada (availability + content) para exibir os hotéis
     const hotelsArray = data.combined || data?.hotels?.hotels || [];
-
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
@@ -108,24 +98,23 @@ async function buscarHoteis() {
 
     statusEl.style.display = "none";
 
-    // Para cada hotel, exibe as informações unificadas (disponibilidade + conteúdo)
+    // Para cada hotel, monta o item HTML
     hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
-      // Se houver conteúdo detalhado, prioriza os dados do content; senão, usa os dados do booking
+      // Nome: prioriza o conteúdo detalhado se existir
       const name = hotel.content?.name || hotel.name || "Hotel sem nome";
       const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
+      // Descrição: vem do content
       const description = hotel.content?.description || "Não informado";
-
-      // Para a imagem: se o conteúdo possui imagens, utiliza a primeira; senão, usa placeholder
-      let imageUrl = "https://via.placeholder.com/80";
+      // Imagem: se existir conteúdo e imagens, usa a URL ajustada
+      let imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
       if (hotel.content && hotel.content.images && hotel.content.images.length) {
-        // Aqui você pode ajustar caso a API retorne a URL com subdiretórios ou outros formatos
-        imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
+        // Aqui usamos o caminho "bigger" conforme referência
+        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.content.images[0].path}`;
       }
-
-      // Faixa de preço baseada na disponibilidade
+      // Faixa de preço da disponibilidade
       const priceRange = `${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}`;
 
       item.innerHTML = `
