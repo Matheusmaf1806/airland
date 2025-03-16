@@ -80,9 +80,10 @@ async function buscarHoteis(page = 1) {
       throw new Error(`Erro ao buscar hotéis. Status: ${resp.status}`);
     }
     const data = await resp.json();
-    const hotelsArray = data.hotels || [];
 
-    totalHotels = data.total || 0;  // Atualizar o total de hotéis
+    const hotelsArray = data.hotels || [];
+    totalHotels = data.total || hotelsArray.length;  // Atualizar o total de hotéis baseado no que veio
+
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
