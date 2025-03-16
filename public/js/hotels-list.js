@@ -7,7 +7,7 @@ const roomsWrapper = document.getElementById("roomsWrapper");
 // Ao carregar a página, cria pelo menos 1 quarto
 window.addEventListener("DOMContentLoaded", () => {
   adicionarQuarto();
-  buscarHoteis(currentPage); // Carregar os hotéis para a página 1
+  // Não chamar buscarHoteis automaticamente aqui
 });
 
 // Função para adicionar dinamicamente um quarto
@@ -146,6 +146,7 @@ function previousPage() {
 }
 
 // Função para carregar os resultados da primeira página
-document.addEventListener("DOMContentLoaded", () => {
-  buscarHoteis(currentPage);
+document.getElementById("buscarBtn").addEventListener("click", function() {
+  currentPage = 1;  // Resetar para a página 1
+  buscarHoteis(currentPage); // Chama a função para buscar hotéis
 });
