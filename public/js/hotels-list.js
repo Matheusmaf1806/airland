@@ -98,7 +98,7 @@ async function buscarHoteis() {
 
     const data = await resp.json();
 
-    // Se o back-end retornar "combined", usamos-o; senão, tentamos usar data.hotels.hotels
+    // Se o back-end retornar "combined", usamos-o; se não, tentamos data.hotels.hotels
     const hotelsArray = data.combined || data?.hotels?.hotels || [];
 
     if (!hotelsArray.length) {
@@ -121,7 +121,7 @@ async function buscarHoteis() {
       const description = hotel.content?.description || "Não informado";
 
       // Imagem: se houver dados de conteúdo e imagens, utiliza a primeira; senão, placeholder
-      let imageUrl = "https://via.placeholder.com/80";
+      let imageUrl = "https://placehold.co/80";
       if (hotel.content && hotel.content.images && hotel.content.images.length) {
         imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
       }
