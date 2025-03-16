@@ -70,7 +70,7 @@ async function buscarHoteis(page = 1) {
 
   // Montar query string a partir dos parâmetros e dos quartos selecionados
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
-  let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}`;
+  let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}&limit=20`;
 
   roomRows.forEach((row, index) => {
     const i = index + 1;
@@ -81,7 +81,7 @@ async function buscarHoteis(page = 1) {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // URL para chamar o backend (rota que retorna hotels)
+  // URL para chamar o backend (rota que retorna os 20 primeiros hotéis)
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -121,9 +121,11 @@ async function buscarHoteis(page = 1) {
       const description = content.description || "Não informado";
 
       // Imagem: se houver dados de conteúdo com imagens, usar a URL com "bigger"; senão, fallback
-      let imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
+      let imageUrl = "";
       if (content.images && content.images.length) {
         imageUrl = `https://photos.hotelbeds.com/giata/bigger/${content.images[0].path}`;
+      } else {
+        imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
       }
 
       // Adiciona as informações desejadas, sem preços
