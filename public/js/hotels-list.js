@@ -1,9 +1,6 @@
 // LÓGICA PRINCIPAL DE BUSCA DE HOTÉIS
 
 const roomsWrapper = document.getElementById("roomsWrapper");
-const statusEl = document.getElementById("status");
-const hotelsListEl = document.getElementById("hotelsList");
-let currentPage = 1;  // Página atual
 
 // Ao carregar a página, cria pelo menos 1 quarto
 window.addEventListener("DOMContentLoaded", () => {
@@ -57,13 +54,19 @@ function reindexRooms() {
   });
 }
 
-// Função para buscar hotéis com paginação
-async function buscarHoteis(page = 1) {
-  currentPage = page;  // Atualiza a página atual
+// Função para atrasar uma requisição e controlar a taxa de requisições
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+// Função principal: chamar a rota do backend para buscar hotéis
+async function buscarHoteis(page = 1) {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
   const destination = document.getElementById("destination").value || "MCO";
+
+  const statusEl = document.getElementById("status");
+  const hotelsListEl = document.getElementById("hotelsList");
 
   // Limpa a lista e exibe "carregando"
   hotelsListEl.innerHTML = "";
@@ -83,7 +86,7 @@ async function buscarHoteis(page = 1) {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // URL para chamar o backend (rota que retorna hotéis com paginação e limite de 20)
+  // URL para chamar o backend (rota que retorna os 20 primeiros hotéis)
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -94,8 +97,8 @@ async function buscarHoteis(page = 1) {
     }
     const data = await resp.json();
 
-    // Verificar a estrutura correta de dados
-    const hotelsArray = data.hotels?.hotels || [];
+    // Verifica se há hotéis retornados e se existe o array 'hotels'
+    const hotelsArray = data.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
@@ -104,73 +107,66 @@ async function buscarHoteis(page = 1) {
 
     statusEl.style.display = "none";
 
-    // Exibe cada hotel na página
-    for (const hotel of hotelsArray) {
-      // Realiza a segunda requisição para buscar as imagens e descrição
-      const hotelContentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
-      const hotelContent = await hotelContentResp.json();
+    // Agora, vamos fazer uma segunda chamada para obter conteúdo (imagens, descrições)
+    const hotelPromises = [];
+    for (let hotel of hotelsArray) {
+      hotelPromises.push(
+        // Realizando a segunda requisição para obter as imagens e descrição do hotel
+        delay(250).then(async () => {
+          const hotelContent = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
+          const contentData = await hotelContent.json();
 
-      const content = hotelContent?.hotels?.[0] || {};
+          // Atualiza os dados do hotel com as informações do conteúdo
+          hotel.content = contentData?.hotels?.[0] || {};
 
-      const item = document.createElement("div");
-      item.classList.add("hotel-item");
+          // Exibe o hotel na página
+          const item = document.createElement("div");
+          item.classList.add("hotel-item");
 
-      // Nome e categoria: priorizando dados de conteúdo (se existir)
-      const name = content.name || hotel.name || "Hotel sem nome";
-      const category = content.categoryName || hotel.categoryName || hotel.categoryCode || "";
+          // Nome e categoria: priorizando dados de conteúdo (se existir)
+          const name = hotel.content?.name || hotel.name || "Hotel sem nome";
+          const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
+          
+          // Descrição: do conteúdo detalhado ou mensagem padrão
+          const description = hotel.content?.description || "Não informado";
 
-      // Descrição: do conteúdo detalhado ou mensagem padrão
-      const description = content.description || "Não informado";
+          // Imagem: se houver dados de conteúdo com imagens, usar a URL com "bigger"; senão, fallback
+          let imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
+          if (hotel.content && hotel.content.images && hotel.content.images.length) {
+            imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.content.images[0].path}`;
+          }
 
-      // Imagem: se houver dados de conteúdo com imagens, usar a URL com "bigger"; senão, fallback
-      let imageUrl = "";
-      if (content.images && content.images.length) {
-        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${content.images[0].path}`;
-      } else {
-        imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
-      }
+          // Faixa de preço
+          const priceRange = `${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}`;
 
-      // Adiciona as informações desejadas, sem preços
-      item.innerHTML = `
-        <div class="hotel-header">
-          <img src="${imageUrl}" alt="${name}">
-          <div class="hotel-info">
-            <h3>${name}</h3>
-            <div class="hotel-location">Categoria: ${category}</div>
-          </div>
-        </div>
-        <div class="hotel-description">Descrição: ${description}</div>
-      `;
-      hotelsListEl.appendChild(item);
+          item.innerHTML = `
+            <div class="hotel-header">
+              <img src="${imageUrl}" alt="${name}">
+              <div class="hotel-info">
+                <h3>${name}</h3>
+                <div class="hotel-location">Categoria: ${category}</div>
+              </div>
+            </div>
+            <div class="hotel-description">Descrição: ${description}</div>
+            <div class="hotel-price">Preço: ${priceRange}</div>
+          `;
+          hotelsListEl.appendChild(item);
+        })
+      );
     }
 
-    // Exibe botões de navegação
-    exibirPaginacao(data.totalPages, page);
+    // Espera todas as promessas de conteúdo se resolverem
+    await Promise.all(hotelPromises);
+
+    // Verifica se há mais páginas de hotéis e exibe botões de navegação
+    if (data.totalPages > page) {
+      const nextButton = document.createElement("button");
+      nextButton.textContent = "Próxima Página";
+      nextButton.onclick = () => buscarHoteis(page + 1);
+      hotelsListEl.appendChild(nextButton);
+    }
   } catch (err) {
     console.error("Erro:", err);
     statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
-
-// Função para exibir botões de navegação
-function exibirPaginacao(totalPages, currentPage) {
-  const pagination = document.getElementById("pagination");
-  pagination.innerHTML = "";
-
-  // Botão para página anterior
-  if (currentPage > 1) {
-    const previousButton = document.createElement("button");
-    previousButton.textContent = "Anterior";
-    previousButton.onclick = () => buscarHoteis(currentPage - 1);
-    pagination.appendChild(previousButton);
-  }
-
-  // Botão para página seguinte
-  if (currentPage < totalPages) {
-    const nextButton = document.createElement("button");
-    nextButton.textContent = "Próxima Página";
-    nextButton.onclick = () => buscarHoteis(currentPage + 1);
-    pagination.appendChild(nextButton);
-  }
-}
-
