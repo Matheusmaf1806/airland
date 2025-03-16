@@ -4,7 +4,7 @@ const roomsWrapper = document.getElementById("roomsWrapper");
 
 // Ao carregar a página, cria pelo menos 1 quarto
 window.addEventListener("DOMContentLoaded", () => {
-  adicionarQuarto(); 
+  adicionarQuarto();
 });
 
 // Função para adicionar dinamicamente um quarto
@@ -15,9 +15,9 @@ function adicionarQuarto() {
   const div = document.createElement("div");
   div.classList.add("room-row");
 
-  // Gera um ID único para identificação e remoção
+  // ID único para identificação e remoção
   const roomId = `room_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-  
+
   // Monta o HTML interno do quarto
   div.innerHTML = `
     <strong>Quarto ${roomIndex}:</strong>
@@ -36,10 +36,10 @@ function adicionarQuarto() {
     </select>
     <button type="button" class="remove-room-btn">Remover</button>
   `;
-  
+
   div.id = roomId;
 
-  // Configura o evento de clique do botão "Remover"
+  // Evento "Remover"
   const removeBtn = div.querySelector(".remove-room-btn");
   removeBtn.addEventListener("click", () => {
     roomsWrapper.removeChild(div);
@@ -50,7 +50,7 @@ function adicionarQuarto() {
   reindexRooms();
 }
 
-// Reindexa os nomes dos quartos após remoção
+// Reindexa nomes dos quartos após remoção
 function reindexRooms() {
   const rows = roomsWrapper.querySelectorAll(".room-row");
   rows.forEach((row, idx) => {
@@ -67,13 +67,13 @@ async function buscarHoteis() {
 
   const statusEl = document.getElementById("status");
   const hotelsListEl = document.getElementById("hotelsList");
-  
-  // Limpa a lista e exibe mensagem de "carregando"
+
+  // Limpa a lista e mostra "carregando"
   hotelsListEl.innerHTML = "";
   statusEl.textContent = "Carregando hotéis...";
   statusEl.style.display = "block";
 
-  // Monta query string a partir dos parâmetros e dos quartos selecionados
+  // Montar query string
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
   let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
 
@@ -86,7 +86,7 @@ async function buscarHoteis() {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // URL para chamar a rota do backend
+  // Faz GET na rota do back-end
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -98,38 +98,38 @@ async function buscarHoteis() {
 
     const data = await resp.json();
 
-    // Verifica se a resposta tem o array "combined" (disponibilidade + conteúdo)
+    // Tenta usar data.combined; se não existir, fallback p/ data.hotels.hotels
     const hotelsArray = data.combined || data?.hotels?.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-    
+
     statusEl.style.display = "none";
 
-    // Exibe os hotéis na página
+    // Exibir cada hotel
     hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
-      // Nome e categoria (prioriza o conteúdo, se disponível)
-      const name = hotel.name || "Hotel sem nome";
-      const category = hotel.content?.categoryName || hotel.categoryCode || "";
-      
-      // Descrição: utiliza a descrição do conteúdo se existir
+      // Nome e categoria (prioriza content se existir)
+      const name = hotel.content?.name || hotel.name || "Hotel sem nome";
+      const category = hotel.content?.categoryName || hotel.categoryName || hotel.categoryCode || "";
+
+      // Descrição
       const description = hotel.content?.description || "Não informado";
 
-      // Imagem: se houver conteúdo e imagens, utiliza a primeira imagem
+      // Imagem (se content e imagens existirem)
       let imageUrl = "https://via.placeholder.com/80";
-      if (hotel.content && hotel.content.images && hotel.content.images.length > 0) {
-        // Exemplo: "01/012755/012755a_hb_r_002.jpg" deve ser usado com a URL "https://photos.hotelbeds.com/giata/bigger/01/012755/012755a_hb_r_002.jpg"
-        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.content.images[0].path}`;
+      if (hotel.content && hotel.content.images && hotel.content.images.length) {
+        imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
       }
 
-      // Preço: usa minRate e maxRate da disponibilidade
+      // Faixa de preço
       const priceRange = `${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}`;
-      
+
+      // Monta HTML
       item.innerHTML = `
         <div class="hotel-header">
           <img src="${imageUrl}" alt="${name}">
