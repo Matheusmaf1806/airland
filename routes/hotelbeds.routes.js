@@ -5,39 +5,24 @@ import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
 
-// ---------------------------------------------------------------------
-// Gera assinatura (igual para Booking e Content) - ou use duas se forem chaves diferentes
+// Função para gerar a assinatura para Booking e Content API
 function generateSignature(apiKey, secret) {
   const timestamp = Math.floor(Date.now() / 1000);
   const dataToSign = `${apiKey}${secret}${timestamp}`;
   return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
-// URLS base (teste). Se for produção, troque "api.test" por "api."
+// URLs base (teste). Para produção, altere "api.test" para "api."
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
 const router = Router();
 
-/**
- * GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO&rooms=1&adults1=2&...
- *
- * 1) Faz POST na Booking API (/hotels) p/ obter disponibilidade e preços
- * 2) Extrai a lista de hotelCodes
- * 3) Faz GET na Content API (/hotel-content-api?codes=...) p/ buscar fotos e descrições
- * 4) Combina tudo e devolve no front no formato:
- *    {
- *      availability: {...},  // Resposta original do Booking
- *      contentRaw:   {...},  // Resposta original do Content
- *      combined: [... ]      // array mesclado
- *    }
- */
 router.get("/hotels", async (req, res) => {
   try {
-    // 1) Pega credenciais do .env
-    const apiKey    = process.env.API_KEY_HH;
+    // 1) Recupera credenciais do .env
+    const apiKey = process.env.API_KEY_HH;
     const apiSecret = process.env.SECRET_KEY_HH;
-
     if (!apiKey || !apiSecret) {
       return res.status(500).json({
         error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH) no ambiente."
@@ -47,33 +32,27 @@ router.get("/hotels", async (req, res) => {
     // 2) Gera assinatura
     const signature = generateSignature(apiKey, apiSecret);
 
-    // 3) Ler query params
-    //    Ex: ?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO&rooms=1&adults1=2...
+    // 3) Ler query parameters (se não enviados, usa valores padrão)
     const {
       checkIn     = "2025-06-15",
       checkOut    = "2025-06-20",
       destination = "MCO"
     } = req.query;
 
-    // Montar array de occupancies
+    // 4) Monta array de occupancies de acordo com o número de quartos
     const roomsCount = parseInt(req.query.rooms || "1", 10);
     let occupancies = [];
     for (let i = 1; i <= roomsCount; i++) {
-      const ad = parseInt(req.query[`adults${i}`]   || "2", 10);
-      const ch = parseInt(req.query[`children${i}`] || "0", 10);
-
-      occupancies.push({
-        rooms: 1,
-        adults: ad,
-        children: ch
-      });
+      const adults = parseInt(req.query[`adults${i}`] || "2", 10);
+      const children = parseInt(req.query[`children${i}`] || "0", 10);
+      occupancies.push({ rooms: 1, adults, children });
     }
-    if (occupancies.length === 0) {
-      occupancies.push({ rooms:1, adults:2, children:0 });
+    if (!occupancies.length) {
+      occupancies.push({ rooms: 1, adults: 2, children: 0 });
     }
 
     // --------------------------------------------------------------
-    // (A) CHAMAR Booking API via POST
+    // (A) Chamada à Booking API (POST) para disponibilidade e preços
     // --------------------------------------------------------------
     const bookingHeaders = {
       "Api-key": apiKey,
@@ -81,6 +60,7 @@ router.get("/hotels", async (req, res) => {
       "Content-Type": "application/json",
       "Accept": "application/json"
     };
+
     const bodyData = {
       stay: { checkIn, checkOut },
       occupancies,
@@ -93,7 +73,6 @@ router.get("/hotels", async (req, res) => {
       body: JSON.stringify(bodyData)
     });
     const bookingJson = await respBooking.json();
-
     if (!respBooking.ok) {
       return res.status(respBooking.status).json({
         error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
@@ -101,10 +80,9 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Ex.: bookingJson.hotels.hotels => array de hoteis
+    // Extraindo a lista de hotéis da resposta do Booking API
     const hotelsArray = bookingJson?.hotels?.hotels || [];
     if (!hotelsArray.length) {
-      // Se não tem hotéis, devolve rápido
       return res.json({
         availability: bookingJson,
         contentRaw: null,
@@ -112,19 +90,19 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Pega lista de codes p/ chamar Content
+    // --------------------------------------------------------------
+    // (B) Chamada à Content API (GET) para buscar fotos e descrições
+    // --------------------------------------------------------------
     const codes = hotelsArray.map(h => h.code);
     const codesCsv = codes.join(",");
 
-    // --------------------------------------------------------------
-    // (B) CHAMAR Content API via GET
-    // --------------------------------------------------------------
     const contentHeaders = {
       "Api-Key": apiKey,
-      "X-Signature": signature, // se for a mesma key/secret
+      "X-Signature": signature, // mesma chave/secret
       "Accept": "application/json"
     };
-    // Ex.: GET https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels?codes=1234,5678&language=ENG&fields=all
+
+    // Exemplo de URL: .../hotel-content-api/1.0/hotels?codes=1234,5678&language=ENG&fields=all
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
 
     const respContent = await fetch(contentUrl, {
@@ -132,32 +110,27 @@ router.get("/hotels", async (req, res) => {
       headers: contentHeaders
     });
     const contentJson = await respContent.json();
-
     if (!respContent.ok) {
       return res.status(respContent.status).json({
         error: contentJson.error || "Erro na API Hotelbeds (Content)",
         details: contentJson
       });
     }
-    // contentJson.hotels => array de hoteis com imagens/descrição
-    const contentHotels = contentJson?.hotels || [];
 
-    // Transforma em Map p/ lookup
+    // Cria um map para lookup rápido dos dados de conteúdo
     const contentMap = {};
-    contentHotels.forEach(ch => {
+    (contentJson?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
     });
 
     // --------------------------------------------------------------
-    // (C) COMBINAR as duas fontes
+    // (C) Combina os dados de disponibilidade e conteúdo
     // --------------------------------------------------------------
-    const combined = hotelsArray.map((bkHotel) => {
+    const combined = hotelsArray.map(bkHotel => {
       const code = bkHotel.code;
-      const contentData = contentMap[code] || null; // se não achar no content, null
-
+      const contentData = contentMap[code] || null;
       return {
         code,
-        // Dados de disponibilidade
         name: bkHotel.name,
         categoryCode: bkHotel.categoryCode,
         categoryName: bkHotel.categoryName,
@@ -165,8 +138,6 @@ router.get("/hotels", async (req, res) => {
         maxRate: bkHotel.maxRate,
         currency: bkHotel.currency,
         rooms: bkHotel.rooms,
-
-        // Dados de conteúdo
         content: contentData ? {
           name: contentData.name,
           description: contentData.description?.content || "",
@@ -180,12 +151,12 @@ router.get("/hotels", async (req, res) => {
     });
 
     // --------------------------------------------------------------
-    // (D) Retornar a resposta final
+    // (D) Retorna a resposta final
     // --------------------------------------------------------------
     return res.json({
-      availability: bookingJson,  // a resposta original do booking
-      contentRaw: contentJson,    // a resposta original do content
-      combined
+      availability: bookingJson,  // Resposta original do Booking API
+      contentRaw: contentJson,      // Resposta original do Content API
+      combined                    // Dados mesclados para o front-end
     });
 
   } catch (err) {
