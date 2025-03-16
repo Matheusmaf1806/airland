@@ -15,10 +15,10 @@ function adicionarQuarto() {
   const div = document.createElement("div");
   div.classList.add("room-row");
 
-  // ID único p/ remover
-  const roomId = `room_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+  // ID único para identificação e remoção
+  const roomId = `room_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-  // Monta HTML interno
+  // Monta o HTML interno do quarto
   div.innerHTML = `
     <strong>Quarto ${roomIndex}:</strong>
     <label>Adultos:</label>
@@ -36,11 +36,10 @@ function adicionarQuarto() {
     </select>
     <button type="button" class="remove-room-btn">Remover</button>
   `;
-  
-  // Atribuímos um ID no container p/ identificar e remover depois
+
   div.id = roomId;
 
-  // Capturamos o botão "Remover" e adicionamos o evento de clique
+  // Configura o evento de clique do botão "Remover"
   const removeBtn = div.querySelector(".remove-room-btn");
   removeBtn.addEventListener("click", () => {
     roomsWrapper.removeChild(div);
@@ -51,16 +50,16 @@ function adicionarQuarto() {
   reindexRooms();
 }
 
-// Reindexa nomes dos quartos (Quarto 1, Quarto 2...) após remover
+// Reindexa os nomes dos quartos após remoção
 function reindexRooms() {
   const rows = roomsWrapper.querySelectorAll(".room-row");
   rows.forEach((row, idx) => {
     const strongEl = row.querySelector("strong");
-    strongEl.textContent = `Quarto ${idx+1}:`;
+    strongEl.textContent = `Quarto ${idx + 1}:`;
   });
 }
 
-// Principal: chamar a rota do backend para buscar hotéis
+// Função principal: chamar a rota do backend para buscar hotéis
 async function buscarHoteis() {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
@@ -68,14 +67,13 @@ async function buscarHoteis() {
 
   const statusEl = document.getElementById("status");
   const hotelsListEl = document.getElementById("hotelsList");
-  
-  // Limpa lista e mostra "carregando"
+
+  // Limpa a lista e mostra mensagem de "carregando"
   hotelsListEl.innerHTML = "";
   statusEl.textContent = "Carregando hotéis...";
   statusEl.style.display = "block";
 
-  // Montar query string
-  // Precisamos iterar sobre cada .room-row e pegar Adults e Children
+  // Montar query string a partir dos parâmetros e dos quartos selecionados
   const roomRows = roomsWrapper.querySelectorAll(".room-row");
   let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}`;
 
@@ -89,7 +87,7 @@ async function buscarHoteis() {
     queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
   });
 
-  // Faz GET na rota do seu back-end (ex.: /api/hotelbeds/hotels)
+  // URL para chamar o backend
   const url = `/api/hotelbeds/hotels${queryString}`;
   console.log("Requisição:", url);
 
@@ -101,30 +99,35 @@ async function buscarHoteis() {
 
     const data = await resp.json();
 
-    // Observando que a estrutura real é data.hotels.hotels (ou similar):
-    const hotelsArray = data?.hotels?.hotels || [];
-    
-    // Se não vier nada, exibir mensagem
+    // Agora, como o endpoint retorna:
+    // { availability, contentRaw, combined }
+    // usamos "combined" para exibir os hotéis unificados
+    const hotelsArray = data.combined || [];
+
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-    
-    // Se chegou aqui, exibe os hotéis
+
     statusEl.style.display = "none";
+
+    // Exibe os hotéis na página
     hotelsArray.forEach((hotel) => {
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
-      const name = hotel.name?.content || "Hotel sem nome";
-      const category = hotel.categoryCode || "";
-      const rating = hotel.categoryName || "";
+      // Como "hotel.name" já é uma string no objeto combinado:
+      const name = hotel.name || "Hotel sem nome";
+      const category = hotel.content?.categoryName || hotel.categoryCode || "";
       
-      // Exemplo: pega 1 imagem
+      // Para a imagem, se houver dados no "content.images":
       let imageUrl = "https://via.placeholder.com/80";
-      if (hotel.images && hotel.images.length) {
-        imageUrl = `https://photos.hotelbeds.com/giata/${hotel.images[0].path}`;
+      if (hotel.content && hotel.content.images && hotel.content.images.length) {
+        imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
       }
+
+      // Exibe também a descrição, se existir
+      const description = hotel.content?.description || "Não informado";
 
       item.innerHTML = `
         <div class="hotel-header">
@@ -132,14 +135,16 @@ async function buscarHoteis() {
           <div class="hotel-info">
             <h3>${name}</h3>
             <div class="hotel-location">
-              Categoria: ${category} - ${rating}
+              Categoria: ${category}
             </div>
           </div>
         </div>
         <div class="hotel-description">
-          Endereço: ${hotel.address?.content || "Não informado"}
+          Descrição: ${description}
         </div>
-        <div class="hotel-price">Preço: ??? (consultar cada room/board)</div>
+        <div class="hotel-price">
+          Preço: ${hotel.minRate || "???"} - ${hotel.maxRate || "???"} ${hotel.currency || ""}
+        </div>
       `;
 
       hotelsListEl.appendChild(item);
