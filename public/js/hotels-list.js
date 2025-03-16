@@ -92,8 +92,8 @@ async function buscarHoteis(page = 1) {
     }
     const data = await resp.json();
 
-    // Verificar a estrutura correta de dados, caso esteja vindo com um objeto de 'hotels'
-    const hotelsArray = data.hotels || []; // A resposta contém um objeto 'hotels' que é um array
+    // Verificar a estrutura correta de dados
+    const hotelsArray = data.hotels?.hotels || [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
@@ -103,24 +103,30 @@ async function buscarHoteis(page = 1) {
     statusEl.style.display = "none";
 
     // Exibe cada hotel na página
-    hotelsArray.forEach((hotel) => {
+    for (const hotel of hotelsArray) {
+      // Realiza a segunda requisição para buscar as imagens e descrição
+      const hotelContentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
+      const hotelContent = await hotelContentResp.json();
+
+      const content = hotelContent?.hotels?.[0] || {};
+
       const item = document.createElement("div");
       item.classList.add("hotel-item");
 
       // Nome e categoria: priorizando dados de conteúdo (se existir)
-      const name = hotel.name || "Hotel sem nome";
-      const category = hotel.categoryName || hotel.categoryCode || "";
+      const name = content.name || hotel.name || "Hotel sem nome";
+      const category = content.categoryName || hotel.categoryName || hotel.categoryCode || "";
 
       // Descrição: do conteúdo detalhado ou mensagem padrão
-      const description = hotel.description || "Não informado";
+      const description = content.description || "Não informado";
 
       // Imagem: se houver dados de conteúdo com imagens, usar a URL com "bigger"; senão, fallback
       let imageUrl = "https://dummyimage.com/80x80/cccccc/000000.png&text=No+Image";
-      if (hotel.images && hotel.images.length > 0) {
-        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${hotel.images[0].path}`;
+      if (content.images && content.images.length) {
+        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${content.images[0].path}`;
       }
 
-      // Adiciona apenas informações que você quer mostrar, sem preços
+      // Adiciona as informações desejadas, sem preços
       item.innerHTML = `
         <div class="hotel-header">
           <img src="${imageUrl}" alt="${name}">
@@ -132,7 +138,7 @@ async function buscarHoteis(page = 1) {
         <div class="hotel-description">Descrição: ${description}</div>
       `;
       hotelsListEl.appendChild(item);
-    });
+    }
 
     // Verifica se há mais hotéis e exibe botões de paginação
     if (data.totalPages > page) {
