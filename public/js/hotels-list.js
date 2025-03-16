@@ -9,7 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Função para adicionar dinamicamente um quarto
 function adicionarQuarto() {
-  const roomIndex = roomsWrapper.children.length + 1;
+  const roomIndex = roomsWrapper.children.length + 1; // ex.: se já tem 2, o índice do novo será 3
   const div = document.createElement("div");
   div.classList.add("room-row");
   const roomId = `room_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
