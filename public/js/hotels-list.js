@@ -123,7 +123,9 @@ async function buscarHoteis() {
       // Imagem: se houver dados de conteúdo e imagens, utiliza a primeira; senão, placeholder
       let imageUrl = "https://placehold.co/80";
       if (hotel.content && hotel.content.images && hotel.content.images.length) {
-        imageUrl = `https://photos.hotelbeds.com/giata/${hotel.content.images[0].path}`;
+        // Exemplo: usar a resolução 'bigger'
+        const firstImagePath = hotel.content.images[0].path; 
+        imageUrl = `https://photos.hotelbeds.com/giata/bigger/${firstImagePath}`;
       }
 
       // Preço: utiliza minRate e maxRate da disponibilidade
