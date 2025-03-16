@@ -97,8 +97,8 @@ async function buscarHoteis(page = 1) {
     }
     const data = await resp.json();
 
-    // Verificar a estrutura correta de dados
-    const hotelsArray = data.hotels || [];
+    // Verificar a estrutura correta de dados, considerando que a resposta pode ser um array de hotéis
+    const hotelsArray = Array.isArray(data.hotels) ? data.hotels : [];
 
     if (!hotelsArray.length) {
       statusEl.textContent = "Nenhum hotel encontrado.";
