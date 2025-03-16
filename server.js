@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM)
+// server.js (ESM) - Versão Final
 ///////////////////////////////////////////////////////////
 import express from "express";
 import cors from "cors";
@@ -35,9 +35,6 @@ app.use(express.static(path.join(__dirname, "public")));
 // IMPORTAR O SEU ROUTER PARA A TICKETS GENIE
 // ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
-
-// USAR O ROUTER em "/api/ticketsgenie"
-// Ex: GET /api/ticketsgenie/parks => chama a rota do ticketsGenieRouter
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 
 // ------------------------------------------------------
@@ -47,10 +44,10 @@ app.get("/", (req, res) => {
 });
 
 // ------------------------------------------------------
-// Exemplo: Função para gerar assinatura de requests (Hotelbeds)
+// Função para gerar assinatura de requests (Hotelbeds)
 function generateSignature() {
-  const publicKey  = process.env.API_KEY_HH;
-  const privateKey = process.env.SECRET_KEY_HH;
+  const publicKey  = process.env.API_KEY_HH;     // ex.: "123456..."
+  const privateKey = process.env.SECRET_KEY_HH;  // ex.: "abcXYZ..."
   const utcDate    = Math.floor(Date.now() / 1000);
   const assemble   = `${publicKey}${privateKey}${utcDate}`;
 
@@ -58,7 +55,83 @@ function generateSignature() {
 }
 
 // ------------------------------------------------------
-// Exemplo: rota POST para "proxy-hotelbeds"
+// Rota GET p/ Hotelbeds, suportando múltiplos quartos
+// Exemplo de chamada front-end: GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
+app.get("/api/hotelbeds/hotels", async (req, res) => {
+  try {
+    // 1) Extrair parâmetros
+    const { checkIn, checkOut, destination } = req.query;
+    const roomsCount = parseInt(req.query.rooms || "1");
+
+    // 2) Montar occupancies[] de acordo com rooms
+    let occupancies = [];
+    for (let i = 1; i <= roomsCount; i++) {
+      const adParam = `adults${i}`;
+      const chParam = `children${i}`;
+
+      const ad = parseInt(req.query[adParam] || "2"); // default 2 adultos
+      const ch = parseInt(req.query[chParam] || "0"); // default 0 crianças
+
+      occupancies.push({
+        rooms: 1,
+        adults: ad,
+        children: ch
+      });
+    }
+
+    // 3) Definir defaults caso faltem params
+    const finalCheckIn  = checkIn  || "2025-06-15";
+    const finalCheckOut = checkOut || "2025-06-16";
+    const finalDest     = destination || "MCO";
+
+    // 4) Gerar assinatura e montar headers
+    const signature = generateSignature();
+    const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
+    const myHeaders = {
+      "Api-key": process.env.API_KEY_HH,
+      "X-Signature": signature,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    };
+
+    // 5) Body para POST na Hotelbeds
+    const bodyData = {
+      stay: {
+        checkIn:  finalCheckIn,
+        checkOut: finalCheckOut
+      },
+      occupancies,
+      destination: {
+        code: finalDest
+      }
+    };
+
+    // 6) Fazer POST na API
+    const response = await fetch(url, {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(bodyData)
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      // Se a API retornou status >= 400
+      return res
+        .status(response.status)
+        .json({ error: result.error || "Erro na API Hotelbeds" });
+    }
+
+    // 7) Devolver resultado ao front-end
+    return res.json(result);
+
+  } catch (err) {
+    console.error("Erro ao buscar hotéis (GET /api/hotelbeds/hotels):", err);
+    res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+  }
+});
+
+// ------------------------------------------------------
+// Exemplo: rota POST para "proxy-hotelbeds" (antiga, opcional)
 app.post("/proxy-hotelbeds", async (req, res) => {
   try {
     const signature = generateSignature();
@@ -97,17 +170,15 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 
     const result = await response.json();
     if (!response.ok) {
-      // Se a API retornou status >= 400
       return res
         .status(response.status)
         .json({ error: result.error || "Erro na API Hotelbeds" });
     }
 
-    // Se tudo certo, devolve JSON ao front-end
     return res.json(result);
 
   } catch (err) {
-    console.error("Erro ao buscar dados dos hotéis:", err);
+    console.error("Erro ao buscar dados dos hotéis (POST /proxy-hotelbeds):", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
   }
 });
@@ -147,6 +218,5 @@ app.get("/park-details/:id", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// 6) Exportar app para a Vercel (sem app.listen duplicado)
-// ------------------------------------------------------
+// 6) Exportar app p/ a Vercel (sem app.listen duplicado)
 export default app;
