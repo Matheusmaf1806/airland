@@ -864,9 +864,12 @@
           }
 
           // E) priceFrom -> "A partir de " + minRate
-          let priceLabel = "A partir de R$ ???";
+          let priceLabel = "A partir de R$ ???"; 
           if (hotel.minRate !== undefined) {
-            priceLabel = `A partir de R$ ${hotel.minRate.toFixed(2)}`;
+            const parsedRate = parseFloat(hotel.minRate);
+            if (!isNaN(parsedRate)) {
+              priceLabel = `A partir de R$ ${parsedRate.toFixed(2)}`;
+            }
           }
 
           // F) facilities -> content.facilities (ex: "Wi-fi")
