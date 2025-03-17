@@ -2,65 +2,681 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Busca de Hotéis - Hotelbeds (Quartos ilimitados)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- FONTE -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap"/>
-  <!-- FONT AWESOME (opcional) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <!-- NOSSO CSS EXTERNO -->
-  <link rel="stylesheet" href="css/hotels-list.css" />
+  <title>Buscador Surreal de Lindo - Hotéis c/ Quartos Ilimitados</title>
+
+  <!-- Fonte Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- CSS do Flatpickr (CDN) -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
+
+  <!-- MATERIAL ICONS (GRATUITAS) -->
+  <link 
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
+
+  <style>
+    /* RESET BÁSICO */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    /* TUDO EM MONTSERRAT, INCLUSIVE PLACEHOLDERS E BOTÕES */
+    html, body, input, select, button, textarea {
+      font-family: 'Montserrat', sans-serif;
+    }
+    ::placeholder {
+      color: #999; 
+      opacity: 1;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #f6f8fb; /* fundo neutro */
+      color: #333;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HERO SECTION (opcional) */
+    .hero {
+      width: 100%;
+      height: 50vh;
+      background: linear-gradient(to bottom right, #0e65e0, #1f3070);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    /* CONTAINER DO BUSCADOR */
+    .search-container {
+      position: relative;
+      width: 90%;
+      max-width: 1200px;
+      margin: -4rem auto 2rem auto;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      border-radius: 1rem;
+      padding: 1.5rem 2rem;
+      z-index: 10;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 0.5rem 0.5rem 0 0;
+      color: #555;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .tab .material-icons {
+      font-size: 1.1rem; 
+      vertical-align: middle;
+    }
+    .tab.active {
+      background: #0e65e0;
+      color: #fff;
+    }
+
+    /* CONTEÚDO DAS ABAS */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FORMULÁRIOS */
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: flex-end;
+    }
+    .form-field {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-field label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+    .form-field input,
+    .form-field select {
+      padding: 0.7rem;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 0.4rem;
+      outline: none;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: #0e65e0;
+      box-shadow: 0 0 0 2px rgba(14,101,224,0.1);
+    }
+    .form-field.button-field {
+      flex: 0;
+    }
+
+    /* BOTÃO DE PESQUISA */
+    .search-button {
+      background: #0e65e0;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s;
+      margin-top: 0.5rem;
+    }
+    .search-button:hover {
+      background: #0b4ea9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* ================
+       CUSTOMIZAÇÃO FLATPICKR
+       ================ */
+    .flatpickr-calendar {
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .flatpickr-months {
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+      padding: 0.5rem;
+    }
+    .flatpickr-current-month {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    /* Bloqueia datas anteriores (cinza) */
+    .flatpickr-day.disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      color: #ccc !important;
+      cursor: not-allowed !important;
+    }
+    /* Hoje => marcado como azul */
+    .flatpickr-day.today {
+      background: #0e65e01a; /* leve transparência */
+      border: 1px solid #0e65e0;
+      color: #333;
+    }
+    /* Dia selecionado => azul sólido */
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #0e65e0 !important;
+      color: #fff !important;
+    }
+    /* Hover */
+    .flatpickr-day:hover {
+      background: #0e65e0;
+      color: #fff;
+    }
+    /* Intervalo range intermediário */
+    .flatpickr-day.inRange {
+      background: #0e65e07c;
+      color: #fff;
+    }
+
+    /* ======== LISTA DE HOTÉIS E PAGINAÇÃO (aba Hotéis) ======== */
+    .hotels-list {
+      margin-top: 1rem;
+    }
+    .hotel-item {
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fff;
+    }
+    .pagination {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 0.3rem;
+      background: #eee;
+    }
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    /* Estilizar container e botões de adicionar quarto */
+    .occupancies {
+      background: #fdfdfd;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .occupancies h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .occupancies button {
+      background: #0e65e0;
+      color: #fff;
+      border: none;
+      border-radius: 0.4rem;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .occupancies button:hover {
+      background: #0b4ea9;
+    }
+    .room-block {
+      border: 1px dashed #aaa;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.4rem;
+    }
+    .room-block h3 {
+      margin-bottom: 0.3rem;
+      font-size: 0.95rem;
+      color: #444;
+    }
+    .room-block label {
+      font-size: 0.85rem;
+    }
+    .room-block input[type="number"] {
+      width: 60px;
+      margin-right: 0.5rem;
+    }
+    .room-block button.remove-room {
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-radius: 0.3rem;
+    }
+    .room-block button.remove-room:hover {
+      background: #962d20;
+    }
+    /* Status / loading */
+    #status.loading {
+      color: #0e65e0;
+    }
+    #status.error {
+      color: #c0392b;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Busca de Hotéis - Hotelbeds</h1>
-  </header>
 
-  <div class="container">
-    <!-- CAMPOS DE BUSCA -->
-    <div class="search-box">
-      <label>Check-In:</label>
-      <input type="date" id="checkIn" value="2025-06-15">
-      
-      <label>Check-Out:</label>
-      <input type="date" id="checkOut" value="2025-06-16">
+  <!-- HERO (Opcional) -->
+  <section class="hero">
+    <h1>Sua Próxima Aventura</h1>
+    <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
+  </section>
 
-      <label>Destino (ex: MCO):</label>
-      <input type="text" id="destination" placeholder="MCO">
+  <div class="search-container">
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" data-tab="tab-ingressos">
+        <span class="material-icons">local_activity</span> Ingressos
+      </div>
+      <div class="tab" data-tab="tab-hoteis">
+        <span class="material-icons">hotel</span> Hotéis
+      </div>
+      <div class="tab" data-tab="tab-carros">
+        <span class="material-icons">directions_car</span> Carros
+      </div>
+      <div class="tab" data-tab="tab-transfer">
+        <span class="material-icons">compare_arrows</span> Transfer
+      </div>
+      <div class="tab" data-tab="tab-seguros">
+        <span class="material-icons">shield</span> Seguros
+      </div>
     </div>
 
-    <!-- DIV DE QUARTOS -->
-    <div class="occupancies" id="occupanciesContainer">
-      <h2>Quartos / Ocupações</h2>
-      <!-- Botão para adicionar quarto -->
-      <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
-      <!-- Quadro onde os quartos serão adicionados -->
-      <div id="roomsWrapper"></div>
+    <!-- ABA INGRESSOS (exemplo) -->
+    <div id="tab-ingressos" class="tab-content active">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoIngresso">Destino ou Ingresso</label>
+          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
+        </div>
+        <div class="form-field">
+          <label for="dataIngresso">Data</label>
+          <input type="text" id="dataIngresso" />
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button">Buscar Ingressos</button>
+        </div>
+      </div>
     </div>
 
-    <!-- BOTÃO PARA BUSCAR -->
-    <div class="search-box">
-      <button onclick="buscarHoteis()">Buscar Hotéis</button>
-    </div>
+    <!-- ABA HOTEIS (range + quartos ilimitados) -->
+    <div id="tab-hoteis" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoHoteis">Destino</label>
+          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel (ex: MCO)" />
+        </div>
+        <div class="form-field">
+          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
+          <input type="text" id="dataRangeHoteis" />
+        </div>
+      </div>
 
-    <!-- STATUS E LISTA -->
-    <div id="status" class="loading" style="display:none;"></div>
-    <div id="hotelsList" class="hotels-list"></div>
+      <!-- Div de Quarto(s) / Ocupações, com botão Adicionar Quarto -->
+      <div class="occupancies" id="occupanciesContainer">
+        <h2>Quartos / Ocupações</h2>
+        <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
+        <div id="roomsWrapper"></div>
+      </div>
 
-    <!-- PAGINAÇÃO -->
+      <div class="form-group">
+        <div class="form-field button-field">
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+        </div>
+      </div>
+
+      <!-- STATUS e LISTA DE HOTÉIS -->
+      <div id="status" style="display:none;"></div>
+      <div id="hotelsList" class="hotels-list"></div>
+
       <!-- PAGINAÇÃO -->
-    <div id="pagination" class="pagination">
-      <button id="previousPage" onclick="previousPage()" disabled>Anterior</button>
-      <button id="nextPage" onclick="nextPage()" disabled>Próxima Página</button>
+      <div id="pagination" class="pagination" style="display:none;">
+        <button id="previousPage" onclick="previousPage()">Anterior</button>
+        <button id="nextPage" onclick="nextPage()">Próxima Página</button>
+      </div>
     </div>
+
+    <!-- ABA CARROS -->
+    <div id="tab-carros" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="localRetirada">Local de Retirada</label>
+          <input type="text" id="localRetirada" placeholder="Aeroporto, cidade..." />
+        </div>
+        <div class="form-field">
+          <label for="dataRetiradaCarros">Retirada</label>
+          <input type="text" id="dataRetiradaCarros" />
+        </div>
+        <div class="form-field">
+          <label for="dataDevolucaoCarros">Devolução</label>
+          <input type="text" id="dataDevolucaoCarros" />
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button">Buscar Carros</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA TRANSFER -->
+    <div id="tab-transfer" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="embarqueTransfer">Local de Embarque</label>
+          <input type="text" id="embarqueTransfer" placeholder="Endereço, aeroporto..." />
+        </div>
+        <div class="form-field">
+          <label for="desembarqueTransfer">Local de Desembarque</label>
+          <input type="text" id="desembarqueTransfer" placeholder="Endereço, aeroporto..." />
+        </div>
+        <div class="form-field">
+          <label for="dataTransfer">Data</label>
+          <input type="text" id="dataTransfer" />
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button">Buscar Transfer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA SEGUROS -->
+    <div id="tab-seguros" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="regiaoSeguros">Região</label>
+          <input type="text" id="regiaoSeguros" placeholder="Europa, América do Norte..." />
+        </div>
+        <div class="form-field">
+          <label for="embarqueSeguros">Embarque</label>
+          <input type="text" id="embarqueSeguros" />
+        </div>
+        <div class="form-field">
+          <label for="desembarqueSeguros">Desembarque</label>
+          <input type="text" id="desembarqueSeguros" />
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button">Buscar Seguros</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <footer>
-    <p>&copy; 2025 - Exemplo Hotelbeds (quartos ilimitados)</p>
-  </footer>
+  <!-- (Opcional) SEÇÃO DE DESTAQUE / OFERTAS -->
+  <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
+    <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
+    <p style="color: #666; margin-bottom: 1rem;">
+      Explore nossas ofertas imperdíveis para destinos incríveis.
+    </p>
+    <!-- Cards / Slides / etc. -->
+  </section>
 
-  <!-- SCRIPT EXTERNO -->
-  <script src="js/hotels-list.js"></script>
+  <!-- FLATPICKR + Localização em Português -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+  <script>
+    // LÓGICA DE TROCA DE ABAS
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+
+    // CONFIGURAÇÕES DE DATA
+    const singleDateOptions = {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today',
+      allowInput: true
+    };
+    const singleDateTimeOptions = {
+      locale: 'pt',
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      time_24hr: true,
+      minDate: 'today',
+      defaultDate: 'today',
+      allowInput: true
+    };
+    const rangeOptions = {
+      locale: 'pt',
+      mode: 'range',
+      dateFormat: 'd/m/Y',
+      showMonths: 2,
+      minDate: 'today',
+      allowInput: true
+    };
+
+    // Ingressos
+    flatpickr('#dataIngresso', singleDateOptions);
+
+    // Hotéis (range c/ 2 meses)
+    flatpickr('#dataRangeHoteis', rangeOptions);
+
+    // Carros (data/hora)
+    flatpickr('#dataRetiradaCarros', singleDateTimeOptions);
+    flatpickr('#dataDevolucaoCarros', singleDateTimeOptions);
+
+    // Transfer
+    flatpickr('#dataTransfer', singleDateOptions);
+
+    // Seguros
+    flatpickr('#embarqueSeguros', singleDateOptions);
+    flatpickr('#desembarqueSeguros', singleDateOptions);
+
+
+    /* ============= LÓGICA "ANTIGA" DE QUARTOS ILIMITADOS + BUSCA ============= */
+
+    // Variáveis de exemplo
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // Função para adicionar quarto
+    function adicionarQuarto() {
+      const roomsWrapper = document.getElementById('roomsWrapper');
+      const roomCount = roomsWrapper.children.length + 1;
+
+      // Cria bloco do quarto
+      const roomDiv = document.createElement('div');
+      roomDiv.className = 'room-block';
+
+      roomDiv.innerHTML = `
+        <h3>Quarto ${roomCount}</h3>
+        <label>Adultos:
+          <input type="number" class="adultCount" min="1" value="2"/>
+        </label>
+        <label>Crianças:
+          <input type="number" class="childCount" min="0" value="0"/>
+        </label>
+        <button class="remove-room" onclick="removerQuarto(this)">Remover</button>
+      `;
+      roomsWrapper.appendChild(roomDiv);
+    }
+
+    // Função para remover quarto
+    function removerQuarto(btn) {
+      const roomDiv = btn.parentNode;
+      roomDiv.remove();
+      // Redefinir contagem no título?
+      const roomsWrapper = document.getElementById('roomsWrapper');
+      const allRooms = roomsWrapper.querySelectorAll('.room-block');
+      allRooms.forEach((r, idx) => {
+        const title = r.querySelector('h3');
+        title.textContent = `Quarto ${idx + 1}`;
+      });
+    }
+
+    // Exemplo de "buscarHoteis" (simulação)
+    function buscarHoteis() {
+      // Exibir status de loading
+      const statusDiv = document.getElementById('status');
+      statusDiv.style.display = 'block';
+      statusDiv.textContent = 'Carregando hotéis...';
+      statusDiv.className = 'loading';
+
+      // Pegar datas (range)
+      const dataRangeVal = document.getElementById('dataRangeHoteis').value;
+      // Ex: "15/06/2025 a 16/06/2025"
+      // Pegar destino
+      const destino = document.getElementById('destinoHoteis').value || 'MCO';
+
+      // Montar ocupações
+      const roomsWrapper = document.getElementById('roomsWrapper');
+      const allRooms = roomsWrapper.querySelectorAll('.room-block');
+      const occupancies = [];
+      allRooms.forEach(r => {
+        const adultCount = r.querySelector('.adultCount').value;
+        const childCount = r.querySelector('.childCount').value;
+        occupancies.push({ adults: adultCount, children: childCount });
+      });
+
+      console.log('Buscando hotéis com:');
+      console.log('Destino:', destino);
+      console.log('Data Range:', dataRangeVal);
+      console.log('Quartos:', occupancies);
+
+      // Simular call API / setTimeout
+      setTimeout(() => {
+        // Supondo que retornou 2 páginas
+        currentPage = 1;
+        totalPages = 2;
+        // Exibir/atualizar paginação
+        atualizarPaginacao();
+
+        // Exibir lista de hotéis (fictícia)
+        mostrarHoteisFake();
+
+        // Tirar status
+        statusDiv.style.display = 'none';
+      }, 1500);
+    }
+
+    function mostrarHoteisFake() {
+      const hotelsList = document.getElementById('hotelsList');
+      hotelsList.innerHTML = '';
+      for (let i = 1; i <= 3; i++) {
+        const div = document.createElement('div');
+        div.className = 'hotel-item';
+        div.textContent = `Hotel ${i} - Página ${currentPage}`;
+        hotelsList.appendChild(div);
+      }
+    }
+
+    function atualizarPaginacao() {
+      const paginationDiv = document.getElementById('pagination');
+      const btnPrev = document.getElementById('previousPage');
+      const btnNext = document.getElementById('nextPage');
+
+      // Se só 1 página, não exibe
+      if (totalPages <= 1) {
+        paginationDiv.style.display = 'none';
+        return;
+      }
+
+      paginationDiv.style.display = 'flex';
+      btnPrev.disabled = (currentPage <= 1);
+      btnNext.disabled = (currentPage >= totalPages);
+    }
+
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        atualizarPaginacao();
+        mostrarHoteisFake();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        atualizarPaginacao();
+        mostrarHoteisFake();
+      }
+    }
+
+    // Ao carregar, adicionamos ao menos 1 quarto
+    document.addEventListener('DOMContentLoaded', () => {
+      adicionarQuarto();
+    });
+  </script>
 </body>
 </html>
