@@ -1,8 +1,8 @@
-/* ===================================
-   A) LÓGICA DO BUSCADOR / ABAS
-=================================== */
+/* ===========================================
+   A) LÓGICA DO BUSCADOR / ABAS + FLATPICKR
+=========================================== */
 
-// Abas
+// Abas (troca de tab ao clicar)
 const tabs = document.querySelectorAll('.tab');
 const tabContents = document.querySelectorAll('.tab-content');
 tabs.forEach(tab => {
@@ -15,7 +15,7 @@ tabs.forEach(tab => {
   });
 });
 
-// Flatpickr => #dataIngresso, #dataRangeHoteis
+// Inicializa calendários com Flatpickr (caso a lib esteja presente na página)
 if (typeof flatpickr !== 'undefined') {
   flatpickr('#dataIngresso', {
     locale: 'pt',
@@ -33,7 +33,9 @@ if (typeof flatpickr !== 'undefined') {
   });
 }
 
-// Dropdown de Quartos
+/* ===========================================
+   B) DROPDOWN DE QUARTOS E PESSOAS
+=========================================== */
 const quartosInput   = document.getElementById('quartos');
 const dropdown       = document.getElementById('quartosDropdown');
 const roomsMinus     = document.getElementById('roomsMinus');
@@ -42,16 +44,18 @@ const roomsTotalEl   = document.getElementById('roomsTotal');
 const roomsContainer = document.getElementById('roomsContainer');
 const applyQuartos   = document.getElementById('applyQuartos');
 
-// Array que guarda dados de cada quarto
+// Array que guarda os dados de cada quarto
 let roomsData = [
   { adults: 2, children: 0, childAges: [] }
 ];
 
-// Abre/fecha dropdown
+// Abre/fecha o dropdown ao clicar
 if (quartosInput) {
   quartosInput.addEventListener('click', (e) => {
     e.stopPropagation();
-    dropdown.classList.toggle('active');
+    if (dropdown) {
+      dropdown.classList.toggle('active');
+    }
   });
 }
 if (dropdown) {
@@ -59,13 +63,14 @@ if (dropdown) {
     e.stopPropagation();
   });
 }
+// Fecha dropdown ao clicar fora
 document.addEventListener('click', () => {
-  dropdown.classList.remove('active');
+  if (dropdown) dropdown.classList.remove('active');
 });
 
 // Renderiza os blocos de cada quarto
 function renderRooms() {
-  if (!roomsContainer) return;
+  if (!roomsContainer || !roomsTotalEl) return;
   roomsContainer.innerHTML = '';
   roomsTotalEl.textContent = roomsData.length;
 
@@ -73,12 +78,13 @@ function renderRooms() {
     const block = document.createElement('div');
     block.classList.add('qd-room-block');
 
+    // Título: "Quarto X"
     const title = document.createElement('div');
     title.className = 'qd-room-title';
-    title.textContent = `Quarto ${index+1}`;
+    title.textContent = `Quarto ${index + 1}`;
     block.appendChild(title);
 
-    // Adultos
+    // Linha de adultos
     const adRow = document.createElement('div');
     adRow.className = 'qd-row';
     adRow.innerHTML = `
@@ -91,7 +97,7 @@ function renderRooms() {
     `;
     block.appendChild(adRow);
 
-    // Crianças
+    // Linha de crianças
     const chRow = document.createElement('div');
     chRow.className = 'qd-row';
     chRow.innerHTML = `
@@ -104,44 +110,44 @@ function renderRooms() {
     `;
     block.appendChild(chRow);
 
-    // Idades
+    // Container das idades
     const agesDiv = document.createElement('div');
     agesDiv.className = 'children-ages';
     room.childAges.forEach((ageVal, i2) => {
       const sel = document.createElement('select');
       sel.className = 'childAgeSelect';
-      for (let a=0; a<=17; a++){
+      for (let a = 0; a <= 17; a++) {
         const opt = document.createElement('option');
-        opt.value=a;
-        opt.text=`${a} ano(s)`;
+        opt.value = a;
+        opt.text = `${a} ano(s)`;
         sel.appendChild(opt);
       }
-      sel.value=ageVal;
-      sel.addEventListener('change',(ev)=>{
-        room.childAges[i2]=parseInt(ev.target.value,10);
+      sel.value = ageVal;
+      sel.addEventListener('change', (ev) => {
+        room.childAges[i2] = parseInt(ev.target.value, 10);
       });
       agesDiv.appendChild(sel);
     });
     block.appendChild(agesDiv);
 
-    // Eventos (+/-)
-    adRow.querySelector('.adultPlus').addEventListener('click', ()=>{
+    // Eventos +/-
+    adRow.querySelector('.adultPlus').addEventListener('click', () => {
       room.adults++;
       renderRooms();
     });
-    adRow.querySelector('.adultMinus').addEventListener('click', ()=>{
-      if(room.adults>1){
+    adRow.querySelector('.adultMinus').addEventListener('click', () => {
+      if (room.adults > 1) {
         room.adults--;
         renderRooms();
       }
     });
-    chRow.querySelector('.childPlus').addEventListener('click', ()=>{
+    chRow.querySelector('.childPlus').addEventListener('click', () => {
       room.children++;
       room.childAges.push(0);
       renderRooms();
     });
-    chRow.querySelector('.childMinus').addEventListener('click', ()=>{
-      if(room.children>0){
+    chRow.querySelector('.childMinus').addEventListener('click', () => {
+      if (room.children > 0) {
         room.children--;
         room.childAges.pop();
         renderRooms();
@@ -151,70 +157,79 @@ function renderRooms() {
     roomsContainer.appendChild(block);
   });
 }
+
+// Botões +/-
 if (roomsPlus) {
-  roomsPlus.addEventListener('click', ()=>{
-    roomsData.push({ adults:2, children:0, childAges:[] });
+  roomsPlus.addEventListener('click', () => {
+    roomsData.push({ adults: 2, children: 0, childAges: [] });
     renderRooms();
   });
 }
 if (roomsMinus) {
-  roomsMinus.addEventListener('click', ()=>{
-    if(roomsData.length>1){
+  roomsMinus.addEventListener('click', () => {
+    if (roomsData.length > 1) {
       roomsData.pop();
       renderRooms();
     }
   });
 }
+
+// Botão "Aplicar"
 if (applyQuartos) {
-  applyQuartos.addEventListener('click', ()=>{
-    let totalA=0, totalC=0;
-    for(const r of roomsData){
-      totalA+=r.adults;
-      totalC+=r.children;
+  applyQuartos.addEventListener('click', () => {
+    let totalA = 0;
+    let totalC = 0;
+    for (const r of roomsData) {
+      totalA += r.adults;
+      totalC += r.children;
     }
-    quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
-    dropdown.classList.remove('active');
+    if (quartosInput) {
+      quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
+    }
+    if (dropdown) dropdown.classList.remove('active');
   });
 }
+
+// Render inicial
 renderRooms();
 
 /* =========================================
-   B) LÓGICA DO CARD E CHAMADA /api/hoteis
+   C) LÓGICA DE CRIAÇÃO DE CARD E BUSCA /api/hoteis
 ========================================= */
 
-// Converte metros string -> "0,8 km"
+// Função auxiliar: converte metros em "0,8 km"
 function convertDistanceToKm(distStr) {
   const meters = parseFloat(distStr) || 0;
   const km = meters / 1000;
   return km.toFixed(1).replace('.', ',') + " km";
 }
 
-// Cria o card baseado nos dados (images, stars, etc.)
+// Cria o card (pega #hotelCardTemplate e popula)
 function createHotelCard(hotelData) {
   const template = document.getElementById("hotelCardTemplate");
   if (!template) return document.createDocumentFragment();
   const clone = template.content.cloneNode(true);
 
-  // Preenche texto
-  clone.querySelector(".hotel-name").textContent = hotelData.name || "";
-  clone.querySelector(".hotel-address").textContent = hotelData.address || "";
-  clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
-  clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
+  // Nome, endereço, datas, preço
+  clone.querySelector(".hotel-name").textContent    = hotelData.name        || "";
+  clone.querySelector(".hotel-address").textContent = hotelData.address     || "";
+  clone.querySelector(".days-nights").textContent   = hotelData.daysNights  || "";
+  clone.querySelector(".price-starting").textContent= hotelData.priceFrom   || "";
   clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
 
-  // Rating (estrelas)
+  // Estrelas
   const starEl = clone.querySelector(".stars");
   starEl.innerHTML = "";
   const r = Math.round(hotelData.ratingStars || 0);
-  for(let i=1; i<=5; i++){
+  for (let i = 1; i <= 5; i++) {
     const star = document.createElement("i");
-    if(i<=r) star.classList.add("fas","fa-star");
-    else star.classList.add("far","fa-star","empty");
+    if (i <= r) star.classList.add("fas", "fa-star");
+    else star.classList.add("far", "fa-star", "empty");
     starEl.appendChild(star);
   }
   clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-  // Facilities (usando facilitiesMap.js se existir no window)
+  // Facilities (caso use window.facilitiesMap do facilitiesMap.js)
   const facDiv = clone.querySelector(".facility-icons");
   (hotelData.facilities || []).forEach(f => {
     if (window.facilitiesMap) {
@@ -223,6 +238,7 @@ function createHotelCard(hotelData) {
         const iconDiv = document.createElement("div");
         iconDiv.className = "facility-icon";
         iconDiv.innerHTML = found.svg;
+        // Tooltip
         const tt = document.createElement("div");
         tt.className = "tooltip";
         tt.textContent = found.pt;
@@ -232,7 +248,7 @@ function createHotelCard(hotelData) {
     }
   });
 
-  // POIs
+  // Pontos de interesse (POI)
   const poiUl = clone.querySelector(".poi-list");
   (hotelData.poiList || []).forEach(p => {
     const li = document.createElement("li");
@@ -242,33 +258,33 @@ function createHotelCard(hotelData) {
   });
 
   // Carrossel
-  const track= clone.querySelector(".carousel-track");
-  let currentSlide=0;
-  (hotelData.images || []).forEach(url=>{
-    const slide= document.createElement("div");
-    slide.className="carousel-slide";
-    slide.innerHTML= `<img src="${url}" alt="Foto do Hotel">`;
+  const track = clone.querySelector(".carousel-track");
+  let currentSlide = 0;
+  (hotelData.images || []).forEach(url => {
+    const slide = document.createElement("div");
+    slide.className = "carousel-slide";
+    slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
     track.appendChild(slide);
   });
-  const prevBtn= clone.querySelector(".prev-button");
-  const nextBtn= clone.querySelector(".next-button");
+  const prevBtn = clone.querySelector(".prev-button");
+  const nextBtn = clone.querySelector(".next-button");
 
   function updateCarousel() {
-    const slides= track.querySelectorAll(".carousel-slide");
-    if(!slides.length)return;
-    const w= slides[0].getBoundingClientRect().width;
-    track.style.transform=`translateX(-${currentSlide*w}px)`;
+    const slides = track.querySelectorAll(".carousel-slide");
+    if (!slides.length) return;
+    const w = slides[0].getBoundingClientRect().width;
+    track.style.transform = `translateX(-${currentSlide * w}px)`;
   }
-  prevBtn.addEventListener('click', ()=>{
-    const slides= track.querySelectorAll(".carousel-slide");
-    if(!slides.length)return;
-    currentSlide=(currentSlide-1+slides.length)%slides.length;
+  prevBtn.addEventListener('click', () => {
+    const slides = track.querySelectorAll(".carousel-slide");
+    if(!slides.length) return;
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
     updateCarousel();
   });
-  nextBtn.addEventListener('click', ()=>{
-    const slides= track.querySelectorAll(".carousel-slide");
-    if(!slides.length)return;
-    currentSlide=(currentSlide+1)%slides.length;
+  nextBtn.addEventListener('click', () => {
+    const slides = track.querySelectorAll(".carousel-slide");
+    if(!slides.length) return;
+    currentSlide = (currentSlide + 1) % slides.length;
     updateCarousel();
   });
   window.addEventListener('resize', updateCarousel);
@@ -276,96 +292,103 @@ function createHotelCard(hotelData) {
   return clone;
 }
 
-// Buscar hotéis => chama /api/hoteis no back
+// Chama /api/hoteis no back-end
 async function buscarHoteis() {
-  const destination= document.getElementById("destinoHoteis").value || "MCO";
-  const range= document.getElementById("dataRangeHoteis").value || "";
+  const destination = document.getElementById("destinoHoteis")?.value || "MCO";
+  const range       = document.getElementById("dataRangeHoteis")?.value || "";
   const hotelsListEl= document.getElementById("hotelsList");
-  const statusEl= document.getElementById("status");
+  const statusEl    = document.getElementById("status");
   const paginationEl= document.getElementById("pagination");
 
-  if(!range) {
+  if (!range) {
     alert("Selecione as datas!");
     return;
   }
 
-  // parse "DD/MM/YYYY to DD/MM/YYYY"
-  let checkIn="", checkOut="";
-  const parts=range.split(" ");
-  if(parts.length>=2){
-    checkIn= parts[0];
-    checkOut= parts[2]||parts[1];
-  }
-  // converte p/ "YYYY-MM-DD"
+  // "DD/MM/YYYY" -> "YYYY-MM-DD"
   function toISO(dmy){
-    const [d,m,y]= dmy.split("/");
+    const [d,m,y] = dmy.split("/");
     return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
   }
-  const isoIn= toISO(checkIn);
-  const isoOut= toISO(checkOut);
+  let checkIn="", checkOut="";
+  const parts = range.split(" ");
+  if (parts.length >= 2) {
+    checkIn  = parts[0];
+    checkOut = parts[2] || parts[1];
+  }
+  const isoIn  = toISO(checkIn);
+  const isoOut = toISO(checkOut);
 
-  // Rooms
-  let query=`?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
-  roomsData.forEach((r,i)=>{
-    const idx=i+1;
-    query+=`&adults${idx}=${r.adults}&children${idx}=${r.children}`;
-    // se quisesse childAges? => childrenAges1=...
+  // Monta query
+  let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
+  roomsData.forEach((r, i) => {
+    const idx = i + 1;
+    query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
+    // se quisesse childAges, poderia mandar tbm
   });
 
-  hotelsListEl.innerHTML="";
-  paginationEl.innerHTML="";
-  paginationEl.style.display="none";
-  statusEl.textContent="Carregando hotéis...";
-  statusEl.style.display="block";
+  if (hotelsListEl) hotelsListEl.innerHTML = "";
+  if (paginationEl) {
+    paginationEl.innerHTML = "";
+    paginationEl.style.display = "none";
+  }
+  if (statusEl) {
+    statusEl.textContent = "Carregando hotéis...";
+    statusEl.style.display = "block";
+  }
 
-  // Exemplo: /api/hoteis => seu back-end agrupa Booking+Content
   const url = `/api/hoteis${query}`;
   console.log("Chamando backend:", url);
 
   try {
-    const resp= await fetch(url);
-    if(!resp.ok) throw new Error("Erro ao buscar /api/hoteis: "+resp.status);
-    const data= await resp.json();
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error("Erro ao buscar /api/hoteis: " + resp.status);
+    }
+    const data = await resp.json();
 
-    // data => supõe que vem { hotels: [...], totalPages: N, etc. }
-    const hotelsArr= data.hotels?.hotels || [];
-    if(!hotelsArr.length){
-      statusEl.textContent="Nenhum hotel encontrado.";
+    // Supondo data = { hotels: {hotels: [...], ...}, totalPages: N, ...}
+    const hotelsArr = data.hotels?.hotels || [];
+    if (!hotelsArr.length) {
+      if (statusEl) statusEl.textContent = "Nenhum hotel encontrado.";
       return;
     }
-    statusEl.style.display="none";
+    if (statusEl) statusEl.style.display = "none";
 
-    // Exemplo: se o back já trouxe "hotelObj" formatado
-    for(const hotelObj of hotelsArr){
-      const cardEl= createHotelCard(hotelObj);
-      hotelsListEl.appendChild(cardEl);
+    // Exemplo: se o back devolve array 'hotelsArr' já formatado => OK
+    // MAS, se devolve "cru" da Hotelbeds, a formatação de card deve ser no front.
+    // Abaixo supõe que cada item do hotelsArr tenha { name, address, ratingStars, ... }
+
+    for (const hotelObj of hotelsArr) {
+      const cardEl = createHotelCard(hotelObj);
+      hotelsListEl?.appendChild(cardEl);
     }
 
-    // Exemplo de paginação
+    // Se seu backend retorna totalPages, use exibirPaginacao(data.totalPages, 1) etc.
     // exibirPaginacao(data.totalPages || 1, 1);
 
-  } catch(e){
+  } catch (e) {
     console.error(e);
-    statusEl.textContent="Erro ao buscar hotéis. Ver console.";
+    if (statusEl) statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
 
-// Função de Paginação (caso queira)
+// (Opcional) Paginação
 function exibirPaginacao(totalPages, currentPage) {
-  const pagEl= document.getElementById("pagination");
-  if(totalPages <= 1) return;
-  pagEl.style.display="flex";
+  const pagEl = document.getElementById("pagination");
+  if (!pagEl || totalPages <= 1) return;
+  pagEl.style.display = "flex";
 
-  if(currentPage>1){
-    const btnPrev=document.createElement("button");
-    btnPrev.textContent="Anterior";
-    btnPrev.onclick=()=> buscarHoteis(currentPage-1);
+  if (currentPage > 1) {
+    const btnPrev = document.createElement("button");
+    btnPrev.textContent = "Anterior";
+    btnPrev.onclick = () => buscarHoteis(/* currentPage - 1 */);
     pagEl.appendChild(btnPrev);
   }
-  if(currentPage<totalPages){
-    const btnNext=document.createElement("button");
-    btnNext.textContent="Próxima Página";
-    btnNext.onclick=()=> buscarHoteis(currentPage+1);
+  if (currentPage < totalPages) {
+    const btnNext = document.createElement("button");
+    btnNext.textContent = "Próxima Página";
+    btnNext.onclick = () => buscarHoteis(/* currentPage + 1 */);
     pagEl.appendChild(btnNext);
   }
 }
