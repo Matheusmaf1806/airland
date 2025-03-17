@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Buscador Surreal de Lindo - Hotéis (Layout Avançado)</title>
+  <title>Buscador Surreal de Lindo - Hotéis (Layout + Dropdown Quartos)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <!-- Fonte Montserrat -->
@@ -12,29 +12,29 @@
     rel="stylesheet"
   />
 
-  <!-- Flatpickr (opcional, se quiser datas formatadas em abas) -->
-  <link 
+  <!-- Flatpickr (para datas na aba Hotéis, Ingressos, etc.) -->
+  <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
   />
 
-  <!-- MATERIAL ICONS (para os ícones das abas) -->
+  <!-- MATERIAL ICONS (para ícones das abas) -->
   <link 
     rel="stylesheet"
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
-  <!-- FONT AWESOME (para estrelas e ícones no card) -->
-  <link 
-    rel="stylesheet" 
+  <!-- Font Awesome (para estrelas e ícones no card) -->
+  <link
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
   />
 
   <style>
     /* RESET + Fonte Montserrat */
     * {
-      margin: 0;
-      padding: 0;
+      margin: 0; 
+      padding: 0; 
       box-sizing: border-box;
     }
     html, body, input, select, button, textarea {
@@ -141,6 +141,7 @@
       min-width: 200px;
       display: flex;
       flex-direction: column;
+      position: relative; /* importante para dropdowns */
     }
     .form-field label {
       font-size: 0.9rem;
@@ -183,52 +184,142 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* Campos da Aba Hotéis (layout antigo) */
-    .search-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      align-items: center;
-    }
-    .search-box label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-right: 0.3rem;
-    }
-    .occupancies {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      border-radius: 0.5rem;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-    .occupancies h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.05rem;
-    }
-    #roomsWrapper .room-row {
-      border: 1px dashed #bbb;
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
+    /* ================
+       DROPDOWN DE MÚLTIPLOS QUARTOS
+       ================ */
+    .quartos-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #ccc;
       border-radius: 0.4rem;
+      padding: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 9999;
     }
-    .remove-room-btn {
-      background: #c0392b;
+    .quartos-dropdown.active {
+      display: block;
+    }
+    .qd-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .qd-counter {
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem;
+    }
+    .qd-counter button {
+      width: 30px; 
+      height: 30px; 
+      border: 1px solid #ccc; 
+      background: #fff;
+      font-size: 1.2rem; 
+      cursor: pointer; 
+      border-radius: 50%;
+    }
+    .qd-rooms-container {
+      max-height: 300px; 
+      overflow-y: auto; 
+      margin-bottom: 1rem;
+    }
+    .qd-room-block {
+      padding: 0.75rem 0;
+      border-top: 1px solid #eee;
+    }
+    .qd-room-block:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+    .qd-room-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .qd-room-block .qd-row {
+      margin-bottom: 0.5rem;
+    }
+    .qd-label { 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+    }
+    .children-ages select {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    .qd-apply {
+      text-align: right;
+    }
+    .qd-apply button {
+      background: #0e65e0;
       color: #fff;
       border: none;
-      margin-left: 1rem;
-      padding: 0.3rem 0.6rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 0.4rem;
       cursor: pointer;
-      border-radius: 0.3rem;
-    }
-    .remove-room-btn:hover {
-      background: #a83224;
     }
 
-    /* STATUS E PAGINAÇÃO */
+    /* ================
+       CUSTOMIZAÇÃO FLATPICKR
+       ================ */
+    .flatpickr-calendar {
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .flatpickr-months {
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+      padding: 0.5rem;
+    }
+    .flatpickr-current-month {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .flatpickr-day.disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      color: #ccc !important;
+      cursor: not-allowed !important;
+    }
+    .flatpickr-day.today {
+      background: #0e65e01a;
+      border: 1px solid #0e65e0;
+      color: #333;
+    }
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #0e65e0 !important;
+      color: #fff !important;
+    }
+    .flatpickr-day:hover {
+      background: #0e65e0;
+      color: #fff;
+    }
+    .flatpickr-day.inRange {
+      background: #0e65e07c;
+      color: #fff;
+    }
+
+    /* STATUS E PAGINAÇÃO (p/ exibir lista e botões) */
     #status {
+      margin-top: 1rem; 
       display: none;
+    }
+    .hotels-list {
+      margin-top: 1rem;
+    }
+    .hotel-card-container {
+      display: flex;
+      justify-content: center;
       margin-bottom: 1rem;
     }
     #pagination {
@@ -248,12 +339,7 @@
       cursor: not-allowed;
     }
 
-    /* TEMPLATE DO CARD (Avançado) */
-    .hotel-card-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
+    /* HOTEL CARD AVANÇADO: (carrossel, facilidades, etc.) */
     .hotel-card {
       display: flex;
       flex-direction: row;
@@ -275,7 +361,7 @@
       border-radius: 16px;
       position: relative;
       overflow: hidden;
-      margin: -20px 0 -20px -20px; /* “encosta” nas bordas */
+      margin: -20px 0 -20px -20px; 
     }
     .carousel-track {
       display: flex;
@@ -508,12 +594,12 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS (EXEMPLO) -->
+    <!-- ABA INGRESSOS (exemplo) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
           <label for="destinoIngresso">Destino ou Ingresso</label>
-          <input type="text" id="destinoIngresso"/>
+          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque"/>
         </div>
         <div class="form-field">
           <label for="dataIngresso">Data</label>
@@ -525,35 +611,56 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS (layout antigo) -->
+    <!-- ABA HOTEIS (range 2 meses + multiplos quartos via dropdown) -->
     <div id="tab-hoteis" class="tab-content">
-      <div class="search-box">
-        <label>Check-In:</label>
-        <input type="date" id="checkIn" value="2025-06-15">
-        
-        <label>Check-Out:</label>
-        <input type="date" id="checkOut" value="2025-06-16">
-
-        <label>Destino (ex: MCO):</label>
-        <input type="text" id="destination" placeholder="MCO">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoHoteis">Destino</label>
+          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
+        </div>
+        <div class="form-field">
+          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
+          <input type="text" id="dataRangeHoteis" />
+        </div>
+        <div class="form-field">
+          <label for="quartos">Quartos e Pessoas</label>
+          <input 
+            type="text" 
+            id="quartos" 
+            placeholder="Clique para escolher"
+            readonly
+          />
+          <!-- Dropdown que abre ao clicar no input -->
+          <div id="quartosDropdown" class="quartos-dropdown">
+            <!-- Linha para aumentar/diminuir total de QUARTOS -->
+            <div class="qd-row">
+              <span>Quartos</span>
+              <div class="qd-counter">
+                <button type="button" id="roomsMinus">-</button>
+                <span id="roomsTotal">1</span>
+                <button type="button" id="roomsPlus">+</button>
+              </div>
+            </div>
+            <!-- Container com os blocos de cada quarto -->
+            <div class="qd-rooms-container" id="roomsContainer"></div>
+            <!-- Botão Aplicar -->
+            <div class="qd-apply">
+              <button type="button" id="applyQuartos">Aplicar</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+        </div>
       </div>
 
-      <div class="occupancies">
-        <h2>Quartos / Ocupações</h2>
-        <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
-        <div id="roomsWrapper"></div>
-      </div>
-
-      <div class="search-box">
-        <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
-      </div>
-
+      <!-- Exibir status, lista e paginação -->
       <div id="status"></div>
-      <div id="hotelsList"></div>
+      <div id="hotelsList" class="hotels-list"></div>
       <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- ABAS CARROS, TRANSFER, SEGUROS (omiti conteúdo para brevidade) -->
+    <!-- ABAS CARROS, TRANSFER, SEGUROS - omitido p/ brevidade -->
   </div>
 
   <!-- TEMPLATE DO CARD (carrossel, facilidades, etc.) -->
@@ -600,13 +707,9 @@
   <!-- FLATPICKR + SCRIPT DE LÓGICA -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <script src="/js/facilitiesMap.js"></script>
   <script>
-    // Se quiser datas no Ingressos:
-    flatpickr('#dataIngresso', {
-      locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
-    });
-
-    // TROCA DE ABAS
+    // 1) Abas
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -619,64 +722,198 @@
       });
     });
 
-    // =========================================
-    // createHotelCard() => card avançado
-    // =========================================
-    const facilitiesMap = {
-      "Wi-fi": {
-        pt: "Wi-Fi",
-        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"> ... </svg>`
-      },
-      // Se quiser mapear "American Express": {...}, etc.
-    };
+    // 2) FLATPICKR
+    // Ingressos
+    flatpickr('#dataIngresso', {
+      locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
+    });
+    // Hotéis => range 2 meses
+    flatpickr('#dataRangeHoteis', {
+      locale: 'pt',
+      mode: 'range',
+      dateFormat: 'd/m/Y',
+      showMonths: 2,
+      minDate: 'today',
+      allowInput: true
+    });
 
+    // 3) MÚLTIPLOS QUARTOS: dropdown
+    const quartosInput   = document.getElementById('quartos');
+    const dropdown       = document.getElementById('quartosDropdown');
+    const roomsMinus     = document.getElementById('roomsMinus');
+    const roomsPlus      = document.getElementById('roomsPlus');
+    const roomsTotalEl   = document.getElementById('roomsTotal');
+    const roomsContainer = document.getElementById('roomsContainer');
+    const applyQuartos   = document.getElementById('applyQuartos');
+
+    // array roomsData => [{ adults, children, childAges: [] }, ...]
+    let roomsData = [
+      { adults: 2, children: 0, childAges: [] }
+    ];
+
+    // Abre/fecha dropdown ao clicar no input
+    quartosInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('active');
+    });
+
+    function renderRooms() {
+      roomsContainer.innerHTML = '';
+      roomsTotalEl.textContent = roomsData.length;
+
+      roomsData.forEach((room, index) => {
+        const roomBlock = document.createElement('div');
+        roomBlock.classList.add('qd-room-block');
+
+        // Título
+        const title = document.createElement('div');
+        title.classList.add('qd-room-title');
+        title.textContent = `Quarto ${index+1}`;
+        roomBlock.appendChild(title);
+
+        // Linha de adultos
+        const adultosRow = document.createElement('div');
+        adultosRow.classList.add('qd-row');
+        adultosRow.innerHTML = `
+          <span class="qd-label">Adultos</span>
+          <div class="qd-counter">
+            <button type="button" class="adultMinus">-</button>
+            <span class="adultCount">${room.adults}</span>
+            <button type="button" class="adultPlus">+</button>
+          </div>
+        `;
+        roomBlock.appendChild(adultosRow);
+
+        // Linha de crianças
+        const criancasRow = document.createElement('div');
+        criancasRow.classList.add('qd-row');
+        criancasRow.innerHTML = `
+          <span class="qd-label">Crianças</span>
+          <div class="qd-counter">
+            <button type="button" class="childMinus">-</button>
+            <span class="childCount">${room.children}</span>
+            <button type="button" class="childPlus">+</button>
+          </div>
+        `;
+        roomBlock.appendChild(criancasRow);
+
+        // Seletores de idades
+        const childrenAgesDiv = document.createElement('div');
+        childrenAgesDiv.classList.add('children-ages');
+        room.childAges.forEach((ageValue, childIndex) => {
+          const sel = document.createElement('select');
+          sel.classList.add('childAgeSelect');
+          for (let age=0; age<=17; age++) {
+            const opt = document.createElement('option');
+            opt.value = age;
+            opt.text = `${age} ano(s)`;
+            sel.appendChild(opt);
+          }
+          sel.value = ageValue;
+          sel.addEventListener('change', (e) => {
+            room.childAges[childIndex] = parseInt(e.target.value,10);
+          });
+          childrenAgesDiv.appendChild(sel);
+        });
+        roomBlock.appendChild(childrenAgesDiv);
+
+        // Eventos de + e - (adultos)
+        adultosRow.querySelector('.adultPlus').addEventListener('click', () => {
+          room.adults++;
+          renderRooms();
+        });
+        adultosRow.querySelector('.adultMinus').addEventListener('click', () => {
+          if (room.adults > 1) {
+            room.adults--;
+            renderRooms();
+          }
+        });
+        // Eventos de + e - (crianças)
+        criancasRow.querySelector('.childPlus').addEventListener('click', () => {
+          room.children++;
+          room.childAges.push(0);
+          renderRooms();
+        });
+        criancasRow.querySelector('.childMinus').addEventListener('click', () => {
+          if (room.children > 0) {
+            room.children--;
+            room.childAges.pop();
+            renderRooms();
+          }
+        });
+
+        roomsContainer.appendChild(roomBlock);
+      });
+    }
+    // + / - no total de quartos
+    roomsPlus.addEventListener('click', () => {
+      roomsData.push({ adults: 2, children:0, childAges:[] });
+      renderRooms();
+    });
+    roomsMinus.addEventListener('click', () => {
+      if (roomsData.length>1) {
+        roomsData.pop();
+        renderRooms();
+      }
+    });
+
+    // Botão Aplicar
+    applyQuartos.addEventListener('click', () => {
+      // ex: "2 Quartos, 3 Adultos, 2 Crianças"
+      let totalAdults = 0;
+      let totalChildren= 0;
+      for (const r of roomsData) {
+        totalAdults += r.adults;
+        totalChildren += r.children;
+      }
+      const label = `${roomsData.length} Quarto(s), ${totalAdults} Adulto(s), ${totalChildren} Criança(s)`;
+      quartosInput.value = label;
+      dropdown.classList.remove('active');
+    });
+
+    // Render inicial
+    renderRooms();
+
+    // 4) CRIAR CARD DE HOTEL (layout avançado)
     function createHotelCard(hotelData) {
       const template = document.getElementById("hotelCardTemplate");
-      if (!template) {
-        console.error("Template #hotelCardTemplate não encontrado!");
-        return document.createDocumentFragment();
-      }
+      if (!template) return document.createDocumentFragment();
       const clone = template.content.cloneNode(true);
 
       // Nome, endereço, datas, preço
-      clone.querySelector(".hotel-name").textContent          = hotelData.name || "";
-      clone.querySelector(".hotel-address").textContent       = hotelData.address || "";
-      clone.querySelector(".days-nights").textContent         = hotelData.daysNights || "";
-      clone.querySelector(".price-starting").textContent      = hotelData.priceFrom || "";
-      clone.querySelector(".ten-installments").textContent    = hotelData.installments || "";
+      clone.querySelector(".hotel-name").textContent = hotelData.name || "";
+      clone.querySelector(".hotel-address").textContent= hotelData.address || "";
+      clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
+      clone.querySelector(".price-starting").textContent= hotelData.priceFrom||"";
+      clone.querySelector(".ten-installments").textContent=hotelData.installments||"";
 
       // Estrelas
-      const starContainer = clone.querySelector(".stars");
-      starContainer.innerHTML = "";
-      const ratingStars = Math.round(hotelData.ratingStars || 0);
+      const starsEl = clone.querySelector(".stars");
+      starsEl.innerHTML = "";
+      const ratingStars = Math.round(hotelData.ratingStars||0);
       for (let i=1; i<=5; i++){
         const star = document.createElement("i");
-        if (i <= ratingStars) star.classList.add("fas","fa-star");
+        if (i<=ratingStars) star.classList.add("fas","fa-star");
         else star.classList.add("far","fa-star","empty");
-        starContainer.appendChild(star);
+        starsEl.appendChild(star);
       }
-      clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
+      clone.querySelector(".rating-value").textContent = hotelData.ratingValue||"";
 
       // Facilities
       const facDiv = clone.querySelector(".facility-icons");
-      (hotelData.facilities||[]).forEach(key => {
-        const found = facilitiesMap[key];
-        if (found) {
-          const iconDiv = document.createElement("div");
-          iconDiv.className = "facility-icon";
-          iconDiv.innerHTML = found.svg;
-
-          // tooltip
-          const tt = document.createElement("div");
-          tt.className = "tooltip";
-          tt.textContent = found.pt;
-          iconDiv.appendChild(tt);
-
-          facDiv.appendChild(iconDiv);
-        }
+      (hotelData.facilities||[]).forEach(f => {
+        // se tiver map, ex:
+        // if (facilitiesMap[f]) { ... }
+        // senão, mostra algo fixo
       });
 
-      // interestPoints => poiList
+      // POIs
       const poiUl = clone.querySelector(".poi-list");
       (hotelData.poiList||[]).forEach(poi => {
         const li = document.createElement("li");
@@ -685,253 +922,220 @@
       });
 
       // Carrossel
-      const trackEl = clone.querySelector(".carousel-track");
-      let currentSlide = 0;
-      (hotelData.images||[]).forEach(url => {
+      const track = clone.querySelector(".carousel-track");
+      let currentSlide=0;
+      (hotelData.images||[]).forEach(url=>{
         const slide = document.createElement("div");
-        slide.className = "carousel-slide";
-        slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
-        trackEl.appendChild(slide);
+        slide.className = 'carousel-slide';
+        slide.innerHTML = `<img src="${url}" alt="Foto do Hotel"/>`;
+        track.appendChild(slide);
       });
       const prevBtn = clone.querySelector(".prev-button");
       const nextBtn = clone.querySelector(".next-button");
 
-      function updateCarousel() {
-        const slides = trackEl.querySelectorAll(".carousel-slide");
+      function updateCarousel(){
+        const slides = track.querySelectorAll(".carousel-slide");
         if (!slides.length) return;
         const w = slides[0].getBoundingClientRect().width;
-        trackEl.style.transform = `translateX(-${currentSlide * w}px)`;
+        track.style.transform = `translateX(-${currentSlide*w}px)`;
       }
-      prevBtn.addEventListener("click", () => {
-        const slides = trackEl.querySelectorAll(".carousel-slide");
+      prevBtn.addEventListener('click', ()=>{
+        const slides = track.querySelectorAll(".carousel-slide");
         if (!slides.length) return;
-        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        currentSlide=(currentSlide-1+slides.length)%slides.length;
         updateCarousel();
       });
-      nextBtn.addEventListener("click", () => {
-        const slides = trackEl.querySelectorAll(".carousel-slide");
-        if (!slides.length) return;
-        currentSlide = (currentSlide + 1) % slides.length;
+      nextBtn.addEventListener('click', ()=>{
+        const slides = track.querySelectorAll(".carousel-slide");
+        if (!slides.length)return;
+        currentSlide=(currentSlide+1)%slides.length;
         updateCarousel();
       });
-      window.addEventListener("resize", updateCarousel);
+      window.addEventListener('resize', updateCarousel);
 
       return clone;
     }
 
-    // =========================================
-    // HOTELS-LIST JS
-    // =========================================
-    const roomsWrapper = document.getElementById("roomsWrapper");
-    const statusEl     = document.getElementById("status");
-    const hotelsListEl = document.getElementById("hotelsList");
-    const paginationEl = document.getElementById("pagination");
-    let currentPage    = 1;
+    // 5) BUSCAR HOTEIS
+    async function buscarHoteis() {
+      // 1) Pegar destino e datas
+      const destino = document.getElementById("destinoHoteis").value || "MCO";
+      const range   = document.getElementById("dataRangeHoteis").value;
+      if (!range) {
+        alert("Selecione as datas (Check-in / Check-out)");
+        return;
+      }
+      // Ex: "12/05/2025 - 15/05/2025" (separado por " to " ou algo, dependendo do flatpickr)
+      const parts = range.split(" ");
+      let checkIn="", checkOut="";
+      if (parts.length>=2) {
+        checkIn  = parts[0];
+        checkOut = parts[2]||parts[1]||""; 
+      }
+      // Converte p/ aaaa-mm-dd se quiser
+      function toISO(dmy){
+        const [d,m,y] = dmy.split("/");
+        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+      const isoCheckIn = toISO(checkIn);
+      const isoCheckOut= toISO(checkOut);
 
-    // Ao carregar, cria 1 quarto
-    window.addEventListener("DOMContentLoaded", () => {
-      adicionarQuarto();
-    });
+      // 2) Pegar roomsData
+      // Montar query ex: &rooms=2&adults1=2&children1=0&adults2=2&children2=1...
+      let queryString = `?checkIn=${isoCheckIn}&checkOut=${isoCheckOut}&destination=${destino}&rooms=${roomsData.length}&page=1&limit=20`;
 
-    function adicionarQuarto() {
-      const roomIndex = roomsWrapper.children.length + 1;
-      const div = document.createElement("div");
-      div.classList.add("room-row");
-      div.innerHTML = `
-        <strong>Quarto ${roomIndex}:</strong>
-        <label>Adultos:</label>
-        <select class="adultsSelect">
-          <option value="1">1</option>
-          <option value="2" selected>2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-        <label>Crianças:</label>
-        <select class="childrenSelect">
-          <option value="0" selected>0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <button type="button" class="remove-room-btn">Remover</button>
-      `;
-      div.querySelector(".remove-room-btn").addEventListener("click", () => {
-        roomsWrapper.removeChild(div);
-        reindexRooms();
-      });
-      roomsWrapper.appendChild(div);
-      reindexRooms();
-    }
-    function reindexRooms() {
-      const rows = roomsWrapper.querySelectorAll(".room-row");
-      rows.forEach((row, idx) => {
-        row.querySelector("strong").textContent = `Quarto ${idx+1}:`;
-      });
-    }
-
-    async function buscarHoteis(page=1) {
-      currentPage = page;
-      hotelsListEl.innerHTML   = "";
-      paginationEl.innerHTML   = "";
-      paginationEl.style.display = "none";
-      statusEl.textContent     = "Carregando hotéis...";
-      statusEl.style.display   = "block";
-
-      const checkIn  = document.getElementById("checkIn").value;
-      const checkOut = document.getElementById("checkOut").value;
-      const destination = document.getElementById("destination").value || "MCO";
-
-      // Cálculo de dias/noites
-      let daysNightsLabel = "";
-      try {
-        const dIn  = new Date(checkIn);
-        const dOut = new Date(checkOut);
-        const diffMs = dOut - dIn;
-        if (diffMs > 0) {
-          const diffDays = Math.round(diffMs / (1000*60*60*24));
-          daysNightsLabel = `${diffDays} dia(s) e ${Math.max(diffDays-1, 1)} noite(s)`;
-        }
-      } catch(e) { /* fallback se erro no parse */ }
-
-      // Monta query
-      const roomRows = roomsWrapper.querySelectorAll(".room-row");
-      let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}&limit=20`;
-      roomRows.forEach((row, idx) => {
+      roomsData.forEach((r,idx)=>{
         const i = idx+1;
-        const adValue = row.querySelector(".adultsSelect").value;
-        const chValue = row.querySelector(".childrenSelect").value;
-        queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
+        queryString+= `&adults${i}=${r.adults}&children${i}=${r.children}`;
       });
-      const url = `/api/hotelbeds/hotels${queryString}`;
-      console.log("Requisição Booking API:", url);
+
+      // 3) Chamamos Booking API
+      const hotelsListEl=document.getElementById("hotelsList");
+      const statusEl=document.getElementById("status");
+      const paginationEl=document.getElementById("pagination");
+      hotelsListEl.innerHTML="";
+      paginationEl.innerHTML="";
+      paginationEl.style.display="none";
+      statusEl.textContent="Carregando hotéis...";
+      statusEl.style.display="block";
+
+      const url=`/api/hotelbeds/hotels${queryString}`;
+      console.log("Requisição:", url);
 
       try {
-        // 1) CHAMADA BOOKING API
-        const bookingResp = await fetch(url);
-        if (!bookingResp.ok) {
-          throw new Error(`Erro Booking API: ${bookingResp.status}`);
-        }
-        const bookingData = await bookingResp.json();
-        const hotelsArray = bookingData.hotels?.hotels || [];
-        if (!hotelsArray.length) {
-          statusEl.textContent = "Nenhum hotel encontrado.";
+        const resp= await fetch(url);
+        if (!resp.ok) throw new Error("Erro Booking API: "+resp.status);
+        const data= await resp.json();
+        const hotelsArray=data.hotels?.hotels||[];
+        if (!hotelsArray.length){
+          statusEl.textContent="Nenhum hotel encontrado.";
           return;
         }
-        statusEl.style.display = "none";
+        statusEl.style.display="none";
 
-        for (const hotel of hotelsArray) {
-          // ex: hotel = {code, name, categoryCode, categoryName, minRate, ...}
-          // 2) CHAMA CONTENT API
-          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
+        // 4) P/ cada hotel, chama content API e gera card
+        for(const hotel of hotelsArray){
+          // Ex: { code, name, categoryCode, categoryName, minRate }
+          const contentResp=await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
           if (!contentResp.ok) {
-            console.warn("Falha ao buscar content do hotel:", hotel.code);
+            console.warn("Falha content do hotel code=", hotel.code);
             continue;
           }
-          const contentData = await contentResp.json();
-          const content = contentData?.hotel || {};
-
-          // A) name
-          const name = content.name?.content || hotel.name || "Hotel Sem Nome";
-
-          // B) address -> street do content
-          const street = content.address?.street || "";
-          const city   = content.city?.content || "";
-          let fullAddress = street;
-          if (city) fullAddress += (fullAddress ? `, ${city}` : city);
-
-          // C) ratingStars -> booking api (categoryCode: "4EST" ou categoryName: "4 STARS")
-          let ratingNum = 0;
-          if (hotel.categoryCode) {
-            const m1 = hotel.categoryCode.match(/\d+/);
-            if (m1) ratingNum = parseInt(m1[0],10);
-          } else if (hotel.categoryName) {
-            const m2 = hotel.categoryName.match(/\d+(\.\d+)?/);
-            if (m2) ratingNum = parseFloat(m2[0]);
+          const contentData=await contentResp.json();
+          const content= contentData?.hotel||{};
+          
+          // A) Monta hotelObj
+          // Nome
+          const name= content.name?.content|| hotel.name || "Hotel sem nome";
+          // Endereço
+          const street= content.address?.street||"";
+          const city= content.city?.content||"";
+          let fullAddr=street; 
+          if (city) fullAddr+=(fullAddr?`, ${city}`: city);
+          // Estrelas
+          let ratingNum=0;
+          if (hotel.categoryCode){
+            const mm= hotel.categoryCode.match(/\d+/);
+            if (mm) ratingNum=parseInt(mm[0],10);
+          } else if (hotel.categoryName){
+            const mm2= hotel.categoryName.match(/\d+(\.\d+)?/);
+            if (mm2) ratingNum=parseFloat(mm2[0]);
           }
-          if (!ratingNum) ratingNum = 3; // fallback
-
-          // D) images -> do content, filtra type.code === "HAB"
-          let imagesArr = [];
-          if (content.images && content.images.length) {
-            const roomImgs = content.images.filter(
-              (img) => img.type?.code === "HAB"
-            );
-            const arr = roomImgs.length ? roomImgs : content.images;
-            imagesArr = arr.map(
-              (img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`
-            );
-          } else {
-            imagesArr = ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
-          }
-
-          // E) priceFrom -> "A partir de " + minRate
-          let priceLabel = "A partir de R$ ???"; 
-          if (hotel.minRate !== undefined) {
-            const parsedRate = parseFloat(hotel.minRate);
-            if (!isNaN(parsedRate)) {
-              priceLabel = `A partir de R$ ${parsedRate.toFixed(2)}`;
+          if (!ratingNum) ratingNum=3;
+          // Price
+          let priceLabel= "A partir de R$ ???";
+          if (hotel.minRate!=null){
+            const parsed= parseFloat(hotel.minRate);
+            if (!isNaN(parsed)) {
+              priceLabel= `A partir de R$ ${parsed.toFixed(2)}`;
             }
           }
-
-          // F) facilities -> content.facilities (ex: "Wi-fi")
-          let facilitiesArr = [];
-          if (content.facilities?.length) {
-            // pega 5, por ex
-            facilitiesArr = content.facilities
-              .slice(0,5)
-              .map((f) => f.description?.content || "");
+          // Facilities
+          let facArr=[];
+          if (content.facilities && content.facilities.length){
+            facArr= content.facilities.slice(0,5).map(f => f.description?.content || "");
           }
-
-          // G) interestPoints -> poiList
-          let poiListArr = [];
-          if (content.interestPoints?.length) {
-            poiListArr = content.interestPoints.map((ip) => ({
-              poiName: ip.poi?.content || "Ponto de Interesse",
-              distance: ip.distance || 0,
+          // POIs
+          let poiArr=[];
+          if (content.interestPoints && content.interestPoints.length){
+            poiArr= content.interestPoints.map(ip => ({
+              poiName: ip.poi?.content||"Ponto",
+              distance: ip.distance||0
             }));
           }
+          // Imagens
+          let imagesArr=[];
+          if (content.images&& content.images.length){
+            const roomImgs= content.images.filter(i=> i.type?.code==="HAB");
+            const arr= roomImgs.length? roomImgs: content.images;
+            imagesArr= arr.map(i=>`https://photos.hotelbeds.com/giata/xl/${i.path}`);
+          } else {
+            imagesArr= ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
+          }
 
-          // Monta hotelObj
-          const hotelObj = {
-            // do content ou fallback booking
+          const hotelObj={
             name,
-            address: fullAddress,
+            address: fullAddr,
             ratingStars: ratingNum,
             ratingValue: ratingNum.toString(),
             images: imagesArr,
-            daysNights: daysNightsLabel || "Várias noites",
+            daysNights: "", // se quiser "2 dias, 1 noite" => parse do range
             priceFrom: priceLabel,
             installments: "Até 10x sem juros",
-            facilities: facilitiesArr,
-            poiList: poiListArr
+            facilities: facArr,
+            poiList: poiArr
           };
 
-          // Cria o card e injeta
-          const cardEl = createHotelCard(hotelObj);
+          // ex: parse range p/ daysNights
+          if (range) {
+            // ex: "12/05/2025 to 15/05/2025"
+            const parts=range.split(" ");
+            if (parts.length>=2){
+              const checkIn= parts[0];
+              const checkOut= parts[2]||parts[1]||"";
+              // Calcula dif
+              const parseDmy=(dmy)=>{
+                const [D,M,A]= dmy.split("/");
+                return new Date(+A, +M-1, +D);
+              };
+              const d1= parseDmy(checkIn);
+              const d2= parseDmy(checkOut);
+              const ms= d2-d1;
+              if (ms>0) {
+                const diffDays= Math.round(ms/(1000*60*60*24));
+                hotelObj.daysNights= `${diffDays} dia(s), ${Math.max(diffDays-1,1)} noite(s)`;
+              }
+            }
+          }
+
+          // Cria o card
+          const cardEl= createHotelCard(hotelObj);
           hotelsListEl.appendChild(cardEl);
         }
-
-        exibirPaginacao(bookingData.totalPages || 1, page);
-      } catch(err) {
-        console.error(err);
-        statusEl.textContent = "Erro ao buscar hotéis.";
+        // se data.totalPages>1 exibe paginacao
+        exibirPaginacao(data.totalPages||1,1);
+      } catch(e){
+        console.error(e);
+        statusEl.textContent="Erro ao buscar hotéis.";
       }
     }
 
-    function exibirPaginacao(totalPages, currentPage) {
-      if (totalPages <= 1) return;
-      paginationEl.style.display = "flex";
+    function exibirPaginacao(totalPages, current) {
+      const pagination= document.getElementById("pagination");
+      if (totalPages<=1) return;
+      pagination.style.display="flex";
 
-      if (currentPage > 1) {
-        const btnPrev = document.createElement("button");
-        btnPrev.textContent = "Anterior";
-        btnPrev.onclick = () => buscarHoteis(currentPage - 1);
-        paginationEl.appendChild(btnPrev);
+      if (current>1){
+        const btnPrev=document.createElement("button");
+        btnPrev.textContent="Anterior";
+        btnPrev.onclick=()=> buscarHoteis(current-1);
+        pagination.appendChild(btnPrev);
       }
-      if (currentPage < totalPages) {
-        const btnNext = document.createElement("button");
-        btnNext.textContent = "Próxima Página";
-        btnNext.onclick = () => buscarHoteis(currentPage + 1);
-        paginationEl.appendChild(btnNext);
+      if (current<totalPages){
+        const btnNext=document.createElement("button");
+        btnNext.textContent="Próxima Página";
+        btnNext.onclick=()=> buscarHoteis(current+1);
+        pagination.appendChild(btnNext);
       }
     }
   </script>
