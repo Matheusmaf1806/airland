@@ -2,41 +2,44 @@
 import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
+
+// Configura o Supabase (verifique as variáveis de ambiente)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-// Função para gerar assinatura (usada tanto para Booking quanto para Content API)
 function generateSignature(apiKey, secretKey) {
   const timestamp = Math.floor(Date.now() / 1000);
-  return crypto
-    .createHash("sha256")
-    .update(apiKey + secretKey + timestamp)
-    .digest("hex");
+  return crypto.createHash("sha256").update(apiKey + secretKey + timestamp).digest("hex");
 }
 
-// Função de delay (sleep) em milissegundos
+// Função para aguardar (delay)
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const router = Router();
 
 router.get("/hotels", async (req, res) => {
   try {
-    // 1) Recupera credenciais do .env
+    // 1) Ler credenciais
     const apiKey = process.env.API_KEY_HH;
     const apiSec = process.env.SECRET_KEY_HH;
     if (!apiKey || !apiSec) {
       return res.status(500).json({ error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH)." });
     }
 
-    // 2) Gera assinatura
+    // 2) Gerar assinatura
     const signature = generateSignature(apiKey, apiSec);
 
-    // 3) Ler query params com valores padrão
+    // 3) Ler parâmetros da query
     const { checkIn = "2025-06-15", checkOut = "2025-06-16", destination = "MCO" } = req.query;
     const roomsCount = parseInt(req.query.rooms || "1", 10);
 
-    // 4) Montar array de occupancies (ex.: para 1 quarto, 2 adultos, 0 crianças por padrão)
+    // 4) Montar o array de occupancies
     let occupancies = [];
     for (let i = 1; i <= roomsCount; i++) {
       const adults = parseInt(req.query[`adults${i}`] || "2", 10);
@@ -47,7 +50,7 @@ router.get("/hotels", async (req, res) => {
       occupancies.push({ rooms: 1, adults: 2, children: 0 });
     }
 
-    // 5) Configurar headers e corpo para chamada à Booking API
+    // 5) Configurar headers e corpo para Booking API
     const bookingHeaders = {
       "Api-key": apiKey,
       "X-Signature": signature,
@@ -61,10 +64,10 @@ router.get("/hotels", async (req, res) => {
       destination: { code: destination }
     };
 
-    // Limite de resultados
+    // Definir limite de resultados (ex.: 20)
     const limit = 20;
 
-    // 6) Chamada POST à Booking API para obter disponibilidade e preços
+    // 6) Chamada à Booking API
     const respBooking = await fetch(`${BOOKING_URL}?limit=${limit}`, {
       method: "POST",
       headers: bookingHeaders,
@@ -78,7 +81,7 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Array de hotéis retornados da Booking API
+    // Array de hotéis da Booking API
     const hotelsArray = bookingJson?.hotels?.hotels || [];
     if (!hotelsArray.length) {
       return res.json({
@@ -88,10 +91,11 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // 7) Para cada hotel, chamar a Content API com delay para evitar sobrecarga
+    // 7) Processar cada hotel individualmente:
     const combined = [];
     for (const hotel of hotelsArray) {
       try {
+        // Buscar conteúdo para o hotel via Content API
         const contentResp = await fetch(
           `${CONTENT_URL}?codes=${hotel.code}&language=ENG&fields=all`,
           {
@@ -103,16 +107,17 @@ router.get("/hotels", async (req, res) => {
             }
           }
         );
+
         let content = {};
         if (contentResp.ok) {
           const contentJson = await contentResp.json();
-          // Como a Content API pode retornar um array, assumimos que o hotel está em contentJson.hotels[0]
+          // Supondo que o resultado vem como array, busca o hotel correto
           content = contentJson?.hotels ? contentJson.hotels.find(ch => ch.code === hotel.code) || {} : {};
         } else {
-          console.warn("Falha ao buscar content do hotel:", hotel.code);
+          console.warn("Falha ao buscar content para o hotel:", hotel.code);
         }
 
-        // Combinar os dados do hotel da Booking API com os dados do Content API
+        // Preparar o objeto final a ser salvo no banco
         const hotelObj = {
           code: hotel.code,
           name: hotel.name,
@@ -122,6 +127,7 @@ router.get("/hotels", async (req, res) => {
           maxRate: hotel.maxRate,
           currency: hotel.currency,
           rooms: hotel.rooms,
+          // Dados de conteúdo
           content: {
             name: content.name?.content || hotel.name,
             description: content.description?.content || "",
@@ -135,23 +141,30 @@ router.get("/hotels", async (req, res) => {
           }
         };
 
+        // Insere ou atualiza o hotel no banco de dados (Supabase)
+        const { data, error } = await supabase
+          .from("hotels")
+          .upsert(hotelObj, { onConflict: "code" }); // "code" é a chave única
+
+        if (error) {
+          console.error("Erro ao salvar hotel no banco:", hotel.code, error);
+        } else {
+          console.log("Hotel salvo:", hotel.code);
+        }
+
         combined.push(hotelObj);
-      } catch (error) {
-        console.error("Erro ao processar content do hotel:", hotel.code, error);
-        combined.push({
-          ...hotel,
-          content: null
-        });
+      } catch (innerError) {
+        console.error("Erro ao processar hotel:", hotel.code, innerError);
+        combined.push({ ...hotel, content: null });
       }
-      // Aguardar 250ms entre as requisições de Content API (4 requisições/s)
+      // Aguardar 250ms para cada chamada da Content API
       await sleep(250);
     }
 
-    // 8) Retornar a resposta combinada ao front-end
+    // 8) Retornar a resposta final (incluindo os hotéis processados e salvos)
     return res.json({
       availability: bookingJson,
-      // Não retornamos o raw da content API para cada hotel, apenas o merge final
-      contentRaw: null,
+      contentRaw: null, // Não precisamos retornar o raw da Content API
       combined
     });
 
