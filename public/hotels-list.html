@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Buscador Surreal + Card Avançado</title>
+  <title>Buscador Surreal de Lindo - Hotéis (Layout Avançado)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <!-- Fonte Montserrat -->
@@ -12,26 +12,26 @@
     rel="stylesheet"
   />
 
-  <!-- Flatpickr (se quiser) -->
-  <link
+  <!-- Flatpickr (opcional, se quiser datas formatadas em abas) -->
+  <link 
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
   />
 
-  <!-- Material Icons -->
-  <link
+  <!-- MATERIAL ICONS (para os ícones das abas) -->
+  <link 
     rel="stylesheet"
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
-  <!-- Font Awesome (para estrelas e ícones) -->
-  <link
-    rel="stylesheet"
+  <!-- FONT AWESOME (para estrelas e ícones no card) -->
+  <link 
+    rel="stylesheet" 
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
   />
 
   <style>
-    /* RESET E FONTE */
+    /* RESET + Fonte Montserrat */
     * {
       margin: 0;
       padding: 0;
@@ -76,7 +76,7 @@
       opacity: 0.9;
     }
 
-    /* SEARCH CONTAINER */
+    /* CONTAINER DAS ABAS */
     .search-container {
       position: relative;
       width: 90%;
@@ -88,8 +88,6 @@
       padding: 1.5rem 2rem;
       z-index: 10;
     }
-
-    /* TABS */
     .tabs {
       display: flex;
       align-items: center;
@@ -118,8 +116,6 @@
       background: #0e65e0;
       color: #fff;
     }
-
-    /* TAB CONTENT */
     .tab-content {
       display: none;
     }
@@ -132,7 +128,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORMULÁRIOS */
+    /* FORMULÁRIOS (Exemplo) */
     .form-group {
       display: flex;
       flex-wrap: wrap;
@@ -187,7 +183,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* HOTÉIS (layout “antigo” p/ checkIn, checkOut, etc.) */
+    /* Campos da Aba Hotéis (layout antigo) */
     .search-box {
       display: flex;
       flex-wrap: wrap;
@@ -230,7 +226,7 @@
       background: #a83224;
     }
 
-    /* LISTA / PAGINAÇÃO */
+    /* STATUS E PAGINAÇÃO */
     #status {
       display: none;
       margin-bottom: 1rem;
@@ -252,9 +248,7 @@
       cursor: not-allowed;
     }
 
-    /* ==============
-       TEMPLATE DO CARD (carrossel, etc.)
-       ============== */
+    /* TEMPLATE DO CARD (Avançado) */
     .hotel-card-container {
       display: flex;
       justify-content: center;
@@ -281,7 +275,7 @@
       border-radius: 16px;
       position: relative;
       overflow: hidden;
-      margin: -20px 0 -20px -20px;
+      margin: -20px 0 -20px -20px; /* “encosta” nas bordas */
     }
     .carousel-track {
       display: flex;
@@ -483,7 +477,6 @@
     .btn-options:hover {
       background-color: #005bb5;
     }
-
   </style>
 </head>
 <body>
@@ -494,8 +487,9 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- CONTAINER COM TABS -->
   <div class="search-container">
+
+    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" data-tab="tab-ingressos">
         <span class="material-icons">local_activity</span> Ingressos
@@ -514,7 +508,7 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS (exemplo) -->
+    <!-- ABA INGRESSOS (EXEMPLO) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -531,7 +525,7 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS -->
+    <!-- ABA HOTEIS (layout antigo) -->
     <div id="tab-hoteis" class="tab-content">
       <div class="search-box">
         <label>Check-In:</label>
@@ -559,10 +553,10 @@
       <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- ABAS CARROS, TRANSFER, SEGUROS (omitido para brevidade) -->
+    <!-- ABAS CARROS, TRANSFER, SEGUROS (omiti conteúdo para brevidade) -->
   </div>
 
-  <!-- TEMPLATE DO CARD (carrossel, etc.) -->
+  <!-- TEMPLATE DO CARD (carrossel, facilidades, etc.) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card">
       <div class="hotel-image">
@@ -595,7 +589,7 @@
     </div>
   </template>
 
-  <!-- Seção Destaques (opcional) -->
+  <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
     <p style="color: #666; margin-bottom: 1rem;">
@@ -603,11 +597,11 @@
     </p>
   </section>
 
-  <!-- FLATPICKR + LÓGICA FINAL -->
+  <!-- FLATPICKR + SCRIPT DE LÓGICA -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script>
-    // Se quiser datas em Ingressos
+    // Se quiser datas no Ingressos:
     flatpickr('#dataIngresso', {
       locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
     });
@@ -626,32 +620,36 @@
     });
 
     // =========================================
-    // CREATE HOTEL CARD (layout avançado)
+    // createHotelCard() => card avançado
     // =========================================
     const facilitiesMap = {
       "Wi-fi": {
         pt: "Wi-Fi",
         svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"> ... </svg>`
       },
-      // Adicione se quiser: "American Express": {...}, etc.
+      // Se quiser mapear "American Express": {...}, etc.
     };
 
     function createHotelCard(hotelData) {
       const template = document.getElementById("hotelCardTemplate");
-      if (!template) return document.createDocumentFragment();
-
+      if (!template) {
+        console.error("Template #hotelCardTemplate não encontrado!");
+        return document.createDocumentFragment();
+      }
       const clone = template.content.cloneNode(true);
-      clone.querySelector(".hotel-name").textContent    = hotelData.name || "";
-      clone.querySelector(".hotel-address").textContent = hotelData.address || "";
-      clone.querySelector(".days-nights").textContent   = hotelData.daysNights || "";
-      clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
-      clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
+
+      // Nome, endereço, datas, preço
+      clone.querySelector(".hotel-name").textContent          = hotelData.name || "";
+      clone.querySelector(".hotel-address").textContent       = hotelData.address || "";
+      clone.querySelector(".days-nights").textContent         = hotelData.daysNights || "";
+      clone.querySelector(".price-starting").textContent      = hotelData.priceFrom || "";
+      clone.querySelector(".ten-installments").textContent    = hotelData.installments || "";
 
       // Estrelas
       const starContainer = clone.querySelector(".stars");
       starContainer.innerHTML = "";
       const ratingStars = Math.round(hotelData.ratingStars || 0);
-      for (let i = 1; i <= 5; i++) {
+      for (let i=1; i<=5; i++){
         const star = document.createElement("i");
         if (i <= ratingStars) star.classList.add("fas","fa-star");
         else star.classList.add("far","fa-star","empty");
@@ -661,27 +659,26 @@
 
       // Facilities
       const facDiv = clone.querySelector(".facility-icons");
-      if (hotelData.facilities) {
-        hotelData.facilities.forEach(f => {
-          const found = facilitiesMap[f];
-          if (found) {
-            const iconDiv = document.createElement("div");
-            iconDiv.className = "facility-icon";
-            iconDiv.innerHTML = found.svg;
+      (hotelData.facilities||[]).forEach(key => {
+        const found = facilitiesMap[key];
+        if (found) {
+          const iconDiv = document.createElement("div");
+          iconDiv.className = "facility-icon";
+          iconDiv.innerHTML = found.svg;
 
-            const tt = document.createElement("div");
-            tt.className = "tooltip";
-            tt.textContent = found.pt;
-            iconDiv.appendChild(tt);
+          // tooltip
+          const tt = document.createElement("div");
+          tt.className = "tooltip";
+          tt.textContent = found.pt;
+          iconDiv.appendChild(tt);
 
-            facDiv.appendChild(iconDiv);
-          }
-        });
-      }
+          facDiv.appendChild(iconDiv);
+        }
+      });
 
-      // PoiList
+      // interestPoints => poiList
       const poiUl = clone.querySelector(".poi-list");
-      (hotelData.poiList || []).forEach(poi => {
+      (hotelData.poiList||[]).forEach(poi => {
         const li = document.createElement("li");
         li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${poi.poiName} - ${poi.distance} km`;
         poiUl.appendChild(li);
@@ -693,7 +690,7 @@
       (hotelData.images||[]).forEach(url => {
         const slide = document.createElement("div");
         slide.className = "carousel-slide";
-        slide.innerHTML = `<img src="${url}" alt="Foto do Hotel" />`;
+        slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
         trackEl.appendChild(slide);
       });
       const prevBtn = clone.querySelector(".prev-button");
@@ -717,22 +714,22 @@
         currentSlide = (currentSlide + 1) % slides.length;
         updateCarousel();
       });
-      window.addEventListener('resize', updateCarousel);
+      window.addEventListener("resize", updateCarousel);
 
       return clone;
     }
 
     // =========================================
-    // HOTELS-LIST LOGIC
+    // HOTELS-LIST JS
     // =========================================
-    const roomsWrapper   = document.getElementById("roomsWrapper");
-    const statusEl       = document.getElementById("status");
-    const hotelsListEl   = document.getElementById("hotelsList");
-    const paginationEl   = document.getElementById("pagination");
-    let currentPage = 1;
+    const roomsWrapper = document.getElementById("roomsWrapper");
+    const statusEl     = document.getElementById("status");
+    const hotelsListEl = document.getElementById("hotelsList");
+    const paginationEl = document.getElementById("pagination");
+    let currentPage    = 1;
 
     // Ao carregar, cria 1 quarto
-    document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
       adicionarQuarto();
     });
 
@@ -764,7 +761,6 @@
       roomsWrapper.appendChild(div);
       reindexRooms();
     }
-
     function reindexRooms() {
       const rows = roomsWrapper.querySelectorAll(".room-row");
       rows.forEach((row, idx) => {
@@ -780,23 +776,23 @@
       statusEl.textContent     = "Carregando hotéis...";
       statusEl.style.display   = "block";
 
-      const checkIn = document.getElementById("checkIn").value;
-      const checkOut= document.getElementById("checkOut").value;
+      const checkIn  = document.getElementById("checkIn").value;
+      const checkOut = document.getElementById("checkOut").value;
       const destination = document.getElementById("destination").value || "MCO";
 
-      // 1) Cálculo de daysNights
+      // Cálculo de dias/noites
       let daysNightsLabel = "";
       try {
-        const d1 = new Date(checkIn);
-        const d2 = new Date(checkOut);
-        const diffMs = d2 - d1;
+        const dIn  = new Date(checkIn);
+        const dOut = new Date(checkOut);
+        const diffMs = dOut - dIn;
         if (diffMs > 0) {
           const diffDays = Math.round(diffMs / (1000*60*60*24));
-          daysNightsLabel = `${diffDays} dias e ${diffDays-1} noite(s)`;
+          daysNightsLabel = `${diffDays} dia(s) e ${Math.max(diffDays-1, 1)} noite(s)`;
         }
-      } catch(e){ console.warn("Erro calculando dias/noites", e); }
+      } catch(e) { /* fallback se erro no parse */ }
 
-      // 2) Montar query
+      // Monta query
       const roomRows = roomsWrapper.querySelectorAll(".room-row");
       let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}&limit=20`;
       roomRows.forEach((row, idx) => {
@@ -809,14 +805,13 @@
       console.log("Requisição Booking API:", url);
 
       try {
-        // 3) Fetch BOOKING API
-        const resp = await fetch(url);
-        if (!resp.ok) {
-          throw new Error(`Erro Booking API. Status: ${resp.status}`);
+        // 1) CHAMADA BOOKING API
+        const bookingResp = await fetch(url);
+        if (!bookingResp.ok) {
+          throw new Error(`Erro Booking API: ${bookingResp.status}`);
         }
-        const data = await resp.json();
-
-        const hotelsArray = data.hotels?.hotels || [];
+        const bookingData = await bookingResp.json();
+        const hotelsArray = bookingData.hotels?.hotels || [];
         if (!hotelsArray.length) {
           statusEl.textContent = "Nenhum hotel encontrado.";
           return;
@@ -824,88 +819,79 @@
         statusEl.style.display = "none";
 
         for (const hotel of hotelsArray) {
-          // Ex: hotel.code, hotel.name, hotel.categoryCode/categoryName, hotel.minRate
-          const hotelCode = hotel.code;
-
-          // 4) Consumir CONTENT API
-          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`);
+          // ex: hotel = {code, name, categoryCode, categoryName, minRate, ...}
+          // 2) CHAMA CONTENT API
+          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
           if (!contentResp.ok) {
-            console.warn("Falhou content pra hotel code=", hotelCode);
+            console.warn("Falha ao buscar content do hotel:", hotel.code);
             continue;
           }
           const contentData = await contentResp.json();
           const content = contentData?.hotel || {};
 
-          // (A) Nome
+          // A) name
           const name = content.name?.content || hotel.name || "Hotel Sem Nome";
 
-          // (B) Endereço
-          const street = content.address?.street || ""; 
+          // B) address -> street do content
+          const street = content.address?.street || "";
           const city   = content.city?.content || "";
-          let addressFull = street;
-          if (city) addressFull += addressFull ? `, ${city}` : city;
+          let fullAddress = street;
+          if (city) fullAddress += (fullAddress ? `, ${city}` : city);
 
-          // (C) Rating (ex: categoryCode = "4EST" ou content.category.description.content = "4 STARS")
+          // C) ratingStars -> booking api (categoryCode: "4EST" ou categoryName: "4 STARS")
           let ratingNum = 0;
           if (hotel.categoryCode) {
-            // ex: "4EST" => extrair 4
-            const match = hotel.categoryCode.match(/\d+/);
-            if (match) ratingNum = parseInt(match[0],10);
+            const m1 = hotel.categoryCode.match(/\d+/);
+            if (m1) ratingNum = parseInt(m1[0],10);
           } else if (hotel.categoryName) {
-            // ex: "4 STARS"
-            const match2 = hotel.categoryName.match(/\d+(\.\d+)?/);
-            if (match2) ratingNum = parseFloat(match2[0]);
-          }
-          // Ou ver no content.category
-          if (!ratingNum && content.category?.description?.content) {
-            const catStr = content.category.description.content;
-            const match3 = catStr.match(/\d+(\.\d+)?/);
-            if (match3) ratingNum = parseFloat(match3[0]);
+            const m2 = hotel.categoryName.match(/\d+(\.\d+)?/);
+            if (m2) ratingNum = parseFloat(m2[0]);
           }
           if (!ratingNum) ratingNum = 3; // fallback
 
-          // (D) Imagens => filtra as que tem type.code === "HAB" ou pega a 1a?
+          // D) images -> do content, filtra type.code === "HAB"
           let imagesArr = [];
           if (content.images && content.images.length) {
-            // filtra as do tipo HAB
-            const roomImages = content.images.filter(img => 
-              img.type?.code === "HAB"
+            const roomImgs = content.images.filter(
+              (img) => img.type?.code === "HAB"
             );
-            const arr = roomImages.length ? roomImages : content.images;
-            // extrai path
-            imagesArr = arr.map(img => 
-              `https://photos.hotelbeds.com/giata/xl/${img.path}`
+            const arr = roomImgs.length ? roomImgs : content.images;
+            imagesArr = arr.map(
+              (img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`
             );
           } else {
             imagesArr = ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
           }
 
-          // (E) facilities => array de "Wi-fi", "American Express", etc.
-          let facilitiesArr = [];
-          if (content.facilities && content.facilities.length) {
-            // Pega 1a 5
-            facilitiesArr = content.facilities.slice(0,5).map(f => f.description?.content || "");
+          // E) priceFrom -> "A partir de " + minRate
+          let priceLabel = "A partir de R$ ???";
+          if (hotel.minRate !== undefined) {
+            priceLabel = `A partir de R$ ${hotel.minRate.toFixed(2)}`;
           }
 
-          // (F) interestPoints => content.interestPoints
+          // F) facilities -> content.facilities (ex: "Wi-fi")
+          let facilitiesArr = [];
+          if (content.facilities?.length) {
+            // pega 5, por ex
+            facilitiesArr = content.facilities
+              .slice(0,5)
+              .map((f) => f.description?.content || "");
+          }
+
+          // G) interestPoints -> poiList
           let poiListArr = [];
-          if (content.interestPoints && content.interestPoints.length) {
-            // Ex: interestPoints: [ {poiName, distance}, ...]
-            poiListArr = content.interestPoints.map(ip => ({
-              poiName: ip.poi?.content || "Unknown POI",
-              distance: ip.distance || 0
+          if (content.interestPoints?.length) {
+            poiListArr = content.interestPoints.map((ip) => ({
+              poiName: ip.poi?.content || "Ponto de Interesse",
+              distance: ip.distance || 0,
             }));
           }
 
-          // (G) priceFrom => minRate
-          const priceLabel = hotel.minRate
-            ? `A partir de R$ ${hotel.minRate.toFixed(2)}`
-            : "A partir de R$ ???";
-
-          // Monta "hotelObj"
+          // Monta hotelObj
           const hotelObj = {
+            // do content ou fallback booking
             name,
-            address: addressFull,
+            address: fullAddress,
             ratingStars: ratingNum,
             ratingValue: ratingNum.toString(),
             images: imagesArr,
@@ -921,28 +907,27 @@
           hotelsListEl.appendChild(cardEl);
         }
 
-        // exibir paginacao
-        exibirPaginacao(data.totalPages||1, page);
+        exibirPaginacao(bookingData.totalPages || 1, page);
       } catch(err) {
         console.error(err);
-        statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
+        statusEl.textContent = "Erro ao buscar hotéis.";
       }
     }
 
-    function exibirPaginacao(totalPages, current) {
+    function exibirPaginacao(totalPages, currentPage) {
       if (totalPages <= 1) return;
       paginationEl.style.display = "flex";
 
-      if (current > 1) {
+      if (currentPage > 1) {
         const btnPrev = document.createElement("button");
         btnPrev.textContent = "Anterior";
-        btnPrev.onclick = () => buscarHoteis(current - 1);
+        btnPrev.onclick = () => buscarHoteis(currentPage - 1);
         paginationEl.appendChild(btnPrev);
       }
-      if (current < totalPages) {
+      if (currentPage < totalPages) {
         const btnNext = document.createElement("button");
         btnNext.textContent = "Próxima Página";
-        btnNext.onclick = () => buscarHoteis(current + 1);
+        btnNext.onclick = () => buscarHoteis(currentPage + 1);
         paginationEl.appendChild(btnNext);
       }
     }
