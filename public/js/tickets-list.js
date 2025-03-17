@@ -1,3 +1,4 @@
+<script>
 /* ===========================================
    A) LÓGICA DO BUSCADOR / ABAS + FLATPICKR
 =========================================== */
@@ -59,12 +60,14 @@ if (quartosInput) {
     }
   });
 }
+
 // Impede que clique dentro do dropdown feche a si mesmo
 if (dropdown) {
   dropdown.addEventListener('click', (e) => {
     e.stopPropagation();
   });
 }
+
 // Fecha dropdown ao clicar fora
 document.addEventListener('click', () => {
   if (dropdown) dropdown.classList.remove('active');
@@ -214,11 +217,18 @@ function createHotelCard(hotelData) {
   if (!template) return document.createDocumentFragment();
   const clone = template.content.cloneNode(true);
 
-  // Preenche campos básicos
-  clone.querySelector(".hotel-name").textContent    = hotelData.name        || "";
-  clone.querySelector(".hotel-address").textContent = hotelData.address     || "";
-  clone.querySelector(".days-nights").textContent   = hotelData.daysNights  || "";
-  clone.querySelector(".price-starting").textContent= hotelData.priceFrom   || "";
+  // Se você quiser priorizar o "nome" do Content, use algo assim:
+  // const hotelName = hotelData.content?.name?.content || hotelData.name || "";
+  // Caso prefira o "hotelData.name" do Booking, faça:
+  const hotelName = hotelData.name || "";
+  clone.querySelector(".hotel-name").textContent = hotelName;
+
+  // Para address, se vier no content:
+  // const addressFull = hotelData.content?.address?.street || hotelData.address || "";
+  clone.querySelector(".hotel-address").textContent = hotelData.address || "";
+
+  clone.querySelector(".days-nights").textContent = hotelData.daysNights  || "";
+  clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
   clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
 
   // Estrelas
@@ -261,15 +271,22 @@ function createHotelCard(hotelData) {
     poiUl.appendChild(li);
   });
 
-  // Carrossel (imagens)
+  // Carrossel (imagens) – caso as imagens venham em hotelData.content.images:
+  // const images = hotelData.content?.images || [];
+  // const finalImgs = images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
+
+  // Mas se o back já estiver mesclando no root => hotelData.images:
+  const finalImgs = hotelData.images || [];
+
   const track = clone.querySelector(".carousel-track");
   let currentSlide = 0;
-  (hotelData.images || []).forEach(url => {
+  finalImgs.forEach(url => {
     const slide = document.createElement("div");
     slide.className = "carousel-slide";
     slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
     track.appendChild(slide);
   });
+
   const prevBtn = clone.querySelector(".prev-button");
   const nextBtn = clone.querySelector(".next-button");
 
@@ -354,8 +371,14 @@ async function buscarHoteis() {
     }
     const data = await resp.json();
 
-    // Supondo que data tenha "hotels.hotels" ou "combined" etc.
-    const hotelsArr = data.hotels?.hotels || [];
+    // Se seu back retorna "combined" em data.combined:
+    //    { availability:..., combined: [ { code, name, content: {...} }, ... ] }
+    // Mude para:
+    // const hotelsArr = data.combined || [];
+
+    // Mas se seu back retorna "hotels.hotels" => OK
+    const hotelsArr = data.combined || [];  // <-- Troque aqui se for "combined"
+
     if (!hotelsArr.length) {
       if (statusEl) statusEl.textContent = "Nenhum hotel encontrado.";
       return;
@@ -364,6 +387,10 @@ async function buscarHoteis() {
 
     // Monta cards
     for (const hotelObj of hotelsArr) {
+      // Exemplo: se você quiser trocar a forma como pega imagens:
+      //  hotelObj.images = hotelObj.content?.images?.map(img => "https://..."+img.path) || [];
+      //  OU já fez essa mesclagem no back-end
+
       const cardEl = createHotelCard(hotelObj);
       hotelsListEl?.appendChild(cardEl);
     }
@@ -395,3 +422,4 @@ function exibirPaginacao(totalPages, currentPage) {
     pagEl.appendChild(btnNext);
   }
 }
+</script>
