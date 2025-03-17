@@ -709,7 +709,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="/js/facilitiesMap.js"></script>
   <script>
-    // 1) Abas
+    // ABAS
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -722,12 +722,13 @@
       });
     });
 
-    // 2) FLATPICKR
-    // Ingressos
+    // FLATPICKR
     flatpickr('#dataIngresso', {
-      locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today'
     });
-    // Hotéis => range 2 meses
     flatpickr('#dataRangeHoteis', {
       locale: 'pt',
       mode: 'range',
@@ -737,7 +738,7 @@
       allowInput: true
     });
 
-    // 3) MÚLTIPLOS QUARTOS: dropdown
+    // DROPDOWN QUARTOS
     const quartosInput   = document.getElementById('quartos');
     const dropdown       = document.getElementById('quartosDropdown');
     const roomsMinus     = document.getElementById('roomsMinus');
@@ -746,12 +747,10 @@
     const roomsContainer = document.getElementById('roomsContainer');
     const applyQuartos   = document.getElementById('applyQuartos');
 
-    // array roomsData => [{ adults, children, childAges: [] }, ...]
     let roomsData = [
       { adults: 2, children: 0, childAges: [] }
     ];
 
-    // Abre/fecha dropdown ao clicar no input
     quartosInput.addEventListener('click', (e) => {
       e.stopPropagation();
       dropdown.classList.toggle('active');
@@ -768,19 +767,18 @@
       roomsTotalEl.textContent = roomsData.length;
 
       roomsData.forEach((room, index) => {
-        const roomBlock = document.createElement('div');
-        roomBlock.classList.add('qd-room-block');
+        const block = document.createElement('div');
+        block.classList.add('qd-room-block');
 
-        // Título
         const title = document.createElement('div');
-        title.classList.add('qd-room-title');
+        title.className = 'qd-room-title';
         title.textContent = `Quarto ${index+1}`;
-        roomBlock.appendChild(title);
+        block.appendChild(title);
 
-        // Linha de adultos
-        const adultosRow = document.createElement('div');
-        adultosRow.classList.add('qd-row');
-        adultosRow.innerHTML = `
+        // adultos
+        const adRow = document.createElement('div');
+        adRow.className = 'qd-row';
+        adRow.innerHTML = `
           <span class="qd-label">Adultos</span>
           <div class="qd-counter">
             <button type="button" class="adultMinus">-</button>
@@ -788,12 +786,12 @@
             <button type="button" class="adultPlus">+</button>
           </div>
         `;
-        roomBlock.appendChild(adultosRow);
+        block.appendChild(adRow);
 
-        // Linha de crianças
-        const criancasRow = document.createElement('div');
-        criancasRow.classList.add('qd-row');
-        criancasRow.innerHTML = `
+        // criancas
+        const chRow = document.createElement('div');
+        chRow.className = 'qd-row';
+        chRow.innerHTML = `
           <span class="qd-label">Crianças</span>
           <div class="qd-counter">
             <button type="button" class="childMinus">-</button>
@@ -801,153 +799,172 @@
             <button type="button" class="childPlus">+</button>
           </div>
         `;
-        roomBlock.appendChild(criancasRow);
+        block.appendChild(chRow);
 
-        // Seletores de idades
-        const childrenAgesDiv = document.createElement('div');
-        childrenAgesDiv.classList.add('children-ages');
-        room.childAges.forEach((ageValue, childIndex) => {
+        // idades
+        const agesDiv = document.createElement('div');
+        agesDiv.className = 'children-ages';
+        room.childAges.forEach((ageVal, i2) => {
           const sel = document.createElement('select');
-          sel.classList.add('childAgeSelect');
-          for (let age=0; age<=17; age++) {
+          sel.className = 'childAgeSelect';
+          for (let a=0;a<=17;a++){
             const opt = document.createElement('option');
-            opt.value = age;
-            opt.text = `${age} ano(s)`;
+            opt.value=a; 
+            opt.text=`${a} ano(s)`;
             sel.appendChild(opt);
           }
-          sel.value = ageValue;
-          sel.addEventListener('change', (e) => {
-            room.childAges[childIndex] = parseInt(e.target.value,10);
+          sel.value=ageVal;
+          sel.addEventListener('change',(ev)=>{
+            room.childAges[i2]=parseInt(ev.target.value,10);
           });
-          childrenAgesDiv.appendChild(sel);
+          agesDiv.appendChild(sel);
         });
-        roomBlock.appendChild(childrenAgesDiv);
+        block.appendChild(agesDiv);
 
-        // Eventos de + e - (adultos)
-        adultosRow.querySelector('.adultPlus').addEventListener('click', () => {
+        // eventos
+        adRow.querySelector('.adultPlus').addEventListener('click', ()=>{
           room.adults++;
           renderRooms();
         });
-        adultosRow.querySelector('.adultMinus').addEventListener('click', () => {
-          if (room.adults > 1) {
+        adRow.querySelector('.adultMinus').addEventListener('click', ()=>{
+          if(room.adults>1){
             room.adults--;
             renderRooms();
           }
         });
-        // Eventos de + e - (crianças)
-        criancasRow.querySelector('.childPlus').addEventListener('click', () => {
+        chRow.querySelector('.childPlus').addEventListener('click', ()=>{
           room.children++;
           room.childAges.push(0);
           renderRooms();
         });
-        criancasRow.querySelector('.childMinus').addEventListener('click', () => {
-          if (room.children > 0) {
+        chRow.querySelector('.childMinus').addEventListener('click', ()=>{
+          if(room.children>0){
             room.children--;
             room.childAges.pop();
             renderRooms();
           }
         });
 
-        roomsContainer.appendChild(roomBlock);
+        roomsContainer.appendChild(block);
       });
     }
-    // + / - no total de quartos
-    roomsPlus.addEventListener('click', () => {
-      roomsData.push({ adults: 2, children:0, childAges:[] });
+    roomsPlus.addEventListener('click', ()=>{
+      roomsData.push({ adults:2, children:0, childAges:[] });
       renderRooms();
     });
-    roomsMinus.addEventListener('click', () => {
-      if (roomsData.length>1) {
+    roomsMinus.addEventListener('click', ()=>{
+      if(roomsData.length>1){
         roomsData.pop();
         renderRooms();
       }
     });
-
-    // Botão Aplicar
-    applyQuartos.addEventListener('click', () => {
-      // ex: "2 Quartos, 3 Adultos, 2 Crianças"
-      let totalAdults = 0;
-      let totalChildren= 0;
-      for (const r of roomsData) {
-        totalAdults += r.adults;
-        totalChildren += r.children;
+    applyQuartos.addEventListener('click', ()=>{
+      let totalA=0; let totalC=0;
+      for(const r of roomsData){
+        totalA+= r.adults;
+        totalC+= r.children;
       }
-      const label = `${roomsData.length} Quarto(s), ${totalAdults} Adulto(s), ${totalChildren} Criança(s)`;
-      quartosInput.value = label;
+      quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
       dropdown.classList.remove('active');
     });
-
-    // Render inicial
     renderRooms();
 
-    // 4) CRIAR CARD DE HOTEL (layout avançado)
+    // FACILITIES => Procurar no facilitiesMap
+    function getFacilityIcon(name) {
+      const found = facilitiesMap[name];
+      if (found) {
+        // Retorna {pt, svg}
+        return found;
+      }
+      return null;
+    }
+
+    // Converte metros string -> "0,8 km"
+    function convertDistanceToKm(distStr) {
+      const meters = parseFloat(distStr) || 0;
+      const km = meters / 1000;
+      // Ex: "0.8" => "0,8"
+      return km.toFixed(1).replace('.', ',') + " km";
+    }
+
     function createHotelCard(hotelData) {
       const template = document.getElementById("hotelCardTemplate");
       if (!template) return document.createDocumentFragment();
       const clone = template.content.cloneNode(true);
 
       // Nome, endereço, datas, preço
-      clone.querySelector(".hotel-name").textContent = hotelData.name || "";
-      clone.querySelector(".hotel-address").textContent= hotelData.address || "";
-      clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
-      clone.querySelector(".price-starting").textContent= hotelData.priceFrom||"";
-      clone.querySelector(".ten-installments").textContent=hotelData.installments||"";
+      clone.querySelector(".hotel-name").textContent    = hotelData.name || "";
+      clone.querySelector(".hotel-address").textContent = hotelData.address || "";
+      clone.querySelector(".days-nights").textContent   = hotelData.daysNights || "";
+      clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
+      clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
 
       // Estrelas
-      const starsEl = clone.querySelector(".stars");
-      starsEl.innerHTML = "";
-      const ratingStars = Math.round(hotelData.ratingStars||0);
-      for (let i=1; i<=5; i++){
-        const star = document.createElement("i");
-        if (i<=ratingStars) star.classList.add("fas","fa-star");
+      const starEl = clone.querySelector(".stars");
+      starEl.innerHTML="";
+      const r = Math.round(hotelData.ratingStars||0);
+      for(let i=1;i<=5;i++){
+        const star= document.createElement("i");
+        if(i<=r) star.classList.add("fas","fa-star");
         else star.classList.add("far","fa-star","empty");
-        starsEl.appendChild(star);
+        starEl.appendChild(star);
       }
-      clone.querySelector(".rating-value").textContent = hotelData.ratingValue||"";
+      clone.querySelector(".rating-value").textContent= hotelData.ratingValue||"";
 
-      // Facilities
+      // FACILITIES => Render icones
       const facDiv = clone.querySelector(".facility-icons");
       (hotelData.facilities||[]).forEach(f => {
-        // se tiver map, ex:
-        // if (facilitiesMap[f]) { ... }
-        // senão, mostra algo fixo
+        const found= getFacilityIcon(f);
+        if(found){
+          const iconDiv= document.createElement("div");
+          iconDiv.className="facility-icon";
+          iconDiv.innerHTML= found.svg;
+          // tooltip
+          const tt= document.createElement("div");
+          tt.className="tooltip";
+          tt.textContent= found.pt;
+          iconDiv.appendChild(tt);
+          facDiv.appendChild(iconDiv);
+        }
       });
 
-      // POIs
+      // POI LIST => <li> {poi.poiName} - {converted} km
       const poiUl = clone.querySelector(".poi-list");
-      (hotelData.poiList||[]).forEach(poi => {
-        const li = document.createElement("li");
-        li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${poi.poiName} - ${poi.distance} km`;
+      (hotelData.poiList||[]).forEach(p => {
+        const li= document.createElement("li");
+        // converter distance
+        const distKm= convertDistanceToKm(p.distance);
+        li.innerHTML= `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${distKm}`;
         poiUl.appendChild(li);
       });
 
       // Carrossel
-      const track = clone.querySelector(".carousel-track");
+      const track= clone.querySelector(".carousel-track");
       let currentSlide=0;
       (hotelData.images||[]).forEach(url=>{
-        const slide = document.createElement("div");
-        slide.className = 'carousel-slide';
-        slide.innerHTML = `<img src="${url}" alt="Foto do Hotel"/>`;
+        const slide= document.createElement("div");
+        slide.className="carousel-slide";
+        slide.innerHTML= `<img src="${url}" alt="Foto do Hotel">`;
         track.appendChild(slide);
       });
-      const prevBtn = clone.querySelector(".prev-button");
-      const nextBtn = clone.querySelector(".next-button");
+      const prevBtn= clone.querySelector(".prev-button");
+      const nextBtn= clone.querySelector(".next-button");
 
-      function updateCarousel(){
-        const slides = track.querySelectorAll(".carousel-slide");
-        if (!slides.length) return;
-        const w = slides[0].getBoundingClientRect().width;
-        track.style.transform = `translateX(-${currentSlide*w}px)`;
+      function updateCarousel() {
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
+        const w= slides[0].getBoundingClientRect().width;
+        track.style.transform=`translateX(-${currentSlide*w}px)`;
       }
       prevBtn.addEventListener('click', ()=>{
-        const slides = track.querySelectorAll(".carousel-slide");
-        if (!slides.length) return;
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
         currentSlide=(currentSlide-1+slides.length)%slides.length;
         updateCarousel();
       });
       nextBtn.addEventListener('click', ()=>{
-        const slides = track.querySelectorAll(".carousel-slide");
-        if (!slides.length)return;
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
         currentSlide=(currentSlide+1)%slides.length;
         updateCarousel();
       });
@@ -956,186 +973,186 @@
       return clone;
     }
 
-    // 5) BUSCAR HOTEIS
+    // BUSCAR HOTEIS => Exemplo
     async function buscarHoteis() {
-      // 1) Pegar destino e datas
-      const destino = document.getElementById("destinoHoteis").value || "MCO";
-      const range   = document.getElementById("dataRangeHoteis").value;
-      if (!range) {
-        alert("Selecione as datas (Check-in / Check-out)");
-        return;
-      }
-      // Ex: "12/05/2025 - 15/05/2025" (separado por " to " ou algo, dependendo do flatpickr)
-      const parts = range.split(" ");
-      let checkIn="", checkOut="";
-      if (parts.length>=2) {
-        checkIn  = parts[0];
-        checkOut = parts[2]||parts[1]||""; 
-      }
-      // Converte p/ aaaa-mm-dd se quiser
-      function toISO(dmy){
-        const [d,m,y] = dmy.split("/");
-        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-      }
-      const isoCheckIn = toISO(checkIn);
-      const isoCheckOut= toISO(checkOut);
-
-      // 2) Pegar roomsData
-      // Montar query ex: &rooms=2&adults1=2&children1=0&adults2=2&children2=1...
-      let queryString = `?checkIn=${isoCheckIn}&checkOut=${isoCheckOut}&destination=${destino}&rooms=${roomsData.length}&page=1&limit=20`;
-
-      roomsData.forEach((r,idx)=>{
-        const i = idx+1;
-        queryString+= `&adults${i}=${r.adults}&children${i}=${r.children}`;
-      });
-
-      // 3) Chamamos Booking API
+      const destination= document.getElementById("destinoHoteis").value||"MCO";
+      const range= document.getElementById("dataRangeHoteis").value||"";
       const hotelsListEl=document.getElementById("hotelsList");
       const statusEl=document.getElementById("status");
       const paginationEl=document.getElementById("pagination");
+
+      if(!range){
+        alert("Selecione as datas!");
+        return;
+      }
+      // parse range "DD/MM/YYYY to DD/MM/YYYY"
+      let checkIn="",checkOut="";
+      const parts=range.split(" ");
+      if(parts.length>=2){
+        checkIn= parts[0];
+        checkOut= parts[2]||parts[1];
+      }
+      // convert to ISO "YYYY-MM-DD"
+      function toISO(dmy){
+        const [d,m,y]= dmy.split("/");
+        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+      const isoIn= toISO(checkIn);
+      const isoOut= toISO(checkOut);
+
+      // Monta query de rooms
+      // roomsData =>  {adults, children, childAges:[]}
+      let query=`?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
+      roomsData.forEach((r,i)=>{
+        const idx=i+1;
+        query+=`&adults${idx}=${r.adults}&children${idx}=${r.children}`;
+        // se quisesse idade das criancas, teria childrenAges1=, etc.
+      });
+
       hotelsListEl.innerHTML="";
       paginationEl.innerHTML="";
       paginationEl.style.display="none";
       statusEl.textContent="Carregando hotéis...";
       statusEl.style.display="block";
 
-      const url=`/api/hotelbeds/hotels${queryString}`;
-      console.log("Requisição:", url);
+      const url=`/api/hotelbeds/hotels${query}`;
+      console.log("Booking API:", url);
 
       try {
-        const resp= await fetch(url);
-        if (!resp.ok) throw new Error("Erro Booking API: "+resp.status);
-        const data= await resp.json();
-        const hotelsArray=data.hotels?.hotels||[];
-        if (!hotelsArray.length){
+        const bookingResp= await fetch(url);
+        if(!bookingResp.ok) throw new Error("Booking API Error: "+bookingResp.status);
+        const bookingData= await bookingResp.json();
+
+        const hotelsArr= bookingData.hotels?.hotels||[];
+        if(!hotelsArr.length){
           statusEl.textContent="Nenhum hotel encontrado.";
           return;
         }
         statusEl.style.display="none";
 
-        // 4) P/ cada hotel, chama content API e gera card
-        for(const hotel of hotelsArray){
-          // Ex: { code, name, categoryCode, categoryName, minRate }
-          const contentResp=await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
-          if (!contentResp.ok) {
-            console.warn("Falha content do hotel code=", hotel.code);
+        // Para cada hotel => chama content
+        for(const hotel of hotelsArr){
+          const code= hotel.code;
+          const contentResp= await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
+          if(!contentResp.ok){
+            console.warn("Falha ao buscar content do hotel:", code);
             continue;
           }
-          const contentData=await contentResp.json();
+          const contentData= await contentResp.json();
           const content= contentData?.hotel||{};
-          
-          // A) Monta hotelObj
+
+          // Monta hotelObj
           // Nome
-          const name= content.name?.content|| hotel.name || "Hotel sem nome";
-          // Endereço
-          const street= content.address?.street||"";
-          const city= content.city?.content||"";
-          let fullAddr=street; 
-          if (city) fullAddr+=(fullAddr?`, ${city}`: city);
+          const name= content.name?.content || hotel.name || "Sem Nome";
+          // Endereco
+          const street= content.address?.street || "";
+          const city= content.city?.content || "";
+          let addressFull= street;
+          if(city) addressFull+=(addressFull?`, ${city}`: city);
+
           // Estrelas
           let ratingNum=0;
-          if (hotel.categoryCode){
+          if(hotel.categoryCode){
             const mm= hotel.categoryCode.match(/\d+/);
-            if (mm) ratingNum=parseInt(mm[0],10);
-          } else if (hotel.categoryName){
+            if(mm) ratingNum=parseInt(mm[0],10);
+          } else if(hotel.categoryName){
             const mm2= hotel.categoryName.match(/\d+(\.\d+)?/);
-            if (mm2) ratingNum=parseFloat(mm2[0]);
+            if(mm2) ratingNum=parseFloat(mm2[0]);
           }
-          if (!ratingNum) ratingNum=3;
-          // Price
-          let priceLabel= "A partir de R$ ???";
-          if (hotel.minRate!=null){
-            const parsed= parseFloat(hotel.minRate);
-            if (!isNaN(parsed)) {
-              priceLabel= `A partir de R$ ${parsed.toFixed(2)}`;
+          if(!ratingNum) ratingNum=3;
+
+          // minRate => number
+          let priceLabel="A partir de R$ ???";
+          if(hotel.minRate!=null){
+            const pr= parseFloat(hotel.minRate);
+            if(!isNaN(pr)){
+              priceLabel=`A partir de R$ ${pr.toFixed(2)}`;
             }
           }
-          // Facilities
+
+          // facilities => string array
           let facArr=[];
-          if (content.facilities && content.facilities.length){
-            facArr= content.facilities.slice(0,5).map(f => f.description?.content || "");
+          if(content.facilities?.length){
+            facArr= content.facilities.slice(0,5).map(f=> f.description?.content||"");
           }
-          // POIs
+
+          // interestPoints => poiList
           let poiArr=[];
-          if (content.interestPoints && content.interestPoints.length){
+          if(content.interestPoints?.length){
             poiArr= content.interestPoints.map(ip => ({
-              poiName: ip.poi?.content||"Ponto",
-              distance: ip.distance||0
+              poiName: ip.poiName || "Ponto de Interesse",
+              distance: ip.distance || "0"
             }));
           }
-          // Imagens
+
+          // Imagens => filtra type.code= "HAB"
           let imagesArr=[];
-          if (content.images&& content.images.length){
-            const roomImgs= content.images.filter(i=> i.type?.code==="HAB");
+          if(content.images?.length){
+            const roomImgs= content.images.filter(img => img.type?.code==="HAB");
             const arr= roomImgs.length? roomImgs: content.images;
-            imagesArr= arr.map(i=>`https://photos.hotelbeds.com/giata/xl/${i.path}`);
+            imagesArr= arr.map(img => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
           } else {
-            imagesArr= ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
+            imagesArr=["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
+          }
+
+          // Monta daysNights
+          let daysNightsLabel="";
+          if(checkIn && checkOut){
+            const parseDmy=(dmy)=>{
+              const [D,M,A]= dmy.split("/");
+              return new Date(+A, +M-1, +D);
+            };
+            const d1= parseDmy(checkIn);
+            const d2= parseDmy(checkOut);
+            const ms= d2-d1;
+            if(ms>0){
+              const diffDays= Math.round(ms/(1000*60*60*24));
+              daysNightsLabel= `${diffDays} dia(s), ${Math.max(diffDays-1,1)} noite(s)`;
+            }
           }
 
           const hotelObj={
             name,
-            address: fullAddr,
+            address: addressFull,
             ratingStars: ratingNum,
             ratingValue: ratingNum.toString(),
             images: imagesArr,
-            daysNights: "", // se quiser "2 dias, 1 noite" => parse do range
+            daysNights: daysNightsLabel,
             priceFrom: priceLabel,
             installments: "Até 10x sem juros",
             facilities: facArr,
             poiList: poiArr
           };
 
-          // ex: parse range p/ daysNights
-          if (range) {
-            // ex: "12/05/2025 to 15/05/2025"
-            const parts=range.split(" ");
-            if (parts.length>=2){
-              const checkIn= parts[0];
-              const checkOut= parts[2]||parts[1]||"";
-              // Calcula dif
-              const parseDmy=(dmy)=>{
-                const [D,M,A]= dmy.split("/");
-                return new Date(+A, +M-1, +D);
-              };
-              const d1= parseDmy(checkIn);
-              const d2= parseDmy(checkOut);
-              const ms= d2-d1;
-              if (ms>0) {
-                const diffDays= Math.round(ms/(1000*60*60*24));
-                hotelObj.daysNights= `${diffDays} dia(s), ${Math.max(diffDays-1,1)} noite(s)`;
-              }
-            }
-          }
-
-          // Cria o card
           const cardEl= createHotelCard(hotelObj);
           hotelsListEl.appendChild(cardEl);
         }
-        // se data.totalPages>1 exibe paginacao
-        exibirPaginacao(data.totalPages||1,1);
+
+        // se quisesse paginacao:
+        // exibirPaginacao(bookingData.totalPages||1,1);
+        statusEl.style.display="none";
       } catch(e){
         console.error(e);
         statusEl.textContent="Erro ao buscar hotéis.";
       }
     }
 
-    function exibirPaginacao(totalPages, current) {
-      const pagination= document.getElementById("pagination");
-      if (totalPages<=1) return;
-      pagination.style.display="flex";
+    function exibirPaginacao(totalPages, currentPage) {
+      const pagEl= document.getElementById("pagination");
+      if(totalPages<=1) return;
+      pagEl.style.display="flex";
 
-      if (current>1){
+      if(currentPage>1){
         const btnPrev=document.createElement("button");
         btnPrev.textContent="Anterior";
-        btnPrev.onclick=()=> buscarHoteis(current-1);
-        pagination.appendChild(btnPrev);
+        btnPrev.onclick=()=> buscarHoteis(currentPage-1);
+        pagEl.appendChild(btnPrev);
       }
-      if (current<totalPages){
+      if(currentPage<totalPages){
         const btnNext=document.createElement("button");
         btnNext.textContent="Próxima Página";
-        btnNext.onclick=()=> buscarHoteis(current+1);
-        pagination.appendChild(btnNext);
+        btnNext.onclick=()=> buscarHoteis(currentPage+1);
+        pagEl.appendChild(btnNext);
       }
     }
   </script>
