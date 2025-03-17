@@ -57,8 +57,8 @@ function generateSignature() {
 // ------------------------------------------------------
 // Rota GET para Preço / Disponibilidade (Hotel Booking API)
 // Exemplo de chamada: 
-// GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
-app.get("/api/hotelbeds/hotels", async (req, res) => {
+// GET /api/hoteis?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
+app.get("/api/hoteis", async (req, res) => {
   try {
     // 1) Extrair parâmetros da query
     const { checkIn, checkOut, destination } = req.query;
@@ -122,7 +122,7 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
     return res.json(result);
 
   } catch (err) {
-    console.error("Erro ao buscar hotéis (GET /api/hotelbeds/hotels):", err);
+    console.error("Erro ao buscar hotéis (GET /api/hoteis):", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
   }
 });
