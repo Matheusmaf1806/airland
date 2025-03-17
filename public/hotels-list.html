@@ -2,9 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Buscador Surreal de Lindo - Versão Completa</title>
-
-  <!-- META VIEWPORT p/ mobile -->
+  <title>Buscador Surreal de Lindo - Hotéis Ilimitados</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Fonte Montserrat -->
@@ -14,33 +12,33 @@
     rel="stylesheet"
   />
 
-  <!-- CSS do Flatpickr (CDN) -->
+  <!-- CSS do Flatpickr (apenas se quiser usar nas outras abas) -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
   />
 
-  <!-- MATERIAL ICONS (GRATUITAS) -->
+  <!-- MATERIAL ICONS -->
   <link 
     rel="stylesheet"
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
-  <!-- Font Awesome (para estrelas, ícones etc.) -->
+  <!-- (Opcional) Font Awesome, se precisar de ícones extras -->
   <link
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     rel="stylesheet"
   />
 
   <style>
-    /* RESET BÁSICO */
+    /* RESET */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /* TUDO EM MONTSERRAT, INCLUSIVE PLACEHOLDERS E BOTÕES */
+    /* Fonte Montserrat em tudo */
     html, body, input, select, button, textarea {
       font-family: 'Montserrat', sans-serif;
     }
@@ -52,7 +50,7 @@
     html, body {
       width: 100%;
       min-height: 100%;
-      background: #f6f8fb; /* fundo neutro */
+      background: #f6f8fb;
       color: #333;
     }
     body {
@@ -60,7 +58,7 @@
       flex-direction: column;
     }
 
-    /* HERO SECTION (opcional) */
+    /* HERO SECTION */
     .hero {
       width: 100%;
       height: 50vh;
@@ -83,7 +81,7 @@
       opacity: 0.9;
     }
 
-    /* CONTAINER DO BUSCADOR */
+    /* CONTAINER DE BUSCA */
     .search-container {
       position: relative;
       width: 90%;
@@ -127,8 +125,8 @@
     }
 
     /* CONTEÚDO DAS ABAS */
-    .tab-content {
-      display: none;
+    .tab-content { 
+      display: none; 
     }
     .tab-content.active {
       display: block;
@@ -139,7 +137,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORMULÁRIOS */
+    /* FORMULÁRIOS / CAMPOS */
     .form-group {
       display: flex;
       flex-wrap: wrap;
@@ -195,7 +193,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* CUSTOMIZAÇÃO FLATPICKR */
+    /* FLATPICKR (opcional, se quiser usar nas outras abas) */
     .flatpickr-calendar {
       border: 1px solid #ccc;
       border-radius: 0.5rem;
@@ -237,59 +235,81 @@
       color: #fff;
     }
 
-    /* NOVO LAYOUT DE CARDS (EXEMPLO) */
-    .hotel-card-container {
+    /* ===== ABA HOTEIS (layout velho adaptado) ===== */
+    .search-box {
       display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-    .hotel-card {
-      display: flex;
-      flex-direction: row;
-      background-color: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      width: 100%;
-      max-width: 1200px;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease-in-out;
-      gap: 20px;
-    }
-    .hotel-card:hover {
-      transform: translateY(-8px);
-    }
-    /* ... resto do CSS do card omitido, pois já está ok ... */
-
-    /* LISTA DE HOTÉIS RENDERIZADA PELA BUSCA */
-    .hotels-list {
-      margin-top: 1rem;
-    }
-    .hotel-item {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
+      flex-wrap: wrap;
+      gap: 1rem;
       margin-bottom: 1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      align-items: center;
     }
-    .pagination {
+    .search-box label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-right: 0.3rem;
+    }
+    .occupancies {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .occupancies h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+    #roomsWrapper .room-row {
+      border: 1px dashed #bbb;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.4rem;
+    }
+    #roomsWrapper .room-row strong {
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    .remove-room-btn {
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      margin-left: 1rem;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      border-radius: 0.3rem;
+    }
+    .remove-room-btn:hover {
+      background: #a83224;
+    }
+
+    /* Lista e status */
+    #status.loading {
+      color: #0e65e0;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    #hotelsList .hotel-item {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+    }
+    #pagination {
       display: none;
       gap: 1rem;
       margin-top: 1rem;
     }
-    .pagination button {
+    #pagination button {
       padding: 0.5rem 1rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 0.4rem;
       background: #eee;
       cursor: pointer;
     }
-    .pagination button:disabled {
+    #pagination button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-    }
-    #status {
-      margin-top: 1rem;
-      display: none;
     }
   </style>
 </head>
@@ -301,7 +321,6 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- CONTAINER BUSCADOR -->
   <div class="search-container">
     <!-- TABS -->
     <div class="tabs">
@@ -322,7 +341,7 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS -->
+    <!-- ABA INGRESSOS (Exemplo Surreal) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -331,7 +350,7 @@
         </div>
         <div class="form-field">
           <label for="dataIngresso">Data</label>
-          <input type="text" id="dataIngresso" />
+          <input type="text" id="dataIngresso"/>
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Ingressos</button>
@@ -339,43 +358,35 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS -->
+    <!-- ABA HOTEIS -> Com EXACTOS IDs pro hotels-list.js -->
     <div id="tab-hoteis" class="tab-content">
-      <div class="form-group">
-        <div class="form-field">
-          <label for="destinoHoteis">Destino</label>
-          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
-        </div>
-        <div class="form-field">
-          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
-          <input type="text" id="dataRangeHoteis" />
-        </div>
-        <div class="form-field">
-          <label for="quartos">Quartos e Pessoas</label>
-          <input 
-            type="text" 
-            id="quartos" 
-            placeholder="Clique para escolher" 
-            readonly
-          />
-        </div>
-        <div class="form-field button-field">
-          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
-        </div>
+      <div class="search-box">
+        <label>Check-In:</label>
+        <input type="date" id="checkIn" value="2025-06-15">
+        
+        <label>Check-Out:</label>
+        <input type="date" id="checkOut" value="2025-06-16">
+
+        <label>Destino (ex: MCO):</label>
+        <input type="text" id="destination" placeholder="MCO">
       </div>
 
-      <!-- AQUI é onde as mensagens de status e a lista de hotéis apareciam -->
-      <div id="status"></div>
-      <div id="hotelsList" class="hotels-list"></div>
-
-      <!-- PAGINAÇÃO -->
-      <div id="pagination" class="pagination">
-        <button id="previousPage" onclick="previousPage()">Anterior</button>
-        <button id="nextPage" onclick="nextPage()">Próxima Página</button>
+      <div class="occupancies" id="occupanciesContainer">
+        <h2>Quartos / Ocupações</h2>
+        <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
+        <div id="roomsWrapper"></div>
       </div>
+
+      <div class="search-box">
+        <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+      </div>
+
+      <div id="status" class="loading" style="display:none;"></div>
+      <div id="hotelsList"></div>
+      <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- ABA CARROS -->
+    <!-- ABA CARROS (Surreal) -->
     <div id="tab-carros" class="tab-content">
       <div class="form-group">
         <div class="form-field">
@@ -384,11 +395,11 @@
         </div>
         <div class="form-field">
           <label for="dataRetiradaCarros">Retirada</label>
-          <input type="text" id="dataRetiradaCarros" />
+          <input type="text" id="dataRetiradaCarros"/>
         </div>
         <div class="form-field">
           <label for="dataDevolucaoCarros">Devolução</label>
-          <input type="text" id="dataDevolucaoCarros" />
+          <input type="text" id="dataDevolucaoCarros"/>
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Carros</button>
@@ -409,7 +420,7 @@
         </div>
         <div class="form-field">
           <label for="dataTransfer">Data</label>
-          <input type="text" id="dataTransfer" />
+          <input type="text" id="dataTransfer"/>
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Transfer</button>
@@ -426,11 +437,11 @@
         </div>
         <div class="form-field">
           <label for="embarqueSeguros">Embarque</label>
-          <input type="text" id="embarqueSeguros" />
+          <input type="text" id="embarqueSeguros"/>
         </div>
         <div class="form-field">
           <label for="desembarqueSeguros">Desembarque</label>
-          <input type="text" id="desembarqueSeguros" />
+          <input type="text" id="desembarqueSeguros"/>
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Seguros</button>
@@ -439,51 +450,20 @@
     </div>
   </div>
 
-  <!-- EXEMPLO DE CARD DE HOTEL (FIXO) 
-       Se preferir, pode remover ou deixar como "exemplo" -->
-  <div class="hotel-card-container">
-    <div class="hotel-card">
-      <div class="hotel-image">
-        <!-- ... carrossel de exemplo ... -->
-        <img src="https://photos.hotelbeds.com/giata/bigger/17/170603/170603a_hb_a_001.jpg" alt="Exemplo Hotel" style="border-radius:16px;">
-      </div>
-      <div class="hotel-info">
-        <div class="hotel-name">Hotel Exemplo Surreal</div>
-        <div class="hotel-rating">
-          <div class="stars">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="far fa-star empty"></i>
-          </div>
-          <span class="rating-value">4.0</span>
-        </div>
-        <div class="hotel-address">Endereço Exemplo</div>
-        <div class="hotel-details">
-          <strong>Pontos de Interesse:</strong>
-          <ul>
-            <li><i class="fas fa-map-marker-alt"></i> Exemplo de Lugar</li>
-          </ul>
-        </div>
-      </div>
-      <div class="hotel-price">
-        <div class="pix-flag">-5% no Pix</div>
-        <div class="days-nights">3 dias, 2 noites</div>
-        <div class="price-starting">A partir de R$ 900,00</div>
-        <div class="ten-installments">Em até 10x sem juros</div>
-        <button class="btn-options">Visualizar opções</button>
-      </div>
-    </div>
-  </div>
+  <!-- SEÇÃO DE DESTAQUE / OFERTAS (opcional) -->
+  <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
+    <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
+    <p style="color: #666; margin-bottom: 1rem;">
+      Explore nossas ofertas imperdíveis para destinos incríveis.
+    </p>
+  </section>
 
-  <!-- SCRIPT EXTERNO - ONDE ESTÁ A FUNÇÃO buscarHoteis, previousPage etc. -->
+  <!-- SCRIPT PRINCIPAL DE LÓGICA (hotels-list.js) -->
   <script src="js/hotels-list.js"></script>
 
-  <!-- FLATPICKR + PT -->
+  <!-- FLATPICKR (se quiser usar nas outras abas) -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-
   <script>
     // TROCA DE ABAS
     const tabs = document.querySelectorAll('.tab');
@@ -498,21 +478,12 @@
       });
     });
 
-    // INICIALIZA FLATPICKR (Exceto na aba Hotéis, que está range. 
-    // Aqui confirmamos de toda forma.)
+    // Exemplo de uso do Flatpickr em Ingressos/Carros/Transfer/Seguros
     flatpickr('#dataIngresso', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
       defaultDate: 'today'
-    });
-    flatpickr('#dataRangeHoteis', {
-      locale: 'pt',
-      mode: 'range',
-      dateFormat: 'd/m/Y',
-      showMonths: 2,
-      minDate: 'today',
-      allowInput: true
     });
     flatpickr('#dataRetiradaCarros', {
       locale: 'pt',
@@ -520,8 +491,7 @@
       dateFormat: 'd/m/Y H:i',
       time_24hr: true,
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
+      defaultDate: 'today'
     });
     flatpickr('#dataDevolucaoCarros', {
       locale: 'pt',
@@ -529,33 +499,29 @@
       dateFormat: 'd/m/Y H:i',
       time_24hr: true,
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
+      defaultDate: 'today'
     });
     flatpickr('#dataTransfer', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
+      defaultDate: 'today'
     });
     flatpickr('#embarqueSeguros', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
+      defaultDate: 'today'
     });
     flatpickr('#desembarqueSeguros', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
+      defaultDate: 'today'
     });
 
-    // Se "js/hotels-list.js" injeta os resultados no #hotelsList, 
-    // e mostra #status e #pagination, pronto!
+    // (Na aba Hotéis, deixamos do jeito do seu "antigo" layout, com type="date" 
+    //  e ID checkIn, checkOut, etc.)
   </script>
 </body>
 </html>
