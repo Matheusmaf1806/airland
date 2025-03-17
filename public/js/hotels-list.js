@@ -1,17 +1,44 @@
-/* ===========================================
+/* =====================================================
    hotels-list.js
-   -------------------------------------------
-   Script responsável por:
-   - Gerenciar dropdown de múltiplos quartos
-   - Buscar hotéis via /api/hoteis
-   - Criar cards de hotel (carrossel, facilidades, etc.)
-=========================================== */
+   Responsável por:
+   - Gerenciar abas e calendários (Flatpickr)
+   - Gerenciar o dropdown de múltiplos quartos
+   - Buscar hotéis via backend (/api/hotelbeds/hotels)
+   - Criar e injetar os cards de hotel no DOM (incluindo carrossel, facilidades, POIs, etc.)
+===================================================== */
 
-/* ===========================================
-   A) DROPDOWN DE MÚLTIPLOS QUARTOS
-=========================================== */
+/* ---------- A) Configuração de Abas e Flatpickr ---------- */
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
 
-// Inputs e elementos do dropdown
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(tc => tc.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.getAttribute('data-tab');
+    document.getElementById(target).classList.add('active');
+  });
+});
+
+if (typeof flatpickr !== 'undefined') {
+  flatpickr('#dataIngresso', {
+    locale: 'pt',
+    dateFormat: 'd/m/Y',
+    minDate: 'today',
+    defaultDate: 'today'
+  });
+  flatpickr('#dataRangeHoteis', {
+    locale: 'pt',
+    mode: 'range',
+    dateFormat: 'd/m/Y',
+    showMonths: 2,
+    minDate: 'today',
+    allowInput: true
+  });
+}
+
+/* ---------- B) Dropdown de Quartos ---------- */
 const quartosInput   = document.getElementById('quartos');
 const dropdown       = document.getElementById('quartosDropdown');
 const roomsMinus     = document.getElementById('roomsMinus');
@@ -20,53 +47,40 @@ const roomsTotalEl   = document.getElementById('roomsTotal');
 const roomsContainer = document.getElementById('roomsContainer');
 const applyQuartos   = document.getElementById('applyQuartos');
 
-/** roomsData: Armazena a configuração de cada quarto
- *  (adults, children, childAges: [0..17])
- *  Ex.: [ {adults:2, children:0, childAges: []}, ... ]
- */
 let roomsData = [
   { adults: 2, children: 0, childAges: [] }
 ];
 
-// Abre/fecha dropdown ao clicar no input
 if (quartosInput) {
-  quartosInput.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    if (dropdown) dropdown.classList.toggle('active');
+  quartosInput.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('active');
   });
 }
-// Impede que clique dentro do dropdown feche a si mesmo
 if (dropdown) {
-  dropdown.addEventListener('click', (ev) => {
-    ev.stopPropagation();
+  dropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
   });
 }
-// Fecha dropdown se clicar em qualquer lugar fora dele
 document.addEventListener('click', () => {
   if (dropdown) dropdown.classList.remove('active');
 });
 
-// Renderiza cada quarto (HTML) dentro do dropdown
 function renderRooms() {
   if (!roomsContainer || !roomsTotalEl) return;
-
-  // Limpa o container
   roomsContainer.innerHTML = '';
-  // Atualiza o contador de "Quartos"
   roomsTotalEl.textContent = roomsData.length;
 
-  // Para cada quarto no array...
   roomsData.forEach((room, index) => {
     const block = document.createElement('div');
     block.classList.add('qd-room-block');
 
-    // Título "Quarto X"
     const title = document.createElement('div');
     title.className = 'qd-room-title';
     title.textContent = `Quarto ${index + 1}`;
     block.appendChild(title);
 
-    // Linha de adultos
+    // Linha de Adultos
     const adRow = document.createElement('div');
     adRow.className = 'qd-row';
     adRow.innerHTML = `
@@ -79,7 +93,7 @@ function renderRooms() {
     `;
     block.appendChild(adRow);
 
-    // Linha de crianças
+    // Linha de Crianças
     const chRow = document.createElement('div');
     chRow.className = 'qd-row';
     chRow.innerHTML = `
@@ -92,10 +106,9 @@ function renderRooms() {
     `;
     block.appendChild(chRow);
 
-    // Container para idades
+    // Container das idades
     const agesDiv = document.createElement('div');
     agesDiv.className = 'children-ages';
-    // Para cada criança, cria um <select> de 0..17
     room.childAges.forEach((ageVal, i2) => {
       const sel = document.createElement('select');
       sel.className = 'childAgeSelect';
@@ -105,7 +118,7 @@ function renderRooms() {
         opt.text = `${a} ano(s)`;
         sel.appendChild(opt);
       }
-      sel.value = ageVal; // idade atual
+      sel.value = ageVal;
       sel.addEventListener('change', (ev) => {
         room.childAges[i2] = parseInt(ev.target.value, 10);
       });
@@ -113,7 +126,7 @@ function renderRooms() {
     });
     block.appendChild(agesDiv);
 
-    // Eventos de + / - em adultos
+    // Eventos para adultos
     adRow.querySelector('.adultPlus').addEventListener('click', () => {
       room.adults++;
       renderRooms();
@@ -125,10 +138,10 @@ function renderRooms() {
       }
     });
 
-    // Eventos de + / - em crianças
+    // Eventos para crianças
     chRow.querySelector('.childPlus').addEventListener('click', () => {
       room.children++;
-      room.childAges.push(0); // criança começa com 0 anos
+      room.childAges.push(0);
       renderRooms();
     });
     chRow.querySelector('.childMinus').addEventListener('click', () => {
@@ -143,7 +156,6 @@ function renderRooms() {
   });
 }
 
-// Botões (+/-) para aumentar/diminuir o total de quartos
 if (roomsPlus) {
   roomsPlus.addEventListener('click', () => {
     roomsData.push({ adults: 2, children: 0, childAges: [] });
@@ -158,8 +170,6 @@ if (roomsMinus) {
     }
   });
 }
-
-// Botão "Aplicar" do dropdown
 if (applyQuartos) {
   applyQuartos.addEventListener('click', () => {
     let totalA = 0;
@@ -168,46 +178,31 @@ if (applyQuartos) {
       totalA += r.adults;
       totalC += r.children;
     }
-    // Ex.: "2 Quartos, 4 Adultos, 1 Criança"
-    if (quartosInput) {
-      quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
-    }
-    // Fecha dropdown
-    if (dropdown) dropdown.classList.remove('active');
+    quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
+    dropdown.classList.remove('active');
   });
 }
-
-// Render inicial
 renderRooms();
 
-/* =========================================
-   B) FUNÇÕES AUXILIARES E CRIAÇÃO DE CARD
-========================================= */
+/* ---------- C) FUNÇÕES AUXILIARES E CRIAÇÃO DE CARD ---------- */
 
-/** Converte metros (string ou número) em "0,8 km" */
+/** Converte distância (em metros) para "0,8 km" */
 function convertDistanceToKm(distStr) {
   const meters = parseFloat(distStr) || 0;
   const km = meters / 1000;
-  // Ex.: 0.8 => "0,8"
   return km.toFixed(1).replace('.', ',') + " km";
 }
 
 /**
- * createHotelCard(hotelData)
- * Monta o card de hotel a partir de #hotelCardTemplate no HTML
- * `hotelData` deve ter algo como:
- *  {
- *    name: "Nome do Hotel",
- *    address: "Endereço",
- *    ratingStars: 4,
- *    ratingValue: "4.0",
- *    images: ["url1", "url2", ...],
- *    daysNights: "2 dias, 1 noite",
- *    priceFrom: "A partir de R$...",
- *    installments: "Até 10x sem juros",
- *    facilities: ["Wi-fi", "Air conditioning in public areas", ...]
- *    poiList: [ { poiName:"Downtown Disney", distance:"800" }, ...]
- *  }
+ * Cria um card de hotel usando o template #hotelCardTemplate.
+ * O objeto hotelData deve conter:
+ * {
+ *   name, address, ratingStars, ratingValue,
+ *   images: [ "url1", "url2", ... ],
+ *   daysNights, priceFrom, installments,
+ *   facilities: [ "Wi-fi", "Air conditioning in public areas", ... ],
+ *   poiList: [ { poiName:"Downtown Disney", distance:"800" }, ... ]
+ * }
  */
 function createHotelCard(hotelData) {
   const template = document.getElementById("hotelCardTemplate");
@@ -215,18 +210,16 @@ function createHotelCard(hotelData) {
     console.warn("Template #hotelCardTemplate não encontrado!");
     return document.createDocumentFragment();
   }
-
-  // Clona o conteúdo do template
   const clone = template.content.cloneNode(true);
 
-  // 1) Nome, endereço, datas/noites, preço
-  clone.querySelector(".hotel-name").textContent    = hotelData.name         || "";
-  clone.querySelector(".hotel-address").textContent = hotelData.address      || "";
-  clone.querySelector(".days-nights").textContent   = hotelData.daysNights   || "";
-  clone.querySelector(".price-starting").textContent= hotelData.priceFrom    || "";
+  // Campos básicos
+  clone.querySelector(".hotel-name").textContent = hotelData.name || "";
+  clone.querySelector(".hotel-address").textContent = hotelData.address || "";
+  clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
+  clone.querySelector(".price-starting").textContent = hotelData.priceFrom || "";
   clone.querySelector(".ten-installments").textContent = hotelData.installments || "";
 
-  // 2) Estrelas + valor numérico (rating)
+  // Estrelas
   const starEl = clone.querySelector(".stars");
   starEl.innerHTML = "";
   const r = Math.round(hotelData.ratingStars || 0);
@@ -238,12 +231,10 @@ function createHotelCard(hotelData) {
   }
   clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-  // 3) Facilities => se tiver um facilitiesMap global
+  // Facilities – usando o facilitiesMap definido em /js/facilitiesMap.js (deve estar carregado no HTML)
   const facDiv = clone.querySelector(".facility-icons");
   (hotelData.facilities || []).forEach(f => {
-    // Se você estiver usando window.facilitiesMap...
     if (window.facilitiesMap) {
-      // Normalize string
       const key = f.trim();
       const found = window.facilitiesMap[key];
       if (found) {
@@ -256,13 +247,11 @@ function createHotelCard(hotelData) {
         tt.textContent = found.pt;
         iconDiv.appendChild(tt);
         facDiv.appendChild(iconDiv);
-      } else {
-        // console.warn("Facility não mapeada:", key);
       }
     }
   });
 
-  // 4) Pontos de Interesse
+  // Pontos de interesse (POI)
   const poiUl = clone.querySelector(".poi-list");
   (hotelData.poiList || []).forEach(p => {
     const li = document.createElement("li");
@@ -271,28 +260,25 @@ function createHotelCard(hotelData) {
     poiUl.appendChild(li);
   });
 
-  // 5) Carrossel de imagens
+  // Carrossel de imagens – garante que as imagens sejam exibidas em formato quadrado via CSS (object-fit: cover)
   const track = clone.querySelector(".carousel-track");
   let currentSlide = 0;
   (hotelData.images || []).forEach(url => {
     const slide = document.createElement("div");
     slide.className = "carousel-slide";
+    // Aqui, se necessário, você pode definir dimensões fixas no CSS para que a imagem fique quadrada.
     slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
     track.appendChild(slide);
   });
-
   const prevBtn = clone.querySelector(".prev-button");
   const nextBtn = clone.querySelector(".next-button");
 
-  // Função interna para mover o carrossel
   function updateCarousel() {
     const slides = track.querySelectorAll(".carousel-slide");
     if (!slides.length) return;
     const w = slides[0].getBoundingClientRect().width;
     track.style.transform = `translateX(-${currentSlide * w}px)`;
   }
-
-  // Botões anterior/próximo
   prevBtn.addEventListener('click', () => {
     const slides = track.querySelectorAll(".carousel-slide");
     if (!slides.length) return;
@@ -305,28 +291,25 @@ function createHotelCard(hotelData) {
     currentSlide = (currentSlide + 1) % slides.length;
     updateCarousel();
   });
-  // Ajusta o carrossel ao redimensionar a tela
   window.addEventListener('resize', updateCarousel);
 
   return clone;
 }
 
-/* =========================================
-   C) FUNÇÃO buscarHoteis() => chama /api/hoteis
-========================================= */
+/* ---------- D) BUSCAR HOTÉIS ---------- */
 
 /**
- * Buscar hotéis no backend, usando:
- *  - datas do input #dataRangeHoteis
- *  - destino do input #destinoHoteis
- *  - roomsData (quartos)
- *  - exibe cards dentro de #hotelsList
+ * Função que busca hotéis no backend (/api/hoteis) usando:
+ * - Datas do input #dataRangeHoteis
+ * - Destino do input #destinoHoteis
+ * - Dados dos quartos (roomsData)
+ * Depois monta os cards e os insere no container #hotelsList.
  */
 async function buscarHoteis() {
-  const destination  = document.getElementById("destinoHoteis")?.value || "MCO";
-  const range        = document.getElementById("dataRangeHoteis")?.value || "";
+  const destination = document.getElementById("destinoHoteis")?.value || "MCO";
+  const range = document.getElementById("dataRangeHoteis")?.value || "";
   const hotelsListEl = document.getElementById("hotelsList");
-  const statusEl     = document.getElementById("status");
+  const statusEl = document.getElementById("status");
   const paginationEl = document.getElementById("pagination");
 
   if (!range) {
@@ -334,31 +317,31 @@ async function buscarHoteis() {
     return;
   }
 
-  // Converte "DD/MM/YYYY" -> "YYYY-MM-DD"
+  // Função auxiliar para converter "DD/MM/YYYY" para "YYYY-MM-DD"
   function toISO(dmy) {
-    const [d,m,y] = dmy.split("/");
-    return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+    const [d, m, y] = dmy.split("/");
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
   }
+
   let checkIn = "", checkOut = "";
   const parts = range.split(" ");
   if (parts.length >= 2) {
-    checkIn  = parts[0];             // "DD/MM/YYYY"
+    checkIn = parts[0];             // "DD/MM/YYYY"
     checkOut = parts[2] || parts[1]; // "DD/MM/YYYY"
   }
-  const isoIn  = toISO(checkIn);
+  const isoIn = toISO(checkIn);
   const isoOut = toISO(checkOut);
 
-  // Monta query com roomsData
-  // Exemplo: ?checkIn=2025-06-15&checkOut=2025-06-20&destination=MCO&rooms=1&page=1&limit=20&adults1=2&children1=0
+  // Monta a query string incluindo rooms
   let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}`;
   query += `&page=1&limit=20`;
   roomsData.forEach((r, i) => {
     const idx = i + 1;
     query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
-    // se quisesse mandar também as idades: &childAges${idx}=0,5,... -> mas depende do seu back
+    // Se precisar enviar idades: &childAges${idx}=0,5,...
   });
 
-  // Limpa resultados anteriores
+  // Limpa resultados anteriores e exibe status
   if (hotelsListEl) hotelsListEl.innerHTML = "";
   if (paginationEl) {
     paginationEl.innerHTML = "";
@@ -369,19 +352,17 @@ async function buscarHoteis() {
     statusEl.style.display = "block";
   }
 
-  // Exemplo de rota => "/api/hoteis"
-  const url = `/api/hoteis${query}`;
+  const url = `/api/hotelbeds/hotels${query}`;
   console.log("Chamando backend:", url);
 
   try {
     const resp = await fetch(url);
     if (!resp.ok) {
-      throw new Error(`Erro ao buscar /api/hoteis: HTTP ${resp.status}`);
+      throw new Error(`Erro ao buscar /api/hotelbeds/hotels: ${resp.status}`);
     }
     const data = await resp.json();
 
-    // Se o back retorna algo como { hotels: {hotels: [...]} }
-    // Ajuste se for { combined: [...] } ou outro nome
+    // Supondo que o backend retorne { hotels: {hotels: [...] } }
     const hotelsArr = data.hotels?.hotels || [];
     if (!hotelsArr.length) {
       if (statusEl) statusEl.textContent = "Nenhum hotel encontrado.";
@@ -389,14 +370,9 @@ async function buscarHoteis() {
     }
     if (statusEl) statusEl.style.display = "none";
 
-    // Monta cards
+    // Para cada hotel retornado, monta o card
     for (const rawHotel of hotelsArr) {
-      // Supondo que o back já junte booking+content e retorne algo do tipo:
-      // rawHotel = { code, name, categoryCode, minRate, content: {...} }
-      // Precisamos criar "hotelData" no formato esperado
-      // Exemplo: interpreta minRate etc. e gera priceFrom
-
-      // Exemplo simples: se minRate=185.5 => priceFrom="A partir de R$ 185.50"
+      // Processa os dados do hotel (Booking e Content)
       let priceLabel = "A partir de R$ ???";
       if (typeof rawHotel.minRate !== "undefined") {
         const pr = parseFloat(rawHotel.minRate);
@@ -405,82 +381,78 @@ async function buscarHoteis() {
         }
       }
 
-      // Exemplo: ratingStars a partir de categoryCode => "4EST"
+      // Define rating a partir do categoryCode (ex.: "4EST")
       let ratingNum = 0;
       if (rawHotel.categoryCode) {
         const match = rawHotel.categoryCode.match(/\d+/);
         if (match) ratingNum = parseInt(match[0], 10);
       }
+      if (!ratingNum) ratingNum = 3; // fallback
 
-      // Monta facilities => se vierem do .content.facilities
+      // Facilities: extraídas de rawHotel.content.facilities
       let facArr = [];
       if (rawHotel.content?.facilities?.length) {
-        facArr = rawHotel.content.facilities
-          // pegando no máximo 5
-          .slice(0, 5)
-          .map(f => f.description?.content?.trim() || "");
+        facArr = rawHotel.content.facilities.slice(0, 5)
+                  .map(f => f.description?.content?.trim() || "");
       }
 
-      // interestPoints => se vier do .content.interestPoints
-      let poiList = [];
+      // Pontos de interesse
+      let poiArr = [];
       if (rawHotel.content?.interestPoints?.length) {
-        poiList = rawHotel.content.interestPoints.map(ip => ({
+        poiArr = rawHotel.content.interestPoints.map(ip => ({
           poiName: ip.poiName || "Ponto de Interesse",
           distance: ip.distance || "0"
         }));
       }
 
-      // Imagens => se vier de rawHotel.content.images
+      // Imagens: Filtra imagens com type.code "HAB" (Room)
       let imagesArr = [];
       if (rawHotel.content?.images?.length) {
-        // filtrar type.code="HAB", senão pega tudo
-        const arr = rawHotel.content.images;
-        const roomImgs = arr.filter(img => img.type?.code === "HAB");
-        const finalImgs = roomImgs.length ? roomImgs : arr;
-        imagesArr = finalImgs.map(img => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
+        const roomImgs = rawHotel.content.images.filter(img => img.type?.code === "HAB");
+        const arr = roomImgs.length ? roomImgs : rawHotel.content.images;
+        imagesArr = arr.map(img => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
       } else {
-        imagesArr = ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
+        imagesArr = ["https://dummyimage.com/300x300/ccc/000.png&text=No+Image"];
       }
 
-      // Faz um calculo simples de daysNights
+      // Calcula dias/noites
       let daysNightsLabel = "";
       if (isoIn && isoOut) {
-        const d1 = new Date(isoIn), d2 = new Date(isoOut);
+        const d1 = new Date(isoIn);
+        const d2 = new Date(isoOut);
         const diffMs = d2 - d1;
         if (diffMs > 0) {
-          const diffDays = Math.round(diffMs / (1000*60*60*24));
-          daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays-1,1)} noite(s)`;
+          const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+          daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
         }
       }
 
-      // Monta o objeto "hotelData" esperado por createHotelCard
       const hotelObj = {
-        name:       rawHotel.name || "Hotel sem nome",
-        address:    rawHotel.content?.address?.street || "",
+        name: rawHotel.name || "Hotel sem nome",
+        address: rawHotel.content?.address?.street || "",
         ratingStars: ratingNum,
         ratingValue: ratingNum.toString(),
-        images:     imagesArr,
+        images: imagesArr,
         daysNights: daysNightsLabel,
-        priceFrom:  priceLabel,
-        installments: "Até 10x sem juros",  // exemplo fixo
+        priceFrom: priceLabel,
+        installments: "Até 10x sem juros",
         facilities: facArr,
-        poiList:    poiList
+        poiList: poiArr
       };
 
-      // Cria o card
       const cardEl = createHotelCard(hotelObj);
-      hotelsListEl?.appendChild(cardEl);
+      hotelsListEl.appendChild(cardEl);
     }
 
-    // Se back retorna data.totalPages, chama exibirPaginacao(data.totalPages,1)
-
-  } catch (err) {
-    console.error("Erro ao buscar hoteis:", err);
+    // Se o backend retornar totalPages, chame a função de paginação aqui (opcional)
+    // exibirPaginacao(data.totalPages || 1, 1);
+  } catch (e) {
+    console.error("Erro ao buscar hotéis:", e);
     if (statusEl) statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
 
-/** Exemplo de paginação (chame se seu backend devolver totalPages etc.)
+/* (Opcional) Função de paginação */
 function exibirPaginacao(totalPages, currentPage) {
   const pagEl = document.getElementById("pagination");
   if (!pagEl || totalPages <= 1) return;
@@ -489,15 +461,13 @@ function exibirPaginacao(totalPages, currentPage) {
   if (currentPage > 1) {
     const btnPrev = document.createElement("button");
     btnPrev.textContent = "Anterior";
-    btnPrev.onclick = () => buscarHoteis(/* currentPage - 1 * /);
+    btnPrev.onclick = () => buscarHoteis(currentPage - 1);
     pagEl.appendChild(btnPrev);
   }
-
   if (currentPage < totalPages) {
     const btnNext = document.createElement("button");
     btnNext.textContent = "Próxima Página";
-    btnNext.onclick = () => buscarHoteis(/* currentPage + 1 * /);
+    btnNext.onclick = () => buscarHoteis(currentPage + 1);
     pagEl.appendChild(btnNext);
   }
 }
-*/
