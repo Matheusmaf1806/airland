@@ -2,18 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Buscador Surreal de Lindo - Hotéis Ilimitados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscador Surreal de Lindo - Hotéis (Card Avançado)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- Fonte Montserrat -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- FONT: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
     rel="stylesheet"
   />
 
-  <!-- CSS do Flatpickr (apenas se quiser usar nas outras abas) -->
-  <link
+  <!-- Flatpickr (opcional, se quiser usar nas abas) -->
+  <link 
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
   />
@@ -24,41 +24,37 @@
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
-  <!-- (Opcional) Font Awesome, se precisar de ícones extras -->
-  <link
+  <!-- FONT AWESOME (para as estrelas, ícones etc.) -->
+  <link 
+    rel="stylesheet" 
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet"
   />
 
   <style>
-    /* RESET */
+    /* RESET E FONTE */
     * {
-      margin: 0;
-      padding: 0;
+      margin: 0; 
+      padding: 0; 
       box-sizing: border-box;
     }
-
-    /* Fonte Montserrat em tudo */
     html, body, input, select, button, textarea {
       font-family: 'Montserrat', sans-serif;
     }
-    ::placeholder {
+    ::placeholder { 
       color: #999; 
       opacity: 1;
     }
 
-    html, body {
+    body {
       width: 100%;
-      min-height: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       background: #f6f8fb;
       color: #333;
     }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
 
-    /* HERO SECTION */
+    /* HERO */
     .hero {
       width: 100%;
       height: 50vh;
@@ -67,8 +63,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #fff;
       text-align: center;
+      color: #fff;
       padding: 2rem;
     }
     .hero h1 {
@@ -81,7 +77,7 @@
       opacity: 0.9;
     }
 
-    /* CONTAINER DE BUSCA */
+    /* SEARCH CONTAINER */
     .search-container {
       position: relative;
       width: 90%;
@@ -116,17 +112,17 @@
       transition: background 0.3s, color 0.3s;
     }
     .tab .material-icons {
-      font-size: 1.1rem; 
-      vertical-align: middle; 
+      font-size: 1.1rem;
+      vertical-align: middle;
     }
     .tab.active {
       background: #0e65e0;
       color: #fff;
     }
 
-    /* CONTEÚDO DAS ABAS */
-    .tab-content { 
-      display: none; 
+    /* TAB CONTENT */
+    .tab-content {
+      display: none;
     }
     .tab-content.active {
       display: block;
@@ -137,7 +133,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORMULÁRIOS / CAMPOS */
+    /* FORMS */
     .form-group {
       display: flex;
       flex-wrap: wrap;
@@ -175,7 +171,6 @@
       flex: 0;
     }
 
-    /* BOTÃO DE PESQUISA */
     .search-button {
       background: #0e65e0;
       color: #fff;
@@ -193,7 +188,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* FLATPICKR (opcional, se quiser usar nas outras abas) */
+    /* FLATPICKR (opcional) */
     .flatpickr-calendar {
       border: 1px solid #ccc;
       border-radius: 0.5rem;
@@ -235,7 +230,7 @@
       color: #fff;
     }
 
-    /* ===== ABA HOTEIS (layout velho adaptado) ===== */
+    /* ABA HOTEIS (layout antigo) */
     .search-box {
       display: flex;
       flex-wrap: wrap;
@@ -265,10 +260,6 @@
       margin-bottom: 0.5rem;
       border-radius: 0.4rem;
     }
-    #roomsWrapper .room-row strong {
-      display: inline-block;
-      margin-right: 0.5rem;
-    }
     .remove-room-btn {
       background: #c0392b;
       color: #fff;
@@ -282,18 +273,17 @@
       background: #a83224;
     }
 
-    /* Lista e status */
-    #status.loading {
-      color: #0e65e0;
-      display: block;
+    /* LISTA DE HOTÉIS DINÂMICA + PAGINAÇÃO */
+    #status {
+      display: none;
       margin-bottom: 1rem;
     }
-    #hotelsList .hotel-item {
+    .hotel-item {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
       background: #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 0.5rem;
     }
     #pagination {
       display: none;
@@ -303,13 +293,245 @@
     #pagination button {
       padding: 0.5rem 1rem;
       border: none;
-      border-radius: 0.4rem;
+      border-radius: 4px;
       background: #eee;
       cursor: pointer;
     }
     #pagination button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+
+    /* ==============
+       TEMPLATE DO CARD
+       ============== */
+    .hotel-card-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .hotel-card {
+      display: flex;
+      flex-direction: row;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1200px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out;
+      gap: 20px;
+    }
+    .hotel-card:hover {
+      transform: translateY(-8px);
+    }
+    .hotel-image {
+      width: 300px;
+      max-width: 300px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      margin: -20px 0 -20px -20px;
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 0.4s ease-in-out;
+      width: 100%;
+      height: 100%;
+    }
+    .carousel-slide {
+      min-width: 100%;
+      overflow: hidden;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .carousel-slide img:hover {
+      transform: scale(1.04);
+    }
+    .carousel-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 2;
+      font-size: 1em;
+    }
+    .prev-button { left: 10px; }
+    .next-button { right: 10px; }
+    .hotel-info {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .hotel-name {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 5px;
+      margin-right: 100px;
+      margin-top: 15px;
+      line-height: 1.2;
+    }
+    .hotel-rating {
+      font-size: 1.1em;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stars {
+      color: #ffd700;
+      display: flex;
+    }
+    .stars .empty {
+      color: #ddd;
+    }
+    .rating-value {
+      font-size: 0.9em;
+      color: #333;
+    }
+    .rating-divider {
+      margin: 0 2px;
+      color: #ccc;
+      font-weight: 600;
+    }
+    .facility-icons {
+      display: flex;
+      gap: 8px;
+    }
+    .facility-icon {
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      position: relative;
+    }
+    .facility-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .facility-icon:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+    .tooltip {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 100%;
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    }
+    .hotel-address {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+    .hotel-details {
+      font-size: 1em;
+      color: #555;
+      line-height: 1.5;
+    }
+    .hotel-details li {
+      margin-bottom: 8px;
+      font-size: 1em;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+    .hotel-details li i {
+      color: #007aff;
+      margin-right: 10px;
+    }
+    .hotel-price {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: none;
+      border-left: 1px solid #ddd;
+      padding: 25px 25px 5px 30px;
+      gap: 10px;
+      text-align: left;
+      position: relative;
+    }
+    .pix-flag {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ff4d4d;
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 0 0 8px 0;
+    }
+    .days-nights {
+      font-size: 1.1em;
+      color: #333;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+    .price-starting {
+      font-size: 1.4em;
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .ten-installments {
+      font-size: 0.95em;
+      color: #555;
+    }
+    .btn-options {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 24px;
+      background-color: #007aff;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 1em;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+    }
+    .btn-options:hover {
+      background-color: #005bb5;
     }
   </style>
 </head>
@@ -321,8 +543,8 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
+  <!-- CONTAINER DE BUSCA COM TABS -->
   <div class="search-container">
-    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" data-tab="tab-ingressos">
         <span class="material-icons">local_activity</span> Ingressos
@@ -341,12 +563,12 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS (Exemplo Surreal) -->
+    <!-- ABA INGRESSOS (exemplo) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
           <label for="destinoIngresso">Destino ou Ingresso</label>
-          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
+          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque"/>
         </div>
         <div class="form-field">
           <label for="dataIngresso">Data</label>
@@ -358,7 +580,7 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS -> Com EXACTOS IDs pro hotels-list.js -->
+    <!-- ABA HOTEIS (layout antigo com checkIn, checkOut, etc.) -->
     <div id="tab-hoteis" class="tab-content">
       <div class="search-box">
         <label>Check-In:</label>
@@ -381,17 +603,17 @@
         <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
       </div>
 
-      <div id="status" class="loading" style="display:none;"></div>
+      <div id="status"></div>
       <div id="hotelsList"></div>
       <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- ABA CARROS (Surreal) -->
+    <!-- ABA CARROS -->
     <div id="tab-carros" class="tab-content">
       <div class="form-group">
         <div class="form-field">
           <label for="localRetirada">Local de Retirada</label>
-          <input type="text" id="localRetirada" placeholder="Aeroporto, cidade..." />
+          <input type="text" id="localRetirada" placeholder="Aeroporto, cidade..."/>
         </div>
         <div class="form-field">
           <label for="dataRetiradaCarros">Retirada</label>
@@ -420,7 +642,7 @@
         </div>
         <div class="form-field">
           <label for="dataTransfer">Data</label>
-          <input type="text" id="dataTransfer"/>
+          <input type="text" id="dataTransfer" />
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Transfer</button>
@@ -433,7 +655,7 @@
       <div class="form-group">
         <div class="form-field">
           <label for="regiaoSeguros">Região</label>
-          <input type="text" id="regiaoSeguros" placeholder="Europa, América do Norte..." />
+          <input type="text" id="regiaoSeguros" placeholder="Europa, América do Norte..."/>
         </div>
         <div class="form-field">
           <label for="embarqueSeguros">Embarque</label>
@@ -450,7 +672,40 @@
     </div>
   </div>
 
-  <!-- SEÇÃO DE DESTAQUE / OFERTAS (opcional) -->
+  <!-- TEMPLATE DO CARD (carrossel, etc.) -->
+  <template id="hotelCardTemplate">
+    <div class="hotel-card">
+      <div class="hotel-image">
+        <button class="carousel-button prev-button">&#10094;</button>
+        <button class="carousel-button next-button">&#10095;</button>
+        <div class="carousel-track"></div>
+      </div>
+      <div class="hotel-info">
+        <div>
+          <div class="hotel-name"></div>
+          <div class="hotel-rating">
+            <div class="stars"></div>
+            <span class="rating-value"></span>
+            <span class="rating-divider">|</span>
+            <div class="facility-icons"></div>
+          </div>
+          <div class="hotel-address"></div>
+          <div class="hotel-details">
+            <ul class="poi-list"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="hotel-price">
+        <div class="pix-flag">-5% no Pix</div>
+        <div class="days-nights"></div>
+        <div class="price-starting"></div>
+        <div class="ten-installments"></div>
+        <button class="btn-options">Visualizar opções</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Seção de Destaque (opcional) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
     <p style="color: #666; margin-bottom: 1rem;">
@@ -458,13 +713,269 @@
     </p>
   </section>
 
-  <!-- SCRIPT PRINCIPAL DE LÓGICA (hotels-list.js) -->
-  <script src="js/hotels-list.js"></script>
-
-  <!-- FLATPICKR (se quiser usar nas outras abas) -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <!-- SCRIPT (hotels-list + createHotelCard) -->
   <script>
+    /* 
+      1) Função de template (carrossel, rating, etc.)
+      2) Lógica hotels-list.js
+    */
+
+    // Mapeamento de facilidades => SVG
+    const facilitiesMap = {
+      // Exemplo:
+      "WiFi": {
+        pt: "Wi-Fi",
+        svg: `<svg width="20" height="20" viewBox="0 0 640 512"><path d="..."/></svg>`
+      },
+      // "Piscina", ...
+    };
+
+    // FUNÇÃO CREATE HOTEL CARD
+    function createHotelCard(hotelData) {
+      const template = document.getElementById("hotelCardTemplate");
+      if (!template) {
+        console.error("Template #hotelCardTemplate não encontrado!");
+        return document.createDocumentFragment();
+      }
+      const clone = template.content.cloneNode(true);
+
+      // Nome, address, etc.
+      clone.querySelector(".hotel-name").textContent    = hotelData.name     || "";
+      clone.querySelector(".hotel-address").textContent = hotelData.address  || "";
+      clone.querySelector(".days-nights").textContent   = hotelData.daysNights || "";
+      clone.querySelector(".price-starting").textContent= hotelData.priceFrom   || "";
+      clone.querySelector(".ten-installments").textContent = hotelData.installments || "";
+
+      // Estrelas
+      const starsEl = clone.querySelector(".stars");
+      starsEl.innerHTML = "";
+      const ratingStars = Math.round(hotelData.ratingStars||0);
+      for (let i=1; i<=5; i++) {
+        const star = document.createElement("i");
+        if (i <= ratingStars) {
+          star.classList.add("fas","fa-star");
+        } else {
+          star.classList.add("far","fa-star","empty");
+        }
+        starsEl.appendChild(star);
+      }
+      clone.querySelector(".rating-value").textContent = hotelData.ratingValue ?? "";
+
+      // POIs
+      const poiList = clone.querySelector(".poi-list");
+      poiList.innerHTML = "";
+      (hotelData.poiList || []).forEach(poi => {
+        const li = document.createElement("li");
+        li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${poi.poiName} - ${poi.distance} km`;
+        poiList.appendChild(li);
+      });
+
+      // Facilities
+      const facDiv = clone.querySelector(".facility-icons");
+      (hotelData.facilities||[]).forEach(f => {
+        const found = facilitiesMap[f];
+        if (found) {
+          const iconDiv = document.createElement("div");
+          iconDiv.className = "facility-icon";
+          iconDiv.innerHTML = found.svg;
+          const tt = document.createElement("div");
+          tt.className = "tooltip";
+          tt.textContent = found.pt;
+          iconDiv.appendChild(tt);
+          facDiv.appendChild(iconDiv);
+        }
+      });
+
+      // Carrossel
+      const track = clone.querySelector(".carousel-track");
+      let currentSlide = 0;
+      if (track) {
+        (hotelData.images||[]).forEach(url => {
+          const slide = document.createElement("div");
+          slide.className = "carousel-slide";
+          slide.innerHTML = `<img src="${url}" alt="Foto do Hotel" />`;
+          track.appendChild(slide);
+        });
+        const prevBtn = clone.querySelector(".prev-button");
+        const nextBtn = clone.querySelector(".next-button");
+
+        function updateCarousel() {
+          const slides = track.querySelectorAll(".carousel-slide");
+          if (!slides.length) return;
+          const w = slides[0].getBoundingClientRect().width;
+          track.style.transform = `translateX(-${currentSlide * w}px)`;
+        }
+        prevBtn.addEventListener("click", () => {
+          const slides = track.querySelectorAll(".carousel-slide");
+          if (!slides.length) return;
+          currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+          updateCarousel();
+        });
+        nextBtn.addEventListener("click", () => {
+          const slides = track.querySelectorAll(".carousel-slide");
+          if (!slides.length) return;
+          currentSlide = (currentSlide + 1) % slides.length;
+          updateCarousel();
+        });
+        window.addEventListener("resize", updateCarousel);
+      }
+
+      return clone;
+    }
+
+    // ============= LÓGICA "hotels-list.js" =============
+
+    const roomsWrapper = document.getElementById("roomsWrapper");
+    const statusEl = document.getElementById("status");
+    const hotelsListEl = document.getElementById("hotelsList");
+    const paginationEl = document.getElementById("pagination");
+    let currentPage = 1;
+
+    // Ao carregar, cria 1 quarto
+    window.addEventListener("DOMContentLoaded", () => {
+      adicionarQuarto();
+    });
+
+    function adicionarQuarto() {
+      const roomIndex = roomsWrapper.children.length + 1;
+      const div = document.createElement("div");
+      div.classList.add("room-row");
+
+      div.innerHTML = `
+        <strong>Quarto ${roomIndex}:</strong>
+        <label>Adultos:</label>
+        <select class="adultsSelect">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+        <label>Crianças:</label>
+        <select class="childrenSelect">
+          <option value="0" selected>0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
+        <button type="button" class="remove-room-btn">Remover</button>
+      `;
+      const removeBtn = div.querySelector(".remove-room-btn");
+      removeBtn.addEventListener("click", () => {
+        roomsWrapper.removeChild(div);
+        reindexRooms();
+      });
+      roomsWrapper.appendChild(div);
+      reindexRooms();
+    }
+
+    function reindexRooms() {
+      const rows = roomsWrapper.querySelectorAll(".room-row");
+      rows.forEach((row, idx) => {
+        const strongEl = row.querySelector("strong");
+        strongEl.textContent = `Quarto ${idx + 1}:`;
+      });
+    }
+
+    async function buscarHoteis(page=1) {
+      currentPage = page;
+      hotelsListEl.innerHTML = "";
+      statusEl.textContent = "Carregando hotéis...";
+      statusEl.style.display = "block";
+      paginationEl.style.display = "none";
+      paginationEl.innerHTML = "";
+
+      const checkIn = document.getElementById("checkIn").value;
+      const checkOut= document.getElementById("checkOut").value;
+      const destination = document.getElementById("destination").value || "MCO";
+
+      const roomRows = roomsWrapper.querySelectorAll(".room-row");
+      let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}&limit=20`;
+      roomRows.forEach((row, index) => {
+        const i = index + 1;
+        const adValue = row.querySelector(".adultsSelect").value;
+        const chValue = row.querySelector(".childrenSelect").value;
+        queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
+      });
+
+      const url = `/api/hotelbeds/hotels${queryString}`;
+      console.log("Requisição:", url);
+
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          throw new Error(`Erro ao buscar hotéis. Status: ${resp.status}`);
+        }
+        const data = await resp.json();
+
+        // Ex. data.hotels?.hotels = array
+        const hotelsArray = data.hotels?.hotels || [];
+        if (!hotelsArray.length) {
+          statusEl.textContent = "Nenhum hotel encontrado.";
+          return;
+        }
+        statusEl.style.display = "none";
+
+        for (const hotel of hotelsArray) {
+          // A segunda requisição p/ hotel-content
+          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
+          const contentData = await contentResp.json();
+          const content = contentData?.hotels?.[0] || {};
+
+          const name = content.name || hotel.name || "Hotel sem nome";
+          const category = content.categoryName || hotel.categoryName || hotel.categoryCode || "";
+
+          let imageUrl = "https://dummyimage.com/80x80/cccccc/000.png&text=No+Image";
+          if (content.images && content.images.length) {
+            imageUrl = `https://photos.hotelbeds.com/giata/bigger/${content.images[0].path}`;
+          }
+
+          // Monta o objeto p/ createHotelCard
+          const ratingNum = parseFloat(category.match(/\d+(\.\d+)?/))||3;
+          const hotelObj = {
+            name,
+            address: `Categoria: ${category}`,
+            ratingStars: ratingNum,
+            ratingValue: ratingNum.toString(),
+            images: [imageUrl], // Se tiver mais imagens, junte
+            daysNights: "2 dias e 1 noite", // Exemplo fixo ou dinamico
+            priceFrom: "A partir de R$ 800,00",
+            installments: "Até 10x sem juros",
+            poiList: [
+              {poiName:"Ponto A",distance:10},
+              {poiName:"Ponto B",distance:20}
+            ],
+            facilities: ["WiFi"] // Exemplo
+          };
+
+          const cardEl = createHotelCard(hotelObj);
+          hotelsListEl.appendChild(cardEl);
+        }
+
+        // Paginacao
+        exibirPaginacao(data.totalPages||1, currentPage);
+      } catch(err) {
+        console.error("Erro:", err);
+        statusEl.textContent = "Erro ao buscar hotéis. Veja o console.";
+      }
+    }
+
+    function exibirPaginacao(totalPages, currentPage) {
+      if (totalPages <= 1) return;
+      paginationEl.style.display = "flex";
+
+      if (currentPage > 1) {
+        const btnPrev = document.createElement("button");
+        btnPrev.textContent = "Anterior";
+        btnPrev.onclick = () => buscarHoteis(currentPage - 1);
+        paginationEl.appendChild(btnPrev);
+      }
+      if (currentPage < totalPages) {
+        const btnNext = document.createElement("button");
+        btnNext.textContent = "Próxima Página";
+        btnNext.onclick = () => buscarHoteis(currentPage + 1);
+        paginationEl.appendChild(btnNext);
+      }
+    }
+
     // TROCA DE ABAS
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -477,27 +988,16 @@
         document.getElementById(target).classList.add('active');
       });
     });
+  </script>
 
-    // Exemplo de uso do Flatpickr em Ingressos/Carros/Transfer/Seguros
+  <!-- Flatpickr (se for usar nas abas) -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <script>
+    // Exemplo de uso do Flatpickr nas outras abas
     flatpickr('#dataIngresso', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
-      minDate: 'today',
-      defaultDate: 'today'
-    });
-    flatpickr('#dataRetiradaCarros', {
-      locale: 'pt',
-      enableTime: true,
-      dateFormat: 'd/m/Y H:i',
-      time_24hr: true,
-      minDate: 'today',
-      defaultDate: 'today'
-    });
-    flatpickr('#dataDevolucaoCarros', {
-      locale: 'pt',
-      enableTime: true,
-      dateFormat: 'd/m/Y H:i',
-      time_24hr: true,
       minDate: 'today',
       defaultDate: 'today'
     });
@@ -507,21 +1007,22 @@
       minDate: 'today',
       defaultDate: 'today'
     });
-    flatpickr('#embarqueSeguros', {
+    flatpickr('#dataRetiradaCarros',{
       locale: 'pt',
-      dateFormat: 'd/m/Y',
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      time_24hr: true,
       minDate: 'today',
       defaultDate: 'today'
     });
-    flatpickr('#desembarqueSeguros', {
+    flatpickr('#dataDevolucaoCarros',{
       locale: 'pt',
-      dateFormat: 'd/m/Y',
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      time_24hr: true,
       minDate: 'today',
       defaultDate: 'today'
     });
-
-    // (Na aba Hotéis, deixamos do jeito do seu "antigo" layout, com type="date" 
-    //  e ID checkIn, checkOut, etc.)
   </script>
 </body>
 </html>
