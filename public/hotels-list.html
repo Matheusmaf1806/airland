@@ -2,49 +2,44 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Buscador Surreal de Lindo - Hotéis (Layout Avançado)</title>
+  <title>Buscador Surreal + Card Avançado</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <!-- Fonte Montserrat -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
     rel="stylesheet"
   />
 
-  <!-- Flatpickr (opcional, se quiser nas outras abas) -->
-  <link 
+  <!-- Flatpickr (se quiser) -->
+  <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
   />
 
-  <!-- MATERIAL ICONS -->
-  <link 
+  <!-- Material Icons -->
+  <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
-  <!-- FONT AWESOME (para estrelas, ícones etc.) -->
-  <link 
-    rel="stylesheet" 
+  <!-- Font Awesome (para estrelas e ícones) -->
+  <link
+    rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
   />
 
   <style>
     /* RESET E FONTE */
     * {
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
     html, body, input, select, button, textarea {
       font-family: 'Montserrat', sans-serif;
     }
-    ::placeholder { 
-      color: #999; 
-      opacity: 1;
-    }
-
     body {
       width: 100%;
       min-height: 100vh;
@@ -52,6 +47,10 @@
       flex-direction: column;
       background: #f6f8fb;
       color: #333;
+    }
+    ::placeholder {
+      color: #999; 
+      opacity: 1;
     }
 
     /* HERO */
@@ -133,7 +132,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORMS */
+    /* FORMULÁRIOS */
     .form-group {
       display: flex;
       flex-wrap: wrap;
@@ -188,49 +187,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* FLATPICKR (opcional) */
-    .flatpickr-calendar {
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    }
-    .flatpickr-months {
-      background: #f9f9f9;
-      border-bottom: 1px solid #eee;
-      padding: 0.5rem;
-    }
-    .flatpickr-current-month {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-    .flatpickr-day.disabled,
-    .flatpickr-day.prevMonthDay,
-    .flatpickr-day.nextMonthDay {
-      color: #ccc !important;
-      cursor: not-allowed !important;
-    }
-    .flatpickr-day.today {
-      background: #0e65e01a;
-      border: 1px solid #0e65e0;
-      color: #333;
-    }
-    .flatpickr-day.selected,
-    .flatpickr-day.startRange,
-    .flatpickr-day.endRange {
-      background: #0e65e0 !important;
-      color: #fff !important;
-    }
-    .flatpickr-day:hover {
-      background: #0e65e0;
-      color: #fff;
-    }
-    .flatpickr-day.inRange {
-      background: #0e65e07c;
-      color: #fff;
-    }
-
-    /* ABA HOTEIS (layout antigo) */
+    /* HOTÉIS (layout “antigo” p/ checkIn, checkOut, etc.) */
     .search-box {
       display: flex;
       flex-wrap: wrap;
@@ -273,7 +230,7 @@
       background: #a83224;
     }
 
-    /* LISTA DE HOTÉIS DINÂMICA + PAGINAÇÃO */
+    /* LISTA / PAGINAÇÃO */
     #status {
       display: none;
       margin-bottom: 1rem;
@@ -296,7 +253,7 @@
     }
 
     /* ==============
-       TEMPLATE DO CARD
+       TEMPLATE DO CARD (carrossel, etc.)
        ============== */
     .hotel-card-container {
       display: flex;
@@ -526,6 +483,7 @@
     .btn-options:hover {
       background-color: #005bb5;
     }
+
   </style>
 </head>
 <body>
@@ -536,9 +494,8 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- CONTAINER DE BUSCA -->
+  <!-- CONTAINER COM TABS -->
   <div class="search-container">
-    <!-- TABS -->
     <div class="tabs">
       <div class="tab active" data-tab="tab-ingressos">
         <span class="material-icons">local_activity</span> Ingressos
@@ -557,7 +514,7 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS (só exemplo) -->
+    <!-- ABA INGRESSOS (exemplo) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -574,7 +531,7 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS (layout antigo) -->
+    <!-- ABA HOTEIS -->
     <div id="tab-hoteis" class="tab-content">
       <div class="search-box">
         <label>Check-In:</label>
@@ -587,7 +544,7 @@
         <input type="text" id="destination" placeholder="MCO">
       </div>
 
-      <div class="occupancies" id="occupanciesContainer">
+      <div class="occupancies">
         <h2>Quartos / Ocupações</h2>
         <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
         <div id="roomsWrapper"></div>
@@ -602,26 +559,10 @@
       <div id="pagination" class="pagination"></div>
     </div>
 
-    <!-- ABAS CARROS, TRANSFER, SEGUROS... -->
-    <div id="tab-carros" class="tab-content">
-      <div class="form-group">
-        <div class="form-field">
-          <label for="dataRetiradaCarros">Retirada</label>
-          <input type="text" id="dataRetiradaCarros"/>
-        </div>
-        <div class="form-field">
-          <label for="dataDevolucaoCarros">Devolução</label>
-          <input type="text" id="dataDevolucaoCarros"/>
-        </div>
-        <div class="form-field button-field">
-          <button class="search-button">Buscar Carros</button>
-        </div>
-      </div>
-    </div>
-    <!-- Transfer, Seguros etc. (omiti conteúdo para brevidade) -->
+    <!-- ABAS CARROS, TRANSFER, SEGUROS (omitido para brevidade) -->
   </div>
 
-  <!-- TEMPLATE DO CARD (carrossel, estrelas, etc.) -->
+  <!-- TEMPLATE DO CARD (carrossel, etc.) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card">
       <div class="hotel-image">
@@ -654,49 +595,63 @@
     </div>
   </template>
 
-  <!-- Seção de Destaques -->
+  <!-- Seção Destaques (opcional) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
     <p style="color: #666; margin-bottom: 1rem;">
       Explore nossas ofertas imperdíveis para destinos incríveis.
     </p>
-    <!-- ... -->
   </section>
 
-  <!-- SCRIPT UNIFICADO (createHotelCard + hotels-list) -->
+  <!-- FLATPICKR + LÓGICA FINAL -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script>
-    // 1) MAPA DE FACILIDADES -> SVG
+    // Se quiser datas em Ingressos
+    flatpickr('#dataIngresso', {
+      locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
+    });
+
+    // TROCA DE ABAS
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+
+    // =========================================
+    // CREATE HOTEL CARD (layout avançado)
+    // =========================================
     const facilitiesMap = {
-      "Year of most recent renovation": {
-        pt: "Ano da última renovação",
-        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">...svg...</svg>`
+      "Wi-fi": {
+        pt: "Wi-Fi",
+        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"> ... </svg>`
       },
-      // etc. 
+      // Adicione se quiser: "American Express": {...}, etc.
     };
 
-    // 2) FUNÇÃO CREATE HOTEL CARD
     function createHotelCard(hotelData) {
       const template = document.getElementById("hotelCardTemplate");
-      if (!template) {
-        console.error("Template não encontrado!");
-        return document.createDocumentFragment();
-      }
-      const clone = template.content.cloneNode(true);
+      if (!template) return document.createDocumentFragment();
 
-      // Nome, endereço, diárias, etc.
+      const clone = template.content.cloneNode(true);
       clone.querySelector(".hotel-name").textContent    = hotelData.name || "";
       clone.querySelector(".hotel-address").textContent = hotelData.address || "";
       clone.querySelector(".days-nights").textContent   = hotelData.daysNights || "";
       clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
-      clone.querySelector(".ten-installments").textContent = hotelData.installments || "";
+      clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
 
       // Estrelas
       const starContainer = clone.querySelector(".stars");
       starContainer.innerHTML = "";
       const ratingStars = Math.round(hotelData.ratingStars || 0);
-      for (let i=1; i<=5; i++) {
+      for (let i = 1; i <= 5; i++) {
         const star = document.createElement("i");
         if (i <= ratingStars) star.classList.add("fas","fa-star");
         else star.classList.add("far","fa-star","empty");
@@ -704,30 +659,32 @@
       }
       clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-      // POIs
-      const poiList = clone.querySelector(".poi-list");
-      poiList.innerHTML = "";
-      (hotelData.poiList||[]).forEach(poi => {
+      // Facilities
+      const facDiv = clone.querySelector(".facility-icons");
+      if (hotelData.facilities) {
+        hotelData.facilities.forEach(f => {
+          const found = facilitiesMap[f];
+          if (found) {
+            const iconDiv = document.createElement("div");
+            iconDiv.className = "facility-icon";
+            iconDiv.innerHTML = found.svg;
+
+            const tt = document.createElement("div");
+            tt.className = "tooltip";
+            tt.textContent = found.pt;
+            iconDiv.appendChild(tt);
+
+            facDiv.appendChild(iconDiv);
+          }
+        });
+      }
+
+      // PoiList
+      const poiUl = clone.querySelector(".poi-list");
+      (hotelData.poiList || []).forEach(poi => {
         const li = document.createElement("li");
         li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${poi.poiName} - ${poi.distance} km`;
-        poiList.appendChild(li);
-      });
-
-      // Facilities
-      const facilityDiv = clone.querySelector(".facility-icons");
-      (hotelData.facilities||[]).forEach(key => {
-        const found = facilitiesMap[key];
-        if (found) {
-          const iconDiv = document.createElement("div");
-          iconDiv.className = "facility-icon";
-          iconDiv.innerHTML = found.svg;
-          // tooltip
-          const tt = document.createElement("div");
-          tt.className = "tooltip";
-          tt.textContent = found.pt;
-          iconDiv.appendChild(tt);
-          facilityDiv.appendChild(iconDiv);
-        }
+        poiUl.appendChild(li);
       });
 
       // Carrossel
@@ -760,26 +717,29 @@
         currentSlide = (currentSlide + 1) % slides.length;
         updateCarousel();
       });
-      window.addEventListener("resize", updateCarousel);
+      window.addEventListener('resize', updateCarousel);
 
       return clone;
     }
 
-    // 3) LÓGICA DE HOTELS-LIST
-    const roomsWrapper = document.getElementById("roomsWrapper");
-    const statusEl = document.getElementById("status");
-    const hotelsListEl = document.getElementById("hotelsList");
-    const paginationEl = document.getElementById("pagination");
+    // =========================================
+    // HOTELS-LIST LOGIC
+    // =========================================
+    const roomsWrapper   = document.getElementById("roomsWrapper");
+    const statusEl       = document.getElementById("status");
+    const hotelsListEl   = document.getElementById("hotelsList");
+    const paginationEl   = document.getElementById("pagination");
     let currentPage = 1;
 
-    window.addEventListener("DOMContentLoaded", () => {
+    // Ao carregar, cria 1 quarto
+    document.addEventListener("DOMContentLoaded", () => {
       adicionarQuarto();
     });
 
     function adicionarQuarto() {
       const roomIndex = roomsWrapper.children.length + 1;
       const div = document.createElement("div");
-      div.className = "room-row";
+      div.classList.add("room-row");
       div.innerHTML = `
         <strong>Quarto ${roomIndex}:</strong>
         <label>Adultos:</label>
@@ -808,41 +768,54 @@
     function reindexRooms() {
       const rows = roomsWrapper.querySelectorAll(".room-row");
       rows.forEach((row, idx) => {
-        const strongEl = row.querySelector("strong");
-        strongEl.textContent = `Quarto ${idx + 1}:`;
+        row.querySelector("strong").textContent = `Quarto ${idx+1}:`;
       });
     }
 
     async function buscarHoteis(page=1) {
       currentPage = page;
-      hotelsListEl.innerHTML = "";
-      paginationEl.innerHTML = "";
+      hotelsListEl.innerHTML   = "";
+      paginationEl.innerHTML   = "";
       paginationEl.style.display = "none";
-      statusEl.textContent = "Carregando hotéis...";
-      statusEl.style.display = "block";
+      statusEl.textContent     = "Carregando hotéis...";
+      statusEl.style.display   = "block";
 
       const checkIn = document.getElementById("checkIn").value;
       const checkOut= document.getElementById("checkOut").value;
       const destination = document.getElementById("destination").value || "MCO";
 
-      // Monta query
+      // 1) Cálculo de daysNights
+      let daysNightsLabel = "";
+      try {
+        const d1 = new Date(checkIn);
+        const d2 = new Date(checkOut);
+        const diffMs = d2 - d1;
+        if (diffMs > 0) {
+          const diffDays = Math.round(diffMs / (1000*60*60*24));
+          daysNightsLabel = `${diffDays} dias e ${diffDays-1} noite(s)`;
+        }
+      } catch(e){ console.warn("Erro calculando dias/noites", e); }
+
+      // 2) Montar query
       const roomRows = roomsWrapper.querySelectorAll(".room-row");
       let queryString = `?checkIn=${checkIn}&checkOut=${checkOut}&destination=${destination}&rooms=${roomRows.length}&page=${page}&limit=20`;
-      roomRows.forEach((row, index) => {
-        const i = index+1;
+      roomRows.forEach((row, idx) => {
+        const i = idx+1;
         const adValue = row.querySelector(".adultsSelect").value;
         const chValue = row.querySelector(".childrenSelect").value;
         queryString += `&adults${i}=${adValue}&children${i}=${chValue}`;
       });
       const url = `/api/hotelbeds/hotels${queryString}`;
-      console.log("Requisição:", url);
+      console.log("Requisição Booking API:", url);
 
       try {
+        // 3) Fetch BOOKING API
         const resp = await fetch(url);
         if (!resp.ok) {
-          throw new Error(`Erro. Status: ${resp.status}`);
+          throw new Error(`Erro Booking API. Status: ${resp.status}`);
         }
         const data = await resp.json();
+
         const hotelsArray = data.hotels?.hotels || [];
         if (!hotelsArray.length) {
           statusEl.textContent = "Nenhum hotel encontrado.";
@@ -850,72 +823,116 @@
         }
         statusEl.style.display = "none";
 
-        // Para cada hotel, chama content API
         for (const hotel of hotelsArray) {
-          // Pegar content
-          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotel.code}`);
-          const contentData = await contentResp.json();
-          const content = contentData?.hotel || {}; // ex: {name, facilities, images, etc.}
+          // Ex: hotel.code, hotel.name, hotel.categoryCode/categoryName, hotel.minRate
+          const hotelCode = hotel.code;
 
-          // Montar o objeto para createHotelCard
-          const name = content?.name?.content || hotel.name || "Hotel Sem Nome";
-          // Exemplo: S2C ou category
-          const categoryString = content?.category?.description?.content || "";
-          const ratingNum = parseFloat(categoryString.match(/\d+(\.\d+)?/)) || 3;
-          // Pegar imagens
+          // 4) Consumir CONTENT API
+          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`);
+          if (!contentResp.ok) {
+            console.warn("Falhou content pra hotel code=", hotelCode);
+            continue;
+          }
+          const contentData = await contentResp.json();
+          const content = contentData?.hotel || {};
+
+          // (A) Nome
+          const name = content.name?.content || hotel.name || "Hotel Sem Nome";
+
+          // (B) Endereço
+          const street = content.address?.street || ""; 
+          const city   = content.city?.content || "";
+          let addressFull = street;
+          if (city) addressFull += addressFull ? `, ${city}` : city;
+
+          // (C) Rating (ex: categoryCode = "4EST" ou content.category.description.content = "4 STARS")
+          let ratingNum = 0;
+          if (hotel.categoryCode) {
+            // ex: "4EST" => extrair 4
+            const match = hotel.categoryCode.match(/\d+/);
+            if (match) ratingNum = parseInt(match[0],10);
+          } else if (hotel.categoryName) {
+            // ex: "4 STARS"
+            const match2 = hotel.categoryName.match(/\d+(\.\d+)?/);
+            if (match2) ratingNum = parseFloat(match2[0]);
+          }
+          // Ou ver no content.category
+          if (!ratingNum && content.category?.description?.content) {
+            const catStr = content.category.description.content;
+            const match3 = catStr.match(/\d+(\.\d+)?/);
+            if (match3) ratingNum = parseFloat(match3[0]);
+          }
+          if (!ratingNum) ratingNum = 3; // fallback
+
+          // (D) Imagens => filtra as que tem type.code === "HAB" ou pega a 1a?
           let imagesArr = [];
-          if (content.images?.length) {
-            imagesArr = content.images.map(img => {
-              // ex: `https://photos.hotelbeds.com/giata/bigger/${img.path}`
-              return `https://photos.hotelbeds.com/giata/xl/${img.path}`;
-            });
+          if (content.images && content.images.length) {
+            // filtra as do tipo HAB
+            const roomImages = content.images.filter(img => 
+              img.type?.code === "HAB"
+            );
+            const arr = roomImages.length ? roomImages : content.images;
+            // extrai path
+            imagesArr = arr.map(img => 
+              `https://photos.hotelbeds.com/giata/xl/${img.path}`
+            );
           } else {
             imagesArr = ["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
           }
 
-          const addressStr = content.address?.content || "";
-          const cityStr = content.city?.content || "";
-          const fullAddress = (addressStr && cityStr)
-            ? `${addressStr}, ${cityStr}`
-            : (addressStr || cityStr);
-
-          // Mapeamento de facilities do content => array de strings
-          // Por exemplo, se facilityCode=10 e description="Air conditioning in public areas"
-          // decida quais keys você quer mapear
+          // (E) facilities => array de "Wi-fi", "American Express", etc.
           let facilitiesArr = [];
-          if (content.facilities?.length) {
-            // Pegue description?.content
+          if (content.facilities && content.facilities.length) {
+            // Pega 1a 5
             facilitiesArr = content.facilities.slice(0,5).map(f => f.description?.content || "");
           }
 
-          // Cria o card
+          // (F) interestPoints => content.interestPoints
+          let poiListArr = [];
+          if (content.interestPoints && content.interestPoints.length) {
+            // Ex: interestPoints: [ {poiName, distance}, ...]
+            poiListArr = content.interestPoints.map(ip => ({
+              poiName: ip.poi?.content || "Unknown POI",
+              distance: ip.distance || 0
+            }));
+          }
+
+          // (G) priceFrom => minRate
+          const priceLabel = hotel.minRate
+            ? `A partir de R$ ${hotel.minRate.toFixed(2)}`
+            : "A partir de R$ ???";
+
+          // Monta "hotelObj"
           const hotelObj = {
             name,
-            address: `Categoria: ${categoryString}\n${fullAddress}`,
+            address: addressFull,
             ratingStars: ratingNum,
             ratingValue: ratingNum.toString(),
             images: imagesArr,
-            daysNights: "2 dias e 1 noite",  // Exemplo
-            priceFrom: "A partir de R$ 800,00",
+            daysNights: daysNightsLabel || "Várias noites",
+            priceFrom: priceLabel,
             installments: "Até 10x sem juros",
             facilities: facilitiesArr,
-            poiList: [] // se quiser popular proximidades
+            poiList: poiListArr
           };
+
+          // Cria o card e injeta
           const cardEl = createHotelCard(hotelObj);
           hotelsListEl.appendChild(cardEl);
         }
 
-        // Exibir paginação
-        exibirPaginacao(data.totalPages || 1, page);
+        // exibir paginacao
+        exibirPaginacao(data.totalPages||1, page);
       } catch(err) {
         console.error(err);
-        statusEl.textContent = "Erro ao buscar hotéis. Veja console.";
+        statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
       }
     }
 
     function exibirPaginacao(totalPages, current) {
       if (totalPages <= 1) return;
       paginationEl.style.display = "flex";
+
       if (current > 1) {
         const btnPrev = document.createElement("button");
         btnPrev.textContent = "Anterior";
@@ -929,32 +946,6 @@
         paginationEl.appendChild(btnNext);
       }
     }
-
-    // TROCA DE ABAS
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(tc => tc.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.getAttribute('data-tab');
-        document.getElementById(target).classList.add('active');
-      });
-    });
-
-    // EXEMPLO de uso do Flatpickr
-    flatpickr('#dataIngresso', {
-      locale: 'pt', dateFormat: 'd/m/Y', minDate: 'today', defaultDate: 'today'
-    });
-    flatpickr('#dataRetiradaCarros',{
-      locale: 'pt', enableTime: true, dateFormat: 'd/m/Y H:i', time_24hr: true,
-      minDate: 'today', defaultDate: 'today'
-    });
-    flatpickr('#dataDevolucaoCarros',{
-      locale: 'pt', enableTime: true, dateFormat: 'd/m/Y H:i', time_24hr: true,
-      minDate: 'today', defaultDate: 'today'
-    });
   </script>
 </body>
 </html>
