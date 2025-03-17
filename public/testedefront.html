@@ -1,116 +1,1160 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalhes do Hotel</title>
-  <link rel="stylesheet" href="styles.css"> <!-- Seu arquivo CSS -->
-</head>
-<body>
-  <!-- Header -->
-  <div id="header"></div>
+  <meta charset="UTF-8" />
+  <title>Buscador Surreal de Lindo - Hotéis (Layout + Dropdown Quartos)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <!-- Loading -->
-  <div id="loading" style="display: block;">
-    <img src="/loading.html" alt="Carregando...">
-  </div>
+  <!-- Fonte Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
-  <!-- Card de Hotel -->
-  <div id="hotel-card" style="display: none;">
-    <div class="hotel-card">
-      <!-- Imagem -->
-      <div class="hotel-image">
-        <img id="hotel-image" src="" alt="Imagem do Hotel">
-      </div>
+  <!-- Flatpickr (para datas na aba Hotéis, Ingressos, etc.) -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
 
-      <!-- Nome do Hotel -->
-      <div class="hotel-name">
-        <h2 id="hotel-name">Courtyard By Marriott Aventura Mall</h2>
-      </div>
+  <!-- MATERIAL ICONS (para ícones das abas) -->
+  <link 
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
 
-      <!-- Rating -->
-      <div class="hotel-rating">
-        <span id="hotel-rating">4 Estrelas</span>
-      </div>
+  <!-- Font Awesome (para estrelas e ícones no card) -->
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
 
-      <!-- Endereço -->
-      <div class="hotel-address">
-        <p id="hotel-address">2825 Ne 191St St, Aventura, FL, Estados Unidos</p>
-      </div>
-
-      <!-- Pontos Interessantes -->
-      <div class="hotel-interest-points">
-        <h3>Pontos de Interesse:</h3>
-        <ul id="interest-points">
-          <li>Dave & Buster's - 13.84 km</li>
-          <li>Jungle Island - 28.32 km</li>
-        </ul>
-      </div>
-
-      <!-- Preço -->
-      <div class="hotel-price">
-        <p id="price-per-night">Preço por diária: R$ 500,00</p>
-        <p id="price-installments">Em até 10x de R$ 50,00 sem juros</p>
-        <p id="pix-discount">5% OFF no Pix</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script>
-    // Mock dos dados recebidos da API
-    const hotelData = {
-      images: [{ path: "08/089383/089383a_hb_a_010.jpg" }],
-      name: "Courtyard By Marriott Aventura Mall",
-      category: { description: { content: "4 STARS" } },
-      address: { content: "2825 Ne 191St St" },
-      interestPoints: [
-        { poiName: "Dave & Buster's", distance: "13840" },
-        { poiName: "Jungle Island", distance: "28324" }
-      ],
-      pricePerNight: 500,
-      currency: "BRL"
-    };
-
-    // Função para converter milhas para km
-    function milesToKm(miles) {
-      return (miles * 1.60934).toFixed(2);
+  <style>
+    /* RESET + Fonte Montserrat */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+    html, body, input, select, button, textarea {
+      font-family: 'Montserrat', sans-serif;
+    }
+    body {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f6f8fb;
+      color: #333;
+    }
+    ::placeholder {
+      color: #999; 
+      opacity: 1;
     }
 
-    // Atualizando o card com os dados do hotel
-    window.onload = function() {
-      // Esconder loading
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('hotel-card').style.display = 'block';
+    /* HERO */
+    .hero {
+      width: 100%;
+      height: 50vh;
+      background: linear-gradient(to bottom right, #0e65e0, #1f3070);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      padding: 2rem;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
 
-      // Definindo a imagem
-      const imageUrl = `https://photos.hotelbeds.com/giata/xl/${hotelData.images[0].path}`;
-      document.getElementById('hotel-image').src = imageUrl;
+    /* CONTAINER DAS ABAS */
+    .search-container {
+      position: relative;
+      width: 90%;
+      max-width: 1200px;
+      margin: -4rem auto 2rem auto;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      border-radius: 1rem;
+      padding: 1.5rem 2rem;
+      z-index: 10;
+    }
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 0.5rem 0.5rem 0 0;
+      color: #555;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .tab .material-icons {
+      font-size: 1.1rem;
+      vertical-align: middle;
+    }
+    .tab.active {
+      background: #0e65e0;
+      color: #fff;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-      // Nome do hotel
-      document.getElementById('hotel-name').innerText = hotelData.name;
+    /* FORMULÁRIOS (Exemplo) */
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: flex-end;
+    }
+    .form-field {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      position: relative; /* importante para dropdowns */
+    }
+    .form-field label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+    .form-field input,
+    .form-field select {
+      padding: 0.7rem;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 0.4rem;
+      outline: none;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: #0e65e0;
+      box-shadow: 0 0 0 2px rgba(14,101,224,0.1);
+    }
+    .form-field.button-field {
+      flex: 0;
+    }
 
-      // Rating
-      document.getElementById('hotel-rating').innerText = hotelData.category.description.content;
+    .search-button {
+      background: #0e65e0;
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s;
+      margin-top: 0.5rem;
+    }
+    .search-button:hover {
+      background: #0b4ea9;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-      // Endereço
-      document.getElementById('hotel-address').innerText = hotelData.address.content;
+    /* ================
+       DROPDOWN DE MÚLTIPLOS QUARTOS
+       ================ */
+    .quartos-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 0.4rem;
+      padding: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 9999;
+    }
+    .quartos-dropdown.active {
+      display: block;
+    }
+    .qd-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .qd-counter {
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem;
+    }
+    .qd-counter button {
+      width: 30px; 
+      height: 30px; 
+      border: 1px solid #ccc; 
+      background: #fff;
+      font-size: 1.2rem; 
+      cursor: pointer; 
+      border-radius: 50%;
+    }
+    .qd-rooms-container {
+      max-height: 300px; 
+      overflow-y: auto; 
+      margin-bottom: 1rem;
+    }
+    .qd-room-block {
+      padding: 0.75rem 0;
+      border-top: 1px solid #eee;
+    }
+    .qd-room-block:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+    .qd-room-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .qd-room-block .qd-row {
+      margin-bottom: 0.5rem;
+    }
+    .qd-label { 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+    }
+    .children-ages select {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    .qd-apply {
+      text-align: right;
+    }
+    .qd-apply button {
+      background: #0e65e0;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 0.4rem;
+      cursor: pointer;
+    }
 
-      // Pontos de interesse
-      const interestPointsList = document.getElementById('interest-points');
-      hotelData.interestPoints.forEach(point => {
-        const listItem = document.createElement('li');
-        const distanceInKm = milesToKm(parseFloat(point.distance) / 1000);
-        listItem.innerText = `${point.poiName} - ${distanceInKm} km`;
-        interestPointsList.appendChild(listItem);
+    /* ================
+       CUSTOMIZAÇÃO FLATPICKR
+       ================ */
+    .flatpickr-calendar {
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .flatpickr-months {
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+      padding: 0.5rem;
+    }
+    .flatpickr-current-month {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .flatpickr-day.disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      color: #ccc !important;
+      cursor: not-allowed !important;
+    }
+    .flatpickr-day.today {
+      background: #0e65e01a;
+      border: 1px solid #0e65e0;
+      color: #333;
+    }
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #0e65e0 !important;
+      color: #fff !important;
+    }
+    .flatpickr-day:hover {
+      background: #0e65e0;
+      color: #fff;
+    }
+    .flatpickr-day.inRange {
+      background: #0e65e07c;
+      color: #fff;
+    }
+
+    /* STATUS E PAGINAÇÃO (p/ exibir lista e botões) */
+    #status {
+      margin-top: 1rem; 
+      display: none;
+    }
+    .hotels-list {
+      margin-top: 1rem;
+    }
+    .hotel-card-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    #pagination {
+      display: none;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    #pagination button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #eee;
+      cursor: pointer;
+    }
+    #pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* HOTEL CARD AVANÇADO: (carrossel, facilidades, etc.) */
+    .hotel-card {
+      display: flex;
+      flex-direction: row;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 1200px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease-in-out;
+      gap: 20px;
+    }
+    .hotel-card:hover {
+      transform: translateY(-8px);
+    }
+    .hotel-image {
+      width: 300px;
+      max-width: 300px;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      margin: -20px 0 -20px -20px; 
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 0.4s ease-in-out;
+      width: 100%;
+      height: 100%;
+    }
+    .carousel-slide {
+      min-width: 100%;
+      overflow: hidden;
+    }
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .carousel-slide img:hover {
+      transform: scale(1.04);
+    }
+    .carousel-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 2;
+      font-size: 1em;
+    }
+    .prev-button { left: 10px; }
+    .next-button { right: 10px; }
+    .hotel-info {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .hotel-name {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 5px;
+      margin-right: 100px;
+      margin-top: 15px;
+      line-height: 1.2;
+    }
+    .hotel-rating {
+      font-size: 1.1em;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stars {
+      color: #ffd700;
+      display: flex;
+    }
+    .stars .empty {
+      color: #ddd;
+    }
+    .rating-value {
+      font-size: 0.9em;
+      color: #333;
+    }
+    .rating-divider {
+      margin: 0 2px;
+      color: #ccc;
+      font-weight: 600;
+    }
+    .facility-icons {
+      display: flex;
+      gap: 8px;
+    }
+    .facility-icon {
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      position: relative;
+    }
+    .facility-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .facility-icon:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+    .tooltip {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, 10px);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 100%;
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    }
+    .hotel-address {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+    .hotel-details {
+      font-size: 1em;
+      color: #555;
+      line-height: 1.5;
+    }
+    .hotel-details li {
+      margin-bottom: 8px;
+      font-size: 1em;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+    .hotel-details li i {
+      color: #007aff;
+      margin-right: 10px;
+    }
+    .hotel-price {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: none;
+      border-left: 1px solid #ddd;
+      padding: 25px 25px 5px 30px;
+      gap: 10px;
+      text-align: left;
+      position: relative;
+    }
+    .pix-flag {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ff4d4d;
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 0 0 8px 0;
+    }
+    .days-nights {
+      font-size: 1.1em;
+      color: #333;
+      font-weight: 600;
+      margin-top: 15px;
+    }
+    .price-starting {
+      font-size: 1.4em;
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .ten-installments {
+      font-size: 0.95em;
+      color: #555;
+    }
+    .btn-options {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 24px;
+      background-color: #007aff;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 1em;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: none;
+    }
+    .btn-options:hover {
+      background-color: #005bb5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Sua Próxima Aventura</h1>
+    <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
+  </section>
+
+  <div class="search-container">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" data-tab="tab-ingressos">
+        <span class="material-icons">local_activity</span> Ingressos
+      </div>
+      <div class="tab" data-tab="tab-hoteis">
+        <span class="material-icons">hotel</span> Hotéis
+      </div>
+      <div class="tab" data-tab="tab-carros">
+        <span class="material-icons">directions_car</span> Carros
+      </div>
+      <div class="tab" data-tab="tab-transfer">
+        <span class="material-icons">compare_arrows</span> Transfer
+      </div>
+      <div class="tab" data-tab="tab-seguros">
+        <span class="material-icons">shield</span> Seguros
+      </div>
+    </div>
+
+    <!-- ABA INGRESSOS (exemplo) -->
+    <div id="tab-ingressos" class="tab-content active">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoIngresso">Destino ou Ingresso</label>
+          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque"/>
+        </div>
+        <div class="form-field">
+          <label for="dataIngresso">Data</label>
+          <input type="text" id="dataIngresso"/>
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button">Buscar Ingressos</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA HOTEIS (range 2 meses + multiplos quartos via dropdown) -->
+    <div id="tab-hoteis" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoHoteis">Destino</label>
+          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
+        </div>
+        <div class="form-field">
+          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
+          <input type="text" id="dataRangeHoteis" />
+        </div>
+        <div class="form-field">
+          <label for="quartos">Quartos e Pessoas</label>
+          <input 
+            type="text" 
+            id="quartos" 
+            placeholder="Clique para escolher"
+            readonly
+          />
+          <!-- Dropdown que abre ao clicar no input -->
+          <div id="quartosDropdown" class="quartos-dropdown">
+            <!-- Linha para aumentar/diminuir total de QUARTOS -->
+            <div class="qd-row">
+              <span>Quartos</span>
+              <div class="qd-counter">
+                <button type="button" id="roomsMinus">-</button>
+                <span id="roomsTotal">1</span>
+                <button type="button" id="roomsPlus">+</button>
+              </div>
+            </div>
+            <!-- Container com os blocos de cada quarto -->
+            <div class="qd-rooms-container" id="roomsContainer"></div>
+            <!-- Botão Aplicar -->
+            <div class="qd-apply">
+              <button type="button" id="applyQuartos">Aplicar</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+        </div>
+      </div>
+
+      <!-- Exibir status, lista e paginação -->
+      <div id="status"></div>
+      <div id="hotelsList" class="hotels-list"></div>
+      <div id="pagination" class="pagination"></div>
+    </div>
+
+    <!-- ABAS CARROS, TRANSFER, SEGUROS - omitido p/ brevidade -->
+  </div>
+
+  <!-- TEMPLATE DO CARD (carrossel, facilidades, etc.) -->
+  <template id="hotelCardTemplate">
+    <div class="hotel-card">
+      <div class="hotel-image">
+        <button class="carousel-button prev-button">&#10094;</button>
+        <button class="carousel-button next-button">&#10095;</button>
+        <div class="carousel-track"></div>
+      </div>
+      <div class="hotel-info">
+        <div>
+          <div class="hotel-name"></div>
+          <div class="hotel-rating">
+            <div class="stars"></div>
+            <span class="rating-value"></span>
+            <span class="rating-divider">|</span>
+            <div class="facility-icons"></div>
+          </div>
+          <div class="hotel-address"></div>
+          <div class="hotel-details">
+            <ul class="poi-list"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="hotel-price">
+        <div class="pix-flag">-5% no Pix</div>
+        <div class="days-nights"></div>
+        <div class="price-starting"></div>
+        <div class="ten-installments"></div>
+        <button class="btn-options">Visualizar opções</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
+  <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
+    <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
+    <p style="color: #666; margin-bottom: 1rem;">
+      Explore nossas ofertas imperdíveis para destinos incríveis.
+    </p>
+  </section>
+
+  <!-- FLATPICKR + SCRIPT DE LÓGICA -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <script src="/js/facilitiesMap.js"></script>
+  <script>
+    // ABAS
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+
+    // FLATPICKR
+    flatpickr('#dataIngresso', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today'
+    });
+    flatpickr('#dataRangeHoteis', {
+      locale: 'pt',
+      mode: 'range',
+      dateFormat: 'd/m/Y',
+      showMonths: 2,
+      minDate: 'today',
+      allowInput: true
+    });
+
+    // DROPDOWN QUARTOS
+    const quartosInput   = document.getElementById('quartos');
+    const dropdown       = document.getElementById('quartosDropdown');
+    const roomsMinus     = document.getElementById('roomsMinus');
+    const roomsPlus      = document.getElementById('roomsPlus');
+    const roomsTotalEl   = document.getElementById('roomsTotal');
+    const roomsContainer = document.getElementById('roomsContainer');
+    const applyQuartos   = document.getElementById('applyQuartos');
+
+    let roomsData = [
+      { adults: 2, children: 0, childAges: [] }
+    ];
+
+    quartosInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('active');
+    });
+
+    function renderRooms() {
+      roomsContainer.innerHTML = '';
+      roomsTotalEl.textContent = roomsData.length;
+
+      roomsData.forEach((room, index) => {
+        const block = document.createElement('div');
+        block.classList.add('qd-room-block');
+
+        const title = document.createElement('div');
+        title.className = 'qd-room-title';
+        title.textContent = `Quarto ${index+1}`;
+        block.appendChild(title);
+
+        // adultos
+        const adRow = document.createElement('div');
+        adRow.className = 'qd-row';
+        adRow.innerHTML = `
+          <span class="qd-label">Adultos</span>
+          <div class="qd-counter">
+            <button type="button" class="adultMinus">-</button>
+            <span class="adultCount">${room.adults}</span>
+            <button type="button" class="adultPlus">+</button>
+          </div>
+        `;
+        block.appendChild(adRow);
+
+        // criancas
+        const chRow = document.createElement('div');
+        chRow.className = 'qd-row';
+        chRow.innerHTML = `
+          <span class="qd-label">Crianças</span>
+          <div class="qd-counter">
+            <button type="button" class="childMinus">-</button>
+            <span class="childCount">${room.children}</span>
+            <button type="button" class="childPlus">+</button>
+          </div>
+        `;
+        block.appendChild(chRow);
+
+        // idades
+        const agesDiv = document.createElement('div');
+        agesDiv.className = 'children-ages';
+        room.childAges.forEach((ageVal, i2) => {
+          const sel = document.createElement('select');
+          sel.className = 'childAgeSelect';
+          for (let a=0;a<=17;a++){
+            const opt = document.createElement('option');
+            opt.value=a; 
+            opt.text=`${a} ano(s)`;
+            sel.appendChild(opt);
+          }
+          sel.value=ageVal;
+          sel.addEventListener('change',(ev)=>{
+            room.childAges[i2]=parseInt(ev.target.value,10);
+          });
+          agesDiv.appendChild(sel);
+        });
+        block.appendChild(agesDiv);
+
+        // eventos
+        adRow.querySelector('.adultPlus').addEventListener('click', ()=>{
+          room.adults++;
+          renderRooms();
+        });
+        adRow.querySelector('.adultMinus').addEventListener('click', ()=>{
+          if(room.adults>1){
+            room.adults--;
+            renderRooms();
+          }
+        });
+        chRow.querySelector('.childPlus').addEventListener('click', ()=>{
+          room.children++;
+          room.childAges.push(0);
+          renderRooms();
+        });
+        chRow.querySelector('.childMinus').addEventListener('click', ()=>{
+          if(room.children>0){
+            room.children--;
+            room.childAges.pop();
+            renderRooms();
+          }
+        });
+
+        roomsContainer.appendChild(block);
+      });
+    }
+    roomsPlus.addEventListener('click', ()=>{
+      roomsData.push({ adults:2, children:0, childAges:[] });
+      renderRooms();
+    });
+    roomsMinus.addEventListener('click', ()=>{
+      if(roomsData.length>1){
+        roomsData.pop();
+        renderRooms();
+      }
+    });
+    applyQuartos.addEventListener('click', ()=>{
+      let totalA=0; let totalC=0;
+      for(const r of roomsData){
+        totalA+= r.adults;
+        totalC+= r.children;
+      }
+      quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
+      dropdown.classList.remove('active');
+    });
+    renderRooms();
+
+    // FACILITIES => Procurar no facilitiesMap
+    function getFacilityIcon(name) {
+      const found = facilitiesMap[name];
+      if (found) {
+        // Retorna {pt, svg}
+        return found;
+      }
+      return null;
+    }
+
+    // Converte metros string -> "0,8 km"
+    function convertDistanceToKm(distStr) {
+      const meters = parseFloat(distStr) || 0;
+      const km = meters / 1000;
+      // Ex: "0.8" => "0,8"
+      return km.toFixed(1).replace('.', ',') + " km";
+    }
+
+    function createHotelCard(hotelData) {
+      const template = document.getElementById("hotelCardTemplate");
+      if (!template) return document.createDocumentFragment();
+      const clone = template.content.cloneNode(true);
+
+      // Nome, endereço, datas, preço
+      clone.querySelector(".hotel-name").textContent    = hotelData.name || "";
+      clone.querySelector(".hotel-address").textContent = hotelData.address || "";
+      clone.querySelector(".days-nights").textContent   = hotelData.daysNights || "";
+      clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
+      clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
+
+      // Estrelas
+      const starEl = clone.querySelector(".stars");
+      starEl.innerHTML="";
+      const r = Math.round(hotelData.ratingStars||0);
+      for(let i=1;i<=5;i++){
+        const star= document.createElement("i");
+        if(i<=r) star.classList.add("fas","fa-star");
+        else star.classList.add("far","fa-star","empty");
+        starEl.appendChild(star);
+      }
+      clone.querySelector(".rating-value").textContent= hotelData.ratingValue||"";
+
+      // FACILITIES => Render icones
+      const facDiv = clone.querySelector(".facility-icons");
+      (hotelData.facilities||[]).forEach(f => {
+        const found= getFacilityIcon(f);
+        if(found){
+          const iconDiv= document.createElement("div");
+          iconDiv.className="facility-icon";
+          iconDiv.innerHTML= found.svg;
+          // tooltip
+          const tt= document.createElement("div");
+          tt.className="tooltip";
+          tt.textContent= found.pt;
+          iconDiv.appendChild(tt);
+          facDiv.appendChild(iconDiv);
+        }
       });
 
-      // Preço por diária e condições
-      document.getElementById('price-per-night').innerText = `Preço por diária: R$ ${hotelData.pricePerNight.toFixed(2)}`;
-      const installmentPrice = (hotelData.pricePerNight / 10).toFixed(2);
-      document.getElementById('price-installments').innerText = `Em até 10x de R$ ${installmentPrice} sem juros`;
-      document.getElementById('pix-discount').innerText = '5% OFF no Pix';
-    };
+      // POI LIST => <li> {poi.poiName} - {converted} km
+      const poiUl = clone.querySelector(".poi-list");
+      (hotelData.poiList||[]).forEach(p => {
+        const li= document.createElement("li");
+        // converter distance
+        const distKm= convertDistanceToKm(p.distance);
+        li.innerHTML= `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${distKm}`;
+        poiUl.appendChild(li);
+      });
+
+      // Carrossel
+      const track= clone.querySelector(".carousel-track");
+      let currentSlide=0;
+      (hotelData.images||[]).forEach(url=>{
+        const slide= document.createElement("div");
+        slide.className="carousel-slide";
+        slide.innerHTML= `<img src="${url}" alt="Foto do Hotel">`;
+        track.appendChild(slide);
+      });
+      const prevBtn= clone.querySelector(".prev-button");
+      const nextBtn= clone.querySelector(".next-button");
+
+      function updateCarousel() {
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
+        const w= slides[0].getBoundingClientRect().width;
+        track.style.transform=`translateX(-${currentSlide*w}px)`;
+      }
+      prevBtn.addEventListener('click', ()=>{
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
+        currentSlide=(currentSlide-1+slides.length)%slides.length;
+        updateCarousel();
+      });
+      nextBtn.addEventListener('click', ()=>{
+        const slides= track.querySelectorAll(".carousel-slide");
+        if(!slides.length)return;
+        currentSlide=(currentSlide+1)%slides.length;
+        updateCarousel();
+      });
+      window.addEventListener('resize', updateCarousel);
+
+      return clone;
+    }
+
+    // BUSCAR HOTEIS => Exemplo
+    async function buscarHoteis() {
+      const destination= document.getElementById("destinoHoteis").value||"MCO";
+      const range= document.getElementById("dataRangeHoteis").value||"";
+      const hotelsListEl=document.getElementById("hotelsList");
+      const statusEl=document.getElementById("status");
+      const paginationEl=document.getElementById("pagination");
+
+      if(!range){
+        alert("Selecione as datas!");
+        return;
+      }
+      // parse range "DD/MM/YYYY to DD/MM/YYYY"
+      let checkIn="",checkOut="";
+      const parts=range.split(" ");
+      if(parts.length>=2){
+        checkIn= parts[0];
+        checkOut= parts[2]||parts[1];
+      }
+      // convert to ISO "YYYY-MM-DD"
+      function toISO(dmy){
+        const [d,m,y]= dmy.split("/");
+        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+      const isoIn= toISO(checkIn);
+      const isoOut= toISO(checkOut);
+
+      // Monta query de rooms
+      // roomsData =>  {adults, children, childAges:[]}
+      let query=`?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
+      roomsData.forEach((r,i)=>{
+        const idx=i+1;
+        query+=`&adults${idx}=${r.adults}&children${idx}=${r.children}`;
+        // se quisesse idade das criancas, teria childrenAges1=, etc.
+      });
+
+      hotelsListEl.innerHTML="";
+      paginationEl.innerHTML="";
+      paginationEl.style.display="none";
+      statusEl.textContent="Carregando hotéis...";
+      statusEl.style.display="block";
+
+      const url=`/api/hotelbeds/hotels${query}`;
+      console.log("Booking API:", url);
+
+      try {
+        const bookingResp= await fetch(url);
+        if(!bookingResp.ok) throw new Error("Booking API Error: "+bookingResp.status);
+        const bookingData= await bookingResp.json();
+
+        const hotelsArr= bookingData.hotels?.hotels||[];
+        if(!hotelsArr.length){
+          statusEl.textContent="Nenhum hotel encontrado.";
+          return;
+        }
+        statusEl.style.display="none";
+
+        // Para cada hotel => chama content
+        for(const hotel of hotelsArr){
+          const code= hotel.code;
+          const contentResp= await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
+          if(!contentResp.ok){
+            console.warn("Falha ao buscar content do hotel:", code);
+            continue;
+          }
+          const contentData= await contentResp.json();
+          const content= contentData?.hotel||{};
+
+          // Monta hotelObj
+          // Nome
+          const name= content.name?.content || hotel.name || "Sem Nome";
+          // Endereco
+          const street= content.address?.street || "";
+          const city= content.city?.content || "";
+          let addressFull= street;
+          if(city) addressFull+=(addressFull?`, ${city}`: city);
+
+          // Estrelas
+          let ratingNum=0;
+          if(hotel.categoryCode){
+            const mm= hotel.categoryCode.match(/\d+/);
+            if(mm) ratingNum=parseInt(mm[0],10);
+          } else if(hotel.categoryName){
+            const mm2= hotel.categoryName.match(/\d+(\.\d+)?/);
+            if(mm2) ratingNum=parseFloat(mm2[0]);
+          }
+          if(!ratingNum) ratingNum=3;
+
+          // minRate => number
+          let priceLabel="A partir de R$ ???";
+          if(hotel.minRate!=null){
+            const pr= parseFloat(hotel.minRate);
+            if(!isNaN(pr)){
+              priceLabel=`A partir de R$ ${pr.toFixed(2)}`;
+            }
+          }
+
+          // facilities => string array
+          let facArr=[];
+          if(content.facilities?.length){
+            facArr= content.facilities.slice(0,5).map(f=> f.description?.content||"");
+          }
+
+          // interestPoints => poiList
+          let poiArr=[];
+          if(content.interestPoints?.length){
+            poiArr= content.interestPoints.map(ip => ({
+              poiName: ip.poiName || "Ponto de Interesse",
+              distance: ip.distance || "0"
+            }));
+          }
+
+          // Imagens => filtra type.code= "HAB"
+          let imagesArr=[];
+          if(content.images?.length){
+            const roomImgs= content.images.filter(img => img.type?.code==="HAB");
+            const arr= roomImgs.length? roomImgs: content.images;
+            imagesArr= arr.map(img => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
+          } else {
+            imagesArr=["https://dummyimage.com/300x200/ccc/000.png&text=No+Image"];
+          }
+
+          // Monta daysNights
+          let daysNightsLabel="";
+          if(checkIn && checkOut){
+            const parseDmy=(dmy)=>{
+              const [D,M,A]= dmy.split("/");
+              return new Date(+A, +M-1, +D);
+            };
+            const d1= parseDmy(checkIn);
+            const d2= parseDmy(checkOut);
+            const ms= d2-d1;
+            if(ms>0){
+              const diffDays= Math.round(ms/(1000*60*60*24));
+              daysNightsLabel= `${diffDays} dia(s), ${Math.max(diffDays-1,1)} noite(s)`;
+            }
+          }
+
+          const hotelObj={
+            name,
+            address: addressFull,
+            ratingStars: ratingNum,
+            ratingValue: ratingNum.toString(),
+            images: imagesArr,
+            daysNights: daysNightsLabel,
+            priceFrom: priceLabel,
+            installments: "Até 10x sem juros",
+            facilities: facArr,
+            poiList: poiArr
+          };
+
+          const cardEl= createHotelCard(hotelObj);
+          hotelsListEl.appendChild(cardEl);
+        }
+
+        // se quisesse paginacao:
+        // exibirPaginacao(bookingData.totalPages||1,1);
+        statusEl.style.display="none";
+      } catch(e){
+        console.error(e);
+        statusEl.textContent="Erro ao buscar hotéis.";
+      }
+    }
+
+    function exibirPaginacao(totalPages, currentPage) {
+      const pagEl= document.getElementById("pagination");
+      if(totalPages<=1) return;
+      pagEl.style.display="flex";
+
+      if(currentPage>1){
+        const btnPrev=document.createElement("button");
+        btnPrev.textContent="Anterior";
+        btnPrev.onclick=()=> buscarHoteis(currentPage-1);
+        pagEl.appendChild(btnPrev);
+      }
+      if(currentPage<totalPages){
+        const btnNext=document.createElement("button");
+        btnNext.textContent="Próxima Página";
+        btnNext.onclick=()=> buscarHoteis(currentPage+1);
+        pagEl.appendChild(btnNext);
+      }
+    }
   </script>
 </body>
 </html>
