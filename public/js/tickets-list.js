@@ -1,4 +1,3 @@
-<script>
 /* ===========================================
    A) LÓGICA DO BUSCADOR / ABAS + FLATPICKR
 =========================================== */
@@ -422,4 +421,3 @@ function exibirPaginacao(totalPages, currentPage) {
     pagEl.appendChild(btnNext);
   }
 }
-</script>
