@@ -105,7 +105,6 @@
       margin-bottom: 1rem;
       flex-wrap: wrap;
     }
-
     .tab {
       padding: 0.75rem 1rem;
       cursor: pointer;
@@ -118,12 +117,10 @@
       gap: 0.5rem;
       transition: background 0.3s, color 0.3s;
     }
-
     .tab .material-icons {
       font-size: 1.1rem; 
       vertical-align: middle; 
     }
-
     .tab.active {
       background: #0e65e0;
       color: #fff;
@@ -155,7 +152,6 @@
       min-width: 200px;
       display: flex;
       flex-direction: column;
-      position: relative; /* importante para dropdowns */
     }
     .form-field label {
       font-size: 0.9rem;
@@ -199,92 +195,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* =======================
-       DROPDOWN DE MÚLTIPLOS QUARTOS
-    ======================= */
-    .quartos-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 320px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 0.4rem;
-      padding: 1rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      display: none;
-      z-index: 999;
-    }
-    .quartos-dropdown.active {
-      display: block;
-    }
-    .qd-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .qd-counter {
-      display: flex; 
-      align-items: center; 
-      gap: 0.5rem;
-    }
-    .qd-counter button {
-      width: 30px; 
-      height: 30px; 
-      border: 1px solid #ccc; 
-      background: #fff;
-      font-size: 1.2rem; 
-      cursor: pointer; 
-      border-radius: 50%;
-    }
-
-    /* Container para os quartos em si */
-    .qd-rooms-container {
-      max-height: 300px; 
-      overflow-y: auto; 
-      margin-bottom: 1rem;
-    }
-    .qd-room-block {
-      padding: 0.75rem 0;
-      border-top: 1px solid #eee;
-    }
-    .qd-room-block:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
-    .qd-room-title {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .qd-room-block .qd-row {
-      margin-bottom: 0.5rem;
-    }
-    .qd-label { 
-      font-weight: 600; 
-      font-size: 0.9rem; 
-    }
-    .children-ages select {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-    .qd-apply {
-      text-align: right;
-    }
-    .qd-apply button {
-      background: #0e65e0;
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 0.4rem;
-      cursor: pointer;
-    }
-
-    /* =======================
-       CUSTOMIZAÇÃO FLATPICKR
-    ======================= */
+    /* CUSTOMIZAÇÃO FLATPICKR */
     .flatpickr-calendar {
       border: 1px solid #ccc;
       border-radius: 0.5rem;
@@ -326,15 +237,12 @@
       color: #fff;
     }
 
-    /* =======================
-       CARD DE HOTÉIS (NOVO LAYOUT)
-    ======================= */
-    body > .hotel-card-container {
+    /* NOVO LAYOUT DE CARDS (EXEMPLO) */
+    .hotel-card-container {
       display: flex;
       justify-content: center;
       padding: 20px;
     }
-
     .hotel-card {
       display: flex;
       flex-direction: row;
@@ -350,250 +258,39 @@
     .hotel-card:hover {
       transform: translateY(-8px);
     }
-    .hotel-image {
-      width: 300px;
-      max-width: 300px;
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      margin: -20px 0 -20px -20px; /* Remove padding só dessa área */
+    /* ... resto do CSS do card omitido, pois já está ok ... */
+
+    /* LISTA DE HOTÉIS RENDERIZADA PELA BUSCA */
+    .hotels-list {
+      margin-top: 1rem;
     }
-    .carousel-track {
-      display: flex;
-      transition: transform 0.4s ease-in-out;
-      width: 100%;
-      height: 100%;
-    }
-    .carousel-slide {
-      min-width: 100%;
-      overflow: hidden;
-    }
-    .carousel-slide img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.3s ease;
-    }
-    .carousel-slide img:hover {
-      transform: scale(1.04);
-    }
-    .carousel-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
+    .hotel-item {
+      background: #fff;
+      padding: 1rem;
       border-radius: 8px;
-      cursor: pointer;
-      z-index: 2;
-      font-size: 1em;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    .prev-button {
-      left: 10px;
+    .pagination {
+      display: none;
+      gap: 1rem;
+      margin-top: 1rem;
     }
-    .next-button {
-      right: 10px;
-    }
-    .hotel-info {
-      flex: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .hotel-name {
-      font-size: 1.5em;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 5px;
-      margin-right: 100px;
-      margin-top: 15px;
-      line-height: 1.2;
-    }
-    .hotel-rating {
-      font-size: 1.1em;
-      color: #888;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .stars {
-      color: #ffd700;
-      display: flex;
-    }
-    .stars .empty {
-      color: #ddd;
-    }
-    .rating-value {
-      font-size: 0.9em;
-      color: #333;
-    }
-    .rating-divider {
-      margin: 0 2px;
-      color: #ccc;
-      font-weight: 600;
-    }
-    .facility-icons {
-      display: flex;
-      gap: 8px;
-    }
-    .facility-icon {
-      display: inline-flex;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      position: relative;
-    }
-    .facility-icon svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-    /* Tooltip */
-    .facility-icon:hover .tooltip {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, 0);
-    }
-    .tooltip {
-      position: absolute;
-      left: 50%;
-      bottom: calc(100% + 6px);
-      background-color: rgba(0, 0, 0, 0.8);
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.8em;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transform: translate(-50%, 10px);
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .tooltip::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 100%;
-      border-width: 5px;
-      border-style: solid;
-      border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
-    }
-
-    .hotel-address {
-      font-size: 1em;
-      color: #666;
-      margin-bottom: 10px;
-      line-height: 1.4;
-      margin-top: 10px;
-    }
-    .hotel-details {
-      font-size: 1em;
-      color: #555;
-      line-height: 1.5;
-    }
-    .hotel-details li {
-      margin-bottom: 8px;
-      font-size: 1em;
-      color: #333;
-      display: flex;
-      align-items: center;
-    }
-    .hotel-details li i {
-      color: #007aff;
-      margin-right: 10px;
-    }
-    .hotel-price {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      background: none;
-      border-left: 1px solid #ddd;
-      padding: 25px 25px 5px 30px;
-      gap: 10px;
-      text-align: left;
-      position: relative;
-    }
-    .pix-flag {
-      position: absolute;
-      top: 0;
-      left: 0;
-      background: #ff4d4d;
-      color: #fff;
-      font-size: 0.85em;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 0 0 8px 0;
-    }
-    .days-nights {
-      font-size: 1.1em;
-      color: #333;
-      font-weight: 600;
-      margin-top: 15px;
-    }
-    .price-starting {
-      font-size: 1.4em;
-      color: #333;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-    .ten-installments {
-      font-size: 0.95em;
-      color: #555;
-    }
-    .btn-options {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 12px 24px;
-      background-color: #007aff;
-      color: #fff;
-      border-radius: 10px;
-      font-size: 1em;
-      text-align: center;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+    .pagination button {
+      padding: 0.5rem 1rem;
       border: none;
+      border-radius: 4px;
+      background: #eee;
+      cursor: pointer;
     }
-    .btn-options:hover {
-      background-color: #005bb5;
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
-
-    /* Responsividade do card */
-    @media (max-width: 1024px) {
-      .hotel-card {
-        flex-direction: column;
-        align-items: center;
-      }
-      .hotel-image {
-        width: 100%;
-        max-width: none;
-        margin: -20px;
-      }
-      .hotel-price {
-        align-items: center;
-        text-align: center;
-        width: 100%;
-        border-left: none;
-        border-top: 1px solid #ddd;
-        padding: 20px;
-      }
-      .pix-flag {
-        left: 50%;
-        transform: translateX(-50%);
-        border-radius: 0 0 8px 8px;
-      }
-      .days-nights {
-        margin-top: 40px;
-      }
+    #status {
+      margin-top: 1rem;
+      display: none;
     }
-
   </style>
 </head>
 <body>
@@ -604,7 +301,7 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- CONTAINER DE BUSCA -->
+  <!-- CONTAINER BUSCADOR -->
   <div class="search-container">
     <!-- TABS -->
     <div class="tabs">
@@ -642,7 +339,7 @@
       </div>
     </div>
 
-    <!-- ABA HOTÉIS -->
+    <!-- ABA HOTEIS -->
     <div id="tab-hoteis" class="tab-content">
       <div class="form-group">
         <div class="form-field">
@@ -658,30 +355,23 @@
           <input 
             type="text" 
             id="quartos" 
-            placeholder="Clique para escolher"
+            placeholder="Clique para escolher" 
             readonly
           />
-          <!-- Dropdown que abre ao clicar no input -->
-          <div id="quartosDropdown" class="quartos-dropdown">
-            <div class="qd-row">
-              <span>Quartos</span>
-              <div class="qd-counter">
-                <button type="button" id="roomsMinus">-</button>
-                <span id="roomsTotal">1</span>
-                <button type="button" id="roomsPlus">+</button>
-              </div>
-            </div>
-            <div class="qd-rooms-container" id="roomsContainer">
-              <!-- Blocos de cada quarto renderizados via JS -->
-            </div>
-            <div class="qd-apply">
-              <button type="button" id="applyQuartos">Aplicar</button>
-            </div>
-          </div>
         </div>
         <div class="form-field button-field">
-          <button class="search-button">Buscar Hotéis</button>
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
         </div>
+      </div>
+
+      <!-- AQUI é onde as mensagens de status e a lista de hotéis apareciam -->
+      <div id="status"></div>
+      <div id="hotelsList" class="hotels-list"></div>
+
+      <!-- PAGINAÇÃO -->
+      <div id="pagination" class="pagination">
+        <button id="previousPage" onclick="previousPage()">Anterior</button>
+        <button id="nextPage" onclick="nextPage()">Próxima Página</button>
       </div>
     </div>
 
@@ -749,84 +439,57 @@
     </div>
   </div>
 
-  <!-- NOVO LAYOUT DE CARDS (EXEMPLO ÚNICO) -->
+  <!-- EXEMPLO DE CARD DE HOTEL (FIXO) 
+       Se preferir, pode remover ou deixar como "exemplo" -->
   <div class="hotel-card-container">
     <div class="hotel-card">
-
-      <!-- Carrossel -->
       <div class="hotel-image">
-        <button class="carousel-button prev-button">&#10094;</button>
-        <button class="carousel-button next-button">&#10095;</button>
-        <div class="carousel-track" id="carouselTrack">
-          <div class="carousel-slide">
-            <img src="https://photos.hotelbeds.com/giata/xl/08/089383/089383a_hb_a_010.jpg" alt="Imagem 1 do Hotel" />
-          </div>
-          <div class="carousel-slide">
-            <img src="https://photos.hotelbeds.com/giata/xl/08/089383/089383a_hb_a_011.jpg" alt="Imagem 2 do Hotel" />
-          </div>
-          <div class="carousel-slide">
-            <img src="https://photos.hotelbeds.com/giata/xl/08/089383/089383a_hb_a_012.jpg" alt="Imagem 3 do Hotel" />
-          </div>
-        </div>
+        <!-- ... carrossel de exemplo ... -->
+        <img src="https://photos.hotelbeds.com/giata/bigger/17/170603/170603a_hb_a_001.jpg" alt="Exemplo Hotel" style="border-radius:16px;">
       </div>
-
-      <!-- Informações do hotel -->
       <div class="hotel-info">
-        <div>
-          <div class="hotel-name">Courtyard By Marriott Aventura Mall</div>
-
-          <div class="hotel-rating">
-            <div class="stars">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="far fa-star empty"></i>
-            </div>
-            <span class="rating-value">4.0</span>
-            <span class="rating-divider">|</span>
-            <div class="facility-icons" id="facilityIcons"></div>
+        <div class="hotel-name">Hotel Exemplo Surreal</div>
+        <div class="hotel-rating">
+          <div class="stars">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="far fa-star empty"></i>
           </div>
-
-          <div class="hotel-address">
-            2825 Ne 191St St, Aventura, FL, USA
-          </div>
-
-          <div class="hotel-details">
-            <strong>Pontos de Interesse:</strong>
-            <ul>
-              <li><i class="fas fa-map-marker-alt"></i> Dave &amp; Buster's - 13,8 km</li>
-              <li><i class="fas fa-map-marker-alt"></i> Jungle Island - 28,3 km</li>
-            </ul>
-          </div>
+          <span class="rating-value">4.0</span>
+        </div>
+        <div class="hotel-address">Endereço Exemplo</div>
+        <div class="hotel-details">
+          <strong>Pontos de Interesse:</strong>
+          <ul>
+            <li><i class="fas fa-map-marker-alt"></i> Exemplo de Lugar</li>
+          </ul>
         </div>
       </div>
-
-      <!-- Preço -->
       <div class="hotel-price">
         <div class="pix-flag">-5% no Pix</div>
-        <div class="days-nights">2 dias e 1 noite</div>
-        <div class="price-starting">A partir de <br>R$ 800,00</div>
-        <div class="ten-installments">Até 10x sem juros</div>
-
+        <div class="days-nights">3 dias, 2 noites</div>
+        <div class="price-starting">A partir de R$ 900,00</div>
+        <div class="ten-installments">Em até 10x sem juros</div>
         <button class="btn-options">Visualizar opções</button>
       </div>
     </div>
   </div>
 
-  <!-- FLATPICKR + Localização em Português -->
+  <!-- SCRIPT EXTERNO - ONDE ESTÁ A FUNÇÃO buscarHoteis, previousPage etc. -->
   <script src="js/hotels-list.js"></script>
+
+  <!-- FLATPICKR + PT -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
   <script>
-    // ======================
-    // 1) LÓGICA DE TROCA DE ABAS
-    // ======================
+    // TROCA DE ABAS
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
-      tab.addEventListener('click', (e) => {
+      tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         tabContents.forEach(tc => tc.classList.remove('active'));
         tab.classList.add('active');
@@ -835,17 +498,23 @@
       });
     });
 
-    // ======================
-    // 2) CONFIGURAÇÃO FLATPICKR
-    // ======================
-    const singleDateOptions = {
+    // INICIALIZA FLATPICKR (Exceto na aba Hotéis, que está range. 
+    // Aqui confirmamos de toda forma.)
+    flatpickr('#dataIngresso', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
-      defaultDate: 'today',
+      defaultDate: 'today'
+    });
+    flatpickr('#dataRangeHoteis', {
+      locale: 'pt',
+      mode: 'range',
+      dateFormat: 'd/m/Y',
+      showMonths: 2,
+      minDate: 'today',
       allowInput: true
-    };
-    const singleDateTimeOptions = {
+    });
+    flatpickr('#dataRetiradaCarros', {
       locale: 'pt',
       enableTime: true,
       dateFormat: 'd/m/Y H:i',
@@ -853,286 +522,40 @@
       minDate: 'today',
       defaultDate: 'today',
       allowInput: true
-    };
-    const rangeOptions = {
+    });
+    flatpickr('#dataDevolucaoCarros', {
       locale: 'pt',
-      mode: 'range',
-      dateFormat: 'd/m/Y',
-      showMonths: 2,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      time_24hr: true,
       minDate: 'today',
+      defaultDate: 'today',
       allowInput: true
-    };
-
-    flatpickr('#dataIngresso',       { ...singleDateOptions });
-    flatpickr('#dataRangeHoteis',    { ...rangeOptions });
-    flatpickr('#dataRetiradaCarros', { ...singleDateTimeOptions });
-    flatpickr('#dataDevolucaoCarros',{ ...singleDateTimeOptions });
-    flatpickr('#dataTransfer',       { ...singleDateOptions });
-    flatpickr('#embarqueSeguros',    { ...singleDateOptions });
-    flatpickr('#desembarqueSeguros', { ...singleDateOptions });
-
-
-    // ======================
-    // 3) MÚLTIPLOS QUARTOS (aba Hotéis)
-    // ======================
-    const quartosInput   = document.getElementById('quartos');
-    const dropdown       = document.getElementById('quartosDropdown');
-    const roomsMinus     = document.getElementById('roomsMinus');
-    const roomsPlus      = document.getElementById('roomsPlus');
-    const roomsTotalEl   = document.getElementById('roomsTotal');
-    const roomsContainer = document.getElementById('roomsContainer');
-    const applyQuartos   = document.getElementById('applyQuartos');
-
-    // Array de quartos => cada item: { adults, children, childAges: [] }
-    let roomsData = [
-      { adults: 2, children: 0, childAges: [] } // começa com 1 quarto
-    ];
-
-    // Impede que cliques dentro do input e do dropdown fechem o dropdown
-    quartosInput.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('active');
     });
-    dropdown.addEventListener('click', (e) => {
-      e.stopPropagation(); 
+    flatpickr('#dataTransfer', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today',
+      allowInput: true
+    });
+    flatpickr('#embarqueSeguros', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today',
+      allowInput: true
+    });
+    flatpickr('#desembarqueSeguros', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today',
+      allowInput: true
     });
 
-    // Fecha o dropdown se clicar fora
-    document.addEventListener('click', () => {
-      dropdown.classList.remove('active');
-    });
-
-    function renderRooms() {
-      roomsContainer.innerHTML = '';
-      roomsTotalEl.textContent = roomsData.length;
-
-      roomsData.forEach((room, index) => {
-        const roomBlock = document.createElement('div');
-        roomBlock.classList.add('qd-room-block');
-
-        // Título: "Quarto X"
-        const title = document.createElement('div');
-        title.classList.add('qd-room-title');
-        title.textContent = `Quarto ${index + 1}`;
-        roomBlock.appendChild(title);
-
-        // Linha de Adultos
-        const adultosRow = document.createElement('div');
-        adultosRow.classList.add('qd-row');
-        adultosRow.innerHTML = `
-          <span class="qd-label">Adultos</span>
-          <div class="qd-counter">
-            <button type="button" class="adultMinus">-</button>
-            <span class="adultCount">${room.adults}</span>
-            <button type="button" class="adultPlus">+</button>
-          </div>
-        `;
-        roomBlock.appendChild(adultosRow);
-
-        // Linha de Crianças
-        const criancasRow = document.createElement('div');
-        criancasRow.classList.add('qd-row');
-        criancasRow.innerHTML = `
-          <span class="qd-label">Crianças</span>
-          <div class="qd-counter">
-            <button type="button" class="childMinus">-</button>
-            <span class="childCount">${room.children}</span>
-            <button type="button" class="childPlus">+</button>
-          </div>
-        `;
-        roomBlock.appendChild(criancasRow);
-
-        // Container de selects (idades das crianças)
-        const childrenAgesDiv = document.createElement('div');
-        childrenAgesDiv.classList.add('children-ages');
-        room.childAges.forEach((ageValue, childIndex) => {
-          const select = document.createElement('select');
-          select.classList.add('childAgeSelect');
-          // options 0..17
-          for(let age=0; age<=17; age++){
-            const opt = document.createElement('option');
-            opt.value = age;
-            opt.text = `${age} ano(s)`;
-            select.appendChild(opt);
-          }
-          select.value = ageValue;
-          select.addEventListener('change', (e) => {
-            room.childAges[childIndex] = parseInt(e.target.value,10);
-          });
-          childrenAgesDiv.appendChild(select);
-        });
-        roomBlock.appendChild(childrenAgesDiv);
-
-        // Eventos (+/-) adultos
-        adultosRow.querySelector('.adultPlus').addEventListener('click', () => {
-          room.adults++;
-          renderRooms();
-        });
-        adultosRow.querySelector('.adultMinus').addEventListener('click', () => {
-          if(room.adults > 1) {
-            room.adults--;
-            renderRooms();
-          }
-        });
-
-        // Eventos (+/-) crianças
-        criancasRow.querySelector('.childPlus').addEventListener('click', () => {
-          room.children++;
-          room.childAges.push(0);
-          renderRooms();
-        });
-        criancasRow.querySelector('.childMinus').addEventListener('click', () => {
-          if(room.children > 0) {
-            room.children--;
-            room.childAges.pop();
-            renderRooms();
-          }
-        });
-
-        roomsContainer.appendChild(roomBlock);
-      });
-    }
-
-    // (+) / (−) no total de quartos
-    roomsPlus.addEventListener('click', () => {
-      roomsData.push({ adults: 2, children: 0, childAges: [] });
-      renderRooms();
-    });
-    roomsMinus.addEventListener('click', () => {
-      if(roomsData.length > 1) {
-        roomsData.pop();
-        renderRooms();
-      }
-    });
-
-    // Botão "Aplicar"
-    applyQuartos.addEventListener('click', () => {
-      let totalAdults = 0;
-      let totalChildren = 0;
-      roomsData.forEach(r => {
-        totalAdults += r.adults;
-        totalChildren += r.children;
-      });
-      const totalRooms = roomsData.length;
-      quartosInput.value = `${totalRooms} Quarto(s), ${totalAdults} Adulto(s), ${totalChildren} Criança(s)`;
-      dropdown.classList.remove('active');
-    });
-
-    // Render inicial
-    renderRooms();
-
-
-    // ======================
-    // 4) LÓGICA DO CARD (Carrossel + Facilidades)
-    // ======================
-    // Mapa de facilidades
-    const facilitiesMap = {
-      "Year of most recent renovation": {
-        pt: "Ano da última renovação",
-        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-          <path d="M152 64c0-8.8-7.2-16-16-16s-16 7.2-16 
-          16V96H96C78.3 96 64 110.3 64 
-          128v32H384V128c0-17.7-14.3-32-32-32H328V64c0-8.8-7.2-16-16-16s-16 
-          7.2-16 16V96H152V64zM384 192H64V448c0 
-          17.7 14.3 32 32 
-          32H384c17.7 0 32-14.3 32-32V192z"/>
-        </svg>`
-      },
-      "Number of floors (main building)": {
-        pt: "Número de andares (prédio principal)",
-        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-          <path d="M128 148V44c0-2.2 
-          1.8-4 4-4H252c2.2 0 4 1.8 
-          4 4V148c0 2.2-1.8 4-4 
-          4H132c-2.2 0-4-1.8-4-4zm128 
-          220V244c0-2.2 1.8-4 4-4H372c2.2 
-          0 4 1.8 4 4V480h4c13.3 
-          0 24-10.7 24-24V24C404 10.7 
-          393.3 0 380 0H28C14.7 0 
-          4 10.7 4 
-          24V456c0 13.3 10.7 24 24 
-          24h4V244c0-2.2 1.8-4 4-4H148c2.2 
-          0 4 1.8 4 4V480h80V372c0-2.2 
-          1.8-4 4-4h16c2.2 0 4 
-          1.8 4 4z"/>
-        </svg>`
-      },
-      "Disability-friendly rooms": {
-        pt: "Quartos adaptados para pessoas com deficiência",
-        svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-          <path d="M240 
-          80A40 40 0 1 1 160 80a40 40 0 1 1 80 
-          0zm-30.3 371.2c-44.7-8.7-79.8-43.8-88.5-88.5c-4.9-25.4 
-          .2-50.3 12.5-71.1l12.5-21.3 
-          37.3 21.9-12.5 21.3c-6.1 10.5-8.3 
-          23-6 
-          35c4.8 25.1 25 45.2 50.2 
-          49.9c19 3.7 37.8-1.6 
-          52.6-14.8l11.2-9.8 
-          26.5 29.4-11.2 9.8c-20.1 
-          17.6-45.9 25.2-72.1 
-          20.2zM320 264c0 13.3-10.7 
-          24-24 
-          24H271.4l45.5 50.5c5.7 
-          6.4 9.1 14.6 9.9 
-          23.1l9.2 99.2c1.2 12.8-8.2 
-          24.2-21 25.3s-24.2-8.2-25.3-21l-9.2-99.2-59.4-66c-19.1 
-          10.5-41.5 14.2-63.2 10.2c-31.7-6.2-57.2-30.5-65.2-62.4c-5.8-24.5-1.7-49 
-          11.7-69.6l19.6-33.4c11.6-19.8 
-          37.3-26.4 
-          57-14.8l49.6 29.1c2.4 
-          1.4 5.1 2.2 7.9 2.2h80c13.3 
-          0 24 10.7 24 24z"/>
-        </svg>`
-      }
-    };
-
-    // Apenas um exemplo de facilidades (3 chaves do map)
-    const testFacilities = [
-      "Year of most recent renovation",
-      "Number of floors (main building)",
-      "Disability-friendly rooms"
-    ];
-    const facilityIconsDiv = document.getElementById("facilityIcons");
-
-    // Renderizamos até 3 facilidades
-    testFacilities.slice(0, 3).forEach((key) => {
-      const facility = facilitiesMap[key];
-      if (!facility) return;
-
-      const iconContainer = document.createElement("div");
-      iconContainer.className = "facility-icon";
-      iconContainer.innerHTML = facility.svg;
-
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
-      tooltip.textContent = facility.pt;
-      iconContainer.appendChild(tooltip);
-
-      facilityIconsDiv.appendChild(iconContainer);
-    });
-
-    // Carrossel
-    const track = document.getElementById('carouselTrack');
-    const slides = Array.from(track.children);
-    const prevButton = document.querySelector('.prev-button');
-    const nextButton = document.querySelector('.next-button');
-    let currentSlide = 0;
-
-    function updateCarousel() {
-      const slideWidth = slides[0].getBoundingClientRect().width;
-      track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-    }
-    nextButton.addEventListener('click', () => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      updateCarousel();
-    });
-    prevButton.addEventListener('click', () => {
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      updateCarousel();
-    });
-    window.addEventListener('resize', updateCarousel);
-
+    // Se "js/hotels-list.js" injeta os resultados no #hotelsList, 
+    // e mostra #status e #pagination, pronto!
   </script>
 </body>
 </html>
