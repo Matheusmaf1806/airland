@@ -59,14 +59,12 @@ if (quartosInput) {
     }
   });
 }
-
 // Impede que clique dentro do dropdown feche a si mesmo
 if (dropdown) {
   dropdown.addEventListener('click', (e) => {
     e.stopPropagation();
   });
 }
-
 // Fecha dropdown ao clicar fora
 document.addEventListener('click', () => {
   if (dropdown) dropdown.classList.remove('active');
@@ -216,23 +214,30 @@ function createHotelCard(hotelData) {
   if (!template) return document.createDocumentFragment();
   const clone = template.content.cloneNode(true);
 
-  // Se você quiser priorizar o "nome" do Content, use algo assim:
-  // const hotelName = hotelData.content?.name?.content || hotelData.name || "";
-  // Caso prefira o "hotelData.name" do Booking, faça:
-  const hotelName = hotelData.name || "";
-  clone.querySelector(".hotel-name").textContent = hotelName;
+  // -------------------------------------------------------
+  // EXEMPLO: se preferir priorizar "hotelData.content.name"
+  // caso seu back coloque o 'nome' do Content ali:
+  // -------------------------------------------------------
+  const nomeFinal = hotelData.content?.name?.content || hotelData.name || "Hotel sem nome";
+  clone.querySelector(".hotel-name").textContent = nomeFinal;
 
-  // Para address, se vier no content:
-  // const addressFull = hotelData.content?.address?.street || hotelData.address || "";
-  clone.querySelector(".hotel-address").textContent = hotelData.address || "";
+  // Para address: se seu back coloca no content, use:
+  // const addressFull = hotelData.content?.address?.street || "Endereço não informado";
+  // ou se seu back mescla num 'hotelData.address' normal:
+  const addressFull = hotelData.address || "";
+  clone.querySelector(".hotel-address").textContent = addressFull;
 
-  clone.querySelector(".days-nights").textContent = hotelData.daysNights  || "";
-  clone.querySelector(".price-starting").textContent= hotelData.priceFrom || "";
+  // Days/Nights
+  clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
+
+  // Preço
+  clone.querySelector(".price-starting").textContent = hotelData.priceFrom || "";
   clone.querySelector(".ten-installments").textContent= hotelData.installments || "";
 
   // Estrelas
   const starEl = clone.querySelector(".stars");
   starEl.innerHTML = "";
+  // Caso as estrelas venham no booking => "ratingStars"
   const r = Math.round(hotelData.ratingStars || 0);
   for (let i = 1; i <= 5; i++) {
     const star = document.createElement("i");
@@ -242,7 +247,7 @@ function createHotelCard(hotelData) {
   }
   clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-  // Facilities (se quiser usar o facilitiesMap.js global)
+  // Facilities (ex.: se seu back retorna: hotelData.facilities = ["Wi-fi", ...])
   const facDiv = clone.querySelector(".facility-icons");
   (hotelData.facilities || []).forEach(f => {
     if (window.facilitiesMap) {
@@ -261,25 +266,30 @@ function createHotelCard(hotelData) {
     }
   });
 
-  // Pontos de interesse
+  // Pontos de interesse => se seu back chama "poiList"
+  // ou se está em "hotelData.content.interestPoints"
   const poiUl = clone.querySelector(".poi-list");
-  (hotelData.poiList || []).forEach(p => {
-    const li = document.createElement("li");
+  const poiArr = hotelData.poiList || [];
+  poiArr.forEach(p => {
     const distKm = convertDistanceToKm(p.distance);
+    const li = document.createElement("li");
     li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${distKm}`;
     poiUl.appendChild(li);
   });
 
-  // Carrossel (imagens) – caso as imagens venham em hotelData.content.images:
-  // const images = hotelData.content?.images || [];
-  // const finalImgs = images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
-
-  // Mas se o back já estiver mesclando no root => hotelData.images:
-  const finalImgs = hotelData.images || [];
-
+  // Carrossel (imagens)
   const track = clone.querySelector(".carousel-track");
   let currentSlide = 0;
-  finalImgs.forEach(url => {
+
+  // Se as imagens vierem do content => hotelData.content.images
+  // Mapeia para o URL final do "photos.hotelbeds.com"
+  const imagesArr = hotelData.content?.images?.map(img => 
+    "https://photos.hotelbeds.com/giata/xl/" + img.path
+  ) || [];
+
+  // ou, se já estiver em hotelData.images, use (hotelData.images || [])
+
+  imagesArr.forEach(url => {
     const slide = document.createElement("div");
     slide.className = "carousel-slide";
     slide.innerHTML = `<img src="${url}" alt="Foto do Hotel">`;
@@ -345,7 +355,6 @@ async function buscarHoteis() {
   roomsData.forEach((r, i) => {
     const idx = i + 1;
     query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
-    // Se quiser mandar idades, poderia: &childAges${idx}= ...
   });
 
   // Limpa listagem e status
@@ -370,14 +379,12 @@ async function buscarHoteis() {
     }
     const data = await resp.json();
 
-    // Se seu back retorna "combined" em data.combined:
-    //    { availability:..., combined: [ { code, name, content: {...} }, ... ] }
-    // Mude para:
+    // Se o back-end retorna: { combined: [...] }, faça:
     // const hotelsArr = data.combined || [];
+    // Se o back-end retorna: { hotels: { hotels: [...] } }, faça:
+    // const hotelsArr = data.hotels?.hotels || [];
 
-    // Mas se seu back retorna "hotels.hotels" => OK
-    const hotelsArr = data.combined || [];  // <-- Troque aqui se for "combined"
-
+    const hotelsArr = data.combined || [];  //  <--- Ajuste principal
     if (!hotelsArr.length) {
       if (statusEl) statusEl.textContent = "Nenhum hotel encontrado.";
       return;
@@ -386,16 +393,13 @@ async function buscarHoteis() {
 
     // Monta cards
     for (const hotelObj of hotelsArr) {
-      // Exemplo: se você quiser trocar a forma como pega imagens:
-      //  hotelObj.images = hotelObj.content?.images?.map(img => "https://..."+img.path) || [];
-      //  OU já fez essa mesclagem no back-end
-
       const cardEl = createHotelCard(hotelObj);
       hotelsListEl?.appendChild(cardEl);
     }
 
-    // Se o back-end retorna "totalPages", poderia:
+    // Se o back-end retorna "totalPages", chame:
     // exibirPaginacao(data.totalPages || 1, 1);
+
   } catch (e) {
     console.error(e);
     if (statusEl) statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
