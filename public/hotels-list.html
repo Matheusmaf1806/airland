@@ -12,7 +12,7 @@
     rel="stylesheet"
   >
 
-  <!-- CSS do Flatpickr (CDN) -->
+  <!-- CSS do Flatpickr (CDN) - Usado nas outras abas -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
@@ -31,6 +31,7 @@
       padding: 0;
       box-sizing: border-box;
     }
+
     /* TUDO EM MONTSERRAT, INCLUSIVE PLACEHOLDERS E BOTÕES */
     html, body, input, select, button, textarea {
       font-family: 'Montserrat', sans-serif;
@@ -130,7 +131,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORMULÁRIOS */
+    /* FORMULÁRIOS (geral) */
     .form-group {
       display: flex;
       flex-wrap: wrap;
@@ -187,7 +188,7 @@
     }
 
     /* ================
-       CUSTOMIZAÇÃO FLATPICKR
+       CUSTOMIZAÇÃO FLATPICKR (para as outras abas)
        ================ */
     .flatpickr-calendar {
       border: 1px solid #ccc;
@@ -204,38 +205,46 @@
       font-weight: 600;
       font-size: 1rem;
     }
-    /* Bloqueia datas anteriores (cinza) */
     .flatpickr-day.disabled,
     .flatpickr-day.prevMonthDay,
     .flatpickr-day.nextMonthDay {
       color: #ccc !important;
       cursor: not-allowed !important;
     }
-    /* Hoje => marcado como azul */
     .flatpickr-day.today {
       background: #0e65e01a; /* leve transparência */
       border: 1px solid #0e65e0;
       color: #333;
     }
-    /* Dia selecionado => azul sólido */
     .flatpickr-day.selected,
     .flatpickr-day.startRange,
     .flatpickr-day.endRange {
       background: #0e65e0 !important;
       color: #fff !important;
     }
-    /* Hover */
     .flatpickr-day:hover {
       background: #0e65e0;
       color: #fff;
     }
-    /* Intervalo range intermediário */
     .flatpickr-day.inRange {
       background: #0e65e07c;
       color: #fff;
     }
 
-    /* ======== LISTA DE HOTÉIS E PAGINAÇÃO (aba Hotéis) ======== */
+    /* ======== ABA HOTÉIS: MANTER LAYOUT ANTIGO ======== */
+    .search-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .search-box label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-right: 0.3rem;
+    }
+
     .hotels-list {
       margin-top: 1rem;
     }
@@ -246,6 +255,7 @@
       margin-bottom: 1rem;
       background: #fff;
     }
+
     .pagination {
       display: flex;
       gap: 1rem;
@@ -262,62 +272,78 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
-    /* Estilizar container e botões de adicionar quarto */
-    .occupancies {
-      background: #fdfdfd;
-      border: 1px solid #ddd;
+
+    /* MODAL PARA QUARTOS / OCUPAÇÕES */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none; /* aparece ao abrir */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 1.5rem;
       border-radius: 0.5rem;
-      padding: 1rem;
+      width: 90%;
+      max-width: 500px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 1rem;
     }
-    .occupancies h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+    .modal-header h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    .close-modal {
+      background: #c0392b;
+      color: #fff;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.3rem;
+      cursor: pointer;
+    }
+    .occupancies {
+      background: #fafafa;
+      border: 1px dashed #ccc;
+      padding: 1rem;
+      border-radius: 0.4rem;
     }
     .occupancies button {
       background: #0e65e0;
       color: #fff;
       border: none;
-      border-radius: 0.4rem;
+      border-radius: 0.3rem;
       padding: 0.5rem 1rem;
+      font-weight: 600;
       margin-bottom: 1rem;
       cursor: pointer;
-      font-weight: 600;
-    }
-    .occupancies button:hover {
-      background: #0b4ea9;
     }
     .room-block {
-      border: 1px dashed #aaa;
+      border: 1px solid #aaa;
       padding: 0.5rem;
       margin-bottom: 0.5rem;
       border-radius: 0.4rem;
+      background: #fff;
     }
-    .room-block h3 {
-      margin-bottom: 0.3rem;
-      font-size: 0.95rem;
-      color: #444;
-    }
-    .room-block label {
-      font-size: 0.85rem;
-    }
-    .room-block input[type="number"] {
-      width: 60px;
-      margin-right: 0.5rem;
-    }
-    .room-block button.remove-room {
+    .remove-room {
       background: #c0392b;
       color: #fff;
       border: none;
-      padding: 0.3rem 0.6rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 0.3rem;
+      float: right;
       cursor: pointer;
       font-size: 0.8rem;
-      border-radius: 0.3rem;
     }
-    .room-block button.remove-room:hover {
-      background: #962d20;
-    }
-    /* Status / loading */
     #status.loading {
       color: #0e65e0;
     }
@@ -328,14 +354,15 @@
 </head>
 <body>
 
-  <!-- HERO (Opcional) -->
+  <!-- HERO -->
   <section class="hero">
     <h1>Sua Próxima Aventura</h1>
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
   <div class="search-container">
-    <!-- TABS -->
+
+    <!-- BARRA DE TABS (todas as abas do layout "surreal") -->
     <div class="tabs">
       <div class="tab active" data-tab="tab-ingressos">
         <span class="material-icons">local_activity</span> Ingressos
@@ -354,8 +381,9 @@
       </div>
     </div>
 
-    <!-- ABA INGRESSOS (exemplo) -->
+    <!-- ABA INGRESSOS (layout surreal, com Flatpickr) -->
     <div id="tab-ingressos" class="tab-content active">
+      <!-- Exemplo quick: single date c/ Flatpickr -->
       <div class="form-group">
         <div class="form-field">
           <label for="destinoIngresso">Destino ou Ingresso</label>
@@ -363,7 +391,7 @@
         </div>
         <div class="form-field">
           <label for="dataIngresso">Data</label>
-          <input type="text" id="dataIngresso" />
+          <input type="text" id="dataIngresso"/>
         </div>
         <div class="form-field button-field">
           <button class="search-button">Buscar Ingressos</button>
@@ -371,40 +399,40 @@
       </div>
     </div>
 
-    <!-- ABA HOTEIS (range + quartos ilimitados) -->
+    <!-- ABA HOTEIS (mantendo o layout antigo!) -->
     <div id="tab-hoteis" class="tab-content">
-      <div class="form-group">
-        <div class="form-field">
-          <label for="destinoHoteis">Destino</label>
-          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel (ex: MCO)" />
-        </div>
-        <div class="form-field">
-          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
-          <input type="text" id="dataRangeHoteis" />
-        </div>
+      <!-- search-box (SEM mexer no layout) -->
+      <div class="search-box">
+        <label>Check-In:</label>
+        <input type="date" id="checkIn" value="2025-06-15">
+
+        <label>Check-Out:</label>
+        <input type="date" id="checkOut" value="2025-06-16">
+
+        <label>Destino (ex: MCO):</label>
+        <input type="text" id="destination" placeholder="MCO">
       </div>
 
-      <!-- Div de Quarto(s) / Ocupações, com botão Adicionar Quarto -->
-      <div class="occupancies" id="occupanciesContainer">
-        <h2>Quartos / Ocupações</h2>
-        <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
-        <div id="roomsWrapper"></div>
+      <!-- Input "Pessoas e Quartos" que abre modal -->
+      <div class="search-box">
+        <label>Pessoas/Quartos:</label>
+        <input type="text" id="pessoasQuartos" readonly value="1 quarto, 2 adultos" 
+               onclick="abrirModalQuartos()">
       </div>
 
-      <div class="form-group">
-        <div class="form-field button-field">
-          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
-        </div>
+      <!-- BOTÃO PARA BUSCAR -->
+      <div class="search-box">
+        <button onclick="buscarHoteis()">Buscar Hotéis</button>
       </div>
 
-      <!-- STATUS e LISTA DE HOTÉIS -->
-      <div id="status" style="display:none;"></div>
+      <!-- STATUS E LISTA -->
+      <div id="status" class="loading" style="display:none;"></div>
       <div id="hotelsList" class="hotels-list"></div>
 
       <!-- PAGINAÇÃO -->
-      <div id="pagination" class="pagination" style="display:none;">
-        <button id="previousPage" onclick="previousPage()">Anterior</button>
-        <button id="nextPage" onclick="nextPage()">Próxima Página</button>
+      <div id="pagination" class="pagination">
+        <button id="previousPage" onclick="previousPage()" disabled>Anterior</button>
+        <button id="nextPage" onclick="nextPage()" disabled>Próxima Página</button>
       </div>
     </div>
 
@@ -482,12 +510,31 @@
     <!-- Cards / Slides / etc. -->
   </section>
 
-  <!-- FLATPICKR + Localização em Português -->
+  <!-- MODAL para Gerenciar Quartos / Ocupações (exatamente como no antigo layout) -->
+  <div class="modal-overlay" id="modalQuartos">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Quartos / Ocupações</h2>
+        <button class="close-modal" onclick="fecharModalQuartos()">Fechar</button>
+      </div>
+      <!-- Conteúdo do "antigo" layout: 
+           Botão "+ Adicionar Quarto", div #roomsWrapper, etc. -->
+      <div class="occupancies">
+        <button type="button" onclick="adicionarQuarto()">+ Adicionar Quarto</button>
+        <div id="roomsWrapper"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORTA A LÓGICA DE HOTÉIS (ARQUIVO EXTERNO) -->
+  <script src="js/hotels-list.js"></script>
+
+  <!-- FLATPICKR (para abas Ingressos, Carros, Transfer, Seguros) -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
   <script>
-    // LÓGICA DE TROCA DE ABAS
+    // TROCA DE ABAS (layout "surreal")
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
@@ -500,183 +547,82 @@
       });
     });
 
-    // CONFIGURAÇÕES DE DATA
-    const singleDateOptions = {
+    // FLATPICKR -> para as abas Ingressos, Carros, Transfer, Seguros
+    flatpickr('#dataIngresso', {
       locale: 'pt',
       dateFormat: 'd/m/Y',
       minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
-    };
-    const singleDateTimeOptions = {
+      defaultDate: 'today'
+    });
+    flatpickr('#dataRetiradaCarros', {
       locale: 'pt',
       enableTime: true,
       dateFormat: 'd/m/Y H:i',
+      minDate: 'today',
       time_24hr: true,
-      minDate: 'today',
-      defaultDate: 'today',
-      allowInput: true
-    };
-    const rangeOptions = {
+      defaultDate: 'today'
+    });
+    flatpickr('#dataDevolucaoCarros', {
       locale: 'pt',
-      mode: 'range',
-      dateFormat: 'd/m/Y',
-      showMonths: 2,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
       minDate: 'today',
-      allowInput: true
-    };
+      time_24hr: true,
+      defaultDate: 'today'
+    });
+    flatpickr('#dataTransfer', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today'
+    });
+    flatpickr('#embarqueSeguros', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today'
+    });
+    flatpickr('#desembarqueSeguros', {
+      locale: 'pt',
+      dateFormat: 'd/m/Y',
+      minDate: 'today',
+      defaultDate: 'today'
+    });
 
-    // Ingressos
-    flatpickr('#dataIngresso', singleDateOptions);
-
-    // Hotéis (range c/ 2 meses)
-    flatpickr('#dataRangeHoteis', rangeOptions);
-
-    // Carros (data/hora)
-    flatpickr('#dataRetiradaCarros', singleDateTimeOptions);
-    flatpickr('#dataDevolucaoCarros', singleDateTimeOptions);
-
-    // Transfer
-    flatpickr('#dataTransfer', singleDateOptions);
-
-    // Seguros
-    flatpickr('#embarqueSeguros', singleDateOptions);
-    flatpickr('#desembarqueSeguros', singleDateOptions);
-
-
-    /* ============= LÓGICA "ANTIGA" DE QUARTOS ILIMITADOS + BUSCA ============= */
-
-    // Variáveis de exemplo
-    let currentPage = 1;
-    let totalPages = 1;
-
-    // Função para adicionar quarto
-    function adicionarQuarto() {
-      const roomsWrapper = document.getElementById('roomsWrapper');
-      const roomCount = roomsWrapper.children.length + 1;
-
-      // Cria bloco do quarto
-      const roomDiv = document.createElement('div');
-      roomDiv.className = 'room-block';
-
-      roomDiv.innerHTML = `
-        <h3>Quarto ${roomCount}</h3>
-        <label>Adultos:
-          <input type="number" class="adultCount" min="1" value="2"/>
-        </label>
-        <label>Crianças:
-          <input type="number" class="childCount" min="0" value="0"/>
-        </label>
-        <button class="remove-room" onclick="removerQuarto(this)">Remover</button>
-      `;
-      roomsWrapper.appendChild(roomDiv);
+    // ============ MODAL DE QUARTOS (ABA HOTEIS) ============
+    function abrirModalQuartos() {
+      document.getElementById('modalQuartos').classList.add('active');
+    }
+    function fecharModalQuartos() {
+      document.getElementById('modalQuartos').classList.remove('active');
+      // Opcional: atualizar o input #pessoasQuartos com base nos quartos
+      atualizarLabelQuartos();
     }
 
-    // Função para remover quarto
-    function removerQuarto(btn) {
-      const roomDiv = btn.parentNode;
-      roomDiv.remove();
-      // Redefinir contagem no título?
+    // Exemplo: ao fechar o modal, soma adultos/criancas e atualiza #pessoasQuartos
+    function atualizarLabelQuartos() {
       const roomsWrapper = document.getElementById('roomsWrapper');
-      const allRooms = roomsWrapper.querySelectorAll('.room-block');
-      allRooms.forEach((r, idx) => {
-        const title = r.querySelector('h3');
-        title.textContent = `Quarto ${idx + 1}`;
+      const roomBlocks = roomsWrapper.querySelectorAll('.room-block');
+      let totalQuartos = roomBlocks.length;
+      let totalAdultos = 0;
+      let totalCriancas = 0;
+      roomBlocks.forEach(rb => {
+        const ad = rb.querySelector('.adultCount').value || 0;
+        const ch = rb.querySelector('.childCount').value || 0;
+        totalAdultos += parseInt(ad);
+        totalCriancas += parseInt(ch);
       });
+      const label = `${totalQuartos} quarto(s), ${totalAdultos} adulto(s), ${totalCriancas} criança(s)`;
+      document.getElementById('pessoasQuartos').value = label;
     }
 
-    // Exemplo de "buscarHoteis" (simulação)
-    function buscarHoteis() {
-      // Exibir status de loading
-      const statusDiv = document.getElementById('status');
-      statusDiv.style.display = 'block';
-      statusDiv.textContent = 'Carregando hotéis...';
-      statusDiv.className = 'loading';
-
-      // Pegar datas (range)
-      const dataRangeVal = document.getElementById('dataRangeHoteis').value;
-      // Ex: "15/06/2025 a 16/06/2025"
-      // Pegar destino
-      const destino = document.getElementById('destinoHoteis').value || 'MCO';
-
-      // Montar ocupações
-      const roomsWrapper = document.getElementById('roomsWrapper');
-      const allRooms = roomsWrapper.querySelectorAll('.room-block');
-      const occupancies = [];
-      allRooms.forEach(r => {
-        const adultCount = r.querySelector('.adultCount').value;
-        const childCount = r.querySelector('.childCount').value;
-        occupancies.push({ adults: adultCount, children: childCount });
-      });
-
-      console.log('Buscando hotéis com:');
-      console.log('Destino:', destino);
-      console.log('Data Range:', dataRangeVal);
-      console.log('Quartos:', occupancies);
-
-      // Simular call API / setTimeout
-      setTimeout(() => {
-        // Supondo que retornou 2 páginas
-        currentPage = 1;
-        totalPages = 2;
-        // Exibir/atualizar paginação
-        atualizarPaginacao();
-
-        // Exibir lista de hotéis (fictícia)
-        mostrarHoteisFake();
-
-        // Tirar status
-        statusDiv.style.display = 'none';
-      }, 1500);
-    }
-
-    function mostrarHoteisFake() {
-      const hotelsList = document.getElementById('hotelsList');
-      hotelsList.innerHTML = '';
-      for (let i = 1; i <= 3; i++) {
-        const div = document.createElement('div');
-        div.className = 'hotel-item';
-        div.textContent = `Hotel ${i} - Página ${currentPage}`;
-        hotelsList.appendChild(div);
-      }
-    }
-
-    function atualizarPaginacao() {
-      const paginationDiv = document.getElementById('pagination');
-      const btnPrev = document.getElementById('previousPage');
-      const btnNext = document.getElementById('nextPage');
-
-      // Se só 1 página, não exibe
-      if (totalPages <= 1) {
-        paginationDiv.style.display = 'none';
-        return;
-      }
-
-      paginationDiv.style.display = 'flex';
-      btnPrev.disabled = (currentPage <= 1);
-      btnNext.disabled = (currentPage >= totalPages);
-    }
-
-    function previousPage() {
-      if (currentPage > 1) {
-        currentPage--;
-        atualizarPaginacao();
-        mostrarHoteisFake();
-      }
-    }
-
-    function nextPage() {
-      if (currentPage < totalPages) {
-        currentPage++;
-        atualizarPaginacao();
-        mostrarHoteisFake();
-      }
-    }
-
-    // Ao carregar, adicionamos ao menos 1 quarto
+    // AO CARREGAR, CRIAR 1 QUARTO PADRÃO (caso deseje)
     document.addEventListener('DOMContentLoaded', () => {
-      adicionarQuarto();
+      if (typeof adicionarQuarto === 'function') {
+        adicionarQuarto();
+      }
     });
   </script>
+
 </body>
 </html>
