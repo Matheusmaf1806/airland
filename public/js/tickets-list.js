@@ -15,7 +15,7 @@ tabs.forEach(tab => {
   });
 });
 
-// Inicializa calendários com Flatpickr (caso a lib esteja presente na página)
+// Se a biblioteca Flatpickr estiver presente na página, inicializa calendários
 if (typeof flatpickr !== 'undefined') {
   flatpickr('#dataIngresso', {
     locale: 'pt',
@@ -36,6 +36,7 @@ if (typeof flatpickr !== 'undefined') {
 /* ===========================================
    B) DROPDOWN DE QUARTOS E PESSOAS
 =========================================== */
+
 const quartosInput   = document.getElementById('quartos');
 const dropdown       = document.getElementById('quartosDropdown');
 const roomsMinus     = document.getElementById('roomsMinus');
@@ -44,12 +45,12 @@ const roomsTotalEl   = document.getElementById('roomsTotal');
 const roomsContainer = document.getElementById('roomsContainer');
 const applyQuartos   = document.getElementById('applyQuartos');
 
-// Array que guarda os dados de cada quarto
+// Array que guarda dados de cada quarto (adults, children, etc.)
 let roomsData = [
   { adults: 2, children: 0, childAges: [] }
 ];
 
-// Abre/fecha o dropdown ao clicar
+// Abre/fecha o dropdown ao clicar no input "quartos"
 if (quartosInput) {
   quartosInput.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -58,6 +59,7 @@ if (quartosInput) {
     }
   });
 }
+// Impede que clique dentro do dropdown feche a si mesmo
 if (dropdown) {
   dropdown.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -84,7 +86,7 @@ function renderRooms() {
     title.textContent = `Quarto ${index + 1}`;
     block.appendChild(title);
 
-    // Linha de adultos
+    // Linha de Adultos
     const adRow = document.createElement('div');
     adRow.className = 'qd-row';
     adRow.innerHTML = `
@@ -97,7 +99,7 @@ function renderRooms() {
     `;
     block.appendChild(adRow);
 
-    // Linha de crianças
+    // Linha de Crianças
     const chRow = document.createElement('div');
     chRow.className = 'qd-row';
     chRow.innerHTML = `
@@ -110,7 +112,7 @@ function renderRooms() {
     `;
     block.appendChild(chRow);
 
-    // Container das idades
+    // Container das idades das crianças
     const agesDiv = document.createElement('div');
     agesDiv.className = 'children-ages';
     room.childAges.forEach((ageVal, i2) => {
@@ -130,7 +132,7 @@ function renderRooms() {
     });
     block.appendChild(agesDiv);
 
-    // Eventos +/-
+    // Eventos (+/-) adultos
     adRow.querySelector('.adultPlus').addEventListener('click', () => {
       room.adults++;
       renderRooms();
@@ -141,6 +143,8 @@ function renderRooms() {
         renderRooms();
       }
     });
+
+    // Eventos (+/-) crianças
     chRow.querySelector('.childPlus').addEventListener('click', () => {
       room.children++;
       room.childAges.push(0);
@@ -158,7 +162,7 @@ function renderRooms() {
   });
 }
 
-// Botões +/-
+// Botões (+/-) de QUARTOS
 if (roomsPlus) {
   roomsPlus.addEventListener('click', () => {
     roomsData.push({ adults: 2, children: 0, childAges: [] });
@@ -190,27 +194,27 @@ if (applyQuartos) {
   });
 }
 
-// Render inicial
+// Render inicial do dropdown
 renderRooms();
 
 /* =========================================
-   C) LÓGICA DE CRIAÇÃO DE CARD E BUSCA /api/hoteis
+   C) LÓGICA DE CRIAÇÃO DE CARD E CHAMADA /api/hoteis
 ========================================= */
 
-// Função auxiliar: converte metros em "0,8 km"
+// Converte metros em "0,8 km"
 function convertDistanceToKm(distStr) {
   const meters = parseFloat(distStr) || 0;
   const km = meters / 1000;
   return km.toFixed(1).replace('.', ',') + " km";
 }
 
-// Cria o card (pega #hotelCardTemplate e popula)
+// Cria um Card de hotel a partir do template #hotelCardTemplate
 function createHotelCard(hotelData) {
   const template = document.getElementById("hotelCardTemplate");
   if (!template) return document.createDocumentFragment();
   const clone = template.content.cloneNode(true);
 
-  // Nome, endereço, datas, preço
+  // Preenche campos básicos
   clone.querySelector(".hotel-name").textContent    = hotelData.name        || "";
   clone.querySelector(".hotel-address").textContent = hotelData.address     || "";
   clone.querySelector(".days-nights").textContent   = hotelData.daysNights  || "";
@@ -229,7 +233,7 @@ function createHotelCard(hotelData) {
   }
   clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-  // Facilities (caso use window.facilitiesMap do facilitiesMap.js)
+  // Facilities (se quiser usar o facilitiesMap.js global)
   const facDiv = clone.querySelector(".facility-icons");
   (hotelData.facilities || []).forEach(f => {
     if (window.facilitiesMap) {
@@ -238,7 +242,7 @@ function createHotelCard(hotelData) {
         const iconDiv = document.createElement("div");
         iconDiv.className = "facility-icon";
         iconDiv.innerHTML = found.svg;
-        // Tooltip
+        // tooltip
         const tt = document.createElement("div");
         tt.className = "tooltip";
         tt.textContent = found.pt;
@@ -248,7 +252,7 @@ function createHotelCard(hotelData) {
     }
   });
 
-  // Pontos de interesse (POI)
+  // Pontos de interesse
   const poiUl = clone.querySelector(".poi-list");
   (hotelData.poiList || []).forEach(p => {
     const li = document.createElement("li");
@@ -257,7 +261,7 @@ function createHotelCard(hotelData) {
     poiUl.appendChild(li);
   });
 
-  // Carrossel
+  // Carrossel (imagens)
   const track = clone.querySelector(".carousel-track");
   let currentSlide = 0;
   (hotelData.images || []).forEach(url => {
@@ -292,20 +296,20 @@ function createHotelCard(hotelData) {
   return clone;
 }
 
-// Chama /api/hoteis no back-end
+// Função que chama /api/hoteis (seu backend) e monta os cards
 async function buscarHoteis() {
-  const destination = document.getElementById("destinoHoteis")?.value || "MCO";
-  const range       = document.getElementById("dataRangeHoteis")?.value || "";
-  const hotelsListEl= document.getElementById("hotelsList");
-  const statusEl    = document.getElementById("status");
-  const paginationEl= document.getElementById("pagination");
+  const destination  = document.getElementById("destinoHoteis")?.value || "MCO";
+  const range        = document.getElementById("dataRangeHoteis")?.value || "";
+  const hotelsListEl = document.getElementById("hotelsList");
+  const statusEl     = document.getElementById("status");
+  const paginationEl = document.getElementById("pagination");
 
   if (!range) {
     alert("Selecione as datas!");
     return;
   }
 
-  // "DD/MM/YYYY" -> "YYYY-MM-DD"
+  // Converte "DD/MM/YYYY" -> "YYYY-MM-DD"
   function toISO(dmy){
     const [d,m,y] = dmy.split("/");
     return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
@@ -319,14 +323,16 @@ async function buscarHoteis() {
   const isoIn  = toISO(checkIn);
   const isoOut = toISO(checkOut);
 
-  // Monta query
-  let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
+  // Monta query com roomsData
+  let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}`;
+  query += `&page=1&limit=20`; // Exemplo de paginação
   roomsData.forEach((r, i) => {
     const idx = i + 1;
     query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
-    // se quisesse childAges, poderia mandar tbm
+    // Se quiser mandar idades, poderia: &childAges${idx}= ...
   });
 
+  // Limpa listagem e status
   if (hotelsListEl) hotelsListEl.innerHTML = "";
   if (paginationEl) {
     paginationEl.innerHTML = "";
@@ -337,6 +343,7 @@ async function buscarHoteis() {
     statusEl.style.display = "block";
   }
 
+  // Chama back-end
   const url = `/api/hoteis${query}`;
   console.log("Chamando backend:", url);
 
@@ -347,7 +354,7 @@ async function buscarHoteis() {
     }
     const data = await resp.json();
 
-    // Supondo data = { hotels: {hotels: [...], ...}, totalPages: N, ...}
+    // Supondo que data tenha "hotels.hotels" ou "combined" etc.
     const hotelsArr = data.hotels?.hotels || [];
     if (!hotelsArr.length) {
       if (statusEl) statusEl.textContent = "Nenhum hotel encontrado.";
@@ -355,25 +362,21 @@ async function buscarHoteis() {
     }
     if (statusEl) statusEl.style.display = "none";
 
-    // Exemplo: se o back devolve array 'hotelsArr' já formatado => OK
-    // MAS, se devolve "cru" da Hotelbeds, a formatação de card deve ser no front.
-    // Abaixo supõe que cada item do hotelsArr tenha { name, address, ratingStars, ... }
-
+    // Monta cards
     for (const hotelObj of hotelsArr) {
       const cardEl = createHotelCard(hotelObj);
       hotelsListEl?.appendChild(cardEl);
     }
 
-    // Se seu backend retorna totalPages, use exibirPaginacao(data.totalPages, 1) etc.
+    // Se o back-end retorna "totalPages", poderia:
     // exibirPaginacao(data.totalPages || 1, 1);
-
   } catch (e) {
     console.error(e);
     if (statusEl) statusEl.textContent = "Erro ao buscar hotéis. Ver console.";
   }
 }
 
-// (Opcional) Paginação
+// Exemplo de função de paginação (caso precise)
 function exibirPaginacao(totalPages, currentPage) {
   const pagEl = document.getElementById("pagination");
   if (!pagEl || totalPages <= 1) return;
@@ -382,13 +385,13 @@ function exibirPaginacao(totalPages, currentPage) {
   if (currentPage > 1) {
     const btnPrev = document.createElement("button");
     btnPrev.textContent = "Anterior";
-    btnPrev.onclick = () => buscarHoteis(/* currentPage - 1 */);
+    //btnPrev.onclick = () => buscarHoteis(currentPage - 1);
     pagEl.appendChild(btnPrev);
   }
   if (currentPage < totalPages) {
     const btnNext = document.createElement("button");
     btnNext.textContent = "Próxima Página";
-    btnNext.onclick = () => buscarHoteis(/* currentPage + 1 */);
+    //btnNext.onclick = () => buscarHoteis(currentPage + 1);
     pagEl.appendChild(btnNext);
   }
 }
