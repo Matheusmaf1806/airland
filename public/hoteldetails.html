@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <!-- Carrega seu facilitiesMap.js (se existir) -->
+  <!-- Carrega o facilitiesMap.js se necessário -->
   <script src="/js/facilitiesMap.js"></script>
   <style>
     /* RESET e estilos básicos */
@@ -149,18 +149,15 @@
     </div>
   </div>
 
-  <!-- Scripts Externos -->
+  <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <script>
-    // URL base para as imagens da Hotelbeds
-    const BASE_IMG_URL = "https://photos.hotelbeds.com/giata/xl/";
-
     /***********************************************
-    * A) Carrega o header.html
+    * A) Importa o header.html
     ***********************************************/
     fetch("header.html")
       .then(resp => resp.text())
@@ -168,7 +165,7 @@
       .catch(err => console.error("Erro ao carregar header:", err));
 
     /***********************************************
-    * B) Evento: ao clicar em "Ver mapa", rola para a seção do mapa
+    * B) Evento: "Ver mapa" rola para a seção do mapa
     ***********************************************/
     document.addEventListener("click", function(e) {
       const link = e.target.closest(".location-link");
@@ -182,7 +179,7 @@
     });
 
     /***********************************************
-    * C) Leitura dos parâmetros da URL
+    * C) Função para obter os parâmetros da URL
     ***********************************************/
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
@@ -195,12 +192,14 @@
 
     /***********************************************
     * D) Busca os dados do hotel via BOOKING API
-    *    Utiliza os parâmetros (checkIn, checkOut, rooms, adults, children)
-    *    e filtra o hotel com o código (id) passado na query.
+    *    (Usa os parâmetros da URL: checkIn, checkOut, rooms, adults, children)
     ***********************************************/
     function fetchHotelBookingDetails(hotelId, queryParams) {
-      // Constrói a query para o endpoint do backend que chama a Booking API.
-      let qs = `?checkIn=${queryParams.checkIn}&checkOut=${queryParams.checkOut}&rooms=${queryParams.rooms}`;
+      // Converte as datas de "DD/MM/YYYY" para "YYYY-MM-DD"
+      const checkInIso = moment(queryParams.checkIn, "DD/MM/YYYY").format("YYYY-MM-DD");
+      const checkOutIso = moment(queryParams.checkOut, "DD/MM/YYYY").format("YYYY-MM-DD");
+
+      let qs = `?checkIn=${checkInIso}&checkOut=${checkOutIso}&rooms=${queryParams.rooms}`;
       qs += `&adults1=${queryParams.adults}&children1=${queryParams.children}`;
       if (queryParams.destination) qs += `&destination=${queryParams.destination}`;
       const url = `/api/hotelbeds/hotels${qs}`;
@@ -222,38 +221,34 @@
       // Salva o hotel id no container para uso posterior
       document.getElementById("hotelDetail").setAttribute("data-hotel-id", hotelObj.code);
 
-      // Cabeçalho: nome e endereço (usamos destinationName ou outros campos)
+      // Cabeçalho: Nome e Endereço
       const hotelName = hotelObj.name || "Hotel sem nome";
-      // Exemplo: usamos destinationName e, se disponível, cidade/país
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML =
         `<i class="fas fa-map-marker-alt"></i> ${hotelAddress} <a href="#" class="location-link">Ver mapa</a>`;
 
-      // Galeria de Fotos: se houver imagens na resposta (se não, usa dummy)
+      // Galeria de Fotos: se houver imagens, usa-as; senão, dummy
       const images = hotelObj.images || [];
-      // Se não houver imagens, usa dummy; se houver, usa as que existirem (preferencialmente, se houver alguma marcação)
       const genImages = images.length ? images.map(img => img.url || BASE_IMG_URL + img.path) : ["https://dummyimage.com/800x400/ccc/000.png&text=No+Image"];
       fillPhotoGallery(genImages);
 
-      // Facilidades: se houver (pode vir de outro campo, ajuste conforme a resposta)
-      // Aqui, para exemplificar, vamos supor que hotelObj.facilities seja um array de strings
+      // Facilidades: utiliza hotelObj.facilities (array de strings, por exemplo)
       const facList = hotelObj.facilities || [];
       fillFacilities(facList.slice(0, 12));
 
-      // Descrição: pode vir de outro campo; se não houver, exibe uma mensagem
-      const descEl = document.getElementById("hotelDescription");
-      descEl.innerHTML = hotelObj.description || "<p>Sem descrição disponível.</p>";
+      // Descrição
+      document.getElementById("hotelDescription").innerHTML =
+        hotelObj.description || "<p>Sem descrição disponível.</p>";
 
-      // Destaques: exemplo fixo (ajuste se a Booking API fornecer destaques)
+      // Destaques (exemplo fixo – ajuste conforme os dados da Booking API se houver)
       document.getElementById("hotelHighlights").innerHTML =
         `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
 
-      // Tabela de Quartos: utiliza os dados dos quartos da Booking API
-      // Aqui agrupamos os quartos por nome (para exibir cada grupo apenas uma vez)
+      // Tabela de Quartos: agrupa por nome (exibe o nome, detalhes, capacidade e preço do quarto)
       createRoomTableGrouped(hotelObj.rooms);
 
-      // Informações adicionais: pode vir de outros campos; aqui usamos valores fixos de exemplo
+      // Informações adicionais: usando dados da Booking API ou valores fixos de exemplo
       fillInfoBlocks({
         checkin: hotelObj.checkIn || "A partir das 16h",
         checkout: hotelObj.checkOut || "Até 11:00",
@@ -261,10 +256,10 @@
         parking: hotelObj.parking || "Consulte valores no local."
       });
 
-      // Mapa e Atrações: usamos coordenadas e, se houver, interestPoints
+      // Mapa e Atrações: usa coordenadas e, se houver, interestPoints (ajuste conforme a estrutura real)
       const lat = hotelObj.latitude || 0;
       const lng = hotelObj.longitude || 0;
-      initMapAndAttractions(lat, lng, hotelObj.rooms[0]?.interestPoints || []); // ajuste conforme a estrutura real
+      initMapAndAttractions(lat, lng, hotelObj.interestPoints || []);
 
       // Inicializa o Date Range Picker
       initDateRangePicker();
@@ -301,13 +296,13 @@
       });
     }
 
-    // F3) Cria a tabela de quartos agrupando por nome
+    // F3) Cria a tabela de quartos agrupando por nome (exibindo o nome, detalhes, capacidade e preço)
     function createRoomTableGrouped(rooms) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
 
-      // Agrupa os quartos pelo nome (room.name)
+      // Agrupa os quartos pelo campo "name" (exibe o nome do quarto, não o código)
       const groups = {};
       rooms.forEach(room => {
         const key = room.name || "Outros";
@@ -325,20 +320,21 @@
         groups[groupName].forEach(room => {
           const row = document.createElement("div");
           row.className = "room-table-row";
-          // Usa o máximo de hóspedes (se não existir, assume 2)
+          // Define a capacidade máxima (maxPax, ou soma de maxAdults e maxChildren)
           const maxGuests = room.maxPax || (room.maxAdults + room.maxChildren) || 2;
           row.setAttribute("data-max-guests", maxGuests);
 
-          // Supondo que cada room tenha uma propriedade "image" ou similar; se não, usamos dummy
-          const roomImg = room.image ? room.image : "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
+          // Imagem do quarto (se houver imagem, caso contrário dummy)
+          const roomImg = room.image || "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
 
-          // Para o nome do quarto, usa room.name (não exibe o código)
+          // Nome do quarto: exibe room.name (não o código)
           const roomType = room.name || room.code || "Quarto";
 
-          // Se houver detalhes específicos, usa; senão, mostra informações de capacidade
-          const details = room.details ? room.details : [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
+          // Detalhes: se houver, usa room.details; caso contrário, informações de capacidade
+          const details = room.details && room.details.length ? room.details :
+            [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
 
-          // Para o preço, usamos o primeiro rate disponível (convertido para número)
+          // Preço: utiliza o primeiro rate disponível (convertido para número)
           const basePrice = (room.rates && room.rates.length) ? parseFloat(room.rates[0].amount) : 300;
 
           row.innerHTML = `
@@ -485,18 +481,17 @@
     * I) Manipulador do clique em "Selecionar Quarto"
     ***********************************************/
     window.handleSelectRoom = function(roomCode) {
-      // Obtém os valores dos campos de busca
-      const checkinCheckout = document.getElementById("checkin-checkout").value; // Ex: "15/06/2025 - 20/06/2025"
+      // Converte datas de DD/MM/YYYY para ISO (YYYY-MM-DD) usando Moment.js
+      const checkinCheckout = document.getElementById("checkin-checkout").value;
       let checkIn = "", checkOut = "";
       if (checkinCheckout) {
         const parts = checkinCheckout.split(" - ");
-        checkIn = parts[0];
-        checkOut = parts[1];
+        checkIn = moment(parts[0], "DD/MM/YYYY").format("YYYY-MM-DD");
+        checkOut = moment(parts[1], "DD/MM/YYYY").format("YYYY-MM-DD");
       }
       const rooms = document.getElementById("rooms").value;
       const adults = document.getElementById("adults").value;
       const children = document.getElementById("children").value;
-      // Obtém o hotel id (salvo no atributo data-hotel-id do container)
       const hotelId = document.getElementById("hotelDetail").getAttribute("data-hotel-id") || "";
       const params = new URLSearchParams({
         id: hotelId,
@@ -507,15 +502,15 @@
         children: children,
         roomCode: roomCode
       }).toString();
-      // Redireciona para a página de confirmação com os parâmetros necessários
       window.location.href = "confirmation.html?" + params;
     };
 
     /***********************************************
-    * J) Inicialização ao carregar o DOM
+    * J) Lógica inicial ao carregar a página
     ***********************************************/
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
+
       // Pré-preenche a barra de pesquisa se os dados estiverem na URL
       if (query.checkIn && query.checkOut) {
         const input = document.getElementById("checkin-checkout");
@@ -531,13 +526,13 @@
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
 
-      // O hotel id deve estar na query (ex: ?id=47691&checkIn=15/06/2025&checkOut=20/06/2025&rooms=1&adults=2&children=0)
+      // O hotel id deve estar na query, ex: ?id=47691&checkIn=15/06/2025&checkOut=20/06/2025&rooms=1&adults=2&children=0
       const hotelId = query.id;
       if (!hotelId) {
         console.error("Nenhum hotel id na URL!");
         return;
       }
-      // Para os dados da Booking API, passamos os parâmetros da query
+      // Para obter os dados da Booking API, convertemos as datas para ISO antes de chamar o backend.
       fetchHotelBookingDetails(hotelId, query).then(hotelObj => {
         if (hotelObj) {
           loadHotelContent(hotelObj);
