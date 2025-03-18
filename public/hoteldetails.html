@@ -481,348 +481,316 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Faz o fetch do arquivo header.html
+    // Carrega header.html (opcional)
     fetch('header.html')
       .then(response => response.text())
       .then(html => {
-        // injeta o HTML retornado na div#header
         document.getElementById('header').innerHTML = html;
       })
       .catch(err => {
         console.error('Falha ao carregar header:', err);
       });
-    
+
+    // Lê parâmetros da URL (query string)
+    function getUrlParams() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return {
+        name: urlParams.get("name") || "",
+        address: urlParams.get("address") || "",
+        description: urlParams.get("description") || "",
+        // Se quiser passar imagens, facilidades, etc. pela URL, inclua aqui
+        // ex: facilities: (urlParams.get("facilities") || "").split(",")
+      };
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-      // Variável global para número de noites (usada na atualização dos preços dos quartos)
-      let numNoites = 1;
-    
-      // Função simulada de chamada à API – substitua por uma chamada real (fetch, axios, etc.)
-      function fetchHotelDetails() {
-        // Exemplo de resposta (substitua com os dados reais da sua API)
-        return Promise.resolve({
-          hotel: {
-            name: "Sheraton Buenos Aires Hotel & Convention Center",
-            address: "San Martin 1225, Retiro, 1004 Buenos Aires, Argentina",
-            latitude: -34.6037,   // Exemplo: coordenadas de Buenos Aires
-            longitude: -58.3816,
-            description: `<p>O hotel oferece acomodações de alto padrão com uma localização privilegiada. 
-                          Desfrute de ambientes sofisticados, serviços exclusivos e uma excelente gastronomia.</p>`,
-            highlights: {
-              accommodation: ["Vista da piscina", "Estacionamento privativo"],
-              activities: ["Academia", "Salão de jogos", "Fitness"]
-            },
-            photos: [
-              "https://media.staticontent.com/media/pictures/ed84e4bc-56ce-453f-be91-90f87e7974da/1120x472",
-              "https://media.staticontent.com/media/pictures/6daae66c-04e7-4202-9b67-54a075bec0ec/1120x472",
-              "https://media.staticontent.com/media/pictures/294e5119-39f2-4bdc-9656-0fed66957942",
-              "https://media.staticontent.com/media/pictures/3da2583f-f837-4cdd-89d1-c3babf9d6e11",
-              "https://media.staticontent.com/media/pictures/e94f34fa-213e-434c-aa39-c79aac61c79a"
-            ],
-            facilities: ["Wi-fi", "Pool", "Gym", "Parking", "Café da manhã"],
-            rooms: [
-              {
-                type: "Premier Deluxe Room",
-                image: "https://blog.discoveruniversal.com/wp-content/uploads/2018/11/05_Universals-Endless-Summer-Resort-Surfside-Inn-and-Suites-Guest-Room.jpg",
-                details: ["1 cama de casal grande", "Wi-Fi grátis", "TV de tela plana"],
-                maxGuests: 3,
-                price: 340
-              },
-              {
-                type: "Super Deluxe Room",
-                image: "https://www.optur.com.br/wp-content/uploads/2019/08/surfside-inn-and-suites-bedroom.jpg",
-                details: ["2 camas de solteiro", "Acesso ao spa", "Café da manhã incluso"],
-                maxGuests: 2,
-                price: 520
-              }
-            ],
-            info: {
-              checkin: "A partir das 16h",
-              checkout: "Até 11:00",
-              resortFee: "Não possui no local.",
-              parking: "24.95 USD por dia de hospedagem, pagos diretamente ao hotel!"
-            },
-            attractions: [
-              { name: "Walt Disney World", distance: "10 min", coordinates: [28.4171, -81.5857] },
-              { name: "Universal Studios", distance: "7 min", coordinates: [28.4712, -81.4694] },
-              { name: "SeaWorld", distance: "6 min", coordinates: [28.4192, -81.4668] },
-              { name: "Discovery Cove", distance: "5 min", coordinates: [28.4140, -81.4678] },
-              { name: "Premium Outlet", distance: "15 min", coordinates: [28.4728, -81.4513] }
-            ]
+      // 1) Captura dados da URL
+      const params = getUrlParams();
+      // Exemplo: se a listagem enviou hoteldetails.html?name=Hotel+XYZ&address=Rua+123
+
+      // 2) Preenche elementos básicos
+      document.getElementById('hotelName').textContent = params.name;
+      document.getElementById('hotelAddress').innerHTML = `
+        <i class="fas fa-map-marker-alt"></i> 
+        ${params.address} 
+        <a href="#" class="location-link">Ver mapa</a>
+      `;
+
+      // 3) Caso você queira usar uma API real com ID, substitua:
+      // fetchHotelById(params.id).then(...);
+
+      // 4) Exemplo de dados "mock" (se quiser exibir algo fixo):
+      const mockData = {
+        latitude: -34.6037,
+        longitude: -58.3816,
+        description: params.description || `
+          <p>O hotel oferece acomodações de alto padrão com uma localização privilegiada. 
+          Desfrute de ambientes sofisticados, serviços exclusivos e uma excelente gastronomia.</p>
+        `,
+        photos: [
+          "https://media.staticontent.com/media/pictures/ed84e4bc-56ce-453f-be91-90f87e7974da/1120x472",
+          "https://media.staticontent.com/media/pictures/6daae66c-04e7-4202-9b67-54a075bec0ec/1120x472",
+          "https://media.staticontent.com/media/pictures/294e5119-39f2-4bdc-9656-0fed66957942"
+        ],
+        facilities: ["Wi-fi", "Pool", "Parking"],
+        highlights: {
+          accommodation: ["Vista da piscina", "Estacionamento privativo"],
+          activities: ["Academia", "Salão de jogos"]
+        },
+        rooms: [
+          {
+            type: "Deluxe Room",
+            image: "https://blog.discoveruniversal.com/wp-content/uploads/2018/11/05_Universals-Endless-Summer-Resort-Surfside-Inn-and-Suites-Guest-Room.jpg",
+            details: ["1 cama de casal grande", "Wi-Fi grátis", "TV de tela plana"],
+            maxGuests: 3,
+            price: 340
           }
-        });
+        ],
+        info: {
+          checkin: "A partir das 16h",
+          checkout: "Até 11:00",
+          resortFee: "Não possui no local.",
+          parking: "24.95 USD por dia, pagos ao hotel"
+        },
+        attractions: [
+          { name: "Ponto Turístico A", distance: "10 min", coordinates: [-34.606, -58.380] },
+          { name: "Ponto Turístico B", distance: "7 min", coordinates: [-34.601, -58.382] }
+        ]
+      };
+
+      // 5) Preenche a página com os dados mock (ou da API)
+      fillDescription(mockData.description);
+      fillPhotoGallery(mockData.photos);
+      fillFacilities(mockData.facilities);
+      fillHighlights(mockData.highlights);
+      createRoomTable(mockData.rooms);
+      fillInfoBlocks(mockData.info);
+      initMapAndAttractions(mockData.latitude, mockData.longitude, mockData.attractions);
+
+      // 6) Inicializa o Date Range Picker
+      initDateRangePicker();
+    });
+
+    // Preenche descrição
+    function fillDescription(descHTML) {
+      document.getElementById("hotelDescription").innerHTML = descHTML;
+    }
+
+    // Preenche a galeria de fotos (limita a 5 imagens, com a primeira em destaque)
+    function fillPhotoGallery(photos) {
+      const gallery = document.getElementById('photoGallery');
+      gallery.innerHTML = "";
+      if (!photos || photos.length === 0) return;
+      const largeImg = document.createElement('img');
+      largeImg.src = photos[0];
+      largeImg.alt = "Foto do Hotel";
+      largeImg.classList.add("large-photo");
+      gallery.appendChild(largeImg);
+      for (let i = 1; i < photos.length && i < 5; i++) {
+        const img = document.createElement('img');
+        img.src = photos[i];
+        img.alt = "Foto do Hotel";
+        gallery.appendChild(img);
       }
-    
-      // Função que preenche os containers do template com os dados da API
-      function loadHotelDetails(data) {
-        const hotel = data.hotel;
-        // Cabeçalho
-        document.getElementById('hotelName').textContent = hotel.name;
-        document.getElementById('hotelAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${hotel.address} <a href="#" class="location-link">Ver mapa</a>`;
-        
-        // Galeria de Fotos
-        fillPhotoGallery(hotel.photos);
-    
-        // Comodidades
-        fillFacilities(hotel.facilities);
-    
-        // Descrição
-        document.getElementById('hotelDescription').innerHTML = hotel.description;
-    
-        // Destaques
-        fillHighlights(hotel.highlights);
-    
-        // Tabela de Quartos
-        createRoomTable(hotel.rooms);
-    
-        // Informações adicionais
-        fillInfoBlocks(hotel.info);
-    
-        // Mapa e Atrações
-        initMapAndAttractions(hotel.latitude, hotel.longitude, hotel.attractions);
+    }
+
+    // Preenche facilidades (exibe no máximo 3)
+    function fillFacilities(facilities) {
+      const container = document.getElementById('facilities');
+      container.innerHTML = "";
+      if (!facilities || !facilities.length) return;
+      const top3 = facilities.slice(0, 3);
+      top3.forEach(f => {
+        container.innerHTML += `
+          <div class="facility">
+            <i class="fas fa-check"></i> ${f}
+          </div>
+        `;
+      });
+    }
+
+    // Preenche destaques
+    function fillHighlights(highlights) {
+      const container = document.getElementById('hotelHighlights');
+      container.innerHTML = `<h2>Destaques da Acomodação</h2>`;
+      if (!highlights) return;
+      if (highlights.accommodation?.length) {
+        container.innerHTML += `
+          <div class="options">
+            <h3>Opções com:</h3>
+            <ul class="highlight-list">
+              ${highlights.accommodation.map(item => `<li><i class="fas fa-check"></i> ${item}</li>`).join("")}
+            </ul>
+          </div>
+        `;
       }
-    
-      // Preenche a galeria de fotos (limita a 5 imagens, com a primeira em destaque)
-      function fillPhotoGallery(photos) {
-        const gallery = document.getElementById('photoGallery');
-        gallery.innerHTML = "";
-        if (!photos || photos.length === 0) return;
-        // Primeira imagem como destaque (classe "large-photo")
-        const largeImg = document.createElement('img');
-        largeImg.src = photos[0];
-        largeImg.alt = "Foto do Hotel";
-        largeImg.classList.add("large-photo");
-        gallery.appendChild(largeImg);
-        // As demais imagens (até 4)
-        for (let i = 1; i < photos.length && i < 5; i++) {
-          const img = document.createElement('img');
-          img.src = photos[i];
-          img.alt = "Foto do Hotel";
-          gallery.appendChild(img);
-        }
+      if (highlights.activities?.length) {
+        container.innerHTML += `
+          <div class="activities">
+            <h3>Atividades:</h3>
+            <ul class="highlight-list">
+              ${highlights.activities.map(item => `<li><i class="fas fa-check"></i> ${item}</li>`).join("")}
+            </ul>
+          </div>
+        `;
       }
-    
-      // Preenche a seção de comodidades usando o facilitiesMap (exibe no máximo 3)
-      function fillFacilities(facilities) {
-        const facilitiesContainer = document.getElementById('facilities');
-        facilitiesContainer.innerHTML = "";
-        if (!facilities || facilities.length === 0) return;
-        const priorityFacilities = ["Wi-fi", "Gym", "Pool", "Parking"];
-        facilities.sort((a, b) => {
-          const aIndex = priorityFacilities.findIndex(p => a.toLowerCase().includes(p.toLowerCase()));
-          const bIndex = priorityFacilities.findIndex(p => b.toLowerCase().includes(p.toLowerCase()));
-          if (aIndex === -1 && bIndex === -1) return 0;
-          if (aIndex === -1) return 1;
-          if (bIndex === -1) return -1;
-          return aIndex - bIndex;
-        });
-        const facArr = facilities.slice(0, 3);
-        facArr.forEach(facility => {
-          let foundKey = null;
-          if (window.facilitiesMap && window.facilitiesMap[facility]) {
-            foundKey = facility;
-          } else if (window.facilitiesMap) {
-            for (const k in window.facilitiesMap) {
-              if (facility.toLowerCase().includes(k.toLowerCase())) {
-                foundKey = k;
-                break;
-              }
-            }
-          }
-          let html = "";
-          if (foundKey) {
-            const found = window.facilitiesMap[foundKey];
-            html = `<div class="facility">${found.svg} ${found.pt}</div>`;
-          } else {
-            html = `<div class="facility"><i class="fas fa-check"></i> ${facility}</div>`;
-          }
-          facilitiesContainer.innerHTML += html;
-        });
-      }
-    
-      // Preenche os destaques (opções e atividades)
-      function fillHighlights(highlights) {
-        const container = document.getElementById('hotelHighlights');
-        container.innerHTML = "";
-        if (!highlights) return;
-        let html = `<h2>Destaques da Acomodação</h2>`;
-        if (highlights.accommodation && highlights.accommodation.length) {
-          html += `<div class="options"><h3>Opções com:</h3><ul class="highlight-list">`;
-          highlights.accommodation.forEach(item => {
-            html += `<li><i class="fas fa-check"></i> ${item}</li>`;
-          });
-          html += `</ul></div>`;
-        }
-        if (highlights.activities && highlights.activities.length) {
-          html += `<div class="activities"><h3>Atividades:</h3><ul class="highlight-list">`;
-          highlights.activities.forEach(item => {
-            html += `<li><i class="fas fa-check"></i> ${item}</li>`;
-          });
-          html += `</ul></div>`;
-        }
-        container.innerHTML = html;
-      }
-    
-      // Cria a tabela de quartos com base nos dados dos quartos
-      function createRoomTable(rooms) {
-        const tableBody = document.getElementById('roomTableBody');
-        tableBody.innerHTML = "";
-        if (!rooms || rooms.length === 0) return;
-        rooms.forEach(room => {
-          const row = document.createElement('div');
-          row.className = "room-table-row";
-          row.setAttribute("data-max-guests", room.maxGuests);
-          // Room info (imagem e detalhes)
-          const infoDiv = document.createElement('div');
-          infoDiv.className = "room-info";
-          infoDiv.innerHTML = `
+    }
+
+    // Cria a tabela de quartos
+    function createRoomTable(rooms) {
+      const tableBody = document.getElementById('roomTableBody');
+      tableBody.innerHTML = "";
+      if (!rooms || !rooms.length) return;
+      rooms.forEach(room => {
+        const row = document.createElement('div');
+        row.className = "room-table-row";
+        row.setAttribute("data-max-guests", room.maxGuests);
+        const price = room.price.toFixed(2);
+        row.innerHTML = `
+          <div class="room-info">
             <img src="${room.image}" alt="${room.type}" class="room-image">
             <div class="room-details">
               <h4>${room.type}</h4>
-              ${room.details.map(detail => `<p><i class="fas fa-check"></i> ${detail}</p>`).join("")}
+              ${room.details.map(d => `<p><i class="fas fa-check"></i> ${d}</p>`).join("")}
             </div>
-          `;
-          // Número de hóspedes
-          const guestsDiv = document.createElement('div');
-          guestsDiv.className = "room-guests";
-          guestsDiv.textContent = room.maxGuests + " Hóspedes";
-          // Preço – inicializa com preço base (1 noite, 1 quarto)
-          const priceDiv = document.createElement('div');
-          priceDiv.className = "room-price";
-          priceDiv.setAttribute("data-price", room.price);
-          const totalPrice = room.price; 
-          priceDiv.innerHTML = `
-            <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span> <br>
+          </div>
+          <div class="room-guests">${room.maxGuests} Hóspedes</div>
+          <div class="room-price" data-price="${room.price}">
+            <p class="discount-price">R$ <span class="pix-price">${price}</span><br>
+            <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
+            <div class="price-info">
+              <p>ou R$ <span class="installment-price">${(room.price / 10).toFixed(2)}</span> em até 10x sem juros</p>
+              <div class="daily-price-container">
+                <p style="font-weight: normal;">Preço por diária: R$ <span>${price}</span></p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button class="select-room-button">Selecionar Quarto</button>
+          </div>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Preenche info blocks
+    function fillInfoBlocks(info) {
+      const container = document.getElementById('infoContainer');
+      container.innerHTML = "";
+      if (!info) return;
+      const items = [
+        { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
+        { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
+        { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
+        { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
+      ];
+      items.forEach(item => {
+        container.innerHTML += `
+          <div class="info-block">
+            <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
+            <p>${item.content}</p>
+          </div>
+        `;
+      });
+    }
+
+    // Inicializa o mapa e as atrações
+    function initMapAndAttractions(lat, lng, attractions) {
+      const map = L.map('map').setView([lat, lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Ícone do hotel
+      const hotelIcon = L.icon({
+        iconUrl: 'https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -30]
+      });
+      const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
+      marker.bindPopup(`<b>${document.getElementById('hotelName').textContent}</b>`);
+
+      // Lista de atrações
+      fillAttractions(attractions);
+      // Marcadores das atrações
+      if (Array.isArray(attractions)) {
+        attractions.forEach(attr => {
+          const attrMarker = L.marker(attr.coordinates).addTo(map);
+          attrMarker.bindPopup(`<b>${attr.name}</b> - ${attr.distance}`);
+        });
+      }
+    }
+
+    // Preenche a coluna de atrações
+    function fillAttractions(attractions) {
+      const container = document.getElementById('attractions');
+      container.innerHTML = "<h2>Atrações</h2>";
+      if (!attractions || !attractions.length) return;
+      attractions.forEach(a => {
+        container.innerHTML += `
+          <div class="attraction-item">
+            <i class="fas fa-map-marker-alt"></i> ${a.name} - ${a.distance}
+          </div>
+        `;
+      });
+    }
+
+    // Atualiza a tabela de quartos ao mudar a busca
+    window.updateRoomList = function() {
+      const numNoitesEl = document.getElementById('num-noites');
+      let numNoites = parseInt(numNoitesEl.textContent) || 1;
+
+      const numRooms = parseInt(document.getElementById('rooms').value) || 1;
+      const numAdults = parseInt(document.getElementById('adults').value) || 1;
+      const numChildren = parseInt(document.getElementById('children').value) || 0;
+      const totalGuests = numAdults + numChildren;
+
+      document.querySelectorAll('.room-table-row').forEach(row => {
+        const maxGuests = parseInt(row.getAttribute('data-max-guests'));
+        const priceEl = row.querySelector('.room-price');
+        const basePrice = parseFloat(priceEl.getAttribute('data-price'));
+        if (totalGuests > maxGuests) {
+          row.style.display = "none";
+        } else {
+          row.style.display = "grid";
+          const totalPrice = (numNoites * basePrice) * numRooms;
+          let dailyRate = (numNoites > 0) ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
+          priceEl.innerHTML = `
+            <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
             <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
             <div class="price-info">
               <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
               <div class="daily-price-container">
-                <p style="font-weight: normal;">Preço por diária: R$ <span>${totalPrice.toFixed(2)}</span></p>
+                <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
               </div>
             </div>
           `;
-          // Botão de seleção do quarto
-          const buttonDiv = document.createElement('div');
-          buttonDiv.innerHTML = `<button class="select-room-button">Selecionar Quarto</button>`;
-          // Monta a linha e adiciona à tabela
-          row.appendChild(infoDiv);
-          row.appendChild(guestsDiv);
-          row.appendChild(priceDiv);
-          row.appendChild(buttonDiv);
-          tableBody.appendChild(row);
-        });
-      }
-    
-      // Preenche os blocos de informações adicionais (check-in, check-out, taxas, estacionamento)
-      function fillInfoBlocks(info) {
-        const container = document.getElementById('infoContainer');
-        container.innerHTML = "";
-        if (!info) return;
-        const infoItems = [
-          { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
-          { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
-          { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
-          { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
-        ];
-        infoItems.forEach(item => {
-          const block = document.createElement('div');
-          block.className = "info-block";
-          block.innerHTML = `
-            <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
-            <p>${item.content}</p>
-          `;
-          container.appendChild(block);
-        });
-      }
-    
-      // Inicializa o mapa com a localização do hotel e adiciona os marcadores para as atrações
-      function initMapAndAttractions(lat, lng, attractions) {
-        var map = L.map('map').setView([lat, lng], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-        // Ícone do hotel
-        var hotelIcon = L.icon({
-          iconUrl: 'https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png',
-          iconSize: [40, 40],
-          iconAnchor: [20, 40],
-          popupAnchor: [0, -30]
-        });
-        var marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
-        marker.bindPopup(`<b>${document.getElementById('hotelName').textContent}</b>`);
-    
-        // Preenche a lista de atrações e adiciona marcadores no mapa
-        fillAttractions(attractions);
-        attractions.forEach(attr => {
-          var attrMarker = L.marker(attr.coordinates).addTo(map);
-          attrMarker.bindPopup(`<b>${attr.name}</b> - ${attr.distance}`);
-        });
-      }
-    
-      // Preenche a lista de atrações na coluna
-      function fillAttractions(attractions) {
-        const container = document.getElementById('attractions');
-        container.innerHTML = "<h2>Atrações</h2>";
-        if (!attractions || attractions.length === 0) return;
-        attractions.forEach(attr => {
-          const item = document.createElement('div');
-          item.className = "attraction-item";
-          item.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${attr.name} - ${attr.distance}`;
-          container.appendChild(item);
-        });
-      }
-    
-      // Atualiza a tabela de quartos com base nos valores informados na barra de busca
-      window.updateRoomList = function() {
-        const numRooms = parseInt(document.getElementById('rooms').value) || 1;
-        const numAdults = parseInt(document.getElementById('adults').value) || 1;
-        const numChildren = parseInt(document.getElementById('children').value) || 0;
-        const totalGuests = numAdults + numChildren;
-        document.querySelectorAll('.room-table-row').forEach(row => {
-          const maxGuests = parseInt(row.getAttribute('data-max-guests'));
-          if (totalGuests > maxGuests) {
-            row.style.display = "none";
-          } else {
-            row.style.display = "grid";
-            const price = parseFloat(row.querySelector('.room-price').getAttribute('data-price'));
-            const totalPrice = (numNoites * price) * numRooms;
-            let dailyRateText = numNoites <= 0 ? 'Clique em pesquisar' : (totalPrice / numNoites).toFixed(2);
-            row.querySelector('.room-price').innerHTML = `
-              <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span> <br>
-              <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
-              <div class="price-info">
-                <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
-                <div class="daily-price-container">
-                  <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRateText}</span></p>
-                </div>
-              </div>
-            `;
-          }
-        });
-      };
-    
-      // Inicializa o Date Range Picker usando jQuery e daterangepicker
+        }
+      });
+    };
+
+    // Inicializa o Date Range Picker
+    function initDateRangePicker() {
       $('#checkin-checkout').daterangepicker({
         locale: {
           format: 'DD/MM/YYYY',
           daysOfWeek: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-          monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+          monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
         },
         opens: 'center',
         drops: 'down',
         autoApply: false,
         autoUpdateInput: false
       }, function(start, end) {
-        numNoites = end.diff(start, 'days');
+        let numNoites = end.diff(start, 'days');
         if (numNoites <= 0) numNoites = 1;
         document.getElementById('num-noites').textContent = numNoites;
         $('#checkin-checkout').val(start.format('DD/MM/YYYY') + " - " + end.format('DD/MM/YYYY'));
         updateRoomList();
       });
-    
-      // Chama a função de carregamento dos detalhes do hotel (substitua pela chamada real da API)
-      fetchHotelDetails().then(loadHotelDetails);
-    });  
+    }
   </script>
 </body>
 </html>
