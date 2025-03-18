@@ -1,5 +1,3 @@
-routes/hotelbeds.routes.js
-
 ////////////////////////////////////////////////////////////////////////
 // routes/hotelbeds.routes.js
 ////////////////////////////////////////////////////////////////////////
@@ -35,15 +33,15 @@ router.get("/hotels", async (req, res) => {
     const signature = generateSignature(apiKey, apiSecret);
 
     // 3) Ler query parameters (ou valores padrão)
+    // Incluímos "code" para que, se for enviado, possamos filtrar o hotel específico.
     const {
       checkIn     = "2025-06-15",
       checkOut    = "2025-06-20",
-      destination = "MCO"
+      destination = "MCO",
+      code        = ""
     } = req.query;
 
-    // Exemplo: se quiser page, limit, etc. => const { page = 1, limit = 20 } = req.query;
-
-    // 4) Montar occupancies com base em rooms e adultsN / childrenN
+    // 4) Montar occupancies com base em rooms e adultos/children
     const roomsCount = parseInt(req.query.rooms || "1", 10);
     let occupancies = [];
     for (let i = 1; i <= roomsCount; i++) {
@@ -51,7 +49,6 @@ router.get("/hotels", async (req, res) => {
       const children = parseInt(req.query[`children${i}`] || "0", 10);
       occupancies.push({ rooms: 1, adults, children });
     }
-    // Se não veio nada, default 1 quarto, 2 adultos
     if (!occupancies.length) {
       occupancies.push({ rooms: 1, adults: 2, children: 0 });
     }
@@ -68,9 +65,17 @@ router.get("/hotels", async (req, res) => {
 
     const bodyData = {
       stay: { checkIn, checkOut },
-      occupancies,
-      destination: { code: destination }
+      occupancies
     };
+
+    // Se o parâmetro "code" for fornecido, utiliza-o para filtrar o hotel
+    if (code) {
+      bodyData.hotels = [{ code: parseInt(code, 10) }];
+    } else {
+      // Caso contrário, utiliza o destination
+      const dest = destination || "MCO";
+      bodyData.destination = { code: dest };
+    }
 
     // Faz POST na Booking API
     const respBooking = await fetch(BOOKING_URL, {
@@ -80,7 +85,7 @@ router.get("/hotels", async (req, res) => {
     });
     const bookingJson = await respBooking.json();
 
-    // Se deu erro, retorna
+    // Se a resposta não estiver ok, retorna erro
     if (!respBooking.ok) {
       return res.status(respBooking.status).json({
         error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
@@ -91,7 +96,6 @@ router.get("/hotels", async (req, res) => {
     // Array de hotéis retornados
     const hotelsArray = bookingJson?.hotels?.hotels || [];
     if (!hotelsArray.length) {
-      // Se vazio, não chama content
       return res.json({
         availability: bookingJson,
         contentRaw: null,
@@ -102,19 +106,16 @@ router.get("/hotels", async (req, res) => {
     // --------------------------------------------------------------
     // (B) Chamada à Content API => fotos e descrições
     // --------------------------------------------------------------
-    // Junta todos os "code" em uma CSV "1234,5678"
+    // Junta todos os "code" em uma CSV, ex: "1234,5678"
     const codes = hotelsArray.map(h => h.code);
     const codesCsv = codes.join(",");
-
     const contentHeaders = {
       "Api-Key": apiKey,
       "X-Signature": signature,
       "Accept": "application/json"
     };
 
-    // Exemplo: GET /hotel-content-api/1.0/hotels?codes=123,456&language=ENG&fields=all
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
-
     const respContent = await fetch(contentUrl, {
       method: "GET",
       headers: contentHeaders
@@ -127,20 +128,18 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Cria um map => contentMap[code] = { ...info... }
+    // Cria um map para lookup rápido dos dados da Content API
     const contentMap = {};
     (contentJson?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
     });
 
     // --------------------------------------------------------------
-    // (C) Combinar booking + content => "combined"
+    // (C) Combina os dados de Booking e Content em um único objeto
     // --------------------------------------------------------------
     const combined = hotelsArray.map(bkHotel => {
       const code = bkHotel.code;
       const cData = contentMap[code] || null;
-
-      // Exemplo de mesclagem
       return {
         code,
         name: bkHotel.name,
@@ -149,12 +148,14 @@ router.get("/hotels", async (req, res) => {
         minRate: bkHotel.minRate,
         maxRate: bkHotel.maxRate,
         currency: bkHotel.currency,
+        destinationName: bkHotel.destinationName,
+        latitude: bkHotel.latitude,
+        longitude: bkHotel.longitude,
         rooms: bkHotel.rooms,
-        // Anexa o que quiser de cData
+        // Anexa os dados de conteúdo, se disponíveis
         content: cData ? {
           name: cData.name,
           description: cData.description?.content || "",
-          categoryName: cData.categoryName,
           facilities: cData.facilities || [],
           images: (cData.images || []).map(img => ({
             path: img.path,
@@ -166,12 +167,12 @@ router.get("/hotels", async (req, res) => {
     });
 
     // --------------------------------------------------------------
-    // (D) Retorna ao front => "combined"
+    // (D) Retorna ao front os dados combinados
     // --------------------------------------------------------------
     return res.json({
-      availability: bookingJson,  // dados brutos de booking
-      contentRaw: contentJson,    // dados brutos de content
-      combined                    // array mesclado p/ front
+      availability: bookingJson,
+      contentRaw: contentJson,
+      combined
     });
 
   } catch (err) {
