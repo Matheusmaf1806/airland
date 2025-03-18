@@ -1305,29 +1305,34 @@
       }
     }
     // Manipulador para clique no botão "Selecionar Opções"
-    document.addEventListener("click", function(e) {
-      // Verifica se o clique ocorreu em um elemento com a classe "btn-options" ou em um de seus descendentes
+    document.addEventListener("click", function (e) {
       const btn = e.target.closest(".btn-options");
-      if (!btn) return; // Se não for, sai
+      if (!btn) return;
     
-      // Encontra o card (container) do hotel associado ao botão clicado
+      // Encontra o card (container) do hotel associado
       const card = btn.closest(".hotel-card");
       if (!card) return;
     
-      // Extraia os dados necessários do card (ajuste conforme os dados que você precisa passar)
+      // Extrai dados do card
+      const hotelName   = card.querySelector(".hotel-name")?.textContent.trim() || "";
+      const hotelRating = card.querySelector(".rating-value")?.textContent.trim() || "";
+      const hotelPrice  = card.querySelector(".price-starting")?.textContent.trim() || "";
+      // etc... (você pode extrair outros dados como endereço, datas, imagens, etc.)
+    
+      // Monta um objeto com os dados
       const hotelData = {
-        name: card.querySelector(".hotel-name")?.textContent.trim() || "",
-        address: card.querySelector(".hotel-address")?.textContent.trim() || "",
-        rating: card.querySelector(".rating-value")?.textContent.trim() || "",
-        // Você pode extrair outras informações, como imagens, facilidades, preço, etc.
+        name: hotelName,
+        rating: hotelRating,
+        price: hotelPrice
       };
     
-      // Armazena os dados no localStorage (para serem recuperados na página hoteldetails.html)
-      localStorage.setItem("selectedHotel", JSON.stringify(hotelData));
+      // Gera uma query string a partir desses dados
+      const params = new URLSearchParams(hotelData).toString();
+      // Ex: "name=Sheraton%20Buenos%20Aires&rating=4&price=R$%20500"
     
-      // Redireciona para a página de detalhes do hotel
-      window.location.href = "hoteldetails.html";
-    });
+      // Redireciona para hoteldetails.html com a query string
+      window.location.href = "hoteldetails.html?" + params;
+    });    
 
   </script>
 </body>
