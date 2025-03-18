@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <!-- Carrega seu facilitiesMap.js (caso tenha) -->
   <script src="/js/facilitiesMap.js"></script>
 
@@ -54,6 +55,7 @@
       text-decoration: none;
       margin-left: 10px;
       font-weight: bold;
+      cursor: pointer;
     }
     .location-link:hover {
       text-decoration: underline;
@@ -158,24 +160,6 @@
       font-size: 1.2em;
     }
 
-    /* Botão (opcional) */
-    .button {
-      display: block;
-      padding: 12px 20px;
-      margin-top: 20px;
-      background: #007bff;
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 5px;
-      transition: background 0.3s;
-      font-size: 1.1em;
-      font-weight: bold;
-    }
-    .button:hover {
-      background: #0056b3;
-    }
-
     /* Search Bar */
     .search-bar-container {
       display: flex;
@@ -245,6 +229,14 @@
       font-weight: bold;
       color: #333;
       text-align: center;
+    }
+    .room-group-title {
+      grid-column: 1 / 5;
+      background-color: #f5f7ff;
+      font-weight: 700;
+      font-size: 1.1em;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
     }
     .room-table-row {
       display: grid;
@@ -403,10 +395,9 @@
 </head>
 <body>
 
-  <!-- Se quiser, pode incluir seu header -->
+  <!-- Importa header.html -->
   <div id="header"></div>
 
-  <!-- CONTAINER PRINCIPAL -->
   <div class="main-container" id="hotelDetail">
 
     <!-- Cabeçalho do Hotel -->
@@ -427,7 +418,7 @@
       <div class="highlights" id="hotelHighlights"></div>
     </div>
 
-    <!-- Barra de Busca (opcional) -->
+    <!-- Barra de Busca -->
     <div class="search-bar-container" id="searchBar">
       <div class="search-fields">
         <div class="input-group">
@@ -473,16 +464,35 @@
     </div>
   </div>
 
-  <!-- SCRIPTS EXTERNOS -->
+  <!-- Scripts externos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
   <script>
-    /***********************************************
-    * A) Lê todos os parâmetros da URL
-    ***********************************************/
+    // 1) Importa o header.html
+    fetch("header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header:", err));
+
+    // 2) Ao clicar em "Ver mapa", rola para a seção do mapa
+    document.addEventListener("click", function(e) {
+      const link = e.target.closest(".location-link");
+      if (link) {
+        // Impede comportamento default
+        e.preventDefault();
+        // Rola até o container do mapa
+        const mapSection = document.getElementById("mapAttractionsContainer");
+        if (mapSection) {
+          mapSection.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    });
+
+    // 3) Lê query e carrega hotel
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -492,71 +502,48 @@
       return query;
     }
 
-    /***********************************************
-    * B) Obtém somente o ID do hotel
-    ***********************************************/
-    function getHotelIdFromUrl() {
-      const query = getQueryParams();
-      return query.id;
-    }
-
-    /***********************************************
-    * C) Busca o conteúdo do hotel via backend
-    *    Note: O backend retorna { auditData: {...}, hotel: {...} }
-    *    Precisamos extrair "json.hotel"
-    ***********************************************/
+    // 4) Busca o conteúdo do hotel
     function fetchHotelContentById(hotelId) {
-      // Ajuste a rota do seu backend
-      const url = `/api/hotelbeds/hotel-content?hotelCode=${hotelId}`;
-      return fetch(url, { method: "GET" })
+      return fetch(`/api/hotelbeds/hotel-content?hotelCode=${hotelId}`)
         .then(resp => resp.json())
-        .then(json => {
-          // O objeto do hotel está em json.hotel
-          return json.hotel || null;
-        });
+        .then(json => json.hotel || null);
     }
 
-    /***********************************************
-    * D) Carrega os dados do hotel no template
-    ***********************************************/
+    // 5) Carrega no template
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
-
-      // 1) Cabeçalho: nome e endereço
+      // Nome e endereço
       const hotelName = hotelObj.name?.content || "Hotel sem nome";
       const addressStreet = hotelObj.address?.street || "";
       const addressCity   = hotelObj.city?.content || "";
       const addressCountry= hotelObj.country?.description?.content || "";
       const fullAddress   = addressStreet + (addressCity ? `, ${addressCity}` : "") + (addressCountry ? ` - ${addressCountry}` : "");
-      
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML =
         `<i class="fas fa-map-marker-alt"></i> ${fullAddress} <a href="#" class="location-link">Ver mapa</a>`;
 
-      // 2) Galeria de Fotos: filtra type.code === "GEN"
+      // Galeria
       const genImages = (hotelObj.images || [])
         .filter(img => img.type.code === "GEN")
         .map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
       fillPhotoGallery(genImages);
 
-      // 3) Facilidades: até 12
+      // Facilidades
       const facList = (hotelObj.facilities || []).map(f => f.description?.content || "");
       fillFacilities(facList.slice(0, 12));
 
-      // 4) Descrição
-      const descEl = document.getElementById("hotelDescription");
+      // Descrição
       if (hotelObj.description?.content) {
-        descEl.innerHTML = hotelObj.description.content;
+        document.getElementById("hotelDescription").innerHTML = hotelObj.description.content;
       }
-
-      // 5) Destaques (exemplo fixo ou use algo do hotelObj se existir)
+      // Destaques (exemplo)
       document.getElementById("hotelHighlights").innerHTML =
         `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
 
-      // 6) Tabela de Quartos
-      createRoomTable(hotelObj.rooms, hotelObj.roomImages);
+      // Agrupamento de quartos (por ex., groupName = room.roomType ou outro critério)
+      createRoomTableGrouped(hotelObj.rooms, hotelObj.roomImages);
 
-      // 7) Informações adicionais
+      // Info adicional
       fillInfoBlocks({
         checkin: "A partir das 16h",
         checkout: "Até 11:00",
@@ -564,30 +551,24 @@
         parking: "Consulte valores no local."
       });
 
-      // 8) Mapa e Atrações
+      // Mapa e atrações
       const lat = hotelObj.coordinates?.latitude || 0;
       const lng = hotelObj.coordinates?.longitude || 0;
       initMapAndAttractions(lat, lng, hotelObj.interestPoints);
 
-      // 9) Inicializa Date Range Picker
       initDateRangePicker();
     }
 
-    /***********************************************
-    * E) Funções de Renderização
-    ***********************************************/
-    // E1) Galeria
+    // 6) Preenche a galeria
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
       if (!photos || !photos.length) return;
-      // Primeira imagem destaque
       const largeImg = document.createElement("img");
       largeImg.src = photos[0];
       largeImg.alt = "Foto do Hotel";
       largeImg.classList.add("large-photo");
       gallery.appendChild(largeImg);
-      // Até 4 imagens
       for (let i = 1; i < photos.length && i < 5; i++) {
         const img = document.createElement("img");
         img.src = photos[i];
@@ -596,7 +577,7 @@
       }
     }
 
-    // E2) Facilidades
+    // 7) Facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -606,58 +587,73 @@
       });
     }
 
-    // E3) Tabela de Quartos
-    function createRoomTable(rooms, roomImages) {
+    // 8) Agrupamento de quartos
+    function createRoomTableGrouped(rooms, roomImages) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
 
-      rooms.forEach(room => {
-        const row = document.createElement("div");
-        row.className = "room-table-row";
-        row.setAttribute("data-max-guests", room.maxPax || 2);
+      // Exemplo: agrupar por "room.type" ou "room.name"
+      // Ajuste conforme a estrutura real
+      const groups = {};
+      rooms.forEach(r => {
+        const groupName = r.roomType || "Outros";
+        if (!groups[groupName]) groups[groupName] = [];
+        groups[groupName].push(r);
+      });
 
-        // Filtra roomImages onde roomCode === room.roomCode e type.code === "HAB"
-        const imgObj = (roomImages || []).find(img => img.roomCode === room.roomCode && img.type.code === "HAB");
-        const roomImg = imgObj ? "https://photos.hotelbeds.com/giata/xl/" + imgObj.path : "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
+      // Para cada grupo, cria um título e depois as linhas
+      for (const groupName in groups) {
+        // Linha de título do grupo
+        const groupTitleRow = document.createElement("div");
+        groupTitleRow.className = "room-group-title";
+        groupTitleRow.textContent = groupName;
+        tableBody.appendChild(groupTitleRow);
 
-        // Exemplo de 'room.type': se não existir, use room.roomCode
-        const roomType = room.roomCode || "Quarto";
+        // Agora, para cada quarto do grupo, cria a row
+        groups[groupName].forEach(room => {
+          const row = document.createElement("div");
+          row.className = "room-table-row";
+          row.setAttribute("data-max-guests", room.maxPax || 2);
 
-        // Exemplo de 'room.details': se não existir, crie um array fixo
-        const roomDetails = [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
+          const imgObj = (roomImages || []).find(img => img.roomCode === room.roomCode && img.type.code === "HAB");
+          const roomImg = imgObj ? "https://photos.hotelbeds.com/giata/xl/" + imgObj.path : "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
 
-        // Preço (exemplo fixo ou crie sua lógica)
-        const basePrice = 300; // Exemplo
+          // Exemplo de basePrice
+          const basePrice = room.price || 300; // Se "price" vier do backend
 
-        row.innerHTML = `
-          <div class="room-info">
-            <img src="${roomImg}" alt="${roomType}" class="room-image">
-            <div class="room-details">
-              <h4>${roomType}</h4>
-              ${roomDetails.map(d => `<p><i class="fas fa-check"></i> ${d}</p>`).join("")}
-            </div>
-          </div>
-          <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-          <div class="room-price" data-price="${basePrice}">
-            <p class="discount-price">R$ <span class="pix-price">${basePrice.toFixed(2)}</span><br>
-            <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
-            <div class="price-info">
-              <p>ou R$ <span class="installment-price">${(basePrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
-              <div class="daily-price-container">
-                <p style="font-weight: normal;">Preço por diária: R$ <span>${basePrice.toFixed(2)}</span></p>
+          // Monta o HTML
+          const details = room.details || [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
+
+          row.innerHTML = `
+            <div class="room-info">
+              <img src="${roomImg}" alt="${room.roomType}" class="room-image">
+              <div class="room-details">
+                <h4>${room.roomType || room.roomCode || "Quarto"}</h4>
+                ${details.map(d => `<p><i class="fas fa-check"></i> ${d}</p>`).join("")}
               </div>
             </div>
-          </div>
-          <div>
-            <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">Selecionar Quarto</button>
-          </div>
-        `;
-        tableBody.appendChild(row);
-      });
+            <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
+            <div class="room-price" data-price="${basePrice}">
+              <p class="discount-price">R$ <span class="pix-price">${basePrice.toFixed(2)}</span><br>
+              <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
+              <div class="price-info">
+                <p>ou R$ <span class="installment-price">${(basePrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
+                <div class="daily-price-container">
+                  <p style="font-weight: normal;">Preço por diária: R$ <span>${basePrice.toFixed(2)}</span></p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">Selecionar Quarto</button>
+            </div>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
     }
 
-    // E4) Informações adicionais
+    // 9) Informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -669,16 +665,17 @@
         { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
       ];
       items.forEach(item => {
-        container.innerHTML += `
-          <div class="info-block">
-            <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
-            <p>${item.content}</p>
-          </div>
+        const block = document.createElement("div");
+        block.className = "info-block";
+        block.innerHTML = `
+          <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
+          <p>${item.content}</p>
         `;
+        container.appendChild(block);
       });
     }
 
-    // E5) Mapa e Atrações
+    // 10) Mapa e atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -695,30 +692,46 @@
       const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
       marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
 
-      fillAttractions(attractions);
-      if (Array.isArray(attractions)) {
-        attractions.forEach(attr => {
-          const attrMarker = L.marker([attr.latitude || lat, attr.longitude || lng]).addTo(map);
-          attrMarker.bindPopup(`<b>${attr.poiName || attr.name}</b> - ${attr.distance}`);
+      const container = document.getElementById("attractions");
+      container.innerHTML = "<h2>Atrações</h2>";
+      if (Array.isArray(attractions) && attractions.length) {
+        attractions.forEach(a => {
+          // Exemplo: a.latitude / a.longitude se existir
+          const latA = a.latitude || lat;
+          const lngA = a.longitude || lng;
+          const attrMarker = L.marker([latA, lngA]).addTo(map);
+          attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
+
+          container.innerHTML += `
+            <div class="attraction-item">
+              <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+            </div>
+          `;
         });
       }
     }
-    function fillAttractions(attractions) {
-      const container = document.getElementById("attractions");
-      container.innerHTML = "<h2>Atrações</h2>";
-      if (!attractions || !attractions.length) return;
-      attractions.forEach(a => {
-        container.innerHTML += `
-          <div class="attraction-item">
-            <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
-          </div>
-        `;
+
+    // 11) Date Range Picker
+    function initDateRangePicker() {
+      $("#checkin-checkout").daterangepicker({
+        locale: {
+          format: "DD/MM/YYYY",
+          daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+          monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+        },
+        opens: "center",
+        drops: "down",
+        autoApply: false,
+        autoUpdateInput: false
+      }, function(start, end) {
+        const diffDays = end.diff(start, "days");
+        document.getElementById("num-noites").textContent = diffDays > 0 ? diffDays : 1;
+        $("#checkin-checkout").val(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+        updateRoomList();
       });
     }
 
-    /***********************************************
-    * F) Atualiza a tabela de quartos (datas, etc.)
-    ***********************************************/
+    // 12) Atualiza a tabela de quartos com base nas datas e quantidades
     window.updateRoomList = function() {
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const numRooms = parseInt(document.getElementById("rooms").value) || 1;
@@ -751,50 +764,24 @@
       });
     };
 
-    /***********************************************
-    * G) Inicializa o Date Range Picker
-    ***********************************************/
-    function initDateRangePicker() {
-      $("#checkin-checkout").daterangepicker({
-        locale: {
-          format: "DD/MM/YYYY",
-          daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-          monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-        },
-        opens: "center",
-        drops: "down",
-        autoApply: false,
-        autoUpdateInput: false
-      }, function(start, end) {
-        const diffDays = end.diff(start, "days");
-        document.getElementById("num-noites").textContent = diffDays > 0 ? diffDays : 1;
-        $("#checkin-checkout").val(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
-        updateRoomList();
-      });
-    }
-
-    /***********************************************
-    * H) Clique em "Selecionar Quarto"
-    ***********************************************/
+    // 13) "Selecionar Quarto"
     window.handleSelectRoom = function(roomCode) {
-      // Salva dados e redireciona, se necessário
       const selectedRoom = { roomCode: roomCode };
       localStorage.setItem("selectedRoom", JSON.stringify(selectedRoom));
       alert(`Você selecionou o quarto: ${roomCode}`);
       // window.location.href = "confirmation.html"; // Exemplo
     };
 
-    /***********************************************
-    * I) Lógica inicial ao carregar a página
-    ***********************************************/
+    // 14) DOMContentLoaded: lê query, preenche campos, busca hotel
     document.addEventListener("DOMContentLoaded", function() {
-      const query = getQueryParams();
-      const hotelId = query.id;
-      if (!hotelId) {
-        console.error("Nenhum hotel id fornecido na URL!");
-        return;
-      }
-      // Se houver checkIn/checkOut na query, pré-preenche
+      const query = (function(){
+        const params = new URLSearchParams(window.location.search);
+        const q = {};
+        for (const [k, v] of params.entries()) q[k] = v;
+        return q;
+      })();
+
+      // Se houver checkIn, checkOut, rooms, adults, children => pré-preenche
       if (query.checkIn && query.checkOut) {
         const input = document.getElementById("checkin-checkout");
         input.value = query.checkIn + " - " + query.checkOut;
@@ -805,21 +792,24 @@
           document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
         }
       }
-      // Preenche rooms, adults, children se vierem na query
       if (query.rooms)    document.getElementById("rooms").value = query.rooms;
       if (query.adults)   document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
 
-      // Busca os dados do hotel
+      // Carrega hotel
+      const hotelId = query.id;
+      if (!hotelId) {
+        console.error("Nenhum hotel id na URL!");
+        return;
+      }
       fetchHotelContentById(hotelId).then(hotelObj => {
         if (hotelObj) {
           loadHotelContent(hotelObj);
         } else {
-          console.error("Conteúdo não encontrado para o ID:", hotelId);
+          console.error("Conteúdo não encontrado para ID:", hotelId);
         }
       });
     });
   </script>
 </body>
 </html>
-d
