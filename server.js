@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Versão Final com Supabase Upsert
+// server.js (ESM) - Versão Final
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -18,7 +18,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 3) Criar cliente do Supabase
+// 3) Criar cliente do Supabase (exemplo)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -33,7 +33,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
 // ------------------------------------------------------
-// Exemplo de rota de Tickets Genie (seu outro serviço)
+// IMPORTAR O SEU ROUTER PARA A TICKETS GENIE
+// ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 
@@ -83,10 +84,10 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
     const finalCheckOut = checkOut || "2025-06-16";
     const finalDest     = destination || "MCO";
 
-    // 4) Gerar assinatura e montar headers para a Booking API
+    // 4) Gerar assinatura e montar headers
     const signature = generateSignature();
-    const bookingUrl = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels"; // Endpoint da Booking API
-    const bookingHeaders = {
+    const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels"; // Endpoint da Booking API
+    const myHeaders = {
       "Api-key": process.env.API_KEY_HH,
       "X-Signature": signature,
       "Content-Type": "application/json",
@@ -105,120 +106,20 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
       }
     };
 
-    // 6) Fazer POST na Booking API
-    const respBooking = await fetch(`${bookingUrl}?limit=20`, {
+    // 6) Fazer POST na API
+    const response = await fetch(url, {
       method: "POST",
-      headers: bookingHeaders,
+      headers: myHeaders,
       body: JSON.stringify(bodyData)
     });
-    const bookingJson = await respBooking.json();
-    if (!respBooking.ok) {
-      return res.status(respBooking.status).json({
-        error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
-        details: bookingJson
-      });
+
+    const result = await response.json();
+    if (!response.ok) {
+      return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Booking)" });
     }
 
-    // 7) Extrair array de hotéis da resposta da Booking API
-    const hotelsArray = bookingJson?.hotels?.hotels || [];
-    if (!hotelsArray.length) {
-      return res.json({
-        availability: bookingJson,
-        contentRaw: null,
-        combined: []
-      });
-    }
-
-    // 8) Chamada à Content API – montar CSV de códigos
-    const codesCsv = hotelsArray.map(h => h.code).join(",");
-    const contentHeaders = {
-      "Api-Key": process.env.API_KEY_HH,
-      "X-Signature": signature,
-      "Accept": "application/json"
-    };
-    const contentUrl = `https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels?codes=${codesCsv}&language=ENG&fields=all`;
-    const respContent = await fetch(contentUrl, {
-      method: "GET",
-      headers: contentHeaders
-    });
-    const contentJson = await respContent.json();
-    if (!respContent.ok) {
-      return res.status(respContent.status).json({
-        error: contentJson.error || "Erro na API Hotelbeds (Content)",
-        details: contentJson
-      });
-    }
-
-    // 9) Mapear os dados da Content API por código do hotel
-    const contentMap = {};
-    (contentJson?.hotels || []).forEach(ch => {
-      contentMap[ch.code] = ch;
-    });
-
-    // 10) Combinar os dados de Booking e Content API
-    const combined = hotelsArray.map(bkHotel => {
-      const code = bkHotel.code;
-      const cData = contentMap[code] || null;
-      return {
-        code,
-        name: bkHotel.name,
-        categoryCode: bkHotel.categoryCode,
-        categoryName: bkHotel.categoryName,
-        minRate: bkHotel.minRate,
-        maxRate: bkHotel.maxRate,
-        currency: bkHotel.currency,
-        rooms: bkHotel.rooms,
-        content: cData ? {
-          name: cData.name,
-          description: cData.description?.content || "",
-          categoryName: cData.categoryName,
-          facilities: cData.facilities || [],
-          images: (cData.images || []).map(img => ({
-            path: img.path,
-            type: img.type
-          })),
-          interestPoints: cData.interestPoints || [],
-          // Outras propriedades que desejar salvar...
-        } : null
-      };
-    });
-
-    // 11) Salvar ou atualizar os dados combinados no Supabase
-    for (const hotel of combined) {
-      const { error } = await supabase
-        .from("hotels_content")
-        .upsert({
-          hotel_code: hotel.code,
-          name: hotel.name,
-          description: hotel.content?.description || null,
-          // Você pode ajustar os campos abaixo conforme os dados disponíveis
-          country_code: hotel.content?.country?.isoCode || null,
-          state_code: hotel.content?.state?.code || null,
-          city_name: hotel.content?.city?.content || null,
-          category_code: hotel.categoryCode,
-          category_name: hotel.categoryName,
-          latitude: hotel.content?.coordinates?.latitude || null,
-          longitude: hotel.content?.coordinates?.longitude || null,
-          address_street: hotel.content?.address?.street || null,
-          postal_code: hotel.content?.postalCode || null,
-          zone_code: hotel.content?.zone?.zoneCode || null,
-          zone_name: hotel.content?.zone?.name || null,
-          chain_code: hotel.content?.chain?.code || null,
-          chain_desc: hotel.content?.chain?.description?.content || null,
-          content_json: hotel.content
-        }, { returning: 'minimal' });
-
-      if (error) {
-        console.error(`Erro ao salvar o hotel ${hotel.code}:`, error);
-      }
-    }
-
-    // 12) Retornar os dados combinados para o front-end
-    return res.json({
-      availability: bookingJson,
-      contentRaw: contentJson,
-      combined
-    });
+    // 7) Retornar resultado para o front-end
+    return res.json(result);
 
   } catch (err) {
     console.error("Erro ao buscar hotéis (GET /api/hotelbeds/hotels):", err);
@@ -231,12 +132,15 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
 // Exemplo de chamada: GET /api/hotelbeds/hotel-content?hotelCode=123223
 app.get("/api/hotelbeds/hotel-content", async (req, res) => {
   try {
+    // 1) Extrair o parâmetro obrigatório: hotelCode
     const { hotelCode } = req.query;
     if (!hotelCode) {
       return res.status(400).json({ error: "O parâmetro 'hotelCode' é obrigatório." });
     }
 
+    // 2) Gerar assinatura e montar headers (assumindo que utiliza as mesmas credenciais)
     const signature = generateSignature();
+    // URL da Hotel Content API – ajuste este endpoint conforme a documentação real
     const url = `https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels/${hotelCode}`;
     const headers = {
       "Api-key": process.env.API_KEY_HH,
@@ -245,10 +149,12 @@ app.get("/api/hotelbeds/hotel-content", async (req, res) => {
       "Accept": "application/json"
     };
 
+    // 3) Fazer requisição GET para obter o conteúdo detalhado do hotel
     const response = await fetch(url, {
       method: "GET",
       headers
     });
+
     const result = await response.json();
     if (!response.ok) {
       return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Content)" });
@@ -262,39 +168,48 @@ app.get("/api/hotelbeds/hotel-content", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Rota POST para "proxy-hotelbeds" (opcional)
+// Rota POST para "proxy-hotelbeds" (antiga, opcional)
 app.post("/proxy-hotelbeds", async (req, res) => {
   try {
     const signature = generateSignature();
     const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 
-    const headers = {
+    const myHeaders = {
       "Api-key": process.env.API_KEY_HH,
       "X-Signature": signature,
       "Content-Type": "application/json",
       "Accept": "application/json"
     };
 
+    // Corpo (exemplo)
     const bodyData = {
       stay: {
         checkIn:  req.body.checkIn  || "2025-06-15",
         checkOut: req.body.checkOut || "2025-06-16"
       },
       occupancies: [
-        { rooms: 1, adults: 1, children: 0 }
+        {
+          rooms:    1,
+          adults:   1,
+          children: 0
+        }
       ],
-      destination: { code: req.body.destination || "MCO" }
+      destination: {
+        code: req.body.destination || "MCO"
+      }
     };
 
     const response = await fetch(url, {
       method: "POST",
-      headers,
+      headers: myHeaders,
       body: JSON.stringify(bodyData)
     });
+
     const result = await response.json();
     if (!response.ok) {
       return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds" });
     }
+
     return res.json(result);
 
   } catch (err) {
@@ -304,7 +219,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Exemplo de rota dinâmica usando Supabase (busca "parks")
+// Exemplo: rota dinâmica usando Supabase (busca "parks")
 app.get("/park-details/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -318,6 +233,7 @@ app.get("/park-details/:id", async (req, res) => {
       return res.status(404).json({ error: "Parque não encontrado" });
     }
 
+    // Exemplo de HTML simples para exibir detalhes do parque
     const parkDetails = `
       <html>
         <head><title>${data.name}</title></head>
@@ -337,5 +253,5 @@ app.get("/park-details/:id", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Exportar app para a Vercel (sem duplicar app.listen)
+// Exportar app p/ a Vercel (sem duplicar app.listen)
 export default app;
