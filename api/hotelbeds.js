@@ -4,13 +4,13 @@ import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-// Configuração do Supabase (certifique-se de ter as variáveis de ambiente configuradas)
+// Configura o Supabase (certifique-se de ter as variáveis de ambiente configuradas)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
 
-// Endpoints da Hotelbeds (use "api.test" para teste; em produção, troque para "api.")
+// Endpoints da Hotelbeds (para teste; em produção, troque "api.test" por "api.")
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
@@ -20,19 +20,10 @@ function generateSignature(apiKey, secretKey) {
   return crypto.createHash("sha256").update(apiKey + secretKey + timestamp).digest("hex");
 }
 
-// Função de delay (para espaçar chamadas à Content API e evitar sobrecarga)
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Tempo de expiração do cache: 24 horas (em milissegundos)
+// Tempo de expiração do cache: 24 horas (em ms)
 const CACHE_EXPIRE_MS = 24 * 3600 * 1000;
 
-/**
- * Atualiza (ou insere) o cache da Content API para um hotel específico.
- * Essa função é chamada em background.
- * @param {string|number} hotelCode - Código do hotel
- * @param {string} signature - Assinatura gerada
- * @param {string} apiKey - Chave pública da API
- */
+// Função para atualizar (ou inserir) o cache da Content API para um hotel específico
 async function updateHotelContentCache(hotelCode, signature, apiKey) {
   try {
     const contentUrl = `${CONTENT_URL}?codes=${hotelCode}&language=ENG&fields=all`;
@@ -55,6 +46,7 @@ async function updateHotelContentCache(hotelCode, signature, apiKey) {
         content_json: contentData,
         last_updated: now
       }, { onConflict: "hotel_code" });
+    console.log(`Cache atualizado para hotel ${hotelCode}`);
   } catch (err) {
     console.error(`Erro no cache do hotel ${hotelCode}:`, err);
   }
@@ -87,7 +79,7 @@ router.get("/hotels", async (req, res) => {
     // 3) Gerar assinatura
     const signature = generateSignature(apiKey, apiSec);
     
-    // 4) Chamada à Booking API (sempre feita para obter preços atualizados)
+    // 4) Chamada à Booking API para obter preços atuais (não cacheada)
     const bookingHeaders = {
       "Api-key": apiKey,
       "X-Signature": signature,
@@ -112,7 +104,7 @@ router.get("/hotels", async (req, res) => {
       return res.json({ availability: bookingJson, combined: [] });
     }
     
-    // 5) Consultar o cache (tabela "hotels_content") para os hotéis retornados
+    // 5) Consultar o cache no Supabase para os hotéis retornados
     const hotelCodes = hotelsArray.map(h => h.code);
     const { data: cachedContents } = await supabase
       .from("hotels_content")
@@ -125,17 +117,16 @@ router.get("/hotels", async (req, res) => {
       });
     }
     
-    // 6) Para cada hotel, se o cache não existir ou estiver expirado, atualize-o em background
-    for (const hotel of hotelsArray) {
+    // 6) Para cada hotel, se o cache não existir ou estiver expirado, atualize-o em background (não aguardar)
+    hotelsArray.forEach(hotel => {
       const cached = cacheMap[hotel.code];
-      if (!cached || Date.now() - new Date(cached.last_updated).getTime() > CACHE_EXPIRE_MS) {
+      if (!cached || (Date.now() - new Date(cached.last_updated).getTime() > CACHE_EXPIRE_MS)) {
+        // Chama em background sem await para não atrasar a resposta
         updateHotelContentCache(hotel.code, signature, apiKey);
-        // Pequeno delay para não sobrecarregar a API
-        await sleep(250);
       }
-    }
+    });
     
-    // 7) Construa o array combinado usando os dados do cache (se disponíveis)
+    // 7) Montar o array combinado usando os dados disponíveis no cache
     const combined = hotelsArray.map(bkHotel => {
       const cached = cacheMap[bkHotel.code];
       return {
@@ -160,7 +151,7 @@ router.get("/hotels", async (req, res) => {
       };
     });
     
-    // 8) Retorna a resposta para o front-end
+    // 8) Retornar a resposta para o front (Booking API + conteúdo cacheado)
     return res.json({ availability: bookingJson, combined });
     
   } catch (err) {
