@@ -42,8 +42,8 @@ router.get("/hotels", async (req, res) => {
     const roomsCount = parseInt(req.query.rooms || "1", 10);
     const occupancies = [];
     for (let i = 1; i <= roomsCount; i++) {
-      const ad = parseInt(req.query[`adults${i}`]   || "2", 10);
-      const ch = parseInt(req.query[`children${i}`] || "0", 10);
+      const ad = parseInt(req.query[adults${i}]   || "2", 10);
+      const ch = parseInt(req.query[children${i}] || "0", 10);
       occupancies.push({ rooms: 1, adults: ad, children: ch });
     }
     if (occupancies.length === 0) {
@@ -66,7 +66,7 @@ router.get("/hotels", async (req, res) => {
     // Adicionar o limite de 20 resultados
     const limit = 20;
 
-    const respBooking = await fetch(`${BOOKING_URL}?limit=${limit}`, {
+    const respBooking = await fetch(${BOOKING_URL}?limit=${limit}, {
       method: "POST",
       headers: bookingHeaders,
       body: JSON.stringify(bodyData)
@@ -101,7 +101,7 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
     // Exemplo de URL: GET /hotel-content-api/1.0/hotels?codes=123,456&language=ENG&fields=all
-    const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
+    const contentUrl = ${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all;
 
     const respContent = await fetch(contentUrl, {
       method: "GET",
