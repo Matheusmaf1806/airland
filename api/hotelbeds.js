@@ -91,7 +91,7 @@ router.get("/hotels", async (req, res) => {
     
     // Implementar timeout na chamada da Booking API
     const controller = new AbortController();
-    const timeoutMs = 15000; // 15 segundos de timeout
+    const timeoutMs = 30000; // 15 segundos de timeout
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     
     let respBooking;
