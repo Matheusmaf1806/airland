@@ -1304,6 +1304,31 @@
         pagEl.appendChild(btnNext);
       }
     }
+    // Manipulador para clique no botão "Selecionar Opções"
+    document.addEventListener("click", function(e) {
+      // Verifica se o clique ocorreu em um elemento com a classe "btn-options" ou em um de seus descendentes
+      const btn = e.target.closest(".btn-options");
+      if (!btn) return; // Se não for, sai
+    
+      // Encontra o card (container) do hotel associado ao botão clicado
+      const card = btn.closest(".hotel-card");
+      if (!card) return;
+    
+      // Extraia os dados necessários do card (ajuste conforme os dados que você precisa passar)
+      const hotelData = {
+        name: card.querySelector(".hotel-name")?.textContent.trim() || "",
+        address: card.querySelector(".hotel-address")?.textContent.trim() || "",
+        rating: card.querySelector(".rating-value")?.textContent.trim() || "",
+        // Você pode extrair outras informações, como imagens, facilidades, preço, etc.
+      };
+    
+      // Armazena os dados no localStorage (para serem recuperados na página hoteldetails.html)
+      localStorage.setItem("selectedHotel", JSON.stringify(hotelData));
+    
+      // Redireciona para a página de detalhes do hotel
+      window.location.href = "hoteldetails.html";
+    });
+
   </script>
 </body>
 </html>
