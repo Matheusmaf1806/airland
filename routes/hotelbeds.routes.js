@@ -1,3 +1,5 @@
+routes/hotelbeds.routes.js
+
 ////////////////////////////////////////////////////////////////////////
 // routes/hotelbeds.routes.js
 ////////////////////////////////////////////////////////////////////////
@@ -5,110 +7,91 @@ import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
 
-/**
- * Gera a assinatura (signature) exigida pela Hotelbeds:
- *  - Usa (apiKey + secret + timestamp) em SHA256
- */
+// Função para gerar a assinatura para Booking e Content API
 function generateSignature(apiKey, secret) {
   const timestamp = Math.floor(Date.now() / 1000);
   const dataToSign = `${apiKey}${secret}${timestamp}`;
   return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
-/**
- * URLs de teste (troque "api.test" por "api." em produção).
- */
+// URLs base de teste (substituir "api.test" por "api." em produção)
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-/**
- * Cria o router do Express para /api/hotelbeds
- */
 const router = Router();
 
-/**
- * POST /api/hotelbeds/hotels
- *
- * Espera receber no body JSON algo como:
- * {
- *   "stay": {
- *     "checkIn": "2025-06-15",
- *     "checkOut": "2025-06-20"
- *   },
- *   "occupancies": [
- *     { "rooms": 1, "adults": 2, "children": 0 }
- *   ],
- *   "hotels": {
- *     "hotel": [ 12345 ]
- *   }
- *   // OU, se não tiver "hotels", usar "destination": { code: "MCO" }
- * }
- */
-router.post("/hotels", async (req, res) => {
+router.get("/hotels", async (req, res) => {
   try {
-    // 1) Carrega credenciais do ambiente (.env)
-    const apiKey = process.env.API_KEY_HH;     // Ex.: "xxx"
-    const apiSecret = process.env.SECRET_KEY_HH; // Ex.: "yyy"
+    // 1) Recupera credenciais do ambiente
+    const apiKey = process.env.API_KEY_HH;
+    const apiSecret = process.env.SECRET_KEY_HH;
     if (!apiKey || !apiSecret) {
       return res.status(500).json({
-        error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH)."
+        error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH) no ambiente."
       });
     }
 
-    // 2) Gera a signature requerida pela Hotelbeds
+    // 2) Gera assinatura com base em apiKey e apiSecret
     const signature = generateSignature(apiKey, apiSecret);
 
-    // 3) Extrai o body enviado pelo front-end
-    //    Exemplo:
-    //    {
-    //      stay: { checkIn: "2025-06-15", checkOut: "2025-06-20" },
-    //      occupancies: [ { rooms:1, adults:2, children:0 } ],
-    //      hotels: { hotel: [ 12345 ] }
-    //    }
-    const { stay, occupancies, hotels, destination } = req.body || {};
-    if (!stay) {
-      return res.status(400).json({ error: "Body inválido: falta 'stay' com checkIn/checkOut." });
-    }
-    const { checkIn = "2025-06-15", checkOut = "2025-06-20" } = stay;
+    // 3) Ler query parameters (ou valores padrão)
+    const {
+      checkIn     = "2025-06-15",
+      checkOut    = "2025-06-20",
+      destination = "MCO"
+    } = req.query;
 
-    // 4) Monta o bodyData para chamar a Booking API
-    const bodyData = {
-      stay: { checkIn, checkOut },
-      occupancies: occupancies || []
-    };
-    // Se "hotels" veio no body, usamos como filtro de hotel(es). Senão, se veio "destination", usamos destino.
-    if (hotels && hotels.hotel?.length) {
-      bodyData.hotels = hotels;
-    } else if (destination) {
-      bodyData.destination = destination;
-    } else {
-      // fallback: se não veio nada, define "MCO"
-      bodyData.destination = { code: "MCO" };
+    // Exemplo: se quiser page, limit, etc. => const { page = 1, limit = 20 } = req.query;
+
+    // 4) Montar occupancies com base em rooms e adultsN / childrenN
+    const roomsCount = parseInt(req.query.rooms || "1", 10);
+    let occupancies = [];
+    for (let i = 1; i <= roomsCount; i++) {
+      const adults = parseInt(req.query[`adults${i}`] || "2", 10);
+      const children = parseInt(req.query[`children${i}`] || "0", 10);
+      occupancies.push({ rooms: 1, adults, children });
+    }
+    // Se não veio nada, default 1 quarto, 2 adultos
+    if (!occupancies.length) {
+      occupancies.push({ rooms: 1, adults: 2, children: 0 });
     }
 
-    // 5) Faz POST na Booking API
+    // --------------------------------------------------------------
+    // (A) Chamada à Booking API (POST) => disponibilidade e preços
+    // --------------------------------------------------------------
     const bookingHeaders = {
       "Api-key": apiKey,
       "X-Signature": signature,
       "Content-Type": "application/json",
       "Accept": "application/json"
     };
-    const bookingResp = await fetch(BOOKING_URL, {
+
+    const bodyData = {
+      stay: { checkIn, checkOut },
+      occupancies,
+      destination: { code: destination }
+    };
+
+    // Faz POST na Booking API
+    const respBooking = await fetch(BOOKING_URL, {
       method: "POST",
       headers: bookingHeaders,
       body: JSON.stringify(bodyData)
     });
-    const bookingJson = await bookingResp.json();
-    if (!bookingResp.ok) {
-      return res.status(bookingResp.status).json({
+    const bookingJson = await respBooking.json();
+
+    // Se deu erro, retorna
+    if (!respBooking.ok) {
+      return res.status(respBooking.status).json({
         error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
         details: bookingJson
       });
     }
 
-    // 6) Se não retornou nenhum hotel, não chamamos a Content API
+    // Array de hotéis retornados
     const hotelsArray = bookingJson?.hotels?.hotels || [];
     if (!hotelsArray.length) {
+      // Se vazio, não chama content
       return res.json({
         availability: bookingJson,
         contentRaw: null,
@@ -116,60 +99,79 @@ router.post("/hotels", async (req, res) => {
       });
     }
 
-    // 7) Junta todos os "code" em CSV "123,456" para chamar Content
+    // --------------------------------------------------------------
+    // (B) Chamada à Content API => fotos e descrições
+    // --------------------------------------------------------------
+    // Junta todos os "code" em uma CSV "1234,5678"
     const codes = hotelsArray.map(h => h.code);
     const codesCsv = codes.join(",");
 
-    // 8) Faz GET na Content API para buscar fotos e descrições
-    const contentSignature = generateSignature(apiKey, apiSecret); // se quiser gerar novamente
     const contentHeaders = {
       "Api-Key": apiKey,
-      "X-Signature": contentSignature,
+      "X-Signature": signature,
       "Accept": "application/json"
     };
-    // Exemplo: GET /hotel-content-api/1.0/hotels?codes=1234,5678&language=ENG&fields=all
+
+    // Exemplo: GET /hotel-content-api/1.0/hotels?codes=123,456&language=ENG&fields=all
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
-    const contentResp = await fetch(contentUrl, {
+
+    const respContent = await fetch(contentUrl, {
       method: "GET",
       headers: contentHeaders
     });
-    const contentJson = await contentResp.json();
-    if (!contentResp.ok) {
-      return res.status(contentResp.status).json({
+    const contentJson = await respContent.json();
+    if (!respContent.ok) {
+      return res.status(respContent.status).json({
         error: contentJson.error || "Erro na API Hotelbeds (Content)",
         details: contentJson
       });
     }
 
-    // 9) Mapeia o resultado da Content API para lookup rápido
+    // Cria um map => contentMap[code] = { ...info... }
     const contentMap = {};
     (contentJson?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
     });
 
-    // 10) Combina booking + content
-    const combined = hotelsArray.map(bk => {
-      const code = bk.code;
+    // --------------------------------------------------------------
+    // (C) Combinar booking + content => "combined"
+    // --------------------------------------------------------------
+    const combined = hotelsArray.map(bkHotel => {
+      const code = bkHotel.code;
       const cData = contentMap[code] || null;
+
+      // Exemplo de mesclagem
       return {
         code,
-        name: bk.name,
-        categoryCode: bk.categoryCode,
-        minRate: bk.minRate,
-        maxRate: bk.maxRate,
-        currency: bk.currency,
-        latitude: bk.latitude,
-        longitude: bk.longitude,
-        rooms: bk.rooms,
-        content: cData // se não tiver, será null
+        name: bkHotel.name,
+        categoryCode: bkHotel.categoryCode,
+        categoryName: bkHotel.categoryName,
+        minRate: bkHotel.minRate,
+        maxRate: bkHotel.maxRate,
+        currency: bkHotel.currency,
+        rooms: bkHotel.rooms,
+        // Anexa o que quiser de cData
+        content: cData ? {
+          name: cData.name,
+          description: cData.description?.content || "",
+          categoryName: cData.categoryName,
+          facilities: cData.facilities || [],
+          images: (cData.images || []).map(img => ({
+            path: img.path,
+            type: img.type
+          })),
+          interestPoints: cData.interestPoints || []
+        } : null
       };
     });
 
-    // 11) Retorna o JSON mesclado
+    // --------------------------------------------------------------
+    // (D) Retorna ao front => "combined"
+    // --------------------------------------------------------------
     return res.json({
-      availability: bookingJson,  // Dados crus da Booking API
-      contentRaw: contentJson,    // Dados crus da Content API
-      combined                   // Array final
+      availability: bookingJson,  // dados brutos de booking
+      contentRaw: contentJson,    // dados brutos de content
+      combined                    // array mesclado p/ front
     });
 
   } catch (err) {
