@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -998,6 +999,8 @@
       const template = document.getElementById("hotelCardTemplate");
       if (!template) return document.createDocumentFragment();
       const clone = template.content.cloneNode(true);
+      // Adiciona o id no container do card:
+      clone.querySelector('.hotel-card').setAttribute('data-hotel-id', hotelData.code);
 
       // Nome, endereço, datas, preço
       clone.querySelector(".hotel-name").textContent         = hotelData.name        || "";
@@ -1309,30 +1312,29 @@
       const btn = e.target.closest(".btn-options");
       if (!btn) return;
     
-      // Encontra o card (container) do hotel associado
+      // Encontra o card do hotel
       const card = btn.closest(".hotel-card");
       if (!card) return;
-    
-      // Extrai dados do card
+      
+      // Extrai o id do hotel do data attribute
+      const hotelId = card.getAttribute("data-hotel-id") || "";
       const hotelName   = card.querySelector(".hotel-name")?.textContent.trim() || "";
       const hotelRating = card.querySelector(".rating-value")?.textContent.trim() || "";
       const hotelPrice  = card.querySelector(".price-starting")?.textContent.trim() || "";
-      // etc... (você pode extrair outros dados como endereço, datas, imagens, etc.)
-    
-      // Monta um objeto com os dados
+      
+      // Monta o objeto com os dados, incluindo o id
       const hotelData = {
+        id: hotelId,
         name: hotelName,
         rating: hotelRating,
         price: hotelPrice
       };
     
-      // Gera uma query string a partir desses dados
+      // Cria a query string
       const params = new URLSearchParams(hotelData).toString();
-      // Ex: "name=Sheraton%20Buenos%20Aires&rating=4&price=R$%20500"
-    
-      // Redireciona para hoteldetails.html com a query string
+      // Redireciona para hoteldetails.html com os parâmetros na URL
       window.location.href = "hoteldetails.html?" + params;
-    });    
+    });        
 
   </script>
 </body>
