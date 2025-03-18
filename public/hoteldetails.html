@@ -797,6 +797,7 @@
     * H) Clique em "Selecionar Quarto"
     ***********************************************/
     window.handleSelectRoom = function(roomCode) {
+      // Lê somente dos inputs, já no formato YYYY-MM-DD
       const query = getQueryParams();
       const hotelId = query.id || "";
       const checkIn = document.getElementById("checkin").value || "";
@@ -815,6 +816,7 @@
         roomCode: roomCode
       }).toString();
 
+      // Redireciona para a página de confirmação com os parâmetros corretos
       window.location.href = "confirmation.html?" + params;
     };
 
@@ -823,9 +825,10 @@
     ***********************************************/
     document.addEventListener("DOMContentLoaded", function() {
       let query = getQueryParams();
-      // Se a query vier com checkIn no formato "14/04/2025 até 18/04/2025" e checkOut estiver vazio, separe os valores
+      // Se a query vier com checkIn="14/04/2025 até 18/04/2025" e checkOut estiver vazio, separe os valores
       if(query.checkIn && !query.checkOut && query.checkIn.includes("até")) {
          const parts = query.checkIn.split("até").map(s => s.trim());
+         // Exemplo: ["14/04/2025", "18/04/2025"]
          query.checkIn = parts[0];
          query.checkOut = parts[1];
       }
@@ -839,6 +842,7 @@
          document.getElementById("checkOut").value = mDate.isValid() ? mDate.format("YYYY-MM-DD") : query.checkOut;
       }
       updateNights();
+
       if(query.rooms)    document.getElementById("rooms").value = query.rooms;
       if(query.adults)   document.getElementById("adults").value = query.adults;
       if(query.children) document.getElementById("children").value = query.children;
@@ -855,6 +859,8 @@
           console.error("Conteúdo não encontrado para o ID:", hotelId);
         }
       });
+
+      // Listeners para recalcular noites ao mudar datas
       document.getElementById("checkin").addEventListener("change", updateNights);
       document.getElementById("checkOut").addEventListener("change", updateNights);
     });
