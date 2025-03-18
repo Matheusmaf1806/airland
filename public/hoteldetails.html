@@ -183,7 +183,7 @@ fetch("header.html")
   .catch(err => console.error("Erro ao carregar header:", err));
 
 /***********************************************
-* B) EVENTO PARA ROLAR ATÉ O MAPA AO CLICAR EM "VER MAPA"
+* B) FUNÇÃO PARA ROLAR ATÉ A SEÇÃO DE MAPA
 ***********************************************/
 document.addEventListener("click", function(e) {
   const link = e.target.closest(".location-link");
@@ -197,7 +197,7 @@ document.addEventListener("click", function(e) {
 });
 
 /***********************************************
-* C) UTILITÁRIOS – LEITURA DA QUERY STRING E Conversão de Data
+* C) FUNÇÕES DE UTILIDADE: LEITURA DA QUERY STRING E CONVERSÃO DE DATAS
 ***********************************************/
 function getQueryParams() {
   const params = new URLSearchParams(window.location.search);
@@ -215,8 +215,16 @@ function toISO(dmy) {
   return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
 }
 
+// Trata o campo de datas: se vier "até", substitui por " - "
+function normalizeDateRange(dateRange) {
+  if (dateRange.includes("até")) {
+    return dateRange.replace("até", "-").trim();
+  }
+  return dateRange;
+}
+
 /***********************************************
-* D) BUSCA DOS DADOS DO HOTEL – CONTENT API (GET)
+* D) BUSCA DOS DADOS DO HOTEL VIA CONTENT API (GET)
 ***********************************************/
 function fetchHotelContentById(hotelId) {
   const url = `/api/hotelbeds/hotel-content?hotelCode=${hotelId}`;
@@ -226,28 +234,64 @@ function fetchHotelContentById(hotelId) {
 }
 
 /***********************************************
-* E) BUSCA DOS DADOS DO HOTEL – BOOKING API (via backend GET)
-* A rota /api/hotelbeds/hotels recebe os parâmetros e internamente faz o POST à Booking API.
+* E) BUSCA DOS DADOS DO HOTEL VIA BOOKING API (através do backend)
+* O backend espera receber os parâmetros:
+* {
+*   "stay": { "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD" },
+*   "occupancies": [ { "rooms": X, "adults": Y, "children": Z } ],
+*   "hotels": { "hotel": [ código ] }
+* }
 ***********************************************/
 async function fetchHotelBookingData(query) {
-  const { checkIn, checkOut, destination = "MCO", rooms = "1", adults = "1", children = "0", id } = query;
+  // Extrai os parâmetros da query
+  let { checkIn, checkOut, destination = "MCO", rooms = "1", adults = "1", children = "0", id } = query;
   if (!checkIn || !checkOut) {
     console.error("Datas de check-in e check-out são necessárias.");
     return null;
   }
+  // Normaliza a string de datas se necessário (caso venha com "até")
+  checkIn = checkIn.trim();
+  checkOut = checkOut.trim();
+  if (checkIn.includes("até")) {
+    const parts = checkIn.split("até");
+    checkIn = parts[0].trim();
+    checkOut = parts[1].trim();
+  }
+  if (!checkOut) {
+    // Se checkOut ainda estiver vazio, tenta extrair do campo do input
+    const dateRange = document.getElementById("dataRangeHoteis")?.value || "";
+    if (dateRange) {
+      const normalized = normalizeDateRange(dateRange);
+      const dates = normalized.split(" - ");
+      checkIn = dates[0] || checkIn;
+      checkOut = dates[1] || checkOut;
+    }
+  }
   const isoCheckIn = toISO(checkIn);
   const isoCheckOut = toISO(checkOut);
-  // Monta a query string; note que a rota do seu backend usa GET e internamente faz o POST
-  let qs = `?checkIn=${isoCheckIn}&checkOut=${isoCheckOut}&destination=${destination}&rooms=${rooms}&page=1&limit=20`;
-  qs += `&adults1=${adults}&children1=${children}`;
+  // Monta o corpo da requisição conforme o formato esperado
+  const bodyData = {
+    stay: { checkIn: isoCheckIn, checkOut: isoCheckOut },
+    occupancies: [
+      { rooms: parseInt(rooms), adults: parseInt(adults), children: parseInt(children) }
+    ],
+    hotels: { hotel: [ parseInt(id) ] }
+  };
+
   try {
-    const resp = await fetch(`/api/hotelbeds/hotels${qs}`, { method: "GET" });
+    // A chamada ao backend é via GET (o backend converte para POST internamente)
+    // Se preferir, ajuste para POST conforme sua rota.
+    const resp = await fetch(`/api/hotelbeds/hotels`, {
+      method: "POST", // ou GET, conforme sua implementação
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bodyData)
+    });
     if (!resp.ok) {
       throw new Error(`Booking API Error: ${resp.status}`);
     }
     const data = await resp.json();
     const hotelsArr = data.hotels?.hotels || [];
-    // Filtra pelo hotel id (code) enviado na query
+    // Filtra pelo hotel id (code)
     const bookingHotel = hotelsArr.find(h => h.code == id);
     if (!bookingHotel) {
       console.error("Hotel não encontrado na resposta da Booking API.");
@@ -306,7 +350,7 @@ function loadHotelContent(content) {
 
 /***********************************************
 * G) CRIA A TABELA DE QUARTOS A PARTIR DOS DADOS DA BOOKING API
-* (Exibe o nome do quarto – não o código – e utiliza o primeiro rate.net para preço)
+* (Exibe o nome do quarto (não o code) e o preço correto do primeiro rate.net)
 ***********************************************/
 function createRoomTableFromBooking(rooms) {
   const tableBody = document.getElementById("roomTableBody");
@@ -322,7 +366,7 @@ function createRoomTableFromBooking(rooms) {
   });
 
   for (const groupName in groups) {
-    // Linha de título para o grupo
+    // Linha de título do grupo
     const groupRow = document.createElement("div");
     groupRow.className = "room-group-title";
     groupRow.textContent = groupName;
@@ -331,7 +375,6 @@ function createRoomTableFromBooking(rooms) {
     groups[groupName].forEach(room => {
       const row = document.createElement("div");
       row.className = "room-table-row";
-      // Define o número máximo de hóspedes (se disponível) ou assume 2
       row.setAttribute("data-max-guests", room.maxPax || 2);
 
       // Imagem do quarto – se não houver, usa fallback
@@ -339,7 +382,7 @@ function createRoomTableFromBooking(rooms) {
       // Para exibir o nome, usamos room.name (não o código)
       const roomDisplayName = room.name || "Quarto";
 
-      // Preço – usamos o primeiro rate.net, se existir
+      // Preço – utiliza o primeiro rate.net, se disponível
       let basePrice = 300;
       if (room.rates && room.rates.length) {
         basePrice = parseFloat(room.rates[0].net) || basePrice;
@@ -347,10 +390,10 @@ function createRoomTableFromBooking(rooms) {
         basePrice = parseFloat(room.price) || basePrice;
       }
 
-      // Detalhes do quarto – se houver rates, pode-se exibir o boardName
+      // Detalhes do quarto – se existir rates, exibe o boardName do primeiro rate
       const details = (room.rates && room.rates.length)
         ? [`Pensão: ${room.rates[0].boardName || "N/A"}`]
-        : [];
+        : [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
 
       row.innerHTML = `
         <div class="room-info">
@@ -381,95 +424,7 @@ function createRoomTableFromBooking(rooms) {
 }
 
 /***********************************************
-* H) FUNÇÕES AUXILIARES DE RENDERIZAÇÃO (Facilidades, Galeria, Info)
-***********************************************/
-function fillPhotoGallery(photos) {
-  const gallery = document.getElementById("photoGallery");
-  gallery.innerHTML = "";
-  if (!photos || photos.length === 0) return;
-  const largeImg = document.createElement("img");
-  largeImg.src = photos[0];
-  largeImg.alt = "Foto do Hotel";
-  largeImg.classList.add("large-photo");
-  gallery.appendChild(largeImg);
-  for (let i = 1; i < photos.length && i < 5; i++) {
-    const img = document.createElement("img");
-    img.src = photos[i];
-    img.alt = "Foto do Hotel";
-    gallery.appendChild(img);
-  }
-}
-
-function fillFacilities(facilities) {
-  const container = document.getElementById("facilities");
-  container.innerHTML = "";
-  if (!facilities || facilities.length === 0) return;
-  facilities.forEach(f => {
-    container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
-  });
-}
-
-function fillInfoBlocks(info) {
-  const container = document.getElementById("infoContainer");
-  container.innerHTML = "";
-  if (!info) return;
-  const items = [
-    { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
-    { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
-    { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
-    { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
-  ];
-  items.forEach(item => {
-    const block = document.createElement("div");
-    block.className = "info-block";
-    block.innerHTML = `
-      <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
-      <p>${item.content}</p>
-    `;
-    container.appendChild(block);
-  });
-}
-
-function initMapAndAttractions(lat, lng, attractions) {
-  const map = L.map("map").setView([lat, lng], 14);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(map);
-  const hotelIcon = L.icon({
-    iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -30]
-  });
-  const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
-  marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-  fillAttractions(attractions);
-  if (Array.isArray(attractions)) {
-    attractions.forEach(a => {
-      const latA = a.latitude || lat;
-      const lngA = a.longitude || lng;
-      const attrMarker = L.marker([latA, lngA]).addTo(map);
-      attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
-    });
-  }
-}
-
-function fillAttractions(attractions) {
-  const container = document.getElementById("attractions");
-  container.innerHTML = "<h2>Atrações</h2>";
-  if (!attractions || !attractions.length) return;
-  attractions.forEach(a => {
-    container.innerHTML += `
-      <div class="attraction-item">
-        <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
-      </div>
-    `;
-  });
-}
-
-/***********************************************
-* I) Atualiza a Tabela de Quartos (baseada na BOOKING API)
+* H) ATUALIZA A TABELA DE QUARTOS (RECALCULA PREÇOS)
 ***********************************************/
 window.updateRoomList = function() {
   const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
@@ -477,6 +432,7 @@ window.updateRoomList = function() {
   const numAdults = parseInt(document.getElementById("adults").value) || 1;
   const numChildren = parseInt(document.getElementById("children").value) || 0;
   const totalGuests = numAdults + numChildren;
+
   document.querySelectorAll(".room-table-row").forEach(row => {
     const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
     const priceEl = row.querySelector(".room-price");
@@ -502,7 +458,7 @@ window.updateRoomList = function() {
 };
 
 /***********************************************
-* J) Inicializa o Date Range Picker
+* I) INICIALIZA O DATE RANGE PICKER
 ***********************************************/
 function initDateRangePicker() {
   $("#checkin-checkout").daterangepicker({
@@ -524,23 +480,24 @@ function initDateRangePicker() {
 }
 
 /***********************************************
-* K) Evento para "Selecionar Quarto" – envia dados para a página de confirmação
+* J) EVENTO PARA "SELECIONAR QUARTO" – ENVIA DADOS PARA A PÁGINA DE CONFIRMAÇÃO
 ***********************************************/
 window.handleSelectRoom = function(roomCode) {
   const query = getQueryParams();
-  const hotelId = query.id || "";
-  const dateRange = document.getElementById("checkin-checkout").value || "";
+  // Para garantir que os valores de datas estejam corretos, trate o campo do input
+  let dateRange = document.getElementById("checkin-checkout").value.trim();
+  dateRange = normalizeDateRange(dateRange);
   let checkIn = "", checkOut = "";
   if (dateRange) {
     const dates = dateRange.split(" - ");
-    checkIn = dates[0] || "";
-    checkOut = dates[1] || "";
+    checkIn = dates[0].trim();
+    checkOut = dates[1] ? dates[1].trim() : "";
   }
   const rooms = document.getElementById("rooms").value || "1";
   const adults = document.getElementById("adults").value || "1";
   const children = document.getElementById("children").value || "0";
   const params = new URLSearchParams({
-    id: hotelId,
+    id: query.id || "",
     checkIn: checkIn,
     checkOut: checkOut,
     rooms: rooms,
@@ -552,21 +509,42 @@ window.handleSelectRoom = function(roomCode) {
 };
 
 /***********************************************
-* L) Busca dos Dados do BOOKING API (para Quartos)
-* A rota /api/hotelbeds/hotels é chamada via GET; internamente, o backend faz o POST à Booking API.
+* K) BUSCA DOS DADOS DA BOOKING API PARA OS QUARTOS
+* A rota /api/hotelbeds/hotels é chamada via POST (o backend monta o JSON conforme o exemplo):
+* {
+*   "stay": { "checkIn": "2025-06-15", "checkOut": "2025-06-16" },
+*   "occupancies": [ { "rooms": 1, "adults": 2, "children": 0 } ],
+*   "hotels": { "hotel": [ 47691 ] }
+* }
 ***********************************************/
 async function fetchHotelBookingData(query) {
-  const { checkIn, checkOut, destination = "MCO", rooms = "1", adults = "1", children = "0", id } = query;
+  let { checkIn, checkOut, destination = "MCO", rooms = "1", adults = "1", children = "0", id } = query;
   if (!checkIn || !checkOut) {
     console.error("Datas de check-in e check-out são necessárias.");
     return null;
   }
+  // Se as datas vierem com "até", substitua por " - "
+  if (checkIn.includes("até")) {
+    const parts = checkIn.split("até");
+    checkIn = parts[0].trim();
+    checkOut = parts[1].trim();
+  }
   const isoCheckIn = toISO(checkIn);
   const isoCheckOut = toISO(checkOut);
-  let qs = `?checkIn=${isoCheckIn}&checkOut=${isoCheckOut}&destination=${destination}&rooms=${rooms}&page=1&limit=20`;
-  qs += `&adults1=${adults}&children1=${children}`;
+  // Monta o corpo da requisição conforme o esperado
+  const bodyData = {
+    stay: { checkIn: isoCheckIn, checkOut: isoCheckOut },
+    occupancies: [
+      { rooms: parseInt(rooms), adults: parseInt(adults), children: parseInt(children) }
+    ],
+    hotels: { hotel: [ parseInt(id) ] }
+  };
   try {
-    const resp = await fetch(`/api/hotelbeds/hotels${qs}`, { method: "GET" });
+    const resp = await fetch(`/api/hotelbeds/hotels`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bodyData)
+    });
     if (!resp.ok) {
       throw new Error(`Booking API Error: ${resp.status}`);
     }
@@ -584,14 +562,17 @@ async function fetchHotelBookingData(query) {
 }
 
 /***********************************************
-* M) Inicializa a Página – Preenchimento e Busca dos Dados
+* L) INICIALIZA A PÁGINA: PREENCHE OS DADOS E BUSCA OS QUARTOS
 ***********************************************/
 document.addEventListener("DOMContentLoaded", async function() {
   const query = getQueryParams();
   // Pré-preenche a barra de busca com os dados da query, se houver
   if (query.checkIn && query.checkOut) {
     const input = document.getElementById("checkin-checkout");
-    input.value = query.checkIn + " - " + query.checkOut;
+    // Normaliza a string de datas (caso contenha "até")
+    let dateRange = query.checkIn + " - " + query.checkOut;
+    dateRange = normalizeDateRange(dateRange);
+    input.value = dateRange;
     if (typeof moment !== "undefined") {
       const d1 = moment(query.checkIn, "DD/MM/YYYY");
       const d2 = moment(query.checkOut, "DD/MM/YYYY");
