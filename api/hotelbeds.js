@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-// Configura o Supabase (certifique-se de ter as variáveis de ambiente configuradas)
+// Configura o Supabase (certifique-se de que as variáveis de ambiente estão configuradas)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -14,16 +14,16 @@ const supabase = createClient(
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-// Função para gerar assinatura
+// Função para gerar a assinatura
 function generateSignature(apiKey, secretKey) {
   const timestamp = Math.floor(Date.now() / 1000);
   return crypto.createHash("sha256").update(apiKey + secretKey + timestamp).digest("hex");
 }
 
-// Tempo de expiração do cache: 24 horas (em ms)
+// Tempo de expiração do cache: 24 horas (em milissegundos)
 const CACHE_EXPIRE_MS = 24 * 3600 * 1000;
 
-// Função para atualizar (ou inserir) o cache da Content API para um hotel específico
+// Função para atualizar ou inserir o cache da Content API para um hotel específico
 async function updateHotelContentCache(hotelCode, signature, apiKey) {
   try {
     const contentUrl = `${CONTENT_URL}?codes=${hotelCode}&language=ENG&fields=all`;
@@ -35,7 +35,7 @@ async function updateHotelContentCache(hotelCode, signature, apiKey) {
     const response = await fetch(contentUrl, { method: "GET", headers });
     const contentData = await response.json();
     if (!response.ok) {
-      console.warn(`Erro ao atualizar cache para hotel ${hotelCode}:`, contentData);
+      console.warn(`Erro ao buscar content para hotel ${hotelCode}:`, contentData);
       return;
     }
     const now = new Date().toISOString();
@@ -56,7 +56,7 @@ const router = Router();
 
 router.get("/hotels", async (req, res) => {
   try {
-    // 1) Extrair parâmetros da query
+    // 1) Extrair parâmetros da query (com valores padrão)
     const { checkIn = "2025-06-15", checkOut = "2025-06-16", destination = "MCO" } = req.query;
     const roomsCount = parseInt(req.query.rooms || "1", 10);
     const occupancies = [];
@@ -79,7 +79,7 @@ router.get("/hotels", async (req, res) => {
     // 3) Gerar assinatura
     const signature = generateSignature(apiKey, apiSec);
     
-    // 4) Chamada à Booking API para obter preços atuais (não cacheada)
+    // 4) Chamada à Booking API (sempre chamada para obter preços atuais)
     const bookingHeaders = {
       "Api-key": apiKey,
       "X-Signature": signature,
@@ -87,11 +87,29 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
     const bodyData = { stay: { checkIn, checkOut }, occupancies, destination: { code: destination } };
-    const respBooking = await fetch(`${BOOKING_URL}?limit=20`, {
-      method: "POST",
-      headers: bookingHeaders,
-      body: JSON.stringify(bodyData)
-    });
+    const limit = 20;
+    
+    // Implementar timeout na chamada da Booking API
+    const controller = new AbortController();
+    const timeoutMs = 15000; // 15 segundos de timeout
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    
+    let respBooking;
+    try {
+      respBooking = await fetch(`${BOOKING_URL}?limit=${limit}`, {
+        method: "POST",
+        headers: bookingHeaders,
+        body: JSON.stringify(bodyData),
+        signal: controller.signal
+      });
+    } catch (err) {
+      if (err.name === "AbortError") {
+        return res.status(504).json({ error: "Booking API Timeout: a chamada demorou demais." });
+      }
+      throw err;
+    }
+    clearTimeout(timeoutId);
+    
     const bookingJson = await respBooking.json();
     if (!respBooking.ok) {
       return res.status(respBooking.status).json({
@@ -117,16 +135,16 @@ router.get("/hotels", async (req, res) => {
       });
     }
     
-    // 6) Para cada hotel, se o cache não existir ou estiver expirado, atualize-o em background (não aguardar)
+    // 6) Para cada hotel, se o cache não existir ou estiver expirado, atualizar em background
     hotelsArray.forEach(hotel => {
       const cached = cacheMap[hotel.code];
       if (!cached || (Date.now() - new Date(cached.last_updated).getTime() > CACHE_EXPIRE_MS)) {
-        // Chama em background sem await para não atrasar a resposta
+        // Dispara a atualização em background (fire-and-forget)
         updateHotelContentCache(hotel.code, signature, apiKey);
       }
     });
     
-    // 7) Montar o array combinado usando os dados disponíveis no cache
+    // 7) Montar o array combinado usando os dados disponíveis no cache (pode ser antigo)
     const combined = hotelsArray.map(bkHotel => {
       const cached = cacheMap[bkHotel.code];
       return {
@@ -138,7 +156,7 @@ router.get("/hotels", async (req, res) => {
         maxRate: bkHotel.maxRate,
         currency: bkHotel.currency,
         rooms: bkHotel.rooms,
-        content: cached && cached.content_json?.hotels && cached.content_json.hotels[0]
+        content: cached && cached.content_json && cached.content_json.hotels && cached.content_json.hotels[0]
           ? {
               name: cached.content_json.hotels[0].name,
               description: cached.content_json.hotels[0].description?.content || "",
@@ -151,7 +169,7 @@ router.get("/hotels", async (req, res) => {
       };
     });
     
-    // 8) Retornar a resposta para o front (Booking API + conteúdo cacheado)
+    // 8) Retornar a resposta para o front: dados da Booking API e o array combinado
     return res.json({ availability: bookingJson, combined });
     
   } catch (err) {
