@@ -396,29 +396,39 @@
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
-      <div class="hotel-name" id="hotelName"><!-- Nome do hotel será inserido aqui --></div>
+      <div class="hotel-name" id="hotelName">
+        <!-- Nome do hotel (content.name.content ou fallback) -->
+      </div>
       <div class="hotel-address" id="hotelAddress">
-        <!-- Endereço do hotel e link para mapa serão inseridos aqui -->
+        <!-- Endereço do hotel:
+             "street" (content.address.street), e possivelmente city, country, etc. 
+             <a href="#" class="location-link">Ver mapa</a> 
+        -->
       </div>
     </div>
 
     <!-- Galeria de Fotos (dinâmica) -->
     <div class="photo-gallery" id="photoGallery">
-      <!-- As imagens serão inseridas dinamicamente -->
+      <!-- Preferir imagens onde type.code === "GEN" (descrição "General view") 
+           Exibir até 5 (1 grande + 4 menores) 
+      -->
     </div>
 
     <!-- Seção de Comodidades (dinâmica) -->
     <section class="facilities" id="facilities">
-      <!-- Os itens de comodidades serão inseridos aqui -->
+      <!-- Lista de facilidades (content.facilities), exibir no máximo 12 itens 
+           ex: facility.description.content 
+      -->
     </section>
 
     <!-- Descrição e Destaques -->
     <div class="description-container">
       <div class="description" id="hotelDescription">
-        <!-- A descrição do hotel será inserida aqui -->
+        <!-- Descrição principal do hotel, ex: content.description.content -->
       </div>
       <div class="highlights" id="hotelHighlights">
-        <!-- Os destaques da acomodação serão inseridos aqui -->
+        <!-- Destaques da acomodação (caso queira exibir info extra, 
+             ou qualquer outro campo do content) -->
       </div>
     </div>
 
@@ -454,23 +464,36 @@
         <div></div>
       </div>
       <div class="room-table-body" id="roomTableBody">
-        <!-- As linhas com informações dos quartos serão inseridas dinamicamente -->
+        <!-- 
+          Para cada room, exibir:
+          - Título (room.name?), 
+          - Imagem do quarto (filtrar content.images onde type.code === "HAB" e roomCode === room.code?), 
+          - facilidades do quarto (se existirem),
+          - preço total (calculado com base no minRate ou outra fonte),
+          - botão "Selecionar Quarto" 
+        -->
       </div>
     </section>
 
     <!-- Informações adicionais (check-in, check-out, taxas, etc.) -->
     <div class="info-container" id="infoContainer">
-      <!-- Blocos de informações serão inseridos dinamicamente -->
+      <!-- 
+        Ex: content.checkInTime, content.checkOutTime, 
+        resortFee, parking cost, etc. 
+      -->
     </div>
 
     <!-- Mapa Interativo e Atrações -->
-    <div class="container" id="mapAttractionsContainer">
+    <div class="container" id="mapAttractionsContainer"> 
       <div class="attractions" id="attractions">
         <h2>Atrações</h2>
-        <!-- Os itens de atração serão inseridos dinamicamente -->
+        <!-- 
+          Exibir interestPoints (content.interestPoints) => 
+          interestPoints[i].poiName, interestPoints[i].distance 
+        -->
       </div>
       <div id="map">
-        <!-- O mapa será inicializado aqui -->
+        <!-- O mapa será inicializado aqui (latitude/longitude do hotel) -->
       </div>
     </div>
   </div>
