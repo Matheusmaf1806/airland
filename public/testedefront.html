@@ -30,6 +30,9 @@
     rel="stylesheet"
   />
 
+  <!-- Carrega seu facilitiesMap -->
+  <script src="/js/facilitiesMap.js"></script>
+
   <style>
     /* RESET + Fonte Montserrat */
     * {
@@ -610,6 +613,8 @@
   </style>
 </head>
 <body>
+  
+  <div id="header"></div>
 
   <!-- HERO -->
   <section class="hero">
@@ -700,7 +705,7 @@
       </div>
     </div>
 
-    <!-- ABAS CARROS, TRANSFER, SEGUROS - omitir se quiser -->
+    <!-- ABAS CARROS, TRANSFER, SEGUROS (exemplo) -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -765,6 +770,18 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script>
+    
+    // Faz o fetch do arquivo header.html
+    fetch('header.html')
+      .then(response => response.text())
+      .then(html => {
+        // injeta o HTML retornado na div#header
+        document.getElementById('header').innerHTML = html;
+      })
+      .catch(err => {
+        console.error('Falha ao carregar header:', err);
+      });
+
     /***********************************************
     * A) TABS + FLATPICKR
     ***********************************************/
@@ -966,22 +983,8 @@
       }).format(value);
     }
 
-    // (ii) Mapeamento de facilidades para ícones
-    function getFacilityIcon(facility) {
-      const f = facility.toLowerCase();
-      if (f.includes("pool") || f.includes("piscina")) {
-        return { icon: '<i class="fas fa-swimmer"></i>', label: 'Piscina' };
-      } else if (f.includes("gym") || f.includes("fitness") || f.includes("academia")) {
-        return { icon: '<i class="fas fa-dumbbell"></i>', label: 'Academia' };
-      } else if (f.includes("parking") || f.includes("estacionamento")) {
-        return { icon: '<i class="fas fa-parking"></i>', label: 'Estacionamento' };
-      } else if (f.includes("wifi") || f.includes("wi-fi") || f.includes("wireless")) {
-        return { icon: '<i class="fas fa-wifi"></i>', label: 'Wi-Fi' };
-      } else {
-        // fallback
-        return { icon: '<i class="fas fa-check"></i>', label: facility };
-      }
-    }
+    // Reordena para priorizar alguns facilities
+    const priorityFacilities = ["Wi-fi", "Gym", "Pool", "Parking"];
 
     // Converte metros => "0,8 km"
     function convertDistanceToKm(distStr) {
@@ -1015,24 +1018,67 @@
       }
       clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
 
-      // Facilities
+      // Facilities => reordena, exibe no máximo 3
+      let facArr = hotelData.facilities || [];
+      facArr.sort((a, b) => {
+        // se for igual, não muda
+        if (a === b) return 0;
+        // se a ou b estão em priorityFacilities => coloca primeiro
+        const aIndex = priorityFacilities.findIndex(p => a.toLowerCase().includes(p.toLowerCase()));
+        const bIndex = priorityFacilities.findIndex(p => b.toLowerCase().includes(p.toLowerCase()));
+        if (aIndex === -1 && bIndex === -1) return 0; 
+        if (aIndex === -1) return 1; 
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      });
+      // pega só as 3 primeiras
+      facArr = facArr.slice(0, 3);
+
       const facDiv = clone.querySelector(".facility-icons");
-      (hotelData.facilities || []).forEach(f => {
-        const iconData = getFacilityIcon(f);
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'facility-icon';
-        iconDiv.innerHTML = iconData.icon;
-        // tooltip
-        const tt = document.createElement('div');
-        tt.className = 'tooltip';
-        tt.textContent = iconData.label;
-        iconDiv.appendChild(tt);
-        facDiv.appendChild(iconDiv);
+      facArr.forEach(f => {
+        if (!window.facilitiesMap) return;
+        
+        // Tenta achar exato ou via includes
+        let foundKey = null;
+        // Tenta match exato
+        if (window.facilitiesMap[f]) {
+          foundKey = f;
+        } else {
+          // Se não achou exato, tenta achar algo que case (ex: "Outdoor freshwater pool" => "Pool")
+          for (const k in window.facilitiesMap) {
+            if (f.toLowerCase().includes(k.toLowerCase())) {
+              foundKey = k;
+              break;
+            }
+          }
+        }
+
+        if (foundKey) {
+          const found = window.facilitiesMap[foundKey];
+          const iconDiv = document.createElement('div');
+          iconDiv.className = 'facility-icon';
+          iconDiv.innerHTML = found.svg; // ex: <i class='fas fa-wifi'></i>
+          const tt = document.createElement('div');
+          tt.className = 'tooltip';
+          tt.textContent = found.pt; // ex: "Wi-Fi"
+          iconDiv.appendChild(tt);
+          facDiv.appendChild(iconDiv);
+        } else {
+          // fallback genérico (caso não exista no map)
+          const iconDiv = document.createElement('div');
+          iconDiv.className = 'facility-icon';
+          iconDiv.innerHTML = `<i class="fas fa-check"></i>`;
+          const tt = document.createElement('div');
+          tt.className = 'tooltip';
+          tt.textContent = f;
+          iconDiv.appendChild(tt);
+          facDiv.appendChild(iconDiv);
+        }
       });
 
-      // POIs
+      // POIs => exibir no máximo 3
       const poiUl = clone.querySelector('.poi-list');
-      (hotelData.poiList || []).forEach(p => {
+      (hotelData.poiList || []).slice(0, 3).forEach(p => {
         const li = document.createElement('li');
         li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${convertDistanceToKm(p.distance)}`;
         poiUl.appendChild(li);
@@ -1178,7 +1224,6 @@
 
           // facilities
           let facArr = (content.facilities || []).map(f => f.description?.content || '');
-          // se quiser priorizar piscina, academia, etc. basta ordenar. Exemplo omitido.
 
           // interestPoints => poiList
           let poiArr = [];
