@@ -390,6 +390,9 @@
   </style>
 </head>
 <body>
+
+  <div id="header"></div>
+  
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
@@ -478,6 +481,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    // Faz o fetch do arquivo header.html
+    fetch('header.html')
+      .then(response => response.text())
+      .then(html => {
+        // injeta o HTML retornado na div#header
+        document.getElementById('header').innerHTML = html;
+      })
+      .catch(err => {
+        console.error('Falha ao carregar header:', err);
+      });
+    
     document.addEventListener("DOMContentLoaded", function() {
       // Variável global para número de noites (usada na atualização dos preços dos quartos)
       let numNoites = 1;
