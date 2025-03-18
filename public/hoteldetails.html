@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Detalhes do Hotel</title>
   <!-- Font Awesome e outros recursos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <!-- Não estamos usando o daterangepicker, portanto removido -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <!-- Removido daterangepicker -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <!-- Carrega seu facilitiesMap.js (caso tenha) -->
+  <!-- Carrega seu facilitiesMap.js (caso exista) -->
   <script src="/js/facilitiesMap.js"></script>
 
   <style>
@@ -187,7 +190,9 @@
       color: #555;
       margin-left: 5px;
     }
-    input[type="date"], input[type="number"], select {
+    input[type="date"],
+    input[type="number"],
+    select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
@@ -216,7 +221,7 @@
       margin-top: 20px;
       background-color: #fff;
       border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       overflow: hidden;
     }
     .room-table-header {
@@ -253,7 +258,7 @@
       height: 100px;
       border-radius: 10px;
       object-fit: cover;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .room-details {
       display: flex;
@@ -318,7 +323,7 @@
       padding: 20px;
       background-color: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       transition: transform 0.3s;
     }
     .info-block h3 {
@@ -335,7 +340,7 @@
       display: flex;
       width: 100%;
       padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       border-radius: 10px;
       background-color: #fff;
       margin-top: 20px;
@@ -348,7 +353,7 @@
       background-color: #fff;
       border: 1px solid #f2f2f2;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-right: 20px;
       display: flex;
       flex-direction: column;
@@ -374,7 +379,7 @@
     }
     .attraction-item i {
       margin-right: 10px;
-      color: #007AFF;
+      color: #007aff;
       font-size: 20px;
     }
     h2 {
@@ -390,7 +395,6 @@
   </style>
 </head>
 <body>
-
   <!-- Importa header.html -->
   <div id="header"></div>
 
@@ -419,23 +423,44 @@
         <!-- Campos de data separados -->
         <div class="input-group">
           <label for="checkin">Check-in</label>
-          <input type="date" id="checkin" placeholder="YYYY-MM-DD">
+          <input type="date" id="checkin" placeholder="YYYY-MM-DD" />
         </div>
         <div class="input-group">
           <label for="checkOut">Check-out</label>
-          <input type="date" id="checkOut" placeholder="YYYY-MM-DD">
+          <input type="date" id="checkOut" placeholder="YYYY-MM-DD" />
         </div>
         <div class="input-group">
           <label for="rooms">Quartos</label>
-          <input type="number" id="rooms" placeholder="Nº de Quartos" min="1" max="10" value="1">
+          <input
+            type="number"
+            id="rooms"
+            placeholder="Nº de Quartos"
+            min="1"
+            max="10"
+            value="1"
+          />
         </div>
         <div class="input-group">
           <label for="adults">Adultos (+18 Anos)</label>
-          <input type="number" id="adults" placeholder="Nº de Adultos" min="1" max="10" value="1">
+          <input
+            type="number"
+            id="adults"
+            placeholder="Nº de Adultos"
+            min="1"
+            max="10"
+            value="1"
+          />
         </div>
         <div class="input-group">
           <label for="children">Crianças (0 a 17 anos)</label>
-          <input type="number" id="children" placeholder="Nº de Crianças" min="0" max="10" value="0">
+          <input
+            type="number"
+            id="children"
+            placeholder="Nº de Crianças"
+            min="0"
+            max="10"
+            value="0"
+          />
         </div>
       </div>
       <button class="search-button" onclick="updateRoomList()">Pesquisar</button>
@@ -446,7 +471,9 @@
       <div class="room-table-header">
         <div>Tipo de Quarto</div>
         <div>Hóspedes</div>
-        <div>Preço para <span id="num-noites">0</span> Noites</div>
+        <div>
+          Preço para <span id="num-noites">0</span> Noites
+        </div>
         <div></div>
       </div>
       <div class="room-table-body" id="roomTableBody"></div>
@@ -467,39 +494,11 @@
   <!-- Scripts externos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <!-- Removido o daterangepicker -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // URL base para as imagens do Hotelbeds
-    const BASE_IMG_URL = "https://photos.hotelbeds.com/giata/xl/";
-
-    /***********************************************
-    * A) IMPORTA O HEADER
-    ***********************************************/
-    fetch("header.html")
-      .then(resp => resp.text())
-      .then(html => {
-        document.getElementById("header").innerHTML = html;
-      })
-      .catch(err => console.error("Erro ao carregar header:", err));
-
-    /***********************************************
-    * B) EVENTO PARA ROLAR ATÉ O MAPA AO CLICAR EM "VER MAPA"
-    ***********************************************/
-    document.addEventListener("click", function(e) {
-      const link = e.target.closest(".location-link");
-      if (link) {
-        e.preventDefault();
-        const mapSection = document.getElementById("mapAttractionsContainer");
-        if (mapSection) {
-          mapSection.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    });
-
-    /***********************************************
-    * C) FUNÇÕES DE UTILIDADE – LEITURA DA QUERY STRING
-    ***********************************************/
+    // ============================================
+    // UTILITÁRIOS: Leitura e Conversão de Datas & Query String
+    // ============================================
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -509,85 +508,60 @@
       return query;
     }
 
-    function getHotelIdFromUrl() {
-      const query = getQueryParams();
-      return query.id;
+    // Converte uma data do formato "DD/MM/YYYY" para "YYYY-MM-DD"
+    function convertDateFormat(dateStr) {
+      const mDate = moment(dateStr, "DD/MM/YYYY");
+      return mDate.isValid() ? mDate.format("YYYY-MM-DD") : dateStr;
     }
 
-    /***********************************************
-    * D) BUSCA DOS DADOS DO HOTEL (CHAMANDO O BACKEND)
-    ***********************************************/
-    function fetchHotelContentById(hotelId) {
-      const url = `/api/hotelbeds/hotel-content?hotelCode=${hotelId}`;
-      return fetch(url, { method: "GET" })
+    // ============================================
+    // FUNÇÃO: Chama o endpoint que junta Booking e Content
+    // ============================================
+    function fetchHotelAvailabilityAndContent(hotelId, checkIn, checkOut, rooms, adults, children) {
+      // Monta a URL com os parâmetros (incluindo destination padrão "MCO")
+      const url = new URL("/api/hotelbeds/hotels", window.location.origin);
+      url.searchParams.set("checkIn", checkIn);
+      url.searchParams.set("checkOut", checkOut);
+      url.searchParams.set("rooms", rooms);
+      url.searchParams.set("adults", adults);
+      url.searchParams.set("children", children);
+      url.searchParams.set("destination", "MCO"); // ajuste se necessário
+
+      return fetch(url.toString(), { method: "GET" })
         .then(resp => resp.json())
-        .then(json => json.hotel || null);
+        .then(json => {
+          if (!json.combined || !json.combined.length) return null;
+          // Encontra o hotel pelo código
+          const hotel = json.combined.find(h => h.code == hotelId);
+          return hotel || null;
+        })
+        .catch(err => {
+          console.error("Erro ao buscar disponibilidade:", err);
+          return null;
+        });
     }
 
-    /***********************************************
-    * E) CARREGA OS DADOS NO TEMPLATE
-    ***********************************************/
-    function loadHotelContent(hotelObj) {
-      if (!hotelObj) return;
-      // Cabeçalho – Nome e Endereço
-      const hotelName = hotelObj.name?.content || "Hotel sem nome";
-      const addressStreet = hotelObj.address?.street || "";
-      const addressCity   = hotelObj.city?.content || "";
-      const addressCountry= hotelObj.country?.description?.content || "";
-      const fullAddress   = addressStreet +
-                            (addressCity ? `, ${addressCity}` : "") +
-                            (addressCountry ? ` - ${addressCountry}` : "");
-      document.getElementById("hotelName").textContent = hotelName;
-      document.getElementById("hotelAddress").innerHTML =
-        `<i class="fas fa-map-marker-alt"></i> ${fullAddress} <a href="#" class="location-link">Ver mapa</a>`;
-
-      // Galeria de fotos – filtra imagens com type.code === "GEN"
-      const genImages = (hotelObj.images || [])
-        .filter(img => img.type.code === "GEN")
-        .map(img => BASE_IMG_URL + img.path);
-      fillPhotoGallery(genImages);
-
-      // Facilidades – lista até 12 itens
-      const facList = (hotelObj.facilities || []).map(f => f.description?.content || "");
-      fillFacilities(facList.slice(0, 12));
-
-      // Descrição
-      if (hotelObj.description?.content) {
-        document.getElementById("hotelDescription").innerHTML = hotelObj.description.content;
+    // ============================================
+    // FUNÇÃO: Atualiza o número de noites com base nas datas
+    // ============================================
+    function updateNights() {
+      const checkIn = document.getElementById("checkin").value;
+      const checkOut = document.getElementById("checkOut").value;
+      if (checkIn && checkOut) {
+        const d1 = moment(checkIn, "YYYY-MM-DD");
+        const d2 = moment(checkOut, "YYYY-MM-DD");
+        const diff = d2.diff(d1, "days");
+        document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
       }
-
-      // Destaques – exemplo fixo (ajuste se houver conteúdo específico)
-      document.getElementById("hotelHighlights").innerHTML =
-        `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
-
-      // Tabela de Quartos – agrupa os quartos por nome (ou roomType)
-      createRoomTableGrouped(hotelObj.rooms, hotelObj.roomImages);
-
-      // Informações adicionais – dados fixos para exemplo
-      fillInfoBlocks({
-        checkin: "A partir das 16h",
-        checkout: "Até 11:00",
-        resortFee: "Não possui no local.",
-        parking: "Consulte valores no local."
-      });
-
-      // Mapa e Atrações
-      const lat = hotelObj.coordinates?.latitude || 0;
-      const lng = hotelObj.coordinates?.longitude || 0;
-      initMapAndAttractions(lat, lng, hotelObj.interestPoints);
-
-      // Atualiza o número de noites com base nos inputs de data
-      updateNights();
     }
 
-    /***********************************************
-    * F) FUNÇÕES DE RENDERIZAÇÃO
-    ***********************************************/
-    // F1) Galeria de fotos
+    // ============================================
+    // FUNÇÕES DE RENDERIZAÇÃO (Galeria, Facilidades, Tabela, etc.)
+    // ============================================
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
-      if (!photos || photos.length === 0) return;
+      if (!photos || !photos.length) return;
       const largeImg = document.createElement("img");
       largeImg.src = photos[0];
       largeImg.alt = "Foto do Hotel";
@@ -601,7 +575,6 @@
       }
     }
 
-    // F2) Facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -611,36 +584,29 @@
       });
     }
 
-    // F3) Cria a tabela de quartos agrupados
     function createRoomTableGrouped(rooms, roomImages) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
-
-      // Agrupa os quartos por nome (ou roomType)
       const groups = {};
       rooms.forEach(r => {
         const groupName = r.name || r.roomType || "Outros";
         if (!groups[groupName]) groups[groupName] = [];
         groups[groupName].push(r);
       });
-
       for (const groupName in groups) {
-        // Linha de título do grupo
         const groupRow = document.createElement("div");
         groupRow.className = "room-group-title";
         groupRow.textContent = groupName;
         tableBody.appendChild(groupRow);
-
         groups[groupName].forEach(room => {
           const row = document.createElement("div");
           row.className = "room-table-row";
           row.setAttribute("data-max-guests", room.maxPax || 2);
-
-          // Obtém a imagem do quarto
-          const imgObj = (roomImages || []).find(img => img.roomCode === room.roomCode && img.type.code === "HAB");
+          const imgObj = (roomImages || []).find(
+            img => img.roomCode === room.roomCode && img.type.code === "HAB"
+          );
           const roomImg = imgObj ? BASE_IMG_URL + imgObj.path : "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
-
           const roomDisplayName = room.name || room.roomType || room.roomCode || "Quarto";
           let basePrice = 300;
           if (room.rates && room.rates.length) {
@@ -648,11 +614,9 @@
           } else if (room.price) {
             basePrice = parseFloat(room.price) || basePrice;
           }
-
           const details = room.details && room.details.length
             ? room.details
             : [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
-
           row.innerHTML = `
             <div class="room-info">
               <img src="${roomImg}" alt="${roomDisplayName}" class="room-image">
@@ -681,7 +645,6 @@
       }
     }
 
-    // F4) Informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -703,14 +666,12 @@
       });
     }
 
-    // F5) Mapa e Atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(map);
-
       const hotelIcon = L.icon({
         iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
         iconSize: [40, 40],
@@ -719,7 +680,6 @@
       });
       const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
       marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-
       fillAttractions(attractions);
       if (Array.isArray(attractions)) {
         attractions.forEach(a => {
@@ -744,17 +704,93 @@
       });
     }
 
-    /***********************************************
-    * G) Atualiza a tabela de quartos conforme os dados de busca
-    ***********************************************/
-    window.updateRoomList = function() {
+    // ============================================
+    // FUNÇÃO: Processa a query string para separar/converter as datas
+    // ============================================
+    function processQueryDates(query) {
+      // Se checkIn vier no formato "14/04/2025 até 18/04/2025" e checkOut estiver vazio
+      if (query.checkIn && !query.checkOut && query.checkIn.includes("até")) {
+        const parts = query.checkIn.split("até").map(s => s.trim());
+        query.checkIn = parts[0];
+        query.checkOut = parts[1];
+      }
+      // Converte datas do formato DD/MM/YYYY para YYYY-MM-DD
+      if (query.checkIn) {
+        query.checkIn = convertDateFormat(query.checkIn);
+      }
+      if (query.checkOut) {
+        query.checkOut = convertDateFormat(query.checkOut);
+      }
+      return query;
+    }
+
+    // ============================================
+    // FUNÇÃO: Carrega os dados do hotel na página
+    // ============================================
+    function loadHotelContent(hotelObj) {
+      if (!hotelObj) return;
+      // Cabeçalho – Nome e Endereço
+      const hotelName = hotelObj.name || "Hotel sem nome";
+      const addressStreet = hotelObj.content?.address?.street || "";
+      const addressCity = hotelObj.content?.city?.content || "";
+      const addressCountry = hotelObj.content?.country?.description?.content || "";
+      const fullAddress =
+        addressStreet +
+        (addressCity ? `, ${addressCity}` : "") +
+        (addressCountry ? ` - ${addressCountry}` : "");
+      document.getElementById("hotelName").textContent = hotelName;
+      document.getElementById("hotelAddress").innerHTML =
+        `<i class="fas fa-map-marker-alt"></i> ${fullAddress} <a href="#" class="location-link">Ver mapa</a>`;
+
+      // Galeria de fotos – filtra imagens com type.code === "GEN"
+      const genImages = (hotelObj.content?.images || [])
+        .filter(img => img.type.code === "GEN")
+        .map(img => BASE_IMG_URL + img.path);
+      fillPhotoGallery(genImages);
+
+      // Facilidades – lista até 12 itens
+      const facList = (hotelObj.content?.facilities || [])
+        .map(f => f.description?.content || "");
+      fillFacilities(facList.slice(0, 12));
+
+      // Descrição
+      if (hotelObj.content?.description?.content) {
+        document.getElementById("hotelDescription").innerHTML =
+          hotelObj.content.description.content;
+      }
+
+      // Destaques – exemplo fixo (ajuste conforme necessário)
+      document.getElementById("hotelHighlights").innerHTML =
+        `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
+
+      // Tabela de Quartos – utiliza os dados de disponibilidade (rooms) da Booking API
+      createRoomTableGrouped(hotelObj.rooms, hotelObj.content?.roomImages);
+
+      // Informações adicionais – exemplo fixo
+      fillInfoBlocks({
+        checkin: "A partir das 16h",
+        checkout: "Até 11:00",
+        resortFee: "Não possui no local.",
+        parking: "Consulte valores no local."
+      });
+
+      // Mapa e Atrações
+      const lat = hotelObj.content?.coordinates?.latitude || 0;
+      const lng = hotelObj.content?.coordinates?.longitude || 0;
+      initMapAndAttractions(lat, lng, hotelObj.content?.interestPoints);
+      updateNights();
+    }
+
+    // ============================================
+    // FUNÇÃO: Atualiza a tabela de quartos conforme a busca
+    // ============================================
+    function updateRoomList() {
       updateNights();
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const numRooms = parseInt(document.getElementById("rooms").value) || 1;
       const numAdults = parseInt(document.getElementById("adults").value) || 1;
       const numChildren = parseInt(document.getElementById("children").value) || 0;
       const totalGuests = numAdults + numChildren;
-
       document.querySelectorAll(".room-table-row").forEach(row => {
         const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
         const priceEl = row.querySelector(".room-price");
@@ -777,27 +813,12 @@
           `;
         }
       });
-    };
-
-    /***********************************************
-    * NOVA FUNÇÃO: Atualiza o número de noites com base nas datas
-    ***********************************************/
-    function updateNights() {
-      const checkIn = document.getElementById("checkin").value;
-      const checkOut = document.getElementById("checkOut").value;
-      if(checkIn && checkOut) {
-        const d1 = moment(checkIn, "YYYY-MM-DD");
-        const d2 = moment(checkOut, "YYYY-MM-DD");
-        const diff = d2.diff(d1, "days");
-        document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
-      }
     }
 
-    /***********************************************
-    * H) Clique em "Selecionar Quarto"
-    ***********************************************/
-    window.handleSelectRoom = function(roomCode) {
-      // Lê somente dos inputs, já no formato YYYY-MM-DD
+    // ============================================
+    // FUNÇÃO: Ao clicar em "Selecionar Quarto", monta a URL final
+    // ============================================
+    function handleSelectRoom(roomCode) {
       const query = getQueryParams();
       const hotelId = query.id || "";
       const checkIn = document.getElementById("checkin").value || "";
@@ -805,7 +826,6 @@
       const rooms = document.getElementById("rooms").value || "1";
       const adults = document.getElementById("adults").value || "1";
       const children = document.getElementById("children").value || "0";
-
       const params = new URLSearchParams({
         id: hotelId,
         checkIn: checkIn,
@@ -815,52 +835,48 @@
         children: children,
         roomCode: roomCode
       }).toString();
-
-      // Redireciona para a página de confirmação com os parâmetros corretos
       window.location.href = "confirmation.html?" + params;
-    };
+    }
 
-    /***********************************************
-    * I) Inicializa a página: lê query e busca os dados do hotel
-    ***********************************************/
-    document.addEventListener("DOMContentLoaded", function() {
+    // ============================================
+    // INICIALIZAÇÃO: Processa a query string, preenche os inputs e busca os dados
+    // ============================================
+    document.addEventListener("DOMContentLoaded", function () {
       let query = getQueryParams();
-      // Se a query vier com checkIn="14/04/2025 até 18/04/2025" e checkOut estiver vazio, separe os valores
-      if(query.checkIn && !query.checkOut && query.checkIn.includes("até")) {
-         const parts = query.checkIn.split("até").map(s => s.trim());
-         // Exemplo: ["14/04/2025", "18/04/2025"]
-         query.checkIn = parts[0];
-         query.checkOut = parts[1];
-      }
-      // Converte datas do formato DD/MM/YYYY para YYYY-MM-DD para preencher os inputs do tipo "date"
-      if(query.checkIn) {
-         const mDate = moment(query.checkIn, "DD/MM/YYYY");
-         document.getElementById("checkin").value = mDate.isValid() ? mDate.format("YYYY-MM-DD") : query.checkIn;
-      }
-      if(query.checkOut) {
-         const mDate = moment(query.checkOut, "DD/MM/YYYY");
-         document.getElementById("checkOut").value = mDate.isValid() ? mDate.format("YYYY-MM-DD") : query.checkOut;
-      }
+      // Se a query vier com checkIn no formato "14/04/2025 até 18/04/2025" e checkOut vazio, separa os valores
+      query = processQueryDates(query);
+      // Preenche os inputs de data com os valores convertidos (YYYY-MM-DD)
+      if (query.checkIn) document.getElementById("checkin").value = query.checkIn;
+      if (query.checkOut) document.getElementById("checkOut").value = query.checkOut;
       updateNights();
-
-      if(query.rooms)    document.getElementById("rooms").value = query.rooms;
-      if(query.adults)   document.getElementById("adults").value = query.adults;
-      if(query.children) document.getElementById("children").value = query.children;
-
+      if (query.rooms) document.getElementById("rooms").value = query.rooms;
+      if (query.adults) document.getElementById("adults").value = query.adults;
+      if (query.children) document.getElementById("children").value = query.children;
+      
       const hotelId = query.id;
       if (!hotelId) {
         console.error("Nenhum hotel id fornecido na URL!");
         return;
       }
-      fetchHotelContentById(hotelId).then(hotelObj => {
-        if (hotelObj) {
-          loadHotelContent(hotelObj);
-        } else {
-          console.error("Conteúdo não encontrado para o ID:", hotelId);
-        }
-      });
+      // Obtém os demais parâmetros para chamar o endpoint (caso as datas estejam vazias, use valores padrão)
+      const checkInVal = document.getElementById("checkin").value || "2025-06-15";
+      const checkOutVal = document.getElementById("checkOut").value || "2025-06-20";
+      const roomsVal = document.getElementById("rooms").value || "1";
+      const adultsVal = document.getElementById("adults").value || "1";
+      const childrenVal = document.getElementById("children").value || "0";
 
-      // Listeners para recalcular noites ao mudar datas
+      // Chama o endpoint que une Booking e Content
+      fetchHotelAvailabilityAndContent(hotelId, checkInVal, checkOutVal, roomsVal, adultsVal, childrenVal)
+        .then(hotelObj => {
+          if (hotelObj) {
+            loadHotelContent(hotelObj);
+          } else {
+            console.error("Conteúdo não encontrado para o ID:", hotelId);
+          }
+        })
+        .catch(err => console.error("Erro na chamada do endpoint:", err));
+
+      // Atualiza número de noites sempre que os inputs de data mudarem
       document.getElementById("checkin").addEventListener("change", updateNights);
       document.getElementById("checkOut").addEventListener("change", updateNights);
     });
