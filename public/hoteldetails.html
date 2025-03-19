@@ -12,67 +12,376 @@
   <script src="/js/facilitiesMap.js"></script>
   <style>
     /* RESET e estilos básicos */
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background-color: #f0f2f5; color: #333; line-height: 1.6; }
-    .main-container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f0f2f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    .main-container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
     /* Cabeçalho do Hotel */
-    .hotel-header { margin-bottom: 20px; }
-    .hotel-name { font-size: 2em; font-weight: bold; color: #333; }
-    .hotel-address { display: flex; align-items: center; font-size: 1em; color: #666; margin-top: 10px; }
-    .hotel-address i { color: #0071e3; margin-right: 10px; }
-    .location-link { color: #0071e3; text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; }
-    .location-link:hover { text-decoration: underline; color: #005bb5; }
+    .hotel-header {
+      margin-bottom: 20px;
+    }
+    .hotel-name {
+      font-size: 2em;
+      font-weight: bold;
+      color: #333;
+    }
+    .hotel-address {
+      display: flex;
+      align-items: center;
+      font-size: 1em;
+      color: #666;
+      margin-top: 10px;
+    }
+    .hotel-address i {
+      color: #0071e3;
+      margin-right: 10px;
+    }
+    .location-link {
+      color: #0071e3;
+      text-decoration: none;
+      margin-left: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .location-link:hover {
+      text-decoration: underline;
+      color: #005bb5;
+    }
     /* Galeria de Fotos */
-    .photo-gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 200px); gap: 10px; margin-bottom: 20px; }
-    .photo-gallery img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .photo-gallery .large-photo { grid-row: 1 / 3; }
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: repeat(2, 200px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .photo-gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .photo-gallery .large-photo {
+      grid-row: 1 / 3;
+    }
     /* Comodidades */
-    .facilities { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .facility { display: flex; align-items: center; justify-content: center; padding: 15px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; text-align: center; transition: box-shadow 0.3s; }
-    .facility i { font-size: 1.5em; color: #0071e3; margin-right: 10px; }
-    .facility:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .facilities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .facility {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      transition: box-shadow 0.3s;
+    }
+    .facility i {
+      font-size: 1.5em;
+      color: #0071e3;
+      margin-right: 10px;
+    }
+    .facility:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
     /* Descrição e Destaques */
-    .description-container { display: flex; gap: 20px; margin-top: 20px; }
-    .description { flex: 2; padding: 20px; border-right: 1px solid #e0e0e0; }
-    .highlights { flex: 1; padding: 20px; background-color: #e9f7fe; border-radius: 8px; border: 2px solid #007bff; }
-    .highlights h2 { font-size: 1.8em; color: #007bff; margin-bottom: 10px; text-align: center; font-weight: bold; }
-    .highlights h3 { margin: 15px 0; color: #343a40; }
-    .highlight-list { list-style: none; padding: 0; margin-bottom: 20px; }
-    .highlight-list li { margin-bottom: 8px; padding-left: 30px; position: relative; color: #555; font-size: 1.1em; }
-    .highlight-list li i { position: absolute; left: 0; color: #007bff; font-size: 1.2em; }
+    .description-container {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .description {
+      flex: 2;
+      padding: 20px;
+      border-right: 1px solid #e0e0e0;
+    }
+    .highlights {
+      flex: 1;
+      padding: 20px;
+      background-color: #e9f7fe;
+      border-radius: 8px;
+      border: 2px solid #007bff;
+    }
+    .highlights h2 {
+      font-size: 1.8em;
+      color: #007bff;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .highlights h3 {
+      margin: 15px 0;
+      color: #343a40;
+    }
+    .highlight-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+    .highlight-list li {
+      margin-bottom: 8px;
+      padding-left: 30px;
+      position: relative;
+      color: #555;
+      font-size: 1.1em;
+    }
+    .highlight-list li i {
+      position: absolute;
+      left: 0;
+      color: #007bff;
+      font-size: 1.2em;
+    }
     /* Search Bar */
-    .search-bar-container { display: flex; align-items: center; gap: 15px; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; }
-    .search-fields { display: flex; align-items: center; gap: 15px; flex: 1; }
-    .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-    .input-group label { font-size: 12px; color: #555; margin-left: 5px; }
-    input[type="text"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; color: #333; }
-    .search-button { background-color: #0071e3; color: #fff; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; flex-shrink: 0; height: 56px; font-size: 16px; }
-    .search-button:hover { background-color: #005bb5; }
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .search-fields {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+    .input-group label {
+      font-size: 12px;
+      color: #555;
+      margin-left: 5px;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+    }
+    .search-button {
+      background-color: #0071e3;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+      height: 56px;
+      font-size: 16px;
+    }
+    .search-button:hover {
+      background-color: #005bb5;
+    }
     /* Tabela de Quartos */
-    .room-table { width: 100%; margin-top: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
-    .room-table-header { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr; background-color: #e9efff; padding: 15px; font-weight: bold; color: #333; text-align: center; }
-    .room-group-title { grid-column: 1 / 5; background-color: #f5f7ff; font-weight: 700; font-size: 1.1em; padding: 10px; border-bottom: 1px solid #ddd; }
-    .room-table-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr; padding: 15px; align-items: center; border-bottom: 1px solid #ddd; }
-    .room-info { display: flex; align-items: center; }
-    .room-details { margin-left: 10px; }
-    .room-details h4 { font-size: 1.2em; color: #0071e3; }
-    .room-price { font-size: 1.5em; font-weight: bold; color: #333; text-align: center; }
-    .select-room-button { background-color: #0071e3; color: #fff; padding: 10px 20px; border-radius: 5px; text-align: center; cursor: pointer; transition: background-color 0.3s; font-size: 1em; border: none; }
-    .select-room-button:hover { background-color: #005bb5; }
+    .room-table {
+      width: 100%;
+      margin-top: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .room-table-header {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 1fr;
+      background-color: #e9efff;
+      padding: 15px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+    .room-group-title {
+      grid-column: 1 / 5;
+      background-color: #f5f7ff;
+      font-weight: 700;
+      font-size: 1.1em;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .room-table-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 1fr;
+      padding: 15px;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+    .room-info {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    .room-image {
+      width: 150px;
+      height: 100px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .room-details {
+      display: flex;
+      flex-direction: column;
+    }
+    .room-details h4 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #0071e3;
+    }
+    .room-details p {
+      margin: 5px 0;
+      color: #666;
+    }
+    .room-price {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+    .price-info {
+      text-align: center;
+      font-size: 0.8em;
+      color: #666;
+    }
+    .discount-price {
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #0071e3;
+      margin: 0;
+      padding: 0;
+    }
+    .installment-price {
+      font-size: 0.8em;
+      color: #666;
+    }
+    .select-room-button {
+      background-color: #0071e3;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1em;
+      border: none;
+    }
+    .select-room-button:hover {
+      background-color: #005bb5;
+    }
     /* Informações Adicionais */
-    .info-container { margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; }
-    .info-block { flex: 1; min-width: 230px; margin: 10px; padding: 20px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: transform 0.3s; }
-    .info-block h3 { font-size: 1.2em; color: #0071e3; font-weight: 600; }
-    .info-block p { font-size: 1em; color: #555; }
+    .info-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .info-block {
+      flex: 1;
+      min-width: 230px;
+      margin: 10px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .info-block h3 {
+      font-size: 1.2em;
+      color: #0071e3;
+      font-weight: 600;
+    }
+    .info-block p {
+      font-size: 1em;
+      color: #555;
+    }
     /* Mapa e Atrações */
-    .container { display: flex; width: 100%; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 10px; background-color: #fff; margin-top: 20px; }
-    .attractions { width: 35%; padding: 15px; max-height: 400px; overflow-y: auto; background-color: #fff; border: 1px solid #f2f2f2; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-right: 20px; display: flex; flex-direction: column; }
-    #map { height: 400px; width: 65%; }
-    .attraction-item { display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; transition: background-color 0.3s; font-size: 16px; width: 100%; }
-    .attraction-item:hover { background-color: #e0f7fa; }
-    .attraction-item i { margin-right: 10px; color: #007AFF; font-size: 20px; }
-    h2 { text-align: center; color: #333; margin-bottom: 20px; }
-    footer { text-align: center; margin-top: 20px; color: #666; }
+    .container {
+      display: flex;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      background-color: #fff;
+      margin-top: 20px;
+    }
+    .attractions {
+      width: 35%;
+      padding: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      background-color: #fff;
+      border: 1px solid #f2f2f2;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-right: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #map {
+      height: 400px;
+      width: 65%;
+    }
+    .attraction-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      font-size: 16px;
+      width: 100%;
+    }
+    .attraction-item:hover {
+      background-color: #e0f7fa;
+    }
+    .attraction-item i {
+      margin-right: 10px;
+      color: #007AFF;
+      font-size: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -118,8 +427,9 @@
     <!-- Tabela de Quartos -->
     <section class="room-table" id="roomTable">
       <div class="room-table-header">
-        <div>Nome do Quarto</div>
-        <div>Preço (Net)</div>
+        <div>Tipo de Quarto</div>
+        <div>Hóspedes</div>
+        <div>Preço para <span id="num-noites">0</span> Noites</div>
         <div></div>
       </div>
       <div class="room-table-body" id="roomTableBody"></div>
@@ -143,7 +453,9 @@
     // 1) Importa o header.html
     fetch("header.html")
       .then(resp => resp.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      })
       .catch(err => console.error("Erro ao carregar header:", err));
 
     // 2) Ao clicar em "Ver mapa", rola para a seção do mapa
@@ -152,7 +464,9 @@
       if (link) {
         e.preventDefault();
         const mapSection = document.getElementById("mapAttractionsContainer");
-        if (mapSection) { mapSection.scrollIntoView({ behavior: "smooth" }); }
+        if (mapSection) {
+          mapSection.scrollIntoView({ behavior: "smooth" });
+        }
       }
     });
 
@@ -160,12 +474,14 @@
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
-      for (const [key, value] of params.entries()) { query[key] = value; }
+      for (const [key, value] of params.entries()) {
+        query[key] = value;
+      }
       return query;
     }
 
     // 4) Função para buscar os dados combinados (Booking + Content)
-    // Usa o endpoint /api/hbdetail/hotels
+    // Agora usa o endpoint /api/hbdetail/hotels
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -174,79 +490,58 @@
       if (query.rooms) params.set('rooms', query.rooms);
       if (query.adults) params.set('adults1', query.adults);
       if (query.children) params.set('children1', query.children);
-      if (query.hotelCode) { params.set('hotelCode', query.hotelCode); }
+      if (query.hotelCode) {
+        params.set('hotelCode', query.hotelCode);
+      }
       return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
 
-    // 5) Função para criar a tabela de quartos com o nome e o preço (net)
-    function createRoomTableGrouped(rooms) {
-      const tableBody = document.getElementById("roomTableBody");
-      tableBody.innerHTML = "";
-      if (!rooms || !rooms.length) return;
-      rooms.forEach(room => {
-        // Nome do quarto:
-        const roomName = room.name || room.roomType || room.roomCode || "Quarto";
-        // Preço (net) - usamos o primeiro rate do array, se disponível:
-        let netPrice = "N/A";
-        if (room.rates && room.rates.length > 0 && room.rates[0].net) {
-          netPrice = room.rates[0].net;
-        }
-        const row = document.createElement("div");
-        row.className = "room-table-row";
-        row.innerHTML = `
-          <div class="room-info">
-            <h4>${roomName}</h4>
-          </div>
-          <div class="room-price">
-            <p class="discount-price">€ <span class="pix-price">${parseFloat(netPrice).toFixed(2)}</span></p>
-          </div>
-          <div>
-            <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">Selecionar Quarto</button>
-          </div>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
-
-    // 6) Carrega os dados do hotel no template
+    // 5) Carrega os dados do hotel no template
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
-      // Nome do hotel e endereço
+      // Nome do hotel
       const hotelName = hotelObj.name || "Hotel sem nome";
+      // Usa destinationName (se existir) como endereço
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML =
         `<i class="fas fa-map-marker-alt"></i> ${hotelAddress} <a href="#" class="location-link">Ver mapa</a>`;
-      // Galeria
+
+      // Galeria: utiliza as imagens de hotelObj.content.images, se houver
       let images = [];
       if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length > 0) {
         images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
       }
       fillPhotoGallery(images);
-      // Facilidades
+
+      // Facilidades: utiliza hotelObj.content.facilities, se houver
       let facilities = [];
       if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length > 0) {
         facilities = hotelObj.content.facilities;
       }
       fillFacilities(facilities);
-      // Descrição
+
+      // Descrição: utiliza hotelObj.content.description
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
       }
       // Destaques (exemplo)
       document.getElementById("hotelHighlights").innerHTML =
         `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
-      // Cria a tabela de quartos utilizando os dados de hotelObj.rooms
-      createRoomTableGrouped(hotelObj.rooms);
-      // Informações adicionais (exemplo)
+
+      // Tabela de quartos: utiliza hotelObj.rooms (se existir)
+      createRoomTableGrouped(hotelObj.rooms, []); // Sem imagens adicionais de quartos
+
+      // Informações adicionais (dados fixos de exemplo)
       fillInfoBlocks({
         checkin: "A partir das 16h",
         checkout: "Até 11:00",
         resortFee: "Não possui no local.",
         parking: "Consulte valores no local."
       });
-      // Mapa e atrações
+
+      // Mapa e atrações: utiliza latitude, longitude e pontos de interesse
       const lat = hotelObj.latitude || 0;
       const lng = hotelObj.longitude || 0;
       let interestPoints = [];
@@ -254,10 +549,11 @@
         interestPoints = hotelObj.content.interestPoints;
       }
       initMapAndAttractions(lat, lng, interestPoints);
+
       initDateRangePicker();
     }
 
-    // 7) Preenche a galeria de fotos
+    // 6) Preenche a galeria de fotos
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -275,7 +571,7 @@
       }
     }
 
-    // 8) Preenche a seção de facilidades
+    // 7) Preenche a seção de facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -283,6 +579,67 @@
       facilities.forEach(f => {
         container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
       });
+    }
+
+    // 8) Agrupa e cria a tabela de quartos
+    function createRoomTableGrouped(rooms, roomImages) {
+      const tableBody = document.getElementById("roomTableBody");
+      tableBody.innerHTML = "";
+      if (!rooms || !rooms.length) return;
+    
+      // Exemplo de agrupamento por "roomType"
+      const groups = {};
+      rooms.forEach(r => {
+        const groupName = r.roomType || "Outros";
+        if (!groups[groupName]) groups[groupName] = [];
+        groups[groupName].push(r);
+      });
+    
+      // Para cada grupo, cria um título e as linhas
+      for (const groupName in groups) {
+        // Linha de título do grupo
+        const groupTitleRow = document.createElement("div");
+        groupTitleRow.className = "room-group-title";
+        groupTitleRow.textContent = groupName;
+        tableBody.appendChild(groupTitleRow);
+    
+        // Para cada quarto do grupo
+        groups[groupName].forEach(room => {
+          const row = document.createElement("div");
+          row.className = "room-table-row";
+    
+          // Nome do quarto => room.name
+          const roomName = room.name || room.roomType || room.roomCode || "Quarto";
+    
+          // Preço 'net' => pegar o primeiro rate, se houver
+          let netPrice = "N/A";
+          if (room.rates && room.rates.length > 0 && room.rates[0].net) {
+            netPrice = room.rates[0].net;  
+          }
+          // Converter para número e formatar com 2 decimais
+          const netNum = parseFloat(netPrice);
+          const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
+    
+          // Monta o HTML da linha
+          row.innerHTML = `
+            <div class="room-info">
+              <div class="room-details">
+                <h4>${roomName}</h4>
+              </div>
+            </div>
+            <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
+            <div class="room-price">
+              <p class="discount-price">EUR <span class="pix-price">${netFormatted}</span></p>
+            </div>
+            <div>
+              <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
+                Selecionar Quarto
+              </button>
+            </div>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
     }
 
     // 9) Preenche os blocos de informações adicionais
@@ -314,6 +671,7 @@
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(map);
+
       const hotelIcon = L.icon({
         iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
         iconSize: [40, 40],
@@ -322,6 +680,7 @@
       });
       const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
       marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
+
       const container = document.getElementById("attractions");
       container.innerHTML = "<h2>Atrações</h2>";
       if (Array.isArray(attractions) && attractions.length) {
@@ -366,8 +725,28 @@
       const numAdults = parseInt(document.getElementById("adults").value) || 1;
       const numChildren = parseInt(document.getElementById("children").value) || 0;
       const totalGuests = numAdults + numChildren;
+
       document.querySelectorAll(".room-table-row").forEach(row => {
-        row.style.display = "grid";
+        const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
+        const priceEl = row.querySelector(".room-price");
+        const basePrice = parseFloat(priceEl.getAttribute("data-price")) || 300;
+        if (totalGuests > maxGuests) {
+          row.style.display = "none";
+        } else {
+          row.style.display = "grid";
+          const totalPrice = (numNoites * basePrice) * numRooms;
+          const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
+          priceEl.innerHTML = `
+            <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
+            <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
+            <div class="price-info">
+              <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
+              <div class="daily-price-container">
+                <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
+              </div>
+            </div>
+          `;
+        }
       });
     };
 
@@ -376,6 +755,7 @@
       const selectedRoom = { roomCode: roomCode };
       localStorage.setItem("selectedRoom", JSON.stringify(selectedRoom));
       alert(`Você selecionou o quarto: ${roomCode}`);
+      // window.location.href = "confirmation.html"; // Exemplo de redirecionamento
     };
 
     // 14) DOMContentLoaded: pré-preenche os campos e busca os dados do hotel
