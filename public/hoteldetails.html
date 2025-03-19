@@ -8,10 +8,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <!-- Removido o daterangepicker -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <!-- Carrega seu facilitiesMap.js (caso tenha) -->
+  <!-- Carrega seu facilitiesMap.js (caso exista) -->
   <script src="/js/facilitiesMap.js"></script>
-
   <style>
     /* RESET e estilos básicos */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -25,57 +23,238 @@
     .location-link { color: #0071e3; text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; }
     .location-link:hover { text-decoration: underline; color: #005bb5; }
     /* Galeria de Fotos */
-    .photo-gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 200px); gap: 10px; margin-bottom: 20px; }
-    .photo-gallery img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: repeat(2, 200px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .photo-gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
     .photo-gallery .large-photo { grid-row: 1 / 3; }
     /* Comodidades */
-    .facilities { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .facility { display: flex; align-items: center; justify-content: center; padding: 15px; background-color: #fff; border-radius: 10px; border: 1px solid #ddd; text-align: center; transition: box-shadow 0.3s; }
+    .facilities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .facility {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      transition: box-shadow 0.3s;
+    }
     .facility i { font-size: 1.5em; color: #0071e3; margin-right: 10px; }
     .facility:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     /* Descrição e Destaques */
     .description-container { display: flex; gap: 20px; margin-top: 20px; }
     .description { flex: 2; padding: 20px; border-right: 1px solid #e0e0e0; }
-    .highlights { flex: 1; padding: 20px; background-color: #e9f7fe; border-radius: 8px; border: 2px solid #007bff; }
-    .highlights h2 { font-size: 1.8em; color: #007bff; margin-bottom: 10px; text-align: center; font-weight: bold; }
+    .highlights {
+      flex: 1;
+      padding: 20px;
+      background-color: #e9f7fe;
+      border-radius: 8px;
+      border: 2px solid #007bff;
+    }
+    .highlights h2 {
+      font-size: 1.8em;
+      color: #007bff;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
     .highlights h3 { margin: 15px 0; color: #343a40; }
     .highlight-list { list-style: none; padding: 0; margin-bottom: 20px; }
-    .highlight-list li { margin-bottom: 8px; padding-left: 30px; position: relative; color: #555; font-size: 1.1em; }
-    .highlight-list li i { position: absolute; left: 0; color: #007bff; font-size: 1.2em; }
+    .highlight-list li {
+      margin-bottom: 8px;
+      padding-left: 30px;
+      position: relative;
+      color: #555;
+      font-size: 1.1em;
+    }
+    .highlight-list li i {
+      position: absolute;
+      left: 0;
+      color: #007bff;
+      font-size: 1.2em;
+    }
     /* Search Bar */
-    .search-bar-container { display: flex; align-items: center; gap: 15px; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px; flex-wrap: wrap; }
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
     .search-fields { display: flex; align-items: center; gap: 15px; flex: 1; flex-wrap: wrap; }
-    .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+      min-width: 150px;
+    }
     .input-group label { font-size: 12px; color: #555; margin-left: 5px; }
-    input[type="date"], input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; color: #333; }
-    .search-button { background-color: #0071e3; color: #fff; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; flex-shrink: 0; height: 56px; font-size: 16px; }
+    input[type="date"], input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #333;
+    }
+    .search-button {
+      background-color: #0071e3;
+      color: #fff;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+      height: 56px;
+      font-size: 16px;
+    }
     .search-button:hover { background-color: #005bb5; }
     /* Tabela de Quartos */
-    .room-table { width: 100%; margin-top: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
-    .room-table-header { display: grid; grid-template-columns: 3fr 1fr 2fr 1fr; background-color: #e9efff; padding: 15px; font-weight: bold; color: #333; text-align: center; }
-    .room-group-title { grid-column: 1 / 5; background-color: #f5f7ff; font-weight: 700; font-size: 1.1em; padding: 10px; border-bottom: 1px solid #ddd; }
-    .room-table-row { display: grid; grid-template-columns: 3fr 1fr 2fr 1fr; padding: 15px; align-items: center; border-bottom: 1px solid #ddd; }
+    .room-table {
+      width: 100%;
+      margin-top: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .room-table-header {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 1fr;
+      background-color: #e9efff;
+      padding: 15px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+    .room-group-title {
+      grid-column: 1 / 5;
+      background-color: #f5f7ff;
+      font-weight: 700;
+      font-size: 1.1em;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .room-table-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr 1fr;
+      padding: 15px;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
     .room-info { display: flex; gap: 15px; align-items: center; }
-    .room-image { width: 150px; height: 100px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+    .room-image {
+      width: 150px;
+      height: 100px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
     .room-details { display: flex; flex-direction: column; }
-    .room-details h4 { margin-bottom: 10px; font-size: 1.2em; color: #0071e3; }
+    .room-details h4 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #0071e3;
+    }
     .room-details p { margin: 5px 0; color: #666; }
     .room-price { font-size: 1.5em; font-weight: bold; color: #333; text-align: center; }
     .price-info { text-align: center; font-size: 0.8em; color: #666; }
     .discount-price { font-size: 0.8em; font-weight: bold; color: #0071e3; margin: 0; padding: 0; }
     .installment-price { font-size: 0.8em; color: #666; }
-    .select-room-button { background-color: #0071e3; color: #fff; padding: 10px 20px; border-radius: 5px; text-align: center; cursor: pointer; transition: background-color 0.3s; font-size: 1em; border: none; }
+    .select-room-button {
+      background-color: #0071e3;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-size: 1em;
+      border: none;
+    }
     .select-room-button:hover { background-color: #005bb5; }
     /* Informações Adicionais */
-    .info-container { margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; }
-    .info-block { flex: 1; min-width: 230px; margin: 10px; padding: 20px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s; }
+    .info-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .info-block {
+      flex: 1;
+      min-width: 230px;
+      margin: 10px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
     .info-block h3 { font-size: 1.2em; color: #0071e3; font-weight: 600; }
     .info-block p { font-size: 1em; color: #555; }
     /* Mapa e Atrações */
-    .container { display: flex; width: 100%; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); border-radius: 10px; background-color: #fff; margin-top: 20px; }
-    .attractions { width: 35%; padding: 15px; max-height: 400px; overflow-y: auto; background-color: #fff; border: 1px solid #f2f2f2; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-right: 20px; display: flex; flex-direction: column; }
+    .container {
+      display: flex;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      background-color: #fff;
+      margin-top: 20px;
+    }
+    .attractions {
+      width: 35%;
+      padding: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      background-color: #fff;
+      border: 1px solid #f2f2f2;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-right: 20px;
+      display: flex;
+      flex-direction: column;
+    }
     #map { height: 400px; width: 65%; }
-    .attraction-item { display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; transition: background-color 0.3s; font-size: 16px; width: 100%; }
+    .attraction-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+      font-size: 16px;
+      width: 100%;
+    }
     .attraction-item:hover { background-color: #e0f7fa; }
     .attraction-item i { margin-right: 10px; color: #007AFF; font-size: 20px; }
     h2 { text-align: center; color: #333; margin-bottom: 20px; }
@@ -161,112 +340,61 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   
   <script>
-    // URL base para as imagens do Hotelbeds
-    const BASE_IMG_URL = "https://photos.hotelbeds.com/giata/xl/";
-
-    /***********************************************
-    * A) IMPORTA O HEADER
-    ***********************************************/
-    fetch("header.html")
-      .then(resp => resp.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
-      .catch(err => console.error("Erro ao carregar header:", err));
-
-    /***********************************************
-    * B) EVENTO PARA ROLAR ATÉ O MAPA AO CLICAR EM "VER MAPA"
-    ***********************************************/
-    document.addEventListener("click", function(e) {
-      const link = e.target.closest(".location-link");
-      if (link) {
-        e.preventDefault();
-        const mapSection = document.getElementById("mapAttractionsContainer");
-        if (mapSection) { mapSection.scrollIntoView({ behavior: "smooth" }); }
-      }
-    });
-
-    /***********************************************
-    * C) FUNÇÕES DE UTILIDADE – LEITURA DA QUERY STRING
-    ***********************************************/
+    // UTILITÁRIOS
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
       for (const [key, value] of params.entries()) { query[key] = value; }
       return query;
     }
-
-    /***********************************************
-    * D) BUSCA DOS DADOS DO HOTEL (CHAMANDO O BACKEND)
-    ***********************************************/
-    function fetchHotelContentById(hotelCode) {
-      const url = `/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`;
-      return fetch(url, { method: "GET" })
-        .then(resp => resp.json())
-        .then(json => json.hotel || null);
+    
+    // Como as datas já vêm em ISO, essa função pode simplesmente retornar o valor
+    function convertDateFormat(dateStr) {
+      return dateStr;
     }
-
-    /***********************************************
-    * E) CARREGA OS DADOS NO TEMPLATE
-    ***********************************************/
-    function loadHotelContent(hotelObj) {
-      if (!hotelObj) return;
-      // Cabeçalho – Nome e Endereço
-      const hotelName = hotelObj.name?.content || "Hotel sem nome";
-      const addressStreet = hotelObj.address?.street || "";
-      const addressCity   = hotelObj.city?.content || "";
-      const addressCountry= hotelObj.country?.description?.content || "";
-      const fullAddress   = addressStreet +
-                            (addressCity ? `, ${addressCity}` : "") +
-                            (addressCountry ? ` - ${addressCountry}` : "");
-      document.getElementById("hotelName").textContent = hotelName;
-      document.getElementById("hotelAddress").innerHTML =
-        `<i class="fas fa-map-marker-alt"></i> ${fullAddress} <a href="#" class="location-link">Ver mapa</a>`;
-
-      // Galeria de fotos – filtra imagens com type.code === "GEN"
-      const genImages = (hotelObj.images || [])
-        .filter(img => img.type.code === "GEN")
-        .map(img => BASE_IMG_URL + img.path);
-      fillPhotoGallery(genImages);
-
-      // Facilidades – lista até 12 itens
-      const facList = (hotelObj.facilities || []).map(f => f.description?.content || "");
-      fillFacilities(facList.slice(0, 12));
-
-      // Descrição
-      if (hotelObj.description?.content) {
-        document.getElementById("hotelDescription").innerHTML = hotelObj.description.content;
+    
+    // Função para buscar os detalhes do hotel usando o novo endpoint hbdetail (via POST)
+    async function fetchHotelDetail() {
+      const query = getQueryParams();
+      const hotelCode = query.hotelCode;
+      const checkIn = query.checkIn;
+      const checkOut = query.checkOut;
+      const rooms = query.rooms || 1;
+      const adults = query.adults || 1;
+      const children = query.children || 0;
+      
+      const payload = {
+        stay: { checkIn, checkOut },
+        occupancies: [
+          {
+            rooms: Number(rooms),
+            adults: Number(adults),
+            children: Number(children)
+          }
+        ],
+        hotels: { hotel: [Number(hotelCode)] }
+      };
+      
+      try {
+        const response = await fetch("/api/hbdetail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error("Erro: " + response.status);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Erro ao buscar detalhes do hotel:", error);
+        return null;
       }
-
-      // Destaques – exemplo fixo (ajuste se houver conteúdo específico)
-      document.getElementById("hotelHighlights").innerHTML =
-        `<h2>Destaques da Acomodação</h2><p>Confira as melhores vantagens desta acomodação.</p>`;
-
-      // Tabela de Quartos – agrupa os quartos por nome (ou roomType)
-      createRoomTableGrouped(hotelObj.rooms, hotelObj.roomImages);
-
-      // Informações adicionais – dados fixos para exemplo
-      fillInfoBlocks({
-        checkin: "A partir das 16h",
-        checkout: "Até 11:00",
-        resortFee: "Não possui no local.",
-        parking: "Consulte valores no local."
-      });
-
-      // Mapa e Atrações
-      const lat = hotelObj.coordinates?.latitude || 0;
-      const lng = hotelObj.coordinates?.longitude || 0;
-      initMapAndAttractions(lat, lng, hotelObj.interestPoints);
-
-      // Atualiza o número de noites com base nos inputs de data
-      updateNights();
     }
-
-    /***********************************************
-    * F) FUNÇÕES DE RENDERIZAÇÃO
-    ***********************************************/
+    
+    // FUNÇÕES DE RENDERIZAÇÃO
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
-      if (!photos || photos.length === 0) return;
+      if (!photos || !photos.length) return;
       const largeImg = document.createElement("img");
       largeImg.src = photos[0];
       largeImg.alt = "Foto do Hotel";
@@ -279,7 +407,7 @@
         gallery.appendChild(img);
       }
     }
-
+    
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -288,7 +416,7 @@
         container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
       });
     }
-
+    
     function createRoomTableGrouped(rooms, roomImages) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -347,7 +475,7 @@
         });
       }
     }
-
+    
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -368,7 +496,7 @@
         container.appendChild(block);
       });
     }
-
+    
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -393,7 +521,7 @@
         });
       }
     }
-
+    
     function fillAttractions(attractions) {
       const container = document.getElementById("attractions");
       container.innerHTML = "<h2>Atrações</h2>";
@@ -406,125 +534,72 @@
         `;
       });
     }
-
-    /***********************************************
-    * G) Atualiza a tabela de quartos conforme os dados de busca
-    ***********************************************/
-    window.updateRoomList = function() {
-      updateNights();
-      const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
-      const numRooms = parseInt(document.getElementById("rooms").value) || 1;
-      const numAdults = parseInt(document.getElementById("adults").value) || 1;
-      const numChildren = parseInt(document.getElementById("children").value) || 0;
-      const totalGuests = numAdults + numChildren;
-
-      document.querySelectorAll(".room-table-row").forEach(row => {
-        const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
-        const priceEl = row.querySelector(".room-price");
-        const basePrice = parseFloat(priceEl.getAttribute("data-price")) || 300;
-        if (totalGuests > maxGuests) {
-          row.style.display = "none";
-        } else {
-          row.style.display = "grid";
-          const totalPrice = (numNoites * basePrice) * numRooms;
-          const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
-          priceEl.innerHTML = `
-            <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
-            <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
-            <div class="price-info">
-              <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
-              <div class="daily-price-container">
-                <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
-              </div>
-            </div>
-          `;
-        }
-      });
-    };
-
-    /***********************************************
-    * H) Clique em "Selecionar Quarto"
-    ***********************************************/
-    window.handleSelectRoom = function(roomCode) {
-      // Lê somente dos inputs, já no formato YYYY-MM-DD
-      const query = getQueryParams();
-      // Agora, usamos "hotelCode" em vez de "id"
-      const hotelCode = query.hotelCode || "";
-      const checkIn = document.getElementById("checkin").value || "";
-      const checkOut = document.getElementById("checkOut").value || "";
-      const rooms = document.getElementById("rooms").value || "1";
-      const adults = document.getElementById("adults").value || "1";
-      const children = document.getElementById("children").value || "0";
-
-      const params = new URLSearchParams({
-        hotelCode: hotelCode,
-        checkIn: checkIn,
-        checkOut: checkOut,
-        rooms: rooms,
-        adults: adults,
-        children: children,
-        roomCode: roomCode
-      }).toString();
-
-      // Redireciona para a página de confirmação com os parâmetros corretos
-      window.location.href = "confirmation.html?" + params;
-    };
-
-    /***********************************************
-    * I) Inicializa a página: lê query e busca os dados do hotel
-    ***********************************************/
-    document.addEventListener("DOMContentLoaded", function() {
-      let query = getQueryParams();
-      // Se a query vier com checkIn no formato "DD/MM/YYYY até DD/MM/YYYY", separe os valores (caso necessário)
-      if(query.checkIn && !query.checkOut && query.checkIn.includes("até")) {
-         const parts = query.checkIn.split("até").map(s => s.trim());
-         query.checkIn = parts[0];
-         query.checkOut = parts[1];
-      }
-      // Como agora as datas já estão em ISO, podemos preenchê-las diretamente
-      if(query.checkIn) {
-         document.getElementById("checkin").value = query.checkIn;
-      }
-      if(query.checkOut) {
-         document.getElementById("checkOut").value = query.checkOut;
-      }
-      updateNights();
-
-      if(query.rooms)    document.getElementById("rooms").value = query.rooms;
-      if(query.adults)   document.getElementById("adults").value = query.adults;
-      if(query.children) document.getElementById("children").value = query.children;
-
-      const hotelCode = query.hotelCode;
-      if (!hotelCode) {
-        console.error("Nenhum hotelCode fornecido na URL!");
-        return;
-      }
-      fetchHotelContentById(hotelCode).then(hotelObj => {
-        if (hotelObj) {
-          loadHotelContent(hotelObj);
-        } else {
-          console.error("Conteúdo não encontrado para o hotelCode:", hotelCode);
-        }
-      });
-
-      // Listeners para recalcular noites ao mudar datas
-      document.getElementById("checkin").addEventListener("change", updateNights);
-      document.getElementById("checkOut").addEventListener("change", updateNights);
-    });
-
-    /***********************************************
-    * NOVA FUNÇÃO: Atualiza o número de noites com base nas datas
-    ***********************************************/
+    
+    // Atualiza o número de noites com base nos inputs
     function updateNights() {
       const checkIn = document.getElementById("checkin").value;
       const checkOut = document.getElementById("checkOut").value;
-      if(checkIn && checkOut) {
+      if (checkIn && checkOut) {
         const d1 = moment(checkIn, "YYYY-MM-DD");
         const d2 = moment(checkOut, "YYYY-MM-DD");
         const diff = d2.diff(d1, "days");
         document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
       }
     }
+    
+    // Função para redirecionar para a página de confirmação usando os parâmetros corretos
+    window.handleSelectRoom = function(roomCode) {
+      const query = getQueryParams();
+      // Usamos "hotelCode" conforme enviado na URL
+      const hotelCode = query.hotelCode || "";
+      const checkIn = document.getElementById("checkin").value || "";
+      const checkOut = document.getElementById("checkOut").value || "";
+      const rooms = document.getElementById("rooms").value || "1";
+      const adults = document.getElementById("adults").value || "1";
+      const children = document.getElementById("children").value || "0";
+    
+      const params = new URLSearchParams({
+        hotelCode,
+        checkIn,
+        checkOut,
+        rooms,
+        adults,
+        children,
+        roomCode
+      }).toString();
+    
+      window.location.href = "confirmation.html?" + params;
+    };
+    
+    // Inicializa a página: lê query e busca os dados do hotel via o novo endpoint (hbdetail)
+    document.addEventListener("DOMContentLoaded", async function() {
+      let query = getQueryParams();
+      // Como as datas já estão no formato ISO, preenche diretamente
+      if(query.checkIn) { document.getElementById("checkin").value = query.checkIn; }
+      if(query.checkOut) { document.getElementById("checkOut").value = query.checkOut; }
+      updateNights();
+      if(query.rooms)    document.getElementById("rooms").value = query.rooms;
+      if(query.adults)   document.getElementById("adults").value = query.adults;
+      if(query.children) document.getElementById("children").value = query.children;
+    
+      const hotelCode = query.hotelCode;
+      if (!hotelCode) {
+        console.error("Nenhum hotelCode fornecido na URL!");
+        return;
+      }
+    
+      // Chama o novo endpoint para buscar detalhes do hotel
+      const detailData = await fetchHotelDetail();
+      if (detailData && detailData.combined && detailData.combined.length) {
+        // Carrega os dados do hotel (supondo que detailData.combined[0] contenha o hotel solicitado)
+        loadHotelContent(detailData.combined[0]);
+      } else {
+        console.error("Detalhes do hotel não encontrados para o hotelCode:", hotelCode);
+      }
+    
+      document.getElementById("checkin").addEventListener("change", updateNights);
+      document.getElementById("checkOut").addEventListener("change", updateNights);
+    });
   </script>
 </body>
 </html>
