@@ -2,17 +2,16 @@ import { Router } from "express";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
-// Crie o cliente do Supabase utilizando as variáveis de ambiente
+// Crie o cliente do Supabase utilizando SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY // use a chave de serviço para operações de backend
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 const router = Router();
 
 /**
- * POST /shareCart
- * Cria um novo carrinho compartilhado e retorna um shareId.
+ * POST /shareCart - Cria um novo carrinho compartilhado e retorna um shareId.
  */
 router.post("/shareCart", async (req, res) => {
   try {
@@ -27,7 +26,7 @@ router.post("/shareCart", async (req, res) => {
         share_id,
         affiliate_id: affiliateId,
         agent_id: agentId,
-        items,  // espera-se que seja um objeto JSON
+        items,  // deve ser um objeto JSON
       }])
       .single();
       
@@ -43,8 +42,7 @@ router.post("/shareCart", async (req, res) => {
 });
 
 /**
- * POST /updateCart
- * Atualiza o carrinho existente com base no shareId.
+ * POST /updateCart - Atualiza o carrinho com base no shareId.
  */
 router.post("/updateCart", async (req, res) => {
   try {
@@ -70,8 +68,7 @@ router.post("/updateCart", async (req, res) => {
 });
 
 /**
- * GET /cart/:shareId
- * Retorna os itens do carrinho armazenado pelo shareId.
+ * GET /cart/:shareId - Retorna os itens do carrinho com base no shareId.
  */
 router.get("/cart/:shareId", async (req, res) => {
   try {
@@ -95,8 +92,7 @@ router.get("/cart/:shareId", async (req, res) => {
 });
 
 /**
- * POST /clearCart
- * Remove o carrinho do banco de dados com base no shareId.
+ * POST /clearCart - Remove o carrinho do banco com base no shareId.
  */
 router.post("/clearCart", async (req, res) => {
   try {
