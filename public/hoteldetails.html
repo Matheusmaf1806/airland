@@ -384,33 +384,36 @@
     }
 
     /* BLOCO DE PREÇO */
-    .room-price {
+    .price-block {
       display: flex;
       flex-direction: column;
       align-items: flex-start; /* ou 'center', se preferir */
-      gap: 4px; /* espaço vertical entre os elementos */
+      gap: 4px;
+      padding: 10px;
     }
     
-    .price-amount {
-      font-size: 0.8em;
+    /* Badge vermelho do desconto */
+    .discount-badge {
+      display: inline-block;
+      background-color: #e74c3c;
+      color: #fff;
+      font-size: 0.9em;
+      font-weight: bold;
+      padding: 3px 6px;
+      border-radius: 6px; /* bordas arredondadas */
+      margin-bottom: 6px; /* espaçamento abaixo do selo */
+    }
+    
+    /* Valor principal */
+    .main-price {
+      font-size: 1.4em;
       font-weight: bold;
       color: #333;
     }
     
-    /* O selinho vermelho do desconto */
-    .discount-badge {
-      display: inline-block;
-      background-color: #e74c3c; /* tom de vermelho */
-      color: #fff;
-      font-size: 0.8em;
-      font-weight: bold;
-      padding: 3px 6px;
-      border-radius: 6px; /* bordas arredondadas */
-      margin-left: 4px;  /* espacinho antes do selinho */
-    }
-    
+    /* Texto de parcelamento */
     .installment-info {
-      font-size: 0.85em;
+      font-size: 0.9em;
       color: #666;
     }
     
@@ -694,10 +697,10 @@
                 </div>
               </div>
               <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-              <div class="room-price">
-                <p class="discount-price">EUR <span class="pix-price">${netFormatted}</span><br>
-                <span class="flag-offer">5% OFF no Pix</span></p>
-                <p class="installment-info">até 10x sem juros</p>
+              <div class="price-block">
+                <span class="discount-badge">-5% no Pix</span>
+                <div class="main-price">R$ ${netFormatted}</div>
+                <div class="installment-info">Até 10x sem juros</div>
               </div>
               <div>
                 <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
