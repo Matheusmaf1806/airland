@@ -506,24 +506,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    (function() {
+    // Se o código já foi inicializado, não repete
+    if (window.__hotelDetailJSInitialized) return;
+    window.__hotelDetailJSInitialized = true;
+  
     // ============================
     // 0. Carrega o header (header.html)
     // ============================
     fetch("header.html")
       .then(resp => resp.text())
       .then(html => {
-        document.getElementById("header").innerHTML = html;
+        const headerEl = document.getElementById("header");
+        if (headerEl) headerEl.innerHTML = html;
       })
       .catch(err => console.error("Erro ao carregar header:", err));
-    
+  
     // ============================
     // 1. Carrinho: Variáveis e Funções
     // ============================
-    
-    // Array global para armazenar os itens do carrinho
     let cartItems = [];
     let shareId = null; // Para integração com o backend, se necessário
-    
+  
     // Função para alternar a exibição do carrinho (side panel)
     function toggleCart() {
       const cartContainer = document.querySelector(".cart-container");
@@ -533,9 +537,10 @@
         console.error("Elemento '.cart-container' não encontrado!");
       }
     }
-    window.toggleCart = toggleCart; // Expor globalmente
-    
-    // Função para renderizar os itens do carrinho no container "cartContent"
+    // Expor globalmente
+    window.toggleCart = toggleCart;
+  
+    // Função para renderizar os itens do carrinho
     function renderCartItems() {
       const cartContent = document.getElementById("cartContent");
       if (!cartContent) {
@@ -543,7 +548,7 @@
         return;
       }
       cartContent.innerHTML = "";
-    
+  
       if (cartItems.length === 0) {
         cartContent.innerHTML = "<p>Nenhum item no carrinho.</p>";
       } else {
@@ -596,7 +601,7 @@
         });
       }
       
-      // Atualiza os totais no rodapé (se os elementos existirem)
+      // Atualiza os totais no rodapé, se os elementos existirem
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
       const discountElem = document.getElementById("discountValue");
@@ -612,8 +617,8 @@
       // Persiste o carrinho no LocalStorage
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
-    
-    // Função para alterar quantidades de um item específico
+  
+    // Função para alterar quantidades de um item
     function incChildren(index) {
       cartItems[index].children = (cartItems[index].children || 0) + 1;
       renderCartItems();
@@ -640,7 +645,7 @@
       alert("Item removido");
     }
     
-    // Carrega o carrinho do LocalStorage (se houver)
+    // Carrega o carrinho do LocalStorage
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
@@ -656,8 +661,6 @@
     // ============================
     // 2. Funções para Carregar os Dados do Hotel
     // ============================
-    
-    // Lê os parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -667,7 +670,6 @@
       return query;
     }
     
-    // Busca os dados do hotel (endpoint /api/hbdetail/hotels)
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -681,7 +683,6 @@
         .then(resp => resp.json());
     }
     
-    // Carrega os dados do hotel e preenche a página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
       
@@ -709,12 +710,12 @@
       }
       fillFacilities(facilities);
       
-      // Preenche a descrição do hotel
+      // Preenche a descrição
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
       }
       
-      // Preenche os destaques (exemplo)
+      // Preenche os destaques
       document.getElementById("hotelHighlights").innerHTML = `
         <h2>Destaques da Acomodação</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
@@ -723,7 +724,7 @@
       // Cria a tabela de quartos, passando hotelCode e hotelName para os botões "Selecionar Quarto"
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
-      // Preenche blocos de informações adicionais
+      // Preenche os blocos de informações adicionais
       fillInfoBlocks({
         checkin: "A partir das 16h",
         checkout: "Até 11:00",
@@ -744,7 +745,6 @@
       initDateRangePicker();
     }
     
-    // Preenche a galeria de fotos
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -762,7 +762,6 @@
       }
     }
     
-    // Preenche a seção de facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -772,7 +771,6 @@
       });
     }
     
-    // Cria a tabela de quartos; recebe hotelCode e hotelName para passar aos botões de seleção
     function createRoomTableGrouped(rooms, hotelCode, hotelName) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -814,7 +812,6 @@
         tableBody.appendChild(btnRow);
       }
       
-      // Função auxiliar para criar uma linha de quarto
       function createRoomRow(room) {
         const roomName = room.name || room.roomType || room.roomCode || "Quarto";
         let netPrice = "N/A";
@@ -860,7 +857,6 @@
       }
     }
     
-    // Preenche os blocos de informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -1030,7 +1026,7 @@
         children: numChildren,
         checkIn: checkInDate,
         checkOut: checkOutDate
-        // Adicione basePriceAdult, basePriceChild se necessário
+        // Adicione basePriceAdult e basePriceChild se necessário
       };
       
       // Adiciona o quarto ao carrinho
@@ -1045,6 +1041,7 @@
       }
     };
     window.toggleCart = toggleCart;
+  })();
   </script>
 </body>
 </html>
