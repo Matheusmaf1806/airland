@@ -504,18 +504,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // 1) Importa o header.html
-    fetch("header.html")
-      .then(resp => resp.text())
-      .then(html => {
-        document.getElementById("header").innerHTML = html;
-      })
-      .catch(err => console.error("Erro ao carregar header:", err));
-
-    // 1. Variável global para armazenar os itens do carrinho
+    // Variável global para armazenar os itens do carrinho
     let cartItems = [];
-
-    // 2. Função para renderizar os itens do carrinho no container "cartContent"
+    let shareId = null; // Para integração com o backend (caso use Supabase)
+    
+    // Função para alternar a exibição do carrinho (toggle)
+    function toggleCart() {
+      const cartContainer = document.querySelector(".cart-container");
+      cartContainer.classList.toggle("hidden");
+    }
+    
+    // Função para renderizar os itens do carrinho no container "cartContent"
     function renderCartItems() {
       const cartContent = document.getElementById("cartContent");
       cartContent.innerHTML = "";
@@ -525,7 +524,7 @@
         return;
       }
       
-      cartItems.forEach((item) => {
+      cartItems.forEach((item, index) => {
         const itemDiv = document.createElement("div");
         itemDiv.className = "cart-item";
         itemDiv.innerHTML = `
@@ -536,11 +535,28 @@
         `;
         cartContent.appendChild(itemDiv);
       });
+      
+      // (Opcional) Salva os itens no LocalStorage para persistência
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
-
-    // 3. Função para tratar a seleção do quarto, recebendo hotelCode, hotelName, roomCode e roomName
+    
+    // Função para carregar o carrinho do LocalStorage (caso use persistência)
+    function loadCartFromLocalStorage() {
+      const stored = localStorage.getItem("cartItems");
+      if (stored) {
+        cartItems = JSON.parse(stored);
+        renderCartItems();
+        // Se houver itens, exibe o carrinho:
+        if (cartItems.length > 0) {
+          document.querySelector(".cart-container").classList.remove("hidden");
+        }
+      }
+    }
+    
+    // Função para tratar a seleção do quarto
     function handleSelectRoom(hCode, hName, rCode, rName) {
-      // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
+      console.log("handleSelectRoom called with:", hCode, hName, rCode, rName);
+      // Pega as datas do input (ex.: "14/04/2025 - 18/04/2025")
       const dateRange = document.getElementById("checkin-checkout").value;
       let checkInDate = "";
       let checkOutDate = "";
@@ -564,7 +580,7 @@
         checkOut: checkOutDate
       };
       
-      // Adiciona o quarto ao carrinho e atualiza a interface
+      // Adiciona o item ao carrinho e atualiza a interface
       cartItems.push(selectedRoom);
       renderCartItems();
       
@@ -572,9 +588,14 @@
       const cartContainer = document.querySelector(".cart-container");
       cartContainer.classList.remove("hidden");
       cartContainer.scrollIntoView({ behavior: "smooth" });
+      
+      // (Opcional) Aqui você pode chamar uma função para atualizar o carrinho no backend (via Supabase)
+      // updateCartServer();
     }
-
-    // 4. Função para ler os parâmetros da URL
+    
+    // === Funções para Carregar os Dados do Hotel ===
+    
+    // Função para ler parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -583,8 +604,8 @@
       }
       return query;
     }
-
-    // 5. Função para buscar os dados combinados (Booking + Content) no endpoint /api/hbdetail/hotels
+    
+    // Função para buscar os dados do hotel no endpoint /api/hbdetail/hotels
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -597,8 +618,8 @@
       return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
-
-    // 6. Função para carregar os dados do hotel na página
+    
+    // Função para carregar os dados do hotel na página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
       
@@ -609,7 +630,7 @@
       
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML = `
-        <i class="fas fa-map-marker-alt"></i> ${hotelAddress} <a href="#" class="location-link">Ver mapa</a>
+        <i class="fas fa-map-marker-alt"></i> ${hotelAddress} <a href="#" class="location-link" onclick="toggleCart()">Ver mapa</a>
       `;
       
       // Preenche a galeria de fotos
@@ -660,8 +681,8 @@
       // Inicializa o Date Range Picker
       initDateRangePicker();
     }
-
-    // 7. Função para preencher a galeria de fotos
+    
+    // Função para preencher a galeria de fotos
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -678,8 +699,8 @@
         gallery.appendChild(img);
       }
     }
-
-    // 8. Função para preencher a seção de facilidades
+    
+    // Função para preencher a seção de facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -688,8 +709,8 @@
         container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
       });
     }
-
-    // 9. Função para criar a tabela de quartos; recebe hotelCode e hotelName
+    
+    // Função para criar a tabela de quartos; recebe hotelCode e hotelName
     function createRoomTableGrouped(rooms, hotelCode, hotelName) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -776,8 +797,8 @@
         return row;
       }
     }
-
-    // 10. Função para preencher os blocos de informações adicionais
+    
+    // Função para preencher os blocos de informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -798,8 +819,8 @@
         container.appendChild(block);
       });
     }
-
-    // 11. Função para inicializar o mapa e exibir as atrações
+    
+    // Função para inicializar o mapa e exibir as atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -832,8 +853,8 @@
         });
       }
     }
-
-    // 12. Função para inicializar o Date Range Picker
+    
+    // Função para inicializar o Date Range Picker
     function initDateRangePicker() {
       $("#checkin-checkout").daterangepicker({
         locale: {
@@ -852,8 +873,8 @@
         updateRoomList();
       });
     }
-
-    // 13. Função para atualizar a tabela de quartos conforme as entradas do usuário
+    
+    // Função para atualizar a tabela de quartos conforme as entradas do usuário
     window.updateRoomList = function() {
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const numRooms = parseInt(document.getElementById("rooms").value) || 1;
@@ -884,8 +905,8 @@
         }
       });
     };
-
-    // 14. DOMContentLoaded: Preenche os campos e busca os dados do hotel
+    
+    // DOMContentLoaded: Preenche os campos e carrega os dados do hotel
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -901,7 +922,8 @@
       if (query.rooms) document.getElementById("rooms").value = query.rooms;
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
-      // Busca os dados combinados da API no endpoint /api/hbdetail/hotels
+      
+      // Carrega os dados do hotel do endpoint /api/hbdetail/hotels
       fetchHotelCombined().then(data => {
         if (data && data.combined && data.combined.length > 0) {
           loadHotelContent(data.combined[0]);
@@ -909,8 +931,10 @@
           console.error("Conteúdo não encontrado para o hotel!");
         }
       });
-    });
       
+      // (Opcional) Carrega os itens do carrinho do LocalStorage para persistência
+      loadCartFromLocalStorage();
+    });
   </script>
 </body>
 </html>
