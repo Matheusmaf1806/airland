@@ -8,10 +8,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
   <!-- Carrega seu facilitiesMap.js (caso tenha) -->
   <script src="/js/facilitiesMap.js"></script>
-
   <style>
     /* RESET e estilos básicos */
     * {
@@ -213,7 +211,7 @@
       margin-top: 20px;
       background-color: #fff;
       border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       overflow: hidden;
     }
     .room-table-header {
@@ -250,7 +248,7 @@
       height: 100px;
       border-radius: 10px;
       object-fit: cover;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .room-details {
       display: flex;
@@ -315,7 +313,7 @@
       padding: 20px;
       background-color: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       transition: transform 0.3s;
     }
     .info-block h3 {
@@ -332,7 +330,7 @@
       display: flex;
       width: 100%;
       padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       border-radius: 10px;
       background-color: #fff;
       margin-top: 20px;
@@ -345,7 +343,7 @@
       background-color: #fff;
       border: 1px solid #f2f2f2;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-right: 20px;
       display: flex;
       flex-direction: column;
@@ -483,7 +481,7 @@
     }
 
     // 4) Função para buscar os dados combinados (Booking + Content)
-    // Usa o endpoint /api/hotelbeds/hotels e envia "hotelCode" se existir
+    // Agora usa o endpoint /api/hbdetail/hotels
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -495,7 +493,7 @@
       if (query.hotelCode) {
         params.set('hotelCode', query.hotelCode);
       }
-      return fetch(`/api/hotelbeds/hotels?${params.toString()}`)
+      return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
 
@@ -688,7 +686,6 @@
           const lngA = a.longitude || lng;
           const attrMarker = L.marker([latA, lngA]).addTo(map);
           attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
-
           container.innerHTML += `
             <div class="attraction-item">
               <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
@@ -730,7 +727,6 @@
         const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
         const priceEl = row.querySelector(".room-price");
         const basePrice = parseFloat(priceEl.getAttribute("data-price")) || 300;
-
         if (totalGuests > maxGuests) {
           row.style.display = "none";
         } else {
@@ -762,8 +758,6 @@
     // 14) DOMContentLoaded: pré-preenche os campos e busca os dados do hotel
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
-
-      // Pré-preenche check-in/check-out
       if (query.checkIn && query.checkOut) {
         const input = document.getElementById("checkin-checkout");
         input.value = query.checkIn + " - " + query.checkOut;
@@ -777,11 +771,9 @@
       if (query.rooms) document.getElementById("rooms").value = query.rooms;
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
-
-      // Chama a função que busca os dados combinados da API
+      // Chama a função que busca os dados combinados da API no endpoint /api/hbdetail/hotels
       fetchHotelCombined().then(data => {
         if (data && data.combined && data.combined.length > 0) {
-          // Como estamos buscando por um hotel específico, usamos o primeiro item do array
           loadHotelContent(data.combined[0]);
         } else {
           console.error("Conteúdo não encontrado para o hotel!");
