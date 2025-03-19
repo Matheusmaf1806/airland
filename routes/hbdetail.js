@@ -12,14 +12,12 @@ function generateSignature(apiKey, secret) {
   return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
-// URLs base de teste – altere para produção quando necessário
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
 // Rota para obter os detalhes do hotel
-router.post("/hbdetail", async (req, res) => {
+router.post("/", async (req, res) => {  // <== AGORA É "/"
   try {
-    // Recupera as credenciais do ambiente
     const apiKey = process.env.API_KEY_HB;
     const apiSecret = process.env.SECRET_KEY_HB;
     if (!apiKey || !apiSecret) {
@@ -27,22 +25,16 @@ router.post("/hbdetail", async (req, res) => {
         error: "Credenciais não configuradas (API_KEY_HB, SECRET_KEY_HB)."
       });
     }
-
     const signature = generateSignature(apiKey, apiSecret);
 
-    // Extrai os dados do corpo da requisição
+    // Extrai dados do body
     const { stay, occupancies, hotels } = req.body;
     if (!stay || !occupancies || !hotels || !hotels.hotel) {
       return res.status(400).json({ error: "Payload inválido." });
     }
 
-    // Chamada à Booking API – para disponibilidade, usando POST
-    const bookingPayload = {
-      stay,
-      occupancies,
-      // Se necessário, pode incluir destination ou outros parâmetros
-    };
-
+    // 1) Chamada Booking API
+    const bookingPayload = { stay, occupancies };
     const bookingResp = await fetch(BOOKING_URL, {
       method: "POST",
       headers: {
@@ -55,7 +47,6 @@ router.post("/hbdetail", async (req, res) => {
     });
 
     const bookingData = await bookingResp.json();
-
     if (!bookingResp.ok) {
       return res.status(bookingResp.status).json({
         error: bookingData.error || "Erro na Booking API",
@@ -63,23 +54,20 @@ router.post("/hbdetail", async (req, res) => {
       });
     }
 
-    // Filtra os hotéis retornados para manter somente os que foram solicitados
-    const requestedCodes = hotels.hotel; // array com o(s) código(s) desejado(s)
+    // Filtra hotéis
+    const requestedCodes = hotels.hotel; 
     const bookingHotels = bookingData?.hotels?.hotels || [];
     const filteredBookingHotels = bookingHotels.filter(h =>
       requestedCodes.includes(h.code)
     );
-
     if (!filteredBookingHotels.length) {
       return res.status(404).json({
         error: "Nenhum hotel encontrado para os códigos fornecidos."
       });
     }
 
-    // Junta os códigos dos hotéis filtrados em uma CSV
+    // 2) Chamada Content API
     const codesCsv = filteredBookingHotels.map(h => h.code).join(",");
-
-    // Chamada à Content API – para obter os dados complementares (descrição, imagens, etc.)
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
     const contentResp = await fetch(contentUrl, {
       method: "GET",
@@ -90,7 +78,6 @@ router.post("/hbdetail", async (req, res) => {
       }
     });
     const contentData = await contentResp.json();
-
     if (!contentResp.ok) {
       return res.status(contentResp.status).json({
         error: contentData.error || "Erro na Content API",
@@ -98,13 +85,12 @@ router.post("/hbdetail", async (req, res) => {
       });
     }
 
-    // Cria um mapa de conteúdos por código
     const contentMap = {};
     (contentData?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
     });
 
-    // Combina os dados da Booking API e Content API para cada hotel solicitado
+    // Combina booking + content
     const combined = filteredBookingHotels.map(bkHotel => {
       const code = bkHotel.code;
       const cData = contentMap[code] || null;
@@ -117,7 +103,6 @@ router.post("/hbdetail", async (req, res) => {
         maxRate: bkHotel.maxRate,
         currency: bkHotel.currency,
         rooms: bkHotel.rooms,
-        // Anexa os dados do conteúdo, se disponível
         content: cData
           ? {
               name: cData.name,
