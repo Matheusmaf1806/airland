@@ -19,8 +19,8 @@ const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels
 // Rota POST (sem /hbdetail aqui!)
 router.post("/", async (req, res) => {
   try {
-    const apiKey = process.env.API_KEY_HB;
-    const apiSecret = process.env.SECRET_KEY_HB;
+    const apiKey = process.env.API_KEY_HH;
+    const apiSecret = process.env.SECRET_KEY_HH;
     if (!apiKey || !apiSecret) {
       return res.status(500).json({
         error: "Credenciais não configuradas (API_KEY_HB, SECRET_KEY_HB)."
