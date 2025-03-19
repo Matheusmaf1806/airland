@@ -646,9 +646,17 @@
         if (room.rates && room.rates.length > 0 && room.rates[0].net) {
           netPrice = room.rates[0].net;
         }
+      
         const netNum = parseFloat(netPrice);
         const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-    
+      
+        // Calcula 5% de netNum, se for válido
+        let discountMsg = "";
+        if (!isNaN(netNum)) {
+          const discountAmount = netNum * 0.05;
+          discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
+        }
+      
         const row = document.createElement("div");
         row.className = "room-table-row";
         row.innerHTML = `
@@ -659,9 +667,9 @@
           </div>
           <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
           <div class="room-price">
-            <span class="price-amount">R$ 120.17</span>
-            <span class="discount-badge">-5% no Pix</span>
-            <div class="installment-info">até 10x sem juros</div>
+            <p class="discount-price">EUR <span class="pix-price">${netFormatted}</span></p>
+            <p class="installment-info">até 10x sem juros</p>
+            <span class="flag-offer">${discountMsg}</span>
           </div>
           <div>
             <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
