@@ -382,6 +382,43 @@
       margin-top: 20px;
       color: #666;
     }
+
+    /* BLOCO DE PREÇO */
+    .room-price {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px; /* espaço vertical entre elementos */
+    }
+    
+    .price-amount {
+      font-size: 1.4em;     /* tamanho do valor */
+      font-weight: bold;    /* deixa em negrito */
+      color: #333;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .pix-badge {
+      font-size: 0.9em;     /* levemente menor */
+      color: #e74c3c;       /* destaque em vermelho */
+      font-weight: bold;
+    }
+    
+    .installment-info {
+      font-size: 0.8em;
+      color: #666;
+    }
+    
+    /* Melhora o visual das linhas e adiciona hover */
+    .room-table-row {
+      transition: background-color 0.3s;
+    }
+    
+    .room-table-row:hover {
+      background-color: #fafafa; /* muda levemente a cor ao passar o mouse */
+    }
   </style>
 </head>
 <body>
@@ -616,9 +653,9 @@
           </div>
           <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
           <div class="room-price">
-            <p class="discount-price">EUR <span class="pix-price">${netFormatted}</span><br>
-            <span class="flag-offer">5% OFF no Pix</span></p>
-            <p class="installment-info">até 10x sem juros</p>
+            <span class="price-amount">EUR ${netFormatted}</span>
+            <span class="pix-badge">5% OFF no Pix</span>
+            <span class="installment-info">até 10x sem juros</span>
           </div>
           <div>
             <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
