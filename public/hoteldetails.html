@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -685,46 +686,47 @@
         moreButton.textContent = "Mostrar mais quartos";
         moreButton.className = "select-room-button";
         moreButton.onclick = function() {
-          moreButton.remove();
-          const remainingRooms = sortedRooms.slice(initialCount);
-          remainingRooms.forEach(room => {
-            const roomName = room.name || room.roomType || room.roomCode || "Quarto";
-            let netPrice = "N/A";
-            if (room.rates && room.rates.length > 0 && room.rates[0].net) {
-              netPrice = room.rates[0].net;
-            }
-            const netNum = parseFloat(netPrice);
-            const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-            const row = document.createElement("div");
-            row.className = "room-table-row";
-            row.innerHTML = `
-              <div class="room-info">
-                <div class="room-details">
-                  <h4>${roomName}</h4>
-                </div>
+        moreButton.remove();
+        const remainingRooms = sortedRooms.slice(initialCount);
+        remainingRooms.forEach(room => {
+          const roomName = room.name || room.roomType || room.roomCode || "Quarto";
+          let netPrice = "N/A";
+          if (room.rates && room.rates.length > 0 && room.rates[0].net) {
+            netPrice = room.rates[0].net;
+          }
+          const netNum = parseFloat(netPrice);
+          const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
+          
+          // Recalcula o desconto para cada quarto
+          let discountMsg = "";
+          if (!isNaN(netNum)) {
+            const discountAmount = netNum * 0.05;
+            discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
+          }
+          
+          const row = document.createElement("div");
+          row.className = "room-table-row";
+          row.innerHTML = `
+            <div class="room-info">
+              <div class="room-details">
+                <h4>${roomName}</h4>
               </div>
-              <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-              <div class="room-price">
-                <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
-                <p class="installment-info">até 10x sem juros</p>
-                <span class="flag-offer">${discountMsg}</span>
-              </div>
-              <div>
-                <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
-                  Selecionar Quarto
-                </button>
-              </div>
-            `;
-            tableBody.appendChild(row);
-          });
-        };
-        const btnRow = document.createElement("div");
-        btnRow.className = "room-table-row";
-        btnRow.style.justifyContent = "center";
-        btnRow.appendChild(moreButton);
-        tableBody.appendChild(btnRow);
-      }
-    }
+            </div>
+            <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
+            <div class="room-price">
+              <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
+              <p class="installment-info">até 10x sem juros</p>
+              <span class="flag-offer">${discountMsg}</span>
+            </div>
+            <div>
+              <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
+                Selecionar Quarto
+              </button>
+            </div>
+          `;
+          tableBody.appendChild(row);
+        });
+      };
 
     // 9) Preenche os blocos de informações adicionais
     function fillInfoBlocks(info) {
