@@ -507,26 +507,46 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     (function() {
-    // Se o código já foi inicializado, não repete
+    // Evita execução duplicada
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
   
     // ============================
-    // 0. Carrega o header (header.html)
+    // 0. Carrega o header (header.html) e o Carrinho (cart.html) se não estiver presente
     // ============================
     fetch("header.html")
       .then(resp => resp.text())
       .then(html => {
         const headerEl = document.getElementById("header");
-        if (headerEl) headerEl.innerHTML = html;
+        if (headerEl) {
+          headerEl.innerHTML = html;
+        }
       })
       .catch(err => console.error("Erro ao carregar header:", err));
+  
+    // Se não houver um elemento com a classe .cart-container, carrega cart.html e o insere no body
+    if (!document.querySelector(".cart-container")) {
+      fetch("cart.html")
+        .then(resp => resp.text())
+        .then(html => {
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = html;
+          // Supondo que cart.html tem um wrapper com a classe "cart-container"
+          const cartContainer = tempDiv.querySelector(".cart-container");
+          if (cartContainer) {
+            document.body.appendChild(cartContainer);
+          } else {
+            console.error("Elemento '.cart-container' não encontrado em cart.html!");
+          }
+        })
+        .catch(err => console.error("Erro ao carregar cart.html:", err));
+    }
   
     // ============================
     // 1. Carrinho: Variáveis e Funções
     // ============================
     let cartItems = [];
-    let shareId = null; // Para integração com o backend, se necessário
+    let shareId = null; // Para integração com o backend
   
     // Função para alternar a exibição do carrinho (side panel)
     function toggleCart() {
@@ -537,10 +557,9 @@
         console.error("Elemento '.cart-container' não encontrado!");
       }
     }
-    // Expor globalmente
     window.toggleCart = toggleCart;
   
-    // Função para renderizar os itens do carrinho
+    // Função para renderizar os itens do carrinho no container "cartContent"
     function renderCartItems() {
       const cartContent = document.getElementById("cartContent");
       if (!cartContent) {
@@ -601,7 +620,7 @@
         });
       }
       
-      // Atualiza os totais no rodapé, se os elementos existirem
+      // Atualiza totais no rodapé, se os elementos existirem
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
       const discountElem = document.getElementById("discountValue");
@@ -618,7 +637,7 @@
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
   
-    // Função para alterar quantidades de um item
+    // Funções para alterar quantidades
     function incChildren(index) {
       cartItems[index].children = (cartItems[index].children || 0) + 1;
       renderCartItems();
@@ -645,7 +664,7 @@
       alert("Item removido");
     }
     
-    // Carrega o carrinho do LocalStorage
+    // Carrega o carrinho do LocalStorage (se houver)
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
@@ -721,7 +740,7 @@
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
       
-      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões "Selecionar Quarto"
+      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
       // Preenche os blocos de informações adicionais
@@ -776,7 +795,6 @@
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
       
-      // Ordena os quartos pelo preço net (menor para maior)
       const sortedRooms = rooms.slice().sort((a, b) => {
         const netA = a.rates && a.rates.length > 0 ? parseFloat(a.rates[0].net) : Infinity;
         const netB = b.rates && b.rates.length > 0 ? parseFloat(b.rates[0].net) : Infinity;
@@ -786,13 +804,11 @@
       const initialCount = 6;
       const roomsToShow = sortedRooms.slice(0, initialCount);
       
-      // Exibe os quartos iniciais
       roomsToShow.forEach(room => {
         const row = createRoomRow(room);
         tableBody.appendChild(row);
       });
       
-      // Se houver mais quartos, adiciona um botão para exibir os restantes
       if (sortedRooms.length > initialCount) {
         const moreButton = document.createElement("button");
         moreButton.textContent = "Mostrar mais quartos";
@@ -879,7 +895,7 @@
     }
     
     // ============================
-    // 3. Inicializa o Mapa, Date Range Picker e Atualiza a Tabela de Quartos
+    // 3. Inicializa Mapa, Date Range Picker e Atualiza Tabela de Quartos
     // ============================
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
@@ -969,7 +985,7 @@
     };
     
     // ============================
-    // 3. Inicialização da Página
+    // 4. Inicialização da Página
     // ============================
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
@@ -1001,7 +1017,7 @@
     });
     
     // ============================
-    // Exposição de Funções Globais
+    // 5. Exposição de Funções Globais
     // ============================
     window.handleSelectRoom = function(hCode, hName, rCode, rName) {
       // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
@@ -1026,7 +1042,7 @@
         children: numChildren,
         checkIn: checkInDate,
         checkOut: checkOutDate
-        // Adicione basePriceAdult e basePriceChild se necessário
+        // Adicione basePriceAdult, basePriceChild, etc., se necessário
       };
       
       // Adiciona o quarto ao carrinho
@@ -1040,6 +1056,7 @@
         cartContainer.scrollIntoView({ behavior: "smooth" });
       }
     };
+    
     window.toggleCart = toggleCart;
   })();
   </script>
