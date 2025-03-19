@@ -493,21 +493,20 @@
       return query;
     }
 
-    // 4) Função para buscar os dados combinados (Booking + Content)
+    // 4) Função para buscar os dados combinados (Booking + Content) 
+    // Alterado para chamar o endpoint correto (/api/hbdetail/hotels)
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
       if (query.checkIn) params.set('checkIn', query.checkIn);
       if (query.checkOut) params.set('checkOut', query.checkOut);
       if (query.rooms) params.set('rooms', query.rooms);
-      // Para cada quarto, definimos os ocupantes; como exemplo, usamos "adults1" e "children1"
       if (query.adults) params.set('adults1', query.adults);
       if (query.children) params.set('children1', query.children);
-      // Se houver hotelCode, passamos como "code" para filtrar o hotel específico
       if (query.hotelCode) {
         params.set('code', query.hotelCode);
       }
-      return fetch(`/api/hotelbeds/hotels?${params.toString()}`)
+      return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
 
@@ -516,7 +515,7 @@
       if (!hotelObj) return;
       // Nome do hotel
       const hotelName = hotelObj.name || "Hotel sem nome";
-      // Usamos destinationName como endereço (se disponível)
+      // Usa destinationName ou outro campo de endereço, se disponível
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML =
@@ -790,7 +789,7 @@
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
 
-      // Chama a função que busca os dados combinados da API
+      // Chama a função que busca os dados combinados da API no endpoint correto
       fetchHotelCombined().then(data => {
         if (data && data.combined && data.combined.length > 0) {
           // Como estamos buscando por um hotel específico, usamos o primeiro item do array
