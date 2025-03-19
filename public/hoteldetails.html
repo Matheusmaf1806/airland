@@ -504,8 +504,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // === 0. Carrega o header e o carrinho (cart.html) no DOM ===
-
+    // -----------------------
+    // 0. Carrega o header (caso esteja em header.html)
+    // -----------------------
     fetch("header.html")
       .then(resp => resp.text())
       .then(html => {
@@ -513,44 +514,35 @@
       })
       .catch(err => console.error("Erro ao carregar header:", err));
     
-    // Importa o carrinho (cart.html) e injeta-o no final do <body>
-    // Isso garante que o side panel do carrinho seja o mesmo para todo o site.
-    fetch("cart.html")
-      .then(resp => resp.text())
-      .then(html => {
-        // Insere o conteúdo de cart.html dentro de um container,
-        // se você quiser que ele fique oculto inicialmente, ele deve conter a classe "hidden"
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        document.body.appendChild(div);
-      })
-      .catch(err => console.error("Erro ao carregar o carrinho:", err));
-    
-    
-    // === 1. Carrinho: Variáveis e Funções de Exibição ===
+    // -----------------------
+    // 1. Carrinho: Variáveis e Funções de Exibição
+    // -----------------------
     
     // Array global para armazenar os itens do carrinho
     let cartItems = [];
-    let shareId = null; // Para integração com o backend (se necessário)
+    let shareId = null; // Para integração com o backend, se necessário
     
     // Função para alternar a exibição do carrinho (side panel)
     function toggleCart() {
       const cartContainer = document.querySelector(".cart-container");
-      cartContainer.classList.toggle("hidden");
+      if (cartContainer) {
+        cartContainer.classList.toggle("hidden");
+      } else {
+        console.error("Elemento .cart-container não encontrado!");
+      }
     }
     
-    // Função para renderizar os itens do carrinho no container (assumindo que, após o fetch, 
-    // o cart.html possui um elemento com id "cartBody")
+    // Função para renderizar os itens do carrinho no container "cartContent"
     function renderCartItems() {
-      const cartBody = document.getElementById("cartBody");
-      if (!cartBody) {
-        console.error("Elemento 'cartBody' não encontrado!");
+      const cartContent = document.getElementById("cartContent");
+      if (!cartContent) {
+        console.error("Elemento 'cartContent' não encontrado!");
         return;
       }
-      cartBody.innerHTML = "";
+      cartContent.innerHTML = "";
       
       if (cartItems.length === 0) {
-        cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
+        cartContent.innerHTML = "<p>Nenhum item no carrinho.</p>";
       } else {
         cartItems.forEach((item, index) => {
           const itemDiv = document.createElement("div");
@@ -595,27 +587,30 @@
                   </div>
                 </div>
               </div>
-              <div class="item-price" id="priceVal${index}">
-                R$ ${calculateItemPrice(item)}
-                <div class="installment-info">até 10x sem juros</div>
-                <div class="pix-off">5% OFF no Pix</div>
-              </div>
             </div>
           `;
-          cartBody.appendChild(itemDiv);
+          cartContent.appendChild(itemDiv);
         });
       }
-    
-      // (Opcional) Atualiza os totais do carrinho no rodapé
-      const total = cartItems.reduce((sum, item) => 
-        sum + (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild)
-      , 0);
-      document.getElementById("subtotalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-      document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      
+      // Atualiza os totais no rodapé do carrinho (se existirem os elementos)
+      const subtotalElem = document.getElementById("subtotalValue");
+      const totalElem = document.getElementById("totalValue");
+      const discountElem = document.getElementById("discountValue");
+      if (subtotalElem && totalElem && discountElem) {
+        const total = cartItems.reduce((sum, item) =>
+          sum + (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild)
+        , 0);
+        subtotalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        discountElem.textContent = "- R$ 0,00";
+      }
+      
+      // Salva o carrinho no LocalStorage para persistência
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
     
-    // Função para calcular o preço do item
+    // Função para calcular o preço de um item (exemplo)
     function calculateItemPrice(item) {
       const total = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
       return total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -625,7 +620,7 @@
     function incChildren(index) {
       cartItems[index].children++;
       renderCartItems();
-      // updateCartServer(); // Se usar backend
+      // updateCartServer(); // se integrar com o backend
     }
     function decChildren(index) {
       if (cartItems[index].children > 0) {
@@ -653,10 +648,7 @@
       alert("Item removido");
     }
     
-    // (Opcional) Persistência via LocalStorage
-    function saveCartToLocalStorage() {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
+    // Persistência via LocalStorage: carrega o carrinho salvo
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
@@ -668,9 +660,11 @@
       }
     }
     
-    // === 2. Funções para Carregar os Dados do Hotel ===
+    // -----------------------
+    // 2. Funções para Carregar os Dados do Hotel
+    // -----------------------
     
-    // Lê parâmetros da URL
+    // Lê os parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -697,6 +691,8 @@
     // Carrega os dados do hotel na página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
+      
+      // Define os dados do hotel
       const hotelName = hotelObj.name || "Hotel sem nome";
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
@@ -784,7 +780,7 @@
       });
     }
     
-    // Cria a tabela de quartos; recebe hotelCode e hotelName para repassar ao botão "Selecionar Quarto"
+    // Cria a tabela de quartos; recebe hotelCode e hotelName para repassar no botão "Selecionar Quarto"
     function createRoomTableGrouped(rooms, hotelCode, hotelName) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -980,7 +976,7 @@
       });
     };
     
-    // Quando a página carregar, preenche os campos, carrega os dados do hotel e do carrinho
+    // DOMContentLoaded: Preenche os campos e carrega os dados do hotel
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -997,7 +993,7 @@
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
       
-      // Carrega os dados do hotel do endpoint /api/hbdetail/hotels
+      // Busca os dados do hotel do endpoint /api/hbdetail/hotels
       fetchHotelCombined().then(data => {
         if (data && data.combined && data.combined.length > 0) {
           loadHotelContent(data.combined[0]);
@@ -1006,7 +1002,7 @@
         }
       });
       
-      // Carrega o carrinho salvo no LocalStorage (se houver)
+      // Carrega o carrinho salvo no LocalStorage, se houver
       loadCartFromLocalStorage();
     });
   </script>
