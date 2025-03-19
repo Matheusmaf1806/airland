@@ -6,12 +6,13 @@
   <title>Detalhes do Hotel</title>
   <!-- Font Awesome e outros recursos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <!-- Não estamos usando o daterangepicker, portanto removido -->
+  <!-- Removido o daterangepicker -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <!-- Carrega seu facilitiesMap.js (caso tenha) -->
   <script src="/js/facilitiesMap.js"></script>
 
+  <!-- Estilos -->
   <style>
     /* RESET e estilos básicos */
     * {
@@ -467,8 +468,8 @@
   <!-- Scripts externos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <!-- Removido o daterangepicker -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  
   <script>
     // URL base para as imagens do Hotelbeds
     const BASE_IMG_URL = "https://photos.hotelbeds.com/giata/xl/";
@@ -617,7 +618,7 @@
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
 
-      // Agrupa os quartos por nome (ou roomType)
+      // Agrupa os quartos por nome (ou roomType) utilizando room.name se disponível
       const groups = {};
       rooms.forEach(r => {
         const groupName = r.name || r.roomType || "Outros";
@@ -626,7 +627,7 @@
       });
 
       for (const groupName in groups) {
-        // Linha de título do grupo
+        // Linha de título do grupo com o nome do quarto
         const groupRow = document.createElement("div");
         groupRow.className = "room-group-title";
         groupRow.textContent = groupName;
@@ -637,11 +638,14 @@
           row.className = "room-table-row";
           row.setAttribute("data-max-guests", room.maxPax || 2);
 
-          // Obtém a imagem do quarto
+          // Obtém a imagem do quarto a partir de roomImages
           const imgObj = (roomImages || []).find(img => img.roomCode === room.roomCode && img.type.code === "HAB");
           const roomImg = imgObj ? BASE_IMG_URL + imgObj.path : "https://dummyimage.com/150x100/ccc/000.png&text=No+Image";
 
+          // Define o nome do quarto: utiliza room.name (preferencialmente)
           const roomDisplayName = room.name || room.roomType || room.roomCode || "Quarto";
+
+          // Define o preço base: pega o primeiro rate e extrai o valor de "net"
           let basePrice = 300;
           if (room.rates && room.rates.length) {
             basePrice = parseFloat(room.rates[0].net) || basePrice;
@@ -649,6 +653,7 @@
             basePrice = parseFloat(room.price) || basePrice;
           }
 
+          // Se houver detalhes adicionais, mantém essa lógica
           const details = room.details && room.details.length
             ? room.details
             : [`Max Adults: ${room.maxAdults || 2}`, `Max Children: ${room.maxChildren || 0}`];
@@ -780,20 +785,6 @@
     };
 
     /***********************************************
-    * NOVA FUNÇÃO: Atualiza o número de noites com base nas datas
-    ***********************************************/
-    function updateNights() {
-      const checkIn = document.getElementById("checkin").value;
-      const checkOut = document.getElementById("checkOut").value;
-      if(checkIn && checkOut) {
-        const d1 = moment(checkIn, "YYYY-MM-DD");
-        const d2 = moment(checkOut, "YYYY-MM-DD");
-        const diff = d2.diff(d1, "days");
-        document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
-      }
-    }
-
-    /***********************************************
     * H) Clique em "Selecionar Quarto"
     ***********************************************/
     window.handleSelectRoom = function(roomCode) {
@@ -828,7 +819,6 @@
       // Se a query vier com checkIn="14/04/2025 até 18/04/2025" e checkOut estiver vazio, separe os valores
       if(query.checkIn && !query.checkOut && query.checkIn.includes("até")) {
          const parts = query.checkIn.split("até").map(s => s.trim());
-         // Exemplo: ["14/04/2025", "18/04/2025"]
          query.checkIn = parts[0];
          query.checkOut = parts[1];
       }
@@ -864,6 +854,20 @@
       document.getElementById("checkin").addEventListener("change", updateNights);
       document.getElementById("checkOut").addEventListener("change", updateNights);
     });
+
+    /***********************************************
+    * NOVA FUNÇÃO: Atualiza o número de noites com base nas datas
+    ***********************************************/
+    function updateNights() {
+      const checkIn = document.getElementById("checkin").value;
+      const checkOut = document.getElementById("checkOut").value;
+      if(checkIn && checkOut) {
+        const d1 = moment(checkIn, "YYYY-MM-DD");
+        const d2 = moment(checkOut, "YYYY-MM-DD");
+        const diff = d2.diff(d1, "days");
+        document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
+      }
+    }
   </script>
 </body>
 </html>
