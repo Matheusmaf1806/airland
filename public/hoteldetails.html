@@ -504,98 +504,173 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Variável global para armazenar os itens do carrinho
-    let cartItems = [];
-    let shareId = null; // Para integração com o backend (caso use Supabase)
+    // === 0. Carrega o header e o carrinho (cart.html) no DOM ===
+
+    fetch("header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header:", err));
     
-    // Função para alternar a exibição do carrinho (toggle)
+    // Importa o carrinho (cart.html) e injeta-o no final do <body>
+    // Isso garante que o side panel do carrinho seja o mesmo para todo o site.
+    fetch("cart.html")
+      .then(resp => resp.text())
+      .then(html => {
+        // Insere o conteúdo de cart.html dentro de um container,
+        // se você quiser que ele fique oculto inicialmente, ele deve conter a classe "hidden"
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        document.body.appendChild(div);
+      })
+      .catch(err => console.error("Erro ao carregar o carrinho:", err));
+    
+    
+    // === 1. Carrinho: Variáveis e Funções de Exibição ===
+    
+    // Array global para armazenar os itens do carrinho
+    let cartItems = [];
+    let shareId = null; // Para integração com o backend (se necessário)
+    
+    // Função para alternar a exibição do carrinho (side panel)
     function toggleCart() {
       const cartContainer = document.querySelector(".cart-container");
       cartContainer.classList.toggle("hidden");
     }
     
-    // Função para renderizar os itens do carrinho no container "cartContent"
+    // Função para renderizar os itens do carrinho no container (assumindo que, após o fetch, 
+    // o cart.html possui um elemento com id "cartBody")
     function renderCartItems() {
-      const cartContent = document.getElementById("cartContent");
-      cartContent.innerHTML = "";
-      
-      if (cartItems.length === 0) {
-        cartContent.innerHTML = "<p>Nenhum item no carrinho.</p>";
+      const cartBody = document.getElementById("cartBody");
+      if (!cartBody) {
+        console.error("Elemento 'cartBody' não encontrado!");
         return;
       }
+      cartBody.innerHTML = "";
       
-      cartItems.forEach((item, index) => {
-        const itemDiv = document.createElement("div");
-        itemDiv.className = "cart-item";
-        itemDiv.innerHTML = `
-          <p><strong>${item.hotelName}</strong> (Cód. Hotel: ${item.hotelCode})</p>
-          <p>Quarto: ${item.roomName} (Cód. Quarto: ${item.roomCode})</p>
-          <p>Adultos: ${item.adults} | Crianças: ${item.children}</p>
-          <p>Check-in: ${item.checkIn} | Check-out: ${item.checkOut}</p>
-        `;
-        cartContent.appendChild(itemDiv);
-      });
-      
-      // (Opcional) Salva os itens no LocalStorage para persistência
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      if (cartItems.length === 0) {
+        cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
+      } else {
+        cartItems.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "cart-item";
+          itemDiv.innerHTML = `
+            <button class="trash-btn" onclick="removeItem(${index})">🗑</button>
+            <span class="tag-ingresso">${item.tag || "INGRESSOS"}</span>
+            <div class="item-title">${item.hotelName} - ${item.roomName}</div>
+            <div class="item-date">
+              <svg class="icon" viewBox="0 0 16 16">
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h.5A1.5 1.5 0 0 1 15 2.5v11A1.5 1.5 0 0 1 13.5 15h-11A1.5 1.5 0 0 1 1 13.5v-11A1.5 1.5 0 0 1 2.5 1H3V.5a.5.5 0 0 1 .5-.5zM2.5 2a.5.5 0 0 0-.5.5V4h12V2.5a.5.5 0 0 0-.5-.5h-11zM14 5H2v8.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V5z"></path>
+              </svg>
+              <span>${item.checkIn}</span>
+            </div>
+            <div class="item-quantities">
+              <div class="quantities-left">
+                <div class="quant-column">
+                  <div class="quant-label">
+                    <svg class="icon" viewBox="0 0 96 96">
+                      <circle cx="48" cy="20.5" r="12.5"/>
+                    </svg>
+                    <span>Crianças</span>
+                  </div>
+                  <div class="plusminus-row">
+                    <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
+                    <span id="childCount${index}">${item.children.toString().padStart(2, '0')}</span>
+                    <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="quant-column">
+                  <div class="quant-label">
+                    <svg class="icon" viewBox="0 0 575 575">
+                      <path d="M290.088,230.112c-15.912,0-30.906..."></path>
+                    </svg>
+                    <span>Adultos</span>
+                  </div>
+                  <div class="plusminus-row">
+                    <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
+                    <span id="adultCount${index}">${item.adults.toString().padStart(2, '0')}</span>
+                    <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
+                  </div>
+                </div>
+              </div>
+              <div class="item-price" id="priceVal${index}">
+                R$ ${calculateItemPrice(item)}
+                <div class="installment-info">até 10x sem juros</div>
+                <div class="pix-off">5% OFF no Pix</div>
+              </div>
+            </div>
+          `;
+          cartBody.appendChild(itemDiv);
+        });
+      }
+    
+      // (Opcional) Atualiza os totais do carrinho no rodapé
+      const total = cartItems.reduce((sum, item) => 
+        sum + (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild)
+      , 0);
+      document.getElementById("subtotalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
     }
     
-    // Função para carregar o carrinho do LocalStorage (caso use persistência)
+    // Função para calcular o preço do item
+    function calculateItemPrice(item) {
+      const total = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+      return total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    }
+    
+    // Funções para alterar quantidades
+    function incChildren(index) {
+      cartItems[index].children++;
+      renderCartItems();
+      // updateCartServer(); // Se usar backend
+    }
+    function decChildren(index) {
+      if (cartItems[index].children > 0) {
+        cartItems[index].children--;
+        renderCartItems();
+        // updateCartServer();
+      }
+    }
+    function incAdults(index) {
+      cartItems[index].adults++;
+      renderCartItems();
+      // updateCartServer();
+    }
+    function decAdults(index) {
+      if (cartItems[index].adults > 0) {
+        cartItems[index].adults--;
+        renderCartItems();
+        // updateCartServer();
+      }
+    }
+    function removeItem(index) {
+      cartItems.splice(index, 1);
+      renderCartItems();
+      // updateCartServer();
+      alert("Item removido");
+    }
+    
+    // (Opcional) Persistência via LocalStorage
+    function saveCartToLocalStorage() {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
         cartItems = JSON.parse(stored);
         renderCartItems();
-        // Se houver itens, exibe o carrinho:
         if (cartItems.length > 0) {
           document.querySelector(".cart-container").classList.remove("hidden");
         }
       }
     }
     
-    // Função para tratar a seleção do quarto
-    function handleSelectRoom(hCode, hName, rCode, rName) {
-      console.log("handleSelectRoom called with:", hCode, hName, rCode, rName);
-      // Pega as datas do input (ex.: "14/04/2025 - 18/04/2025")
-      const dateRange = document.getElementById("checkin-checkout").value;
-      let checkInDate = "";
-      let checkOutDate = "";
-      if (dateRange.includes(" - ")) {
-        [checkInDate, checkOutDate] = dateRange.split(" - ");
-      }
-      
-      // Pega os valores de adultos e crianças dos inputs
-      const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
-      const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
-      
-      // Cria o objeto do quarto selecionado
-      const selectedRoom = {
-        hotelCode: hCode,
-        hotelName: hName,
-        roomCode: rCode,
-        roomName: rName,
-        adults: numAdults,
-        children: numChildren,
-        checkIn: checkInDate,
-        checkOut: checkOutDate
-      };
-      
-      // Adiciona o item ao carrinho e atualiza a interface
-      cartItems.push(selectedRoom);
-      renderCartItems();
-      
-      // Exibe o carrinho removendo a classe "hidden"
-      const cartContainer = document.querySelector(".cart-container");
-      cartContainer.classList.remove("hidden");
-      cartContainer.scrollIntoView({ behavior: "smooth" });
-      
-      // (Opcional) Aqui você pode chamar uma função para atualizar o carrinho no backend (via Supabase)
-      // updateCartServer();
-    }
+    // === 2. Funções para Carregar os Dados do Hotel ===
     
-    // === Funções para Carregar os Dados do Hotel ===
-    
-    // Função para ler parâmetros da URL
+    // Lê parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -605,7 +680,7 @@
       return query;
     }
     
-    // Função para buscar os dados do hotel no endpoint /api/hbdetail/hotels
+    // Busca os dados do hotel no endpoint /api/hbdetail/hotels
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -619,18 +694,17 @@
         .then(resp => resp.json());
     }
     
-    // Função para carregar os dados do hotel na página
+    // Carrega os dados do hotel na página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
-      
-      // Define o nome e código do hotel
       const hotelName = hotelObj.name || "Hotel sem nome";
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
       
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML = `
-        <i class="fas fa-map-marker-alt"></i> ${hotelAddress} <a href="#" class="location-link" onclick="toggleCart()">Ver mapa</a>
+        <i class="fas fa-map-marker-alt"></i> ${hotelAddress} 
+        <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
       `;
       
       // Preenche a galeria de fotos
@@ -652,7 +726,7 @@
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
       }
       
-      // Preenche os destaques (exemplo)
+      // Preenche os destaques
       document.getElementById("hotelHighlights").innerHTML = `
         <h2>Destaques da Acomodação</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
@@ -661,7 +735,7 @@
       // Cria a tabela de quartos, passando hotelCode e hotelName
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
-      // Preenche os blocos de informações adicionais (exemplo)
+      // Preenche os blocos de informações adicionais
       fillInfoBlocks({
         checkin: "A partir das 16h",
         checkout: "Até 11:00",
@@ -682,7 +756,7 @@
       initDateRangePicker();
     }
     
-    // Função para preencher a galeria de fotos
+    // Preenche a galeria de fotos
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -700,7 +774,7 @@
       }
     }
     
-    // Função para preencher a seção de facilidades
+    // Preenche a seção de facilidades
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -710,7 +784,7 @@
       });
     }
     
-    // Função para criar a tabela de quartos; recebe hotelCode e hotelName
+    // Cria a tabela de quartos; recebe hotelCode e hotelName para repassar ao botão "Selecionar Quarto"
     function createRoomTableGrouped(rooms, hotelCode, hotelName) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -798,7 +872,7 @@
       }
     }
     
-    // Função para preencher os blocos de informações adicionais
+    // Preenche os blocos de informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
@@ -820,7 +894,7 @@
       });
     }
     
-    // Função para inicializar o mapa e exibir as atrações
+    // Inicializa o mapa e exibe as atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -854,7 +928,7 @@
       }
     }
     
-    // Função para inicializar o Date Range Picker
+    // Inicializa o Date Range Picker
     function initDateRangePicker() {
       $("#checkin-checkout").daterangepicker({
         locale: {
@@ -874,7 +948,7 @@
       });
     }
     
-    // Função para atualizar a tabela de quartos conforme as entradas do usuário
+    // Atualiza a tabela de quartos conforme as entradas do usuário
     window.updateRoomList = function() {
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const numRooms = parseInt(document.getElementById("rooms").value) || 1;
@@ -906,7 +980,7 @@
       });
     };
     
-    // DOMContentLoaded: Preenche os campos e carrega os dados do hotel
+    // Quando a página carregar, preenche os campos, carrega os dados do hotel e do carrinho
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -932,7 +1006,7 @@
         }
       });
       
-      // (Opcional) Carrega os itens do carrinho do LocalStorage para persistência
+      // Carrega o carrinho salvo no LocalStorage (se houver)
       loadCartFromLocalStorage();
     });
   </script>
