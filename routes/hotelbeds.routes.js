@@ -1,11 +1,11 @@
+routes/hotelbeds.routes.js
+
 ////////////////////////////////////////////////////////////////////////
 // routes/hotelbeds.routes.js
 ////////////////////////////////////////////////////////////////////////
 import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
-
-const router = Router();
 
 // Função para gerar a assinatura para Booking e Content API
 function generateSignature(apiKey, secret) {
@@ -18,10 +18,8 @@ function generateSignature(apiKey, secret) {
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-/***********************************************
- * Rota GET /hotels
- * Disponibilidade + conteúdo (já existente)
- ***********************************************/
+const router = Router();
+
 router.get("/hotels", async (req, res) => {
   try {
     // 1) Recupera credenciais do ambiente
@@ -180,63 +178,6 @@ router.get("/hotels", async (req, res) => {
     console.error("Erro /api/hotelbeds/hotels =>", err);
     return res.status(500).json({
       error: "Erro interno ao buscar Disponibilidade + Conteúdo",
-      message: err.message
-    });
-  }
-});
-
-/***********************************************
- * Nova rota POST /prices
- * Busca os preços utilizando payload semelhante ao exemplo do Postman.
- ***********************************************/
-router.post("/prices", async (req, res) => {
-  try {
-    // Recupera as credenciais do ambiente
-    const apiKey = process.env.API_KEY_HH;
-    const apiSecret = process.env.SECRET_KEY_HH;
-    if (!apiKey || !apiSecret) {
-      return res.status(500).json({
-        error: "Faltam credenciais (API_KEY_HH, SECRET_KEY_HH) no ambiente."
-      });
-    }
-
-    // Gera a assinatura
-    const signature = generateSignature(apiKey, apiSecret);
-
-    // Extrai o payload enviado (espera { stay, occupancies, hotels })
-    const { stay, occupancies, hotels } = req.body;
-    if (!stay || !occupancies || !hotels) {
-      return res.status(400).json({ error: "Payload inválido. Espera { stay, occupancies, hotels }" });
-    }
-
-    // Configura os headers para a requisição
-    const headers = {
-      "Api-key": apiKey,
-      "X-Signature": signature,
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    };
-
-    // Faz o POST para a Booking API com o payload
-    const response = await fetch(BOOKING_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ stay, occupancies, hotels })
-    });
-
-    const json = await response.json();
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: json.error || "Erro na API Hotelbeds (Prices)",
-        details: json
-      });
-    }
-
-    return res.json(json);
-  } catch (err) {
-    console.error("Erro em /api/hotelbeds/prices =>", err);
-    return res.status(500).json({
-      error: "Erro interno ao buscar preços",
       message: err.message
     });
   }
