@@ -35,8 +35,8 @@ router.get("/hotels", async (req, res) => {
     // 3) Ler query parameters (ou valores padrão)
     const {
       checkIn  = "2025-06-15",
-      checkOut = "2025-06-20"
-      // Notamos que não precisamos mais de "destination" nem "code"
+      checkOut = "2025-06-20",
+      hotelCode // se enviado, será utilizado para filtrar o hotel
     } = req.query;
 
     // 4) Montar occupancies com base em rooms e adultos/children
@@ -51,6 +51,9 @@ router.get("/hotels", async (req, res) => {
       occupancies.push({ rooms: 1, adults: 2, children: 0 });
     }
 
+    // Define o código do hotel: se o parâmetro hotelCode foi enviado, usa-o; senão, usa 13621
+    const code = hotelCode ? parseInt(hotelCode, 10) : 13621;
+
     // --------------------------------------------------------------
     // (A) Chamada à Booking API (POST) => disponibilidade e preços
     // --------------------------------------------------------------
@@ -61,12 +64,11 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
 
-    // Monta o payload utilizando "hotels" com a estrutura desejada:
-    // Em vez de enviar destination, enviamos hotels com hotel: [13621]
+    // Monta o payload utilizando "hotels" com a estrutura desejada
     const bodyData = {
       stay: { checkIn, checkOut },
       occupancies,
-      hotels: { hotel: [13621] }
+      hotels: { hotel: [code] }
     };
 
     // Faz POST na Booking API
