@@ -33,11 +33,11 @@ router.get("/hotels", async (req, res) => {
     const signature = generateSignature(apiKey, apiSecret);
 
     // 3) Ler query parameters (ou valores padrão)
-    // Nesta rota, espera-se o parâmetro hotelCode para buscar um hotel específico
+    // Espera o parâmetro "hotelCode" para buscar um hotel específico
     const {
       checkIn  = "2025-06-15",
       checkOut = "2025-06-20",
-      hotelCode  // se enviado, será utilizado para filtrar o hotel
+      hotelCode // se enviado, será utilizado para filtrar o hotel
     } = req.query;
 
     // 4) Montar occupancies com base em rooms e adultos/children
@@ -65,7 +65,7 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
 
-    // Monta o payload utilizando "hotels" com a estrutura desejada
+    // Monta o payload utilizando "hotels" no formato esperado para buscar um hotel específico
     const bodyData = {
       stay: { checkIn, checkOut },
       occupancies,
@@ -135,20 +135,6 @@ router.get("/hotels", async (req, res) => {
     const combined = hotelsArray.map(bkHotel => {
       const code = bkHotel.code;
       const cData = contentMap[code] || null;
-      
-      // Ajusta as facilities para garantir que cada item possua a propriedade description com content
-      let facilities = [];
-      if (cData && Array.isArray(cData.facilities)) {
-        facilities = cData.facilities.map(fac => {
-          // Se o objeto já possui a propriedade "description" com "content", mantém
-          if (fac.description && fac.description.content) {
-            return fac;
-          }
-          // Caso contrário, adiciona a propriedade "description" com um conteúdo vazio (ou você pode definir outro valor padrão)
-          return { ...fac, description: { content: "" } };
-        });
-      }
-
       return {
         code,
         name: bkHotel.name,
@@ -161,10 +147,24 @@ router.get("/hotels", async (req, res) => {
         latitude: bkHotel.latitude,
         longitude: bkHotel.longitude,
         rooms: bkHotel.rooms,
+        // Anexa os dados de conteúdo, se disponíveis
         content: cData ? {
           name: cData.name,
           description: cData.description?.content || "",
-          facilities: facilities,
+          // Aqui transformamos as facilities para garantir a estrutura desejada:
+          facilities: (cData.facilities || []).map(fac => ({
+            facilityCode: fac.facilityCode,
+            facilityGroupCode: fac.facilityGroupCode,
+            // Se o objeto já possui "description" com "content", mantém; senão, cria-o
+            description: fac.description && fac.description.content 
+              ? fac.description 
+              : { content: fac.content || "" },
+            content: fac.content || (fac.description ? fac.description.content : ""),
+            order: fac.order,
+            indYesOrNo: fac.indYesOrNo,
+            number: fac.number,
+            voucher: fac.voucher
+          })),
           images: (cData.images || []).map(img => ({
             path: img.path,
             type: img.type
