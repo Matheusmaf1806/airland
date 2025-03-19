@@ -1,4 +1,4 @@
-// hbdetail.js
+// routes/hbdetail.js
 import { Router } from "express";
 import fetch from "node-fetch";
 import crypto from "crypto";
@@ -12,11 +12,12 @@ function generateSignature(apiKey, secret) {
   return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
+// URLs base de teste
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-// Rota para obter os detalhes do hotel
-router.post("/", async (req, res) => {  // <== AGORA É "/"
+// Rota POST (sem /hbdetail aqui!)
+router.post("/", async (req, res) => {
   try {
     const apiKey = process.env.API_KEY_HB;
     const apiSecret = process.env.SECRET_KEY_HB;
@@ -25,15 +26,15 @@ router.post("/", async (req, res) => {  // <== AGORA É "/"
         error: "Credenciais não configuradas (API_KEY_HB, SECRET_KEY_HB)."
       });
     }
+
     const signature = generateSignature(apiKey, apiSecret);
 
-    // Extrai dados do body
     const { stay, occupancies, hotels } = req.body;
     if (!stay || !occupancies || !hotels || !hotels.hotel) {
       return res.status(400).json({ error: "Payload inválido." });
     }
 
-    // 1) Chamada Booking API
+    // (A) Booking API
     const bookingPayload = { stay, occupancies };
     const bookingResp = await fetch(BOOKING_URL, {
       method: "POST",
@@ -45,8 +46,8 @@ router.post("/", async (req, res) => {  // <== AGORA É "/"
       },
       body: JSON.stringify(bookingPayload)
     });
-
     const bookingData = await bookingResp.json();
+
     if (!bookingResp.ok) {
       return res.status(bookingResp.status).json({
         error: bookingData.error || "Erro na Booking API",
@@ -57,16 +58,14 @@ router.post("/", async (req, res) => {  // <== AGORA É "/"
     // Filtra hotéis
     const requestedCodes = hotels.hotel; 
     const bookingHotels = bookingData?.hotels?.hotels || [];
-    const filteredBookingHotels = bookingHotels.filter(h =>
-      requestedCodes.includes(h.code)
-    );
+    const filteredBookingHotels = bookingHotels.filter(h => requestedCodes.includes(h.code));
     if (!filteredBookingHotels.length) {
       return res.status(404).json({
         error: "Nenhum hotel encontrado para os códigos fornecidos."
       });
     }
 
-    // 2) Chamada Content API
+    // (B) Content API
     const codesCsv = filteredBookingHotels.map(h => h.code).join(",");
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
     const contentResp = await fetch(contentUrl, {
