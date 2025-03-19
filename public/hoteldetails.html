@@ -593,7 +593,7 @@
           cartContent.appendChild(itemDiv);
         });
       }
-    
+      
       // Atualiza os totais no rodapé (se os elementos existirem)
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
@@ -606,18 +606,12 @@
         totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         discountElem.textContent = "- R$ 0,00";
       }
-    
+      
       // Persiste o carrinho no LocalStorage
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
     
-    // Função para calcular o preço do item (exemplo)
-    function calculateItemPrice(item) {
-      const total = ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0));
-      return total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-    }
-    
-    // Funções para alterar quantidades
+    // Função para alterar quantidades de um item específico
     function incChildren(index) {
       cartItems[index].children = (cartItems[index].children || 0) + 1;
       renderCartItems();
@@ -644,7 +638,7 @@
       alert("Item removido");
     }
     
-    // Persistência via LocalStorage: Carrega os itens salvos
+    // Carrega o carrinho do LocalStorage (se houver)
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
@@ -661,7 +655,7 @@
     // 2. Funções para Carregar os Dados do Hotel
     // ============================
     
-    // Função para ler os parâmetros da URL
+    // Lê os parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -671,7 +665,7 @@
       return query;
     }
     
-    // Função para buscar os dados do hotel (endpoint /api/hbdetail/hotels)
+    // Busca os dados do hotel (endpoint /api/hbdetail/hotels)
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -685,7 +679,7 @@
         .then(resp => resp.json());
     }
     
-    // Função para carregar os dados do hotel na página
+    // Carrega os dados do hotel e preenche a página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
       
@@ -713,21 +707,21 @@
       }
       fillFacilities(facilities);
       
-      // Preenche a descrição
+      // Preenche a descrição do hotel
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
       }
       
-      // Preenche os destaques
+      // Preenche os destaques (exemplo)
       document.getElementById("hotelHighlights").innerHTML = `
         <h2>Destaques da Acomodação</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
       
-      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões
+      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões "Selecionar Quarto"
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
-      // Preenche os blocos de informações adicionais
+      // Preenche blocos de informações adicionais
       fillInfoBlocks({
         checkin: "A partir das 16h",
         checkout: "Até 11:00",
@@ -776,7 +770,7 @@
       });
     }
     
-    // Cria a tabela de quartos; recebe hotelCode e hotelName para repassar no botão "Selecionar Quarto"
+    // Cria a tabela de quartos; recebe hotelCode e hotelName para passar aos botões de seleção
     function createRoomTableGrouped(rooms, hotelCode, hotelName) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -798,7 +792,7 @@
         tableBody.appendChild(row);
       });
       
-      // Se houver mais quartos, adiciona um botão para mostrar os restantes
+      // Se houver mais quartos, adiciona um botão para exibir os restantes
       if (sortedRooms.length > initialCount) {
         const moreButton = document.createElement("button");
         moreButton.textContent = "Mostrar mais quartos";
@@ -843,7 +837,7 @@
             </div>
           </div>
           <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-          <div class="room-price">
+          <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 300}">
             <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
             <p class="installment-info">até 10x sem juros</p>
             <span class="flag-offer">${discountMsg}</span>
@@ -887,7 +881,7 @@
     }
     
     // ============================
-    // 3. Inicializa o Mapa, Date Picker e Atualiza a Tabela de Quartos
+    // 3. Inicializa o Mapa, Date Range Picker e Atualiza a Tabela de Quartos
     // ============================
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
@@ -1009,7 +1003,7 @@
     });
     
     // ============================
-    // Exposição de funções globais
+    // Exposição de Funções Globais
     // ============================
     window.handleSelectRoom = function(hCode, hName, rCode, rName) {
       // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
@@ -1034,7 +1028,7 @@
         children: numChildren,
         checkIn: checkInDate,
         checkOut: checkOutDate
-        // Se desejar, adicione também basePriceAdult, basePriceChild etc.
+        // Adicione basePriceAdult, basePriceChild se necessário
       };
       
       // Adiciona o quarto ao carrinho
