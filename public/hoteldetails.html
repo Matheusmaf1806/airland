@@ -504,9 +504,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // -----------------------
-    // 0. Carrega o header (caso esteja em header.html)
-    // -----------------------
+    // ============================
+    // 0. Carrega o header (header.html)
+    // ============================
     fetch("header.html")
       .then(resp => resp.text())
       .then(html => {
@@ -514,9 +514,9 @@
       })
       .catch(err => console.error("Erro ao carregar header:", err));
     
-    // -----------------------
-    // 1. Carrinho: Variáveis e Funções de Exibição
-    // -----------------------
+    // ============================
+    // 1. Carrinho: Variáveis e Funções
+    // ============================
     
     // Array global para armazenar os itens do carrinho
     let cartItems = [];
@@ -528,9 +528,10 @@
       if (cartContainer) {
         cartContainer.classList.toggle("hidden");
       } else {
-        console.error("Elemento .cart-container não encontrado!");
+        console.error("Elemento '.cart-container' não encontrado!");
       }
     }
+    window.toggleCart = toggleCart; // Torna a função global
     
     // Função para renderizar os itens do carrinho no container "cartContent"
     function renderCartItems() {
@@ -568,7 +569,7 @@
                   </div>
                   <div class="plusminus-row">
                     <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
-                    <span id="childCount${index}">${item.children.toString().padStart(2, '0')}</span>
+                    <span id="childCount${index}">${(item.children || 0).toString().padStart(2, '0')}</span>
                     <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
                   </div>
                 </div>
@@ -582,7 +583,7 @@
                   </div>
                   <div class="plusminus-row">
                     <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
-                    <span id="adultCount${index}">${item.adults.toString().padStart(2, '0')}</span>
+                    <span id="adultCount${index}">${(item.adults || 0).toString().padStart(2, '0')}</span>
                     <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
                   </div>
                 </div>
@@ -593,62 +594,57 @@
         });
       }
       
-      // Atualiza os totais no rodapé do carrinho (se existirem os elementos)
+      // Atualiza os totais (caso os elementos existam)
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
       const discountElem = document.getElementById("discountValue");
       if (subtotalElem && totalElem && discountElem) {
         const total = cartItems.reduce((sum, item) =>
-          sum + (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild)
+          sum + ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0))
         , 0);
         subtotalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         discountElem.textContent = "- R$ 0,00";
       }
       
-      // Salva o carrinho no LocalStorage para persistência
+      // Salva o carrinho no LocalStorage
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
-    
-    // Função para calcular o preço de um item (exemplo)
+      
+    // Função para calcular o preço do item (exemplo)
     function calculateItemPrice(item) {
-      const total = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
+      const total = ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0));
       return total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     }
     
     // Funções para alterar quantidades
     function incChildren(index) {
-      cartItems[index].children++;
+      cartItems[index].children = (cartItems[index].children || 0) + 1;
       renderCartItems();
-      // updateCartServer(); // se integrar com o backend
     }
     function decChildren(index) {
-      if (cartItems[index].children > 0) {
+      if ((cartItems[index].children || 0) > 0) {
         cartItems[index].children--;
         renderCartItems();
-        // updateCartServer();
       }
     }
     function incAdults(index) {
-      cartItems[index].adults++;
+      cartItems[index].adults = (cartItems[index].adults || 0) + 1;
       renderCartItems();
-      // updateCartServer();
     }
     function decAdults(index) {
-      if (cartItems[index].adults > 0) {
+      if ((cartItems[index].adults || 0) > 0) {
         cartItems[index].adults--;
         renderCartItems();
-        // updateCartServer();
       }
     }
     function removeItem(index) {
       cartItems.splice(index, 1);
       renderCartItems();
-      // updateCartServer();
       alert("Item removido");
     }
     
-    // Persistência via LocalStorage: carrega o carrinho salvo
+    // Persistência via LocalStorage: Carrega o carrinho salvo (se houver)
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
@@ -660,9 +656,9 @@
       }
     }
     
-    // -----------------------
+    // ============================
     // 2. Funções para Carregar os Dados do Hotel
-    // -----------------------
+    // ============================
     
     // Lê os parâmetros da URL
     function getQueryParams() {
@@ -674,7 +670,7 @@
       return query;
     }
     
-    // Busca os dados do hotel no endpoint /api/hbdetail/hotels
+    // Busca os dados do hotel do endpoint /api/hbdetail/hotels
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -692,7 +688,6 @@
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
       
-      // Define os dados do hotel
       const hotelName = hotelObj.name || "Hotel sem nome";
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
@@ -926,6 +921,10 @@
     
     // Inicializa o Date Range Picker
     function initDateRangePicker() {
+      if (typeof $.fn.daterangepicker !== 'function') {
+        console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
+        return;
+      }
       $("#checkin-checkout").daterangepicker({
         locale: {
           format: "DD/MM/YYYY",
@@ -976,7 +975,11 @@
       });
     };
     
-    // DOMContentLoaded: Preenche os campos e carrega os dados do hotel
+    // ============================
+    // 3. Inicialização da Página
+    // ============================
+    
+    // Quando a página carregar, preenche os campos, carrega os dados do hotel e do carrinho
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -1002,9 +1005,13 @@
         }
       });
       
-      // Carrega o carrinho salvo no LocalStorage, se houver
+      // Carrega os itens do carrinho salvos no LocalStorage (se houver)
       loadCartFromLocalStorage();
     });
+    
+    // Torna as funções necessárias globais para serem chamadas pelo HTML (ex.: onclick)
+    window.handleSelectRoom = handleSelectRoom;
+    window.toggleCart = toggleCart;
   </script>
 </body>
 </html>
