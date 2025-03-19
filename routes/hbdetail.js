@@ -33,11 +33,11 @@ router.get("/hotels", async (req, res) => {
     const signature = generateSignature(apiKey, apiSecret);
 
     // 3) Ler query parameters (ou valores padrão)
-    // Espera o parâmetro "hotelCode" para buscar um hotel específico
+    // Nesta rota espera-se o parâmetro "hotelCode" para buscar um hotel específico.
     const {
       checkIn  = "2025-06-15",
       checkOut = "2025-06-20",
-      hotelCode // se enviado, será utilizado para filtrar o hotel
+      hotelCode  // se enviado, será utilizado para filtrar o hotel
     } = req.query;
 
     // 4) Montar occupancies com base em rooms e adultos/children
@@ -65,14 +65,12 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
 
-    // Monta o payload utilizando "hotels" no formato esperado para buscar um hotel específico
     const bodyData = {
       stay: { checkIn, checkOut },
       occupancies,
       hotels: { hotel: [code] }
     };
 
-    // Faz POST na Booking API
     const respBooking = await fetch(BOOKING_URL, {
       method: "POST",
       headers: bookingHeaders,
@@ -80,7 +78,6 @@ router.get("/hotels", async (req, res) => {
     });
     const bookingJson = await respBooking.json();
 
-    // Se a resposta não estiver ok, retorna erro
     if (!respBooking.ok) {
       return res.status(respBooking.status).json({
         error: bookingJson.error || "Erro na API Hotelbeds (Booking)",
@@ -88,7 +85,6 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Array de hotéis retornados
     const hotelsArray = bookingJson?.hotels?.hotels || [];
     if (!hotelsArray.length) {
       return res.json({
@@ -101,7 +97,6 @@ router.get("/hotels", async (req, res) => {
     // --------------------------------------------------------------
     // (B) Chamada à Content API => fotos, descrições e facilities
     // --------------------------------------------------------------
-    // Junta todos os "code" em uma CSV, ex: "1234,5678"
     const codes = hotelsArray.map(h => h.code);
     const codesCsv = codes.join(",");
     const contentHeaders = {
@@ -123,7 +118,6 @@ router.get("/hotels", async (req, res) => {
       });
     }
 
-    // Cria um map para lookup rápido dos dados da Content API
     const contentMap = {};
     (contentJson?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
@@ -147,15 +141,14 @@ router.get("/hotels", async (req, res) => {
         latitude: bkHotel.latitude,
         longitude: bkHotel.longitude,
         rooms: bkHotel.rooms,
-        // Anexa os dados de conteúdo, se disponíveis
         content: cData ? {
           name: cData.name,
           description: cData.description?.content || "",
-          // Aqui transformamos as facilities para garantir a estrutura desejada:
+          // Transformação das facilities para garantir a estrutura desejada:
           facilities: (cData.facilities || []).map(fac => ({
             facilityCode: fac.facilityCode,
             facilityGroupCode: fac.facilityGroupCode,
-            // Se o objeto já possui "description" com "content", mantém; senão, cria-o
+            // Se já houver description com content, mantém; senão, define description.content a partir de fac.content
             description: fac.description && fac.description.content 
               ? fac.description 
               : { content: fac.content || "" },
