@@ -12,13 +12,16 @@ function generateSignature(apiKey, secret) {
   return crypto.createHash("sha256").update(dataToSign).digest("hex");
 }
 
-// URLs base de teste
+// URLs base de teste – ajuste para produção conforme necessário
 const BOOKING_URL = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
 const CONTENT_URL = "https://api.test.hotelbeds.com/hotel-content-api/1.0/hotels";
 
-// Rota POST (sem /hbdetail aqui!)
+// Rota POST para obter os detalhes do hotel
+// Importante: definimos a rota como "/" para que, ao usarmos app.use("/api/hbdetail", router),
+// o endpoint final seja "/api/hbdetail"
 router.post("/", async (req, res) => {
   try {
+    // Recupera as credenciais do ambiente
     const apiKey = process.env.API_KEY_HH;
     const apiSecret = process.env.SECRET_KEY_HH;
     if (!apiKey || !apiSecret) {
@@ -26,16 +29,29 @@ router.post("/", async (req, res) => {
         error: "Credenciais não configuradas (API_KEY_HB, SECRET_KEY_HB)."
       });
     }
-
     const signature = generateSignature(apiKey, apiSecret);
 
+    // Extrai dados do corpo da requisição
     const { stay, occupancies, hotels } = req.body;
     if (!stay || !occupancies || !hotels || !hotels.hotel) {
       return res.status(400).json({ error: "Payload inválido." });
     }
 
-    // (A) Booking API
-    const bookingPayload = { stay, occupancies };
+    // *** Atenção: a API do Hotelbeds exige um filtro único de localização.
+    // Se você deseja buscar um hotel específico, use o filtro "hotels".
+    // Se quiser buscar por destino, use "destination". Aqui vamos assumir que,
+    // se hotel.hotel estiver presente, usaremos esse filtro.
+    const requestPayload = { stay, occupancies };
+    if (hotels && hotels.hotel) {
+      requestPayload.hotels = { hotel: hotels.hotel };
+    }
+    // Caso contrário, você pode incluir o destino (ou geolocalização) conforme necessário.
+    // Exemplo:
+    // else if (req.body.destination) {
+    //    requestPayload.destination = { code: req.body.destination };
+    // }
+
+    // (A) Chamada à Booking API – para disponibilidade, usando POST
     const bookingResp = await fetch(BOOKING_URL, {
       method: "POST",
       headers: {
@@ -44,10 +60,9 @@ router.post("/", async (req, res) => {
         "Content-Type": "application/json",
         "Accept": "application/json"
       },
-      body: JSON.stringify(bookingPayload)
+      body: JSON.stringify(requestPayload)
     });
     const bookingData = await bookingResp.json();
-
     if (!bookingResp.ok) {
       return res.status(bookingResp.status).json({
         error: bookingData.error || "Erro na Booking API",
@@ -55,17 +70,19 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Filtra hotéis
-    const requestedCodes = hotels.hotel; 
+    // Filtra os hotéis retornados para manter somente os que foram solicitados
+    const requestedCodes = hotels.hotel;
     const bookingHotels = bookingData?.hotels?.hotels || [];
-    const filteredBookingHotels = bookingHotels.filter(h => requestedCodes.includes(h.code));
+    const filteredBookingHotels = bookingHotels.filter(h =>
+      requestedCodes.includes(h.code)
+    );
     if (!filteredBookingHotels.length) {
       return res.status(404).json({
         error: "Nenhum hotel encontrado para os códigos fornecidos."
       });
     }
 
-    // (B) Content API
+    // (B) Chamada à Content API – para obter dados complementares
     const codesCsv = filteredBookingHotels.map(h => h.code).join(",");
     const contentUrl = `${CONTENT_URL}?codes=${codesCsv}&language=ENG&fields=all`;
     const contentResp = await fetch(contentUrl, {
@@ -84,12 +101,13 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // Cria um mapa de conteúdos por código
     const contentMap = {};
     (contentData?.hotels || []).forEach(ch => {
       contentMap[ch.code] = ch;
     });
 
-    // Combina booking + content
+    // Combina os dados da Booking API e Content API para cada hotel solicitado
     const combined = filteredBookingHotels.map(bkHotel => {
       const code = bkHotel.code;
       const cData = contentMap[code] || null;
