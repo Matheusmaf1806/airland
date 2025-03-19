@@ -651,17 +651,14 @@
         const moreButton = document.createElement("button");
         moreButton.textContent = "Mostrar mais quartos";
         moreButton.className = "select-room-button";
-    
         moreButton.onclick = function() {
           moreButton.remove();
           const remainingRooms = sortedRooms.slice(initialCount);
-    
           remainingRooms.forEach(room => {
             const row = createRoomRow(room);
             tableBody.appendChild(row);
           });
         };
-    
         const btnRow = document.createElement("div");
         btnRow.className = "room-table-row";
         btnRow.style.justifyContent = "center";
@@ -669,7 +666,7 @@
         tableBody.appendChild(btnRow);
       }
     
-      // --- Função auxiliar para criar cada linha ---
+      // Função auxiliar que cria o mesmo layout para cada quarto
       function createRoomRow(room) {
         const roomName = room.name || room.roomType || room.roomCode || "Quarto";
         let netPrice = "N/A";
@@ -679,7 +676,7 @@
         const netNum = parseFloat(netPrice);
         const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
     
-        // Calcula 5% de netNum, se for válido
+        // Calcula 5% de desconto
         let discountMsg = "";
         if (!isNaN(netNum)) {
           const discountAmount = netNum * 0.05;
