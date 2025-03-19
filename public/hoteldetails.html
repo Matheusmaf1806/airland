@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -24,6 +23,11 @@
       color: #333;
       line-height: 1.6;
     }
+
+    .hidden {
+      display: none;
+    }
+    
     .main-container {
       padding: 20px;
       max-width: 1200px;
@@ -430,6 +434,13 @@
 <body>
   <!-- Importa header.html -->
   <div id="header"></div>
+  
+  <!-- Dentro de hotelDetail.html -->
+  <div class="cart-container hidden">
+    <!-- Aqui será inserido o conteúdo do carrinho dinamicamente -->
+    <div id="cartContent"></div>
+  </div>
+  
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
@@ -500,6 +511,59 @@
         document.getElementById("header").innerHTML = html;
       })
       .catch(err => console.error("Erro ao carregar header:", err));
+
+    // script.js
+
+    // 1. Variável global para armazenar os itens do carrinho
+    let cartItems = [];
+    
+    // Função para renderizar os itens do carrinho
+    function renderCartItems() {
+      const cartContent = document.getElementById("cartContent");
+      cartContent.innerHTML = ""; // Limpa o conteúdo atual
+    
+      if (cartItems.length === 0) {
+        cartContent.innerHTML = "<p>Nenhum item no carrinho.</p>";
+      } else {
+        cartItems.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "cart-item";
+          itemDiv.innerHTML = `
+            <p><strong>${item.title}</strong> (Código: ${item.roomCode})</p>
+            <p>Adultos: ${item.adults} | Crianças: ${item.children}</p>
+            <p>Data: ${item.date}</p>
+          `;
+          cartContent.appendChild(itemDiv);
+        });
+      }
+    }
+    
+    // Função para tratar a seleção do quarto (única definição)
+    function handleSelectRoom(roomCode) {
+      const selectedRoom = {
+        roomCode: roomCode,
+        title: "Quarto " + roomCode,  // Adapte conforme necessário
+        adults: 1,                    // Valor padrão; ajuste conforme necessário
+        children: 0,                  // Valor padrão; ajuste conforme necessário
+        basePriceAdult: 80,           // Exemplo de preço
+        basePriceChild: 60,           // Exemplo de preço
+        date: new Date().toISOString().slice(0, 10)  // Data atual
+      };
+    
+      // Adiciona o quarto selecionado ao carrinho
+      cartItems.push(selectedRoom);
+    
+      // Atualiza a interface do carrinho
+      renderCartItems();
+    
+      // Exibe o carrinho removendo a classe "hidden"
+      const cartContainer = document.querySelector(".cart-container");
+      if (cartContainer.classList.contains("hidden")) {
+        cartContainer.classList.remove("hidden");
+      }
+      // Opcional: rola até o carrinho
+      cartContainer.scrollIntoView({ behavior: "smooth" });
+    }    
 
     // 2) Ao clicar em "Ver mapa", rola para a seção do mapa
     document.addEventListener("click", function(e) {
@@ -815,15 +879,7 @@
       });
     };
 
-    // 13) "Selecionar Quarto"
-    window.handleSelectRoom = function(roomCode) {
-      const selectedRoom = { roomCode: roomCode };
-      localStorage.setItem("selectedRoom", JSON.stringify(selectedRoom));
-      alert(`Você selecionou o quarto: ${roomCode}`);
-      // window.location.href = "confirmation.html"; // Exemplo de redirecionamento
-    };
-
-    // 14) DOMContentLoaded: pré-preenche os campos e busca os dados do hotel
+    // 13) DOMContentLoaded: pré-preenche os campos e busca os dados do hotel
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -848,6 +904,7 @@
         }
       });
     });
+
   </script>
 </body>
 </html>
