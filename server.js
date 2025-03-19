@@ -36,7 +36,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // IMPORTAR O SEU ROUTER PARA A TICKETS GENIE
 // ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
+import hbdetailRouter from "./routes/hbdetail.js";
 app.use("/api/ticketsgenie", ticketsGenieRouter);
+app.use("/api/hbdetail", hbdetailRouter);
 
 // ------------------------------------------------------
 // Rota principal (teste)
