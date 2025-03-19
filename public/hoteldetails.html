@@ -531,7 +531,7 @@
         console.error("Elemento '.cart-container' não encontrado!");
       }
     }
-    window.toggleCart = toggleCart; // Torna a função global
+    window.toggleCart = toggleCart; // Expor globalmente
     
     // Função para renderizar os itens do carrinho no container "cartContent"
     function renderCartItems() {
@@ -541,7 +541,7 @@
         return;
       }
       cartContent.innerHTML = "";
-      
+    
       if (cartItems.length === 0) {
         cartContent.innerHTML = "<p>Nenhum item no carrinho.</p>";
       } else {
@@ -593,8 +593,8 @@
           cartContent.appendChild(itemDiv);
         });
       }
-      
-      // Atualiza os totais (caso os elementos existam)
+    
+      // Atualiza os totais no rodapé (se os elementos existirem)
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
       const discountElem = document.getElementById("discountValue");
@@ -606,11 +606,11 @@
         totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         discountElem.textContent = "- R$ 0,00";
       }
-      
-      // Salva o carrinho no LocalStorage
+    
+      // Persiste o carrinho no LocalStorage
       localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
-      
+    
     // Função para calcular o preço do item (exemplo)
     function calculateItemPrice(item) {
       const total = ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0));
@@ -644,14 +644,15 @@
       alert("Item removido");
     }
     
-    // Persistência via LocalStorage: Carrega o carrinho salvo (se houver)
+    // Persistência via LocalStorage: Carrega os itens salvos
     function loadCartFromLocalStorage() {
       const stored = localStorage.getItem("cartItems");
       if (stored) {
         cartItems = JSON.parse(stored);
         renderCartItems();
         if (cartItems.length > 0) {
-          document.querySelector(".cart-container").classList.remove("hidden");
+          const cartContainer = document.querySelector(".cart-container");
+          if (cartContainer) cartContainer.classList.remove("hidden");
         }
       }
     }
@@ -660,7 +661,7 @@
     // 2. Funções para Carregar os Dados do Hotel
     // ============================
     
-    // Lê os parâmetros da URL
+    // Função para ler os parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -670,7 +671,7 @@
       return query;
     }
     
-    // Busca os dados do hotel do endpoint /api/hbdetail/hotels
+    // Função para buscar os dados do hotel (endpoint /api/hbdetail/hotels)
     function fetchHotelCombined() {
       const query = getQueryParams();
       const params = new URLSearchParams();
@@ -684,7 +685,7 @@
         .then(resp => resp.json());
     }
     
-    // Carrega os dados do hotel na página
+    // Função para carregar os dados do hotel na página
     function loadHotelContent(hotelObj) {
       if (!hotelObj) return;
       
@@ -723,7 +724,7 @@
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
       
-      // Cria a tabela de quartos, passando hotelCode e hotelName
+      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
       // Preenche os blocos de informações adicionais
@@ -885,7 +886,9 @@
       });
     }
     
-    // Inicializa o mapa e exibe as atrações
+    // ============================
+    // 3. Inicializa o Mapa, Date Picker e Atualiza a Tabela de Quartos
+    // ============================
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -919,7 +922,6 @@
       }
     }
     
-    // Inicializa o Date Range Picker
     function initDateRangePicker() {
       if (typeof $.fn.daterangepicker !== 'function') {
         console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
@@ -943,7 +945,6 @@
       });
     }
     
-    // Atualiza a tabela de quartos conforme as entradas do usuário
     window.updateRoomList = function() {
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const numRooms = parseInt(document.getElementById("rooms").value) || 1;
@@ -978,8 +979,6 @@
     // ============================
     // 3. Inicialização da Página
     // ============================
-    
-    // Quando a página carregar, preenche os campos, carrega os dados do hotel e do carrinho
     document.addEventListener("DOMContentLoaded", function() {
       const query = getQueryParams();
       if (query.checkIn && query.checkOut) {
@@ -996,7 +995,7 @@
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
       
-      // Busca os dados do hotel do endpoint /api/hbdetail/hotels
+      // Busca os dados do hotel
       fetchHotelCombined().then(data => {
         if (data && data.combined && data.combined.length > 0) {
           loadHotelContent(data.combined[0]);
@@ -1005,12 +1004,50 @@
         }
       });
       
-      // Carrega os itens do carrinho salvos no LocalStorage (se houver)
+      // Carrega o carrinho salvo no LocalStorage (se houver)
       loadCartFromLocalStorage();
     });
     
-    // Torna as funções necessárias globais para serem chamadas pelo HTML (ex.: onclick)
-    window.handleSelectRoom = handleSelectRoom;
+    // ============================
+    // Exposição de funções globais
+    // ============================
+    window.handleSelectRoom = function(hCode, hName, rCode, rName) {
+      // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
+      const dateRange = document.getElementById("checkin-checkout").value;
+      let checkInDate = "";
+      let checkOutDate = "";
+      if (dateRange.includes(" - ")) {
+        [checkInDate, checkOutDate] = dateRange.split(" - ");
+      }
+      
+      // Pega os valores de adultos e crianças
+      const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
+      const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
+      
+      // Cria o objeto do quarto selecionado
+      const selectedRoom = {
+        hotelCode: hCode,
+        hotelName: hName,
+        roomCode: rCode,
+        roomName: rName,
+        adults: numAdults,
+        children: numChildren,
+        checkIn: checkInDate,
+        checkOut: checkOutDate
+        // Se desejar, adicione também basePriceAdult, basePriceChild etc.
+      };
+      
+      // Adiciona o quarto ao carrinho
+      cartItems.push(selectedRoom);
+      renderCartItems();
+      
+      // Exibe o carrinho (remove a classe "hidden")
+      const cartContainer = document.querySelector(".cart-container");
+      if (cartContainer) {
+        cartContainer.classList.remove("hidden");
+        cartContainer.scrollIntoView({ behavior: "smooth" });
+      }
+    };
     window.toggleCart = toggleCart;
   </script>
 </body>
