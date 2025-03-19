@@ -387,27 +387,30 @@
     .room-price {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 4px; /* espaço vertical entre elementos */
+      align-items: flex-start; /* ou 'center', se preferir */
+      gap: 4px; /* espaço vertical entre os elementos */
     }
     
     .price-amount {
-      font-size: 1.4em;     /* tamanho do valor */
-      font-weight: bold;    /* deixa em negrito */
+      font-size: 0.8em;
+      font-weight: bold;
       color: #333;
-      margin: 0;
-      line-height: 1.2;
     }
     
-    .pix-badge {
-      font-size: 0.9em;     /* levemente menor */
-      color: #e74c3c;       /* destaque em vermelho */
+    /* O selinho vermelho do desconto */
+    .discount-badge {
+      display: inline-block;
+      background-color: #e74c3c; /* tom de vermelho */
+      color: #fff;
+      font-size: 0.8em;
       font-weight: bold;
+      padding: 3px 6px;
+      border-radius: 6px; /* bordas arredondadas */
+      margin-left: 4px;  /* espacinho antes do selinho */
     }
     
     .installment-info {
-      font-size: 0.8em;
+      font-size: 0.85em;
       color: #666;
     }
     
@@ -653,9 +656,9 @@
           </div>
           <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
           <div class="room-price">
-            <span class="price-amount">EUR ${netFormatted}</span>
-            <span class="pix-badge">5% OFF no Pix</span>
-            <span class="installment-info">até 10x sem juros</span>
+            <span class="price-amount">R$ 120.17</span>
+            <span class="discount-badge">-5% no Pix</span>
+            <div class="installment-info">até 10x sem juros</div>
           </div>
           <div>
             <button class="select-room-button" onclick="handleSelectRoom('${room.roomCode}')">
