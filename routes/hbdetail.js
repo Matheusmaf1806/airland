@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// routes/hotelbeds.routes.js
+// routes/hbdetail.js
 ////////////////////////////////////////////////////////////////////////
 import { Router } from "express";
 import fetch from "node-fetch";
@@ -33,10 +33,11 @@ router.get("/hotels", async (req, res) => {
     const signature = generateSignature(apiKey, apiSecret);
 
     // 3) Ler query parameters (ou valores padrão)
+    // Nesta rota, espera-se o parâmetro hotelCode para buscar um hotel específico
     const {
       checkIn  = "2025-06-15",
       checkOut = "2025-06-20",
-      hotelCode // se enviado, será utilizado para filtrar o hotel
+      hotelCode  // se enviado, será utilizado para filtrar o hotel
     } = req.query;
 
     // 4) Montar occupancies com base em rooms e adultos/children
@@ -98,7 +99,7 @@ router.get("/hotels", async (req, res) => {
     }
 
     // --------------------------------------------------------------
-    // (B) Chamada à Content API => fotos e descrições
+    // (B) Chamada à Content API => fotos, descrições e facilities
     // --------------------------------------------------------------
     // Junta todos os "code" em uma CSV, ex: "1234,5678"
     const codes = hotelsArray.map(h => h.code);
@@ -134,6 +135,20 @@ router.get("/hotels", async (req, res) => {
     const combined = hotelsArray.map(bkHotel => {
       const code = bkHotel.code;
       const cData = contentMap[code] || null;
+      
+      // Ajusta as facilities para garantir que cada item possua a propriedade description com content
+      let facilities = [];
+      if (cData && Array.isArray(cData.facilities)) {
+        facilities = cData.facilities.map(fac => {
+          // Se o objeto já possui a propriedade "description" com "content", mantém
+          if (fac.description && fac.description.content) {
+            return fac;
+          }
+          // Caso contrário, adiciona a propriedade "description" com um conteúdo vazio (ou você pode definir outro valor padrão)
+          return { ...fac, description: { content: "" } };
+        });
+      }
+
       return {
         code,
         name: bkHotel.name,
@@ -146,11 +161,10 @@ router.get("/hotels", async (req, res) => {
         latitude: bkHotel.latitude,
         longitude: bkHotel.longitude,
         rooms: bkHotel.rooms,
-        // Anexa os dados de conteúdo, se disponíveis
         content: cData ? {
           name: cData.name,
           description: cData.description?.content || "",
-          facilities: cData.facilities || [],
+          facilities: facilities,
           images: (cData.images || []).map(img => ({
             path: img.path,
             type: img.type
@@ -170,7 +184,7 @@ router.get("/hotels", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Erro /api/hotelbeds/hotels =>", err);
+    console.error("Erro /api/hbdetail/hotels =>", err);
     return res.status(500).json({
       error: "Erro interno ao buscar Disponibilidade + Conteúdo",
       message: err.message
