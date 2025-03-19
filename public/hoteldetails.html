@@ -512,41 +512,47 @@
     window.__hotelDetailJSInitialized = true;
   
     // ============================
-    // 0. Carrega o header (header.html) e o Carrinho (cart.html) se não estiver presente
+    // 0. Carrega o header (header.html)
     // ============================
     fetch("header.html")
       .then(resp => resp.text())
       .then(html => {
         const headerEl = document.getElementById("header");
-        if (headerEl) {
-          headerEl.innerHTML = html;
-        }
+        if (headerEl) headerEl.innerHTML = html;
       })
       .catch(err => console.error("Erro ao carregar header:", err));
   
-    // Se não houver um elemento com a classe .cart-container, carrega cart.html e o insere no body
-    if (!document.querySelector(".cart-container")) {
-      fetch("cart.html")
-        .then(resp => resp.text())
-        .then(html => {
-          const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = html;
-          // Supondo que cart.html tem um wrapper com a classe "cart-container"
-          const cartContainer = tempDiv.querySelector(".cart-container");
-          if (cartContainer) {
-            document.body.appendChild(cartContainer);
-          } else {
-            console.error("Elemento '.cart-container' não encontrado em cart.html!");
-          }
-        })
-        .catch(err => console.error("Erro ao carregar cart.html:", err));
+    // ============================
+    // 0.1. Se o carrinho (cart.html) não estiver presente, carrega-o e insere no DOM
+    // ============================
+    function loadCartHTML() {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(".cart-container")) {
+          resolve();
+        } else {
+          fetch("cart.html")
+            .then(resp => resp.text())
+            .then(html => {
+              const tempDiv = document.createElement("div");
+              tempDiv.innerHTML = html;
+              const cartContainer = tempDiv.querySelector(".cart-container");
+              if (cartContainer) {
+                document.body.appendChild(cartContainer);
+                resolve();
+              } else {
+                reject("Elemento '.cart-container' não encontrado em cart.html!");
+              }
+            })
+            .catch(err => reject(err));
+        }
+      });
     }
   
     // ============================
     // 1. Carrinho: Variáveis e Funções
     // ============================
     let cartItems = [];
-    let shareId = null; // Para integração com o backend
+    let shareId = null; // Para integração com o backend, se necessário
   
     // Função para alternar a exibição do carrinho (side panel)
     function toggleCart() {
@@ -559,7 +565,7 @@
     }
     window.toggleCart = toggleCart;
   
-    // Função para renderizar os itens do carrinho no container "cartContent"
+    // Função para renderizar os itens do carrinho
     function renderCartItems() {
       const cartContent = document.getElementById("cartContent");
       if (!cartContent) {
@@ -620,7 +626,7 @@
         });
       }
       
-      // Atualiza totais no rodapé, se os elementos existirem
+      // Atualiza os totais no rodapé (se os elementos existirem)
       const subtotalElem = document.getElementById("subtotalValue");
       const totalElem = document.getElementById("totalValue");
       const discountElem = document.getElementById("discountValue");
@@ -740,7 +746,7 @@
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
       
-      // Cria a tabela de quartos, passando hotelCode e hotelName para os botões
+      // Cria a tabela de quartos, repassando hotelCode e hotelName para os botões "Selecionar Quarto"
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
       
       // Preenche os blocos de informações adicionais
@@ -795,6 +801,7 @@
       tableBody.innerHTML = "";
       if (!rooms || !rooms.length) return;
       
+      // Ordena os quartos pelo preço net (menor para maior)
       const sortedRooms = rooms.slice().sort((a, b) => {
         const netA = a.rates && a.rates.length > 0 ? parseFloat(a.rates[0].net) : Infinity;
         const netB = b.rates && b.rates.length > 0 ? parseFloat(b.rates[0].net) : Infinity;
@@ -1012,8 +1019,12 @@
         }
       });
       
-      // Carrega o carrinho salvo no LocalStorage (se houver)
-      loadCartFromLocalStorage();
+      // Carrega o carrinho salvo no LocalStorage (se houver) somente após garantir que o carrinho está no DOM
+      loadCartHTML().then(() => {
+        loadCartFromLocalStorage();
+      }).catch(err => {
+        console.error("Erro ao carregar o carrinho:", err);
+      });
     });
     
     // ============================
@@ -1042,10 +1053,10 @@
         children: numChildren,
         checkIn: checkInDate,
         checkOut: checkOutDate
-        // Adicione basePriceAdult, basePriceChild, etc., se necessário
+        // Adicione basePriceAdult, basePriceChild etc., se necessário
       };
       
-      // Adiciona o quarto ao carrinho
+      // Adiciona o quarto ao carrinho e atualiza a interface
       cartItems.push(selectedRoom);
       renderCartItems();
       
@@ -1058,6 +1069,33 @@
     };
     
     window.toggleCart = toggleCart;
+    
+    // ============================
+    // Função auxiliar para carregar o HTML do Carrinho (cart.html)
+    // ============================
+    function loadCartHTML() {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(".cart-container")) {
+          resolve();
+        } else {
+          fetch("cart.html")
+            .then(resp => resp.text())
+            .then(html => {
+              const tempDiv = document.createElement("div");
+              tempDiv.innerHTML = html;
+              const cartContainer = tempDiv.querySelector(".cart-container");
+              if (cartContainer) {
+                document.body.appendChild(cartContainer);
+                resolve();
+              } else {
+                reject("Elemento '.cart-container' não encontrado em cart.html!");
+              }
+            })
+            .catch(err => reject(err));
+        }
+      });
+    }
+    
   })();
   </script>
 </body>
