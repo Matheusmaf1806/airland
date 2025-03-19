@@ -37,8 +37,11 @@ app.use(express.static(path.join(__dirname, "public")));
 // ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
 import hbdetailRouter from "./routes/hbdetail.js";
+import cartRoutes from "./cart.routes.js";
+
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
+app.use("/api", cartRoutes);
 
 // ------------------------------------------------------
 // Rota principal (teste)
