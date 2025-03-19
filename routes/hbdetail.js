@@ -37,10 +37,11 @@ router.get("/hotels", async (req, res) => {
     const signature = generateSignature(apiKey, apiSecret);
 
     // 3) Ler query parameters (ou valores padrão)
+    // Removemos "destination" e adicionamos "hotel", que pode ser parametrizado
     const {
-      checkIn     = "2025-06-15",
-      checkOut    = "2025-06-20",
-      destination = "MCO"
+      checkIn = "2025-06-15",
+      checkOut = "2025-06-20",
+      hotel = "13621" // ID do hotel padrão
     } = req.query;
 
     // Exemplo: se quiser page, limit, etc. => const { page = 1, limit = 20 } = req.query;
@@ -68,10 +69,11 @@ router.get("/hotels", async (req, res) => {
       "Accept": "application/json"
     };
 
+    // Monta o payload utilizando "hotels" em vez de "destination"
     const bodyData = {
       stay: { checkIn, checkOut },
       occupancies,
-      destinathotels: { hotel: [13621] }
+      hotels: { hotel: [Number(hotel)] }
     };
 
     // Faz POST na Booking API
