@@ -5,15 +5,16 @@
   <title>Detalhes do Hotel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Font Awesome e recursos externos -->
+  <!-- Font Awesome, Bootstrap Daterangepicker e Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link 
-    rel="stylesheet" 
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css"
-  >
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   
-  <!-- Script para o facilitiesMap, se necessário -->
+  <!-- CSS Globais e do Carrinho -->
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/cart.css">
+  
+  <!-- Script extra (por exemplo, facilitiesMap.js) -->
   <script src="/js/facilitiesMap.js"></script>
   
   <!-- Carrega o Web Component do Carrinho -->
@@ -394,20 +395,20 @@
   </style>
 </head>
 <body>
-  <!-- 1) Header: carregado via fetch -->
+  <!-- HEADER: Carregado via fetch -->
   <div id="header"></div>
 
-  <!-- 2) Carrinho: usamos o Web Component, sem referências ao antigo cart.html -->
-  <shopping-cart
-    type="INGRESSOS"
-    category="WALT DISNEY WORLD"
+  <!-- CARRINHO: Web Component (sem referências aos antigos scripts) -->
+  <shopping-cart 
+    type="INGRESSOS" 
+    category="WALT DISNEY WORLD" 
     nameDays="INGRESSO 1 DIA MAGIC KINGDOM [1 dia]"
     date="2025-04-12"
     basePriceAdult="80"
-    basePriceChild="60"
-  ></shopping-cart>
+    basePriceChild="60">
+  </shopping-cart>
 
-  <!-- 3) Conteúdo principal do hoteldetails -->
+  <!-- CONTEÚDO PRINCIPAL DO HOTEL DETAILS -->
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
@@ -461,7 +462,7 @@
       <div class="room-table-body" id="roomTableBody"></div>
     </section>
 
-    <!-- Informações adicionais -->
+    <!-- Informações Adicionais -->
     <div class="info-container" id="infoContainer"></div>
 
     <!-- Mapa e Atrações -->
@@ -473,30 +474,28 @@
     </div>
   </div>
 
-  <!-- 4) Scripts Externos -->
+  <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <!-- 5) Script Principal Unificado -->
+  <!-- SCRIPT PRINCIPAL UNIFICADO -->
   <script>
     (function() {
       if (window.__hotelDetailJSInitialized) return;
       window.__hotelDetailJSInitialized = true;
 
-      // Carregar header.html via fetch
+      // Carrega o header via fetch
       fetch("header.html")
         .then(resp => resp.text())
         .then(html => {
           const headerEl = document.getElementById("header");
-          if (headerEl) {
-            headerEl.innerHTML = html;
-          }
+          if (headerEl) headerEl.innerHTML = html;
         })
         .catch(err => console.error("Erro ao carregar header:", err));
 
-      // Função global para abrir o carrinho (usando o método openCart() do componente)
+      // Função global para abrir o carrinho (usando o método openCart() do Web Component)
       window.toggleCart = function() {
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -506,7 +505,7 @@
         }
       };
 
-      // Funções auxiliares (getQueryParams, etc.)
+      // Função auxiliar para obter parâmetros da URL
       function getQueryParams() {
         const params = new URLSearchParams(window.location.search);
         const query = {};
@@ -516,7 +515,7 @@
         return query;
       }
 
-      // Função de busca de hotel (exemplo)
+      // Função para buscar dados do hotel (API interna)
       function fetchHotelCombined() {
         const query = getQueryParams();
         const params = new URLSearchParams();
@@ -531,6 +530,7 @@
           .then(resp => resp.json());
       }
 
+      // Função para preencher os dados do hotel na página
       function loadHotelContent(hotelObj) {
         if (!hotelObj) return;
         const hotelName = hotelObj.name || "Hotel sem nome";
@@ -729,7 +729,7 @@
 
       function initDateRangePicker() {
         if (typeof $.fn.daterangepicker !== 'function') {
-          console.error("daterangepicker não está disponível!");
+          console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
           return;
         }
         $("#checkin-checkout").daterangepicker({
@@ -812,15 +812,16 @@
           checkIn: checkInDate,
           checkOut: checkOutDate
         };
-        // Adiciona o quarto ao carrinho usando o Web Component
+
+        // Adiciona o quarto ao carrinho via o componente (método addItem)
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
         } else {
           console.log("Quarto selecionado:", selectedRoom);
-          console.warn("O método addItem() não está implementado no componente!");
+          console.warn("Método addItem() não implementado no componente!");
         }
-        // Abre o carrinho automaticamente, se possível
+        // Abre o carrinho automaticamente
         if (cartComponent && typeof cartComponent.openCart === "function") {
           cartComponent.openCart();
         }
