@@ -1,13 +1,57 @@
-// URL do backend
+// cart.js
+
+// Classe responsável por controlar a visibilidade do carrinho
+class CartManager {
+  constructor(cartContainerSelector) {
+    this.cartContainer = document.querySelector(cartContainerSelector);
+    if (!this.cartContainer) {
+      console.error("Elemento do carrinho não encontrado!");
+    }
+  }
+
+  // Esconde o carrinho adicionando a classe 'hidden'
+  closeCart() {
+    if (this.cartContainer) {
+      this.cartContainer.classList.add('hidden');
+    }
+  }
+
+  // Exibe o carrinho removendo a classe 'hidden'
+  openCart() {
+    if (this.cartContainer) {
+      this.cartContainer.classList.remove('hidden');
+    }
+  }
+
+  // Alterna a visibilidade do carrinho
+  toggleCart() {
+    if (this.cartContainer) {
+      this.cartContainer.classList.toggle('hidden');
+    }
+  }
+}
+
+// Instancia o CartManager
+const cartManager = new CartManager('.cart-container');
+
+// Event listeners para botões (caso existam outros botões de abrir/alternar)
+document.querySelector('.close-cart-btn')?.addEventListener('click', () => {
+  cartManager.closeCart();
+});
+document.getElementById('openCartBtn')?.addEventListener('click', () => {
+  cartManager.openCart();
+});
+document.getElementById('toggleCartBtn')?.addEventListener('click', () => {
+  cartManager.toggleCart();
+});
+
+// Configuração do backend
 const BASE_URL = "https://business.airland.com.br";
 let shareId = null;
-
-// Vetor para armazenar os itens do carrinho (inicialmente vazio)
 let cartItems = [];
 
 /**
- * Função para calcular o preço de um item baseado em adultos e crianças.
- * Retorna uma string formatada.
+ * Calcula e formata o preço total de um item baseado em adultos e crianças.
  */
 function calculateItemPrice(item) {
   const total = (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild);
@@ -25,7 +69,6 @@ function renderCartItems() {
     cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
   } else {
     cartItems.forEach((item, index) => {
-      // Cria o elemento do item
       const itemDiv = document.createElement("div");
       itemDiv.className = "cart-item";
       itemDiv.innerHTML = `
@@ -50,7 +93,7 @@ function renderCartItems() {
               </div>
               <div class="plusminus-row">
                 <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
-                <span id="childCount${index}">${item.children.toString().padStart(2, '0')}</span>
+                <span id="childCount${index}">${String(item.children).padStart(2, '0')}</span>
                 <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
               </div>
             </div>
@@ -65,7 +108,7 @@ function renderCartItems() {
               </div>
               <div class="plusminus-row">
                 <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
-                <span id="adultCount${index}">${item.adults.toString().padStart(2, '0')}</span>
+                <span id="adultCount${index}">${String(item.adults).padStart(2, '0')}</span>
                 <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
               </div>
             </div>
@@ -81,17 +124,16 @@ function renderCartItems() {
     });
   }
 
-  // Atualiza os valores de subtotal e total (aqui, para simplicidade, somamos todos os itens)
+  // Atualiza os valores de subtotal e total
   const total = cartItems.reduce((sum, item) =>
     sum + (item.adults * item.basePriceAdult) + (item.children * item.basePriceChild)
   , 0);
   document.getElementById("subtotalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-  // Neste exemplo, o desconto é fixo em zero.
   document.getElementById("discountValue").textContent = "- R$ 0,00";
 }
 
-// Funções para alterar quantidades de um item específico
+// Funções para alterar quantidades dos itens
 function incChildren(index) {
   cartItems[index].children++;
   renderCartItems();
@@ -127,12 +169,13 @@ function removeItem(index) {
   alert("Item removido");
 }
 
-/* 
-  As funções shareCart, updateCartServer, loadCartFromServer e clearCartServer
-  interagem com o backend e operam sobre o carrinho como um todo.
-  Elas permanecem similares ao exemplo anterior, mas agora enviam o vetor de itens.
-*/
-
+/**
+ * Funções para interagir com o backend:
+ * - shareCart: Compartilha o carrinho e gera um shareId.
+ * - updateCartServer: Atualiza o carrinho no servidor.
+ * - loadCartFromServer: Carrega os itens do carrinho do servidor.
+ * - clearCartServer: Limpa o carrinho do servidor ou localmente.
+ */
 async function shareCart() {
   if (cartItems.length === 0) {
     alert("Carrinho vazio, não há o que compartilhar!");
@@ -200,7 +243,6 @@ async function loadCartFromServer(sId) {
 
 async function clearCartServer() {
   if (!shareId) {
-    // Limpa o carrinho local
     cartItems = [];
     renderCartItems();
     alert("Carrinho local limpo!");
@@ -227,8 +269,8 @@ async function clearCartServer() {
   }
 }
 
-// Ao carregar a página, verifica se há shareId e carrega o carrinho do servidor
-window.onload = () => {
+// Ao carregar a página, verifica se há um shareId e carrega o carrinho
+window.addEventListener('load', () => {
   const stored = localStorage.getItem("shareId");
   if (stored) {
     shareId = stored;
@@ -241,13 +283,5 @@ window.onload = () => {
     localStorage.setItem("shareId", shareId);
     loadCartFromServer(shareId);
   }
-  // Se necessário, você pode adicionar um item dinamicamente ao carrinho, por exemplo:
-  // cartItems.push({ date: "2025-04-12", children: 0, adults: 1, basePriceAdult: 80, basePriceChild: 60, title: "Ingresso Evento", tag: "INGRESSOS" });
   renderCartItems();
-};
-
-// Função para fechar o carrinho
-function closeCart() {
-  const cartContainer = document.querySelector('.cart-container');
-  cartContainer.style.display = 'none'; // Esconde o carrinho
-}
+});
