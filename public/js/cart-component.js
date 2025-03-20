@@ -5,10 +5,10 @@ class ShoppingCart extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     
-    // Array para armazenar múltiplos itens (ex.: vários quartos)
+    // Armazena vários itens (ex.: vários quartos)
     this.items = [];
     this.shareId = null;
-    this.BASE_URL = "https://business.airland.com.br";
+    this.BASE_URL = "https://business.airland.com.br"; // Ajuste se necessário
 
     // Template do carrinho (HTML/CSS)
     this.shadowRoot.innerHTML = `
@@ -105,12 +105,12 @@ class ShoppingCart extends HTMLElement {
           fill: #fff;
         }
         .cart-item {
+          background: #fff;
           border: 1px solid #ddd;
           border-radius: 8px;
-          padding: 10px;
-          margin-bottom: 10px;
+          padding: 1rem;
+          margin-bottom: 1rem;
           position: relative;
-          background: #fff;
         }
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -128,6 +128,49 @@ class ShoppingCart extends HTMLElement {
         }
         .trash-btn:hover {
           color: #e00;
+        }
+        /* Tag de categoria (ex.: HOSPEDAGEM, INGRESSOS, etc.) */
+        .tag-ingresso {
+          display: inline-block;
+          background: #e0e5f6;
+          color: #365CF5;
+          border: 1px solid #365CF5;
+          font-size: 0.65rem;
+          padding: 2px 6px;
+          border-radius: 4px;
+          text-transform: uppercase;
+          margin-bottom: 0.4rem;
+        }
+        .item-title {
+          font-weight: 600;
+          margin: 0.2rem 0;
+          color: #333;
+          font-size: 0.9rem;
+        }
+        .item-date {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.8rem;
+          color: #666;
+          margin: 0.4rem 0;
+        }
+        .item-price {
+          position: relative;
+          font-weight: 600;
+          font-size: 0.85rem;
+          color: #333;
+          margin-top: 0.5rem;
+        }
+        .installment-info {
+          font-size: 0.7rem;
+          color: #007bff;
+          margin-top: 2px;
+        }
+        .pix-off {
+          font-size: 0.7rem;
+          color: #35b473;
+          margin-top: 2px;
         }
         .cart-footer {
           border-top: 1px solid #eee;
@@ -222,13 +265,19 @@ class ShoppingCart extends HTMLElement {
               </svg>
             </button>
           </div>
-          <!-- Lista de itens adicionados -->
           <div id="cartItemsList"></div>
         </div>
         <div class="cart-footer">
           <div class="coupon-section">
             <svg class="coupon-icon" height="30" width="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.5 17h9c.277 0 .5.223.5.5s-.223.5-.5.5h-9c-.277 0-.5-.223-.5-.5s.223-.5.5-.5zm4.5 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM25 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM.446 15.67c-.587.58-.583 1.542 0 2.124l11.76 11.76c.58.582 1.542.587 2.123 0L28.855 14.85c.247-.25.532-.48.768-.856.235-.376.376-.87.376-1.544V1.5c0-.823-.678-1.5-1.5-1.5h-11c-1.158 0-1.824.624-2.35 1.145zm.703.712L15.85 1.856c.533-.526.808-.856 1.65-.856H28.5c.285 0 .5.214.5.5v10.952c0 .547-.093.805-.224 1.013-.13.21-.344.394-.63.684l-14.53 14.7c-.197.2-.5.2-.703-.002l-11.76-11.76c-.203-.203-.205-.508-.004-.706z"/>
+              <path d="M8.5 17h9c.277 0 .5.223.5.5s-.223.5-.5.5h-9c-.277 0-.5-.223-.5-.5s.223-.5.5-.5zm4.5 2c-1.1 0-2 .9-2 2s.9 2 2 2 
+              2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 
+              2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM25 3c-1.1 0-2 .9-2 2s.9 2 2 
+              2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM.446 15.67c-.587.58-.583 1.542 
+              0 2.124l11.76 11.76c.58.582 1.542.587 2.123 0L28.855 14.85c.247-.25.532-.48.768-.856.235-.376.376-.87.376-1.544V1.5
+              c0-.823-.678-1.5-1.5-1.5h-11c-1.158 0-1.824.624-2.35 1.145zm.703.712L15.85 1.856c.533-.526.808-.856 1.65-.856H28.5
+              c.285 0 .5.214.5.5v10.952c0 .547-.093.805-.224 1.013-.13.21-.344.394-.63.684l-14.53 14.7c-.197.2-.5.2-.703-.002l-11.76-11.76
+              c-.203-.203-.205-.508-.004-.706z"/>
             </svg>
             <div class="coupon-input-box">
               <label for="couponInput">Cupom de Desconto</label>
@@ -251,8 +300,27 @@ class ShoppingCart extends HTMLElement {
         </div>
       </div>
     `;
+  }
 
-    // Configura os botões do header
+  connectedCallback() {
+    // Se houver shareId salvo, carrega do servidor
+    const stored = localStorage.getItem("shareId");
+    if (stored) {
+      this.shareId = stored;
+      this.loadCartFromServer(this.shareId);
+    }
+    // Se houver shareId na URL
+    const params = new URLSearchParams(window.location.search);
+    const paramS = params.get("shareId");
+    if (paramS) {
+      this.shareId = paramS;
+      localStorage.setItem("shareId", this.shareId);
+      this.loadCartFromServer(this.shareId);
+    }
+    // Renderiza os itens locais
+    this.renderCartItems();
+
+    // Botões do header
     this.shadowRoot.querySelector('.close-cart-btn')
       .addEventListener('click', () => this.closeCart());
     this.shadowRoot.querySelector('.share-cart-btn')
@@ -261,31 +329,13 @@ class ShoppingCart extends HTMLElement {
       .addEventListener('click', () => this.clearCartServer());
   }
 
-  connectedCallback() {
-    // Se houver shareId salvo, carrega os itens do servidor
-    const stored = localStorage.getItem("shareId");
-    if (stored) {
-      this.shareId = stored;
-      this.loadCartFromServer(this.shareId);
-    }
-    const params = new URLSearchParams(window.location.search);
-    const paramS = params.get("shareId");
-    if (paramS) {
-      this.shareId = paramS;
-      localStorage.setItem("shareId", this.shareId);
-      this.loadCartFromServer(this.shareId);
-    }
-    // Renderiza os itens locais (caso já haja algum)
-    this.renderCartItems();
-  }
-
-  // Abre o carrinho (mostra-o)
+  // Abre o carrinho (mostra)
   openCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.add('open');
   }
 
-  // Fecha o carrinho (oculta-o)
+  // Fecha o carrinho (oculta)
   closeCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.remove('open');
@@ -293,12 +343,12 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * addItem(item)
-   * Adiciona um novo item (quarto selecionado) ao array e re-renderiza
+   * Adiciona um novo quarto/item ao array e re-renderiza
    */
   addItem(item) {
     this.items.push(item);
     this.renderCartItems();
-    // Opcional: se desejar atualizar no servidor automaticamente, descomente:
+    // Se quiser sincronizar no servidor automaticamente:
     // this.updateCartServer();
   }
 
@@ -315,50 +365,86 @@ class ShoppingCart extends HTMLElement {
       container.innerHTML = '<p>Nenhum item no carrinho.</p>';
     } else {
       this.items.forEach((itm, idx) => {
+        // Calcula valor total do item
+        const baseAdult = itm.basePriceAdult || 80;
+        const baseChild = itm.basePriceChild || 60;
+        const itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
+
+        // Monta o layout do item
+        const tagType = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM"; 
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('cart-item');
+
         itemDiv.innerHTML = `
-          <button class="trash-btn" data-index="${idx}" title="Remover Item">🗑</button>
-          <p><strong>${itm.hotelName || 'Item'}</strong> - ${itm.roomName || 'Sem quarto'}</p>
-          <p>Adultos: ${itm.adults} | Crianças: ${itm.children}</p>
-          <p>Check-in: ${itm.checkIn} | Check-out: ${itm.checkOut}</p>
+          <button class="trash-btn" data-index="${idx}" title="Remover Item">
+            <i class="fas fa-trash"></i>
+          </button>
+
+          <!-- Exibe a categoria (ex.: (HOSPEDAGEM)) -->
+          <span class="tag-ingresso">(${tagType})</span>
+
+          <!-- Nome do Hotel + Nome do Quarto -->
+          <div class="item-title">
+            ${itm.hotelName || "Hotel Desconhecido"} - ${itm.roomName || "Quarto Desconhecido"}
+          </div>
+
+          <!-- Check-in / Check-out -->
+          <div class="item-date">
+            <i class="fas fa-calendar-alt"></i>
+            Check-in: ${itm.checkIn || "--/--/----"} | Check-out: ${itm.checkOut || "--/--/----"}
+          </div>
+
+          <!-- Adultos / Crianças somente leitura -->
+          <div style="margin-top: 0.4rem;">
+            Adultos: ${itm.adults} | Crianças: ${itm.children}
+          </div>
+
+          <!-- Preço do item -->
+          <div class="item-price">
+            R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            <div class="installment-info">até 10x sem juros</div>
+            <div class="pix-off">5% OFF no Pix</div>
+          </div>
         `;
+
         container.appendChild(itemDiv);
       });
 
-      // Configura os botões para remover itens
+      // Eventos para remover
       const removeBtns = this.shadowRoot.querySelectorAll('.trash-btn');
       removeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const idx = parseInt(e.target.getAttribute('data-index'));
+          const idx = parseInt(e.target.closest('button').getAttribute('data-index'));
           this.removeItem(idx);
         });
       });
     }
+
+    // Atualiza o subtotal e total geral
     this.updateTotals();
   }
 
   /**
    * removeItem(index)
-   * Remove um item do carrinho e re-renderiza
+   * Remove um item e re-renderiza
    */
   removeItem(index) {
     this.items.splice(index, 1);
     this.renderCartItems();
-    // Opcional: sincronizar com o servidor:
+    // Se quiser sincronizar:
     // this.updateCartServer();
   }
 
   /**
    * updateTotals()
-   * Calcula o total com base nos preços dos itens e atualiza os elementos de subtotal e total
+   * Calcula o total e exibe
    */
   updateTotals() {
     let total = 0;
     this.items.forEach(itm => {
-      const baseAdult = itm.basePriceAdult || 80;
-      const baseChild = itm.basePriceChild || 60;
-      total += (itm.adults * baseAdult) + (itm.children * baseChild);
+      const baseA = itm.basePriceAdult || 80;
+      const baseC = itm.basePriceChild || 60;
+      total += (itm.adults * baseA) + (itm.children * baseC);
     });
     const subtotalEl = this.shadowRoot.querySelector('#subtotalValue');
     const totalEl = this.shadowRoot.querySelector('#totalValue');
@@ -372,7 +458,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * shareCart()
-   * Envia os itens do carrinho para o servidor e obtém um shareId
+   * Cria shareId no servidor e salva local
    */
   async shareCart() {
     if (this.items.length === 0) {
@@ -408,7 +494,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * updateCartServer()
-   * Atualiza os itens do carrinho no servidor (caso haja shareId)
+   * Atualiza os itens do carrinho no servidor, se houver shareId
    */
   async updateCartServer() {
     if (!this.shareId) return;
@@ -429,7 +515,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * loadCartFromServer(sId)
-   * Carrega os itens do carrinho do servidor e os exibe
+   * Carrega itens do servidor e exibe
    */
   async loadCartFromServer(sId) {
     try {
@@ -450,7 +536,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * clearCartServer()
-   * Limpa o carrinho no servidor e localmente
+   * Limpa o carrinho do servidor e localmente
    */
   async clearCartServer() {
     if (!this.shareId) {
@@ -473,7 +559,7 @@ class ShoppingCart extends HTMLElement {
         this.shareId = null;
         localStorage.removeItem("shareId");
       } else {
-        alert("Erro ao limpar: " + (data.error || "desconhecido"));
+        alert("Erro ao limpar: " + (data.error||"desconhecido"));
       }
     } catch (e) {
       console.error(e);
