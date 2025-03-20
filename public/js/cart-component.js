@@ -171,9 +171,13 @@ class ShoppingCart extends HTMLElement {
           color: #666;
         }
         .item-price {
+          position: absolute;
+          right: 0.1rem;
+          bottom: 0.1rem;
           font-weight: 600;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           color: #333;
+          text-align: right;
         }
         .installment-info {
           font-size: 0.75rem;
