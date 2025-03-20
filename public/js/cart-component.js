@@ -141,13 +141,6 @@ class ShoppingCart extends HTMLElement {
           gap: 4px;
           max-width: 65%;
         }
-        .item-right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end; /* Alinha o preço à direita */
-          min-width: 100px; /* garante espaço para texto */
-          gap: 4px;
-        }
 
         /* ======== Tag (Hospedagem, Ingressos, etc.) ======== */
         .tag-ingresso {
@@ -170,7 +163,7 @@ class ShoppingCart extends HTMLElement {
           font-size: 0.8rem;
           color: #666;
         }
-        .item-price {
+        .item-right {
           position: absolute;
           right: 0.1rem;
           bottom: 0.1rem;
