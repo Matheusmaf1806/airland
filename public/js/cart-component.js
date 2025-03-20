@@ -99,12 +99,12 @@ class ShoppingCart extends HTMLElement {
         .share-cart-btn:hover {
           background: #005bb5;
         }
+        /* Novo SVG de compartilhar */
         .share-icon {
           width: 14px;
           height: 14px;
           fill: #fff;
         }
-
         /* ======== Cart Item ======== */
         .cart-item {
           background: #fff;
@@ -119,8 +119,7 @@ class ShoppingCart extends HTMLElement {
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-
-        /* Botão de remover (lixeira) substituído por emoji 🗑 */
+        /* Botão de remover usando emoji */
         .trash-btn {
           position: absolute;
           top: 10px;
@@ -135,7 +134,6 @@ class ShoppingCart extends HTMLElement {
         .trash-btn:hover {
           color: #e00;
         }
-
         /* ======== Left / Right Sections ======== */
         .item-left {
           display: flex;
@@ -143,8 +141,7 @@ class ShoppingCart extends HTMLElement {
           gap: 4px;
           max-width: 65%;
         }
-
-        /* ======== Tag (Hospedagem, Ingressos, etc.) ======== */
+        /* Tag (ex.: HOSPEDAGEM, INGRESSOS, etc.) sem parênteses */
         .tag-ingresso {
           display: inline-block;
           background: #e0e5f6;
@@ -165,8 +162,7 @@ class ShoppingCart extends HTMLElement {
           font-size: 0.8rem;
           color: #666;
         }
-
-        /* Valor e parcelas “absolutos” no canto inferior direito */
+        /* Lado direito: valor e parcelas, fixados no canto */
         .item-right {
           position: absolute;
           right: 0.1rem;
@@ -178,14 +174,11 @@ class ShoppingCart extends HTMLElement {
           padding: 10px;
         }
         .item-price {
-          right: 0.1rem;
-          bottom: 0.1rem;
           font-weight: 600;
           font-size: 0.8rem;
           color: #333;
           text-align: right;
         }
-        
         .installment-info {
           font-size: 0.8rem;
           color: #007bff;
@@ -195,7 +188,6 @@ class ShoppingCart extends HTMLElement {
           color: #35b473;
           margin-top: 2px;
         }
-
         /* ======== Footer (Subtotal, etc.) ======== */
         .cart-footer {
           border-top: 1px solid #eee;
@@ -282,10 +274,18 @@ class ShoppingCart extends HTMLElement {
             </span>
             <button class="share-cart-btn" title="Compartilhar Carrinho">
               Compartilhar Carrinho
-              <svg class="share-icon" viewBox="0 0 1274 1280" preserveAspectRatio="xMidYMid meet">
-                <g transform="translate(0,1280) scale(0.1,-0.1)" fill="#ffffff" stroke="none">
-                  <path d="M5946 12377 c-178 -232 -815 -1061 -1415 -1842 l-1091 -1420 1098 -5 ..."/>
-                  <path d="M0 3730 l0 -3730 6370 0 6370 0 0 3730 0 3730 -2055 0 -2055 0 ..."/>
+              <svg class="share-icon" version="1.0" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1274.000000 1280.000000" preserveAspectRatio="xMidYMid meet">
+                <g transform="translate(0.000000,1280.000000) scale(0.100000,-0.100000)"
+                   fill="#ffffff" stroke="none">
+                  <path d="M5946 12377 c-178 -232 -815 -1061 -1415 -1842 l-1091 -1420 1098 -5
+                  c1090 -5 1097 -5 1095 -25 -2 -11 -7 -49 -13 -85 -7 -44 -10 -815 -8 -2420 4
+                  -2571 -1 -2369 58 -2510 167 -396 645 -556 1027 -345 43 24 100 70 155 125 72
+                  72 94 103 132 181 83 171 77 -49 73 2624 -2 1309 -7 2397 -12 2417 l-7 38
+                  1032 2 1032 3 -599 780 c-330 429 -967 1258 -1416 1842 l-816 1063 -325 -423z"/>
+                  <path d="M0 3730 l0 -3730 6370 0 6370 0 0 3730 0 3730 -2055 0 -2055 0 0
+                  -660 0 -660 1265 0 1265 0 0 -2410 0 -2410 -4790 0 -4790 0 0 2410 0 2410
+                  1365 0 1365 0 -2 658 -3 657 -2152 3 -2153 2 0 -3730z"/>
                 </g>
               </svg>
             </button>
@@ -393,41 +393,46 @@ class ShoppingCart extends HTMLElement {
       container.innerHTML = '<p>Nenhum item no carrinho.</p>';
     } else {
       this.items.forEach((itm, idx) => {
-        // Calcula valor total do item
-        const baseAdult = itm.basePriceAdult || 80;
-        const baseChild = itm.basePriceChild || 60;
-        const itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
+        // Define o tipo em uppercase para comparar
+        const type = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM";
+        let itemTotal;
+        if (type === "HOSPEDAGEM") {
+          // Para hospedagem, o preço já é o total
+          itemTotal = itm.basePriceAdult || 80;
+        } else {
+          const baseAdult = itm.basePriceAdult || 80;
+          const baseChild = itm.basePriceChild || 60;
+          itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
+        }
 
-        // Exibe "Hospedagem" (ou outro type) sem parênteses
-        const categoryLabel = itm.type || "Hospedagem"; 
+        // Exibe o tipo (categoria) sem parênteses
+        const categoryLabel = itm.type || "Hospedagem";
 
         // Monta o layout do item
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('cart-item');
 
-        // Conteúdo do card
         itemDiv.innerHTML = `
-          <!-- Botão Lixeira com emoji 🗑 -->
+          <!-- Botão de remover (usando emoji para garantir exibição) -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
             🗑
           </button>
 
-          <!-- Lado esquerdo (infos) -->
+          <!-- Informações do item -->
           <div class="item-left">
             <span class="tag-ingresso">${categoryLabel}</span>
             <div class="item-title">
               ${itm.hotelName || "Hotel Desconhecido"} - ${itm.roomName || "Quarto Desconhecido"}
             </div>
             <div class="item-date">
-              Check-in: ${itm.checkIn || "--/--/----"} | 
-              Check-out: ${itm.checkOut || "--/--/----"}
+              Check-in: ${itm.checkIn || "--/--/----"} | Check-out: ${itm.checkOut || "--/--/----"}
             </div>
             <div style="margin-top: 0.4rem;">
               Adultos: ${itm.adults} | Crianças: ${itm.children}
             </div>
           </div>
 
-          <!-- Lado direito (preço e parcelas) -->
+          <!-- Valor e condições (lado direito) -->
           <div class="item-right">
             <div class="item-price">
               R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -440,7 +445,7 @@ class ShoppingCart extends HTMLElement {
         container.appendChild(itemDiv);
       });
 
-      // Eventos para remover
+      // Adiciona eventos para remover itens
       const removeBtns = this.shadowRoot.querySelectorAll('.trash-btn');
       removeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -450,7 +455,7 @@ class ShoppingCart extends HTMLElement {
       });
     }
 
-    // Atualiza o subtotal e total geral
+    // Atualiza os totais
     this.updateTotals();
   }
 
@@ -461,20 +466,24 @@ class ShoppingCart extends HTMLElement {
   removeItem(index) {
     this.items.splice(index, 1);
     this.renderCartItems();
-    // Se quiser sincronizar:
-    // this.updateCartServer();
+    // Se desejar sincronizar com o servidor, chame updateCartServer();
   }
 
   /**
    * updateTotals()
-   * Calcula o total e exibe
+   * Calcula o total e atualiza a exibição
    */
   updateTotals() {
     let total = 0;
     this.items.forEach(itm => {
-      const baseA = itm.basePriceAdult || 80;
-      const baseC = itm.basePriceChild || 60;
-      total += (itm.adults * baseA) + (itm.children * baseC);
+      const type = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM";
+      if (type === "HOSPEDAGEM") {
+        total += itm.basePriceAdult || 80;
+      } else {
+        const baseA = itm.basePriceAdult || 80;
+        const baseC = itm.basePriceChild || 60;
+        total += (itm.adults * baseA) + (itm.children * baseC);
+      }
     });
     const subtotalEl = this.shadowRoot.querySelector('#subtotalValue');
     const totalEl = this.shadowRoot.querySelector('#totalValue');
@@ -488,7 +497,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * shareCart()
-   * Cria shareId no servidor e salva local
+   * Cria um shareId no servidor e salva localmente
    */
   async shareCart() {
     if (this.items.length === 0) {
@@ -545,7 +554,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * loadCartFromServer(sId)
-   * Carrega itens do servidor e exibe
+   * Carrega itens do servidor e atualiza a exibição
    */
   async loadCartFromServer(sId) {
     try {
@@ -589,7 +598,7 @@ class ShoppingCart extends HTMLElement {
         this.shareId = null;
         localStorage.removeItem("shareId");
       } else {
-        alert("Erro ao limpar: " + (data.error||"desconhecido"));
+        alert("Erro ao limpar: " + (data.error || "desconhecido"));
       }
     } catch (e) {
       console.error(e);
