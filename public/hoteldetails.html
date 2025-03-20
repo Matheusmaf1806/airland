@@ -291,7 +291,7 @@
       margin: 0;
       padding: 0;
     }
-    .installment-info {
+    .installment-price {
       font-size: 0.8em;
       color: #666;
     }
@@ -398,15 +398,15 @@
   <!-- HEADER: Carregado via fetch -->
   <div id="header"></div>
 
-  <!-- CARRINHO: Web Component (suporta múltiplos itens com valor) -->
-  <shopping-cart
-    type="INGRESSOS"
-    category="WALT DISNEY WORLD"
+  <!-- CARRINHO: Web Component (múltiplos itens via addItem()) -->
+  <shopping-cart 
+    type="INGRESSOS" 
+    category="WALT DISNEY WORLD" 
     nameDays="INGRESSO 1 DIA MAGIC KINGDOM [1 dia]"
     date="2025-04-12"
     basePriceAdult="80"
-    basePriceChild="60"
-  ></shopping-cart>
+    basePriceChild="60">
+  </shopping-cart>
 
   <!-- CONTEÚDO PRINCIPAL DO HOTEL DETAILS -->
   <div class="main-container" id="hotelDetail">
@@ -495,7 +495,7 @@
         })
         .catch(err => console.error("Erro ao carregar header:", err));
 
-      // Função global para abrir o carrinho (usa openCart() do componente)
+      // Função global para abrir o carrinho
       window.toggleCart = function() {
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -609,6 +609,7 @@
         tableBody.innerHTML = "";
         if (!rooms || !rooms.length) return;
 
+        // Ordena os quartos pelo preço (net)
         const sortedRooms = rooms.slice().sort((a, b) => {
           const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
           const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
@@ -654,6 +655,7 @@
             const discountAmount = netNum * 0.05;
             discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
           }
+
           const row = document.createElement("div");
           row.className = "room-table-row";
           row.innerHTML = `
@@ -663,7 +665,7 @@
               </div>
             </div>
             <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-            <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 300}">
+            <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 80}">
               <p class="discount-price">
                 R$ <span class="pix-price">${netFormatted}</span>
               </p>
@@ -672,7 +674,7 @@
             </div>
             <div>
               <button class="select-room-button"
-                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}','${room.rates && room.rates[0] ? room.rates[0].net : 300}')">
+                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}','${room.rates && room.rates[0] ? room.rates[0].net : 80}','60')">
                 Selecionar Quarto
               </button>
             </div>
@@ -769,7 +771,7 @@
         document.querySelectorAll(".room-table-row").forEach(row => {
           const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
           const priceEl = row.querySelector(".room-price");
-          const basePrice = parseFloat(priceEl && priceEl.getAttribute("data-price")) || 300;
+          const basePrice = parseFloat(priceEl && priceEl.getAttribute("data-price")) || 80;
           if (totalGuests > maxGuests) {
             row.style.display = "none";
           } else {
@@ -799,7 +801,7 @@
         });
       };
 
-      window.handleSelectRoom = function(hCode, hName, rCode, rName, price) {
+      window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
         const dateRange = document.getElementById("checkin-checkout").value;
         let checkInDate = "";
         let checkOutDate = "";
@@ -808,7 +810,6 @@
         }
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
-        // Cria o objeto do quarto com o valor recebido (price)
         const selectedRoom = {
           hotelCode: hCode,
           hotelName: hName,
@@ -818,16 +819,16 @@
           children: numChildren,
           checkIn: checkInDate,
           checkOut: checkOutDate,
-          price: parseFloat(price)
+          basePriceAdult: parseFloat(basePriceAdult) || 80,
+          basePriceChild: parseFloat(basePriceChild) || 60
         };
 
-        // Adiciona o quarto ao carrinho usando o Web Component
+        // Adiciona o quarto ao carrinho
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
           cartComponent.openCart();
         } else {
-          console.log("Quarto selecionado:", selectedRoom);
           console.warn("O método addItem() não está implementado no componente!");
         }
       };
@@ -848,6 +849,7 @@
         if (query.adults) document.getElementById("adults").value = query.adults;
         if (query.children) document.getElementById("children").value = query.children;
 
+        // Busca dados do hotel
         fetchHotelCombined().then(data => {
           if (data && data.combined && data.combined.length > 0) {
             loadHotelContent(data.combined[0]);
