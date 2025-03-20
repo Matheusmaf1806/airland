@@ -471,638 +471,640 @@
 
   <!-- 4) Script principal unificado -->
   <script>
+  let cartManager; // Declarar a variável do cartManager globalmente
+  
   (function() {
-    // Evita duplicação
-    if (window.__hotelDetailJSInitialized) return;
-    window.__hotelDetailJSInitialized = true;
-
-    // ====================================
-    // A) Carregar header.html
-    // ====================================
-    fetch("header.html")
-      .then(resp => resp.text())
-      .then(html => {
-        const headerEl = document.getElementById("header");
-        if (headerEl) {
-          headerEl.innerHTML = html;
-        }
-      })
-      .catch(err => console.error("Erro ao carregar header:", err));
-
-    // ====================================
-    // B) Carregar cart.html (se não existir)
-    // ====================================
-    function loadCartHTML() {
-      return new Promise((resolve, reject) => {
-        // Verifica se já existe .cart-container no DOM
-        if (document.querySelector(".cart-container") && document.getElementById("cartBody")) {
-          resolve(); // Já existe
-        } else {
-          fetch("cart.html")
-            .then(resp => resp.text())
-            .then(html => {
-              const tempDiv = document.createElement("div");
-              tempDiv.innerHTML = html;
-              const cartContainer = tempDiv.querySelector(".cart-container");
-              if (cartContainer) {
-                document.body.appendChild(cartContainer);
-                resolve();
-              } else {
-                reject("Elemento '.cart-container' não encontrado em cart.html!");
-              }
-            })
-            .catch(err => reject(err));
-        }
-      });
-    }
-
-    // ====================================
-    // C) Lógica do Carrinho (unificada)
-    // ====================================
-    let cartItems = [];
-    let shareId = null; // Para integração com backend, se quiser
-
-    // Toggle exibição do carrinho
-    function toggleCart() {
-      const cartContainer = document.querySelector(".cart-container");
-      if (cartContainer) {
-        cartContainer.classList.toggle("hidden");
-      } else {
-        console.error("Elemento '.cart-container' não encontrado!");
-      }
-    }
-    window.toggleCart = toggleCart; // Expor globalmente
-
-    // Renderizar itens do carrinho no #cartBody
-    function renderCartItems() {
-      const cartBody = document.getElementById("cartBody");
-      if (!cartBody) {
-        console.error("Elemento 'cartBody' não encontrado!");
-        return;
-      }
-      cartBody.innerHTML = "";
-
-      if (cartItems.length === 0) {
-        cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
-      } else {
-        cartItems.forEach((item, index) => {
-          const itemDiv = document.createElement("div");
-          itemDiv.className = "cart-item";
-          itemDiv.innerHTML = `
-            <button class="trash-btn" onclick="removeItem(${index})">🗑</button>
-            <span class="tag-ingresso">${item.tag || "INGRESSOS"}</span>
-            <div class="item-title">${item.hotelName} - ${item.roomName}</div>
-            <div class="item-date">
-              <svg class="icon" viewBox="0 0 16 16">
-                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5..."></path>
-              </svg>
-              <span>${item.checkIn}</span>
-            </div>
-            <div class="item-quantities">
-              <div class="quantities-left">
-                <div class="quant-column">
-                  <div class="quant-label">
-                    <svg class="icon" viewBox="0 0 96 96">
-                      <circle cx="48" cy="20.5" r="12.5"/>
-                    </svg>
-                    <span>Crianças</span>
-                  </div>
-                  <div class="plusminus-row">
-                    <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
-                    <span id="childCount${index}">${(item.children || 0).toString().padStart(2, '0')}</span>
-                    <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
-                  </div>
-                </div>
-                <div class="divider"></div>
-                <div class="quant-column">
-                  <div class="quant-label">
-                    <svg class="icon" viewBox="0 0 575 575">
-                      <path d="M290.088,230.112c-15.912,0-30.906..."></path>
-                    </svg>
-                    <span>Adultos</span>
-                  </div>
-                  <div class="plusminus-row">
-                    <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
-                    <span id="adultCount${index}">${(item.adults || 0).toString().padStart(2, '0')}</span>
-                    <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-          cartBody.appendChild(itemDiv);
-        });
-      }
-
-      // Atualiza subtotais (se os elementos existirem)
-      const subtotalElem = document.getElementById("subtotalValue");
-      const totalElem = document.getElementById("totalValue");
-      const discountElem = document.getElementById("discountValue");
-      if (subtotalElem && totalElem && discountElem) {
-        const total = cartItems.reduce((sum, item) =>
-          sum + ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0))
-        , 0);
-        subtotalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        discountElem.textContent = "- R$ 0,00";
-      }
-
-      // Salva local
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
-
-    // Alterar quantidades
-    function incChildren(index) {
-      cartItems[index].children = (cartItems[index].children || 0) + 1;
-      renderCartItems();
-      updateCartServer();
-    }
-    function decChildren(index) {
-      if ((cartItems[index].children || 0) > 0) {
-        cartItems[index].children--;
-        renderCartItems();
-        updateCartServer();
-      }
-    }
-    function incAdults(index) {
-      cartItems[index].adults = (cartItems[index].adults || 0) + 1;
-      renderCartItems();
-      updateCartServer();
-    }
-    function decAdults(index) {
-      if ((cartItems[index].adults || 0) > 0) {
-        cartItems[index].adults--;
-        renderCartItems();
-        updateCartServer();
-      }
-    }
-    function removeItem(index) {
-      cartItems.splice(index, 1);
-      renderCartItems();
-      updateCartServer();
-      alert("Item removido");
-    }
-    window.removeItem = removeItem; // expor globalmente se necessário
-    window.incChildren = incChildren;
-    window.decChildren = decChildren;
-    window.incAdults = incAdults;
-    window.decAdults = decAdults;
-
-    // Carregar do localStorage
-    function loadCartFromLocalStorage() {
-      const stored = localStorage.getItem("cartItems");
-      if (stored) {
-        cartItems = JSON.parse(stored);
-        renderCartItems();
-        if (cartItems.length > 0) {
-          const cartContainer = document.querySelector(".cart-container");
-          if (cartContainer) {
-            cartContainer.classList.remove("hidden");
+      // Evita duplicação
+      if (window.__hotelDetailJSInitialized) return;
+      window.__hotelDetailJSInitialized = true;
+  
+      // ====================================
+      // A) Carregar header.html
+      // ====================================
+      fetch("header.html")
+        .then(resp => resp.text())
+        .then(html => {
+          const headerEl = document.getElementById("header");
+          if (headerEl) {
+            headerEl.innerHTML = html;
           }
-        }
-      }
-    }
-
-    // (Opcional) Funções de integração com backend
-    async function shareCart() {
-      if (cartItems.length === 0) {
-        alert("Carrinho vazio, não há o que compartilhar!");
-        return;
-      }
-      if (shareId) {
-        alert("Carrinho já possui shareId: " + shareId);
-        return;
-      }
-      const affiliateId = "aff123";
-      const agentId = "agt567";
-      const BASE_URL = "https://business.airland.com.br";
-
-      try {
-        const resp = await fetch(`${BASE_URL}/shareCart`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ affiliateId, agentId, items: cartItems })
+        })
+        .catch(err => console.error("Erro ao carregar header:", err));
+  
+      // ====================================
+      // B) Carregar cart.html (se não existir)
+      // ====================================
+      function loadCartHTML() {
+        return new Promise((resolve, reject) => {
+          // Verifica se já existe .cart-container no DOM
+          if (document.querySelector(".cart-container") && document.getElementById("cartBody")) {
+            resolve(); // Já existe
+          } else {
+            fetch("cart.html")
+              .then(resp => resp.text())
+              .then(html => {
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = html;
+                const cartContainer = tempDiv.querySelector(".cart-container");
+                if (cartContainer) {
+                  document.body.appendChild(cartContainer);
+                  resolve();
+                } else {
+                  reject("Elemento '.cart-container' não encontrado em cart.html!");
+                }
+              })
+              .catch(err => reject(err));
+          }
         });
-        const data = await resp.json();
-        if (data.success) {
-          shareId = data.shareId;
-          localStorage.setItem("shareId", shareId);
-          const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
-          alert("Carrinho compartilhado!\n" + link);
+      }
+  
+      // ====================================
+      // C) Lógica do Carrinho (unificada)
+      // ====================================
+      let cartItems = [];
+      let shareId = null; // Para integração com backend, se quiser
+  
+      // Toggle exibição do carrinho
+      function toggleCart() {
+        const cartContainer = document.querySelector(".cart-container");
+        if (cartContainer) {
+          cartContainer.classList.toggle("hidden");
         } else {
-          alert("Erro ao compartilhar: " + (data.error || "desconhecido"));
+          console.error("Elemento '.cart-container' não encontrado!");
         }
-      } catch (e) {
-        console.error(e);
-        alert("Falha ao compartilhar carrinho!");
       }
-    }
-    window.shareCart = shareCart;
-
-    async function updateCartServer() {
-      if (!shareId) return;
-      const BASE_URL = "https://business.airland.com.br";
-      try {
-        const resp = await fetch(`${BASE_URL}/updateCart`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ shareId, items: cartItems })
-        });
-        const data = await resp.json();
-        if (!data.success) {
-          console.error("Erro updateCart:", data.error);
+      window.toggleCart = toggleCart; // Expor globalmente
+  
+      // Renderizar itens do carrinho no #cartBody
+      function renderCartItems() {
+        const cartBody = document.getElementById("cartBody");
+        if (!cartBody) {
+          console.error("Elemento 'cartBody' não encontrado!");
+          return;
         }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // ============================
-    // D) Funções de HotelDetail
-    // ============================
-    function getQueryParams() {
-      const params = new URLSearchParams(window.location.search);
-      const query = {};
-      for (const [key, value] of params.entries()) {
-        query[key] = value;
-      }
-      return query;
-    }
-
-    function fetchHotelCombined() {
-      const query = getQueryParams();
-      const params = new URLSearchParams();
-      if (query.checkIn) params.set('checkIn', query.checkIn);
-      if (query.checkOut) params.set('checkOut', query.checkOut);
-      if (query.rooms) params.set('rooms', query.rooms);
-      if (query.adults) params.set('adults1', query.adults);
-      if (query.children) params.set('children1', query.children);
-      if (query.hotelCode) params.set('hotelCode', query.hotelCode);
-
-      return fetch(`/api/hbdetail/hotels?${params.toString()}`)
-        .then(resp => resp.json());
-    }
-
-    function loadHotelContent(hotelObj) {
-      if (!hotelObj) return;
-
-      const hotelName = hotelObj.name || "Hotel sem nome";
-      const hotelCode = hotelObj.code;
-      const hotelAddress = hotelObj.destinationName || "";
-
-      // Preenche dados do hotel
-      document.getElementById("hotelName").textContent = hotelName;
-      document.getElementById("hotelAddress").innerHTML = `
-        <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
-        <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
-      `;
-
-      // Galeria
-      let images = [];
-      if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
-        images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
-      }
-      fillPhotoGallery(images);
-
-      // Facilidades
-      let facilities = [];
-      if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
-        facilities = hotelObj.content.facilities;
-      }
-      fillFacilities(facilities);
-
-      // Descrição
-      if (hotelObj.content && hotelObj.content.description) {
-        document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
-      }
-      // Destaques
-      document.getElementById("hotelHighlights").innerHTML = `
-        <h2>Destaques da Acomodação</h2>
-        <p>Confira as melhores vantagens desta acomodação.</p>
-      `;
-
-      // Tabela de quartos
-      createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
-
-      // Info blocks
-      fillInfoBlocks({
-        checkin: "A partir das 16h",
-        checkout: "Até 11:00",
-        resortFee: "Não possui no local.",
-        parking: "Consulte valores no local."
-      });
-
-      // Mapa
-      const lat = hotelObj.latitude || 0;
-      const lng = hotelObj.longitude || 0;
-      let interestPoints = [];
-      if (hotelObj.content && hotelObj.content.interestPoints) {
-        interestPoints = hotelObj.content.interestPoints;
-      }
-      initMapAndAttractions(lat, lng, interestPoints);
-
-      // Date Range
-      initDateRangePicker();
-    }
-
-    function fillPhotoGallery(photos) {
-      const gallery = document.getElementById("photoGallery");
-      gallery.innerHTML = "";
-      if (!photos || !photos.length) return;
-      const largeImg = document.createElement("img");
-      largeImg.src = photos[0];
-      largeImg.alt = "Foto do Hotel";
-      largeImg.classList.add("large-photo");
-      gallery.appendChild(largeImg);
-      for (let i = 1; i < photos.length && i < 5; i++) {
-        const img = document.createElement("img");
-        img.src = photos[i];
-        img.alt = "Foto do Hotel";
-        gallery.appendChild(img);
-      }
-    }
-
-    function fillFacilities(facilities) {
-      const container = document.getElementById("facilities");
-      container.innerHTML = "";
-      if (!facilities || !facilities.length) return;
-      facilities.slice(0, 12).forEach(f => {
-        container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
-      });
-    }
-
-    function createRoomTableGrouped(rooms, hotelCode, hotelName) {
-      const tableBody = document.getElementById("roomTableBody");
-      tableBody.innerHTML = "";
-      if (!rooms || !rooms.length) return;
-
-      const sortedRooms = rooms.slice().sort((a, b) => {
-        const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
-        const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
-        return netA - netB;
-      });
-
-      const initialCount = 6;
-      const roomsToShow = sortedRooms.slice(0, initialCount);
-
-      roomsToShow.forEach(room => {
-        const row = createRoomRow(room);
-        tableBody.appendChild(row);
-      });
-
-      if (sortedRooms.length > initialCount) {
-        const moreButton = document.createElement("button");
-        moreButton.textContent = "Mostrar mais quartos";
-        moreButton.className = "select-room-button";
-        moreButton.onclick = function() {
-          moreButton.remove();
-          const remainingRooms = sortedRooms.slice(initialCount);
-          remainingRooms.forEach(r => {
-            const newRow = createRoomRow(r);
-            tableBody.appendChild(newRow);
-          });
-        };
-        const btnRow = document.createElement("div");
-        btnRow.className = "room-table-row";
-        btnRow.style.justifyContent = "center";
-        btnRow.appendChild(moreButton);
-        tableBody.appendChild(btnRow);
-      }
-
-      function createRoomRow(room) {
-        const roomName = room.name || room.roomType || room.roomCode || "Quarto";
-        let netPrice = "N/A";
-        if (room.rates && room.rates.length && room.rates[0].net) {
-          netPrice = room.rates[0].net;
-        }
-        const netNum = parseFloat(netPrice);
-        const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-
-        let discountMsg = "";
-        if (!isNaN(netNum)) {
-          const discountAmount = netNum * 0.05;
-          discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
-        }
-
-        const row = document.createElement("div");
-        row.className = "room-table-row";
-        row.innerHTML = `
-          <div class="room-info">
-            <div class="room-details">
-              <h4>${roomName}</h4>
-            </div>
-          </div>
-          <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-          <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 300}">
-            <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
-            <p class="installment-info">até 10x sem juros</p>
-            <span class="flag-offer">${discountMsg}</span>
-          </div>
-          <div>
-            <button class="select-room-button"
-              onclick="handleSelectRoom(
-                '${hotelCode}',
-                '${hotelName}',
-                '${room.code}',
-                '${room.name}'
-              )">
-              Selecionar Quarto
-            </button>
-          </div>
-        `;
-        return row;
-      }
-    }
-
-    function fillInfoBlocks(info) {
-      const container = document.getElementById("infoContainer");
-      container.innerHTML = "";
-      if (!info) return;
-      const items = [
-        { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
-        { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
-        { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
-        { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
-      ];
-      items.forEach(item => {
-        const block = document.createElement("div");
-        block.className = "info-block";
-        block.innerHTML = `
-          <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
-          <p>${item.content}</p>
-        `;
-        container.appendChild(block);
-      });
-    }
-
-    function initMapAndAttractions(lat, lng, attractions) {
-      const map = L.map("map").setView([lat, lng], 14);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(map);
-
-      const hotelIcon = L.icon({
-        iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
-        iconSize: [40, 40],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -30]
-      });
-      const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
-      marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-
-      const container = document.getElementById("attractions");
-      container.innerHTML = "<h2>Atrações</h2>";
-      if (Array.isArray(attractions) && attractions.length) {
-        attractions.forEach(a => {
-          const latA = a.latitude || lat;
-          const lngA = a.longitude || lng;
-          const attrMarker = L.marker([latA, lngA]).addTo(map);
-          attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
-          container.innerHTML += `
-            <div class="attraction-item">
-              <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
-            </div>
-          `;
-        });
-      }
-    }
-
-    function initDateRangePicker() {
-      if (typeof $.fn.daterangepicker !== 'function') {
-        console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
-        return;
-      }
-      $("#checkin-checkout").daterangepicker({
-        locale: {
-          format: "DD/MM/YYYY",
-          daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-          monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-        },
-        opens: "center",
-        drops: "down",
-        autoApply: false,
-        autoUpdateInput: false
-      }, function(start, end) {
-        const diffDays = end.diff(start, "days");
-        document.getElementById("num-noites").textContent = diffDays > 0 ? diffDays : 1;
-        $("#checkin-checkout").val(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
-        updateRoomList();
-      });
-    }
-
-    window.updateRoomList = function() {
-      const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
-      const numRooms = parseInt(document.getElementById("rooms").value) || 1;
-      const numAdults = parseInt(document.getElementById("adults").value) || 1;
-      const numChildren = parseInt(document.getElementById("children").value) || 0;
-      const totalGuests = numAdults + numChildren;
-
-      document.querySelectorAll(".room-table-row").forEach(row => {
-        const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
-        const priceEl = row.querySelector(".room-price");
-        const basePrice = parseFloat(priceEl && priceEl.getAttribute("data-price")) || 300;
-        if (totalGuests > maxGuests) {
-          row.style.display = "none";
+        cartBody.innerHTML = "";
+  
+        if (cartItems.length === 0) {
+          cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
         } else {
-          row.style.display = "grid";
-          const totalPrice = (numNoites * basePrice) * numRooms;
-          const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
-          if (priceEl) {
-            priceEl.innerHTML = `
-              <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
-              <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
-              <div class="price-info">
-                <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
-                <div class="daily-price-container">
-                  <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
+          cartItems.forEach((item, index) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "cart-item";
+            itemDiv.innerHTML = `
+              <button class="trash-btn" onclick="removeItem(${index})">🗑</button>
+              <span class="tag-ingresso">${item.tag || "INGRESSOS"}</span>
+              <div class="item-title">${item.hotelName} - ${item.roomName}</div>
+              <div class="item-date">
+                <svg class="icon" viewBox="0 0 16 16">
+                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5..."></path>
+                </svg>
+                <span>${item.checkIn}</span>
+              </div>
+              <div class="item-quantities">
+                <div class="quantities-left">
+                  <div class="quant-column">
+                    <div class="quant-label">
+                      <svg class="icon" viewBox="0 0 96 96">
+                        <circle cx="48" cy="20.5" r="12.5"/>
+                      </svg>
+                      <span>Crianças</span>
+                    </div>
+                    <div class="plusminus-row">
+                      <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
+                      <span id="childCount${index}">${(item.children || 0).toString().padStart(2, '0')}</span>
+                      <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
+                    </div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="quant-column">
+                    <div class="quant-label">
+                      <svg class="icon" viewBox="0 0 575 575">
+                        <path d="M290.088,230.112c-15.912,0-30.906..."></path>
+                      </svg>
+                      <span>Adultos</span>
+                    </div>
+                    <div class="plusminus-row">
+                      <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
+                      <span id="adultCount${index}">${(item.adults || 0).toString().padStart(2, '0')}</span>
+                      <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             `;
+            cartBody.appendChild(itemDiv);
+          });
+        }
+  
+        // Atualiza subtotais (se os elementos existirem)
+        const subtotalElem = document.getElementById("subtotalValue");
+        const totalElem = document.getElementById("totalValue");
+        const discountElem = document.getElementById("discountValue");
+        if (subtotalElem && totalElem && discountElem) {
+          const total = cartItems.reduce((sum, item) =>
+            sum + ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0))
+          , 0);
+          subtotalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+          totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+          discountElem.textContent = "- R$ 0,00";
+        }
+  
+        // Salva local
+        localStorage.setItem("cartItems", JSON.stringify(cartItems));
+      }
+  
+      // Alterar quantidades
+      function incChildren(index) {
+        cartItems[index].children = (cartItems[index].children || 0) + 1;
+        renderCartItems();
+        updateCartServer();
+      }
+      function decChildren(index) {
+        if ((cartItems[index].children || 0) > 0) {
+          cartItems[index].children--;
+          renderCartItems();
+          updateCartServer();
+        }
+      }
+      function incAdults(index) {
+        cartItems[index].adults = (cartItems[index].adults || 0) + 1;
+        renderCartItems();
+        updateCartServer();
+      }
+      function decAdults(index) {
+        if ((cartItems[index].adults || 0) > 0) {
+          cartItems[index].adults--;
+          renderCartItems();
+          updateCartServer();
+        }
+      }
+      function removeItem(index) {
+        cartItems.splice(index, 1);
+        renderCartItems();
+        updateCartServer();
+        alert("Item removido");
+      }
+      window.removeItem = removeItem; // expor globalmente se necessário
+      window.incChildren = incChildren;
+      window.decChildren = decChildren;
+      window.incAdults = incAdults;
+      window.decAdults = decAdults;
+  
+      // Carregar do localStorage
+      function loadCartFromLocalStorage() {
+        const stored = localStorage.getItem("cartItems");
+        if (stored) {
+          cartItems = JSON.parse(stored);
+          renderCartItems();
+          if (cartItems.length > 0) {
+            const cartContainer = document.querySelector(".cart-container");
+            if (cartContainer) {
+              cartContainer.classList.remove("hidden");
+            }
           }
         }
-      });
-    };
-
-    // ============================
-    // 4. DOMContentLoaded
-    // ============================
-    document.addEventListener("DOMContentLoaded", function() {
-      const query = getQueryParams();
-      if (query.checkIn && query.checkOut) {
-        const input = document.getElementById("checkin-checkout");
-        input.value = query.checkIn + " - " + query.checkOut;
-        if (typeof moment !== "undefined") {
-          const d1 = moment(query.checkIn, "DD/MM/YYYY");
-          const d2 = moment(query.checkOut, "DD/MM/YYYY");
-          const diff = d2.diff(d1, "days");
-          document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
+      }
+  
+      // (Opcional) Funções de integração com backend
+      async function shareCart() {
+        if (cartItems.length === 0) {
+          alert("Carrinho vazio, não há o que compartilhar!");
+          return;
+        }
+        if (shareId) {
+          alert("Carrinho já possui shareId: " + shareId);
+          return;
+        }
+        const affiliateId = "aff123";
+        const agentId = "agt567";
+        const BASE_URL = "https://business.airland.com.br";
+  
+        try {
+          const resp = await fetch(`${BASE_URL}/shareCart`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ affiliateId, agentId, items: cartItems })
+          });
+          const data = await resp.json();
+          if (data.success) {
+            shareId = data.shareId;
+            localStorage.setItem("shareId", shareId);
+            const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
+            alert("Carrinho compartilhado!\n" + link);
+          } else {
+            alert("Erro ao compartilhar: " + (data.error || "desconhecido"));
+          }
+        } catch (e) {
+          console.error(e);
+          alert("Falha ao compartilhar carrinho!");
         }
       }
-      if (query.rooms) document.getElementById("rooms").value = query.rooms;
-      if (query.adults) document.getElementById("adults").value = query.adults;
-      if (query.children) document.getElementById("children").value = query.children;
-
-      // 1) Busca dados do hotel
-      fetchHotelCombined().then(data => {
-        if (data && data.combined && data.combined.length > 0) {
-          loadHotelContent(data.combined[0]);
-        } else {
-          console.error("Conteúdo não encontrado para o hotel!");
+      window.shareCart = shareCart;
+  
+      async function updateCartServer() {
+        if (!shareId) return;
+        const BASE_URL = "https://business.airland.com.br";
+        try {
+          const resp = await fetch(`${BASE_URL}/updateCart`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ shareId, items: cartItems })
+          });
+          const data = await resp.json();
+          if (!data.success) {
+            console.error("Erro updateCart:", data.error);
+          }
+        } catch (e) {
+          console.error(e);
         }
-      });
-
-      // 2) Carrega cart.html (se não estiver) e depois carrega do localStorage
-      loadCartHTML()
-        .then(() => {
-          // Se houver shareId salvo, pode buscar do servidor também
-          // mas aqui vamos só carregar do localStorage
-          loadCartFromLocalStorage();
-        })
-        .catch(err => {
-          console.error("Erro ao carregar o carrinho:", err);
+      }
+  
+      // ============================
+      // D) Funções de HotelDetail
+      // ============================
+      function getQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        const query = {};
+        for (const [key, value] of params.entries()) {
+          query[key] = value;
+        }
+        return query;
+      }
+  
+      function fetchHotelCombined() {
+        const query = getQueryParams();
+        const params = new URLSearchParams();
+        if (query.checkIn) params.set('checkIn', query.checkIn);
+        if (query.checkOut) params.set('checkOut', query.checkOut);
+        if (query.rooms) params.set('rooms', query.rooms);
+        if (query.adults) params.set('adults1', query.adults);
+        if (query.children) params.set('children1', query.children);
+        if (query.hotelCode) params.set('hotelCode', query.hotelCode);
+  
+        return fetch(`/api/hbdetail/hotels?${params.toString()}`)
+          .then(resp => resp.json());
+      }
+  
+      function loadHotelContent(hotelObj) {
+        if (!hotelObj) return;
+  
+        const hotelName = hotelObj.name || "Hotel sem nome";
+        const hotelCode = hotelObj.code;
+        const hotelAddress = hotelObj.destinationName || "";
+  
+        // Preenche dados do hotel
+        document.getElementById("hotelName").textContent = hotelName;
+        document.getElementById("hotelAddress").innerHTML = `
+          <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
+          <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
+        `;
+  
+        // Galeria
+        let images = [];
+        if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
+          images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
+        }
+        fillPhotoGallery(images);
+  
+        // Facilidades
+        let facilities = [];
+        if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
+          facilities = hotelObj.content.facilities;
+        }
+        fillFacilities(facilities);
+  
+        // Descrição
+        if (hotelObj.content && hotelObj.content.description) {
+          document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
+        }
+        // Destaques
+        document.getElementById("hotelHighlights").innerHTML = `
+          <h2>Destaques da Acomodação</h2>
+          <p>Confira as melhores vantagens desta acomodação.</p>
+        `;
+  
+        // Tabela de quartos
+        createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
+  
+        // Info blocks
+        fillInfoBlocks({
+          checkin: "A partir das 16h",
+          checkout: "Até 11:00",
+          resortFee: "Não possui no local.",
+          parking: "Consulte valores no local."
         });
-    });
-
-    // Expondo globalmente (caso o HTML use onclick="handleSelectRoom(...)")
-    window.handleSelectRoom = function(hCode, hName, rCode, rName) {
-      // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
-      const dateRange = document.getElementById("checkin-checkout").value;
-      let checkInDate = "";
-      let checkOutDate = "";
-      if (dateRange.includes(" - ")) {
-        [checkInDate, checkOutDate] = dateRange.split(" - ");
+  
+        // Mapa
+        const lat = hotelObj.latitude || 0;
+        const lng = hotelObj.longitude || 0;
+        let interestPoints = [];
+        if (hotelObj.content && hotelObj.content.interestPoints) {
+          interestPoints = hotelObj.content.interestPoints;
+        }
+        initMapAndAttractions(lat, lng, interestPoints);
+  
+        // Date Range
+        initDateRangePicker();
       }
-
-      // Lê adultos/crianças
-      const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
-      const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
-
-      // Cria o objeto do quarto
-      const selectedRoom = {
-        hotelCode: hCode,
-        hotelName: hName,
-        roomCode: rCode,
-        roomName: rName,
-        adults: numAdults,
-        children: numChildren,
-        checkIn: checkInDate,
-        checkOut: checkOutDate
-        // Se quiser, adicione basePriceAdult, basePriceChild, etc.
+  
+      function fillPhotoGallery(photos) {
+        const gallery = document.getElementById("photoGallery");
+        gallery.innerHTML = "";
+        if (!photos || !photos.length) return;
+        const largeImg = document.createElement("img");
+        largeImg.src = photos[0];
+        largeImg.alt = "Foto do Hotel";
+        largeImg.classList.add("large-photo");
+        gallery.appendChild(largeImg);
+        for (let i = 1; i < photos.length && i < 5; i++) {
+          const img = document.createElement("img");
+          img.src = photos[i];
+          img.alt = "Foto do Hotel";
+          gallery.appendChild(img);
+        }
+      }
+  
+      function fillFacilities(facilities) {
+        const container = document.getElementById("facilities");
+        container.innerHTML = "";
+        if (!facilities || !facilities.length) return;
+        facilities.slice(0, 12).forEach(f => {
+          container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
+        });
+      }
+  
+      function createRoomTableGrouped(rooms, hotelCode, hotelName) {
+        const tableBody = document.getElementById("roomTableBody");
+        tableBody.innerHTML = "";
+        if (!rooms || !rooms.length) return;
+  
+        const sortedRooms = rooms.slice().sort((a, b) => {
+          const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
+          const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
+          return netA - netB;
+        });
+  
+        const initialCount = 6;
+        const roomsToShow = sortedRooms.slice(0, initialCount);
+  
+        roomsToShow.forEach(room => {
+          const row = createRoomRow(room);
+          tableBody.appendChild(row);
+        });
+  
+        if (sortedRooms.length > initialCount) {
+          const moreButton = document.createElement("button");
+          moreButton.textContent = "Mostrar mais quartos";
+          moreButton.className = "select-room-button";
+          moreButton.onclick = function() {
+            moreButton.remove();
+            const remainingRooms = sortedRooms.slice(initialCount);
+            remainingRooms.forEach(r => {
+              const newRow = createRoomRow(r);
+              tableBody.appendChild(newRow);
+            });
+          };
+          const btnRow = document.createElement("div");
+          btnRow.className = "room-table-row";
+          btnRow.style.justifyContent = "center";
+          btnRow.appendChild(moreButton);
+          tableBody.appendChild(btnRow);
+        }
+  
+        function createRoomRow(room) {
+          const roomName = room.name || room.roomType || room.roomCode || "Quarto";
+          let netPrice = "N/A";
+          if (room.rates && room.rates.length && room.rates[0].net) {
+            netPrice = room.rates[0].net;
+          }
+          const netNum = parseFloat(netPrice);
+          const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
+  
+          let discountMsg = "";
+          if (!isNaN(netNum)) {
+            const discountAmount = netNum * 0.05;
+            discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
+          }
+  
+          const row = document.createElement("div");
+          row.className = "room-table-row";
+          row.innerHTML = `
+            <div class="room-info">
+              <div class="room-details">
+                <h4>${roomName}</h4>
+              </div>
+            </div>
+            <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
+            <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 300}">
+              <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
+              <p class="installment-info">até 10x sem juros</p>
+              <span class="flag-offer">${discountMsg}</span>
+            </div>
+            <div>
+              <button class="select-room-button"
+                onclick="handleSelectRoom(
+                  '${hotelCode}',
+                  '${hotelName}',
+                  '${room.code}',
+                  '${room.name}'
+                )">
+                Selecionar Quarto
+              </button>
+            </div>
+          `;
+          return row;
+        }
+      }
+  
+      function fillInfoBlocks(info) {
+        const container = document.getElementById("infoContainer");
+        container.innerHTML = "";
+        if (!info) return;
+        const items = [
+          { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
+          { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
+          { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
+          { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
+        ];
+        items.forEach(item => {
+          const block = document.createElement("div");
+          block.className = "info-block";
+          block.innerHTML = `
+            <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
+            <p>${item.content}</p>
+          `;
+          container.appendChild(block);
+        });
+      }
+  
+      function initMapAndAttractions(lat, lng, attractions) {
+        const map = L.map("map").setView([lat, lng], 14);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(map);
+  
+        const hotelIcon = L.icon({
+          iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
+          iconSize: [40, 40],
+          iconAnchor: [20, 40],
+          popupAnchor: [0, -30]
+        });
+        const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
+        marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
+  
+        const container = document.getElementById("attractions");
+        container.innerHTML = "<h2>Atrações</h2>";
+        if (Array.isArray(attractions) && attractions.length) {
+          attractions.forEach(a => {
+            const latA = a.latitude || lat;
+            const lngA = a.longitude || lng;
+            const attrMarker = L.marker([latA, lngA]).addTo(map);
+            attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
+            container.innerHTML += `
+              <div class="attraction-item">
+                <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+              </div>
+            `;
+          });
+        }
+      }
+  
+      function initDateRangePicker() {
+        if (typeof $.fn.daterangepicker !== 'function') {
+          console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
+          return;
+        }
+        $("#checkin-checkout").daterangepicker({
+          locale: {
+            format: "DD/MM/YYYY",
+            daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+            monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+          },
+          opens: "center",
+          drops: "down",
+          autoApply: false,
+          autoUpdateInput: false
+        }, function(start, end) {
+          const diffDays = end.diff(start, "days");
+          document.getElementById("num-noites").textContent = diffDays > 0 ? diffDays : 1;
+          $("#checkin-checkout").val(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+          updateRoomList();
+        });
+      }
+  
+      window.updateRoomList = function() {
+        const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
+        const numRooms = parseInt(document.getElementById("rooms").value) || 1;
+        const numAdults = parseInt(document.getElementById("adults").value) || 1;
+        const numChildren = parseInt(document.getElementById("children").value) || 0;
+        const totalGuests = numAdults + numChildren;
+  
+        document.querySelectorAll(".room-table-row").forEach(row => {
+          const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
+          const priceEl = row.querySelector(".room-price");
+          const basePrice = parseFloat(priceEl && priceEl.getAttribute("data-price")) || 300;
+          if (totalGuests > maxGuests) {
+            row.style.display = "none";
+          } else {
+            row.style.display = "grid";
+            const totalPrice = (numNoites * basePrice) * numRooms;
+            const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
+            if (priceEl) {
+              priceEl.innerHTML = `
+                <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
+                <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
+                <div class="price-info">
+                  <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
+                  <div class="daily-price-container">
+                    <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
+                  </div>
+                </div>
+              `;
+            }
+          }
+        });
       };
-
-      // Adiciona ao carrinho e renderiza
-      cartItems.push(selectedRoom);
-      renderCartItems();
-
-      // Exibe o carrinho
-      const cartContainer = document.querySelector(".cart-container");
-      if (cartContainer) {
-        cartContainer.classList.remove("hidden");
-        cartContainer.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-  })();
+  
+      // ============================
+      // 4. DOMContentLoaded
+      // ============================
+      document.addEventListener("DOMContentLoaded", function() {
+        const query = getQueryParams();
+        if (query.checkIn && query.checkOut) {
+          const input = document.getElementById("checkin-checkout");
+          input.value = query.checkIn + " - " + query.checkOut;
+          if (typeof moment !== "undefined") {
+            const d1 = moment(query.checkIn, "DD/MM/YYYY");
+            const d2 = moment(query.checkOut, "DD/MM/YYYY");
+            const diff = d2.diff(d1, "days");
+            document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
+          }
+        }
+        if (query.rooms) document.getElementById("rooms").value = query.rooms;
+        if (query.adults) document.getElementById("adults").value = query.adults;
+        if (query.children) document.getElementById("children").value = query.children;
+  
+        // 1) Busca dados do hotel
+        fetchHotelCombined().then(data => {
+          if (data && data.combined && data.combined.length > 0) {
+            loadHotelContent(data.combined[0]);
+          } else {
+            console.error("Conteúdo não encontrado para o hotel!");
+          }
+        });
+  
+        // 2) Carrega cart.html (se não estiver) e depois carrega do localStorage
+        loadCartHTML()
+          .then(() => {
+            // Se houver shareId salvo, pode buscar do servidor também
+            // mas aqui vamos só carregar do localStorage
+            loadCartFromLocalStorage();
+          })
+          .catch(err => {
+            console.error("Erro ao carregar o carrinho:", err);
+          });
+      });
+  
+      // Expondo globalmente (caso o HTML use onclick="handleSelectRoom(...)")
+      window.handleSelectRoom = function(hCode, hName, rCode, rName) {
+        // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
+        const dateRange = document.getElementById("checkin-checkout").value;
+        let checkInDate = "";
+        let checkOutDate = "";
+        if (dateRange.includes(" - ")) {
+          [checkInDate, checkOutDate] = dateRange.split(" - ");
+        }
+  
+        // Lê adultos/crianças
+        const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
+        const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
+  
+        // Cria o objeto do quarto
+        const selectedRoom = {
+          hotelCode: hCode,
+          hotelName: hName,
+          roomCode: rCode,
+          roomName: rName,
+          adults: numAdults,
+          children: numChildren,
+          checkIn: checkInDate,
+          checkOut: checkOutDate
+          // Se quiser, adicione basePriceAdult, basePriceChild, etc.
+        };
+  
+        // Adiciona ao carrinho e renderiza
+        cartItems.push(selectedRoom);
+        renderCartItems();
+  
+        // Exibe o carrinho
+        const cartContainer = document.querySelector(".cart-container");
+        if (cartContainer) {
+          cartContainer.classList.remove("hidden");
+          cartContainer.scrollIntoView({ behavior: "smooth" });
+        }
+      };
+    })();
   </script>
 </body>
 </html>
