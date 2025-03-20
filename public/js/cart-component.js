@@ -104,6 +104,8 @@ class ShoppingCart extends HTMLElement {
           height: 14px;
           fill: #fff;
         }
+
+        /* ======== Cart Item ======== */
         .cart-item {
           background: #fff;
           border: 1px solid #ddd;
@@ -111,6 +113,9 @@ class ShoppingCart extends HTMLElement {
           padding: 1rem;
           margin-bottom: 1rem;
           position: relative;
+          display: flex;
+          justify-content: space-between;
+          /* ou se preferir: flex-direction: column; e manipular via CSS. */
         }
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -129,7 +134,23 @@ class ShoppingCart extends HTMLElement {
         .trash-btn:hover {
           color: #e00;
         }
-        /* Tag de categoria (ex.: HOSPEDAGEM, INGRESSOS, etc.) */
+
+        /* ======== Left / Right Sections ======== */
+        .item-left {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-width: 65%;
+        }
+        .item-right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end; /* Alinha o preço à direita */
+          min-width: 100px; /* garante espaço para texto */
+          gap: 4px;
+        }
+
+        /* ======== Tag (Hospedagem, Ingressos, etc.) ======== */
         .tag-ingresso {
           display: inline-block;
           background: #e0e5f6;
@@ -143,35 +164,29 @@ class ShoppingCart extends HTMLElement {
         }
         .item-title {
           font-weight: 600;
-          margin: 0.2rem 0;
           color: #333;
           font-size: 0.9rem;
         }
         .item-date {
-          display: flex;
-          align-items: center;
-          gap: 6px;
           font-size: 0.8rem;
           color: #666;
-          margin: 0.4rem 0;
         }
         .item-price {
-          position: relative;
           font-weight: 600;
-          font-size: 0.85rem;
+          font-size: 0.9rem;
           color: #333;
-          margin-top: 0.5rem;
         }
         .installment-info {
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           color: #007bff;
-          margin-top: 2px;
         }
         .pix-off {
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           color: #35b473;
           margin-top: 2px;
         }
+
+        /* ======== Footer (Subtotal, etc.) ======== */
         .cart-footer {
           border-top: 1px solid #eee;
           padding: 1rem;
@@ -270,14 +285,17 @@ class ShoppingCart extends HTMLElement {
         <div class="cart-footer">
           <div class="coupon-section">
             <svg class="coupon-icon" height="30" width="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.5 17h9c.277 0 .5.223.5.5s-.223.5-.5.5h-9c-.277 0-.5-.223-.5-.5s.223-.5.5-.5zm4.5 2c-1.1 0-2 .9-2 2s.9 2 2 2 
-              2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 
-              2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM25 3c-1.1 0-2 .9-2 2s.9 2 2 
-              2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM.446 15.67c-.587.58-.583 1.542 
-              0 2.124l11.76 11.76c.58.582 1.542.587 2.123 0L28.855 14.85c.247-.25.532-.48.768-.856.235-.376.376-.87.376-1.544V1.5
-              c0-.823-.678-1.5-1.5-1.5h-11c-1.158 0-1.824.624-2.35 1.145zm.703.712L15.85 1.856c.533-.526.808-.856 1.65-.856H28.5
-              c.285 0 .5.214.5.5v10.952c0 .547-.093.805-.224 1.013-.13.21-.344.394-.63.684l-14.53 14.7c-.197.2-.5.2-.703-.002l-11.76-11.76
-              c-.203-.203-.205-.508-.004-.706z"/>
+              <path d="M8.5 17h9c.277 0 .5.223.5.5s-.223.5-.5.5h-9c-.277 0-.5-.223-.5-.5s.223-.5.5-.5zm4.5 2
+              c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1
+              1-1-.442-1-1 .442-1 1-1zm0-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0
+              1c.558 0 1 .442 1 1s-.442 1-1 1-1-.442-1-1 .442-1 1-1zM25 3c-1.1 0-2 .9-2
+              2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 1c.558 0 1 .442 1 1s-.442 1-1
+              1-1-.442-1-1 .442-1 1-1zM.446 15.67c-.587.58-.583 1.542 0
+              2.124l11.76 11.76c.58.582 1.542.587 2.123
+              0L28.855 14.85c.247-.25.532-.48.768-.856.235-.376.376-.87.376-1.544V1.5c0-.823-.678-1.5-1.5-1.5h-11c-1.158
+              0-1.824.624-2.35 1.145zm.703.712L15.85 1.856c.533-.526.808-.856 1.65-.856H28.5c.285
+              0 .5.214.5.5v10.952c0 .547-.093.805-.224
+              1.013-.13.21-.344.394-.63.684l-14.53 14.7c-.197.2-.5.2-.703-.002l-11.76-11.76c-.203-.203-.205-.508-.004-.706z"/>
             </svg>
             <div class="coupon-input-box">
               <label for="couponInput">Cupom de Desconto</label>
@@ -370,38 +388,40 @@ class ShoppingCart extends HTMLElement {
         const baseChild = itm.basePriceChild || 60;
         const itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
 
+        // Exibe "Hospedagem" sem parênteses
+        const categoryLabel = itm.type || "Hospedagem"; 
+
         // Monta o layout do item
-        const tagType = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM"; 
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('cart-item');
 
+        // Conteúdo do card
         itemDiv.innerHTML = `
+          <!-- Botão Lixeira -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
             <i class="fas fa-trash"></i>
           </button>
 
-          <!-- Exibe a categoria (ex.: (HOSPEDAGEM)) -->
-          <span class="tag-ingresso">(${tagType})</span>
-
-          <!-- Nome do Hotel + Nome do Quarto -->
-          <div class="item-title">
-            ${itm.hotelName || "Hotel Desconhecido"} - ${itm.roomName || "Quarto Desconhecido"}
+          <!-- Lado esquerdo (infos) -->
+          <div class="item-left">
+            <span class="tag-ingresso">${categoryLabel}</span>
+            <div class="item-title">
+              ${itm.hotelName || "Hotel Desconhecido"} - ${itm.roomName || "Quarto Desconhecido"}
+            </div>
+            <div class="item-date">
+              Check-in: ${itm.checkIn || "--/--/----"} | 
+              Check-out: ${itm.checkOut || "--/--/----"}
+            </div>
+            <div style="margin-top: 0.4rem;">
+              Adultos: ${itm.adults} | Crianças: ${itm.children}
+            </div>
           </div>
 
-          <!-- Check-in / Check-out -->
-          <div class="item-date">
-            <i class="fas fa-calendar-alt"></i>
-            Check-in: ${itm.checkIn || "--/--/----"} | Check-out: ${itm.checkOut || "--/--/----"}
-          </div>
-
-          <!-- Adultos / Crianças somente leitura -->
-          <div style="margin-top: 0.4rem;">
-            Adultos: ${itm.adults} | Crianças: ${itm.children}
-          </div>
-
-          <!-- Preço do item -->
-          <div class="item-price">
-            R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          <!-- Lado direito (preço e parcelas) -->
+          <div class="item-right">
+            <div class="item-price">
+              R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
             <div class="installment-info">até 10x sem juros</div>
             <div class="pix-off">5% OFF no Pix</div>
           </div>
