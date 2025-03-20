@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/cart.css">
   
-  <!-- Script extra (por exemplo, facilitiesMap.js) -->
+  <!-- Script extra (ex.: facilitiesMap.js) -->
   <script src="/js/facilitiesMap.js"></script>
   
   <!-- Carrega o Web Component do Carrinho -->
@@ -398,7 +398,7 @@
   <!-- HEADER: Carregado via fetch -->
   <div id="header"></div>
 
-  <!-- CARRINHO: Web Component (sem referências aos antigos scripts) -->
+  <!-- CARRINHO: Web Component -->
   <shopping-cart 
     type="INGRESSOS" 
     category="WALT DISNEY WORLD" 
@@ -495,13 +495,13 @@
         })
         .catch(err => console.error("Erro ao carregar header:", err));
 
-      // Função global para abrir o carrinho (usando o método openCart() do Web Component)
+      // Função global para abrir o carrinho (chama openCart() do componente)
       window.toggleCart = function() {
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.openCart === "function") {
           cartComponent.openCart();
         } else {
-          console.error("Componente <shopping-cart> não encontrado ou método openCart() não definido.");
+          console.error("Componente <shopping-cart> não encontrado ou openCart() não definido.");
         }
       };
 
@@ -810,16 +810,17 @@
           adults: numAdults,
           children: numChildren,
           checkIn: checkInDate,
-          checkOut: checkOutDate
+          checkOut: checkOutDate,
+          // Opcional: basePriceAdult e basePriceChild podem ser passados se houver
         };
 
-        // Adiciona o quarto ao carrinho via o componente (método addItem)
+        // Adiciona o quarto ao carrinho usando o Web Component
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
         } else {
           console.log("Quarto selecionado:", selectedRoom);
-          console.warn("Método addItem() não implementado no componente!");
+          console.warn("O método addItem() não está implementado no componente!");
         }
         // Abre o carrinho automaticamente
         if (cartComponent && typeof cartComponent.openCart === "function") {
