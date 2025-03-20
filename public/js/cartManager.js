@@ -46,7 +46,7 @@ class CartManager {
 const cartManager = new CartManager('.cart-container');
 
 // Usar a instância para chamar os métodos
-document.getElementById('closeCartBtn').addEventListener('click', () => {
+document.querySelector('.close-cart-btn').addEventListener('click', () => {
   cartManager.closeCart();
 });
 
