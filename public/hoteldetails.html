@@ -493,28 +493,22 @@
     // ====================================
     // B) Carregar cart.html (se não existir)
     // ====================================
+    // Função para carregar o conteúdo do carrinho
     function loadCartHTML() {
-      return new Promise((resolve, reject) => {
-        // Verifica se já existe .cart-container no DOM
-        if (document.querySelector(".cart-container") && document.getElementById("cartBody")) {
-          resolve(); // Já existe
-        } else {
-          fetch("cart.html")
-            .then(resp => resp.text())
-            .then(html => {
-              const tempDiv = document.createElement("div");
-              tempDiv.innerHTML = html;
-              const cartContainer = tempDiv.querySelector(".cart-container");
-              if (cartContainer) {
-                document.body.appendChild(cartContainer);
-                resolve();
-              } else {
-                reject("Elemento '.cart-container' não encontrado em cart.html!");
-              }
-            })
-            .catch(err => reject(err));
-        }
-      });
+      fetch('cart.html')
+        .then(response => response.text()) // Pega o conteúdo do cart.html
+        .then(data => {
+          // Adiciona o conteúdo do cart.html ao elemento com id "cartContent"
+          document.getElementById('cartContent').innerHTML = data;
+
+          // Inicializa o CartManager **após** carregar o conteúdo do carrinho
+          const cartManager = new CartManager('.cart-container');
+          // Exemplo de uso do cartManager
+          cartManager.openCart();
+        })
+        .catch(error => {
+          console.error('Erro ao carregar cart.html:', error);
+        });
     }
 
     // ====================================
