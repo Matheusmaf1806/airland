@@ -398,15 +398,15 @@
   <!-- HEADER: Carregado via fetch -->
   <div id="header"></div>
 
-  <!-- CARRINHO: Web Component -->
-  <shopping-cart 
-    type="INGRESSOS" 
-    category="WALT DISNEY WORLD" 
+  <!-- CARRINHO: Web Component (múltiplos itens via addItem) -->
+  <shopping-cart
+    type="INGRESSOS"
+    category="WALT DISNEY WORLD"
     nameDays="INGRESSO 1 DIA MAGIC KINGDOM [1 dia]"
     date="2025-04-12"
     basePriceAdult="80"
-    basePriceChild="60">
-  </shopping-cart>
+    basePriceChild="60"
+  ></shopping-cart>
 
   <!-- CONTEÚDO PRINCIPAL DO HOTEL DETAILS -->
   <div class="main-container" id="hotelDetail">
@@ -515,7 +515,7 @@
         return query;
       }
 
-      // Função para buscar dados do hotel (API interna)
+      // Busca dados do hotel (API interna)
       function fetchHotelCombined() {
         const query = getQueryParams();
         const params = new URLSearchParams();
@@ -530,7 +530,7 @@
           .then(resp => resp.json());
       }
 
-      // Função para preencher os dados do hotel na página
+      // Preenche dados do hotel na página
       function loadHotelContent(hotelObj) {
         if (!hotelObj) return;
         const hotelName = hotelObj.name || "Hotel sem nome";
@@ -546,11 +546,13 @@
           images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
         }
         fillPhotoGallery(images);
+
         let facilities = [];
         if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
           facilities = hotelObj.content.facilities;
         }
         fillFacilities(facilities);
+
         if (hotelObj.content && hotelObj.content.description) {
           document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
         }
@@ -559,12 +561,14 @@
           <p>Confira as melhores vantagens desta acomodação.</p>
         `;
         createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
+
         fillInfoBlocks({
           checkin: "A partir das 16h",
           checkout: "Até 11:00",
           resortFee: "Não possui no local.",
           parking: "Consulte valores no local."
         });
+
         const lat = hotelObj.latitude || 0;
         const lng = hotelObj.longitude || 0;
         let interestPoints = [];
@@ -584,6 +588,7 @@
         largeImg.alt = "Foto do Hotel";
         largeImg.classList.add("large-photo");
         gallery.appendChild(largeImg);
+
         for (let i = 1; i < photos.length && i < 5; i++) {
           const img = document.createElement("img");
           img.src = photos[i];
@@ -605,17 +610,22 @@
         const tableBody = document.getElementById("roomTableBody");
         tableBody.innerHTML = "";
         if (!rooms || !rooms.length) return;
+
+        // Ordena os quartos pelo preço net (opcional)
         const sortedRooms = rooms.slice().sort((a, b) => {
           const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
           const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
           return netA - netB;
         });
+
         const initialCount = 6;
         const roomsToShow = sortedRooms.slice(0, initialCount);
         roomsToShow.forEach(room => {
           const row = createRoomRow(room);
           tableBody.appendChild(row);
         });
+
+        // Botão "Mostrar mais quartos"
         if (sortedRooms.length > initialCount) {
           const moreButton = document.createElement("button");
           moreButton.textContent = "Mostrar mais quartos";
@@ -634,6 +644,7 @@
           btnRow.appendChild(moreButton);
           tableBody.appendChild(btnRow);
         }
+
         function createRoomRow(room) {
           const roomName = room.name || room.roomType || room.roomCode || "Quarto";
           let netPrice = "N/A";
@@ -642,11 +653,13 @@
           }
           const netNum = parseFloat(netPrice);
           const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
+
           let discountMsg = "";
           if (!isNaN(netNum)) {
             const discountAmount = netNum * 0.05;
             discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
           }
+
           const row = document.createElement("div");
           row.className = "room-table-row";
           row.innerHTML = `
@@ -665,8 +678,7 @@
             </div>
             <div>
               <button class="select-room-button"
-                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}')"
-              >
+                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}')">
                 Selecionar Quarto
               </button>
             </div>
@@ -702,6 +714,8 @@
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap contributors"
         }).addTo(map);
+
+        // Ícone customizado
         const hotelIcon = L.icon({
           iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
           iconSize: [40, 40],
@@ -710,6 +724,7 @@
         });
         const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
         marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
+
         const container = document.getElementById("attractions");
         container.innerHTML = "<h2>Atrações</h2>";
         if (Array.isArray(attractions) && attractions.length) {
@@ -802,6 +817,8 @@
         }
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
+
+        // Cria o objeto do quarto
         const selectedRoom = {
           hotelCode: hCode,
           hotelName: hName,
@@ -810,11 +827,11 @@
           adults: numAdults,
           children: numChildren,
           checkIn: checkInDate,
-          checkOut: checkOutDate,
-          // Opcional: basePriceAdult e basePriceChild podem ser passados se houver
+          checkOut: checkOutDate
+          // Se quiser, adicione basePriceAdult, basePriceChild, etc.
         };
 
-        // Adiciona o quarto ao carrinho usando o Web Component
+        // Adiciona ao carrinho usando o Web Component
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
@@ -844,6 +861,7 @@
         if (query.adults) document.getElementById("adults").value = query.adults;
         if (query.children) document.getElementById("children").value = query.children;
 
+        // Busca dados do hotel
         fetchHotelCombined().then(data => {
           if (data && data.combined && data.combined.length > 0) {
             loadHotelContent(data.combined[0]);
