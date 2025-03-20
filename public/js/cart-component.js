@@ -115,7 +115,6 @@ class ShoppingCart extends HTMLElement {
           position: relative;
           display: flex;
           justify-content: space-between;
-          /* ou se preferir: flex-direction: column; e manipular via CSS. */
         }
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -388,7 +387,7 @@ class ShoppingCart extends HTMLElement {
         const baseChild = itm.basePriceChild || 60;
         const itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
 
-        // Exibe "Hospedagem" sem parênteses
+        // Exibe "Hospedagem" (ou outro type) sem parênteses
         const categoryLabel = itm.type || "Hospedagem"; 
 
         // Monta o layout do item
