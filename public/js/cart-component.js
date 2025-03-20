@@ -13,6 +13,9 @@ class ShoppingCart extends HTMLElement {
     // Template do carrinho (HTML/CSS)
     this.shadowRoot.innerHTML = `
       <style>
+        /* Importa o Font Awesome para uso dentro do Shadow DOM */
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
+
         :host {
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
@@ -99,6 +102,7 @@ class ShoppingCart extends HTMLElement {
         .share-cart-btn:hover {
           background: #005bb5;
         }
+        /* Novo SVG de compartilhar (conforme solicitado) */
         .share-icon {
           width: 14px;
           height: 14px;
@@ -118,6 +122,7 @@ class ShoppingCart extends HTMLElement {
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
+        /* Botão de remover: agora com o ícone do Font Awesome */
         .trash-btn {
           position: absolute;
           top: 10px;
@@ -414,7 +419,7 @@ class ShoppingCart extends HTMLElement {
         itemDiv.classList.add('cart-item');
 
         itemDiv.innerHTML = `
-          <!-- Botão de remover com novo ícone Font Awesome -->
+          <!-- Botão de remover (ícone com Font Awesome) -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
             <i class="fas fa-trash-alt"></i>
           </button>
