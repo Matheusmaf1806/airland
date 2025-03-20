@@ -1,3 +1,5 @@
+// public/js/cart-component.js
+
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
@@ -25,12 +27,10 @@ class ShoppingCart extends HTMLElement {
           display: flex;
           flex-direction: column;
           z-index: 1000;
-          /* Inicialmente oculto (fora da tela) */
           transform: translateX(100%);
           transition: transform 0.3s ease;
         }
         .cart-container.open {
-          /* Quando abrir, puxa da direita */
           transform: translateX(0);
         }
         .cart-header {
@@ -217,12 +217,12 @@ class ShoppingCart extends HTMLElement {
               <svg class="share-icon" viewBox="0 0 1274 1280" preserveAspectRatio="xMidYMid meet">
                 <g transform="translate(0,1280) scale(0.1,-0.1)" fill="#ffffff" stroke="none">
                   <path d="M5946 12377 c-178 -232 -815 -1061 -1415 -1842 l-1091 -1420 1098 -5 ..."/>
-                  <path d="M0 3730 l0 -3730 6370 0 6370 0 0 3730 0 3730 -2055 0 -2055 0 0 ..."/>
+                  <path d="M0 3730 l0 -3730 6370 0 6370 0 0 3730 0 3730 -2055 0 -2055 0 ..."/>
                 </g>
               </svg>
             </button>
           </div>
-          <!-- Aqui será renderizada a lista de itens -->
+          <!-- Lista de itens adicionados -->
           <div id="cartItemsList"></div>
         </div>
         <div class="cart-footer">
@@ -252,7 +252,7 @@ class ShoppingCart extends HTMLElement {
       </div>
     `;
 
-    // Botões do header
+    // Configura os botões do header
     this.shadowRoot.querySelector('.close-cart-btn')
       .addEventListener('click', () => this.closeCart());
     this.shadowRoot.querySelector('.share-cart-btn')
@@ -262,13 +262,12 @@ class ShoppingCart extends HTMLElement {
   }
 
   connectedCallback() {
-    // Se houver shareId no localStorage, carrega do servidor
+    // Se houver shareId salvo, carrega os itens do servidor
     const stored = localStorage.getItem("shareId");
     if (stored) {
       this.shareId = stored;
       this.loadCartFromServer(this.shareId);
     }
-    // Se houver shareId na URL, salva e carrega
     const params = new URLSearchParams(window.location.search);
     const paramS = params.get("shareId");
     if (paramS) {
@@ -276,23 +275,17 @@ class ShoppingCart extends HTMLElement {
       localStorage.setItem("shareId", this.shareId);
       this.loadCartFromServer(this.shareId);
     }
-    // Renderiza itens se já houver algo em this.items
+    // Renderiza os itens locais (caso já haja algum)
     this.renderCartItems();
   }
 
-  /**
-   * openCart()
-   * Abre o carrinho (puxa da direita)
-   */
+  // Abre o carrinho (mostra-o)
   openCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.add('open');
   }
 
-  /**
-   * closeCart()
-   * Fecha o carrinho (empurra para a direita)
-   */
+  // Fecha o carrinho (oculta-o)
   closeCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.remove('open');
@@ -300,18 +293,18 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * addItem(item)
-   * Adiciona um novo item (ex.: quarto selecionado) ao array e re-renderiza
+   * Adiciona um novo item (quarto selecionado) ao array e re-renderiza
    */
   addItem(item) {
     this.items.push(item);
     this.renderCartItems();
-    // Se quiser atualizar no servidor automaticamente, chame updateCartServer()
+    // Opcional: se desejar atualizar no servidor automaticamente, descomente:
     // this.updateCartServer();
   }
 
   /**
    * renderCartItems()
-   * Renderiza todos os itens do array this.items
+   * Renderiza todos os itens do carrinho
    */
   renderCartItems() {
     const container = this.shadowRoot.querySelector('#cartItemsList');
@@ -333,7 +326,7 @@ class ShoppingCart extends HTMLElement {
         container.appendChild(itemDiv);
       });
 
-      // Eventos para remover cada item
+      // Configura os botões para remover itens
       const removeBtns = this.shadowRoot.querySelectorAll('.trash-btn');
       removeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -347,24 +340,22 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * removeItem(index)
-   * Remove um item pelo índice e re-renderiza
+   * Remove um item do carrinho e re-renderiza
    */
   removeItem(index) {
     this.items.splice(index, 1);
     this.renderCartItems();
-    // Se quiser sincronizar no servidor:
+    // Opcional: sincronizar com o servidor:
     // this.updateCartServer();
   }
 
   /**
    * updateTotals()
-   * Calcula o subtotal e exibe
+   * Calcula o total com base nos preços dos itens e atualiza os elementos de subtotal e total
    */
   updateTotals() {
     let total = 0;
     this.items.forEach(itm => {
-      // Caso o item possua basePriceAdult/basePriceChild, use-os.
-      // Se não, defina defaults (80 / 60).
       const baseAdult = itm.basePriceAdult || 80;
       const baseChild = itm.basePriceChild || 60;
       total += (itm.adults * baseAdult) + (itm.children * baseChild);
@@ -381,7 +372,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * shareCart()
-   * Cria um carrinho compartilhado no servidor e salva shareId
+   * Envia os itens do carrinho para o servidor e obtém um shareId
    */
   async shareCart() {
     if (this.items.length === 0) {
@@ -417,7 +408,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * updateCartServer()
-   * Atualiza os itens do carrinho no servidor, se existir shareId
+   * Atualiza os itens do carrinho no servidor (caso haja shareId)
    */
   async updateCartServer() {
     if (!this.shareId) return;
@@ -437,8 +428,8 @@ class ShoppingCart extends HTMLElement {
   }
 
   /**
-   * loadCartFromServer(shareId)
-   * Carrega os itens do carrinho no servidor e exibe localmente
+   * loadCartFromServer(sId)
+   * Carrega os itens do carrinho do servidor e os exibe
    */
   async loadCartFromServer(sId) {
     try {
@@ -459,11 +450,10 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * clearCartServer()
-   * Remove o carrinho do servidor e limpa local
+   * Limpa o carrinho no servidor e localmente
    */
   async clearCartServer() {
     if (!this.shareId) {
-      // Limpa localmente
       this.items = [];
       this.renderCartItems();
       alert("Carrinho local limpo!");
