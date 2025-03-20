@@ -11,16 +11,16 @@
     rel="stylesheet" 
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css"
   >
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   
-  <!-- Carrega script extra, se houver (ex.: facilitiesMap.js) -->
+  <!-- Script para o facilitiesMap, se necessário -->
   <script src="/js/facilitiesMap.js"></script>
   
-  <!-- Carrega o Web Component do carrinho -->
+  <!-- Carrega o Web Component do Carrinho -->
   <script src="/js/cart-component.js" defer></script>
-
+  
   <style>
-    /* ========= RESET / BASE ========= */
+    /* RESET e estilos básicos para hoteldetails */
     * {
       margin: 0;
       padding: 0;
@@ -32,15 +32,12 @@
       color: #333;
       line-height: 1.6;
     }
-
-    /* ========= CONTAINER PRINCIPAL ========= */
     .main-container {
       padding: 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
-
-    /* ========= HEADER DO HOTEL ========= */
+    /* Cabeçalho do Hotel */
     .hotel-header {
       margin-bottom: 20px;
     }
@@ -71,8 +68,7 @@
       text-decoration: underline;
       color: #005bb5;
     }
-
-    /* ========= GALERIA DE FOTOS ========= */
+    /* Galeria de Fotos */
     .photo-gallery {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
@@ -90,8 +86,7 @@
     .photo-gallery .large-photo {
       grid-row: 1 / 3;
     }
-
-    /* ========= COMODIDADES ========= */
+    /* Comodidades */
     .facilities {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -121,8 +116,7 @@
     .facility:hover {
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-
-    /* ========= DESCRIÇÃO E DESTAQUES ========= */
+    /* Descrição e Destaques */
     .description-container {
       display: flex;
       gap: 20px;
@@ -169,8 +163,7 @@
       color: #007bff;
       font-size: 1.2em;
     }
-
-    /* ========= BARRA DE BUSCA ========= */
+    /* Barra de Busca */
     .search-bar-container {
       display: flex;
       align-items: center;
@@ -221,8 +214,7 @@
     .search-button:hover {
       background-color: #005bb5;
     }
-
-    /* ========= TABELA DE QUARTOS ========= */
+    /* Tabela de Quartos */
     .room-table {
       width: 100%;
       margin-top: 20px;
@@ -316,8 +308,7 @@
     .select-room-button:hover {
       background-color: #005bb5;
     }
-
-    /* ========= INFORMAÇÕES ADICIONAIS ========= */
+    /* Informações Adicionais */
     .info-container {
       margin-top: 20px;
       display: flex;
@@ -343,8 +334,7 @@
       font-size: 1em;
       color: #555;
     }
-
-    /* ========= MAPA E ATRAÇÕES ========= */
+    /* Mapa e Atrações */
     .container {
       display: flex;
       width: 100%;
@@ -404,11 +394,10 @@
   </style>
 </head>
 <body>
-  <!-- ========== HEADER CARREGADO VIA FETCH ========== -->
+  <!-- 1) Header: carregado via fetch -->
   <div id="header"></div>
 
-  <!-- ========== WEBCOMPONENT DO CARRINHO ========== -->
-  <!-- Substitui a antiga cart-container, cart.html, etc. -->
+  <!-- 2) Carrinho: usamos o Web Component, sem referências ao antigo cart.html -->
   <shopping-cart
     type="INGRESSOS"
     category="WALT DISNEY WORLD"
@@ -418,7 +407,7 @@
     basePriceChild="60"
   ></shopping-cart>
 
-  <!-- ========== CONTEÚDO PRINCIPAL ========== -->
+  <!-- 3) Conteúdo principal do hoteldetails -->
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
@@ -484,24 +473,19 @@
     </div>
   </div>
 
-  <!-- ========== SCRIPTS EXTERNOS ========== -->
+  <!-- 4) Scripts Externos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script 
-    src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
-  ></script>
-  <script 
-    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"
-  ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <!-- ========== SCRIPT PRINCIPAL UNIFICADO ========== -->
+  <!-- 5) Script Principal Unificado -->
   <script>
     (function() {
-      // Evita duplicar a lógica
       if (window.__hotelDetailJSInitialized) return;
       window.__hotelDetailJSInitialized = true;
 
-      // A) Carregar header.html
+      // Carregar header.html via fetch
       fetch("header.html")
         .then(resp => resp.text())
         .then(html => {
@@ -512,8 +496,7 @@
         })
         .catch(err => console.error("Erro ao carregar header:", err));
 
-      // B) Caso queira abrir/fechar o carrinho a partir do header
-      //    Podemos criar uma função global toggleCart()
+      // Função global para abrir o carrinho (usando o método openCart() do componente)
       window.toggleCart = function() {
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -523,10 +506,7 @@
         }
       };
 
-      // ============================
-      // 1) Funções Auxiliares
-      // ============================
-
+      // Funções auxiliares (getQueryParams, etc.)
       function getQueryParams() {
         const params = new URLSearchParams(window.location.search);
         const query = {};
@@ -536,7 +516,7 @@
         return query;
       }
 
-      // Exemplo: busca dados do hotel (API interna)
+      // Função de busca de hotel (exemplo)
       function fetchHotelCombined() {
         const query = getQueryParams();
         const params = new URLSearchParams();
@@ -553,55 +533,38 @@
 
       function loadHotelContent(hotelObj) {
         if (!hotelObj) return;
-
         const hotelName = hotelObj.name || "Hotel sem nome";
         const hotelCode = hotelObj.code;
         const hotelAddress = hotelObj.destinationName || "";
-
-        // Preenche nome/endereço
         document.getElementById("hotelName").textContent = hotelName;
         document.getElementById("hotelAddress").innerHTML = `
           <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
-          <!-- Exemplo de link para abrir carrinho -->
           <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
         `;
-
-        // Galeria de Fotos
         let images = [];
         if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
           images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
         }
         fillPhotoGallery(images);
-
-        // Facilidades
         let facilities = [];
         if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
           facilities = hotelObj.content.facilities;
         }
         fillFacilities(facilities);
-
-        // Descrição
         if (hotelObj.content && hotelObj.content.description) {
           document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
         }
-        // Destaques
         document.getElementById("hotelHighlights").innerHTML = `
           <h2>Destaques da Acomodação</h2>
           <p>Confira as melhores vantagens desta acomodação.</p>
         `;
-
-        // Tabela de Quartos
         createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
-
-        // Info blocks
         fillInfoBlocks({
           checkin: "A partir das 16h",
           checkout: "Até 11:00",
           resortFee: "Não possui no local.",
           parking: "Consulte valores no local."
         });
-
-        // Mapa e Atrações
         const lat = hotelObj.latitude || 0;
         const lng = hotelObj.longitude || 0;
         let interestPoints = [];
@@ -609,8 +572,6 @@
           interestPoints = hotelObj.content.interestPoints;
         }
         initMapAndAttractions(lat, lng, interestPoints);
-
-        // Date Range
         initDateRangePicker();
       }
 
@@ -636,12 +597,7 @@
         container.innerHTML = "";
         if (!facilities || !facilities.length) return;
         facilities.slice(0, 12).forEach(f => {
-          container.innerHTML += `
-            <div class="facility">
-              <i class="fas fa-check"></i> 
-              ${f}
-            </div>
-          `;
+          container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
         });
       }
 
@@ -649,23 +605,17 @@
         const tableBody = document.getElementById("roomTableBody");
         tableBody.innerHTML = "";
         if (!rooms || !rooms.length) return;
-
-        // Exemplo de ordenação de rooms
         const sortedRooms = rooms.slice().sort((a, b) => {
           const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
           const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
           return netA - netB;
         });
-
         const initialCount = 6;
         const roomsToShow = sortedRooms.slice(0, initialCount);
-
         roomsToShow.forEach(room => {
           const row = createRoomRow(room);
           tableBody.appendChild(row);
         });
-
-        // Mostrar mais quartos (caso haja)
         if (sortedRooms.length > initialCount) {
           const moreButton = document.createElement("button");
           moreButton.textContent = "Mostrar mais quartos";
@@ -684,7 +634,6 @@
           btnRow.appendChild(moreButton);
           tableBody.appendChild(btnRow);
         }
-
         function createRoomRow(room) {
           const roomName = room.name || room.roomType || room.roomCode || "Quarto";
           let netPrice = "N/A";
@@ -693,13 +642,11 @@
           }
           const netNum = parseFloat(netPrice);
           const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-
           let discountMsg = "";
           if (!isNaN(netNum)) {
             const discountAmount = netNum * 0.05;
             discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
           }
-
           const row = document.createElement("div");
           row.className = "room-table-row";
           row.innerHTML = `
@@ -755,8 +702,6 @@
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap contributors"
         }).addTo(map);
-
-        // Ícone customizado (exemplo)
         const hotelIcon = L.icon({
           iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
           iconSize: [40, 40],
@@ -765,7 +710,6 @@
         });
         const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
         marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-
         const container = document.getElementById("attractions");
         container.innerHTML = "<h2>Atrações</h2>";
         if (Array.isArray(attractions) && attractions.length) {
@@ -776,8 +720,7 @@
             attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
             container.innerHTML += `
               <div class="attraction-item">
-                <i class="fas fa-map-marker-alt"></i> 
-                ${a.poiName || a.name} - ${a.distance}
+                <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
               </div>
             `;
           });
@@ -810,9 +753,6 @@
         });
       }
 
-      // ============================
-      // 2) Lógica de "Update" de Quartos
-      // ============================
       window.updateRoomList = function() {
         const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
         const numRooms = parseInt(document.getElementById("rooms").value) || 1;
@@ -853,22 +793,15 @@
         });
       };
 
-      // ============================
-      // 3) handleSelectRoom => adicionar no carrinho
-      // ============================
       window.handleSelectRoom = function(hCode, hName, rCode, rName) {
-        // Lê datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
         const dateRange = document.getElementById("checkin-checkout").value;
         let checkInDate = "";
         let checkOutDate = "";
         if (dateRange.includes(" - ")) {
           [checkInDate, checkOutDate] = dateRange.split(" - ");
         }
-        // Lê adultos/crianças
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
-
-        // Cria o objeto do quarto
         const selectedRoom = {
           hotelCode: hCode,
           hotelName: hName,
@@ -879,27 +812,21 @@
           checkIn: checkInDate,
           checkOut: checkOutDate
         };
-
-        // Adiciona ao carrinho usando o componente (se tiver addItem implementado)
+        // Adiciona o quarto ao carrinho usando o Web Component
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
         } else {
-          console.log("Selecionado:", selectedRoom);
+          console.log("Quarto selecionado:", selectedRoom);
           console.warn("O método addItem() não está implementado no componente!");
         }
-
-        // Se quiser abrir o carrinho automaticamente:
+        // Abre o carrinho automaticamente, se possível
         if (cartComponent && typeof cartComponent.openCart === "function") {
           cartComponent.openCart();
         }
       };
 
-      // ============================
-      // 4) DOMContentLoaded
-      // ============================
       document.addEventListener("DOMContentLoaded", function() {
-        // Se houver parâmetros (ex.: checkIn, checkOut), aplica
         const query = getQueryParams();
         if (query.checkIn && query.checkOut) {
           const input = document.getElementById("checkin-checkout");
@@ -915,7 +842,6 @@
         if (query.adults) document.getElementById("adults").value = query.adults;
         if (query.children) document.getElementById("children").value = query.children;
 
-        // Exemplo: busca dados do hotel e atualiza a tela
         fetchHotelCombined().then(data => {
           if (data && data.combined && data.combined.length > 0) {
             loadHotelContent(data.combined[0]);
