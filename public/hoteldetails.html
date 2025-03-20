@@ -291,7 +291,7 @@
       margin: 0;
       padding: 0;
     }
-    .installment-price {
+    .installment-info {
       font-size: 0.8em;
       color: #666;
     }
@@ -400,9 +400,9 @@
 
   <!-- CARRINHO: Web Component (múltiplos itens via addItem()) -->
   <shopping-cart 
-    type="INGRESSOS" 
-    category="WALT DISNEY WORLD" 
-    nameDays="INGRESSO 1 DIA MAGIC KINGDOM [1 dia]"
+    type="HOSPEDAGEM" 
+    category="Hospedagem" 
+    nameDays="Quarto e Hotel" 
     date="2025-04-12"
     basePriceAdult="80"
     basePriceChild="60">
@@ -811,6 +811,7 @@
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
         const selectedRoom = {
+          type: "HOSPEDAGEM",
           hotelCode: hCode,
           hotelName: hName,
           roomCode: rCode,
@@ -823,7 +824,6 @@
           basePriceChild: parseFloat(basePriceChild) || 60
         };
 
-        // Adiciona o quarto ao carrinho
         const cartComponent = document.querySelector("shopping-cart");
         if (cartComponent && typeof cartComponent.addItem === "function") {
           cartComponent.addItem(selectedRoom);
@@ -849,7 +849,6 @@
         if (query.adults) document.getElementById("adults").value = query.adults;
         if (query.children) document.getElementById("children").value = query.children;
 
-        // Busca dados do hotel
         fetchHotelCombined().then(data => {
           if (data && data.combined && data.combined.length > 0) {
             loadHotelContent(data.combined[0]);
