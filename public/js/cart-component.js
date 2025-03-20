@@ -160,6 +160,7 @@ class ShoppingCart extends HTMLElement {
           font-weight: 600;
           color: #333;
           font-size: 0.9rem;
+          margin-right: -120px;
         }
         .item-date {
           font-size: 0.8rem;
