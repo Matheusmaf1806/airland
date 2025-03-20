@@ -112,13 +112,15 @@ class ShoppingCart extends HTMLElement {
           border-radius: 8px;
           padding: 1rem;
           margin-bottom: 1rem;
-          position: relative; /* para o trash-btn */
+          position: relative;
           display: flex;
-          gap: 10px; /* espaço entre esquerda e direita */
+          justify-content: space-between;
         }
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
+
+        /* Botão de remover (lixeira) substituído por emoji 🗑 */
         .trash-btn {
           position: absolute;
           top: 10px;
@@ -129,7 +131,6 @@ class ShoppingCart extends HTMLElement {
           color: #999;
           cursor: pointer;
           transition: color 0.2s;
-          z-index: 2; /* garante que fique acima */
         }
         .trash-btn:hover {
           color: #e00;
@@ -139,35 +140,22 @@ class ShoppingCart extends HTMLElement {
         .item-left {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          /* Ocupa o espaço restante, o item-right fica "encostado" no final */
-          flex: 1;
-        }
-        .item-right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          justify-content: center;
-          min-width: 90px;
+          gap: 4px;
+          max-width: 65%;
         }
 
         /* ======== Tag (Hospedagem, Ingressos, etc.) ======== */
         .tag-ingresso {
           display: inline-block;
-          background: #ffffff;
-          border: 1px solid #007bff;
-          color: #007bff;
-          font-size: 0.75rem;
+          background: #e0e5f6;
+          color: #365CF5;
+          border: 1px solid #365CF5;
+          font-size: 0.65rem;
           padding: 2px 6px;
           border-radius: 4px;
           text-transform: uppercase;
           margin-bottom: 0.4rem;
-          cursor: pointer;
         }
-        .tag-ingresso:hover {
-          background: #e6f0ff;
-        }
-
         .item-title {
           font-weight: 600;
           color: #333;
@@ -178,13 +166,26 @@ class ShoppingCart extends HTMLElement {
           color: #666;
         }
 
-        /* ======== Valor e parcelamento ======== */
-        .item-price {
+        /* Valor e parcelas “absolutos” no canto inferior direito */
+        .item-right {
+          position: absolute;
+          right: 0.1rem;
+          bottom: 0.1rem;
           font-weight: 600;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
+          color: #333;
+          text-align: right;
+          padding: 10px;
+        }
+        .item-price {
+          right: 0.1rem;
+          bottom: 0.1rem;
+          font-weight: 600;
+          font-size: 0.8rem;
           color: #333;
           text-align: right;
         }
+        
         .installment-info {
           font-size: 0.8rem;
           color: #007bff;
@@ -400,15 +401,15 @@ class ShoppingCart extends HTMLElement {
         // Exibe "Hospedagem" (ou outro type) sem parênteses
         const categoryLabel = itm.type || "Hospedagem"; 
 
-        // Cria o container do item
+        // Monta o layout do item
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('cart-item');
 
         // Conteúdo do card
         itemDiv.innerHTML = `
-          <!-- Botão Lixeira -->
+          <!-- Botão Lixeira com emoji 🗑 -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
-            <i class="fas fa-trash"></i>
+            🗑
           </button>
 
           <!-- Lado esquerdo (infos) -->
@@ -426,7 +427,7 @@ class ShoppingCart extends HTMLElement {
             </div>
           </div>
 
-          <!-- Lado direito (preço e parcelamento) -->
+          <!-- Lado direito (preço e parcelas) -->
           <div class="item-right">
             <div class="item-price">
               R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -460,7 +461,7 @@ class ShoppingCart extends HTMLElement {
   removeItem(index) {
     this.items.splice(index, 1);
     this.renderCartItems();
-    // Se quiser sincronizar no servidor:
+    // Se quiser sincronizar:
     // this.updateCartServer();
   }
 
