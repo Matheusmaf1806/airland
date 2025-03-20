@@ -674,7 +674,14 @@
             </div>
             <div>
               <button class="select-room-button"
-                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}','${room.rates && room.rates[0] ? room.rates[0].net : 80}','60')">
+                onclick="handleSelectRoom(
+                  '${hotelCode}',
+                  '${hotelName}',
+                  '${room.code}',
+                  '${room.name}',
+                  '${room.rates && room.rates[0] ? room.rates[0].net : 80}',
+                  '60'
+                )">
                 Selecionar Quarto
               </button>
             </div>
@@ -776,8 +783,9 @@
             row.style.display = "none";
           } else {
             row.style.display = "grid";
-            const totalPrice = (numNoites * basePrice) * numRooms;
-            const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
+            const numNoitesVal = numNoites > 0 ? numNoites : 1;
+            const totalPrice = (numNoitesVal * basePrice) * numRooms;
+            const dailyRate = (totalPrice / numNoitesVal).toFixed(2);
             if (priceEl) {
               priceEl.innerHTML = `
                 <p class="discount-price">
@@ -811,7 +819,7 @@
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
         const selectedRoom = {
-          type: "HOSPEDAGEM",
+          type: "HOSPEDAGEM",  // Alinhado com o layout do cart
           hotelCode: hCode,
           hotelName: hName,
           roomCode: rCode,
