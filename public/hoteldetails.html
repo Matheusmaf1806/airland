@@ -508,6 +508,7 @@
                 const cartContainer = tempDiv.querySelector(".cart-container");
                 if (cartContainer) {
                   document.body.appendChild(cartContainer);
+                  cartManager = new CartManager(); // Inicialize o cartManager aqui, se necessário
                   resolve();
                 } else {
                   reject("Elemento '.cart-container' não encontrado em cart.html!");
@@ -517,6 +518,15 @@
           }
         });
       }
+      
+      // Verifique se cartManager está definido antes de chamar closeCart
+      function closeCart() {
+        if (cartManager) {
+          cartManager.closeCart(); // Chama a função apenas se cartManager estiver definido
+        } else {
+          console.error("cartManager não está definido");
+        }
+      }      
   
       // ====================================
       // C) Lógica do Carrinho (unificada)
