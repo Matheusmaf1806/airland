@@ -467,7 +467,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="/js/cart.js"></script>
+  <script src="/js/cartManager.js"></script> <!-- Adiciona primeiro -->
+  <script src="/js/cart.js"></script> <!-- Depois o cart.js -->
 
   <!-- 4) Script principal unificado -->
   <script>
@@ -1053,16 +1054,27 @@
       });
 
       // 2) Carrega cart.html (se não estiver) e depois carrega do localStorage
-      loadCartHTML()
-        .then(() => {
-          // Se houver shareId salvo, pode buscar do servidor também
-          // mas aqui vamos só carregar do localStorage
-          loadCartFromLocalStorage();
-        })
-        .catch(err => {
-          console.error("Erro ao carregar o carrinho:", err);
-        });
-    });
+      function loadCartHTML() {
+        fetch('cart.html')
+          .then(response => response.text()) // Pega o conteúdo do cart.html
+          .then(data => {
+            // Adiciona o conteúdo do cart.html ao elemento com id "cartContent"
+            document.getElementById('cartContent').innerHTML = data;
+      
+            // Inicializa o CartManager **após** carregar o conteúdo do carrinho
+            const cartManager = new CartManager('.cart-container');
+            
+            // Agora você pode usar cartManager dentro deste bloco
+            // cartManager.openCart(); // Exemplo de uso
+          })
+          .catch(error => {
+            console.error('Erro ao carregar cart.html:', error);
+          });
+      }
+      
+      // Chama a função para carregar o carrinho assim que a página for carregada
+      document.addEventListener('DOMContentLoaded', loadCartHTML);
+
 
     // Expondo globalmente (caso o HTML use onclick="handleSelectRoom(...)")
     window.handleSelectRoom = function(hCode, hName, rCode, rName) {
