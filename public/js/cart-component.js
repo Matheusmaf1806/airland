@@ -99,7 +99,6 @@ class ShoppingCart extends HTMLElement {
         .share-cart-btn:hover {
           background: #005bb5;
         }
-        /* Novo SVG de compartilhar */
         .share-icon {
           width: 14px;
           height: 14px;
@@ -119,7 +118,6 @@ class ShoppingCart extends HTMLElement {
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        /* Botão de remover usando emoji */
         .trash-btn {
           position: absolute;
           top: 10px;
@@ -141,7 +139,6 @@ class ShoppingCart extends HTMLElement {
           gap: 4px;
           max-width: 65%;
         }
-        /* Tag (ex.: HOSPEDAGEM, INGRESSOS, etc.) sem parênteses */
         .tag-ingresso {
           display: inline-block;
           background: #e0e5f6;
@@ -152,6 +149,7 @@ class ShoppingCart extends HTMLElement {
           border-radius: 4px;
           text-transform: uppercase;
           margin-bottom: 0.4rem;
+          margin-right: 115px;
         }
         .item-title {
           font-weight: 600;
@@ -162,7 +160,7 @@ class ShoppingCart extends HTMLElement {
           font-size: 0.8rem;
           color: #666;
         }
-        /* Lado direito: valor e parcelas, fixados no canto */
+        /* Lado direito: valor e condições, fixados no canto */
         .item-right {
           position: absolute;
           right: 0.1rem;
@@ -222,7 +220,6 @@ class ShoppingCart extends HTMLElement {
           color: #555;
         }
         .coupon-input-box input {
-          width: 100%;
           height: 32px;
           border: 1px solid #ccc;
           border-radius: 4px;
@@ -393,17 +390,21 @@ class ShoppingCart extends HTMLElement {
       container.innerHTML = '<p>Nenhum item no carrinho.</p>';
     } else {
       this.items.forEach((itm, idx) => {
-        // Define o tipo em uppercase para comparar
+        // Define o tipo em uppercase para comparação
         const type = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM";
         let itemTotal;
         if (type === "HOSPEDAGEM") {
-          // Para hospedagem, o preço já é o total
+          // Para hospedagem, o preço já é o total (não multiplica por adultos/crianças)
           itemTotal = itm.basePriceAdult || 80;
         } else {
           const baseAdult = itm.basePriceAdult || 80;
           const baseChild = itm.basePriceChild || 60;
           itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
         }
+
+        // Formata as datas para dd/mm/yyyy
+        const formattedCheckIn = this.formatDate(itm.checkIn);
+        const formattedCheckOut = this.formatDate(itm.checkOut);
 
         // Exibe o tipo (categoria) sem parênteses
         const categoryLabel = itm.type || "Hospedagem";
@@ -413,9 +414,9 @@ class ShoppingCart extends HTMLElement {
         itemDiv.classList.add('cart-item');
 
         itemDiv.innerHTML = `
-          <!-- Botão de remover (usando emoji para garantir exibição) -->
+          <!-- Botão de remover com novo ícone Font Awesome -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
-            🗑
+            <i class="fas fa-trash-alt"></i>
           </button>
 
           <!-- Informações do item -->
@@ -425,14 +426,17 @@ class ShoppingCart extends HTMLElement {
               ${itm.hotelName || "Hotel Desconhecido"} - ${itm.roomName || "Quarto Desconhecido"}
             </div>
             <div class="item-date">
-              Check-in: ${itm.checkIn || "--/--/----"} | Check-out: ${itm.checkOut || "--/--/----"}
+              Check-in: ${formattedCheckIn} | Check-out: ${formattedCheckOut}
             </div>
-            <div style="margin-top: 0.4rem;">
+            <div class="item-date">
+              Quartos: ${itm.rooms || 1}
+            </div>
+            <div class="item-date">
               Adultos: ${itm.adults} | Crianças: ${itm.children}
             </div>
           </div>
 
-          <!-- Valor e condições (lado direito) -->
+          <!-- Lado direito: valor e condições -->
           <div class="item-right">
             <div class="item-price">
               R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -496,6 +500,17 @@ class ShoppingCart extends HTMLElement {
   }
 
   /**
+   * formatDate(dateStr)
+   * Converte uma data do formato yyyy-mm-dd para dd/mm/yyyy
+   */
+  formatDate(dateStr) {
+    if (!dateStr) return "--/--/----";
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+
+  /**
    * shareCart()
    * Cria um shareId no servidor e salva localmente
    */
@@ -554,7 +569,7 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * loadCartFromServer(sId)
-   * Carrega itens do servidor e atualiza a exibição
+   * Carrega os itens do servidor e atualiza a exibição
    */
   async loadCartFromServer(sId) {
     try {
