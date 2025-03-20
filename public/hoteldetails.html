@@ -190,7 +190,7 @@
 
   <!-- SCRIPT PRINCIPAL UNIFICADO -->
   <script>
-(function() {
+(function() {(function() {
   // Impede re-inicialização
   if (window.__hotelDetailJSInitialized) return;
   window.__hotelDetailJSInitialized = true;
@@ -204,7 +204,7 @@
     })
     .catch(err => console.error("Erro ao carregar header:", err));
 
-  /********** 2. Função para abrir o carrinho **********/
+  /********** 2. Função global para abrir o carrinho **********/
   window.toggleCart = function() {
     const cartComponent = document.querySelector("shopping-cart");
     if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -230,17 +230,12 @@
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkIn = "";
     let checkOut = "";
-    if (dateRange.includes(" - ")) {
-      const [startStr, endStr] = dateRange.split(" - ");
-      // Converte de "DD/MM/YYYY" para "YYYY-MM-DD" usando Moment.js
-      checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
-      checkOut = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
-    } else if (dateRange.includes(" to ")) {
+    // Usamos " to " como separador, que é o definido no Flatpickr
+    if (dateRange.includes(" to ")) {
       const [startStr, endStr] = dateRange.split(" to ");
       checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
       checkOut = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
-
     const rooms = document.getElementById("rooms").value || 1;
     const adults = document.getElementById("adults").value || 1;
     const children = document.getElementById("children").value || 0;
@@ -352,21 +347,16 @@
     const tableBody = document.getElementById("roomTableBody");
     tableBody.innerHTML = "";
     if (!rooms || !rooms.length) return;
-
-    // Ordena os quartos pelo preço
     const sortedRooms = rooms.slice().sort((a, b) => {
       const netA = a.rates?.[0]?.net ? parseFloat(a.rates[0].net) : Infinity;
       const netB = b.rates?.[0]?.net ? parseFloat(b.rates[0].net) : Infinity;
       return netA - netB;
     });
-
     const initialCount = 6;
     const roomsToShow = sortedRooms.slice(0, initialCount);
     roomsToShow.forEach(room => {
       tableBody.appendChild(createRoomRow(room, hotelCode, hotelName));
     });
-
-    // Se houver mais quartos, cria o botão "Mostrar mais quartos"
     if (sortedRooms.length > initialCount) {
       const moreButton = document.createElement("button");
       moreButton.textContent = "Mostrar mais quartos";
@@ -450,7 +440,6 @@
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
-
     const hotelIcon = L.icon({
       iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
       iconSize: [40, 40],
@@ -459,7 +448,6 @@
     });
     const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
     marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-
     const container = document.getElementById("attractions");
     container.innerHTML = "<h2>Atrações</h2>";
     if (Array.isArray(attractions) && attractions.length) {
@@ -477,7 +465,7 @@
     }
   }
 
-  /********** 12. Inicializa o Flatpickr (sem disparar a busca automaticamente) **********/
+  /********** 12. Inicializa o Flatpickr para seleção de datas **********/
   function initDateRangePicker() {
     if (typeof flatpickr !== 'function') {
       console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
@@ -487,13 +475,13 @@
       mode: "range",
       dateFormat: "d/m/Y",
       rangeSeparator: " to "
-      // Não usamos o onClose para chamar updateRoomList, para que a busca só ocorra ao clicar em "Pesquisar"
+      // Não chamamos updateRoomList aqui para que a busca ocorra somente ao clicar em "Pesquisar"
     });
   }
 
-  /********** 13. Atualiza a busca e refaz a pesquisa (quando o usuário clica em "Pesquisar") **********/
+  /********** 13. Atualiza a busca (nova pesquisa) **********/
   window.updateRoomList = function() {
-    // A nova busca utiliza as datas atuais do input Flatpickr
+    // Nesta função, as datas são extraídas do campo Flatpickr, não da URL
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
@@ -503,12 +491,14 @@
     });
   };
 
-  /********** 14. Envia os dados do quarto selecionado para o carrinho **********/
+  /********** 14. Função para enviar os dados do quarto selecionado para o carrinho **********/
   window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "", checkOutDate = "";
-    if (dateRange.includes(" - ")) {
-      const [startStr, endStr] = dateRange.split(" - ");
+    // Detecta o separador correto (" to ") definido pelo Flatpickr
+    const separator = dateRange.includes(" to ") ? " to " : " - ";
+    if (dateRange.includes(separator)) {
+      const [startStr, endStr] = dateRange.split(separator);
       checkInDate = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
       checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
@@ -543,12 +533,12 @@
     // Inicializa o Flatpickr para seleção de datas
     initDateRangePicker();
 
-    // Carrega dados iniciais a partir da URL se houver (apenas para exibição inicial)
+    // Para a exibição inicial, as datas da URL são usadas somente para preencher o campo
     const query = getQueryParams();
     if (query.checkIn && query.checkOut) {
       const input = document.getElementById("checkin-checkout");
       input.value = 
-        moment(query.checkIn, "YYYY-MM-DD").format("DD/MM/YYYY") + " - " +
+        moment(query.checkIn, "YYYY-MM-DD").format("DD/MM/YYYY") + " to " +
         moment(query.checkOut, "YYYY-MM-DD").format("DD/MM/YYYY");
       const d1 = moment(query.checkIn, "YYYY-MM-DD");
       const d2 = moment(query.checkOut, "YYYY-MM-DD");
@@ -559,7 +549,7 @@
     if (query.adults)   document.getElementById("adults").value = query.adults;
     if (query.children) document.getElementById("children").value = query.children;
 
-    // Realiza a busca inicial (se desejar, pode ser removida para aguardar o clique em "Pesquisar")
+    // Realiza uma busca inicial (opcional – pode ser removida para aguardar o clique em "Pesquisar")
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
