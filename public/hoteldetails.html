@@ -177,8 +177,7 @@
     </div>
   </div>
 
-  <!-- SCRIPTS EXTERNOS -->
-  <!-- Certifique-se de que estes scripts sejam carregados na ordem correta -->
+  <!-- SCRIPTS EXTERNOS (Ordem correta!) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
@@ -193,9 +192,7 @@
       // 1) Carrega o header via fetch
       fetch("header.html")
         .then(resp => resp.text())
-        .then(html => {
-          $("#header").html(html);
-        })
+        .then(html => { $("#header").html(html); })
         .catch(err => console.error("Erro ao carregar header:", err));
   
       // 2) Função global para abrir o carrinho
@@ -433,12 +430,12 @@
           },
           opens: "center",
           drops: "down",
-          autoApply: false,
-          autoUpdateInput: false
+          autoApply: true,  // podemos definir autoApply true para facilitar a seleção
+          autoUpdateInput: true
         }, function(start, end) {
           const diffDays = end.diff(start, "days");
           $("#num-noites").text(diffDays > 0 ? diffDays : 1);
-          $("#checkin-checkout").val(start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY"));
+          // O próprio plugin já atualiza o input, mas chamamos updateRoomList para atualizar a tabela
           updateRoomList();
         });
       }
@@ -480,6 +477,7 @@
         if (dateRange.includes(" - ")) {
           [checkInDate, checkOutDate] = dateRange.split(" - ");
         }
+        // Converte as datas de DD/MM/YYYY para YYYY-MM-DD
         const formattedCheckIn = moment(checkInDate, "DD/MM/YYYY").format("YYYY-MM-DD");
         const formattedCheckOut = moment(checkOutDate, "DD/MM/YYYY").format("YYYY-MM-DD");
         const numAdults = parseInt($("#adults").val()) || 1;
