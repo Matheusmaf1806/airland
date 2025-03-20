@@ -191,10 +191,11 @@
   <!-- SCRIPT PRINCIPAL UNIFICADO -->
   <script>
 (function() {
+  // Impede re-inicialização
   if (window.__hotelDetailJSInitialized) return;
   window.__hotelDetailJSInitialized = true;
 
-  // Carrega o header via fetch
+  /********** 1. Carregar header via fetch (opcional) **********/
   fetch("header.html")
     .then(resp => resp.text())
     .then(html => {
@@ -203,7 +204,7 @@
     })
     .catch(err => console.error("Erro ao carregar header:", err));
 
-  // Função global para abrir o carrinho
+  /********** 2. Função para abrir o carrinho **********/
   window.toggleCart = function() {
     const cartComponent = document.querySelector("shopping-cart");
     if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -213,7 +214,7 @@
     }
   };
 
-  // Função auxiliar para obter parâmetros da URL (usada somente para hotelCode, por exemplo)
+  /********** 3. Função auxiliar para obter parâmetros da URL **********/
   function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
     const query = {};
@@ -223,39 +224,39 @@
     return query;
   }
 
-  // Função para buscar os dados do hotel usando os valores atuais dos inputs (datas, quartos, etc.)
+  /********** 4. Função que busca os dados do hotel **********/
   function fetchHotelCombined() {
-    // Obtém o valor atual do input de datas (selecionado pelo Flatpickr)
-    const checkinCheckoutValue = document.getElementById("checkin-checkout").value;
-    let checkIn, checkOut;
-    if (checkinCheckoutValue.includes(" - ")) {
-      [checkIn, checkOut] = checkinCheckoutValue.split(" - ");
-      // Converte do formato DD/MM/YYYY para YYYY-MM-DD para a API
-      checkIn = moment(checkIn, "DD/MM/YYYY").format("YYYY-MM-DD");
-      checkOut = moment(checkOut, "DD/MM/YYYY").format("YYYY-MM-DD");
+    // Lê as datas diretamente do input do Flatpickr
+    const dateRange = document.getElementById("checkin-checkout").value;
+    let checkIn = "";
+    let checkOut = "";
+    if (dateRange.includes(" - ")) {
+      const [startStr, endStr] = dateRange.split(" - ");
+      // Converte de "DD/MM/YYYY" para "YYYY-MM-DD" usando Moment.js
+      checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
+      checkOut = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
-    // Obtém os outros valores diretamente dos inputs
-    const rooms = document.getElementById("rooms").value;
-    const adults = document.getElementById("adults").value;
-    const children = document.getElementById("children").value;
-    // Obtem o hotelCode (por exemplo, da URL)
-    const query = getQueryParams();
-    const hotelCode = query.hotelCode;
+    const rooms = document.getElementById("rooms").value || 1;
+    const adults = document.getElementById("adults").value || 1;
+    const children = document.getElementById("children").value || 0;
 
-    // Prepara os parâmetros para a chamada da API
+    // O hotelCode pode vir da URL (se necessário)
+    const queryParams = new URLSearchParams(window.location.search);
+    const hotelCode = queryParams.get("hotelCode") || "";
+
     const params = new URLSearchParams();
-    if (checkIn) params.set('checkIn', checkIn);
-    if (checkOut) params.set('checkOut', checkOut);
-    if (rooms) params.set('rooms', rooms);
-    if (adults) params.set('adults1', adults);
-    if (children) params.set('children1', children);
-    if (hotelCode) params.set('hotelCode', hotelCode);
+    if (checkIn)     params.set("checkIn", checkIn);
+    if (checkOut)    params.set("checkOut", checkOut);
+    params.set("rooms", rooms);
+    params.set("adults1", adults);
+    params.set("children1", children);
+    if (hotelCode)   params.set("hotelCode", hotelCode);
 
     return fetch(`/api/hbdetail/hotels?${params.toString()}`)
-           .then(resp => resp.json());
+      .then(resp => resp.json());
   }
 
-  // Preenche os dados do hotel na página
+  /********** 5. Função que preenche os dados do hotel na página **********/
   function loadHotelContent(hotelObj) {
     if (!hotelObj) return;
     const hotelName = hotelObj.name || "Hotel sem nome";
@@ -266,30 +267,44 @@
       <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
       <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
     `;
+
+    // Fotos
     let images = [];
     if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
       images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
     }
     fillPhotoGallery(images);
+
+    // Facilidades
     let facilities = [];
     if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
       facilities = hotelObj.content.facilities;
     }
     fillFacilities(facilities);
+
+    // Descrição
     if (hotelObj.content && hotelObj.content.description) {
       document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
     }
+
+    // Destaques
     document.getElementById("hotelHighlights").innerHTML = `
       <h2>Destaques da Acomodação</h2>
       <p>Confira as melhores vantagens desta acomodação.</p>
     `;
+
+    // Cria a tabela de quartos
     createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
+
+    // Blocos de informações adicionais
     fillInfoBlocks({
       checkin: "A partir das 16h",
       checkout: "Até 11:00",
       resortFee: "Não possui no local.",
       parking: "Consulte valores no local."
     });
+
+    // Mapa e atrações
     const lat = hotelObj.latitude || 0;
     const lng = hotelObj.longitude || 0;
     let interestPoints = [];
@@ -297,9 +312,9 @@
       interestPoints = hotelObj.content.interestPoints;
     }
     initMapAndAttractions(lat, lng, interestPoints);
-    // Note: Não re-inicializamos o Flatpickr aqui para não sobrescrever o valor já selecionado.
   }
 
+  /********** 6. Função que preenche a galeria de fotos **********/
   function fillPhotoGallery(photos) {
     const gallery = document.getElementById("photoGallery");
     gallery.innerHTML = "";
@@ -317,6 +332,7 @@
     }
   }
 
+  /********** 7. Função que preenche as facilidades **********/
   function fillFacilities(facilities) {
     const container = document.getElementById("facilities");
     container.innerHTML = "";
@@ -326,21 +342,26 @@
     });
   }
 
+  /********** 8. Função que cria a tabela de quartos **********/
   function createRoomTableGrouped(rooms, hotelCode, hotelName) {
     const tableBody = document.getElementById("roomTableBody");
     tableBody.innerHTML = "";
     if (!rooms || !rooms.length) return;
+
+    // Ordena os quartos pelo preço
     const sortedRooms = rooms.slice().sort((a, b) => {
-      const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
-      const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
+      const netA = a.rates?.[0]?.net ? parseFloat(a.rates[0].net) : Infinity;
+      const netB = b.rates?.[0]?.net ? parseFloat(b.rates[0].net) : Infinity;
       return netA - netB;
     });
+
     const initialCount = 6;
     const roomsToShow = sortedRooms.slice(0, initialCount);
     roomsToShow.forEach(room => {
-      const row = createRoomRow(room);
-      tableBody.appendChild(row);
+      tableBody.appendChild(createRoomRow(room, hotelCode, hotelName));
     });
+
+    // Se houver mais quartos, cria o botão "Mostrar mais quartos"
     if (sortedRooms.length > initialCount) {
       const moreButton = document.createElement("button");
       moreButton.textContent = "Mostrar mais quartos";
@@ -349,8 +370,7 @@
         moreButton.remove();
         const remainingRooms = sortedRooms.slice(initialCount);
         remainingRooms.forEach(r => {
-          const newRow = createRoomRow(r);
-          tableBody.appendChild(newRow);
+          tableBody.appendChild(createRoomRow(r, hotelCode, hotelName));
         });
       };
       const btnRow = document.createElement("div");
@@ -359,46 +379,44 @@
       btnRow.appendChild(moreButton);
       tableBody.appendChild(btnRow);
     }
-    function createRoomRow(room) {
-      const roomName = room.name || room.roomType || room.roomCode || "Quarto";
-      let netPrice = "N/A";
-      if (room.rates && room.rates.length && room.rates[0].net) {
-        netPrice = room.rates[0].net;
-      }
-      const netNum = parseFloat(netPrice);
-      const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-      let discountMsg = "";
-      if (!isNaN(netNum)) {
-        const discountAmount = netNum * 0.05;
-        discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
-      }
-      const row = document.createElement("div");
-      row.className = "room-table-row";
-      row.innerHTML = `
-        <div class="room-info">
-          <div class="room-details">
-            <h4>${roomName}</h4>
-          </div>
-        </div>
-        <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
-        <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 80}">
-          <p class="discount-price">
-            R$ <span class="pix-price">${netFormatted}</span>
-          </p>
-          <p class="installment-info">até 10x sem juros</p>
-          <span class="flag-offer">${discountMsg}</span>
-        </div>
-        <div>
-          <button class="select-room-button"
-            onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}','${room.rates && room.rates[0] ? room.rates[0].net : 80}','60')">
-            Selecionar Quarto
-          </button>
-        </div>
-      `;
-      return row;
-    }
   }
 
+  /********** 9. Função que cria uma linha para cada quarto **********/
+  function createRoomRow(room, hotelCode, hotelName) {
+    const roomName = room.name || room.roomType || room.roomCode || "Quarto";
+    let netPrice = room.rates && room.rates[0]?.net ? room.rates[0].net : 80;
+    const netVal = parseFloat(netPrice);
+    const netFormatted = isNaN(netVal) ? "N/A" : netVal.toFixed(2);
+    const discountAmount = netVal * 0.05;
+    const discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
+
+    const row = document.createElement("div");
+    row.className = "room-table-row";
+    row.innerHTML = `
+      <div class="room-info">
+        <div class="room-details">
+          <h4>${roomName}</h4>
+        </div>
+      </div>
+      <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
+      <div class="room-price" data-price="${netVal}">
+        <p class="discount-price">
+          R$ <span class="pix-price">${netFormatted}</span>
+        </p>
+        <p class="installment-info">até 10x sem juros</p>
+        <span class="flag-offer">${discountMsg}</span>
+      </div>
+      <div>
+        <button class="select-room-button"
+          onclick="handleSelectRoom('${hotelCode}', '${hotelName}', '${room.code}', '${room.name}', '${netVal}', '60')">
+          Selecionar Quarto
+        </button>
+      </div>
+    `;
+    return row;
+  }
+
+  /********** 10. Função que preenche os blocos de informações adicionais **********/
   function fillInfoBlocks(info) {
     const container = document.getElementById("infoContainer");
     container.innerHTML = "";
@@ -420,12 +438,14 @@
     });
   }
 
+  /********** 11. Função que inicializa o mapa e as atrações **********/
   function initMapAndAttractions(lat, lng, attractions) {
     const map = L.map("map").setView([lat, lng], 14);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
+
     const hotelIcon = L.icon({
       iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
       iconSize: [40, 40],
@@ -434,6 +454,7 @@
     });
     const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
     marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
+
     const container = document.getElementById("attractions");
     container.innerHTML = "<h2>Atrações</h2>";
     if (Array.isArray(attractions) && attractions.length) {
@@ -451,7 +472,7 @@
     }
   }
 
-  // Inicializa o Flatpickr para seleção de intervalo (não atualiza a pesquisa automaticamente)
+  /********** 12. Inicializa o Flatpickr (sem disparar a busca automaticamente) **********/
   function initDateRangePicker() {
     if (typeof flatpickr !== 'function') {
       console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
@@ -459,32 +480,33 @@
     }
     flatpickr("#checkin-checkout", {
       mode: "range",
-      dateFormat: "d/m/Y"
+      dateFormat: "d/m/Y",
+      rangeSeparator: " - "
+      // Não usamos o onClose para chamar updateRoomList, para que a busca só ocorra ao clicar em "Pesquisar"
     });
   }
 
-  // Função para atualizar a tabela de quartos (realiza nova busca usando os valores dos inputs atuais)
+  /********** 13. Atualiza a busca e refaz a pesquisa (quando o usuário clica em "Pesquisar") **********/
   window.updateRoomList = function() {
+    // A nova busca utiliza as datas atuais do input Flatpickr
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
       } else {
-        console.error("Conteúdo não encontrado para o hotel!");
+        console.error("Nenhum resultado para a pesquisa!");
       }
     });
   };
 
-  // Função para selecionar o quarto e enviar os dados para o carrinho
+  /********** 14. Envia os dados do quarto selecionado para o carrinho **********/
   window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
     const dateRange = document.getElementById("checkin-checkout").value;
-    let checkInDate = "";
-    let checkOutDate = "";
+    let checkInDate = "", checkOutDate = "";
     if (dateRange.includes(" - ")) {
-      [checkInDate, checkOutDate] = dateRange.split(" - ");
+      const [startStr, endStr] = dateRange.split(" - ");
+      checkInDate = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
+      checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
-    // Converte as datas de DD/MM/YYYY para YYYY-MM-DD
-    const formattedCheckIn = moment(checkInDate, "DD/MM/YYYY").format("YYYY-MM-DD");
-    const formattedCheckOut = moment(checkOutDate, "DD/MM/YYYY").format("YYYY-MM-DD");
     const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
     const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
     const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
@@ -497,8 +519,8 @@
       rooms: numRooms,
       adults: numAdults,
       children: numChildren,
-      checkIn: formattedCheckIn,
-      checkOut: formattedCheckOut,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
       basePriceAdult: parseFloat(basePriceAdult) || 80,
       basePriceChild: parseFloat(basePriceChild) || 60
     };
@@ -511,12 +533,16 @@
     }
   };
 
+  /********** 15. Inicialização ao carregar a página **********/
   document.addEventListener("DOMContentLoaded", function() {
+    // Inicializa o Flatpickr para seleção de datas
+    initDateRangePicker();
+
+    // Carrega dados iniciais a partir da URL se houver (apenas para exibição inicial)
     const query = getQueryParams();
     if (query.checkIn && query.checkOut) {
       const input = document.getElementById("checkin-checkout");
-      // Se a URL vier com datas no formato YYYY-MM-DD, converte para DD/MM/YYYY para exibição
-      input.value =
+      input.value = 
         moment(query.checkIn, "YYYY-MM-DD").format("DD/MM/YYYY") + " - " +
         moment(query.checkOut, "YYYY-MM-DD").format("DD/MM/YYYY");
       const d1 = moment(query.checkIn, "YYYY-MM-DD");
@@ -527,16 +553,13 @@
     if (query.rooms)    document.getElementById("rooms").value = query.rooms;
     if (query.adults)   document.getElementById("adults").value = query.adults;
     if (query.children) document.getElementById("children").value = query.children;
-    
-    // Inicializa o Flatpickr (apenas uma vez)
-    initDateRangePicker();
 
-    // Realiza a busca inicial usando os valores dos inputs (ou os da URL, se não alterados)
+    // Realiza a busca inicial (se desejar, pode ser removida para aguardar o clique em "Pesquisar")
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
       } else {
-        console.error("Conteúdo não encontrado para o hotel!");
+        console.error("Nenhum resultado inicial encontrado!");
       }
     });
   });
