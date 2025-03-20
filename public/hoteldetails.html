@@ -2,17 +2,29 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detalhes do Hotel</title>
-  <!-- Font Awesome e outros recursos -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Font Awesome e recursos externos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/cart.css" />
-  <!-- Carrega seu facilitiesMap.js (caso tenha) -->
+  <link 
+    rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.css"
+  >
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  
+  <!-- Estilos globais e de carrinho (opcional, se quiser separar) -->
+  <link rel="stylesheet" href="css/cart.css">
+  <link rel="stylesheet" href="css/global.css">
+  
+  <!-- Carrega script extra, se houver (ex.: facilitiesMap.js) -->
   <script src="/js/facilitiesMap.js"></script>
+  
+  <!-- Carrega o Web Component do carrinho -->
+  <script src="/js/cart-component.js" defer></script>
+
   <style>
-    /* RESET e estilos básicos */
+    /* ========= RESET / BASE ========= */
     * {
       margin: 0;
       padding: 0;
@@ -24,12 +36,15 @@
       color: #333;
       line-height: 1.6;
     }
+
+    /* ========= CONTAINER PRINCIPAL ========= */
     .main-container {
       padding: 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
-    /* Cabeçalho do Hotel */
+
+    /* ========= HEADER DO HOTEL ========= */
     .hotel-header {
       margin-bottom: 20px;
     }
@@ -60,7 +75,8 @@
       text-decoration: underline;
       color: #005bb5;
     }
-    /* Galeria de Fotos */
+
+    /* ========= GALERIA DE FOTOS ========= */
     .photo-gallery {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
@@ -78,7 +94,8 @@
     .photo-gallery .large-photo {
       grid-row: 1 / 3;
     }
-    /* Comodidades */
+
+    /* ========= COMODIDADES ========= */
     .facilities {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -108,7 +125,8 @@
     .facility:hover {
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    /* Descrição e Destaques */
+
+    /* ========= DESCRIÇÃO E DESTAQUES ========= */
     .description-container {
       display: flex;
       gap: 20px;
@@ -155,7 +173,8 @@
       color: #007bff;
       font-size: 1.2em;
     }
-    /* Search Bar */
+
+    /* ========= BARRA DE BUSCA ========= */
     .search-bar-container {
       display: flex;
       align-items: center;
@@ -206,7 +225,8 @@
     .search-button:hover {
       background-color: #005bb5;
     }
-    /* Tabela de Quartos */
+
+    /* ========= TABELA DE QUARTOS ========= */
     .room-table {
       width: 100%;
       margin-top: 20px;
@@ -300,7 +320,8 @@
     .select-room-button:hover {
       background-color: #005bb5;
     }
-    /* Informações Adicionais */
+
+    /* ========= INFORMAÇÕES ADICIONAIS ========= */
     .info-container {
       margin-top: 20px;
       display: flex;
@@ -326,7 +347,8 @@
       font-size: 1em;
       color: #555;
     }
-    /* Mapa e Atrações */
+
+    /* ========= MAPA E ATRAÇÕES ========= */
     .container {
       display: flex;
       width: 100%;
@@ -386,17 +408,21 @@
   </style>
 </head>
 <body>
-  <!-- 1) Header (carregado via fetch) -->
+  <!-- ========== HEADER CARREGADO VIA FETCH ========== -->
   <div id="header"></div>
 
-  <!-- 2) Container do carrinho (carregado dinamicamente OU presente fixo) -->
-  <!-- Se preferir, pode remover esta div e deixar a div do cart.html fazer esse papel -->
-  <div class="cart-container hidden" id="cartContainerPlaceholder">
-    <!-- Será substituído ou não -->
-    <div id="cartContent"></div>
-  </div>
+  <!-- ========== WEBCOMPONENT DO CARRINHO ========== -->
+  <!-- Substitui a antiga cart-container, cart.html, etc. -->
+  <shopping-cart
+    type="INGRESSOS"
+    category="WALT DISNEY WORLD"
+    nameDays="INGRESSO 1 DIA MAGIC KINGDOM [1 dia]"
+    date="2025-04-12"
+    basePriceAdult="80"
+    basePriceChild="60"
+  ></shopping-cart>
 
-  <!-- 3) Conteúdo principal do hoteldetails -->
+  <!-- ========== CONTEÚDO PRINCIPAL ========== -->
   <div class="main-container" id="hotelDetail">
     <!-- Cabeçalho do Hotel -->
     <div class="hotel-header">
@@ -462,24 +488,24 @@
     </div>
   </div>
 
-  <!-- Scripts externos (jQuery, moment, daterangepicker, leaflet) -->
+  <!-- ========== SCRIPTS EXTERNOS ========== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
+  <script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+  ></script>
+  <script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"
+  ></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="/js/cart.js"></script>
 
-  <!-- 4) Script principal unificado -->
+  <!-- ========== SCRIPT PRINCIPAL UNIFICADO ========== -->
   <script>
-  
-  (function() {
-      // Evita duplicação
+    (function() {
+      // Evita duplicar a lógica
       if (window.__hotelDetailJSInitialized) return;
       window.__hotelDetailJSInitialized = true;
-  
-      // ====================================
+
       // A) Carregar header.html
-      // ====================================
       fetch("header.html")
         .then(resp => resp.text())
         .then(html => {
@@ -489,248 +515,22 @@
           }
         })
         .catch(err => console.error("Erro ao carregar header:", err));
-  
-      // ====================================
-      // B) Carregar cart.html (se não existir)
-      // ====================================
-      function loadCartHTML() {
-        return new Promise((resolve, reject) => {
-          // Verifica se já existe .cart-container no DOM
-          if (document.querySelector(".cart-container") && document.getElementById("cartBody")) {
-            resolve(); // Já existe
-          } else {
-            fetch("cart.html")
-              .then(resp => resp.text())
-              .then(html => {
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = html;
-                const cartContainer = tempDiv.querySelector(".cart-container");
-                if (cartContainer) {
-                  document.body.appendChild(cartContainer);
-                  cartManager = new CartManager(); // Inicialize o cartManager aqui, se necessário
-                  resolve();
-                } else {
-                  reject("Elemento '.cart-container' não encontrado em cart.html!");
-                }
-              })
-              .catch(err => reject(err));
-          }
-        });
-      }
-      
-      // Verifique se cartManager está definido antes de chamar closeCart
-      function closeCart() {
-        if (cartManager) {
-          cartManager.closeCart(); // Chama a função apenas se cartManager estiver definido
+
+      // B) Caso queira abrir/fechar o carrinho a partir do header
+      //    Podemos criar uma função global toggleCart()
+      window.toggleCart = function() {
+        const cartComponent = document.querySelector("shopping-cart");
+        if (cartComponent && typeof cartComponent.openCart === "function") {
+          cartComponent.openCart();
         } else {
-          console.error("cartManager não está definido");
+          console.error("Componente <shopping-cart> não encontrado ou método openCart() não definido.");
         }
-      }      
-  
-      // ====================================
-      // C) Lógica do Carrinho (unificada)
-      // ====================================
-      let cartItems = [];
-      let shareId = null; // Para integração com backend, se quiser
-  
-      // Toggle exibição do carrinho
-      function toggleCart() {
-        const cartContainer = document.querySelector(".cart-container");
-        if (cartContainer) {
-          cartContainer.classList.toggle("hidden");
-        } else {
-          console.error("Elemento '.cart-container' não encontrado!");
-        }
-      }
-      window.toggleCart = toggleCart; // Expor globalmente
-  
-      // Renderizar itens do carrinho no #cartBody
-      function renderCartItems() {
-        const cartBody = document.getElementById("cartBody");
-        if (!cartBody) {
-          console.error("Elemento 'cartBody' não encontrado!");
-          return;
-        }
-        cartBody.innerHTML = "";
-  
-        if (cartItems.length === 0) {
-          cartBody.innerHTML = "<p>Nenhum item no carrinho.</p>";
-        } else {
-          cartItems.forEach((item, index) => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = "cart-item";
-            itemDiv.innerHTML = `
-              <button class="trash-btn" onclick="removeItem(${index})">🗑</button>
-              <span class="tag-ingresso">${item.tag || "INGRESSOS"}</span>
-              <div class="item-title">${item.hotelName} - ${item.roomName}</div>
-              <div class="item-date">
-                <svg class="icon" viewBox="0 0 16 16">
-                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5..."></path>
-                </svg>
-                <span>${item.checkIn}</span>
-              </div>
-              <div class="item-quantities">
-                <div class="quantities-left">
-                  <div class="quant-column">
-                    <div class="quant-label">
-                      <svg class="icon" viewBox="0 0 96 96">
-                        <circle cx="48" cy="20.5" r="12.5"/>
-                      </svg>
-                      <span>Crianças</span>
-                    </div>
-                    <div class="plusminus-row">
-                      <button class="plusminus-btn" onclick="decChildren(${index})">-</button>
-                      <span id="childCount${index}">${(item.children || 0).toString().padStart(2, '0')}</span>
-                      <button class="plusminus-btn" onclick="incChildren(${index})">+</button>
-                    </div>
-                  </div>
-                  <div class="divider"></div>
-                  <div class="quant-column">
-                    <div class="quant-label">
-                      <svg class="icon" viewBox="0 0 575 575">
-                        <path d="M290.088,230.112c-15.912,0-30.906..."></path>
-                      </svg>
-                      <span>Adultos</span>
-                    </div>
-                    <div class="plusminus-row">
-                      <button class="plusminus-btn" onclick="decAdults(${index})">-</button>
-                      <span id="adultCount${index}">${(item.adults || 0).toString().padStart(2, '0')}</span>
-                      <button class="plusminus-btn" onclick="incAdults(${index})">+</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-            cartBody.appendChild(itemDiv);
-          });
-        }
-  
-        // Atualiza subtotais (se os elementos existirem)
-        const subtotalElem = document.getElementById("subtotalValue");
-        const totalElem = document.getElementById("totalValue");
-        const discountElem = document.getElementById("discountValue");
-        if (subtotalElem && totalElem && discountElem) {
-          const total = cartItems.reduce((sum, item) =>
-            sum + ((item.adults || 0) * (item.basePriceAdult || 0)) + ((item.children || 0) * (item.basePriceChild || 0))
-          , 0);
-          subtotalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          totalElem.textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          discountElem.textContent = "- R$ 0,00";
-        }
-  
-        // Salva local
-        localStorage.setItem("cartItems", JSON.stringify(cartItems));
-      }
-  
-      // Alterar quantidades
-      function incChildren(index) {
-        cartItems[index].children = (cartItems[index].children || 0) + 1;
-        renderCartItems();
-        updateCartServer();
-      }
-      function decChildren(index) {
-        if ((cartItems[index].children || 0) > 0) {
-          cartItems[index].children--;
-          renderCartItems();
-          updateCartServer();
-        }
-      }
-      function incAdults(index) {
-        cartItems[index].adults = (cartItems[index].adults || 0) + 1;
-        renderCartItems();
-        updateCartServer();
-      }
-      function decAdults(index) {
-        if ((cartItems[index].adults || 0) > 0) {
-          cartItems[index].adults--;
-          renderCartItems();
-          updateCartServer();
-        }
-      }
-      function removeItem(index) {
-        cartItems.splice(index, 1);
-        renderCartItems();
-        updateCartServer();
-        alert("Item removido");
-      }
-      window.removeItem = removeItem; // expor globalmente se necessário
-      window.incChildren = incChildren;
-      window.decChildren = decChildren;
-      window.incAdults = incAdults;
-      window.decAdults = decAdults;
-  
-      // Carregar do localStorage
-      function loadCartFromLocalStorage() {
-        const stored = localStorage.getItem("cartItems");
-        if (stored) {
-          cartItems = JSON.parse(stored);
-          renderCartItems();
-          if (cartItems.length > 0) {
-            const cartContainer = document.querySelector(".cart-container");
-            if (cartContainer) {
-              cartContainer.classList.remove("hidden");
-            }
-          }
-        }
-      }
-  
-      // (Opcional) Funções de integração com backend
-      async function shareCart() {
-        if (cartItems.length === 0) {
-          alert("Carrinho vazio, não há o que compartilhar!");
-          return;
-        }
-        if (shareId) {
-          alert("Carrinho já possui shareId: " + shareId);
-          return;
-        }
-        const affiliateId = "aff123";
-        const agentId = "agt567";
-        const BASE_URL = "https://business.airland.com.br";
-  
-        try {
-          const resp = await fetch(`${BASE_URL}/shareCart`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ affiliateId, agentId, items: cartItems })
-          });
-          const data = await resp.json();
-          if (data.success) {
-            shareId = data.shareId;
-            localStorage.setItem("shareId", shareId);
-            const link = window.location.origin + window.location.pathname + "?shareId=" + shareId;
-            alert("Carrinho compartilhado!\n" + link);
-          } else {
-            alert("Erro ao compartilhar: " + (data.error || "desconhecido"));
-          }
-        } catch (e) {
-          console.error(e);
-          alert("Falha ao compartilhar carrinho!");
-        }
-      }
-      window.shareCart = shareCart;
-  
-      async function updateCartServer() {
-        if (!shareId) return;
-        const BASE_URL = "https://business.airland.com.br";
-        try {
-          const resp = await fetch(`${BASE_URL}/updateCart`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ shareId, items: cartItems })
-          });
-          const data = await resp.json();
-          if (!data.success) {
-            console.error("Erro updateCart:", data.error);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
-  
+      };
+
       // ============================
-      // D) Funções de HotelDetail
+      // 1) Funções Auxiliares
       // ============================
+
       function getQueryParams() {
         const params = new URLSearchParams(window.location.search);
         const query = {};
@@ -739,7 +539,8 @@
         }
         return query;
       }
-  
+
+      // Exemplo: busca dados do hotel (API interna)
       function fetchHotelCombined() {
         const query = getQueryParams();
         const params = new URLSearchParams();
@@ -749,39 +550,40 @@
         if (query.adults) params.set('adults1', query.adults);
         if (query.children) params.set('children1', query.children);
         if (query.hotelCode) params.set('hotelCode', query.hotelCode);
-  
+
         return fetch(`/api/hbdetail/hotels?${params.toString()}`)
           .then(resp => resp.json());
       }
-  
+
       function loadHotelContent(hotelObj) {
         if (!hotelObj) return;
-  
+
         const hotelName = hotelObj.name || "Hotel sem nome";
         const hotelCode = hotelObj.code;
         const hotelAddress = hotelObj.destinationName || "";
-  
-        // Preenche dados do hotel
+
+        // Preenche nome/endereço
         document.getElementById("hotelName").textContent = hotelName;
         document.getElementById("hotelAddress").innerHTML = `
           <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
+          <!-- Exemplo de link para abrir carrinho -->
           <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
         `;
-  
-        // Galeria
+
+        // Galeria de Fotos
         let images = [];
         if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
           images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
         }
         fillPhotoGallery(images);
-  
+
         // Facilidades
         let facilities = [];
         if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
           facilities = hotelObj.content.facilities;
         }
         fillFacilities(facilities);
-  
+
         // Descrição
         if (hotelObj.content && hotelObj.content.description) {
           document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
@@ -791,10 +593,10 @@
           <h2>Destaques da Acomodação</h2>
           <p>Confira as melhores vantagens desta acomodação.</p>
         `;
-  
-        // Tabela de quartos
+
+        // Tabela de Quartos
         createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName);
-  
+
         // Info blocks
         fillInfoBlocks({
           checkin: "A partir das 16h",
@@ -802,8 +604,8 @@
           resortFee: "Não possui no local.",
           parking: "Consulte valores no local."
         });
-  
-        // Mapa
+
+        // Mapa e Atrações
         const lat = hotelObj.latitude || 0;
         const lng = hotelObj.longitude || 0;
         let interestPoints = [];
@@ -811,11 +613,11 @@
           interestPoints = hotelObj.content.interestPoints;
         }
         initMapAndAttractions(lat, lng, interestPoints);
-  
+
         // Date Range
         initDateRangePicker();
       }
-  
+
       function fillPhotoGallery(photos) {
         const gallery = document.getElementById("photoGallery");
         gallery.innerHTML = "";
@@ -832,35 +634,42 @@
           gallery.appendChild(img);
         }
       }
-  
+
       function fillFacilities(facilities) {
         const container = document.getElementById("facilities");
         container.innerHTML = "";
         if (!facilities || !facilities.length) return;
         facilities.slice(0, 12).forEach(f => {
-          container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
+          container.innerHTML += `
+            <div class="facility">
+              <i class="fas fa-check"></i> 
+              ${f}
+            </div>
+          `;
         });
       }
-  
+
       function createRoomTableGrouped(rooms, hotelCode, hotelName) {
         const tableBody = document.getElementById("roomTableBody");
         tableBody.innerHTML = "";
         if (!rooms || !rooms.length) return;
-  
+
+        // Exemplo de ordenação de rooms
         const sortedRooms = rooms.slice().sort((a, b) => {
           const netA = a.rates && a.rates.length ? parseFloat(a.rates[0].net) : Infinity;
           const netB = b.rates && b.rates.length ? parseFloat(b.rates[0].net) : Infinity;
           return netA - netB;
         });
-  
+
         const initialCount = 6;
         const roomsToShow = sortedRooms.slice(0, initialCount);
-  
+
         roomsToShow.forEach(room => {
           const row = createRoomRow(room);
           tableBody.appendChild(row);
         });
-  
+
+        // Mostrar mais quartos (caso haja)
         if (sortedRooms.length > initialCount) {
           const moreButton = document.createElement("button");
           moreButton.textContent = "Mostrar mais quartos";
@@ -879,7 +688,7 @@
           btnRow.appendChild(moreButton);
           tableBody.appendChild(btnRow);
         }
-  
+
         function createRoomRow(room) {
           const roomName = room.name || room.roomType || room.roomCode || "Quarto";
           let netPrice = "N/A";
@@ -888,13 +697,13 @@
           }
           const netNum = parseFloat(netPrice);
           const netFormatted = isNaN(netNum) ? "N/A" : netNum.toFixed(2);
-  
+
           let discountMsg = "";
           if (!isNaN(netNum)) {
             const discountAmount = netNum * 0.05;
             discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
           }
-  
+
           const row = document.createElement("div");
           row.className = "room-table-row";
           row.innerHTML = `
@@ -905,18 +714,16 @@
             </div>
             <div class="room-guests">${room.maxPax || 2} Hóspedes</div>
             <div class="room-price" data-price="${room.rates && room.rates[0] ? room.rates[0].net : 300}">
-              <p class="discount-price">R$ <span class="pix-price">${netFormatted}</span></p>
+              <p class="discount-price">
+                R$ <span class="pix-price">${netFormatted}</span>
+              </p>
               <p class="installment-info">até 10x sem juros</p>
               <span class="flag-offer">${discountMsg}</span>
             </div>
             <div>
               <button class="select-room-button"
-                onclick="handleSelectRoom(
-                  '${hotelCode}',
-                  '${hotelName}',
-                  '${room.code}',
-                  '${room.name}'
-                )">
+                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}')"
+              >
                 Selecionar Quarto
               </button>
             </div>
@@ -924,7 +731,7 @@
           return row;
         }
       }
-  
+
       function fillInfoBlocks(info) {
         const container = document.getElementById("infoContainer");
         container.innerHTML = "";
@@ -945,14 +752,15 @@
           container.appendChild(block);
         });
       }
-  
+
       function initMapAndAttractions(lat, lng, attractions) {
         const map = L.map("map").setView([lat, lng], 14);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap contributors"
         }).addTo(map);
-  
+
+        // Ícone customizado (exemplo)
         const hotelIcon = L.icon({
           iconUrl: "https://produtos.magictraveltur.com/wp-content/uploads/2024/10/Hotel-icon.png",
           iconSize: [40, 40],
@@ -961,7 +769,7 @@
         });
         const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
         marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
-  
+
         const container = document.getElementById("attractions");
         container.innerHTML = "<h2>Atrações</h2>";
         if (Array.isArray(attractions) && attractions.length) {
@@ -972,23 +780,27 @@
             attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
             container.innerHTML += `
               <div class="attraction-item">
-                <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+                <i class="fas fa-map-marker-alt"></i> 
+                ${a.poiName || a.name} - ${a.distance}
               </div>
             `;
           });
         }
       }
-  
+
       function initDateRangePicker() {
         if (typeof $.fn.daterangepicker !== 'function') {
-          console.error("daterangepicker não está disponível! Verifique se jQuery e o plugin foram carregados corretamente.");
+          console.error("daterangepicker não está disponível!");
           return;
         }
         $("#checkin-checkout").daterangepicker({
           locale: {
             format: "DD/MM/YYYY",
             daysOfWeek: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
-            monthNames: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+            monthNames: [
+              "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+              "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+            ]
           },
           opens: "center",
           drops: "down",
@@ -1001,14 +813,17 @@
           updateRoomList();
         });
       }
-  
+
+      // ============================
+      // 2) Lógica de "Update" de Quartos
+      // ============================
       window.updateRoomList = function() {
         const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
         const numRooms = parseInt(document.getElementById("rooms").value) || 1;
         const numAdults = parseInt(document.getElementById("adults").value) || 1;
         const numChildren = parseInt(document.getElementById("children").value) || 0;
         const totalGuests = numAdults + numChildren;
-  
+
         document.querySelectorAll(".room-table-row").forEach(row => {
           const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
           const priceEl = row.querySelector(".room-price");
@@ -1021,12 +836,19 @@
             const dailyRate = numNoites > 0 ? (totalPrice / numNoites).toFixed(2) : "Clique em pesquisar";
             if (priceEl) {
               priceEl.innerHTML = `
-                <p class="discount-price">R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
-                <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span></p>
+                <p class="discount-price">
+                  R$ <span class="pix-price">${totalPrice.toFixed(2)}</span><br>
+                  <span style="font-size: 0.8em; color: green;">Super desconto no Pix</span>
+                </p>
                 <div class="price-info">
-                  <p>ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> em até 10x sem juros</p>
+                  <p>
+                    ou R$ <span class="installment-price">${(totalPrice / 10).toFixed(2)}</span> 
+                    em até 10x sem juros
+                  </p>
                   <div class="daily-price-container">
-                    <p style="font-weight: normal;">Preço por diária: R$ <span>${dailyRate}</span></p>
+                    <p style="font-weight: normal;">
+                      Preço por diária: R$ <span>${dailyRate}</span>
+                    </p>
                   </div>
                 </div>
               `;
@@ -1034,11 +856,54 @@
           }
         });
       };
-  
+
       // ============================
-      // 4. DOMContentLoaded
+      // 3) handleSelectRoom => adicionar no carrinho
+      // ============================
+      window.handleSelectRoom = function(hCode, hName, rCode, rName) {
+        // Lê datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
+        const dateRange = document.getElementById("checkin-checkout").value;
+        let checkInDate = "";
+        let checkOutDate = "";
+        if (dateRange.includes(" - ")) {
+          [checkInDate, checkOutDate] = dateRange.split(" - ");
+        }
+        // Lê adultos/crianças
+        const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
+        const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
+
+        // Cria o objeto do quarto
+        const selectedRoom = {
+          hotelCode: hCode,
+          hotelName: hName,
+          roomCode: rCode,
+          roomName: rName,
+          adults: numAdults,
+          children: numChildren,
+          checkIn: checkInDate,
+          checkOut: checkOutDate
+        };
+
+        // Adiciona ao carrinho usando o componente (se tiver addItem implementado)
+        const cartComponent = document.querySelector("shopping-cart");
+        if (cartComponent && typeof cartComponent.addItem === "function") {
+          cartComponent.addItem(selectedRoom);
+        } else {
+          console.log("Selecionado:", selectedRoom);
+          console.warn("O método addItem() não está implementado no componente!");
+        }
+
+        // Se quiser abrir o carrinho automaticamente:
+        if (cartComponent && typeof cartComponent.openCart === "function") {
+          cartComponent.openCart();
+        }
+      };
+
+      // ============================
+      // 4) DOMContentLoaded
       // ============================
       document.addEventListener("DOMContentLoaded", function() {
+        // Se houver parâmetros (ex.: checkIn, checkOut), aplica
         const query = getQueryParams();
         if (query.checkIn && query.checkOut) {
           const input = document.getElementById("checkin-checkout");
@@ -1053,8 +918,8 @@
         if (query.rooms) document.getElementById("rooms").value = query.rooms;
         if (query.adults) document.getElementById("adults").value = query.adults;
         if (query.children) document.getElementById("children").value = query.children;
-  
-        // 1) Busca dados do hotel
+
+        // Exemplo: busca dados do hotel e atualiza a tela
         fetchHotelCombined().then(data => {
           if (data && data.combined && data.combined.length > 0) {
             loadHotelContent(data.combined[0]);
@@ -1062,57 +927,7 @@
             console.error("Conteúdo não encontrado para o hotel!");
           }
         });
-  
-        // 2) Carrega cart.html (se não estiver) e depois carrega do localStorage
-        loadCartHTML()
-          .then(() => {
-            // Se houver shareId salvo, pode buscar do servidor também
-            // mas aqui vamos só carregar do localStorage
-            loadCartFromLocalStorage();
-          })
-          .catch(err => {
-            console.error("Erro ao carregar o carrinho:", err);
-          });
       });
-  
-      // Expondo globalmente (caso o HTML use onclick="handleSelectRoom(...)")
-      window.handleSelectRoom = function(hCode, hName, rCode, rName) {
-        // Pega as datas do input #checkin-checkout (ex.: "14/04/2025 - 18/04/2025")
-        const dateRange = document.getElementById("checkin-checkout").value;
-        let checkInDate = "";
-        let checkOutDate = "";
-        if (dateRange.includes(" - ")) {
-          [checkInDate, checkOutDate] = dateRange.split(" - ");
-        }
-  
-        // Lê adultos/crianças
-        const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
-        const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
-  
-        // Cria o objeto do quarto
-        const selectedRoom = {
-          hotelCode: hCode,
-          hotelName: hName,
-          roomCode: rCode,
-          roomName: rName,
-          adults: numAdults,
-          children: numChildren,
-          checkIn: checkInDate,
-          checkOut: checkOutDate
-          // Se quiser, adicione basePriceAdult, basePriceChild, etc.
-        };
-  
-        // Adiciona ao carrinho e renderiza
-        cartItems.push(selectedRoom);
-        renderCartItems();
-  
-        // Exibe o carrinho
-        const cartContainer = document.querySelector(".cart-container");
-        if (cartContainer) {
-          cartContainer.classList.remove("hidden");
-          cartContainer.scrollIntoView({ behavior: "smooth" });
-        }
-      };
     })();
   </script>
 </body>
