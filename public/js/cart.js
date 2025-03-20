@@ -245,3 +245,9 @@ window.onload = () => {
   // cartItems.push({ date: "2025-04-12", children: 0, adults: 1, basePriceAdult: 80, basePriceChild: 60, title: "Ingresso Evento", tag: "INGRESSOS" });
   renderCartItems();
 };
+
+// Função para fechar o carrinho
+function closeCart() {
+  const cartContainer = document.querySelector('.cart-container');
+  cartContainer.style.display = 'none'; // Esconde o carrinho
+}
