@@ -674,14 +674,7 @@
             </div>
             <div>
               <button class="select-room-button"
-                onclick="handleSelectRoom(
-                  '${hotelCode}',
-                  '${hotelName}',
-                  '${room.code}',
-                  '${room.name}',
-                  '${room.rates && room.rates[0] ? room.rates[0].net : 80}',
-                  '60'
-                )">
+                onclick="handleSelectRoom('${hotelCode}','${hotelName}','${room.code}','${room.name}','${room.rates && room.rates[0] ? room.rates[0].net : 80}','60')">
                 Selecionar Quarto
               </button>
             </div>
@@ -773,19 +766,16 @@
         const numRooms = parseInt(document.getElementById("rooms").value) || 1;
         const numAdults = parseInt(document.getElementById("adults").value) || 1;
         const numChildren = parseInt(document.getElementById("children").value) || 0;
-        const totalGuests = numAdults + numChildren;
-
         document.querySelectorAll(".room-table-row").forEach(row => {
           const maxGuests = parseInt(row.getAttribute("data-max-guests")) || 2;
           const priceEl = row.querySelector(".room-price");
           const basePrice = parseFloat(priceEl && priceEl.getAttribute("data-price")) || 80;
-          if (totalGuests > maxGuests) {
+          if ((numAdults + numChildren) > maxGuests) {
             row.style.display = "none";
           } else {
             row.style.display = "grid";
-            const numNoitesVal = numNoites > 0 ? numNoites : 1;
-            const totalPrice = (numNoitesVal * basePrice) * numRooms;
-            const dailyRate = (totalPrice / numNoitesVal).toFixed(2);
+            const totalPrice = (numNoites * basePrice) * numRooms;
+            const dailyRate = (totalPrice / numNoites).toFixed(2);
             if (priceEl) {
               priceEl.innerHTML = `
                 <p class="discount-price">
@@ -818,12 +808,14 @@
         }
         const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
         const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
+        const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
         const selectedRoom = {
-          type: "HOSPEDAGEM",  // Alinhado com o layout do cart
+          type: "HOSPEDAGEM",  // Para hotel, a categoria é "HOSPEDAGEM"
           hotelCode: hCode,
           hotelName: hName,
           roomCode: rCode,
           roomName: rName,
+          rooms: numRooms,
           adults: numAdults,
           children: numChildren,
           checkIn: checkInDate,
