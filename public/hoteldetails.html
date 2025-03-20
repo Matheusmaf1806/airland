@@ -467,8 +467,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1.0/daterangepicker.min.js"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="/js/cartManager.js"></script> <!-- Adiciona primeiro -->
-  <script src="/js/cart.js"></script> <!-- Depois o cart.js -->
+  <script src="/js/cart.js"></script>
 
   <!-- 4) Script principal unificado -->
   <script>
@@ -493,22 +492,28 @@
     // ====================================
     // B) Carregar cart.html (se não existir)
     // ====================================
-    // Função para carregar o conteúdo do carrinho
     function loadCartHTML() {
-      fetch('cart.html')
-        .then(response => response.text()) // Pega o conteúdo do cart.html
-        .then(data => {
-          // Adiciona o conteúdo do cart.html ao elemento com id "cartContent"
-          document.getElementById('cartContent').innerHTML = data;
-
-          // Inicializa o CartManager **após** carregar o conteúdo do carrinho
-          const cartManager = new CartManager('.cart-container');
-          // Exemplo de uso do cartManager
-          cartManager.openCart();
-        })
-        .catch(error => {
-          console.error('Erro ao carregar cart.html:', error);
-        });
+      return new Promise((resolve, reject) => {
+        // Verifica se já existe .cart-container no DOM
+        if (document.querySelector(".cart-container") && document.getElementById("cartBody")) {
+          resolve(); // Já existe
+        } else {
+          fetch("cart.html")
+            .then(resp => resp.text())
+            .then(html => {
+              const tempDiv = document.createElement("div");
+              tempDiv.innerHTML = html;
+              const cartContainer = tempDiv.querySelector(".cart-container");
+              if (cartContainer) {
+                document.body.appendChild(cartContainer);
+                resolve();
+              } else {
+                reject("Elemento '.cart-container' não encontrado em cart.html!");
+              }
+            })
+            .catch(err => reject(err));
+        }
+      });
     }
 
     // ====================================
@@ -1048,27 +1053,16 @@
       });
 
       // 2) Carrega cart.html (se não estiver) e depois carrega do localStorage
-      function loadCartHTML() {
-        fetch('cart.html')
-          .then(response => response.text()) // Pega o conteúdo do cart.html
-          .then(data => {
-            // Adiciona o conteúdo do cart.html ao elemento com id "cartContent"
-            document.getElementById('cartContent').innerHTML = data;
-      
-            // Inicializa o CartManager **após** carregar o conteúdo do carrinho
-            const cartManager = new CartManager('.cart-container');
-            
-            // Agora você pode usar cartManager dentro deste bloco
-            // cartManager.openCart(); // Exemplo de uso
-          })
-          .catch(error => {
-            console.error('Erro ao carregar cart.html:', error);
-          });
-      }
-      
-      // Chama a função para carregar o carrinho assim que a página for carregada
-      document.addEventListener('DOMContentLoaded', loadCartHTML);
-
+      loadCartHTML()
+        .then(() => {
+          // Se houver shareId salvo, pode buscar do servidor também
+          // mas aqui vamos só carregar do localStorage
+          loadCartFromLocalStorage();
+        })
+        .catch(err => {
+          console.error("Erro ao carregar o carrinho:", err);
+        });
+    });
 
     // Expondo globalmente (caso o HTML use onclick="handleSelectRoom(...)")
     window.handleSelectRoom = function(hCode, hName, rCode, rName) {
