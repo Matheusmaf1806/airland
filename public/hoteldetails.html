@@ -213,7 +213,7 @@
     }
   };
 
-  // Função auxiliar para obter parâmetros da URL
+  // Função auxiliar para obter parâmetros da URL (usada somente para hotelCode, por exemplo)
   function getQueryParams() {
     const params = new URLSearchParams(window.location.search);
     const query = {};
@@ -223,16 +223,34 @@
     return query;
   }
 
-  // Busca os dados do hotel via API interna
+  // Função para buscar os dados do hotel usando os valores atuais dos inputs (datas, quartos, etc.)
   function fetchHotelCombined() {
+    // Obtém o valor atual do input de datas (selecionado pelo Flatpickr)
+    const checkinCheckoutValue = document.getElementById("checkin-checkout").value;
+    let checkIn, checkOut;
+    if (checkinCheckoutValue.includes(" - ")) {
+      [checkIn, checkOut] = checkinCheckoutValue.split(" - ");
+      // Converte do formato DD/MM/YYYY para YYYY-MM-DD para a API
+      checkIn = moment(checkIn, "DD/MM/YYYY").format("YYYY-MM-DD");
+      checkOut = moment(checkOut, "DD/MM/YYYY").format("YYYY-MM-DD");
+    }
+    // Obtém os outros valores diretamente dos inputs
+    const rooms = document.getElementById("rooms").value;
+    const adults = document.getElementById("adults").value;
+    const children = document.getElementById("children").value;
+    // Obtem o hotelCode (por exemplo, da URL)
     const query = getQueryParams();
+    const hotelCode = query.hotelCode;
+
+    // Prepara os parâmetros para a chamada da API
     const params = new URLSearchParams();
-    if (query.checkIn)     params.set('checkIn', query.checkIn);
-    if (query.checkOut)    params.set('checkOut', query.checkOut);
-    if (query.rooms)       params.set('rooms', query.rooms);
-    if (query.adults)      params.set('adults1', query.adults);
-    if (query.children)    params.set('children1', query.children);
-    if (query.hotelCode)   params.set('hotelCode', query.hotelCode);
+    if (checkIn) params.set('checkIn', checkIn);
+    if (checkOut) params.set('checkOut', checkOut);
+    if (rooms) params.set('rooms', rooms);
+    if (adults) params.set('adults1', adults);
+    if (children) params.set('children1', children);
+    if (hotelCode) params.set('hotelCode', hotelCode);
+
     return fetch(`/api/hbdetail/hotels?${params.toString()}`)
            .then(resp => resp.json());
   }
@@ -279,7 +297,7 @@
       interestPoints = hotelObj.content.interestPoints;
     }
     initMapAndAttractions(lat, lng, interestPoints);
-    // NÃO re-inicializamos o Flatpickr aqui (isso só acontece uma vez no DOMContentLoaded)
+    // Note: Não re-inicializamos o Flatpickr aqui para não sobrescrever o valor já selecionado.
   }
 
   function fillPhotoGallery(photos) {
@@ -433,23 +451,20 @@
     }
   }
 
-  // INICIALIZA o Flatpickr (apenas uma vez) para seleção de intervalo
+  // Inicializa o Flatpickr para seleção de intervalo (não atualiza a pesquisa automaticamente)
   function initDateRangePicker() {
     if (typeof flatpickr !== 'function') {
       console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
       return;
     }
-    // Inicializa o Flatpickr sem disparar a pesquisa automaticamente ao fechar
     flatpickr("#checkin-checkout", {
       mode: "range",
       dateFormat: "d/m/Y"
-      // Não usamos onClose para chamar updateRoomList automaticamente
     });
   }
 
-  // Função para atualizar a tabela de quartos e refazer a busca
+  // Função para atualizar a tabela de quartos (realiza nova busca usando os valores dos inputs atuais)
   window.updateRoomList = function() {
-    // Re-executa a busca no servidor com os valores atuais dos inputs
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
@@ -459,7 +474,7 @@
     });
   };
 
-  // Função para selecionar o quarto e enviar os dados ao carrinho
+  // Função para selecionar o quarto e enviar os dados para o carrinho
   window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "";
@@ -500,7 +515,7 @@
     const query = getQueryParams();
     if (query.checkIn && query.checkOut) {
       const input = document.getElementById("checkin-checkout");
-      // Se a URL vier com datas no formato YYYY-MM-DD, converte para DD/MM/YYYY
+      // Se a URL vier com datas no formato YYYY-MM-DD, converte para DD/MM/YYYY para exibição
       input.value =
         moment(query.checkIn, "YYYY-MM-DD").format("DD/MM/YYYY") + " - " +
         moment(query.checkOut, "YYYY-MM-DD").format("DD/MM/YYYY");
@@ -512,11 +527,11 @@
     if (query.rooms)    document.getElementById("rooms").value = query.rooms;
     if (query.adults)   document.getElementById("adults").value = query.adults;
     if (query.children) document.getElementById("children").value = query.children;
-
-    // Inicializa o Flatpickr apenas uma vez
+    
+    // Inicializa o Flatpickr (apenas uma vez)
     initDateRangePicker();
 
-    // Realiza a busca inicial
+    // Realiza a busca inicial usando os valores dos inputs (ou os da URL, se não alterados)
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
