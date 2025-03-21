@@ -28,6 +28,7 @@ class LoginComponent extends HTMLElement {
 
         /* ===== Formulário ===== */
         .form {
+          position: relative; /* Para posicionar o botão X */
           display: flex;
           flex-direction: column;
           gap: 10px;
@@ -110,17 +111,39 @@ class LoginComponent extends HTMLElement {
           font-size: 14px;
           margin: 5px 0;
         }
+
+        /* Botão "X" para fechar modal */
+        .close-btn {
+          position: absolute;
+          top: 10px;
+          right: 15px;
+          background: transparent;
+          border: none;
+          font-size: 1.2rem;
+          cursor: pointer;
+          color: #333;
+        }
+        .close-btn:hover {
+          color: #000;
+        }
       </style>
 
       <div class="modal-overlay">
         <form class="form">
+          <!-- Botão para fechar o modal -->
+          <button type="button" class="close-btn" id="closeModal">X</button>
           ${this.generateFields()}
         </form>
       </div>
     `;
 
+    // Formulário e eventos
     const form = this.shadowRoot.querySelector("form");
     form.addEventListener("submit", (e) => this.handleSubmit(e));
+
+    // Botão para fechar modal
+    const closeBtn = this.shadowRoot.querySelector("#closeModal");
+    closeBtn.addEventListener("click", () => this.remove());
 
     // Botão / texto para trocar de modo (login <-> register)
     const toggle = this.shadowRoot.querySelector("#toggleMode");
@@ -162,7 +185,7 @@ class LoginComponent extends HTMLElement {
                      A16 16 0 014 4a1 1 0 011-1h3.59a1 1 0 011 1
                      11.72 11.72 0 00.59 3.68 1 1 0 01-.27 1.11l-2.2 2.2z"/>
           </svg>
-          <input type="text" class="input" placeholder="Digite seu telefone" id="telefone" />
+          <input type="tel" class="input" placeholder="+55 11 94645-9381" id="telefone" />
         </div>
 
         <!-- Campo Email -->
@@ -191,16 +214,12 @@ class LoginComponent extends HTMLElement {
           <label>Senha</label>
         </div>
         <div class="inputForm">
-          <svg height="20" viewBox="-64 0 512 512" width="20"
-               xmlns="http://www.w3.org/2000/svg">
-            <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224
-                     c0-26.476562 21.546875-48 48-48h288
-                     c26.453125 0 48 21.523438 48 48v224
-                     c0 26.476562-21.546875 48-48 48zm-288-288
-                     c-8.8125 0-16 7.167969-16 16v224
-                     c0 8.832031 7.1875 16 16 16h288
-                     c8.8125 0 16-7.167969 16-16v-224
-                     c0-8.832031-7.1875-16-16-16zm0 0"></path>
+          <!-- Ícone de cadeado (Feather style) -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
           <input type="password" class="input" placeholder="Insira sua Senha" id="senha" />
         </div>
@@ -239,16 +258,12 @@ class LoginComponent extends HTMLElement {
           <label>Senha</label>
         </div>
         <div class="inputForm">
-          <svg height="20" viewBox="-64 0 512 512" width="20"
-               xmlns="http://www.w3.org/2000/svg">
-            <path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224
-                     c0-26.476562 21.546875-48 48-48h288
-                     c26.453125 0 48 21.523438 48 48v224
-                     c0 26.476562-21.546875 48-48 48zm-288-288
-                     c-8.8125 0-16 7.167969-16 16v224
-                     c0 8.832031 7.1875 16 16 16h288
-                     c8.8125 0 16-7.167969 16-16v-224
-                     c0-8.832031-7.1875-16-16-16zm0 0"></path>
+          <!-- Ícone de cadeado (Feather style) -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
           <input type="password" class="input" placeholder="Insira sua Senha" id="senha" />
         </div>
@@ -295,10 +310,7 @@ class LoginComponent extends HTMLElement {
     const params = new URLSearchParams(window.location.search);
     const affiliateId = params.get("affiliate") || null;
 
-    const requestBody = {
-      email,
-      affiliateId
-    };
+    const requestBody = { email, affiliateId };
 
     if (this.mode === 'register') {
       requestBody.name = name;
