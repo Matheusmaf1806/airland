@@ -6,19 +6,19 @@ class HeaderComponent extends HTMLElement {
 
   connectedCallback() {
     this.shadowRoot.innerHTML = `
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
       <style>
-        /* Reset e configurações iniciais */
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
-        body {
+        :host {
           font-family: 'Montserrat', sans-serif;
-          background-color: #f7f7f7;
+          display: block;
         }
 
-        /* ====== Barra Superior (Ofertas, Avisos) ====== */
         .top-offer-bar {
           width: 100%;
           background-color: #005CFF;
@@ -29,7 +29,6 @@ class HeaderComponent extends HTMLElement {
           font-weight: 500;
         }
 
-        /* ====== Header Principal ====== */
         .header-container {
           width: 100%;
           background-color: #fff;
@@ -40,7 +39,6 @@ class HeaderComponent extends HTMLElement {
           border-bottom: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* Logo */
         .logo {
           text-decoration: none; 
           display: flex;
@@ -51,7 +49,6 @@ class HeaderComponent extends HTMLElement {
           height: auto;
         }
 
-        /* Navegação Principal */
         .nav-menu {
           display: flex;
           gap: 30px;
@@ -70,14 +67,12 @@ class HeaderComponent extends HTMLElement {
           color: #005CFF;
         }
 
-        /* Área de Ações à Direita */
         .right-actions {
           display: flex;
           align-items: center;
           gap: 20px;
         }
 
-        /* Estilo "bolha" para todos os botões (Dúvidas, Dólar, Perfil, etc.) */
         .bubble-btn {
           display: inline-flex;
           align-items: center;
@@ -91,11 +86,11 @@ class HeaderComponent extends HTMLElement {
           text-decoration: none;
           position: relative;
         }
+
         .bubble-btn:hover {
           background-color: #e9e9e9;
         }
 
-        /* Bandeira */
         .flag-icon {
           width: 20px;
           height: 20px;
@@ -103,11 +98,10 @@ class HeaderComponent extends HTMLElement {
           border-radius: 50%;
         }
 
-        /* Botão do carrinho em estilo bolha */
         .cart-btn {
           cursor: pointer;
         }
-        /* Badge de contagem de itens no carrinho */
+
         .cart-count {
           position: absolute;
           top: -6px;
@@ -125,12 +119,10 @@ class HeaderComponent extends HTMLElement {
       </div>
 
       <header class="header-container">
-        <!-- Logo -->
         <a href="/" class="logo">
           <img src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png" alt="Logo Airland" />
         </a>
 
-        <!-- Navegação Principal -->
         <nav class="nav-menu">
           <a href="#" class="nav-item">Hotel</a>
           <a href="#" class="nav-item">Ingressos</a>
@@ -139,7 +131,6 @@ class HeaderComponent extends HTMLElement {
           <a href="#" class="nav-item">Seguro Viagem</a>
         </nav>
 
-        <!-- Ações à Direita -->
         <div class="right-actions">
           <a href="#" class="bubble-btn">Dúvidas</a>
 
@@ -161,16 +152,19 @@ class HeaderComponent extends HTMLElement {
     // Atualizar o valor do dólar
     this.updateDollar();
 
-    // Evento para abrir o login ao clicar no botão de perfil
-    this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
-      e.preventDefault();
-      if (typeof openLogin === "function") openLogin();
+    // Evento para abrir o carrinho
+    this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
+      if (typeof window.toggleCart === "function") {
+        window.toggleCart();
+      } else {
+        console.warn("toggleCart() não encontrado no escopo global.");
+      }
     });
 
-    // Evento para alternar o carrinho de compras
-    this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
-      const cart = document.querySelector(".cart-container");
-      if (cart) cart.classList.toggle("open");
+    // Evento para abrir o login
+    this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent("open-login"));
     });
   }
 
@@ -178,12 +172,13 @@ class HeaderComponent extends HTMLElement {
     try {
       const response = await fetch("/api/getLatestDollar");
       const data = await response.json();
-      this.shadowRoot.querySelector(".dollar-value").innerText = `R$ ${data.valor}`;
+      if (data?.valor) {
+        this.shadowRoot.querySelector(".dollar-value").innerText = `R$ ${data.valor}`;
+      }
     } catch (error) {
       console.error("Erro ao buscar o valor do dólar:", error);
     }
   }
 }
 
-// Define o Web Component como <app-header>
 customElements.define("app-header", HeaderComponent);
