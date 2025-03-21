@@ -229,11 +229,9 @@
     return fetch("/api/getLatestDollar")
       .then(resp => resp.json())
       .then(data => {
-        // Supondo que o JSON retornado tenha a propriedade "valor"
         if (data && data.valor) {
           return parseFloat(data.valor);
         }
-        // Se não encontrar, retorna 1 (sem conversão)
         return 1;
       })
       .catch(err => {
@@ -250,7 +248,6 @@
     let checkOut = "";
     if (dateRange.includes(" - ")) {
       const [startStr, endStr] = dateRange.split(" - ");
-      // Converte de "DD/MM/YYYY" para "YYYY-MM-DD" usando Moment.js
       checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
       checkOut = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
@@ -468,7 +465,7 @@
     }
   }
 
-  /********** 13. Inicializa o Flatpickr para seleção de datas (sem disparar a busca automaticamente) **********/
+  /********** 13. Inicializa o Flatpickr para seleção de datas (não dispara a busca automaticamente) **********/
   function initDateRangePicker() {
     if (typeof flatpickr !== 'function') {
       console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
@@ -478,20 +475,24 @@
       mode: "range",
       dateFormat: "d/m/Y",
       rangeSeparator: " - "
-      // Não chamamos updateRoomList() aqui para que a nova busca ocorra apenas quando o usuário clicar em "Pesquisar"
+      // Não chamamos updateRoomList() aqui para que a busca ocorra somente quando o usuário clicar em "Pesquisar"
     });
   }
 
-  /********** 14. Atualiza a busca e refaz a pesquisa (quando o usuário clica em "Pesquisar") **********/
-  window.updateRoomList = function() {
-    // Ao clicar em "Pesquisar", usamos somente as datas atuais do campo Flatpickr
-    fetchHotelCombined().then(data => {
-      if (data && data.combined && data.combined.length > 0) {
-        loadHotelContent(data.combined[0]);
-      } else {
-        console.error("Nenhum resultado para a pesquisa!");
-      }
-    });
+  /********** 14. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar" **********/
+  window.updateRoomList = async function() {
+    // Aqui usamos as datas atuais do campo Flatpickr
+    const data = await fetchHotelCombined();
+    if (data && data.combined && data.combined.length > 0) {
+      // Antes de carregar os dados, atualizamos a precificação usando a taxa do dólar
+      const dollarRate = await getDollarRate();
+      // Em loadHotelContent (ou em suas funções filhas) você pode ajustar os valores conforme o dólar.
+      // Exemplo: Multiplicar os preços em createRoomRow e updateRoomList pelo dollarRate.
+      // Vamos atualizar a busca e recarregar o conteúdo:
+      loadHotelContent(data.combined[0]);
+    } else {
+      console.error("Nenhum resultado para a pesquisa!");
+    }
   };
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
@@ -534,7 +535,7 @@
     // Inicializa o Flatpickr para seleção de datas
     initDateRangePicker();
 
-    // Para a busca inicial, se houver parâmetros na URL, exibimos as datas, mas não usamos para a nova busca
+    // Se a URL tiver datas, preenche o input mas NÃO as usa para nova busca
     const query = getQueryParams();
     if (query.checkIn && query.checkOut) {
       const input = document.getElementById("checkin-checkout");
@@ -550,7 +551,7 @@
     if (query.adults)   document.getElementById("adults").value = query.adults;
     if (query.children) document.getElementById("children").value = query.children;
 
-    // Busca inicial (apenas para exibição inicial; depois, o usuário clica em "Pesquisar")
+    // Realiza uma busca inicial para exibição (apenas para mostrar conteúdo)
     fetchHotelCombined().then(data => {
       if (data && data.combined && data.combined.length > 0) {
         loadHotelContent(data.combined[0]);
