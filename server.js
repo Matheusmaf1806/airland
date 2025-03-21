@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, "public")));
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
 import hbdetailRouter from "./routes/hbdetail.js";
 import cartRoutes from "./routes/cart.routes.js";
-import cartRoutes from "./routes/getLatestDollar.js";
+import getLatestDollar from "./routes/getLatestDollar.js";
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
