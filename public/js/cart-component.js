@@ -470,6 +470,7 @@ class ShoppingCart extends HTMLElement {
   /**
    * shareCart()
    * Cria um shareId no servidor (se não existir) e copia o link.
+   * Agora, exige que o usuário esteja logado para compartilhar.
    */
   async shareCart() {
     if (this.items.length === 0) {
@@ -477,7 +478,15 @@ class ShoppingCart extends HTMLElement {
       return;
     }
 
-    // Se já existe um shareId, só copiamos o link existente
+    // Verifica se o usuário está logado (agentId armazenado no localStorage)
+    const storedAgentId = localStorage.getItem("agentId");
+    if (!storedAgentId) {
+      alert("Você precisa estar logado para compartilhar o carrinho.");
+      // Aqui você pode redirecionar o usuário para a página de login ou exibir o componente de login
+      return;
+    }
+
+    // Se já existe um shareId, copia o link existente
     if (this.shareId) {
       const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
       try {
@@ -490,13 +499,18 @@ class ShoppingCart extends HTMLElement {
     }
 
     const affiliateId = "aff123";
-    const agentId = "agt567";
+    // Agora, usamos o agentId armazenado
+    const requestBody = {
+      affiliateId,
+      agentId: storedAgentId,
+      items: this.items
+    };
 
     try {
       const resp = await fetch(`${this.BASE_URL}/shareCart`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ affiliateId, agentId, items: this.items })
+        body: JSON.stringify(requestBody)
       });
       const data = await resp.json();
       if (data.success) {
@@ -504,7 +518,6 @@ class ShoppingCart extends HTMLElement {
         localStorage.setItem("shareId", this.shareId);
         const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
 
-        // Tenta copiar o link
         try {
           await navigator.clipboard.writeText(link);
           alert("Carrinho compartilhado e link copiado para a área de transferência!\n" + link);
