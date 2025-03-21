@@ -482,7 +482,7 @@ class ShoppingCart extends HTMLElement {
     const storedAgentId = localStorage.getItem("agentId");
     if (!storedAgentId) {
       alert("Você precisa estar logado para compartilhar o carrinho.");
-      // Aqui você pode redirecionar o usuário para a página de login ou exibir o componente de login
+      // Aqui, você pode redirecionar o usuário para a página de login ou exibir o componente de login
       return;
     }
 
@@ -499,7 +499,6 @@ class ShoppingCart extends HTMLElement {
     }
 
     const affiliateId = "aff123";
-    // Agora, usamos o agentId armazenado
     const requestBody = {
       affiliateId,
       agentId: storedAgentId,
@@ -512,7 +511,17 @@ class ShoppingCart extends HTMLElement {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
-      const data = await resp.json();
+      
+      // Tenta obter a resposta como texto e depois fazer o parse para JSON
+      const text = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonError) {
+        console.error("Resposta inválida (não é JSON):", text);
+        throw new Error("Resposta inválida do servidor.");
+      }
+      
       if (data.success) {
         this.shareId = data.shareId;
         localStorage.setItem("shareId", this.shareId);
