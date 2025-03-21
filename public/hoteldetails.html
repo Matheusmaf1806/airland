@@ -517,7 +517,7 @@
   };
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
-  window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
+  window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
     // Obtém as datas do campo Flatpickr
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "", checkOutDate = "";
@@ -547,7 +547,7 @@
       checkIn: checkInDate,
       checkOut: checkOutDate,
       finalPrice: finalPrice, // valor final já calculado
-      basePriceAdult: basePrice,
+      basePriceAdult: finalPrice,
       basePriceChild: parseFloat(basePriceChild) || 60
     };
     const cartComponent = document.querySelector("shopping-cart");
