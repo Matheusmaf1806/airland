@@ -137,6 +137,15 @@ class LoginComponent extends HTMLElement {
       </div>
     `;
 
+    // Fecha ao clicar fora do form (overlay)
+    const overlay = this.shadowRoot.querySelector('.modal-overlay');
+    overlay.addEventListener('click', (e) => {
+      // Se o clique foi diretamente no overlay (fora do .form), remove o modal
+      if (e.target === overlay) {
+        this.remove();
+      }
+    });
+
     // Formulário e eventos
     const form = this.shadowRoot.querySelector("form");
     form.addEventListener("submit", (e) => this.handleSubmit(e));
@@ -144,6 +153,12 @@ class LoginComponent extends HTMLElement {
     // Botão para fechar modal
     const closeBtn = this.shadowRoot.querySelector("#closeModal");
     closeBtn.addEventListener("click", () => this.remove());
+
+    // Máscara para o telefone, se existir
+    const phoneInput = this.shadowRoot.querySelector("#telefone");
+    if (phoneInput) {
+      phoneInput.addEventListener("input", this.formatPhone.bind(this));
+    }
 
     // Botão / texto para trocar de modo (login <-> register)
     const toggle = this.shadowRoot.querySelector("#toggleMode");
@@ -170,7 +185,7 @@ class LoginComponent extends HTMLElement {
             <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M4 21v-2a4 4 0 0 1 3-3.87"></path>
           </svg>
-          <input type="text" class="input" placeholder="Insira seu Nome" id="name" />
+          <input type="text" class="input" id="name" />
         </div>
 
         <!-- Campo Telefone -->
@@ -185,7 +200,7 @@ class LoginComponent extends HTMLElement {
                      A16 16 0 014 4a1 1 0 011-1h3.59a1 1 0 011 1
                      11.72 11.72 0 00.59 3.68 1 1 0 01-.27 1.11l-2.2 2.2z"/>
           </svg>
-          <input type="tel" class="input" placeholder="+55 11 94645-9381" id="telefone" />
+          <input type="tel" class="input" id="telefone" />
         </div>
 
         <!-- Campo Email -->
@@ -206,7 +221,7 @@ class LoginComponent extends HTMLElement {
                        6.006 6.006 0 0 1 -6 6z"></path>
             </g>
           </svg>
-          <input type="text" class="input" placeholder="Insira seu melhor Email" id="email" />
+          <input type="text" class="input" id="email" />
         </div>
 
         <!-- Campo Senha -->
@@ -221,7 +236,7 @@ class LoginComponent extends HTMLElement {
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <input type="password" class="input" placeholder="Insira sua Senha" id="senha" />
+          <input type="password" class="input" id="senha" />
         </div>
 
         <button class="button-submit">Cadastre-se</button>
@@ -250,7 +265,7 @@ class LoginComponent extends HTMLElement {
                        6.006 6.006 0 0 1 -6 6z"></path>
             </g>
           </svg>
-          <input type="text" class="input" placeholder="Insira seu Email" id="email" />
+          <input type="text" class="input" id="email" />
         </div>
 
         <!-- Campo Senha -->
@@ -265,7 +280,7 @@ class LoginComponent extends HTMLElement {
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <input type="password" class="input" placeholder="Insira sua Senha" id="senha" />
+          <input type="password" class="input" id="senha" />
         </div>
 
         <button class="button-submit">Entrar</button>
@@ -274,6 +289,28 @@ class LoginComponent extends HTMLElement {
         </p>
       `;
     }
+  }
+
+  /**
+   * Função para formatar o telefone no padrão +55 11 94645-9381
+   */
+  formatPhone(e) {
+    // Remove tudo que não for dígito
+    let val = e.target.value.replace(/\D/g, "");
+
+    // Monta partes
+    const country = val.substring(0, 2); // "55"
+    const area = val.substring(2, 4);    // "11"
+    const part1 = val.substring(4, 9);   // "94645"
+    const part2 = val.substring(9, 13);  // "9381"
+
+    let masked = "";
+    if (country) masked = "+" + country;
+    if (area)    masked += " " + area;
+    if (part1)   masked += " " + part1;
+    if (part2)   masked += "-" + part2;
+
+    e.target.value = masked;
   }
 
   toggleMode() {
