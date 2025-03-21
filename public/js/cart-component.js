@@ -1,5 +1,3 @@
-// public/js/cart-component.js
-
 class ShoppingCart extends HTMLElement {
   constructor() {
     super();
@@ -8,7 +6,8 @@ class ShoppingCart extends HTMLElement {
     // Armazena vários itens (ex.: vários quartos)
     this.items = [];
     this.shareId = null;
-    this.BASE_URL = "https://business.airland.com.br"; // Ajuste se necessário
+    // Ajuste a BASE_URL conforme seu servidor, se necessário
+    this.BASE_URL = "http://localhost:3000"; 
 
     // Template do carrinho (HTML/CSS)
     this.shadowRoot.innerHTML = `
@@ -102,13 +101,11 @@ class ShoppingCart extends HTMLElement {
         .share-cart-btn:hover {
           background: #005bb5;
         }
-        /* Novo SVG de compartilhar (conforme solicitado) */
         .share-icon {
           width: 14px;
           height: 14px;
           fill: #fff;
         }
-        /* ======== Cart Item ======== */
         .cart-item {
           background: #fff;
           border: 1px solid #ddd;
@@ -122,7 +119,6 @@ class ShoppingCart extends HTMLElement {
         .cart-item:hover {
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        /* Botão de remover: agora com o ícone do Font Awesome */
         .trash-btn {
           position: absolute;
           top: 10px;
@@ -137,7 +133,6 @@ class ShoppingCart extends HTMLElement {
         .trash-btn:hover {
           color: #e00;
         }
-        /* ======== Left / Right Sections ======== */
         .item-left {
           display: flex;
           flex-direction: column;
@@ -166,7 +161,6 @@ class ShoppingCart extends HTMLElement {
           font-size: 0.8rem;
           color: #666;
         }
-        /* Lado direito: valor e condições, fixados no canto */
         .item-right {
           position: absolute;
           right: 0.1rem;
@@ -192,7 +186,6 @@ class ShoppingCart extends HTMLElement {
           color: #35b473;
           margin-top: 2px;
         }
-        /* ======== Footer (Subtotal, etc.) ======== */
         .cart-footer {
           border-top: 1px solid #eee;
           padding: 1rem;
@@ -334,13 +327,11 @@ class ShoppingCart extends HTMLElement {
   }
 
   connectedCallback() {
-    // Se houver shareId salvo, carrega do servidor
     const stored = localStorage.getItem("shareId");
     if (stored) {
       this.shareId = stored;
       this.loadCartFromServer(this.shareId);
     }
-    // Se houver shareId na URL
     const params = new URLSearchParams(window.location.search);
     const paramS = params.get("shareId");
     if (paramS) {
@@ -348,10 +339,9 @@ class ShoppingCart extends HTMLElement {
       localStorage.setItem("shareId", this.shareId);
       this.loadCartFromServer(this.shareId);
     }
-    // Renderiza os itens locais
+
     this.renderCartItems();
 
-    // Botões do header
     this.shadowRoot.querySelector('.close-cart-btn')
       .addEventListener('click', () => this.closeCart());
     this.shadowRoot.querySelector('.share-cart-btn')
@@ -360,33 +350,21 @@ class ShoppingCart extends HTMLElement {
       .addEventListener('click', () => this.clearCartServer());
   }
 
-  // Abre o carrinho (mostra)
   openCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.add('open');
   }
 
-  // Fecha o carrinho (oculta)
   closeCart() {
     const container = this.shadowRoot.querySelector('.cart-container');
     if (container) container.classList.remove('open');
   }
 
-  /**
-   * addItem(item)
-   * Adiciona um novo quarto/item ao array e re-renderiza
-   */
   addItem(item) {
     this.items.push(item);
     this.renderCartItems();
-    // Se quiser sincronizar no servidor automaticamente:
-    // this.updateCartServer();
   }
 
-  /**
-   * renderCartItems()
-   * Renderiza todos os itens do carrinho
-   */
   renderCartItems() {
     const container = this.shadowRoot.querySelector('#cartItemsList');
     if (!container) return;
@@ -396,11 +374,9 @@ class ShoppingCart extends HTMLElement {
       container.innerHTML = '<p>Nenhum item no carrinho.</p>';
     } else {
       this.items.forEach((itm, idx) => {
-        // Define o tipo em uppercase para comparação
         const type = itm.type ? itm.type.toUpperCase() : "HOSPEDAGEM";
         let itemTotal;
         if (type === "HOSPEDAGEM") {
-          // Para hospedagem, o preço já é o total (não multiplica por adultos/crianças)
           itemTotal = itm.basePriceAdult || 80;
         } else {
           const baseAdult = itm.basePriceAdult || 80;
@@ -408,24 +384,17 @@ class ShoppingCart extends HTMLElement {
           itemTotal = (itm.adults * baseAdult) + (itm.children * baseChild);
         }
 
-        // Formata as datas para dd/mm/yyyy
         const formattedCheckIn = this.formatDate(itm.checkIn);
         const formattedCheckOut = this.formatDate(itm.checkOut);
-
-        // Exibe o tipo (categoria) sem parênteses
         const categoryLabel = itm.type || "Hospedagem";
 
-        // Monta o layout do item
         const itemDiv = document.createElement('div');
         itemDiv.classList.add('cart-item');
 
         itemDiv.innerHTML = `
-          <!-- Botão de remover (ícone com Font Awesome) -->
           <button class="trash-btn" data-index="${idx}" title="Remover Item">
             <i class="fas fa-trash-alt"></i>
           </button>
-
-          <!-- Informações do item -->
           <div class="item-left">
             <span class="tag-ingresso">${categoryLabel}</span>
             <div class="item-title">
@@ -441,8 +410,6 @@ class ShoppingCart extends HTMLElement {
               Adultos: ${itm.adults} | Crianças: ${itm.children}
             </div>
           </div>
-
-          <!-- Lado direito: valor e condições -->
           <div class="item-right">
             <div class="item-price">
               R$ ${itemTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -455,7 +422,6 @@ class ShoppingCart extends HTMLElement {
         container.appendChild(itemDiv);
       });
 
-      // Adiciona eventos para remover itens
       const removeBtns = this.shadowRoot.querySelectorAll('.trash-btn');
       removeBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -464,25 +430,14 @@ class ShoppingCart extends HTMLElement {
         });
       });
     }
-
-    // Atualiza os totais
     this.updateTotals();
   }
 
-  /**
-   * removeItem(index)
-   * Remove um item e re-renderiza
-   */
   removeItem(index) {
     this.items.splice(index, 1);
     this.renderCartItems();
-    // Se desejar sincronizar com o servidor, chame updateCartServer();
   }
 
-  /**
-   * updateTotals()
-   * Calcula o total e atualiza a exibição
-   */
   updateTotals() {
     let total = 0;
     this.items.forEach(itm => {
@@ -505,10 +460,6 @@ class ShoppingCart extends HTMLElement {
     }
   }
 
-  /**
-   * formatDate(dateStr)
-   * Converte uma data do formato yyyy-mm-dd para dd/mm/yyyy
-   */
   formatDate(dateStr) {
     if (!dateStr) return "--/--/----";
     const parts = dateStr.split('-');
@@ -518,19 +469,29 @@ class ShoppingCart extends HTMLElement {
 
   /**
    * shareCart()
-   * Cria um shareId no servidor e salva localmente
+   * Cria um shareId no servidor (se não existir) e copia o link.
    */
   async shareCart() {
     if (this.items.length === 0) {
       alert("Carrinho vazio, não há o que compartilhar!");
       return;
     }
+
+    // Se já existe um shareId, só copiamos o link existente
     if (this.shareId) {
-      alert("Carrinho já possui shareId: " + this.shareId);
+      const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
+      try {
+        await navigator.clipboard.writeText(link);
+        alert("Link do carrinho copiado para a área de transferência!\n" + link);
+      } catch (error) {
+        alert("Falha ao copiar o link: " + error);
+      }
       return;
     }
+
     const affiliateId = "aff123";
     const agentId = "agt567";
+
     try {
       const resp = await fetch(`${this.BASE_URL}/shareCart`, {
         method: "POST",
@@ -542,7 +503,14 @@ class ShoppingCart extends HTMLElement {
         this.shareId = data.shareId;
         localStorage.setItem("shareId", this.shareId);
         const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
-        alert("Carrinho compartilhado!\n" + link);
+
+        // Tenta copiar o link
+        try {
+          await navigator.clipboard.writeText(link);
+          alert("Carrinho compartilhado e link copiado para a área de transferência!\n" + link);
+        } catch (err) {
+          alert("Carrinho compartilhado, mas não foi possível copiar o link automaticamente.\n" + link);
+        }
       } else {
         alert("Erro ao compartilhar: " + (data.error || "desconhecido"));
       }
@@ -552,10 +520,6 @@ class ShoppingCart extends HTMLElement {
     }
   }
 
-  /**
-   * updateCartServer()
-   * Atualiza os itens do carrinho no servidor, se houver shareId
-   */
   async updateCartServer() {
     if (!this.shareId) return;
     try {
@@ -573,10 +537,6 @@ class ShoppingCart extends HTMLElement {
     }
   }
 
-  /**
-   * loadCartFromServer(sId)
-   * Carrega os itens do servidor e atualiza a exibição
-   */
   async loadCartFromServer(sId) {
     try {
       const resp = await fetch(`${this.BASE_URL}/cart/${sId}`);
@@ -594,10 +554,6 @@ class ShoppingCart extends HTMLElement {
     }
   }
 
-  /**
-   * clearCartServer()
-   * Limpa o carrinho do servidor e localmente
-   */
   async clearCartServer() {
     if (!this.shareId) {
       this.items = [];
