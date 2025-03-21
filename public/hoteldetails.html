@@ -517,8 +517,8 @@
   };
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
-  window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPriceParam, basePriceChild) {
-    // Obtém as datas do Flatpickr
+  window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
+    // Obtém as datas do campo Flatpickr
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "", checkOutDate = "";
     if (dateRange.includes(" - ")) {
@@ -530,8 +530,11 @@
     const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
     const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
     const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
-    // finalPriceParam é o valor final já calculado (convertido e multiplicado)
-    const finalPrice = parseFloat(finalPriceParam);
+    const dollarRate = window.latestDollarRate || 1;
+    // Calcular o preço final usando o preço base convertido, número de noites e número de quartos
+    const basePrice = parseFloat(basePriceAdult) || 80;
+    const finalPrice = basePrice * dollarRate * numNoites * numRooms;
+
     const selectedRoom = {
       type: "HOSPEDAGEM",
       hotelCode: hCode,
@@ -543,8 +546,8 @@
       children: numChildren,
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      finalPrice: finalPrice,  // Envia o valor final calculado
-      basePriceAdult: finalPrice, // Opcional: se desejar registrar o valor final no campo basePriceAdult
+      finalPrice: finalPrice, // valor final já calculado
+      basePriceAdult: basePrice,
       basePriceChild: parseFloat(basePriceChild) || 60
     };
     const cartComponent = document.querySelector("shopping-cart");
