@@ -490,20 +490,24 @@
     flatpickr("#checkin-checkout", {
       mode: "range",
       dateFormat: "d/m/Y",
-      rangeSeparator: " - "
-      // Não dispara a busca automaticamente
+      rangeSeparator: " - ",
+      onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length === 2) {
+          const diff = Math.round((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
+          document.getElementById("num-noites").textContent = diff > 0 ? diff : 1;
+        }
+      }
     });
   }
 
   /********** 14. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar" **********/
   window.updateRoomList = async function() {
-    // Re-obter os dados da busca (usando as datas atuais do Flatpickr)
     const data = await fetchHotelCombined();
     if (data && data.combined && data.combined.length > 0) {
       const dollarRate = await getDollarRate();
-      // Atualiza também a quantidade de noites
-      window.latestNumNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
+      // Atualiza as variáveis globais para uso no envio para o carrinho
       window.latestDollarRate = dollarRate;
+      window.latestNumNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       loadHotelContent(data.combined[0], dollarRate);
     } else {
       console.error("Nenhum resultado para a pesquisa!");
@@ -525,7 +529,7 @@
     const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
     // Utilize a última taxa do dólar armazenada
     const dollarRate = window.latestDollarRate || 1;
-    // Calcule o preço final: basePrice * dollarRate * numNoites
+    // Calcule o preço final: basePriceAdult * dollarRate * numNoites
     const basePrice = parseFloat(basePriceAdult) || 80;
     const finalPrice = basePrice * dollarRate * numNoites;
     const selectedRoom = {
@@ -539,7 +543,6 @@
       children: numChildren,
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      // Envia também o valor final já calculado
       finalPrice: finalPrice,
       basePriceAdult: basePrice,
       basePriceChild: parseFloat(basePriceChild) || 60
