@@ -520,23 +520,23 @@
   };
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
-  window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
+  window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
+    // Obtém o intervalo de datas do Flatpickr
     const dateRange = document.getElementById("checkin-checkout").value;
-    let checkInDate = "", checkOutDate = "";
+    let checkInDate = "";
+    let checkOutDate = "";
     if (dateRange.includes(" - ")) {
       const [startStr, endStr] = dateRange.split(" - ");
       checkInDate = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
       checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
+    
+    // Obtém os demais valores dos campos
     const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
     const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
     const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
-    const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
-    // Utilize a última taxa do dólar armazenada
-    const dollarRate = window.latestDollarRate || 1;
-    // Calcule o preço final (valor final já convertido e multiplicado pelo número de noites)
-    const basePrice = parseFloat(basePriceAdult) || 80;
-    const finalPrice = basePrice * dollarRate * numNoites;
+    
+    // Cria o objeto do quarto selecionado, usando o finalPrice já calculado
     const selectedRoom = {
       type: "HOSPEDAGEM",
       hotelCode: hCode,
@@ -548,10 +548,11 @@
       children: numChildren,
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      finalPrice: finalPrice,
-      basePriceAdult: basePrice,
+      finalPrice: finalPrice,  // Valor final já calculado
       basePriceChild: parseFloat(basePriceChild) || 60
     };
+  
+    // Envia para o carrinho
     const cartComponent = document.querySelector("shopping-cart");
     if (cartComponent && typeof cartComponent.addItem === "function") {
       cartComponent.addItem(selectedRoom);
@@ -559,7 +560,7 @@
     } else {
       console.warn("O método addItem() não está implementado no componente!");
     }
-  };
+  };  
 
   /********** 16. Inicialização ao carregar a página **********/
   document.addEventListener("DOMContentLoaded", async function() {
