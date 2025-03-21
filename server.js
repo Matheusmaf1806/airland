@@ -43,7 +43,7 @@ import getLatestDollar from "./routes/getLatestDollar.js";
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
-app.use("/api/getLatestDollar", getLatestDollar);
+app.get("/api/getLatestDollar", getLatestDollar);
 
 // ------------------------------------------------------
 // Rota principal (teste)
