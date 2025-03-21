@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
     // Hashear a senha
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Inserir o usuário na tabela "users"
+    // Inserir o usuário na tabela "users" e solicitar o registro inserido com .select()
     const { data, error } = await supabase
       .from("users")
       .insert([
@@ -48,10 +48,15 @@ router.post("/register", async (req, res) => {
           ultimo_nome,
         }
       ])
+      .select() // Solicita o registro inserido
       .single();
     
     if (error) {
       return res.status(500).json({ success: false, error: error.message });
+    }
+    
+    if (!data) {
+      return res.status(500).json({ success: false, error: "Nenhum dado retornado após o registro." });
     }
     
     // Gera um token JWT com expiração de 1 dia
