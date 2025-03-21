@@ -470,7 +470,7 @@ class ShoppingCart extends HTMLElement {
   /**
    * shareCart()
    * Cria um shareId no servidor (se não existir) e copia o link.
-   * Exige que o usuário esteja logado (agentId armazenado no localStorage).
+   * Agora, exige que o usuário esteja logado para compartilhar.
    */
   async shareCart() {
     if (this.items.length === 0) {
@@ -482,7 +482,7 @@ class ShoppingCart extends HTMLElement {
     const storedAgentId = localStorage.getItem("agentId");
     if (!storedAgentId) {
       alert("Você precisa estar logado para compartilhar o carrinho.");
-      // Aqui, você pode redirecionar para a página de login ou exibir o componente de login.
+      // Aqui você pode redirecionar o usuário para a página de login ou exibir o componente de login
       return;
     }
 
@@ -499,6 +499,7 @@ class ShoppingCart extends HTMLElement {
     }
 
     const affiliateId = "aff123";
+    // Agora, usamos o agentId armazenado
     const requestBody = {
       affiliateId,
       agentId: storedAgentId,
@@ -511,19 +512,12 @@ class ShoppingCart extends HTMLElement {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
-      
-      if (!resp.ok) {
-        const errText = await resp.text();
-        console.error("Erro do servidor:", errText);
-        alert("Erro ao compartilhar carrinho. Tente novamente mais tarde.");
-        return;
-      }
-      
       const data = await resp.json();
       if (data.success) {
         this.shareId = data.shareId;
         localStorage.setItem("shareId", this.shareId);
         const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
+
         try {
           await navigator.clipboard.writeText(link);
           alert("Carrinho compartilhado e link copiado para a área de transferência!\n" + link);
