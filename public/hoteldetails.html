@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -20,6 +21,8 @@
   
   <!-- Carrega o Web Component do Carrinho -->
   <script src="/js/cart-component.js" defer></script>
+  <script src="/js/header-component.js" type="module"></script>
+
 
   <style>
     /* RESET e estilos básicos para hoteldetails */
@@ -101,7 +104,7 @@
 </head>
 <body>
   <!-- HEADER: Carregado via fetch -->
-  <div id="header"></div>
+  <app-header></app-header>
 
   <!-- CARRINHO: Web Component (múltiplos itens via addItem()) -->
   <shopping-cart 
@@ -194,15 +197,6 @@
   (function() {
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
-
-    // 1. Carregar header via fetch
-    fetch("header.html")
-      .then(resp => resp.text())
-      .then(html => {
-        const headerEl = document.getElementById("header");
-        if (headerEl) headerEl.innerHTML = html;
-      })
-      .catch(err => console.error("Erro ao carregar header:", err));
 
     // 2. Função global para abrir o carrinho
     window.toggleCart = function() {
