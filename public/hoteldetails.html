@@ -242,12 +242,13 @@
 
   /********** 5. Função que busca os dados do hotel **********/
   function fetchHotelCombined() {
-    // Lê as datas do input do Flatpickr
+    // Lê as datas diretamente do input do Flatpickr
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkIn = "";
     let checkOut = "";
     if (dateRange.includes(" - ")) {
       const [startStr, endStr] = dateRange.split(" - ");
+      // Converte de "DD/MM/YYYY" para "YYYY-MM-DD"
       checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
       checkOut = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
     }
@@ -306,7 +307,7 @@
       <p>Confira as melhores vantagens desta acomodação.</p>
     `;
 
-    // Cria a tabela de quartos, passando a taxa do dólar para conversão
+    // Cria a tabela de quartos (usa o dollarRate para conversão e multiplica pelo número de noites)
     createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
     fillInfoBlocks({
       checkin: "A partir das 16h",
@@ -397,12 +398,12 @@
     // Obtém o número de noites e de quartos
     const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
     const numRooms = parseInt(document.getElementById("rooms").value) || 1;
-    // Calcula o preço total final (que será exibido e enviado para o carrinho)
-    const finalPrice = convertedPrice * numNoites * numRooms;
-    const netFormatted = isNaN(finalPrice) ? "N/A" : finalPrice.toFixed(2);
-    const discountAmount = finalPrice * 0.05;
+    // Calcula o preço total final (por quarto, multiplicado por noites e quartos)
+    const totalPrice = convertedPrice * numNoites * numRooms;
+    const netFormatted = isNaN(totalPrice) ? "N/A" : totalPrice.toFixed(2);
+    const discountAmount = totalPrice * 0.05;
     const discountMsg = `Economize R$${discountAmount.toFixed(2)} no Pix`;
-    const dailyRate = (finalPrice / numNoites).toFixed(2);
+    const dailyRate = (totalPrice / numNoites).toFixed(2);
     const row = document.createElement("div");
     row.className = "room-table-row";
     row.innerHTML = `
@@ -419,9 +420,9 @@
         <p class="daily-price">Preço por diária: R$ ${dailyRate}</p>
       </div>
       <div>
-        <!-- Passamos o finalPrice calculado como parâmetro para a função handleSelectRoom -->
+        <!-- Passa o totalPrice calculado para a função de seleção -->
         <button class="select-room-button"
-          onclick="handleSelectRoom('${hotelCode}', '${hotelName}', '${room.code}', '${room.name}', '${finalPrice}', '60')">
+          onclick="handleSelectRoom('${hotelCode}', '${hotelName}', '${room.code}', '${room.name}', '${totalPrice}', '60')">
           Selecionar Quarto
         </button>
       </div>
@@ -493,13 +494,13 @@
       mode: "range",
       dateFormat: "d/m/Y",
       rangeSeparator: " - "
-      // Não dispara a busca automaticamente
+      // A busca não será disparada automaticamente
     });
   }
 
   /********** 14. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar" **********/
   window.updateRoomList = async function() {
-    // Recalcula o número de noites com base no valor atual do Flatpickr
+    // Recalcula o número de noites com base nas datas selecionadas
     const dateRange = document.getElementById("checkin-checkout").value;
     if (dateRange.includes(" - ")) {
       const [startStr, endStr] = dateRange.split(" - ");
@@ -518,7 +519,7 @@
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
   window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPriceParam, basePriceChild) {
-    // Obtém as datas do campo Flatpickr
+    // Obtém as datas do Flatpickr
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "", checkOutDate = "";
     if (dateRange.includes(" - ")) {
@@ -530,9 +531,8 @@
     const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
     const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
     const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
-    // Aqui finalPriceParam já contém o valor final (convertido, multiplicado pelo dólar, noites e quartos)
-    const finalPrice = parseFloat(finalPriceParam) || 0;
-
+    // finalPriceParam é o valor final já calculado (convertido e multiplicado)
+    const finalPrice = parseFloat(finalPriceParam);
     const selectedRoom = {
       type: "HOSPEDAGEM",
       hotelCode: hCode,
@@ -544,7 +544,8 @@
       children: numChildren,
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      finalPrice: finalPrice, // Valor final já calculado e passado
+      finalPrice: finalPrice,  // Envia o valor final calculado
+      basePriceAdult: finalPrice, // Opcional: se desejar registrar o valor final no campo basePriceAdult
       basePriceChild: parseFloat(basePriceChild) || 60
     };
     const cartComponent = document.querySelector("shopping-cart");
@@ -575,7 +576,7 @@
     if (query.adults) document.getElementById("adults").value = query.adults;
     if (query.children) document.getElementById("children").value = query.children;
 
-    // Busca inicial para exibição (usando as datas do Flatpickr ou as da URL para exibição inicial)
+    // Busca inicial para exibição
     const data = await fetchHotelCombined();
     if (data && data.combined && data.combined.length > 0) {
       const dollarRate = await getDollarRate();
