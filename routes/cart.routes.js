@@ -16,28 +16,35 @@ const router = Router();
 router.post("/shareCart", async (req, res) => {
   try {
     const { affiliateId, agentId, items } = req.body;
+    
+    if (!items) {
+      return res.status(400).json({ success: false, error: "Nenhum item fornecido." });
+    }
+    
     // Gera um share_id único (ex.: 16 caracteres hexadecimais)
     const share_id = crypto.randomBytes(8).toString("hex");
     
     // Insere o novo carrinho na tabela "shared_carts"
     const { data, error } = await supabase
       .from("shared_carts")
-      .insert([{
-        share_id,
-        affiliate_id: affiliateId,
-        agent_id: agentId,
-        items,  // deve ser um objeto JSON
-      }])
+      .insert([
+        {
+          share_id,
+          affiliate_id: affiliateId,
+          agent_id: agentId,
+          items, // deve ser um objeto JSON
+        }
+      ])
       .single();
       
     if (error) {
       return res.status(500).json({ success: false, error: error.message });
     }
     
-    res.json({ success: true, shareId: share_id });
+    return res.json({ success: true, shareId: share_id });
   } catch (err) {
     console.error("Erro no /shareCart:", err);
-    res.status(500).json({ success: false, error: "Erro interno" });
+    return res.status(500).json({ success: false, error: "Erro interno" });
   }
 });
 
@@ -47,6 +54,10 @@ router.post("/shareCart", async (req, res) => {
 router.post("/updateCart", async (req, res) => {
   try {
     const { shareId, items } = req.body;
+    
+    if (!shareId || !items) {
+      return res.status(400).json({ success: false, error: "Parâmetros shareId e items são obrigatórios." });
+    }
     
     const { data, error } = await supabase
       .from("shared_carts")
@@ -60,10 +71,10 @@ router.post("/updateCart", async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
     
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (err) {
     console.error("Erro no /updateCart:", err);
-    res.status(500).json({ success: false, error: "Erro interno" });
+    return res.status(500).json({ success: false, error: "Erro interno" });
   }
 });
 
@@ -73,6 +84,10 @@ router.post("/updateCart", async (req, res) => {
 router.get("/cart/:shareId", async (req, res) => {
   try {
     const { shareId } = req.params;
+    
+    if (!shareId) {
+      return res.status(400).json({ success: false, error: "Parâmetro shareId ausente." });
+    }
     
     const { data, error } = await supabase
       .from("shared_carts")
@@ -84,10 +99,10 @@ router.get("/cart/:shareId", async (req, res) => {
       return res.status(404).json({ success: false, error: error.message });
     }
     
-    res.json({ success: true, items: data.items });
+    return res.json({ success: true, items: data.items });
   } catch (err) {
     console.error("Erro no GET /cart/:shareId:", err);
-    res.status(500).json({ success: false, error: "Erro interno" });
+    return res.status(500).json({ success: false, error: "Erro interno" });
   }
 });
 
@@ -98,6 +113,10 @@ router.post("/clearCart", async (req, res) => {
   try {
     const { shareId } = req.body;
     
+    if (!shareId) {
+      return res.status(400).json({ success: false, error: "Parâmetro shareId ausente." });
+    }
+    
     const { data, error } = await supabase
       .from("shared_carts")
       .delete()
@@ -107,10 +126,10 @@ router.post("/clearCart", async (req, res) => {
       return res.status(500).json({ success: false, error: error.message });
     }
     
-    res.json({ success: true });
+    return res.json({ success: true });
   } catch (err) {
     console.error("Erro no /clearCart:", err);
-    res.status(500).json({ success: false, error: "Erro interno" });
+    return res.status(500).json({ success: false, error: "Erro interno" });
   }
 });
 
