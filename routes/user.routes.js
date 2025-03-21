@@ -25,6 +25,17 @@ router.post("/register", async (req, res) => {
     if (!name || !email || !password || !telefone) {
       return res.status(400).json({ success: false, error: "Campos obrigatórios não preenchidos." });
     }
+
+    // Verifica se já existe um usuário com o mesmo email
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: "Email já está em uso." });
+    }
     
     // Separar o nome em primeiro_nome e ultimo_nome
     const nameParts = name.split(" ");
@@ -48,7 +59,7 @@ router.post("/register", async (req, res) => {
           ultimo_nome,
         }
       ])
-      .select() // Solicita o registro inserido
+      .select() // Retorna o registro inserido
       .single();
     
     if (error) {
