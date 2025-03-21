@@ -97,7 +97,7 @@
       color: #333;
       border: 1px solid #ddd;
       text-decoration: none;
-      position: relative; /* Para podermos posicionar o badge do carrinho */
+      position: relative;
     }
     .bubble-btn:hover {
       background-color: #e9e9e9;
@@ -141,7 +141,7 @@
     <a href="#" class="logo">
       <img 
         src="https://raw.githubusercontent.com/Matheusmaf1806/airland/refs/heads/main/image/Escrita%20Azul.png"
-        alt="Logo Magic Travel"
+        alt="Logo Airland"
       />
     </a>
 
@@ -196,7 +196,7 @@
   <script>
     async function updateDollar() {
       try {
-        const response = await fetch('/routes/getLatestDollar.js');
+        const response = await fetch('/api/getLatestDollar');
         const data = await response.json();
         // Supondo que o JSON retornado possua uma propriedade "value" com o valor atual do dólar
         document.querySelector('.dollar-value').innerText = `R$ ${data.value}`;
@@ -204,17 +204,15 @@
         console.error("Erro ao buscar o valor do dólar:", error);
       }
     }
-    // Atualiza o valor assim que o documento é carregado
     document.addEventListener('DOMContentLoaded', updateDollar);
   </script>
 
   <!-- Importa o componente de login -->
-  <script src="public/js/login-component.js"></script>
+  <script src="/js/login-component.js"></script>
   <!-- Evento para abrir o login ao clicar no botão de perfil -->
   <script>
     document.querySelector('.profile-btn').addEventListener('click', function(event) {
       event.preventDefault();
-      // Verifica se a função para abrir o login está definida
       if (typeof openLogin === 'function') {
         openLogin();
       } else {
