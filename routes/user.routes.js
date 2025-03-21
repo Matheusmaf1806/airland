@@ -19,7 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "seuSegredoDefault";
 // Registra um novo usuário com os campos: name, email, password, telefone e affiliateId.
 // Separa o nome em primeiro_nome e ultimo_nome.
 // Após o registro, gera um token JWT com expiração de 1 dia e o envia como cookie.
-router.post("/users/register", async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { name, email, password, telefone, affiliateId } = req.body;
     if (!name || !email || !password || !telefone) {
@@ -70,7 +70,7 @@ router.post("/users/register", async (req, res) => {
 // POST /api/users/login
 // Realiza o login do usuário usando name, email e telefone.
 // Após encontrar o usuário, gera um token JWT com expiração de 1 dia e o envia como cookie.
-router.post("/users/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { name, email, telefone } = req.body;
     if (!name || !email || !telefone) {
