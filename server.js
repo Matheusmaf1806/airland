@@ -40,10 +40,20 @@ import hbdetailRouter from "./routes/hbdetail.js";
 import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 
+// ===============
+// IMPORTAR userRoutes
+import userRoutes from "./routes/user.routes.js";
+// ===============
+
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
+
+// ========
+// Usar userRoutes
+app.use("/api/users", userRoutes);
+// ========
 
 // ------------------------------------------------------
 // Rota principal (teste)
@@ -55,7 +65,7 @@ app.get("/", (req, res) => {
 // Função para gerar assinatura de requests (Hotelbeds)
 function generateSignature() {
   const publicKey  = process.env.API_KEY_HH;    // ex.: "123456..."
-  const privateKey = process.env.SECRET_KEY_HH;  // ex.: "abcXYZ..."
+  const privateKey = process.env.SECRET_KEY_HH; // ex.: "abcXYZ..."
   const utcDate    = Math.floor(Date.now() / 1000);
   const assemble   = `${publicKey}${privateKey}${utcDate}`;
   return crypto.createHash("sha256").update(assemble).digest("hex");
@@ -63,7 +73,7 @@ function generateSignature() {
 
 // ------------------------------------------------------
 // Rota GET para Preço / Disponibilidade (Hotel Booking API)
-// Exemplo de chamada: 
+// Exemplo de chamada:
 // GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
 app.get("/api/hotelbeds/hotels", async (req, res) => {
   try {
