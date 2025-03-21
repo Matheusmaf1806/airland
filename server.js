@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import cookieParser from "cookie-parser";
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -28,21 +29,24 @@ const supabase = createClient(
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 // 5) Servir arquivos estáticos a partir de /public
 app.use(express.static(path.join(__dirname, "public")));
 
 // ------------------------------------------------------
-// IMPORTAR O SEU ROUTER PARA A TICKETS GENIE
+// IMPORTAR OS ROUTERS
 // ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
 import hbdetailRouter from "./routes/hbdetail.js";
 import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
+import userRoutes from "./routes/user.routes.js";
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
+app.use("/api/users", userRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
 
 // ------------------------------------------------------
