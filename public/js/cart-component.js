@@ -7,7 +7,7 @@ class ShoppingCart extends HTMLElement {
     this.items = [];
     this.shareId = null;
     // Ajuste a BASE_URL conforme seu servidor, se necessário
-    this.BASE_URL = "https://business.airland.com.br/"; 
+    this.BASE_URL = "https://business.airland.com.br/api"; 
 
     // Template do carrinho (HTML/CSS)
     this.shadowRoot.innerHTML = `
