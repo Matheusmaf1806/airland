@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Header - Duas Faixas com Menu + Extras Direita</title>
+  <title>Header</title>
 
   <!-- Fonte Montserrat -->
   <link
@@ -160,13 +160,14 @@
       <a href="#" class="bubble-btn">Dúvidas</a>
 
       <!-- Cotação do Dólar -->
-      <div class="bubble-btn">
+      <div class="bubble-btn" id="dollar-btn">
         <img 
           src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg"
           alt="Bandeira EUA"
           class="flag-icon"
         />
-        <span>R$ 5,20</span>
+        <!-- O valor será atualizado dinamicamente -->
+        <span class="dollar-value">R$ 0.00</span>
       </div>
 
       <!-- Botão do Carrinho -->
@@ -177,7 +178,7 @@
       </div>
 
       <!-- Perfil -->
-      <a href="#" class="bubble-btn">Perfil</a>
+      <a href="#" class="bubble-btn profile-btn">Perfil</a>
     </div>
   </header>
 
@@ -190,5 +191,37 @@
       }
     }
   </script>
+
+  <!-- Script para atualizar o valor do dólar -->
+  <script>
+    async function updateDollar() {
+      try {
+        const response = await fetch('/routes/getLatestDollar.js');
+        const data = await response.json();
+        // Supondo que o JSON retornado possua uma propriedade "value" com o valor atual do dólar
+        document.querySelector('.dollar-value').innerText = `R$ ${data.value}`;
+      } catch (error) {
+        console.error("Erro ao buscar o valor do dólar:", error);
+      }
+    }
+    // Atualiza o valor assim que o documento é carregado
+    document.addEventListener('DOMContentLoaded', updateDollar);
+  </script>
+
+  <!-- Importa o componente de login -->
+  <script src="public/js/login-component.js"></script>
+  <!-- Evento para abrir o login ao clicar no botão de perfil -->
+  <script>
+    document.querySelector('.profile-btn').addEventListener('click', function(event) {
+      event.preventDefault();
+      // Verifica se a função para abrir o login está definida
+      if (typeof openLogin === 'function') {
+        openLogin();
+      } else {
+        console.error("Função openLogin não encontrada em login-component.js.");
+      }
+    });
+  </script>
+
 </body>
 </html>
