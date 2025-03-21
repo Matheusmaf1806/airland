@@ -533,17 +533,27 @@
 
     // 15. Seleciona o quarto e envia os dados para o carrinho com o preço final, checkin e checkout
     window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
-      const dateRange = document.getElementById("checkin-checkout").value;
+      // Tenta obter as datas diretamente da instância do Flatpickr
       let checkInDate = "", checkOutDate = "";
-      if (dateRange.includes(" - ")) {
-        const [startStr, endStr] = dateRange.split(" - ");
-        checkInDate = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
-        checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
+      const fpInstance = document.getElementById("checkin-checkout")._flatpickr;
+      if (fpInstance && fpInstance.selectedDates.length === 2) {
+        checkInDate = moment(fpInstance.selectedDates[0]).format("YYYY-MM-DD");
+        checkOutDate = moment(fpInstance.selectedDates[1]).format("YYYY-MM-DD");
+      } else {
+        // Fallback: parseia o valor do input
+        const dateRange = document.getElementById("checkin-checkout").value;
+        if (dateRange.includes(" - ")) {
+          const [startStr, endStr] = dateRange.split(" - ");
+          checkInDate = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
+          checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
+        }
       }
+      
       const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
       const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
       const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
-
+      
+      // Cria o objeto do quarto selecionado com o valor final já calculado e os dados de datas
       const selectedRoom = {
         type: "HOSPEDAGEM",
         hotelCode: hCode,
@@ -555,10 +565,10 @@
         children: numChildren,
         checkIn: checkInDate,
         checkOut: checkOutDate,
-        basePriceAdult: parseFloat(finalPrice),  // Envia o valor final já calculado
+        basePriceAdult: parseFloat(finalPrice), // Valor final já calculado
         basePriceChild: parseFloat(basePriceChild) || 60
       };
-
+    
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.addItem === "function") {
         cartComponent.addItem(selectedRoom);
