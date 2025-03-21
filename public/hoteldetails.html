@@ -520,7 +520,7 @@
   };
 
   /********** 15. Seleciona o quarto e envia os dados para o carrinho **********/
-  window.handleSelectRoom = function(hCode, hName, rCode, rName, basePriceAdult, basePriceChild) {
+  window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceAdult, basePriceChild) {
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkInDate = "", checkOutDate = "";
     if (dateRange.includes(" - ")) {
@@ -548,8 +548,8 @@
       children: numChildren,
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      finalPrice: parseFloat(finalPriceParam), // Valor final calculado
-      basePriceAdult: parseFloat(finalPriceParam), // Opcional, se desejar
+      finalPrice: finalPrice,
+      basePriceAdult: basePrice,
       basePriceChild: parseFloat(basePriceChild) || 60
     };
     const cartComponent = document.querySelector("shopping-cart");
