@@ -185,7 +185,7 @@ class LoginComponent extends HTMLElement {
             <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M4 21v-2a4 4 0 0 1 3-3.87"></path>
           </svg>
-          <input type="text" class="input" id="name" />
+          <input type="text" class="input" id="name" placeholder="Insira seu Nome" />
         </div>
 
         <!-- Campo Telefone -->
@@ -200,7 +200,7 @@ class LoginComponent extends HTMLElement {
                      A16 16 0 014 4a1 1 0 011-1h3.59a1 1 0 011 1
                      11.72 11.72 0 00.59 3.68 1 1 0 01-.27 1.11l-2.2 2.2z"/>
           </svg>
-          <input type="tel" class="input" id="telefone" />
+          <input type="tel" class="input" id="telefone" placeholder="Digite seu telefone" />
         </div>
 
         <!-- Campo Email -->
@@ -221,7 +221,7 @@ class LoginComponent extends HTMLElement {
                        6.006 6.006 0 0 1 -6 6z"></path>
             </g>
           </svg>
-          <input type="text" class="input" id="email" />
+          <input type="text" class="input" id="email" placeholder="Insira seu melhor Email" />
         </div>
 
         <!-- Campo Senha -->
@@ -236,7 +236,7 @@ class LoginComponent extends HTMLElement {
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <input type="password" class="input" id="senha" />
+          <input type="password" class="input" id="senha" placeholder="Insira sua Senha" />
         </div>
 
         <button class="button-submit">Cadastre-se</button>
@@ -265,7 +265,7 @@ class LoginComponent extends HTMLElement {
                        6.006 6.006 0 0 1 -6 6z"></path>
             </g>
           </svg>
-          <input type="text" class="input" id="email" />
+          <input type="text" class="input" id="email" placeholder="Digite seu telefone" />
         </div>
 
         <!-- Campo Senha -->
@@ -280,7 +280,7 @@ class LoginComponent extends HTMLElement {
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <input type="password" class="input" id="senha" />
+          <input type="password" class="input" id="senha" placeholder="Insira seu melhor Email"/>
         </div>
 
         <button class="button-submit">Entrar</button>
