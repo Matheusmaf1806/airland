@@ -102,6 +102,11 @@ class HeaderComponent extends HTMLElement {
           cursor: pointer;
         }
 
+        .cart-icon {
+          width: 16px;
+          height: 16px;
+        }
+
         .cart-count {
           position: absolute;
           top: -6px;
@@ -140,8 +145,15 @@ class HeaderComponent extends HTMLElement {
           </div>
 
           <div class="bubble-btn cart-btn" id="cart-btn">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count">0</span>
+            <svg class="cart-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 
+                       0c-1.1 0-1.99.9-1.99 2S15.9 22 17 
+                       22s2-.9 2-2-.9-2-2-2zM7.16 
+                       14l.84-2h8.99c.75 0 1.41-.41 1.75-1.03l3.24-5.88a.996.996 
+                       0 10-1.74-.96L17.21 10H8.53l-1.1-2H20V6H7l-1.1-2H1v2h3.6l3.6 
+                       7.59-1.35 2.44C6.16 16.37 7.27 18 8.7 18H19v-2H8.7l-.54-1z"/>
+            </svg>
+            <span class="cart-count" id="cart-count">0</span>
           </div>
 
           <a href="#" class="bubble-btn profile-btn">Perfil</a>
@@ -149,23 +161,29 @@ class HeaderComponent extends HTMLElement {
       </header>
     `;
 
-    // Atualizar o valor do dólar
     this.updateDollar();
 
-    // Evento para abrir o carrinho
+    // Carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       if (typeof window.toggleCart === "function") {
         window.toggleCart();
       } else {
-        console.warn("toggleCart() não encontrado no escopo global.");
+        console.warn("toggleCart não encontrado.");
       }
     });
 
-    // Evento para abrir o login
+    // Login
     this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("open-login"));
     });
+
+    // Expor função para atualizar contador
+    window.updateCartCount = (n) => {
+      const badge = this.shadowRoot.querySelector("#cart-count");
+      badge.textContent = n;
+      badge.style.display = n > 0 ? "inline-block" : "none";
+    };
   }
 
   async updateDollar() {
