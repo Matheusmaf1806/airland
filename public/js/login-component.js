@@ -2,8 +2,7 @@ class LoginComponent extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    // Modo inicial: 'register' para cadastro (exibe todos os campos)
-    // Alternativamente, 'login' para usuário já cadastrado (exibe apenas Nome, Telefone e Email)
+    // Modo inicial: 'register' para cadastro; 'login' para usuário já cadastrado
     this.mode = 'register';
     this.render();
   }
@@ -155,7 +154,7 @@ class LoginComponent extends HTMLElement {
           <input type="text" class="input" placeholder="Digite seu telefone" id="telefone" />
         </div>  
         
-        <!-- Campo Email (sempre exibido em ambos os modos) -->
+        <!-- Campo Email (sempre exibido) -->
         <div class="flex-column">
           <label>Email </label>
         </div>
@@ -169,7 +168,7 @@ class LoginComponent extends HTMLElement {
         </div>
         
         ${
-          // Em modo de cadastro, exibe o campo Senha; no modo login, não exibe.
+          // Em modo de cadastro, exibe o campo Senha; em modo login, não exibe.
           this.mode === 'register'
             ? `
         <div class="flex-column">
@@ -258,3 +257,13 @@ class LoginComponent extends HTMLElement {
 }
 
 customElements.define('login-component', LoginComponent);
+
+// Cria a função global openLogin para ser chamada ao clicar no botão de perfil
+window.openLogin = function() {
+  // Verifica se o componente já está na página para evitar duplicação
+  if (!document.querySelector('login-component')) {
+    const loginComp = document.createElement('login-component');
+    // Opcional: adicione classes ou estilos para posicionar o login como modal
+    document.body.appendChild(loginComp);
+  }
+};
