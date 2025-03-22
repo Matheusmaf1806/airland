@@ -385,4 +385,8 @@ function processFacility(item) {
   }
 }
 
+// Chamadas de exemplo:
+processFacility("Restaurant");       // Exibe a tradução e o ícone para "Restaurante"
+processFacility("AlgoInexistente");    // Informa que o item não está mapeado
+
 export { facilitiesMap, getFacilityData, processFacility };
