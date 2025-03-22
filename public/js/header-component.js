@@ -103,11 +103,6 @@ class HeaderComponent extends HTMLElement {
           cursor: pointer;
         }
 
-        .cart-icon {
-          width: 16px;
-          height: 16px;
-        }
-
         .cart-count {
           position: absolute;
           top: -6px;
@@ -167,13 +162,12 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Botão de perfil → abrir login
+    // Botão de perfil → abre login direto (sem depender de window.openLogin)
     this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
       e.preventDefault();
-      if (typeof window.openLogin === "function") {
-        window.openLogin();
-      } else {
-        console.error("window.openLogin() não está disponível.");
+      if (!document.querySelector("login-component")) {
+        const login = document.createElement("login-component");
+        document.body.appendChild(login);
       }
     });
 
