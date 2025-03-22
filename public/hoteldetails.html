@@ -409,24 +409,20 @@
       const container = document.getElementById("facilities");
       container.innerHTML = "";
       if (!facilities || !facilities.length) return;
+      // Exibe até 12 facilities, mostrando o conteúdo da propriedade description.content
       facilities.slice(0, 12).forEach(f => {
         container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f.description.content}</div>`;
       });
     }
 
-    // 9. Função para buscar facilities via Content API exclusivamente,
-    // filtrando para exibir somente a facility cujo description.content seja "Fitness".
+    // 9. Função para buscar facilities via Content API exclusivamente
     function fetchHotelFacilities(hotelCode) {
       fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
         .then(response => response.json())
         .then(data => {
           if (data.hotel) {
             const facilities = data.hotel.facilities || [];
-            // Filtra apenas a facility "Fitness"
-            const fitnessFacilities = facilities.filter(facility => 
-              facility.description && facility.description.content === "Fitness"
-            );
-            fillFacilities(fitnessFacilities);
+            fillFacilities(facilities);
           } else {
             console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
           }
