@@ -45,6 +45,11 @@ import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 // ===============
 
+// ===============
+// IMPORTAR affiliateColors
+import { getAffiliateColors } from "./routes/affiliateColors.js";
+// ===============
+
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
@@ -53,6 +58,11 @@ app.get("/api/getLatestDollar", getLatestDollar);
 // ========
 // Usar userRoutes
 app.use("/api/users", userRoutes);
+// ========
+
+// ========
+// Usar affiliateColors
+app.get("/api/affiliateColors", getAffiliateColors);
 // ========
 
 // ------------------------------------------------------
