@@ -17,7 +17,7 @@
 
   <script src="/js/afcop.js" defer></script>
   
-  <!-- Script de facilitiesMap -->
+  <!-- Script extra: facilitiesMap.js -->
   <script src="/js/facilitiesMap.js" defer></script>
   
   <!-- Web Components -->
@@ -118,7 +118,7 @@
       background-color: var(--button_hover);
     }
     
-    /* Informações Adicionais */
+    /* Blocos de Informações Adicionais */
     .info-container { margin-top: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; }
     .info-block {
       flex: 1;
@@ -245,7 +245,7 @@
       <div class="room-table-body" id="roomTableBody"></div>
     </section>
 
-    <!-- Informações Adicionais -->
+    <!-- Blocos de Informações Adicionais -->
     <div class="info-container" id="infoContainer"></div>
 
     <!-- Mapa e Atrações -->
@@ -336,17 +336,20 @@
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML = `
-        <i class="fa-solid fa-map-marker-alt"></i> ${hotelAddress}
+        <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
         <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
       `;
+
       // Galeria de fotos
       let images = [];
       if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
         images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
       }
       fillPhotoGallery(images);
-      // Facilities via API (usa a função fillFacilities definida no facilitiesMap.js)
+
+      // Preenche facilities e extrai informações adicionais para os blocos informativos
       fetchHotelFacilities(hotelCode);
+
       // Descrição e Destaques
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
@@ -355,22 +358,9 @@
         <h2>Destaques da Acomodação</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
-      // Tabela de Quartos e Informações Adicionais
+
+      // Tabela de Quartos
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
-      fillInfoBlocks({
-        checkin: "A partir das 16h",
-        checkout: "Até 11:00",
-        resortFee: "Não possui no local.",
-        parking: "Consulte valores no local."
-      });
-      // Mapa e Atrações
-      const lat = hotelObj.latitude || 0;
-      const lng = hotelObj.longitude || 0;
-      let interestPoints = [];
-      if (hotelObj.content && hotelObj.content.interestPoints) {
-        interestPoints = hotelObj.content.interestPoints;
-      }
-      initMapAndAttractions(lat, lng, interestPoints);
     }
 
     // Preenche a galeria de fotos
@@ -389,6 +379,25 @@
         img.alt = "Foto do Hotel";
         gallery.appendChild(img);
       }
+    }
+
+    // Função que busca facilities, preenche a lista e os blocos informativos
+    function fetchHotelFacilities(hotelCode) {
+      fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.hotel) {
+            const facilities = data.hotel.facilities || [];
+            // Preenche a seção principal de facilities (ignorando os itens ocultos)
+            fillFacilities(facilities);
+            // Extrai informações adicionais e preenche os blocos informativos
+            const additionalInfo = extractAdditionalInfo(facilities);
+            fillInfoBlocks(additionalInfo);
+          } else {
+            console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
+          }
+        })
+        .catch(err => console.error("Erro ao buscar dados do Content API:", err));
     }
 
     // Cria a tabela de quartos
@@ -473,11 +482,37 @@
       return row;
     }
 
+    // Extrai as informações adicionais para os blocos informativos
+    function extractAdditionalInfo(facilities) {
+      const info = {
+        checkin: "Não há informações",
+        checkout: "Não há informações",
+        resortFee: "Não há informações",
+        parking: "Não há informações"
+      };
+      facilities.forEach(f => {
+        const desc = f.description && f.description.content ? f.description.content.toLowerCase() : "";
+        if ((f.facilityCode === 260 || desc.includes("check-in")) && info.checkin === "Não há informações") {
+          info.checkin = f.value ? f.value : f.description.content;
+        } else if ((f.facilityCode === 390 || desc.includes("check-out")) && info.checkout === "Não há informações") {
+          info.checkout = f.value ? f.value : f.description.content;
+        } else if ((f.facilityCode === 320 || desc.includes("car park")) && info.parking === "Não há informações") {
+          if (f.currency && f.amount) {
+            info.parking = f.currency + " " + parseFloat(f.amount).toFixed(2);
+          } else {
+            info.parking = f.value ? f.value : f.description.content;
+          }
+        } else if (desc.includes("resort fee") && info.resortFee === "Não há informações") {
+          info.resortFee = f.value ? f.value : f.description.content;
+        }
+      });
+      return info;
+    }
+
     // Preenche os blocos de informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
-      if (!info) return;
       const items = [
         { title: "Horário de Check-in (Entrada)", icon: "fa-solid fa-clock", content: info.checkin },
         { title: "Horário de Check-out (Saída)", icon: "fa-solid fa-clock", content: info.checkout },
@@ -546,7 +581,7 @@
       });
     }
 
-    // Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar"
+    // Atualiza a busca ao clicar em "Pesquisar"
     window.updateRoomList = async function() {
       const dateRange = document.getElementById("checkin-checkout").value;
       if (dateRange.includes(" - ")) {
