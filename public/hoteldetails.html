@@ -35,7 +35,7 @@
     .hotel-name { font-size: 2em; font-weight: bold; color: #333; }
     .hotel-address { display: flex; align-items: center; font-size: 1em; color: #666; margin-top: 10px; }
     .hotel-address i { color: var(--primary_color); margin-right: 10px; }
-    /* Alterado: exibe "Visualizar mapa" */
+    /* Alterado para "Visualizar mapa" */
     .location-link { color: var(--primary_color); text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; }
     .location-link:hover { text-decoration: underline; color: var(--button_hover); }
     
@@ -282,7 +282,7 @@
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
 
-    // Função global para abrir o carrinho (não alterada)
+    // Função global para abrir o carrinho (mantida)
     window.toggleCart = function() {
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -292,7 +292,7 @@
       }
     };
 
-    // Função auxiliar para obter parâmetros da URL
+    // Função auxiliar para obter parâmetros da URL (mantida)
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -302,7 +302,7 @@
       return query;
     }
 
-    // Consulta a taxa do dólar via API (Supabase)
+    // Consulta a taxa do dólar via API (mantida)
     function getDollarRate() {
       return fetch("/api/getLatestDollar")
         .then(resp => resp.json())
@@ -313,7 +313,7 @@
         });
     }
 
-    // Busca os dados combinados do hotel (Booking + Content API)
+    // Busca os dados combinados do hotel (mantida)
     function fetchHotelCombined() {
       const dateRange = document.getElementById("checkin-checkout").value;
       let checkIn = "", checkOut = "";
@@ -338,14 +338,14 @@
         .then(resp => resp.json());
     }
 
-    // Preenche os dados do hotel na página
+    // Preenche os dados do hotel na página (mantida)
     async function loadHotelContent(hotelObj, dollarRate) {
       if (!hotelObj) return;
       const hotelName = hotelObj.name || "Hotel sem nome";
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
-      // Alterado: link agora exibe "Visualizar mapa"
+      // Alterado: Link agora exibe "Visualizar mapa"
       document.getElementById("hotelAddress").innerHTML = `
         <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
         <a href="#" class="location-link" onclick="toggleCart()">Visualizar mapa</a>
@@ -358,7 +358,7 @@
       }
       fillPhotoGallery(images);
 
-      // Facilidades
+      // Facilidades (busca do content API)
       let facilities = [];
       if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
         facilities = hotelObj.content.facilities;
@@ -399,7 +399,7 @@
       fillAdditionalHighlights(facilities);
     }
 
-    // Preenche a galeria de fotos
+    // Preenche a galeria de fotos (mantida)
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -417,7 +417,7 @@
       }
     }
 
-    // Preenche as facilidades (não alterado)
+    // Preenche as facilidades (mantida)
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
@@ -427,7 +427,7 @@
       });
     }
 
-    // Cria a tabela de quartos
+    // Cria a tabela de quartos (mantida)
     function createRoomTableGrouped(rooms, hotelCode, hotelName, dollarRate) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -461,7 +461,7 @@
       }
     }
 
-    // Cria cada linha de quarto com preços formatados
+    // Cria cada linha de quarto com preços formatados (mantida)
     function createRoomRow(room, hotelCode, hotelName, dollarRate) {
       const roomName = room.name || room.roomType || room.roomCode || "Quarto";
       let netPrice = room.rates && room.rates[0]?.net ? room.rates[0].net : 80;
@@ -509,7 +509,7 @@
       return row;
     }
 
-    // Extrai as informações adicionais para os blocos informativos
+    // Extrai as informações adicionais para os blocos informativos (mantida)
     function extractAdditionalInfo(facilities) {
       const info = {
         checkin: "Não há informações",
@@ -538,7 +538,7 @@
       return info;
     }
 
-    // Preenche os blocos de informações adicionais
+    // Preenche os blocos de informações adicionais (mantida)
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       if (!container) return;
@@ -562,9 +562,15 @@
 
     /**
      * Preenche os destaques adicionais agrupando os facilities dos grupos DIFERENCIAIS e ATIVIDADES,
-     * exibindo no máximo 3 itens para cada grupo e evitando duplicados via Set.
+     * exibindo no máximo 3 itens para cada grupo e evitando duplicados.
+     * Essa função foi ajustada para não depender de uma propriedade "group" nos objetos de mapping.
+     * Foram definidas duas listas de referência para DIFERENCIAIS e ATIVIDADES.
      */
     function fillAdditionalHighlights(facilities) {
+      // Listas de referência (ajuste conforme necessário)
+      const DIFFERENTIALS_LIST = ["Cofre", "Estacionamento", "Recepção 24h", "Estacionamento seguro", "Manobrista", "Serviço de lavanderia", "Piscina externa", "Piscina externa aquecida", "Acesso por elevador"];
+      const ACTIVITIES_LIST = ["Praia", "Campo de golfe", "Academia", "Basquete", "Sinuca", "Pista de boliche", "Tênis", "Jet ski", "Windsurf", "Vela", "Canoagem", "Equitação"];
+      
       const differentials = [];
       const activities = [];
       const usedDifferentials = new Set();
@@ -574,13 +580,15 @@
         const facilityKey = f.code || f.description?.content;
         const mapping = getFacilityData(facilityKey);
         if (!mapping) return;
-
-        if (mapping.group === "DIFERENCIAIS" && differentials.length < 3) {
+        // Verifica se o texto (pt) está na lista de DIFERENCIAIS
+        if (DIFFERENTIALS_LIST.includes(mapping.pt) && differentials.length < 3) {
           if (!usedDifferentials.has(mapping.pt)) {
             usedDifferentials.add(mapping.pt);
             differentials.push(mapping);
           }
-        } else if (mapping.group === "ATIVIDADES" && activities.length < 3) {
+        }
+        // Verifica se o texto (pt) está na lista de ATIVIDADES
+        else if (ACTIVITIES_LIST.includes(mapping.pt) && activities.length < 3) {
           if (!usedActivities.has(mapping.pt)) {
             usedActivities.add(mapping.pt);
             activities.push(mapping);
@@ -644,7 +652,7 @@
       }
     }
 
-    // Inicializa o Flatpickr para seleção de datas
+    // Inicializa o Flatpickr para seleção de datas (mantida)
     function initDateRangePicker() {
       if (typeof flatpickr !== "function") {
         console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
@@ -663,7 +671,7 @@
       });
     }
 
-    // Atualiza a busca ao clicar em "Pesquisar"
+    // Atualiza a busca ao clicar em "Pesquisar" (mantida)
     window.updateRoomList = async function() {
       const dateRange = document.getElementById("checkin-checkout").value;
       if (dateRange.includes(" - ")) {
@@ -682,7 +690,7 @@
       }
     };
 
-    // Seleciona o quarto e envia os dados para o carrinho
+    // Seleciona o quarto e envia os dados para o carrinho (mantida)
     window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
       let checkInDate = "", checkOutDate = "";
       const fpInstance = document.getElementById("checkin-checkout")._flatpickr;
@@ -723,7 +731,7 @@
       }
     };
 
-    // Inicialização ao carregar a página
+    // Inicialização ao carregar a página (mantida)
     document.addEventListener("DOMContentLoaded", async function() {
       initDateRangePicker();
       const query = getQueryParams();
