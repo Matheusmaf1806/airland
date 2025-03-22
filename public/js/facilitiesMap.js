@@ -1,5 +1,3 @@
-// facilitiesMap.js
-
 // Lista de facilities que devem ser ocultadas (não exibidas)
 const hiddenFacilities = [
   "Year of most recent renovation",
@@ -81,11 +79,13 @@ const facilitiesMap = {
   },
   "Beach": {
     pt: "Praia",
-    icon: "fa-solid fa-umbrella-beach"
+    icon: "fa-solid fa-umbrella-beach",
+    group: "ATIVIDADES"
   },
   "Golf course": {
     pt: "Campo de golfe",
-    icon: "fa-solid fa-golf-ball"
+    icon: "fa-solid fa-golf-ball",
+    group: "ATIVIDADES"
   },
   "Entertainment Area": {
     pt: "Área de entretenimento",
@@ -133,7 +133,8 @@ const facilitiesMap = {
   },
   "Safe": {
     pt: "Cofre",
-    icon: "fa-solid fa-lock"
+    icon: "fa-solid fa-lock",
+    group: "DIFERENCIAIS"
   },
   "Wheelchair-accessible": {
     pt: "Acessível para cadeira de rodas",
@@ -157,11 +158,13 @@ const facilitiesMap = {
   },
   "Car park": {
     pt: "Estacionamento",
-    icon: "fa-solid fa-parking"
+    icon: "fa-solid fa-parking",
+    group: "DIFERENCIAIS"
   },
   "24-hour reception": {
     pt: "Recepção 24h",
-    icon: "fa-solid fa-concierge-bell"
+    icon: "fa-solid fa-concierge-bell",
+    group: "DIFERENCIAIS"
   },
   "Check-in hour": {
     pt: "Horário de check-in",
@@ -181,11 +184,13 @@ const facilitiesMap = {
   },
   "Secure parking": {
     pt: "Estacionamento seguro",
-    icon: "fa-solid fa-lock"
+    icon: "fa-solid fa-lock",
+    group: "DIFERENCIAIS"
   },
   "Valet parking": {
     pt: "Manobrista",
-    icon: "fa-solid fa-car"
+    icon: "fa-solid fa-car",
+    group: "DIFERENCIAIS"
   },
   "Room service": {
     pt: "Serviço de quarto",
@@ -193,7 +198,8 @@ const facilitiesMap = {
   },
   "Laundry service": {
     pt: "Serviço de lavanderia",
-    icon: "fa-solid fa-tshirt"
+    icon: "fa-solid fa-tshirt",
+    group: "DIFERENCIAIS"
   },
   "Launderette": {
     pt: "Lavanderia self-service",
@@ -205,7 +211,8 @@ const facilitiesMap = {
   },
   "24-hour security": {
     pt: "Segurança 24h",
-    icon: "fa-solid fa-shield-alt"
+    icon: "fa-solid fa-shield-alt",
+    group: "DIFERENCIAIS"
   },
   "Air conditioning in public areas": {
     pt: "Ar-condicionado em áreas públicas",
@@ -221,11 +228,13 @@ const facilitiesMap = {
   },
   "Lift access": {
     pt: "Acesso por elevador",
-    icon: "fa-solid fa-arrow-up"
+    icon: "fa-solid fa-arrow-up",
+    group: "DIFERENCIAIS"
   },
   "Gym": {
     pt: "Academia",
-    icon: "fa-solid fa-dumbbell"
+    icon: "fa-solid fa-dumbbell",
+    group: "ATIVIDADES"
   },
   "Newspapers": {
     pt: "Jornais",
@@ -241,7 +250,8 @@ const facilitiesMap = {
   },
   "Bar": {
     pt: "Bar",
-    icon: "fa-solid fa-glass-martini-alt"
+    icon: "fa-solid fa-glass-martini-alt",
+    group: "DIFERENCIAIS"
   },
   "Restaurant": {
     pt: "Restaurante",
@@ -288,12 +298,14 @@ const facilitiesMap = {
     icon: "fa-solid fa-fax"
   },
   "Outdoor freshwater pool": {
-    pt: "Piscina externa de água doce",
-    icon: "fa-solid fa-swimming-pool"
+    pt: "Piscina externa",
+    icon: "fa-solid fa-swimming-pool",
+    group: "DIFERENCIAIS"
   },
   "Outdoor heated pool": {
     pt: "Piscina externa aquecida",
-    icon: "fa-solid fa-swimming-pool"
+    icon: "fa-solid fa-swimming-pool",
+    group: "DIFERENCIAIS"
   },
   "Sun loungers": {
     pt: "Espreguiçadeiras",
@@ -345,11 +357,13 @@ const facilitiesMap = {
   },
   "Jet ski": {
     pt: "Jet ski",
-    icon: "fa-solid fa-ship"
+    icon: "fa-solid fa-ship",
+    group: "ATIVIDADES"
   },
   "Windsurfing": {
     pt: "Windsurf",
-    icon: "fa-solid fa-wind"
+    icon: "fa-solid fa-wind",
+    group: "ATIVIDADES"
   },
   "Sailing": {
     pt: "Vela",
@@ -357,31 +371,38 @@ const facilitiesMap = {
   },
   "Canoeing": {
     pt: "Canoagem",
-    icon: "fa-solid fa-water"
+    icon: "fa-solid fa-water",
+    group: "ATIVIDADES"
   },
   "Fitness": {
     pt: "Academia",
-    icon: "fa-solid fa-dumbbell"
+    icon: "fa-solid fa-dumbbell",
+    group: "ATIVIDADES"
   },
   "Horse riding": {
     pt: "Equitação",
-    icon: "fa-solid fa-horse"
+    icon: "fa-solid fa-horse",
+    group: "ATIVIDADES"
   },
   "Basketball": {
     pt: "Basquete",
-    icon: "fa-solid fa-basketball-ball"
+    icon: "fa-solid fa-basketball-ball",
+    group: "ATIVIDADES"
   },
   "Billiards": {
     pt: "Sinuca",
-    icon: "fa-solid fa-circle" // Placeholder para sinuca
+    icon: "fa-solid fa-circle", // Placeholder para sinuca
+    group: "ATIVIDADES"
   },
   "Bowling alley": {
     pt: "Pista de boliche",
-    icon: "fa-solid fa-bowling-ball"
+    icon: "fa-solid fa-bowling-ball",
+    group: "ATIVIDADES"
   },
   "Tennis": {
     pt: "Tênis",
-    icon: "fa-solid fa-table-tennis-paddle-ball"
+    icon: "fa-solid fa-table-tennis-paddle-ball",
+    group: "ATIVIDADES"
   },
   "Small pets allowed (under 5 kg)": {
     pt: "Pets abaixo de 5kg permitidos.",
