@@ -95,8 +95,6 @@ class HeaderComponent extends HTMLElement {
 
         .cart-btn {
           cursor: pointer;
-          padding: 10px 19px;
-          border-radius: 100px;
         }
 
         .cart-icon {
@@ -184,27 +182,26 @@ class HeaderComponent extends HTMLElement {
         }
         @media (max-width: 480px) {
           .header-container {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
             padding: 8px 10px;
           }
           .logo img {
             width: 60px;
           }
+          /* Esconde a barra de navegação no mobile */
           .nav-menu {
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
+            display: none;
           }
-          .nav-item {
-            font-size: 0.8rem;
-          }
+          /* Exibe apenas o botão do dólar, carrinho e login na direita */
           .right-actions {
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
+            flex-direction: row;
+            gap: 10px;
           }
-          .bubble-btn {
-            padding: 4px 8px;
-            font-size: 0.75rem;
+          /* Esconde o primeiro bubble-btn ("Dúvidas") */
+          .right-actions > .bubble-btn:first-child {
+            display: none;
           }
         }
       </style>
@@ -228,12 +225,10 @@ class HeaderComponent extends HTMLElement {
 
         <div class="right-actions">
           <a href="#" class="bubble-btn">Dúvidas</a>
-
           <div class="bubble-btn" id="dollar-btn">
             <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Bandeira EUA" class="flag-icon" />
             <span class="dollar-value">R$ 0.00</span>
           </div>
-
           <div class="bubble-btn cart-btn" id="cart-btn">
             <svg class="cart-icon" viewBox="0 0 24 24">
               <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 
@@ -245,7 +240,6 @@ class HeaderComponent extends HTMLElement {
             </svg>
             <span class="cart-count" id="cart-count">0</span>
           </div>
-
           <div class="bubble-btn profile-wrapper">
             <span class="profile-name">Login</span>
             <div class="profile-menu" id="profileMenu">
