@@ -1,4 +1,4 @@
-// routes/api/affiliateColors.js
+// routes/affiliateColors.js
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -7,37 +7,29 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
-/**
- * Rota GET: /api/affiliateColors?host=airland.com.br
- */
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const host = searchParams.get('host') || request.headers.get('host');
+export async function getAffiliateColors(req, res) {
+  try {
+    const host = req.query.host || req.headers.host;
 
-  if (!host) {
-    return new Response(JSON.stringify({ error: 'Host inválido' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    if (!host) {
+      return res.status(400).json({ error: 'Host inválido' });
+    }
+
+    const cleanHost = host.replace(/^www\./, '');
+
+    const { data, error } = await supabase
+      .from('affiliates')
+      .select('primary_color, button_color, button_text_color, button_hover, background_color')
+      .eq('domain', cleanHost)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).json({ error: 'Afiliado não encontrado' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('Erro no affiliateColors:', err);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
   }
-
-  const cleanHost = host.replace(/^www\./, '');
-
-  const { data, error } = await supabase
-    .from('affiliates')
-    .select('primary_color, button_color, button_text_color, button_hover, background_color')
-    .eq('domain', cleanHost)
-    .single();
-
-  if (error || !data) {
-    return new Response(JSON.stringify({ error: 'Afiliado não encontrado' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }
