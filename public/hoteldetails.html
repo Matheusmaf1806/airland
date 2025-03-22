@@ -5,9 +5,8 @@
   <title>Detalhes do Hotel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font Awesome (apenas a versão 6) e Leaflet CSS -->
+  <!-- Font Awesome (versão 6.4.2) e Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   
   <!-- Flatpickr CSS -->
@@ -18,15 +17,15 @@
 
   <script src="/js/afcop.js" defer></script>
   
-  <!-- Script extra (ex.: facilitiesMap.js) -->
+  <!-- Script de facilitiesMap -->
   <script src="/js/facilitiesMap.js" defer></script>
   
-  <!-- Carrega o Web Component do Carrinho -->
+  <!-- Web Components -->
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
   
   <style>
-    /* RESET e estilos básicos para hoteldetails */
+    /* RESET e estilos básicos */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; color: #333; line-height: 1.6; }
     .main-container { padding: 20px; max-width: 1200px; margin: 0 auto; }
@@ -181,7 +180,7 @@
   <!-- HEADER: Carregado via fetch -->
   <app-header></app-header>
 
-  <!-- CARRINHO: Web Component (múltiplos itens via addItem()) -->
+  <!-- CARRINHO: Web Component -->
   <shopping-cart 
     type="HOSPEDAGEM" 
     category="Hospedagem" 
@@ -216,7 +215,7 @@
       <div class="search-fields">
         <div class="input-group">
           <label for="checkin-checkout">Datas</label>
-          <!-- Usaremos Flatpickr para seleção de intervalo -->
+          <!-- Flatpickr para seleção de intervalo -->
           <input type="text" id="checkin-checkout" placeholder="Selecione o período">
         </div>
         <div class="input-group">
@@ -259,12 +258,12 @@
   </div>
 
   <!-- SCRIPTS EXTERNOS -->
-  <!-- Inclui jQuery e Moment.js -->
+  <!-- jQuery e Moment.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <!-- Inclui Flatpickr (em vez do daterangepicker) -->
+  <!-- Flatpickr -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- Inclui Leaflet -->
+  <!-- Leaflet -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <!-- SCRIPT PRINCIPAL UNIFICADO -->
@@ -273,7 +272,7 @@
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
 
-    // 2. Função global para abrir o carrinho
+    // Função global para abrir o carrinho
     window.toggleCart = function() {
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -283,7 +282,7 @@
       }
     };
 
-    // 3. Função auxiliar para obter parâmetros da URL
+    // Função auxiliar para obter parâmetros da URL
     function getQueryParams() {
       const params = new URLSearchParams(window.location.search);
       const query = {};
@@ -293,27 +292,21 @@
       return query;
     }
 
-    // 4. Função que consulta a taxa do dólar via API (Supabase)
+    // Consulta a taxa do dólar via API (Supabase)
     function getDollarRate() {
       return fetch("/api/getLatestDollar")
         .then(resp => resp.json())
-        .then(data => {
-          if (data && data.valor) {
-            return parseFloat(data.valor);
-          }
-          return 1;
-        })
+        .then(data => data && data.valor ? parseFloat(data.valor) : 1)
         .catch(err => {
           console.error("Erro ao obter a taxa do dólar:", err);
           return 1;
         });
     }
 
-    // 5. Função que busca os dados combinados do hotel (Booking + Content API)
+    // Busca os dados combinados do hotel (Booking + Content API)
     function fetchHotelCombined() {
       const dateRange = document.getElementById("checkin-checkout").value;
-      let checkIn = "";
-      let checkOut = "";
+      let checkIn = "", checkOut = "";
       if (dateRange.includes(" - ")) {
         const [startStr, endStr] = dateRange.split(" - ");
         checkIn = moment(startStr, "DD/MM/YYYY").format("YYYY-MM-DD");
@@ -322,10 +315,8 @@
       const rooms = document.getElementById("rooms").value || 1;
       const adults = document.getElementById("adults").value || 1;
       const children = document.getElementById("children").value || 0;
-
       const queryParams = new URLSearchParams(window.location.search);
       const hotelCode = queryParams.get("hotelCode") || "";
-
       const params = new URLSearchParams();
       if (checkIn) params.set("checkIn", checkIn);
       if (checkOut) params.set("checkOut", checkOut);
@@ -333,12 +324,11 @@
       params.set("adults1", adults);
       params.set("children1", children);
       if (hotelCode) params.set("hotelCode", hotelCode);
-
       return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
 
-    // 6. Função que preenche os dados do hotel na página
+    // Preenche os dados do hotel na página
     async function loadHotelContent(hotelObj, dollarRate) {
       if (!hotelObj) return;
       const hotelName = hotelObj.name || "Hotel sem nome";
@@ -346,20 +336,17 @@
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML = `
-        <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
+        <i class="fa-solid fa-map-marker-alt"></i> ${hotelAddress}
         <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
       `;
-
       // Galeria de fotos
       let images = [];
       if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
         images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
       }
       fillPhotoGallery(images);
-
-      // Preenche a seção de facilities exclusivamente via Content API
+      // Facilities via API (usa a função fillFacilities definida no facilitiesMap.js)
       fetchHotelFacilities(hotelCode);
-
       // Descrição e Destaques
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
@@ -368,7 +355,6 @@
         <h2>Destaques da Acomodação</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
       `;
-
       // Tabela de Quartos e Informações Adicionais
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
       fillInfoBlocks({
@@ -377,7 +363,6 @@
         resortFee: "Não possui no local.",
         parking: "Consulte valores no local."
       });
-
       // Mapa e Atrações
       const lat = hotelObj.latitude || 0;
       const lng = hotelObj.longitude || 0;
@@ -388,7 +373,7 @@
       initMapAndAttractions(lat, lng, interestPoints);
     }
 
-    // 7. Preenche a galeria de fotos
+    // Preenche a galeria de fotos
     function fillPhotoGallery(photos) {
       const gallery = document.getElementById("photoGallery");
       gallery.innerHTML = "";
@@ -406,72 +391,7 @@
       }
     }
 
-    // 8. Preenche as facilidades (facilities) no container
-    const hiddenFacilities = [
-      "Year of most recent renovation",
-      "Total number of rooms",
-      "Number of floors (main building)",
-      "Double rooms",
-      "Suites",
-      "hotel",
-      "American Express",
-      "EC",
-      "JCB",
-      "Diners Club",
-      "MasterCard",
-      "Visa",
-      "Visa Electrón",
-      "Car hire",
-      "Fax",
-      "IHG Green Hotel Certificate",
-      "Hilton - CleanStay",
-      "Twin rooms",
-      "Satellite TV",
-      "Hi-fi",
-      "Welcome pack",
-      "Single rooms"
-    ];
-    
-    function fillFacilities(facilities) {
-      const container = document.getElementById("facilities");
-      container.innerHTML = "";
-      if (!facilities || !facilities.length) return;
-    
-      // Exibe apenas os primeiros 12 itens que não estiverem na lista de ocultos
-      facilities.slice(0, 12).forEach(f => {
-        // Utiliza f.code se existir ou, se não, f.description.content como chave
-        const facilityKey = f.code || f.description.content;
-        
-        // Se a facility estiver na lista de ocultos, ignora
-        if (hiddenFacilities.includes(facilityKey)) {
-          return;
-        }
-        
-        const mapping = getFacilityData(facilityKey);
-        // Se houver mapeamento, usamos a tradução e o ícone definidos; senão, usa o texto original e um ícone padrão
-        const displayText = mapping ? mapping.pt : f.description.content;
-        const iconClass = mapping ? mapping.icon : "fas fa-check";
-        
-        container.innerHTML += `<div class="facility"><i class="${iconClass}"></i> ${displayText}</div>`;
-      });
-    }   
-
-    // 9. Função para buscar facilities via Content API exclusivamente
-    function fetchHotelFacilities(hotelCode) {
-      fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.hotel) {
-            const facilities = data.hotel.facilities || [];
-            fillFacilities(facilities);
-          } else {
-            console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
-          }
-        })
-        .catch(err => console.error("Erro ao buscar dados do Content API:", err));
-    }
-
-    // 10. Cria a tabela de quartos
+    // Cria a tabela de quartos
     function createRoomTableGrouped(rooms, hotelCode, hotelName, dollarRate) {
       const tableBody = document.getElementById("roomTableBody");
       tableBody.innerHTML = "";
@@ -505,16 +425,14 @@
       }
     }
 
-    // 11. Cria cada linha (quarto) da tabela com preços formatados
+    // Cria cada linha de quarto com preços formatados
     function createRoomRow(room, hotelCode, hotelName, dollarRate) {
       const roomName = room.name || room.roomType || room.roomCode || "Quarto";
       let netPrice = room.rates && room.rates[0]?.net ? room.rates[0].net : 80;
       const netVal = parseFloat(netPrice);
-
       const convertedPrice = netVal * dollarRate;
       const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
       const totalPrice = convertedPrice * numNoites;
-
       const finalPriceFormatted = totalPrice.toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL"
@@ -529,9 +447,7 @@
         style: "currency",
         currency: "BRL"
       });
-
       const finalPrice = parseFloat(totalPrice.toFixed(2));
-
       const row = document.createElement("div");
       row.className = "room-table-row";
       row.innerHTML = `
@@ -557,16 +473,16 @@
       return row;
     }
 
-    // 12. Preenche os blocos de informações adicionais
+    // Preenche os blocos de informações adicionais
     function fillInfoBlocks(info) {
       const container = document.getElementById("infoContainer");
       container.innerHTML = "";
       if (!info) return;
       const items = [
-        { title: "Horário de Check-in (Entrada)", icon: "fas fa-clock", content: info.checkin },
-        { title: "Horário de Check-out (Saída)", icon: "fas fa-clock", content: info.checkout },
-        { title: "Resort Fee (Taxa Local)", icon: "fas fa-info-circle", content: info.resortFee },
-        { title: "Estacionamento do Hotel", icon: "fas fa-car", content: info.parking }
+        { title: "Horário de Check-in (Entrada)", icon: "fa-solid fa-clock", content: info.checkin },
+        { title: "Horário de Check-out (Saída)", icon: "fa-solid fa-clock", content: info.checkout },
+        { title: "Resort Fee (Taxa Local)", icon: "fa-solid fa-info-circle", content: info.resortFee },
+        { title: "Estacionamento do Hotel", icon: "fa-solid fa-car", content: info.parking }
       ];
       items.forEach(item => {
         const block = document.createElement("div");
@@ -579,7 +495,7 @@
       });
     }
 
-    // 13. Inicializa o mapa e as atrações
+    // Inicializa o mapa e as atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -604,16 +520,16 @@
           attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
           container.innerHTML += `
             <div class="attraction-item">
-              <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+              <i class="fa-solid fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
             </div>
           `;
         });
       }
     }
 
-    // 14. Inicializa o Flatpickr para seleção de datas
+    // Inicializa o Flatpickr para seleção de datas
     function initDateRangePicker() {
-      if (typeof flatpickr !== 'function') {
+      if (typeof flatpickr !== "function") {
         console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
         return;
       }
@@ -630,7 +546,7 @@
       });
     }
 
-    // 15. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar"
+    // Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar"
     window.updateRoomList = async function() {
       const dateRange = document.getElementById("checkin-checkout").value;
       if (dateRange.includes(" - ")) {
@@ -649,7 +565,7 @@
       }
     };
 
-    // 16. Seleciona o quarto e envia os dados para o carrinho com o preço final, checkin e checkout
+    // Seleciona o quarto e envia os dados para o carrinho
     window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
       let checkInDate = "", checkOutDate = "";
       const fpInstance = document.getElementById("checkin-checkout")._flatpickr;
@@ -664,11 +580,9 @@
           checkOutDate = moment(endStr, "DD/MM/YYYY").format("YYYY-MM-DD");
         }
       }
-      
       const numAdults = parseInt(document.getElementById("adults").value, 10) || 1;
       const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
       const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
-      
       const selectedRoom = {
         type: "HOSPEDAGEM",
         hotelCode: hCode,
@@ -683,7 +597,6 @@
         basePriceAdult: parseFloat(finalPrice),
         basePriceChild: parseFloat(basePriceChild) || 60
       };
-    
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.addItem === "function") {
         cartComponent.addItem(selectedRoom);
@@ -693,7 +606,7 @@
       }
     };
 
-    // 17. Inicialização ao carregar a página
+    // Inicialização ao carregar a página
     document.addEventListener("DOMContentLoaded", async function() {
       initDateRangePicker();
       const query = getQueryParams();
@@ -710,7 +623,6 @@
       if (query.rooms) document.getElementById("rooms").value = query.rooms;
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
-    
       const data = await fetchHotelCombined();
       if (data && data.combined && data.combined.length > 0) {
         const dollarRate = await getDollarRate();
