@@ -384,7 +384,3 @@ function processFacility(item) {
     console.log(item, "não faz parte de facilitiesMap");
   }
 }
-
-// Chamadas de exemplo:
-processFacility("Restaurant");       // Exibe a tradução e o ícone para "Restaurante"
-processFacility("AlgoInexistente");    // Informa que o item não está mapeado
