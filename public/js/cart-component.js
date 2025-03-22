@@ -182,7 +182,7 @@ class ShoppingCart extends HTMLElement {
           color: #007bff;
         }
         .pix-off {
-          font-size: 0.75rem;
+          font-size: 0.9rem;
           color: #35b473;
           margin-top: 2px;
         }
