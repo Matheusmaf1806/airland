@@ -490,17 +490,22 @@
         resortFee: "Não há informações",
         parking: "Não há informações"
       };
+      
       facilities.forEach(f => {
+        // Converte a descrição para minúsculas para facilitar a comparação
         const desc = f.description && f.description.content ? f.description.content.toLowerCase() : "";
-        // Para "Check-in hour": verifica o facilityCode 260 ou se a descrição contém "check-in hour"
+        
+        // Para "Check-in hour": verifica se facilityCode é 260 ou se a descrição contém "check-in hour"
         if ((f.facilityCode === 260 || desc.includes("check-in hour")) && info.checkin === "Não há informações") {
-          info.checkin = f.timeFrom ? f.timeFrom : "Não há informações";
+          // Se timeFrom estiver disponível, remove os segundos e adiciona "A partir de "
+          info.checkin = f.timeFrom ? "A partir de " + f.timeFrom.slice(0, 5) : "Não há informações";
         }
-        // Para "Check-out hour": verifica o facilityCode 390 ou se a descrição contém "check-out hour"
+        // Para "Check-out hour": verifica se facilityCode é 390 ou se a descrição contém "check-out hour"
         else if ((f.facilityCode === 390 || desc.includes("check-out hour")) && info.checkout === "Não há informações") {
-          info.checkout = f.timeFrom ? f.timeFrom : "Não há informações";
+          // Se timeFrom estiver disponível, remove os segundos e adiciona "Até "
+          info.checkout = f.timeFrom ? "Até " + f.timeFrom.slice(0, 5) : "Não há informações";
         }
-        // Para "Car park": verifica o facilityCode 320 ou se a descrição contém "car park"
+        // Para "Car park": verifica se facilityCode é 320 ou se a descrição contém "car park"
         else if ((f.facilityCode === 320 || desc.includes("car park")) && info.parking === "Não há informações") {
           if (f.currency && f.amount) {
             info.parking = f.currency + " " + parseFloat(f.amount).toFixed(2);
@@ -513,6 +518,7 @@
           info.resortFee = f.value ? f.value : (f.description && f.description.content ? f.description.content : "Não há informações");
         }
       });
+      
       return info;
     }
 
