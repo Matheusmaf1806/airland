@@ -47,7 +47,7 @@ import userRoutes from "./routes/user.routes.js";
 
 // ===============
 // IMPORTAR affiliateColors
-import { getAffiliateColors } from "./routes/affiliateColors.js";
+import getAffiliateColors from "./routes/affiliateColors.js";
 // ===============
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
