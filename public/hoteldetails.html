@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -408,22 +407,54 @@
     }
 
     // 8. Preenche as facilidades (facilities) no container
+    const hiddenFacilities = [
+      "Year of most recent renovation",
+      "Total number of rooms",
+      "Number of floors (main building)",
+      "Double rooms",
+      "Suites",
+      "hotel",
+      "American Express",
+      "EC",
+      "JCB",
+      "Diners Club",
+      "MasterCard",
+      "Visa",
+      "Visa Electrón",
+      "Car hire",
+      "Fax",
+      "IHG Green Hotel Certificate",
+      "Hilton - CleanStay",
+      "Twin rooms",
+      "Satellite TV",
+      "Hi-fi",
+      "Welcome pack",
+      "Single rooms"
+    ];
+    
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
       if (!facilities || !facilities.length) return;
     
+      // Exibe apenas os primeiros 12 itens que não estiverem na lista de ocultos
       facilities.slice(0, 12).forEach(f => {
-        // Supondo que a API retorne um código ou nome identificador para a facility
-        // Por exemplo, vamos usar f.code (ou, se não existir, o próprio f.description.content)
+        // Utiliza f.code se existir ou, se não, f.description.content como chave
         const facilityKey = f.code || f.description.content;
+        
+        // Se a facility estiver na lista de ocultos, ignora
+        if (hiddenFacilities.includes(facilityKey)) {
+          return;
+        }
+        
         const mapping = getFacilityData(facilityKey);
-        // Se houver mapeamento, use o ícone dele; caso contrário, use um ícone padrão (check)
+        // Se houver mapeamento, usamos a tradução e o ícone definidos; senão, usa o texto original e um ícone padrão
+        const displayText = mapping ? mapping.pt : f.description.content;
         const iconClass = mapping ? mapping.icon : "fas fa-check";
-    
-        container.innerHTML += `<div class="facility"><i class="${iconClass}"></i> ${f.description.content}</div>`;
+        
+        container.innerHTML += `<div class="facility"><i class="${iconClass}"></i> ${displayText}</div>`;
       });
-    }    
+    }   
 
     // 9. Função para buscar facilities via Content API exclusivamente
     function fetchHotelFacilities(hotelCode) {
