@@ -603,7 +603,7 @@
       container.innerHTML = additionalHtml;
     }
 
-    // Função de mapa (mantida conforme o código que estava funcionando)
+    // Inicializa o mapa e as atrações
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -617,7 +617,7 @@
         popupAnchor: [0, -30]
       });
       const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
-      marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
+      marker.bindPopup(<b>${document.getElementById("hotelName").textContent}</b>);
       const container = document.getElementById("attractions");
       container.innerHTML = "<h2>Atrações</h2>";
       if (Array.isArray(attractions) && attractions.length) {
@@ -625,12 +625,12 @@
           const latA = a.latitude || lat;
           const lngA = a.longitude || lng;
           const attrMarker = L.marker([latA, lngA]).addTo(map);
-          attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
-          container.innerHTML += `
+          attrMarker.bindPopup(<b>${a.poiName || a.name}</b> - ${a.distance});
+          container.innerHTML += 
             <div class="attraction-item">
-              <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+              <i class="fa-solid fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
             </div>
-          `;
+          ;
         });
       }
     }
