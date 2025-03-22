@@ -23,7 +23,7 @@ const hiddenFacilities = [
   "Satellite TV",
   "Hi-fi",
   "Welcome pack",
-  "Single rooms"
+  "Single rooms",
   "Check-in hour",
   "Check-out hour",
   "Car park",
