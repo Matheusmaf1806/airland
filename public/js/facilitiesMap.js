@@ -366,8 +366,6 @@ function getFacilityData(key) {
 function processFacility(item) {
   const found = getFacilityData(item);
   if (found) {
-    console.log("Tradução:", found.pt);
-    console.log("Ícone:", found.icon);
     // Cria um elemento <i> com a classe do ícone do Font Awesome
     const iconElement = document.createElement('i');
     iconElement.className = found.icon;
@@ -384,9 +382,5 @@ function processFacility(item) {
     console.log(item, "não faz parte de facilitiesMap");
   }
 }
-
-// Chamadas de exemplo:
-processFacility("Restaurant");       // Exibe a tradução e o ícone para "Restaurante"
-processFacility("AlgoInexistente");    // Informa que o item não está mapeado
 
 export { facilitiesMap, getFacilityData, processFacility };
