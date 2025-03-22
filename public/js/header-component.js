@@ -151,10 +151,9 @@ class HeaderComponent extends HTMLElement {
       </header>
     `;
 
-    // Atualiza valor do dólar
     this.updateDollar();
 
-    // Evento: abrir carrinho
+    // Carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       if (typeof window.toggleCart === "function") {
         window.toggleCart();
@@ -163,16 +162,25 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Evento: abrir login diretamente
-    this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
+    // Perfil → Força carregamento e criação do login
+    this.shadowRoot.querySelector(".profile-btn").addEventListener("click", async (e) => {
       e.preventDefault();
+
+      // Carrega login-component.js se ainda não estiver presente
+      if (!customElements.get("login-component")) {
+        await import("/js/login-component.js").catch(err => {
+          console.error("Erro ao importar login-component.js", err);
+        });
+      }
+
+      // Cria e mostra o login
       if (!document.querySelector("login-component")) {
         const login = document.createElement("login-component");
         document.body.appendChild(login);
       }
     });
 
-    // Função global para atualizar o número de itens no carrinho
+    // Atualiza o número de itens do carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
