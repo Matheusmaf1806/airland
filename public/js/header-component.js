@@ -114,6 +114,38 @@ class HeaderComponent extends HTMLElement {
           padding: 2px 6px;
           display: none;
         }
+
+        /* Submenu de perfil */
+        .profile-wrapper {
+          position: relative;
+        }
+
+        .profile-menu {
+          position: absolute;
+          top: 120%;
+          right: 0;
+          background: #fff;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          display: none;
+          min-width: 100px;
+          z-index: 10;
+        }
+
+        .profile-menu button {
+          width: 100%;
+          background: none;
+          border: none;
+          padding: 10px;
+          text-align: left;
+          font-size: 0.85rem;
+          cursor: pointer;
+        }
+
+        .profile-menu button:hover {
+          background-color: #f1f1f1;
+        }
       </style>
 
       <div class="top-offer-bar">
@@ -153,7 +185,12 @@ class HeaderComponent extends HTMLElement {
             <span class="cart-count" id="cart-count">0</span>
           </div>
 
-          <a href="#" class="bubble-btn profile-btn">Login</a>
+          <div class="bubble-btn profile-wrapper">
+            <span class="profile-name">Login</span>
+            <div class="profile-menu" id="profileMenu">
+              <button id="logoutBtn">Sair</button>
+            </div>
+          </div>
         </div>
       </header>
     `;
@@ -161,7 +198,6 @@ class HeaderComponent extends HTMLElement {
     this.updateDollar();
     this.updateUserProfile();
 
-    // Botão do carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       if (typeof window.toggleCart === "function") {
         window.toggleCart();
@@ -170,12 +206,19 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Botão do Login → cria e abre login se não estiver logado
-    this.shadowRoot.querySelector(".profile-btn").addEventListener("click", async (e) => {
+    // Perfil: toggle menu ou abrir login
+    const profileWrapper = this.shadowRoot.querySelector(".profile-wrapper");
+    const profileMenu = this.shadowRoot.querySelector("#profileMenu");
+    const profileName = this.shadowRoot.querySelector(".profile-name");
+
+    profileWrapper.addEventListener("click", async (e) => {
       e.preventDefault();
 
       const isLoggedIn = !!localStorage.getItem("agentId");
-      if (isLoggedIn) return;
+      if (isLoggedIn) {
+        profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
+        return;
+      }
 
       if (!customElements.get("login-component")) {
         await import("/js/login-component.js").catch(err =>
@@ -189,7 +232,13 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Expor função global para atualizar número de itens do carrinho
+    // Logout
+    this.shadowRoot.querySelector("#logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("agentId");
+      location.reload();
+    });
+
+    // Atualiza contador do carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
@@ -219,10 +268,8 @@ class HeaderComponent extends HTMLElement {
       const res = await fetch(`/api/users/profile?id=${userId}`);
       const data = await res.json();
       if (data?.primeiro_nome) {
-        const profileBtn = this.shadowRoot.querySelector(".profile-btn");
-        if (profileBtn) {
-          profileBtn.textContent = data.primeiro_nome;
-        }
+        const profileName = this.shadowRoot.querySelector(".profile-name");
+        if (profileName) profileName.textContent = data.primeiro_nome;
       }
     } catch (err) {
       console.error("Erro ao buscar perfil do usuário:", err);
