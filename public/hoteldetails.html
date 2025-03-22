@@ -324,6 +324,7 @@
     const children = document.getElementById("children").value || 0;
 
     const queryParams = new URLSearchParams(window.location.search);
+    // O parâmetro "hotelCode" vem da URL
     const hotelCode = queryParams.get("hotelCode") || "";
 
     const params = new URLSearchParams();
@@ -357,7 +358,8 @@
     }
     fillPhotoGallery(images);
 
-    // Chama a Content API para buscar todas as informações e, em seguida, usa somente o campo "facilities" para preencher o container
+    // Chama a Content API diretamente para buscar as informações completas,
+    // e utiliza apenas o campo "facilities" para preencher a área.
     fetchHotelFacilities(hotelCode);
 
     // Descrição e Destaques
@@ -369,7 +371,7 @@
       <p>Confira as melhores vantagens desta acomodação.</p>
     `;
 
-    // Cria a tabela de quartos com o preço final (valor convertido e multiplicado pelo número de noites)
+    // Tabela de Quartos e Informações Adicionais
     createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
     fillInfoBlocks({
       checkin: "A partir das 16h",
@@ -416,15 +418,17 @@
     });
   }
 
-  // NOVA FUNÇÃO: Busca TODOS os dados do Content API usando o código do hotel,
-  // mas utiliza apenas o campo "facilities" para atualizar o container.
+  // NOVA FUNÇÃO: Chama o endpoint da Content API para buscar todas as informações do hotel,
+  // utilizando o parâmetro "hotelCode". A resposta tem a seguinte estrutura:
+  // { auditData: {…}, hotel: { code, name, description, ... } }
+  // E, a partir dela, atualizamos apenas o campo "facilities" (se existir) no DOM.
   function fetchHotelFacilities(hotelCode) {
-    fetch(`/api/hbdetail/hotels?code=${hotelCode}`)
+    fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
       .then(response => response.json())
       .then(data => {
-        if (data.combined && data.combined.length > 0) {
-          const fullContent = data.combined[0].content || {};
-          const facilities = fullContent.facilities || [];
+        if (data.hotel) {
+          // Supondo que os dados de facilities estejam em data.hotel.facilities (um array)
+          const facilities = data.hotel.facilities || [];
           fillFacilities(facilities);
         } else {
           console.warn("Nenhum dado encontrado para o hotel com o code:", hotelCode);
