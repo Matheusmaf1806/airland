@@ -17,8 +17,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "seuSegredoDefault";
 // =======================================================
 // POST /api/users/register
 // Registra um novo usuário com os campos: name, email, password, telefone e affiliateId.
-// Separa o nome em primeiro_nome e ultimo_nome.
-// Após o registro, gera um token JWT com expiração de 1 dia e o envia como cookie.
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, telefone, affiliateId } = req.body;
@@ -45,7 +43,7 @@ router.post("/register", async (req, res) => {
     // Hashear a senha
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Inserir o usuário na tabela "users" e solicitar o registro inserido com .select()
+    // Inserir o usuário na tabela "users"
     const { data, error } = await supabase
       .from("users")
       .insert([
@@ -72,7 +70,6 @@ router.post("/register", async (req, res) => {
     
     // Gera um token JWT com expiração de 1 dia
     const token = jwt.sign({ userId: data.id }, JWT_SECRET, { expiresIn: "1d" });
-    // Define o cookie 'token' com httpOnly e duração de 1 dia (86400000 ms)
     res.cookie("token", token, { httpOnly: true, maxAge: 86400000 });
     
     return res.json({ success: true, user: data });
@@ -83,34 +80,38 @@ router.post("/register", async (req, res) => {
 });
 
 // =======================================================
-// POST /api/users/login
-// Realiza o login do usuário usando name, email e telefone.
-// Após encontrar o usuário, gera um token JWT com expiração de 1 dia e o envia como cookie.
+// POST /api/users/login (AGORA FUNCIONA COM EMAIL + SENHA)
 router.post("/login", async (req, res) => {
   try {
-    const { name, email, telefone } = req.body;
-    if (!name || !email || !telefone) {
-      return res.status(400).json({ success: false, error: "Campos obrigatórios não preenchidos." });
+    const { email, password } = req.body;
+
+    // Valida os campos obrigatórios
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: "Email e senha são obrigatórios." });
     }
-    
-    // Buscar usuário na tabela "users" com os dados informados
+
+    // Buscar usuário pelo email
     const { data, error } = await supabase
       .from("users")
-      .select("*")
+      .select("id, email, password, name, telefone")
       .eq("email", email)
-      .eq("name", name)
-      .eq("telefone", telefone)
       .single();
-    
+
     if (error || !data) {
       return res.status(404).json({ success: false, error: "Usuário não encontrado." });
     }
-    
-    // Gera o token JWT com expiração de 1 dia
+
+    // Verifica a senha com bcrypt.compare()
+    const isMatch = await bcrypt.compare(password, data.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: "Senha incorreta." });
+    }
+
+    // Gera o token JWT
     const token = jwt.sign({ userId: data.id }, JWT_SECRET, { expiresIn: "1d" });
     res.cookie("token", token, { httpOnly: true, maxAge: 86400000 });
-    
-    return res.json({ success: true, user: data });
+
+    return res.json({ success: true, user: { id: data.id, email: data.email, name: data.name, telefone: data.telefone } });
   } catch (err) {
     console.error("Erro no login:", err);
     return res.status(500).json({ success: false, error: "Erro interno no login." });
