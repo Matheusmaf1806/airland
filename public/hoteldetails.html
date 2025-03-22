@@ -332,7 +332,7 @@
       params.set("adults1", adults);
       params.set("children1", children);
       if (hotelCode) params.set("hotelCode", hotelCode);
-      return fetch(/api/hbdetail/hotels?${params.toString()})
+      return fetch(`/api/hbdetail/hotels?${params.toString()}`)
         .then(resp => resp.json());
     }
 
@@ -343,10 +343,10 @@
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
-      document.getElementById("hotelAddress").innerHTML = 
+      document.getElementById("hotelAddress").innerHTML = `
         <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
         <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
-      ;
+      `;
 
       // Galeria de fotos
       let images = [];
@@ -362,11 +362,11 @@
       if (hotelObj.content && hotelObj.content.description) {
         document.getElementById("hotelDescription").innerHTML = hotelObj.content.description;
       }
-      document.getElementById("hotelHighlights").innerHTML = 
+      document.getElementById("hotelHighlights").innerHTML = `
         <h2>Destaques da Hospedagem</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
         <div id="additionalHighlights"></div>
-      ;
+      `;
 
       // Tabela de Quartos
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
@@ -392,7 +392,7 @@
 
     // Função que busca facilities, preenche a lista principal e os blocos informativos, além dos destaques adicionais
     function fetchHotelFacilities(hotelCode) {
-      fetch(https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode})
+      fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
         .then(response => response.json())
         .then(data => {
           if (data.hotel) {
@@ -470,7 +470,7 @@
       const finalPrice = parseFloat(totalPrice.toFixed(2));
       const row = document.createElement("div");
       row.className = "room-table-row";
-      row.innerHTML = 
+      row.innerHTML = `
         <div class="room-info">
           <div class="room-details">
             <h4>${roomName}</h4>
@@ -489,7 +489,7 @@
             Selecionar Quarto
           </button>
         </div>
-      ;
+      `;
       return row;
     }
 
@@ -536,10 +536,10 @@
       items.forEach(item => {
         const block = document.createElement("div");
         block.className = "info-block";
-        block.innerHTML = 
+        block.innerHTML = `
           <h3><i class="${item.icon}" style="margin-right: 8px;"></i> ${item.title}</h3>
           <p>${item.content}</p>
-        ;
+        `;
         container.appendChild(block);
       });
     }
@@ -584,20 +584,20 @@
       
       // Monta bloco de DIFERENCIAIS
       if (differentials.length > 0) {
-        additionalHtml += <div class="options"><h3>Opções com:</h3><ul class="highlight-list">;
+        additionalHtml += `<div class="options"><h3>Opções com:</h3><ul class="highlight-list">`;
         differentials.forEach(item => {
-          additionalHtml += <li><i class="${item.icon}"></i> ${item.pt}</li>;
+          additionalHtml += `<li><i class="${item.icon}"></i> ${item.pt}</li>`;
         });
-        additionalHtml += </ul></div>;
+        additionalHtml += `</ul></div>`;
       }
       
       // Monta bloco de ATIVIDADES
       if (activities.length > 0) {
-        additionalHtml += <div class="activities"><h3>Atividades:</h3><ul class="highlight-list">;
+        additionalHtml += `<div class="activities"><h3>Atividades:</h3><ul class="highlight-list">`;
         activities.forEach(item => {
-          additionalHtml += <li><i class="${item.icon}"></i> ${item.pt}</li>;
+          additionalHtml += `<li><i class="${item.icon}"></i> ${item.pt}</li>`;
         });
-        additionalHtml += </ul></div>;
+        additionalHtml += `</ul></div>`;
       }
       
       container.innerHTML = additionalHtml;
@@ -617,7 +617,7 @@
         popupAnchor: [0, -30]
       });
       const marker = L.marker([lat, lng], { icon: hotelIcon }).addTo(map);
-      marker.bindPopup(<b>${document.getElementById("hotelName").textContent}</b>);
+      marker.bindPopup(`<b>${document.getElementById("hotelName").textContent}</b>`);
       const container = document.getElementById("attractions");
       container.innerHTML = "<h2>Atrações</h2>";
       if (Array.isArray(attractions) && attractions.length) {
@@ -625,12 +625,12 @@
           const latA = a.latitude || lat;
           const lngA = a.longitude || lng;
           const attrMarker = L.marker([latA, lngA]).addTo(map);
-          attrMarker.bindPopup(<b>${a.poiName || a.name}</b> - ${a.distance});
-          container.innerHTML += 
+          attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
+          container.innerHTML += `
             <div class="attraction-item">
               <i class="fa-solid fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
             </div>
-          ;
+          `;
         });
       }
     }
