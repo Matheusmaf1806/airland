@@ -3,15 +3,15 @@
 const facilitiesMap = {
   "Year of most recent renovation": {
     pt: "Ano da última renovação",
-    icon: "fa-solid fa-history"
+    icon: "fas fa-history"
   },
   "Number of floors (main building)": {
     pt: "Número de andares (prédio principal)",
-    icon: "fa-solid fa-building"
+    icon: "fas fa-building"
   },
   "Disability-friendly rooms": {
     pt: "Quartos adaptados para pessoas com deficiência",
-    icon: "fa-solid fa-wheelchair"
+    icon: "fas fa-wheelchair"
   },
   "American Express": {
     pt: "American Express",
@@ -35,327 +35,327 @@ const facilitiesMap = {
   },
   "City centre": {
     pt: "Centro da cidade",
-    icon: "fa-solid fa-city"
+    icon: "fas fa-city"
   },
   "Bus/Train station": {
     pt: "Estação de ônibus/trem",
-    icon: "fa-solid fa-bus"
+    icon: "fas fa-bus"
   },
   "Nearest Bus / Metro Stop": {
     pt: "Ponto de ônibus / metrô mais próximo",
-    icon: "fa-solid fa-subway"
+    icon: "fas fa-subway"
   },
   "Airport": {
     pt: "Aeroporto",
-    icon: "fa-solid fa-plane"
+    icon: "fas fa-plane"
   },
   "Beach": {
     pt: "Praia",
-    icon: "fa-solid fa-umbrella-beach"
+    icon: "fas fa-umbrella-beach"
   },
   "Golf course": {
     pt: "Campo de golfe",
-    icon: "fa-solid fa-golf-ball"
+    icon: "fas fa-golf-ball"
   },
   "Entertainment Area": {
     pt: "Área de entretenimento",
-    icon: "fa-solid fa-theater-masks"
+    icon: "fas fa-theater-masks"
   },
   "Number of bedrooms": {
     pt: "Número de quartos",
-    icon: "fa-solid fa-bed"
+    icon: "fas fa-bed"
   },
   "Living room": {
     pt: "Sala de estar",
-    icon: "fa-solid fa-couch"
+    icon: "fas fa-couch"
   },
   "Disability-friendly bathroom": {
     pt: "Banheiro adaptado",
-    icon: "fa-solid fa-toilet"
+    icon: "fas fa-toilet"
   },
   "Hairdryer": {
     pt: "Secador de cabelo",
-    icon: "fa-solid fa-wind"
+    icon: "fas fa-wind"
   },
   "Bathrobes": {
     pt: "Roupões de banho",
-    icon: "fa-solid fa-tshirt"
+    icon: "fas fa-tshirt"
   },
   "Wi-fi": {
     pt: "Wi-Fi",
-    icon: "fa-solid fa-wifi"
+    icon: "fas fa-wifi"
   },
   "Internet access": {
     pt: "Acesso à internet",
-    icon: "fa-solid fa-wifi"
+    icon: "fas fa-wifi"
   },
   "Cable TV": {
     pt: "TV a cabo",
-    icon: "fa-solid fa-tv"
+    icon: "fas fa-tv"
   },
   "Pay movies": {
     pt: "Filmes pagos",
-    icon: "fa-solid fa-film"
+    icon: "fas fa-film"
   },
   "Alarm clock": {
     pt: "Despertador",
-    icon: "fa-solid fa-clock"
+    icon: "fas fa-clock"
   },
   "Safe": {
     pt: "Cofre",
-    icon: "fa-solid fa-lock"
+    icon: "fas fa-lock"
   },
   "Wheelchair-accessible": {
     pt: "Acessível para cadeira de rodas",
-    icon: "fa-solid fa-wheelchair"
+    icon: "fas fa-wheelchair"
   },
   "Wake-up service": {
     pt: "Serviço de despertar",
-    icon: "fa-solid fa-bell"
+    icon: "fas fa-bell"
   },
   "Smoking rooms": {
     pt: "Quartos para fumantes",
-    icon: "fa-solid fa-smoking"
+    icon: "fas fa-smoking"
   },
   "Extra beds on demand": {
     pt: "Camas extras sob demanda",
-    icon: "fa-solid fa-bed"
+    icon: "fas fa-bed"
   },
   "Cot on demand": {
     pt: "Berço sob demanda",
-    icon: "fa-solid fa-baby"
+    icon: "fas fa-baby"
   },
   "Car park": {
     pt: "Estacionamento",
-    icon: "fa-solid fa-parking"
+    icon: "fas fa-parking"
   },
   "24-hour reception": {
     pt: "Recepção 24h",
-    icon: "fa-solid fa-concierge-bell"
+    icon: "fas fa-concierge-bell"
   },
   "Check-in hour": {
     pt: "Horário de check-in",
-    icon: "fa-solid fa-sign-in-alt"
+    icon: "fas fa-sign-in-alt"
   },
   "Check-out hour": {
     pt: "Horário de check-out",
-    icon: "fa-solid fa-sign-out-alt"
+    icon: "fas fa-sign-out-alt"
   },
   "Late Check-out": {
     pt: "Late check-out",
-    icon: "fa-solid fa-clock"
+    icon: "fas fa-clock"
   },
   "Wired Internet": {
     pt: "Internet com fio",
-    icon: "fa-solid fa-network-wired"
+    icon: "fas fa-network-wired"
   },
   "Secure parking": {
     pt: "Estacionamento seguro",
-    icon: "fa-solid fa-lock"
+    icon: "fas fa-lock"
   },
   "Valet parking": {
     pt: "Manobrista",
-    icon: "fa-solid fa-car"
+    icon: "fas fa-car"
   },
   "Room service": {
     pt: "Serviço de quarto",
-    icon: "fa-solid fa-concierge-bell"
+    icon: "fas fa-concierge-bell"
   },
   "Laundry service": {
     pt: "Serviço de lavanderia",
-    icon: "fa-solid fa-tshirt"
+    icon: "fas fa-tshirt"
   },
   "Launderette": {
     pt: "Lavanderia self-service",
-    icon: "fa-solid fa-tshirt"
+    icon: "fas fa-tshirt"
   },
   "Multilingual staff": {
     pt: "Equipe multilíngue",
-    icon: "fa-solid fa-language"
+    icon: "fas fa-language"
   },
   "24-hour security": {
     pt: "Segurança 24h",
-    icon: "fa-solid fa-shield-alt"
+    icon: "fas fa-shield-alt"
   },
   "Air conditioning in public areas": {
     pt: "Ar-condicionado em áreas públicas",
-    icon: "fa-solid fa-fan"
+    icon: "fas fa-fan"
   },
   "Fireplace": {
     pt: "Lareira",
-    icon: "fa-solid fa-fire"
+    icon: "fas fa-fire"
   },
   "Hotel safe": {
     pt: "Cofre do hotel",
-    icon: "fa-solid fa-lock"
+    icon: "fas fa-lock"
   },
   "Lift access": {
     pt: "Acesso por elevador",
-    icon: "fa-solid fa-arrow-up"
+    icon: "fas fa-arrow-up"
   },
   "Gym": {
     pt: "Academia",
-    icon: "fa-solid fa-dumbbell"
+    icon: "fas fa-dumbbell"
   },
   "Newspapers": {
     pt: "Jornais",
-    icon: "fa-solid fa-newspaper"
+    icon: "fas fa-newspaper"
   },
   "Luggage room": {
     pt: "Depósito de bagagem",
-    icon: "fa-solid fa-suitcase"
+    icon: "fas fa-suitcase"
   },
   "Clothes dryer": {
     pt: "Secadora de roupas",
-    icon: "fa-solid fa-tshirt"
+    icon: "fas fa-tshirt"
   },
   "Bar": {
     pt: "Bar",
-    icon: "fa-solid fa-glass-martini-alt"
+    icon: "fas fa-glass-martini-alt"
   },
   "Restaurant": {
     pt: "Restaurante",
-    icon: "fa-solid fa-utensils"
+    icon: "fas fa-utensils"
   },
   "Non-smoking area": {
     pt: "Área para não fumantes",
-    icon: "fa-solid fa-smoking-ban"
+    icon: "fas fa-smoking-ban"
   },
   "Smoking area": {
     pt: "Área para fumantes",
-    icon: "fa-solid fa-smoking"
+    icon: "fas fa-smoking"
   },
   "Highchairs": {
     pt: "Cadeiras altas",
-    icon: "fa-solid fa-chair"
+    icon: "fas fa-chair"
   },
   "Poolside snack bar": {
     pt: "Bar de lanches à beira da piscina",
-    icon: "fa-solid fa-cocktail"
+    icon: "fas fa-cocktail"
   },
   "Banquet hall": {
     pt: "Salão de banquetes",
-    icon: "fa-solid fa-utensils"
+    icon: "fas fa-utensils"
   },
   "Meeting room": {
     pt: "Sala de reuniões",
-    icon: "fa-solid fa-door-open"
+    icon: "fas fa-door-open"
   },
   "Photocopier": {
     pt: "Fotocopiadora",
-    icon: "fa-solid fa-copy"
+    icon: "fas fa-copy"
   },
   "Business centre": {
     pt: "Centro de negócios",
-    icon: "fa-solid fa-briefcase"
+    icon: "fas fa-briefcase"
   },
   "Audio-visual equipment rental": {
     pt: "Aluguel de equipamento audiovisual",
-    icon: "fa-solid fa-video"
+    icon: "fas fa-video"
   },
   "Fax": {
     pt: "Fax",
-    icon: "fa-solid fa-fax"
+    icon: "fas fa-fax"
   },
   "Outdoor freshwater pool": {
     pt: "Piscina externa de água doce",
-    icon: "fa-solid fa-swimming-pool"
+    icon: "fas fa-swimming-pool"
   },
   "Outdoor heated pool": {
     pt: "Piscina externa aquecida",
-    icon: "fa-solid fa-swimming-pool"
+    icon: "fas fa-swimming-pool"
   },
   "Sun loungers": {
     pt: "Espreguiçadeiras",
-    icon: "fa-solid fa-chair"
+    icon: "fas fa-chair"
   },
   "Parasols": {
     pt: "Sombrinhas",
-    icon: "fa-solid fa-umbrella"
+    icon: "fas fa-umbrella"
   },
   "TV lounge": {
     pt: "Sala de TV",
-    icon: "fa-solid fa-tv"
+    icon: "fas fa-tv"
   },
   "Breakfast": {
     pt: "Café da manhã",
-    icon: "fa-solid fa-coffee"
+    icon: "fas fa-coffee"
   },
   "Continental breakfast": {
     pt: "Café da manhã continental",
-    icon: "fa-solid fa-mug-hot"
+    icon: "fas fa-mug-hot"
   },
   "Snacks": {
     pt: "Lanches",
-    icon: "fa-solid fa-cookie-bite"
+    icon: "fas fa-cookie-bite"
   },
   "LGTBIQ friendly": {
     pt: "Amigável para LGTBIQ",
-    icon: "fa-solid fa-heart"
+    icon: "fas fa-heart"
   },
   "Deposit on arrival": {
     pt: "Depósito na chegada",
-    icon: "fa-solid fa-piggy-bank"
+    icon: "fas fa-piggy-bank"
   },
   "Charges for late arrival": {
     pt: "Taxas por chegada tardia",
-    icon: "fa-solid fa-money-bill-wave"
+    icon: "fas fa-money-bill-wave"
   },
   "Identification card at arrival": {
     pt: "Carteira de identidade na chegada",
-    icon: "fa-solid fa-id-card"
+    icon: "fas fa-id-card"
   },
   "Non-smoking establishment": {
     pt: "Estabelecimento para não fumantes",
-    icon: "fa-solid fa-smoking-ban"
+    icon: "fas fa-smoking-ban"
   },
   "Minimum check-in age": {
     pt: "Idade mínima para check-in",
-    icon: "fa-solid fa-user-check"
+    icon: "fas fa-user-check"
   },
   "Jet ski": {
     pt: "Jet ski",
-    icon: "fa-solid fa-ship"
+    icon: "fas fa-ship"
   },
   "Windsurfing": {
     pt: "Windsurf",
-    icon: "fa-solid fa-wind"
+    icon: "fas fa-wind"
   },
   "Sailing": {
     pt: "Vela",
-    icon: "fa-solid fa-ship"
+    icon: "fas fa-ship"
   },
   "Canoeing": {
     pt: "Canoagem",
-    icon: "fa-solid fa-water"
+    icon: "fas fa-water"
   },
   "Fitness": {
     pt: "Academia",
-    icon: "fa-solid fa-dumbbell"
+    icon: "fas fa-dumbbell"
   },
   "Horse riding": {
     pt: "Equitação",
-    icon: "fa-solid fa-horse"
+    icon: "fas fa-horse"
   },
   "Basketball": {
     pt: "Basquete",
-    icon: "fa-solid fa-basketball-ball"
+    icon: "fas fa-basketball-ball"
   },
   "Billiards": {
     pt: "Sinuca",
-    icon: "fa-solid fa-circle" // Placeholder para sinuca
+    icon: "fas fa-circle" // Placeholder para sinuca
   },
   "Bowling alley": {
     pt: "Pista de boliche",
-    icon: "fa-solid fa-bowling-ball"
+    icon: "fas fa-bowling-ball"
   },
   "Tennis": {
     pt: "Tênis",
-    icon: "fa-solid fa-table-tennis-paddle-ball"
+    icon: "fas fa-table-tennis-paddle-ball"
   },
   "Hilton - CleanStay": {
     pt: "Hilton - CleanStay",
-    icon: "fa-solid fa-hotel"
+    icon: "fas fa-hotel"
   }
 };
 
@@ -384,5 +384,3 @@ function processFacility(item) {
     console.log(item, "não faz parte de facilitiesMap");
   }
 }
-
-export { facilitiesMap, getFacilityData, processFacility };
