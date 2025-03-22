@@ -146,6 +146,65 @@ class HeaderComponent extends HTMLElement {
         .profile-menu button:hover {
           background-color: #f1f1f1;
         }
+
+        /* RESPONSIVIDADE MOBILE */
+        @media (max-width: 1024px) {
+          .header-container {
+            flex-direction: column;
+            padding: 15px 20px;
+          }
+          .nav-menu {
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 10px 0;
+            justify-content: center;
+          }
+          .right-actions {
+            margin-top: 10px;
+            justify-content: center;
+          }
+        }
+        @media (max-width: 768px) {
+          .header-container {
+            padding: 10px 15px;
+          }
+          .logo img {
+            width: 70px;
+          }
+          .nav-menu {
+            gap: 15px;
+            margin-left: 0;
+          }
+          .bubble-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .header-container {
+            padding: 8px 10px;
+          }
+          .logo img {
+            width: 60px;
+          }
+          .nav-menu {
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+          }
+          .nav-item {
+            font-size: 0.8rem;
+          }
+          .right-actions {
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+          }
+          .bubble-btn {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+          }
+        }
       </style>
 
       <div class="top-offer-bar">
