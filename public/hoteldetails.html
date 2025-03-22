@@ -203,7 +203,6 @@
       <div class="highlights" id="hotelHighlights">
         <h2>Destaques da Hospedagem</h2>
         <p>Confira as melhores vantagens desta acomodação.</p>
-        <!-- Container para os destaques adicionais -->
         <div id="additionalHighlights"></div>
       </div>
     </div>
@@ -258,7 +257,7 @@
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
 
-    // Função global para abrir o carrinho (opcional)
+    // Função global para abrir o carrinho
     window.toggleCart = function() {
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -321,7 +320,7 @@
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
-      // Alterado para "Visualizar mapa"
+      // Alterado para "Visualizar mapa" e rolando para a seção de mapa
       document.getElementById("hotelAddress").innerHTML = `
         <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
         <a href="#mapAttractionsContainer" class="location-link">Visualizar mapa</a>
@@ -388,12 +387,11 @@
       }
     }
 
-    // Preenche as facilidades (até 12 itens) – aqui mantemos a função simples (ajuste conforme sua lógica)
+    // Função que preenche as facilidades (mantida conforme seu código original)
     function fillFacilities(facilities) {
       const container = document.getElementById("facilities");
       container.innerHTML = "";
       if (!facilities || !facilities.length) return;
-      // Exibe os 12 primeiros itens (a lógica original pode ser aprimorada conforme necessário)
       facilities.slice(0, 12).forEach(f => {
         container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
       });
@@ -489,6 +487,7 @@
         resortFee: "Não há informações",
         parking: "Não há informações"
       };
+      
       facilities.forEach(f => {
         const desc = f.description && f.description.content ? f.description.content.toLowerCase() : "";
         if ((f.facilityCode === 260 || desc.includes("check-in hour")) && info.checkin === "Não há informações") {
@@ -505,6 +504,7 @@
           info.resortFee = f.value ? f.value : (f.description && f.description.content ? f.description.content : "Não há informações");
         }
       });
+      
       return info;
     }
 
@@ -575,7 +575,7 @@
       container.innerHTML = additionalHtml;
     }
 
-    // Inicializa o mapa e as atrações (versão funcionando)
+    // Inicializa o mapa e as atrações – *apenas esta função foi alterada* para utilizar a versão que estava funcionando
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -700,7 +700,7 @@
       if (query.rooms) document.getElementById("rooms").value = query.rooms;
       if (query.adults) document.getElementById("adults").value = query.adults;
       if (query.children) document.getElementById("children").value = query.children;
-
+      
       const data = await fetchHotelCombined();
       if (data && data.combined && data.combined.length > 0) {
         const dollarRate = await getDollarRate();
