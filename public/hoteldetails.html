@@ -324,7 +324,6 @@
     const children = document.getElementById("children").value || 0;
 
     const queryParams = new URLSearchParams(window.location.search);
-    // O parâmetro "hotelCode" vem da URL
     const hotelCode = queryParams.get("hotelCode") || "";
 
     const params = new URLSearchParams();
@@ -358,8 +357,8 @@
     }
     fillPhotoGallery(images);
 
-    // Chama a Content API diretamente para buscar as informações completas,
-    // e utiliza apenas o campo "facilities" para preencher a área.
+    // Aqui NÃO usamos nenhum dado inicial para facilities;
+    // o preenchimento ocorrerá exclusivamente via Content API:
     fetchHotelFacilities(hotelCode);
 
     // Descrição e Destaques
@@ -418,26 +417,23 @@
     });
   }
 
-  // NOVA FUNÇÃO: Chama o endpoint da Content API para buscar todas as informações do hotel,
-  // utilizando o parâmetro "hotelCode". A resposta tem a seguinte estrutura:
-  // { auditData: {…}, hotel: { code, name, description, ... } }
-  // E, a partir dela, atualizamos apenas o campo "facilities" (se existir) no DOM.
+  // 9. Função para buscar facilities via Content API exclusivamente
   function fetchHotelFacilities(hotelCode) {
     fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
       .then(response => response.json())
       .then(data => {
         if (data.hotel) {
-          // Supondo que os dados de facilities estejam em data.hotel.facilities (um array)
+          // Extrai somente o array de facilities do objeto retornado
           const facilities = data.hotel.facilities || [];
           fillFacilities(facilities);
         } else {
-          console.warn("Nenhum dado encontrado para o hotel com o code:", hotelCode);
+          console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
         }
       })
       .catch(err => console.error("Erro ao buscar dados do Content API:", err));
   }
 
-  // 9. Cria a tabela de quartos
+  // 10. Cria a tabela de quartos
   function createRoomTableGrouped(rooms, hotelCode, hotelName, dollarRate) {
     const tableBody = document.getElementById("roomTableBody");
     tableBody.innerHTML = "";
@@ -471,7 +467,7 @@
     }
   }
 
-  // 10. Cria cada linha (quarto) da tabela com preços formatados
+  // 11. Cria cada linha (quarto) da tabela com preços formatados
   function createRoomRow(room, hotelCode, hotelName, dollarRate) {
     const roomName = room.name || room.roomType || room.roomCode || "Quarto";
     let netPrice = room.rates && room.rates[0]?.net ? room.rates[0].net : 80;
@@ -523,7 +519,7 @@
     return row;
   }
 
-  // 11. Preenche os blocos de informações adicionais
+  // 12. Preenche os blocos de informações adicionais
   function fillInfoBlocks(info) {
     const container = document.getElementById("infoContainer");
     container.innerHTML = "";
@@ -545,7 +541,7 @@
     });
   }
 
-  // 12. Inicializa o mapa e as atrações
+  // 13. Inicializa o mapa e as atrações
   function initMapAndAttractions(lat, lng, attractions) {
     const map = L.map("map").setView([lat, lng], 14);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -577,7 +573,7 @@
     }
   }
 
-  // 13. Inicializa o Flatpickr para seleção de datas
+  // 14. Inicializa o Flatpickr para seleção de datas
   function initDateRangePicker() {
     if (typeof flatpickr !== 'function') {
       console.error("Flatpickr não está disponível! Verifique se a biblioteca foi carregada.");
@@ -596,7 +592,7 @@
     });
   }
 
-  // 14. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar"
+  // 15. Atualiza a busca e refaz a pesquisa ao clicar em "Pesquisar"
   window.updateRoomList = async function() {
     const dateRange = document.getElementById("checkin-checkout").value;
     if (dateRange.includes(" - ")) {
@@ -615,7 +611,7 @@
     }
   };
 
-  // 15. Seleciona o quarto e envia os dados para o carrinho com o preço final, checkin e checkout
+  // 16. Seleciona o quarto e envia os dados para o carrinho com o preço final, checkin e checkout
   window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
     let checkInDate = "", checkOutDate = "";
     const fpInstance = document.getElementById("checkin-checkout")._flatpickr;
@@ -659,7 +655,7 @@
     }
   };
 
-  // 16. Inicialização ao carregar a página
+  // 17. Inicialização ao carregar a página
   document.addEventListener("DOMContentLoaded", async function() {
     initDateRangePicker();
     const query = getQueryParams();
