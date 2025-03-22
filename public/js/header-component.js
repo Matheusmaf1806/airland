@@ -153,12 +153,13 @@ class HeaderComponent extends HTMLElement {
             <span class="cart-count" id="cart-count">0</span>
           </div>
 
-          <a href="#" class="bubble-btn profile-btn">Perfil</a>
+          <a href="#" class="bubble-btn profile-btn">Login</a>
         </div>
       </header>
     `;
 
     this.updateDollar();
+    this.updateUserProfile();
 
     // Botão do carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
@@ -169,9 +170,13 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Botão do perfil → cria e abre login
+    // Botão do Login → cria e abre login se não estiver logado
     this.shadowRoot.querySelector(".profile-btn").addEventListener("click", async (e) => {
       e.preventDefault();
+
+      const isLoggedIn = !!localStorage.getItem("agentId");
+      if (isLoggedIn) return;
+
       if (!customElements.get("login-component")) {
         await import("/js/login-component.js").catch(err =>
           console.error("Erro ao importar login-component.js", err)
@@ -184,7 +189,7 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Expor contador do carrinho
+    // Expor função global para atualizar número de itens do carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
@@ -203,6 +208,24 @@ class HeaderComponent extends HTMLElement {
       }
     } catch (error) {
       console.error("Erro ao buscar o valor do dólar:", error);
+    }
+  }
+
+  async updateUserProfile() {
+    const userId = localStorage.getItem("agentId");
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`/api/users/profile?id=${userId}`);
+      const data = await res.json();
+      if (data?.primeiro_nome) {
+        const profileBtn = this.shadowRoot.querySelector(".profile-btn");
+        if (profileBtn) {
+          profileBtn.textContent = data.primeiro_nome;
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao buscar perfil do usuário:", err);
     }
   }
 }
