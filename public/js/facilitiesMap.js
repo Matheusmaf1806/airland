@@ -1,6 +1,6 @@
 // facilitiesMap.js
 
-// Lista de facilities que devem ser ocultadas (não exibidas)
+// Lista de facilities que não devem ser exibidas na seção principal (serão utilizadas apenas nos blocos adicionais)
 const hiddenFacilities = [
   "Year of most recent renovation",
   "Total number of rooms",
@@ -23,7 +23,11 @@ const hiddenFacilities = [
   "Satellite TV",
   "Hi-fi",
   "Welcome pack",
-  "Single rooms"
+  "Single rooms",
+  "Check-in hour",
+  "Check-out hour",
+  "Car park",
+  "Resort Fee"
 ];
 
 const facilitiesMap = {
@@ -160,12 +164,12 @@ const facilitiesMap = {
     icon: "fa-solid fa-concierge-bell"
   },
   "Check-in hour": {
-    pt: "Horário de check-in",
-    icon: "fa-solid fa-sign-in-alt"
+    pt: "Check-in hour",
+    icon: "fa-solid fa-clock"
   },
   "Check-out hour": {
-    pt: "Horário de check-out",
-    icon: "fa-solid fa-sign-out-alt"
+    pt: "Check-out hour",
+    icon: "fa-solid fa-clock"
   },
   "Late Check-out": {
     pt: "Late check-out",
@@ -406,8 +410,7 @@ function processFacility(item) {
 
 /**
  * Preenche o container com até 12 facilities válidas.
- * Se algum item não tiver mapeamento ou estiver na lista de ocultos, ele é ignorado e os próximos são processados,
- * até que sejam exibidos 12 itens ou o array acabe.
+ * Itens que estiverem na lista de ocultos serão ignorados.
  */
 function fillFacilities(facilities) {
   const container = document.getElementById("facilities");
@@ -416,14 +419,11 @@ function fillFacilities(facilities) {
   if (!facilities || facilities.length === 0) return;
   
   let count = 0;
-  // Itera sobre todo o array para garantir que 12 itens sejam exibidos (se disponíveis)
+  // Itera por todo o array para exibir 12 itens válidos (ignorando os ocultos)
   for (let i = 0; i < facilities.length && count < 12; i++) {
     const facility = facilities[i];
     const facilityKey = facility.code || facility.description?.content;
-    // Ignora se estiver na lista de ocultos
-    if (hiddenFacilities.includes(facilityKey)) {
-      continue;
-    }
+    if (hiddenFacilities.includes(facilityKey)) continue;
     const mapping = getFacilityData(facilityKey);
     const displayText = mapping ? mapping.pt : facility.description?.content || facilityKey;
     const iconClass = mapping ? mapping.icon : "fas fa-check";
@@ -432,16 +432,5 @@ function fillFacilities(facilities) {
   }
 }
 
-function fetchHotelFacilities(hotelCode) {
-  fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.hotel) {
-        const facilities = data.hotel.facilities || [];
-        fillFacilities(facilities);
-      } else {
-        console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
-      }
-    })
-    .catch(err => console.error("Erro ao buscar dados do Content API:", err));
-}
+// Exporta as funções para uso (caso seja importado como módulo)
+export { facilitiesMap, getFacilityData, processFacility, fillFacilities };
