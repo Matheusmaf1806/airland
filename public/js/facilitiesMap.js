@@ -383,6 +383,14 @@ const facilitiesMap = {
     pt: "Tênis",
     icon: "fa-solid fa-table-tennis-paddle-ball"
   },
+  "Small pets allowed (under 5 kg)": {
+    pt: "Pets abaixo de 5kg permitidos.",
+    icon: "fa-solid fa-paw"
+  },
+  "Large pets allowed (over 5 kg)": {
+    pt: "Pets acima de 5kg permitidos.",
+    icon: "fa-solid fa-paw"
+  },
   "Hilton - CleanStay": {
     pt: "Hilton - CleanStay",
     icon: "fa-solid fa-hotel"
