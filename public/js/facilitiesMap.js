@@ -5,17 +5,33 @@ const facilitiesMap = {
     pt: "Ano da última renovação",
     icon: "fas fa-history"
   },
+  "Total number of rooms": {
+    pt: "Número total de quartos",
+    icon: "fas fa-th"
+  },
   "Number of floors (main building)": {
     pt: "Número de andares (prédio principal)",
     icon: "fas fa-building"
   },
-  "Disability-friendly rooms": {
-    pt: "Quartos adaptados para pessoas com deficiência",
-    icon: "fas fa-wheelchair"
+  "Double rooms": {
+    pt: "Quartos duplos",
+    icon: "fas fa-bed"
+  },
+  "Suites": {
+    pt: "Suítes",
+    icon: "fas fa-hotel"
+  },
+  "hotel": {
+    pt: "Hotel",
+    icon: "fas fa-hotel"
   },
   "American Express": {
     pt: "American Express",
     icon: "fab fa-cc-amex"
+  },
+  "EC": {
+    pt: "EC",
+    icon: "fas fa-credit-card"
   },
   "JCB": {
     pt: "JCB",
@@ -33,9 +49,9 @@ const facilitiesMap = {
     pt: "Visa",
     icon: "fab fa-cc-visa"
   },
-  "City centre": {
-    pt: "Centro da cidade",
-    icon: "fas fa-city"
+  "Visa Electrón": {
+    pt: "Visa Electrón",
+    icon: "fab fa-cc-visa"
   },
   "Bus/Train station": {
     pt: "Estação de ônibus/trem",
@@ -61,61 +77,85 @@ const facilitiesMap = {
     pt: "Área de entretenimento",
     icon: "fas fa-theater-masks"
   },
-  "Number of bedrooms": {
-    pt: "Número de quartos",
-    icon: "fas fa-bed"
+  "Small pets allowed (under 5 kg)": {
+    pt: "Permite pets pequenos (até 5 kg)",
+    icon: "fas fa-paw"
   },
-  "Living room": {
-    pt: "Sala de estar",
-    icon: "fas fa-couch"
+  "Car hire": {
+    pt: "Aluguel de carro",
+    icon: "fas fa-car"
+  },
+  "Transfer service": {
+    pt: "Serviço de transfer",
+    icon: "fas fa-shuttle-van"
+  },
+  "Room size (sqm)": {
+    pt: "Tamanho do quarto (m²)",
+    icon: "fas fa-ruler-combined"
+  },
+  "Bathroom": {
+    pt: "Banheiro",
+    icon: "fas fa-bath"
   },
   "Disability-friendly bathroom": {
     pt: "Banheiro adaptado",
     icon: "fas fa-toilet"
   },
-  "Hairdryer": {
-    pt: "Secador de cabelo",
-    icon: "fas fa-wind"
+  "Shower": {
+    pt: "Chuveiro",
+    icon: "fas fa-shower"
   },
-  "Bathrobes": {
-    pt: "Roupões de banho",
+  "Bathtub": {
+    pt: "Banheira",
+    icon: "fas fa-bath"
+  },
+  "Direct dial telephone": {
+    pt: "Telefone com discagem direta",
+    icon: "fas fa-phone"
+  },
+  "Radio": {
+    pt: "Rádio",
+    icon: "fas fa-radio"
+  },
+  "Mini fridge": {
+    pt: "Mini geladeira",
+    icon: "fas fa-snowflake"
+  },
+  "Tea and coffee making facilities": {
+    pt: "Facilidades para preparar chá e café",
+    icon: "fas fa-coffee"
+  },
+  "Ironing set": {
+    pt: "Kit de passar roupa",
     icon: "fas fa-tshirt"
   },
-  "Wi-fi": {
-    pt: "Wi-Fi",
-    icon: "fas fa-wifi"
+  "Carpeted floors": {
+    pt: "Pisos com carpete",
+    icon: "fas fa-th-large"
   },
-  "Internet access": {
-    pt: "Acesso à internet",
-    icon: "fas fa-wifi"
-  },
-  "Cable TV": {
-    pt: "TV a cabo",
-    icon: "fas fa-tv"
-  },
-  "Pay movies": {
-    pt: "Filmes pagos",
-    icon: "fas fa-film"
-  },
-  "Alarm clock": {
-    pt: "Despertador",
-    icon: "fas fa-clock"
+  "Individually adjustable heating": {
+    pt: "Aquecimento individual ajustável",
+    icon: "fas fa-thermometer-half"
   },
   "Safe": {
     pt: "Cofre",
     icon: "fas fa-lock"
   },
-  "Wheelchair-accessible": {
-    pt: "Acessível para cadeira de rodas",
-    icon: "fas fa-wheelchair"
-  },
   "Wake-up service": {
     pt: "Serviço de despertar",
     icon: "fas fa-bell"
   },
+  "Desk": {
+    pt: "Mesa de trabalho",
+    icon: "fas fa-table"
+  },
   "Smoking rooms": {
     pt: "Quartos para fumantes",
     icon: "fas fa-smoking"
+  },
+  "Housekeeping": {
+    pt: "Serviço de limpeza",
+    icon: "fas fa-broom"
   },
   "Extra beds on demand": {
     pt: "Camas extras sob demanda",
@@ -125,137 +165,45 @@ const facilitiesMap = {
     pt: "Berço sob demanda",
     icon: "fas fa-baby"
   },
-  "Car park": {
-    pt: "Estacionamento",
-    icon: "fas fa-parking"
+  "Outdoor swimming pool": {
+    pt: "Piscina ao ar livre",
+    icon: "fas fa-swimming-pool"
   },
-  "24-hour reception": {
-    pt: "Recepção 24h",
-    icon: "fas fa-concierge-bell"
-  },
-  "Check-in hour": {
-    pt: "Horário de check-in",
-    icon: "fas fa-sign-in-alt"
-  },
-  "Check-out hour": {
-    pt: "Horário de check-out",
-    icon: "fas fa-sign-out-alt"
-  },
-  "Late Check-out": {
-    pt: "Late check-out",
-    icon: "fas fa-clock"
-  },
-  "Wired Internet": {
-    pt: "Internet com fio",
-    icon: "fas fa-network-wired"
-  },
-  "Secure parking": {
-    pt: "Estacionamento seguro",
-    icon: "fas fa-lock"
-  },
-  "Valet parking": {
-    pt: "Manobrista",
-    icon: "fas fa-car"
-  },
-  "Room service": {
-    pt: "Serviço de quarto",
-    icon: "fas fa-concierge-bell"
-  },
-  "Laundry service": {
-    pt: "Serviço de lavanderia",
-    icon: "fas fa-tshirt"
-  },
-  "Launderette": {
-    pt: "Lavanderia self-service",
-    icon: "fas fa-tshirt"
-  },
-  "Multilingual staff": {
-    pt: "Equipe multilíngue",
-    icon: "fas fa-language"
-  },
-  "24-hour security": {
-    pt: "Segurança 24h",
-    icon: "fas fa-shield-alt"
-  },
-  "Air conditioning in public areas": {
-    pt: "Ar-condicionado em áreas públicas",
-    icon: "fas fa-fan"
-  },
-  "Fireplace": {
-    pt: "Lareira",
-    icon: "fas fa-fire"
-  },
-  "Hotel safe": {
-    pt: "Cofre do hotel",
-    icon: "fas fa-lock"
-  },
-  "Lift access": {
-    pt: "Acesso por elevador",
-    icon: "fas fa-arrow-up"
-  },
-  "Gym": {
-    pt: "Academia",
+  "Fitness room": {
+    pt: "Sala de fitness",
     icon: "fas fa-dumbbell"
   },
-  "Newspapers": {
-    pt: "Jornais",
-    icon: "fas fa-newspaper"
-  },
-  "Luggage room": {
-    pt: "Depósito de bagagem",
-    icon: "fas fa-suitcase"
-  },
-  "Clothes dryer": {
-    pt: "Secadora de roupas",
-    icon: "fas fa-tshirt"
-  },
-  "Bar": {
-    pt: "Bar",
-    icon: "fas fa-glass-martini-alt"
-  },
-  "Restaurant": {
-    pt: "Restaurante",
-    icon: "fas fa-utensils"
-  },
-  "Non-smoking area": {
-    pt: "Área para não fumantes",
-    icon: "fas fa-smoking-ban"
-  },
-  "Smoking area": {
-    pt: "Área para fumantes",
-    icon: "fas fa-smoking"
-  },
-  "Highchairs": {
-    pt: "Cadeiras altas",
-    icon: "fas fa-chair"
-  },
-  "Poolside snack bar": {
-    pt: "Bar de lanches à beira da piscina",
-    icon: "fas fa-cocktail"
-  },
-  "Banquet hall": {
-    pt: "Salão de banquetes",
-    icon: "fas fa-utensils"
+  "Conference room": {
+    pt: "Sala de conferência",
+    icon: "fas fa-chalkboard-teacher"
   },
   "Meeting room": {
     pt: "Sala de reuniões",
     icon: "fas fa-door-open"
   },
-  "Photocopier": {
-    pt: "Fotocopiadora",
-    icon: "fas fa-copy"
+  "Projector": {
+    pt: "Projetor",
+    icon: "fas fa-video"
+  },
+  "Printer": {
+    pt: "Impressora",
+    icon: "fas fa-print"
   },
   "Business centre": {
     pt: "Centro de negócios",
     icon: "fas fa-briefcase"
   },
-  "Audio-visual equipment rental": {
-    pt: "Aluguel de equipamento audiovisual",
-    icon: "fas fa-video"
-  },
   "Fax": {
     pt: "Fax",
     icon: "fas fa-fax"
+  },
+  "Photocopier": {
+    pt: "Fotocopiadora",
+    icon: "fas fa-copy"
+  },
+  "Audio-visual equipment rental": {
+    pt: "Aluguel de equipamento audiovisual",
+    icon: "fas fa-video"
   },
   "Outdoor freshwater pool": {
     pt: "Piscina externa de água doce",
@@ -265,41 +213,45 @@ const facilitiesMap = {
     pt: "Piscina externa aquecida",
     icon: "fas fa-swimming-pool"
   },
-  "Sun loungers": {
-    pt: "Espreguiçadeiras",
-    icon: "fas fa-chair"
-  },
-  "Parasols": {
-    pt: "Sombrinhas",
-    icon: "fas fa-umbrella"
+  "Children playground": {
+    pt: "Parquinho infantil",
+    icon: "fas fa-child"
   },
   "TV lounge": {
     pt: "Sala de TV",
     icon: "fas fa-tv"
   },
+  "Theatre / auditorium": {
+    pt: "Teatro / auditório",
+    icon: "fas fa-theater-masks"
+  },
+  "Game room": {
+    pt: "Sala de jogos",
+    icon: "fas fa-gamepad"
+  },
+  "Hot tub": {
+    pt: "Banheira de hidromassagem",
+    icon: "fas fa-hot-tub"
+  },
+  "IHG Green Hotel Certificate": {
+    pt: "Certificado IHG Green Hotel",
+    icon: "fas fa-leaf"
+  },
   "Breakfast": {
     pt: "Café da manhã",
     icon: "fas fa-coffee"
   },
-  "Continental breakfast": {
-    pt: "Café da manhã continental",
-    icon: "fas fa-mug-hot"
+  "À la carte lunch": {
+    pt: "Almoço à la carte",
+    icon: "fas fa-utensils"
   },
-  "Snacks": {
-    pt: "Lanches",
-    icon: "fas fa-cookie-bite"
+  "Breakfast and dinner": {
+    pt: "Café da manhã e jantar",
+    icon: "fas fa-utensils"
   },
-  "LGTBIQ friendly": {
-    pt: "Amigável para LGTBIQ",
-    icon: "fas fa-heart"
-  },
-  "Deposit on arrival": {
-    pt: "Depósito na chegada",
-    icon: "fas fa-piggy-bank"
-  },
-  "Charges for late arrival": {
-    pt: "Taxas por chegada tardia",
-    icon: "fas fa-money-bill-wave"
+  "Gluten-free meals": {
+    pt: "Refeições sem glúten",
+    icon: "fas fa-bread-slice"
   },
   "Identification card at arrival": {
     pt: "Carteira de identidade na chegada",
@@ -343,7 +295,7 @@ const facilitiesMap = {
   },
   "Billiards": {
     pt: "Sinuca",
-    icon: "fas fa-circle" // Placeholder para sinuca
+    icon: "fas fa-circle"
   },
   "Bowling alley": {
     pt: "Pista de boliche",
@@ -356,6 +308,202 @@ const facilitiesMap = {
   "Hilton - CleanStay": {
     pt: "Hilton - CleanStay",
     icon: "fas fa-hotel"
+  },
+  "Newspaper stand": {
+    pt: "Estande de jornais",
+    icon: "fas fa-newspaper"
+  },
+  "Twin rooms": {
+    pt: "Quartos com duas camas de solteiro",
+    icon: "fas fa-bed"
+  },
+  "Key Collection": {
+    pt: "Coleta de chaves",
+    icon: "fas fa-key"
+  },
+  "Children’s swimming area": {
+    pt: "Área de natação infantil",
+    icon: "fas fa-child"
+  },
+  "Breakfast buffet": {
+    pt: "Café da manhã buffet",
+    icon: "fas fa-utensils"
+  },
+  "Early departure": {
+    pt: "Saída antecipada",
+    icon: "fas fa-clock"
+  },
+  "Hydro-massage bath": {
+    pt: "Banheira de hidromassagem",
+    icon: "fas fa-bath"
+  },
+  "Slippers": {
+    pt: "Chinelos",
+    icon: "fas fa-shoe-prints"
+  },
+  "Make-up mirror": {
+    pt: "Espelho de maquiagem",
+    icon: "fas fa-mirror"
+  },
+  "Towel menu": {
+    pt: "Cardápio de toalhas",
+    icon: "fas fa-tshirt"
+  },
+  "Telephone in the bathroom": {
+    pt: "Telefone no banheiro",
+    icon: "fas fa-phone"
+  },
+  "Satellite TV": {
+    pt: "TV via satélite",
+    icon: "fas fa-tv"
+  },
+  "Hi-fi": {
+    pt: "Sistema Hi-Fi",
+    icon: "fas fa-music"
+  },
+  "220V power supply": {
+    pt: "Fornecimento de 220V",
+    icon: "fas fa-bolt"
+  },
+  "CD player": {
+    pt: "Leitor de CD",
+    icon: "fas fa-compact-disc"
+  },
+  "Video games console": {
+    pt: "Console de videogame",
+    icon: "fas fa-gamepad"
+  },
+  "Plug adaptor": {
+    pt: "Adaptador de tomada",
+    icon: "fas fa-plug"
+  },
+  "Minibar": {
+    pt: "Minibar",
+    icon: "fas fa-cocktail"
+  },
+  "Dishwasher": {
+    pt: "Máquina de lavar louça",
+    icon: "fas fa-tools"
+  },
+  "Fan": {
+    pt: "Ventilador",
+    icon: "fas fa-fan"
+  },
+  "Pillow menu": {
+    pt: "Cardápio de travesseiros",
+    icon: "fas fa-bed"
+  },
+  "Trouser press": {
+    pt: "Passadeira para calças",
+    icon: "fas fa-tshirt"
+  },
+  "Welcome pack": {
+    pt: "Kit de boas-vindas",
+    icon: "fas fa-gift"
+  },
+  "Oxygen enrichment": {
+    pt: "Enriquecimento de oxigênio",
+    icon: "fas fa-atom"
+  },
+  "Soundproof room": {
+    pt: "Quarto à prova de som",
+    icon: "fas fa-volume-mute"
+  },
+  "Sauna": {
+    pt: "Sauna",
+    icon: "fas fa-hot-tub"
+  },
+  "Turkish steam bath": {
+    pt: "Banho turco",
+    icon: "fas fa-spa"
+  },
+  "Solarium": {
+    pt: "Solário",
+    icon: "fas fa-sun"
+  },
+  "Indoor swimming pool": {
+    pt: "Piscina coberta",
+    icon: "fas fa-swimming-pool"
+  },
+  "Garden": {
+    pt: "Jardim",
+    icon: "fas fa-tree"
+  },
+  "Darts": {
+    pt: "Dardos",
+    icon: "fas fa-bullseye"
+  },
+  "Toaster": {
+    pt: "Torradeira",
+    icon: "fas fa-bread-slice"
+  },
+  "Oven": {
+    pt: "Forno",
+    icon: "fas fa-fire-alt"
+  },
+  "Ski to Door Acces": {
+    pt: "Acesso direto às pistas de esqui",
+    icon: "fas fa-skiing"
+  },
+  "Ski Storage": {
+    pt: "Depósito para equipamentos de esqui",
+    icon: "fas fa-snowflake"
+  },
+  "Private Pool": {
+    pt: "Piscina privativa",
+    icon: "fas fa-swimming-pool"
+  },
+  "Towels and bed linen at surcharge": {
+    pt: "Toalhas e roupa de cama com cobrança extra",
+    icon: "fas fa-money-check-alt"
+  },
+  "Private Beach Area": {
+    pt: "Área de praia privativa",
+    icon: "fas fa-umbrella-beach"
+  },
+  "Electric Kettle": {
+    pt: "Chaleira elétrica",
+    icon: "fas fa-mug-hot"
+  },
+  "Bikes Available": {
+    pt: "Bicicletas disponíveis",
+    icon: "fas fa-bicycle"
+  },
+  "Towels and bed linen": {
+    pt: "Toalhas e roupa de cama",
+    icon: "fas fa-bed"
+  },
+  "Kids’ club": {
+    pt: "Clube infantil",
+    icon: "fas fa-child"
+  },
+  "Pub": {
+    pt: "Pub",
+    icon: "fas fa-beer"
+  },
+  "Breakfast a la carte": {
+    pt: "Café da manhã à la carte",
+    icon: "fas fa-coffee"
+  },
+  "Set menu lunch": {
+    pt: "Almoço com menu fixo",
+    icon: "fas fa-utensils"
+  },
+  "À la carte dinner": {
+    pt: "Jantar à la carte",
+    icon: "fas fa-utensils"
+  },
+  "Set menu dinner": {
+    pt: "Jantar com menu fixo",
+    icon: "fas fa-utensils"
+  },
+  "Toiletries": {
+    pt: "Artigos de higiene pessoal",
+    icon: "fas fa-soap"
+  },
+  "Single rooms": {
+    pt: "Quartos de solteiro",
+    icon: "fas fa-user"
   }
 };
 
