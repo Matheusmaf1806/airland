@@ -6,15 +6,9 @@ class HeaderComponent extends HTMLElement {
 
   connectedCallback() {
     this.shadowRoot.innerHTML = `
-      <!-- Fontes e ícones -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
       <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
       <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :host {
           font-family: 'Montserrat', sans-serif;
           display: block;
@@ -103,6 +97,12 @@ class HeaderComponent extends HTMLElement {
           cursor: pointer;
         }
 
+        .cart-icon {
+          width: 16px;
+          height: 16px;
+          fill: currentColor;
+        }
+
         .cart-count {
           position: absolute;
           top: -6px;
@@ -142,7 +142,14 @@ class HeaderComponent extends HTMLElement {
           </div>
 
           <div class="bubble-btn cart-btn" id="cart-btn">
-            <i class="fas fa-shopping-cart"></i>
+            <svg class="cart-icon" viewBox="0 0 24 24">
+              <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 
+                       0c-1.1 0-1.99.9-1.99 2S15.9 22 17 
+                       22s2-.9 2-2-.9-2-2-2zM7.16 
+                       14l.84-2h8.99c.75 0 1.41-.41 1.75-1.03l3.24-5.88a.996.996 
+                       0 10-1.74-.96L17.21 10H8.53l-1.1-2H20V6H7l-1.1-2H1v2h3.6l3.6 
+                       7.59-1.35 2.44C6.16 16.37 7.27 18 8.7 18H19v-2H8.7l-.54-1z"/>
+            </svg>
             <span class="cart-count" id="cart-count">0</span>
           </div>
 
@@ -153,7 +160,7 @@ class HeaderComponent extends HTMLElement {
 
     this.updateDollar();
 
-    // Carrinho
+    // Botão do carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       if (typeof window.toggleCart === "function") {
         window.toggleCart();
@@ -162,25 +169,22 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Perfil → Força carregamento e criação do login
+    // Botão do perfil → cria e abre login
     this.shadowRoot.querySelector(".profile-btn").addEventListener("click", async (e) => {
       e.preventDefault();
-
-      // Carrega login-component.js se ainda não estiver presente
       if (!customElements.get("login-component")) {
-        await import("/js/login-component.js").catch(err => {
-          console.error("Erro ao importar login-component.js", err);
-        });
+        await import("/js/login-component.js").catch(err =>
+          console.error("Erro ao importar login-component.js", err)
+        );
       }
 
-      // Cria e mostra o login
       if (!document.querySelector("login-component")) {
         const login = document.createElement("login-component");
         document.body.appendChild(login);
       }
     });
 
-    // Atualiza o número de itens do carrinho
+    // Expor contador do carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
