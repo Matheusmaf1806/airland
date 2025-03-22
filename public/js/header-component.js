@@ -95,6 +95,8 @@ class HeaderComponent extends HTMLElement {
 
         .cart-btn {
           cursor: pointer;
+          padding: 10px 19px;
+          border-radius: 100px;
         }
 
         .cart-icon {
