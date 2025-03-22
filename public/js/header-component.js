@@ -151,9 +151,10 @@ class HeaderComponent extends HTMLElement {
       </header>
     `;
 
+    // Atualiza valor do dólar
     this.updateDollar();
 
-    // Botão do carrinho
+    // Evento: abrir carrinho
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       if (typeof window.toggleCart === "function") {
         window.toggleCart();
@@ -162,7 +163,7 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Botão de perfil → abre login direto (sem depender de window.openLogin)
+    // Evento: abrir login diretamente
     this.shadowRoot.querySelector(".profile-btn").addEventListener("click", (e) => {
       e.preventDefault();
       if (!document.querySelector("login-component")) {
@@ -171,7 +172,7 @@ class HeaderComponent extends HTMLElement {
       }
     });
 
-    // Expor função global para atualizar o número do carrinho
+    // Função global para atualizar o número de itens no carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
