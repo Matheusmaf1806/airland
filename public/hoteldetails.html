@@ -35,6 +35,7 @@
     .hotel-name { font-size: 2em; font-weight: bold; color: #333; }
     .hotel-address { display: flex; align-items: center; font-size: 1em; color: #666; margin-top: 10px; }
     .hotel-address i { color: var(--primary_color); margin-right: 10px; }
+    /* Alterado: exibe "Visualizar mapa" */
     .location-link { color: var(--primary_color); text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; }
     .location-link:hover { text-decoration: underline; color: var(--button_hover); }
     
@@ -100,6 +101,7 @@
     .room-table-row { display: grid; grid-template-columns: 3fr 1fr 2fr 1fr; padding: 15px; align-items: center; border-bottom: 1px solid #ddd; }
     .room-info { display: flex; gap: 15px; align-items: center; }
     .room-image { width: 150px; height: 100px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .room-details { display: flex; flex-direction: column; }
     .room-details h4 { margin-bottom: 10px; font-size: 1em; color: var(--primary_color); }
     .room-details p { margin: 5px 0; color: #666; }
     .room-price { font-size: 0.8em; font-weight: bold; color: #666; text-align: center; }
@@ -183,7 +185,7 @@
   <!-- HEADER: Carregado via fetch -->
   <app-header></app-header>
 
-  <!-- CARRINHO: Web Component -->
+  <!-- CARRINHO: Web Component (múltiplos itens via addItem()) -->
   <shopping-cart 
     type="HOSPEDAGEM" 
     category="Hospedagem" 
@@ -280,7 +282,7 @@
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
 
-    // Função global para abrir o carrinho
+    // Função global para abrir o carrinho (não alterada)
     window.toggleCart = function() {
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.openCart === "function") {
@@ -343,9 +345,10 @@
       const hotelCode = hotelObj.code;
       const hotelAddress = hotelObj.destinationName || "";
       document.getElementById("hotelName").textContent = hotelName;
+      // Alterado: link agora exibe "Visualizar mapa"
       document.getElementById("hotelAddress").innerHTML = `
         <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
-        <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
+        <a href="#" class="location-link" onclick="toggleCart()">Visualizar mapa</a>
       `;
 
       // Galeria de fotos
@@ -355,8 +358,12 @@
       }
       fillPhotoGallery(images);
 
-      // Preenche facilities e extrai informações adicionais para os blocos informativos
-      fetchHotelFacilities(hotelCode);
+      // Facilidades
+      let facilities = [];
+      if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
+        facilities = hotelObj.content.facilities;
+      }
+      fillFacilities(facilities);
 
       // Descrição e Destaques
       if (hotelObj.content && hotelObj.content.description) {
@@ -370,6 +377,26 @@
 
       // Tabela de Quartos
       createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
+      
+      // Preenche os blocos de informações adicionais
+      fillInfoBlocks({
+        checkin: "Não há informações",
+        checkout: "Não há informações",
+        resortFee: "Não há informações",
+        parking: "Não há informações"
+      });
+      
+      // Mapa e Atrações
+      const lat = hotelObj.latitude || 0;
+      const lng = hotelObj.longitude || 0;
+      let interestPoints = [];
+      if (hotelObj.content && hotelObj.content.interestPoints) {
+        interestPoints = hotelObj.content.interestPoints;
+      }
+      initMapAndAttractions(lat, lng, interestPoints);
+      
+      // Preenche os destaques adicionais agrupados (DIFERENCIAIS e ATIVIDADES)
+      fillAdditionalHighlights(facilities);
     }
 
     // Preenche a galeria de fotos
@@ -390,25 +417,14 @@
       }
     }
 
-    // Função que busca facilities, preenche a lista principal e os blocos informativos, além dos destaques adicionais
-    function fetchHotelFacilities(hotelCode) {
-      fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.hotel) {
-            const facilities = data.hotel.facilities || [];
-            // Preenche a seção principal de facilities (ignorando os itens ocultos e os que possuem grupo)
-            fillFacilities(facilities);
-            // Extrai informações adicionais e preenche os blocos informativos
-            const additionalInfo = extractAdditionalInfo(facilities);
-            fillInfoBlocks(additionalInfo);
-            // Preenche os destaques adicionais agrupados (DIFERENCIAIS e ATIVIDADES)
-            fillAdditionalHighlights(facilities);
-          } else {
-            console.warn("Nenhum dado encontrado para o hotel com o hotelCode:", hotelCode);
-          }
-        })
-        .catch(err => console.error("Erro ao buscar dados do Content API:", err));
+    // Preenche as facilidades (não alterado)
+    function fillFacilities(facilities) {
+      const container = document.getElementById("facilities");
+      container.innerHTML = "";
+      if (!facilities || !facilities.length) return;
+      facilities.slice(0, 12).forEach(f => {
+        container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f}</div>`;
+      });
     }
 
     // Cria a tabela de quartos
@@ -551,8 +567,6 @@
     function fillAdditionalHighlights(facilities) {
       const differentials = [];
       const activities = [];
-
-      // Para evitar duplicados
       const usedDifferentials = new Set();
       const usedActivities = new Set();
 
@@ -561,15 +575,12 @@
         const mapping = getFacilityData(facilityKey);
         if (!mapping) return;
 
-        // Se for DIFERENCIAIS, verifica se ainda cabem itens e se não está duplicado
         if (mapping.group === "DIFERENCIAIS" && differentials.length < 3) {
           if (!usedDifferentials.has(mapping.pt)) {
             usedDifferentials.add(mapping.pt);
             differentials.push(mapping);
           }
-        }
-        // Se for ATIVIDADES, idem
-        else if (mapping.group === "ATIVIDADES" && activities.length < 3) {
+        } else if (mapping.group === "ATIVIDADES" && activities.length < 3) {
           if (!usedActivities.has(mapping.pt)) {
             usedActivities.add(mapping.pt);
             activities.push(mapping);
@@ -582,7 +593,6 @@
       
       let additionalHtml = "";
       
-      // Monta bloco de DIFERENCIAIS
       if (differentials.length > 0) {
         additionalHtml += `<div class="options"><h3>Opções com:</h3><ul class="highlight-list">`;
         differentials.forEach(item => {
@@ -591,7 +601,6 @@
         additionalHtml += `</ul></div>`;
       }
       
-      // Monta bloco de ATIVIDADES
       if (activities.length > 0) {
         additionalHtml += `<div class="activities"><h3>Atividades:</h3><ul class="highlight-list">`;
         activities.forEach(item => {
@@ -603,7 +612,7 @@
       container.innerHTML = additionalHtml;
     }
 
-    // Inicializa o mapa e as atrações
+    // Função de mapa (mantida conforme o código que estava funcionando)
     function initMapAndAttractions(lat, lng, attractions) {
       const map = L.map("map").setView([lat, lng], 14);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -628,7 +637,7 @@
           attrMarker.bindPopup(`<b>${a.poiName || a.name}</b> - ${a.distance}`);
           container.innerHTML += `
             <div class="attraction-item">
-              <i class="fa-solid fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
+              <i class="fas fa-map-marker-alt"></i> ${a.poiName || a.name} - ${a.distance}
             </div>
           `;
         });
