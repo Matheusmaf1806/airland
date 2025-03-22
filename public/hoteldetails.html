@@ -90,7 +90,7 @@
     .room-table-header {
       display: grid;
       grid-template-columns: 3fr 1fr 2fr 1fr;
-      background-color: var(--primary_color),
+      background-color: var(--primary_color);
       padding: 15px;
       font-weight: bold;
       color: #fff;
@@ -313,13 +313,13 @@
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
 
-    // Função global para abrir o carrinho
-    window.toggleCart = function() {
-      const cartComponent = document.querySelector("shopping-cart");
-      if (cartComponent && typeof cartComponent.openCart === "function") {
-        cartComponent.openCart();
+    // Função para rolar até a seção do mapa
+    window.viewMap = function() {
+      const mapSection = document.getElementById("mapAttractionsContainer");
+      if (mapSection) {
+        mapSection.scrollIntoView({ behavior: 'smooth' });
       } else {
-        console.error("Componente <shopping-cart> não encontrado ou openCart() não definido.");
+        console.error("Seção do mapa não encontrada!");
       }
     };
 
@@ -378,7 +378,7 @@
       document.getElementById("hotelName").textContent = hotelName;
       document.getElementById("hotelAddress").innerHTML = `
         <i class="fas fa-map-marker-alt"></i> ${hotelAddress}
-        <a href="#" class="location-link" onclick="toggleCart()">Abrir Carrinho</a>
+        <a href="#" class="location-link" onclick="viewMap()">Visualizar Mapa</a>
       `;
 
       // Galeria de fotos
