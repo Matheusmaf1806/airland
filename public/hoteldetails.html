@@ -309,7 +309,7 @@
       });
   }
 
-  // 5. Função que busca os dados do hotel
+  // 5. Função que busca os dados combinados do hotel (Booking + Content API)
   function fetchHotelCombined() {
     const dateRange = document.getElementById("checkin-checkout").value;
     let checkIn = "";
@@ -357,12 +357,8 @@
     }
     fillPhotoGallery(images);
 
-    // Facilidades
-    let facilities = [];
-    if (hotelObj.content && hotelObj.content.facilities && hotelObj.content.facilities.length) {
-      facilities = hotelObj.content.facilities;
-    }
-    fillFacilities(facilities);
+    // Chama a Content API para buscar todas as informações e, em seguida, usa somente o campo "facilities" para preencher o container
+    fetchHotelFacilities(hotelCode);
 
     // Descrição e Destaques
     if (hotelObj.content && hotelObj.content.description) {
@@ -410,7 +406,7 @@
     }
   }
 
-  // 8. Preenche as facilidades
+  // 8. Preenche as facilidades (facilities) no container
   function fillFacilities(facilities) {
     const container = document.getElementById("facilities");
     container.innerHTML = "";
@@ -420,22 +416,21 @@
     });
   }
 
-  // NOVA FUNÇÃO: Busca as facilities via Content API usando o código do hotel
+  // NOVA FUNÇÃO: Busca TODOS os dados do Content API usando o código do hotel,
+  // mas utiliza apenas o campo "facilities" para atualizar o container.
   function fetchHotelFacilities(hotelCode) {
-    // Realiza a requisição passando o código do hotel como parâmetro "code"
     fetch(`/api/hbdetail/hotels?code=${hotelCode}`)
       .then(response => response.json())
       .then(data => {
-        // Verifica se há dados combinados e extrai as facilities
         if (data.combined && data.combined.length > 0) {
-          const facilities = data.combined[0].content?.facilities || [];
-          // Preenche o container de facilities com os dados retornados
+          const fullContent = data.combined[0].content || {};
+          const facilities = fullContent.facilities || [];
           fillFacilities(facilities);
         } else {
           console.warn("Nenhum dado encontrado para o hotel com o code:", hotelCode);
         }
       })
-      .catch(err => console.error("Erro ao buscar facilities:", err));
+      .catch(err => console.error("Erro ao buscar dados do Content API:", err));
   }
 
   // 9. Cria a tabela de quartos
@@ -478,12 +473,10 @@
     let netPrice = room.rates && room.rates[0]?.net ? room.rates[0].net : 80;
     const netVal = parseFloat(netPrice);
 
-    // Converte o preço multiplicando pelo dólar e multiplicando pelo número de noites
     const convertedPrice = netVal * dollarRate;
     const numNoites = parseInt(document.getElementById("num-noites").textContent) || 1;
     const totalPrice = convertedPrice * numNoites;
 
-    // Formata os valores para moeda brasileira (R$)
     const finalPriceFormatted = totalPrice.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL"
@@ -499,7 +492,6 @@
       currency: "BRL"
     });
 
-    // Armazena o preço final como número com 2 casas decimais
     const finalPrice = parseFloat(totalPrice.toFixed(2));
 
     const row = document.createElement("div");
@@ -621,14 +613,12 @@
 
   // 15. Seleciona o quarto e envia os dados para o carrinho com o preço final, checkin e checkout
   window.handleSelectRoom = function(hCode, hName, rCode, rName, finalPrice, basePriceChild) {
-    // Tenta obter as datas diretamente da instância do Flatpickr
     let checkInDate = "", checkOutDate = "";
     const fpInstance = document.getElementById("checkin-checkout")._flatpickr;
     if (fpInstance && fpInstance.selectedDates.length === 2) {
       checkInDate = moment(fpInstance.selectedDates[0]).format("YYYY-MM-DD");
       checkOutDate = moment(fpInstance.selectedDates[1]).format("YYYY-MM-DD");
     } else {
-      // Fallback: parseia o valor do input
       const dateRange = document.getElementById("checkin-checkout").value;
       if (dateRange.includes(" - ")) {
         const [startStr, endStr] = dateRange.split(" - ");
@@ -641,7 +631,6 @@
     const numChildren = parseInt(document.getElementById("children").value, 10) || 0;
     const numRooms = parseInt(document.getElementById("rooms").value, 10) || 1;
     
-    // Cria o objeto do quarto selecionado com o valor final já calculado e os dados de datas
     const selectedRoom = {
       type: "HOSPEDAGEM",
       hotelCode: hCode,
