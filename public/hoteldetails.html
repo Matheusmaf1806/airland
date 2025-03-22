@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -411,11 +412,18 @@
       const container = document.getElementById("facilities");
       container.innerHTML = "";
       if (!facilities || !facilities.length) return;
-      // Exibe até 12 facilities, mostrando o conteúdo da propriedade description.content
+    
       facilities.slice(0, 12).forEach(f => {
-        container.innerHTML += `<div class="facility"><i class="fas fa-check"></i> ${f.description.content}</div>`;
+        // Supondo que a API retorne um código ou nome identificador para a facility
+        // Por exemplo, vamos usar f.code (ou, se não existir, o próprio f.description.content)
+        const facilityKey = f.code || f.description.content;
+        const mapping = getFacilityData(facilityKey);
+        // Se houver mapeamento, use o ícone dele; caso contrário, use um ícone padrão (check)
+        const iconClass = mapping ? mapping.icon : "fas fa-check";
+    
+        container.innerHTML += `<div class="facility"><i class="${iconClass}"></i> ${f.description.content}</div>`;
       });
-    }
+    }    
 
     // 9. Função para buscar facilities via Content API exclusivamente
     function fetchHotelFacilities(hotelCode) {
