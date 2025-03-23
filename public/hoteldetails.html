@@ -29,6 +29,17 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; color: #333; line-height: 1.6; }
     .main-container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+
+    /* Loading Overlay */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      z-index: 9999;
+    }
     
     /* Cabeçalho do Hotel */
     .hotel-header { margin-bottom: 20px; }
@@ -213,10 +224,11 @@
   </style>
 </head>
 <body>
-  <!-- HEADER: Carregado via fetch com fallback para header.html -->
-  <app-header>
-    <object type="text/html" data="header.html" width="100%" height="100%"></object>
-  </app-header>
+  <!-- Loading Overlay (conteúdo carregado de loading.html) -->
+  <div id="loading-overlay"></div>
+
+  <!-- HEADER: Carregado via fetch -->
+  <app-header></app-header>
 
   <!-- CARRINHO: Web Component -->
   <shopping-cart 
@@ -311,6 +323,24 @@
 
   <!-- SCRIPT PRINCIPAL UNIFICADO -->
   <script>
+  // Carrega o conteúdo do loading.html no overlay
+  document.addEventListener("DOMContentLoaded", function() {
+    fetch("loading.html")
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById("loading-overlay").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar loading.html:", err));
+  });
+  
+  // Quando a página estiver totalmente carregada, oculta o overlay de loading
+  window.addEventListener("load", function() {
+    const loadingOverlay = document.getElementById("loading-overlay");
+    if (loadingOverlay) {
+      loadingOverlay.style.display = "none";
+    }
+  });
+  
   (function() {
     if (window.__hotelDetailJSInitialized) return;
     window.__hotelDetailJSInitialized = true;
