@@ -8,12 +8,12 @@ class HeaderComponent extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
       <style>
+        /* RESET e Estilos Básicos */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :host {
           font-family: 'Montserrat', sans-serif;
           display: block;
         }
-
         .top-offer-bar {
           width: 100%;
           background-color: #005CFF;
@@ -23,7 +23,6 @@ class HeaderComponent extends HTMLElement {
           font-size: 0.95rem;
           font-weight: 500;
         }
-
         .header-container {
           width: 100%;
           background-color: #fff;
@@ -33,17 +32,15 @@ class HeaderComponent extends HTMLElement {
           padding: 15px 20px;
           border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-
         .logo {
-          text-decoration: none; 
+          text-decoration: none;
           display: flex;
           align-items: center;
         }
         .logo img {
-          width: 80px; 
+          width: 80px;
           height: auto;
         }
-
         .nav-menu {
           display: flex;
           gap: 30px;
@@ -61,13 +58,11 @@ class HeaderComponent extends HTMLElement {
         .nav-item:hover {
           color: #005CFF;
         }
-
         .right-actions {
           display: flex;
           align-items: center;
           gap: 20px;
         }
-
         .bubble-btn {
           display: inline-flex;
           align-items: center;
@@ -81,28 +76,25 @@ class HeaderComponent extends HTMLElement {
           text-decoration: none;
           position: relative;
         }
-
         .bubble-btn:hover {
           background-color: #e9e9e9;
         }
-
         .flag-icon {
           width: 20px;
           height: 20px;
           object-fit: cover;
           border-radius: 50%;
         }
-
         .cart-btn {
           cursor: pointer;
+          padding: 10px 20px;
+          border-radius: 100px;
         }
-
         .cart-icon {
           width: 16px;
           height: 16px;
           fill: currentColor;
         }
-
         .cart-count {
           position: absolute;
           top: -6px;
@@ -114,12 +106,10 @@ class HeaderComponent extends HTMLElement {
           padding: 2px 6px;
           display: none;
         }
-
         /* Submenu de perfil */
         .profile-wrapper {
           position: relative;
         }
-
         .profile-menu {
           position: absolute;
           top: 120%;
@@ -132,7 +122,6 @@ class HeaderComponent extends HTMLElement {
           min-width: 100px;
           z-index: 10;
         }
-
         .profile-menu button {
           width: 100%;
           background: none;
@@ -142,9 +131,62 @@ class HeaderComponent extends HTMLElement {
           font-size: 0.85rem;
           cursor: pointer;
         }
-
         .profile-menu button:hover {
           background-color: #f1f1f1;
+        }
+        /* RESPONSIVIDADE MOBILE */
+        @media (max-width: 1024px) {
+          .header-container {
+            flex-direction: column;
+            padding: 15px 20px;
+          }
+          .nav-menu {
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 10px 0;
+            justify-content: center;
+          }
+          .right-actions {
+            margin-top: 10px;
+            justify-content: center;
+          }
+        }
+        @media (max-width: 768px) {
+          .header-container {
+            padding: 10px 15px;
+          }
+          .logo img {
+            width: 70px;
+          }
+          .nav-menu {
+            gap: 15px;
+            margin-left: 0;
+          }
+          .bubble-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .header-container {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+          }
+          .logo img {
+            width: 60px;
+          }
+          .nav-menu {
+            display: none;
+          }
+          .right-actions {
+            flex-direction: row;
+            gap: 10px;
+          }
+          .right-actions > .bubble-btn:first-child {
+            display: none;
+          }
         }
       </style>
 
@@ -167,12 +209,10 @@ class HeaderComponent extends HTMLElement {
 
         <div class="right-actions">
           <a href="#" class="bubble-btn">Dúvidas</a>
-
           <div class="bubble-btn" id="dollar-btn">
             <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Bandeira EUA" class="flag-icon" />
             <span class="dollar-value">R$ 0.00</span>
           </div>
-
           <div class="bubble-btn cart-btn" id="cart-btn">
             <svg class="cart-icon" viewBox="0 0 24 24">
               <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 
@@ -184,7 +224,6 @@ class HeaderComponent extends HTMLElement {
             </svg>
             <span class="cart-count" id="cart-count">0</span>
           </div>
-
           <div class="bubble-btn profile-wrapper">
             <span class="profile-name">Login</span>
             <div class="profile-menu" id="profileMenu">
@@ -276,5 +315,15 @@ class HeaderComponent extends HTMLElement {
     }
   }
 }
+
+window.toggleCart = function() {
+  // Exemplo de lógica para exibir/ocultar o carrinho
+  const cart = document.getElementById('cart-container');
+  if (cart) {
+    cart.style.display = cart.style.display === 'block' ? 'none' : 'block';
+  } else {
+    console.warn("Elemento do carrinho não encontrado.");
+  }
+};
 
 customElements.define("app-header", HeaderComponent);
