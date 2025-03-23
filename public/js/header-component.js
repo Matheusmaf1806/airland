@@ -1,25 +1,25 @@
-// Função auxiliar para esperar que o shadowRoot esteja disponível
-function waitForShadow(cart, callback, delay = 50, maxAttempts = 20) {
-  let attempts = 0;
-  function check() {
-    if (cart.shadowRoot) {
-      callback();
-    } else {
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(check, delay);
-      } else {
-        console.warn("ShadowRoot do shopping-cart não está disponível após a espera.");
-      }
-    }
-  }
-  check();
-}
-
 class HeaderComponent extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+  }
+
+  // Método estático para aguardar que o shadowRoot esteja disponível
+  static waitForShadow(cart, callback, delay = 50, maxAttempts = 20) {
+    let attempts = 0;
+    function check() {
+      if (cart.shadowRoot) {
+        callback();
+      } else {
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(check, delay);
+        } else {
+          console.warn("ShadowRoot do shopping-cart não está disponível após a espera.");
+        }
+      }
+    }
+    check();
   }
 
   connectedCallback() {
@@ -221,8 +221,8 @@ class HeaderComponent extends HTMLElement {
         cart = document.createElement("shopping-cart");
         document.body.appendChild(cart);
       }
-      // Usa uma função de polling para aguardar o shadowRoot do carrinho
-      waitForShadow(cart, () => {
+      // Usa o método estático waitForShadow para aguardar o shadowRoot
+      HeaderComponent.waitForShadow(cart, () => {
         const cartContainer = cart.shadowRoot.querySelector(".cart-container");
         if (cartContainer) {
           if (cartContainer.classList.contains("open")) {
@@ -301,24 +301,6 @@ class HeaderComponent extends HTMLElement {
       console.error("Erro ao buscar perfil do usuário:", err);
     }
   }
-}
-
-// Função auxiliar para aguardar que o shadowRoot esteja disponível
-function waitForShadow(cart, callback, delay = 50, maxAttempts = 20) {
-  let attempts = 0;
-  function check() {
-    if (cart.shadowRoot) {
-      callback();
-    } else {
-      attempts++;
-      if (attempts < maxAttempts) {
-        setTimeout(check, delay);
-      } else {
-        console.warn("ShadowRoot do shopping-cart não está disponível após a espera.");
-      }
-    }
-  }
-  check();
 }
 
 customElements.define("app-header", HeaderComponent);
