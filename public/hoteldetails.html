@@ -5,6 +5,11 @@
   <title>Detalhes do Hotel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Resource Hints -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preload" href="css/cart.css" as="style">
+
   <!-- Font Awesome (versão 6.4.2) e Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
@@ -15,12 +20,9 @@
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="css/cart.css">
 
+  <!-- Scripts essenciais com defer -->
   <script src="/js/afcop.js" defer></script>
-  
-  <!-- Script extra: facilitiesMap.js -->
   <script src="/js/facilitiesMap.js" defer></script>
-  
-  <!-- Web Components -->
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
   
@@ -32,7 +34,7 @@
     /* Oculta o conteúdo principal até que tudo esteja carregado */
     #hotelDetail { display: none; }
     
-    /* Loading Overlay (sem conteúdo padrão – será carregado via loading.html) */
+    /* Loading Overlay (o conteúdo será carregado via loading.html) */
     #loading-overlay {
       position: fixed;
       top: 0;
@@ -207,7 +209,7 @@
   </style>
 </head>
 <body>
-  <!-- Loading Overlay sem conteúdo padrão (será preenchido com loading.html) -->
+  <!-- Loading Overlay (o conteúdo será carregado via loading.html) -->
   <div id="loading-overlay"></div>
 
   <!-- HEADER: Carregado via fetch -->
@@ -396,14 +398,14 @@
           <a href="#" class="location-link" onclick="viewMap()">Visualizar Mapa</a>
         `;
 
-        // Galeria de fotos
+        // Galeria de fotos com lazy loading
         let images = [];
         if (hotelObj.content && hotelObj.content.images && hotelObj.content.images.length) {
           images = hotelObj.content.images.map(img => "https://photos.hotelbeds.com/giata/xl/" + img.path);
         }
         fillPhotoGallery(images);
 
-        // Preenche facilities e extrai informações adicionais para os blocos informativos
+        // Preenche facilities e blocos informativos
         fetchHotelFacilities(hotelCode);
 
         // Descrição e Destaques
@@ -419,7 +421,7 @@
         // Tabela de Quartos
         createRoomTableGrouped(hotelObj.rooms, hotelCode, hotelName, dollarRate);
 
-        // --- Seção do Mapa (ajustada) ---
+        // Seção do Mapa
         const lat = hotelObj.latitude || 0;
         const lng = hotelObj.longitude || 0;
         let interestPoints = [];
@@ -429,7 +431,7 @@
         initMapAndAttractions(lat, lng, interestPoints);
       }
 
-      // Preenche a galeria de fotos
+      // Preenche a galeria de fotos com lazy loading
       function fillPhotoGallery(photos) {
         const gallery = document.getElementById("photoGallery");
         gallery.innerHTML = "";
@@ -438,16 +440,18 @@
         largeImg.src = photos[0];
         largeImg.alt = "Foto do Hotel";
         largeImg.classList.add("large-photo");
+        largeImg.loading = "lazy";
         gallery.appendChild(largeImg);
         for (let i = 1; i < photos.length && i < 5; i++) {
           const img = document.createElement("img");
           img.src = photos[i];
           img.alt = "Foto do Hotel";
+          img.loading = "lazy";
           gallery.appendChild(img);
         }
       }
 
-      // Função que busca facilities, preenche a lista principal e os blocos informativos, além dos destaques adicionais
+      // Função que busca facilities e preenche blocos informativos
       function fetchHotelFacilities(hotelCode) {
         fetch(`https://business.airland.com.br/api/hotelbeds/hotel-content?hotelCode=${hotelCode}`)
           .then(response => response.json())
@@ -547,7 +551,7 @@
         return row;
       }
 
-      // Extrai as informações adicionais para os blocos informativos
+      // Extrai informações adicionais para os blocos informativos
       function extractAdditionalInfo(facilities) {
         const info = {
           checkin: "Não há informações",
@@ -600,7 +604,7 @@
 
       /**
        * Preenche os destaques adicionais agrupando os facilities dos grupos DIFERENCIAIS e ATIVIDADES,
-       * exibindo no máximo 3 itens para cada grupo e evitando duplicados via Set.
+       * exibindo no máximo 3 itens para cada grupo e evitando duplicados.
        */
       function fillAdditionalHighlights(facilities) {
         const differentials = [];
