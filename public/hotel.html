@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,16 +12,28 @@
   <link rel="preload" href="/css/cart.css" as="style" />
 
   <!-- Fonte Montserrat -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
 
   <!-- MATERIAL ICONS -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
 
   <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
 
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="/css/cart.css" />
@@ -37,8 +48,18 @@
     /* RESET e estilos básicos */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body, input, select, button, textarea { font-family: 'Montserrat', sans-serif; }
-    body { width: 100%; min-height: 100vh; display: flex; flex-direction: column; background: #f6f8fb; color: #333; }
+    body {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f6f8fb;
+      color: #333;
+    }
     ::placeholder { color: #999; opacity: 1; }
+
+    /* Classe para ocultar elementos */
+    .hidden { display: none; }
 
     /* Loading Overlay: O conteúdo será carregado via loading.html */
     #loading-overlay {
@@ -57,15 +78,15 @@
 
     /* HERO */
     .hero {
-      width: 100%; 
+      width: 100%;
       min-height: 50vh;
       background: linear-gradient(to bottom right, #0e65e0, #1f3070);
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      text-align: center; 
-      color: #fff; 
+      text-align: center;
+      color: #fff;
       padding: 2rem;
     }
     .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; }
@@ -73,41 +94,45 @@
 
     /* CONTAINER DE BUSCA */
     .search-container {
-      position: relative; 
-      width: 90%; 
+      position: relative;
+      width: 90%;
       max-width: 1200px;
-      margin: -4rem auto 2rem auto; 
+      margin: -4rem auto 2rem auto;
       background: #fff;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
       border-radius: 1rem;
-      padding: 1.5rem 2rem; 
+      padding: 1.5rem 2rem;
       z-index: 10;
     }
+
     /* TABS */
     .tabs {
-      display: flex; 
-      align-items: center; 
-      gap: 1rem; 
-      border-bottom: 1px solid #eee; 
-      margin-bottom: 1rem; 
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
       flex-wrap: wrap;
     }
     .tab {
-      padding: 0.75rem 1rem; 
-      cursor: pointer; 
-      font-weight: 600; 
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
       border-radius: 0.5rem 0.5rem 0 0;
-      color: #555; 
-      background: #fafafa; 
-      display: flex; 
-      align-items: center; 
+      color: #555;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
       transition: background 0.3s, color 0.3s;
     }
     .tab .material-icons { font-size: 1.1rem; vertical-align: middle; }
     .tab.active { background: #0e65e0; color: #fff; }
     .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -115,183 +140,278 @@
 
     /* FORMULÁRIOS */
     .form-group {
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 1rem; 
-      margin-bottom: 1rem; 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
       align-items: flex-end;
     }
     .form-field {
-      flex: 1; 
-      min-width: 200px; 
-      display: flex; 
-      flex-direction: column; 
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
       position: relative;
     }
     .form-field label {
-      font-size: 0.9rem; 
-      font-weight: 600; 
-      margin-bottom: 0.5rem; 
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
       color: #555;
     }
-    .form-field input, .form-field select {
-      padding: 0.7rem; 
-      font-size: 0.95rem; 
-      border: 1px solid #ccc; 
-      border-radius: 0.4rem; 
+    .form-field input,
+    .form-field select {
+      padding: 0.7rem;
+      font-size: 0.95rem;
+      border: 1px solid #ccc;
+      border-radius: 0.4rem;
       outline: none;
       transition: border 0.3s, box-shadow 0.3s;
     }
-    .form-field input:focus, .form-field select:focus {
-      border-color: #0e65e0; 
-      box-shadow: 0 0 0 2px rgba(14,101,224,0.1);
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: #0e65e0;
+      box-shadow: 0 0 0 2px rgba(14, 101, 224, 0.1);
     }
     .form-field.button-field { flex: 0; }
-
     .search-button {
-      background: #0e65e0; 
-      color: #fff; 
-      border: none; 
+      background: #0e65e0;
+      color: #fff;
+      border: none;
       padding: 0.8rem 1.2rem;
-      font-size: 1rem; 
-      font-weight: 600; 
-      border-radius: 0.4rem; 
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 0.4rem;
       cursor: pointer;
-      transition: background 0.3s, box-shadow 0.3s; 
+      transition: background 0.3s, box-shadow 0.3s;
       margin-top: 0.5rem;
     }
     .search-button:hover {
-      background: #0b4ea9; 
+      background: #0b4ea9;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     /* DROPDOWN DE QUARTOS */
     .quartos-dropdown {
-      position: absolute; 
-      top: 100%; 
-      left: 0; 
-      width: 320px; 
-      background: #fff; 
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 320px;
+      background: #fff;
       border: 1px solid #ccc;
-      border-radius: 0.4rem; 
-      padding: 1rem; 
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
-      display: none; 
+      border-radius: 0.4rem;
+      padding: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: none;
       z-index: 9999;
     }
     .quartos-dropdown.active { display: block; }
     .qd-row {
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 1rem;
     }
     .qd-counter { display: flex; align-items: center; gap: 0.5rem; }
     .qd-counter button {
-      width: 30px; 
-      height: 30px; 
-      border: 1px solid #ccc; 
-      background: #fff; 
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ccc;
+      background: #fff;
       font-size: 1.2rem;
-      cursor: pointer; 
+      cursor: pointer;
       border-radius: 50%;
     }
-    .qd-rooms-container { max-height: 300px; overflow-y: auto; margin-bottom: 1rem; }
-    .qd-room-block { padding: 0.75rem 0; border-top: 1px solid #eee; }
-    .qd-room-block:first-child { border-top: none; padding-top: 0; }
+    .qd-rooms-container {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    .qd-room-block {
+      padding: 0.75rem 0;
+      border-top: 1px solid #eee;
+    }
+    .qd-room-block:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
     .qd-room-title { font-weight: 600; margin-bottom: 0.5rem; }
-    .qd-row { margin-bottom: 0.5rem; }
     .qd-label { font-weight: 600; font-size: 0.9rem; }
     .children-ages select { width: 100%; margin-bottom: 0.5rem; }
     .qd-apply { text-align: right; }
     .qd-apply button {
-      background: #0e65e0; 
-      color: #fff; 
-      border: none; 
-      padding: 0.5rem 1rem; 
+      background: #0e65e0;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
       font-size: 0.9rem;
-      font-weight: 600; 
-      border-radius: 0.4rem; 
+      font-weight: 600;
+      border-radius: 0.4rem;
       cursor: pointer;
     }
 
-    /* RESULTADOS (HOTÉIS) */
-    #hotelResults {
-      width: 90%; 
-      max-width: 1200px; 
+    /* RESULTADOS + FILTROS */
+    .results-container {
+      width: 90%;
+      max-width: 1200px;
       margin: 1rem auto 2rem auto;
+      display: flex;
+      gap: 1rem;
     }
+    /* Painel de Filtros com design interativo */
+    .filters-panel {
+      width: 280px;
+      background: linear-gradient(135deg, #ffffff, #e8f0fe);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      opacity: 0;
+      transform: translateY(-20px);
+      display: none;
+    }
+    .filters-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+      display: block;
+    }
+    .filters-panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      color: #0e65e0;
+      text-align: center;
+    }
+    .filter-group { margin-bottom: 1.5rem; }
+    .filter-group h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #555;
+    }
+    .filter-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .filter-group label:hover { color: #0e65e0; }
+    /* Checkbox customizado */
+    .filter-group label input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #0e65e0;
+      border-radius: 4px;
+      margin-right: 0.75rem;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s ease;
+    }
+    .filter-group label input[type="checkbox"]:checked {
+      background: #0e65e0;
+    }
+    .filter-group label input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 4px;
+      height: 9px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .range-group { display: flex; align-items: center; gap: 0.5rem; }
+    .range-group input[type="number"] {
+      width: 60px;
+      padding: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filters-panel button.search-button { margin-top: 1rem; width: 100%; }
+
+    /* Listagem de hotéis */
+    #hotelResults { flex: 1; }
     #status {
-      margin-top: 1rem; 
-      display: none; 
-      font-weight: 600; 
+      margin-top: 1rem;
+      display: none;
+      font-weight: 600;
       color: #555;
     }
     .hotels-list { margin-top: 1rem; }
     #pagination {
-      display: none; 
-      gap: 1rem; 
+      display: none;
+      gap: 1rem;
       margin-top: 1rem;
     }
     #pagination button {
-      padding: 0.5rem 1rem; 
-      border: none; 
-      border-radius: 4px; 
-      background: #eee; 
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: #eee;
       cursor: pointer;
     }
     #pagination button:disabled {
-      opacity: 0.5; 
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
     /* HOTEL CARD */
     .hotel-card {
-      display: flex; 
-      flex-direction: row; 
-      background-color: #fff; 
-      border-radius: 16px; 
+      display: flex;
+      flex-direction: row;
+      background-color: #fff;
+      border-radius: 16px;
       padding: 20px;
-      width: 100%; 
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+      width: 100%;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease-in-out;
-      gap: 20px; 
+      gap: 20px;
       margin-bottom: 15px;
     }
     .hotel-card:hover { transform: translateY(-5px); }
     .hotel-image {
-      width: 280px; 
-      max-width: 280px; 
-      border-radius: 16px; 
-      position: relative; 
+      width: 280px;
+      max-width: 280px;
+      border-radius: 16px;
+      position: relative;
       overflow: hidden;
       margin: -20px 0 -20px -20px;
     }
     .carousel-track {
-      display: flex; 
-      transition: transform 0.4s ease-in-out; 
-      width: 100%; 
+      display: flex;
+      transition: transform 0.4s ease-in-out;
+      width: 100%;
       height: 100%;
     }
-    .carousel-slide { min-width: 100%; overflow: hidden; }
+    .carousel-slide {
+      min-width: 100%;
+      overflow: hidden;
+    }
     .carousel-slide img {
-      width: 100%; 
-      height: 280px; 
-      object-fit: cover; 
-      display: block; 
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
       transition: transform 0.3s ease;
     }
     .carousel-slide img:hover { transform: scale(1.04); }
     .carousel-button {
-      position: absolute; 
-      top: 50%; 
-      transform: translateY(-50%); 
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.5);
-      color: #fff; 
-      border: none; 
-      padding: 8px 12px; 
-      border-radius: 8px; 
-      cursor: pointer; 
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
       z-index: 2;
       font-size: 1em;
     }
@@ -299,27 +419,27 @@
     .next-button { right: 10px; }
 
     .hotel-info {
-      flex: 2; 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-between; 
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       gap: 10px;
     }
-    .hotel-name { 
-      font-size: 1.4em; 
-      font-weight: 700; 
-      color: #333; 
-      margin-bottom: 5px; 
-      margin-right: 100px; 
-      margin-top: 15px; 
+    .hotel-name {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 5px;
+      margin-right: 100px;
+      margin-top: 15px;
       line-height: 1.2;
     }
     .hotel-rating {
-      font-size: 1.1em; 
-      color: #888; 
-      display: flex; 
-      align-items: center; 
-      gap: 12px; 
+      font-size: 1.1em;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
     }
     .stars { color: #ffd700; display: flex; }
@@ -328,147 +448,170 @@
     .rating-divider { margin: 0 2px; color: #ccc; font-weight: 600; }
     .facility-icons { display: flex; gap: 8px; flex-wrap: wrap; }
     .facility-icon {
-      display: inline-flex; 
-      width: 24px; 
-      height: 24px; 
-      cursor: pointer; 
-      position: relative; 
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      position: relative;
       color: #007aff;
-      align-items: center; 
+      align-items: center;
       justify-content: center;
     }
-    .facility-icon:hover .tooltip { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+    .facility-icon:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
     .tooltip {
-      position: absolute; 
-      left: 50%; 
+      position: absolute;
+      left: 50%;
       bottom: calc(100% + 6px);
-      background-color: rgba(0, 0, 0, 0.8); 
-      color: #fff; 
-      padding: 6px 10px; 
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 6px 10px;
       border-radius: 6px;
-      font-size: 0.8em; 
-      opacity: 0; 
-      visibility: hidden; 
+      font-size: 0.8em;
+      opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      transform: translate(-50%, 10px); 
-      transition: all 0.2s ease; 
+      transform: translate(-50%, 10px);
+      transition: all 0.2s ease;
       white-space: nowrap;
     }
     .tooltip::after {
-      content: ""; 
-      position: absolute; 
-      left: 50%; 
+      content: '';
+      position: absolute;
+      left: 50%;
       transform: translateX(-50%);
-      top: 100%; 
-      border-width: 5px; 
+      top: 100%;
+      border-width: 5px;
       border-style: solid;
       border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
     }
-    .hotel-address { 
-      font-size: 1em; 
-      color: #666; 
-      margin-bottom: 10px; 
-      line-height: 1.4; 
+    .hotel-address {
+      font-size: 1em;
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.4;
       margin-top: 10px;
     }
-    .hotel-details { 
-      font-size: 1em; 
-      color: #555; 
-      line-height: 1.5; 
+    .hotel-details {
+      font-size: 1em;
+      color: #555;
+      line-height: 1.5;
     }
     .hotel-details li {
-      margin-bottom: 8px; 
-      font-size: 1em; 
-      color: #333; 
-      display: flex; 
+      margin-bottom: 8px;
+      font-size: 1em;
+      color: #333;
+      display: flex;
       align-items: center;
     }
-    .hotel-details li i { 
-      color: #007aff; 
+    .hotel-details li i {
+      color: #007aff;
       margin-right: 10px;
     }
     .hotel-price {
-      flex: 1; 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: flex-start; 
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
       align-items: flex-start;
-      background: none; 
-      border-left: 1px solid #ddd; 
-      padding: 25px 25px 5px 30px; 
+      background: none;
+      border-left: 1px solid #ddd;
+      padding: 25px 25px 5px 30px;
       gap: 10px;
-      text-align: left; 
-      position: relative; 
+      text-align: left;
+      position: relative;
       min-width: 180px;
     }
     .pix-flag {
-      position: absolute; 
-      top: 0; left: 0; 
-      background: #ff4d4d; 
-      color: #fff; 
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ff4d4d;
+      color: #fff;
       font-size: 0.85em;
-      font-weight: 700; 
-      padding: 5px 10px; 
+      font-weight: 700;
+      padding: 5px 10px;
       border-radius: 0 0 8px 0;
     }
-    .days-nights { 
-      font-size: 1.1em; 
-      color: #333; 
-      font-weight: 600; 
+    .days-nights {
+      font-size: 1.1em;
+      color: #333;
+      font-weight: 600;
       margin-top: 15px;
     }
-    .price-starting { 
-      font-size: 1.4em; 
-      color: #333; 
-      font-weight: 700; 
+    .price-starting {
+      font-size: 1.4em;
+      color: #333;
+      font-weight: 700;
       margin-bottom: 3px;
     }
-    .ten-installments { 
-      font-size: 0.95em; 
-      color: #555; 
+    .ten-installments {
+      font-size: 0.95em;
+      color: #555;
     }
     .btn-options {
-      display: inline-block; 
-      margin-top: 12px; 
+      display: inline-block;
+      margin-top: 12px;
       padding: 12px 24px;
-      background-color: #007aff; 
-      color: #fff; 
+      background-color: #007aff;
+      color: #fff;
       border-radius: 10px;
-      font-size: 1em; 
-      text-align: center; 
+      font-size: 1em;
+      text-align: center;
       cursor: pointer;
-      transition: background-color 0.3s ease; 
+      transition: background-color 0.3s ease;
       border: none;
     }
     .btn-options:hover { background-color: #005bb5; }
 
+    /* BOTÃO FILTRAR (MOBILE) */
+    .mobile-filter-toggle {
+      display: none;
+      background-color: #0e65e0;
+      color: #fff;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 0.4rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
     /* MEDIA QUERIES */
     @media (max-width: 1024px) {
-      .main-container { padding: 15px; max-width: 95%; }
-      .hotel-header { text-align: center; }
-      .hotel-address { flex-direction: column; align-items: center; }
-      .photo-gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 200px; }
-      .facilities { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-      .description-container { flex-direction: column; }
-      #map { width: 100%; height: 350px; }
-      .attractions { width: 100%; height: 350px; margin-right: 0; margin-bottom: 20px; }
-      .container { flex-direction: column; }
+      .hotel-price { min-width: 160px; }
     }
     @media (max-width: 768px) {
-      .main-container { padding: 10px; }
-      .photo-gallery { grid-template-columns: 1fr; grid-auto-rows: auto; }
-      .facilities { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-      .description-container { flex-direction: column; }
-      .room-table-header, .room-table-row { grid-template-columns: 1fr; text-align: left; }
-      #map, .attractions { width: 100%; height: 300px; }
-      .container { flex-direction: column; }
+      .search-container { padding: 1rem; }
+      .filters-panel {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        z-index: 999;
+        box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+        overflow-y: auto;
+        transform: translateX(100%);
+      }
+      .filters-panel.active {
+        transform: translateX(0);
+        display: block;
+      }
+      .results-container { flex-direction: column; }
+      .mobile-filter-toggle { display: block; }
     }
     @media (max-width: 480px) {
-      .hotel-name { font-size: 1.5em; }
+      .hotel-name { font-size: 1.3em; }
       .hotel-address { font-size: 0.9em; }
       .search-button { padding: 10px 20px; height: auto; font-size: 14px; }
-      .select-room-button { padding: 8px 16px; font-size: 0.9em; }
-      .info-block { font-size: 0.9em; }
+      .btn-options { padding: 8px 16px; font-size: 0.9em; }
     }
   </style>
 </head>
@@ -554,6 +697,7 @@
           </div>
         </div>
         <div class="form-field button-field">
+          <!-- Ao clicar em buscar, a função buscarHoteis() é chamada e o painel de filtros é exibido -->
           <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
         </div>
       </div>
@@ -571,12 +715,62 @@
     </div>
   </div>
 
-  <!-- SEÇÃO DE RESULTADOS (CARDS) -->
-  <section id="hotelResults">
-    <div id="status"></div>
-    <div id="hotelsList" class="hotels-list"></div>
-    <div id="pagination" class="pagination"></div>
-  </section>
+  <!-- RESULTADOS + FILTROS -->
+  <div class="results-container">
+    <!-- Botão para abrir filtros no mobile -->
+    <button class="mobile-filter-toggle" onclick="toggleFilters()">Filtrar</button>
+
+    <!-- Barra lateral de Filtros: inicia oculto com classe "hidden" -->
+    <aside class="filters-panel hidden" id="filtersPanel">
+      <h2>Filtrar Resultados</h2>
+
+      <!-- Exemplo de grupos de filtro -->
+      <div class="filter-group">
+        <h3>Faixa de Preço (R$)</h3>
+        <div class="range-group">
+          <input type="number" placeholder="Mín" min="0" />
+          <span>-</span>
+          <input type="number" placeholder="Máx" />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3>Estrelas</h3>
+        <label><input type="checkbox" value="5" /> 5 estrelas</label>
+        <label><input type="checkbox" value="4" /> 4 estrelas</label>
+        <label><input type="checkbox" value="3" /> 3 estrelas</label>
+        <label><input type="checkbox" value="2" /> 2 estrelas</label>
+        <label><input type="checkbox" value="1" /> 1 estrela</label>
+      </div>
+
+      <div class="filter-group">
+        <h3>Tipo de Acomodação</h3>
+        <label><input type="checkbox" value="hotel" /> Hotel</label>
+        <label><input type="checkbox" value="resort" /> Resort</label>
+        <label><input type="checkbox" value="pousada" /> Pousada</label>
+        <label><input type="checkbox" value="apart" /> Apart-hotel</label>
+      </div>
+
+      <div class="filter-group">
+        <h3>Comodidades</h3>
+        <label><input type="checkbox" value="wifi" /> Wi-Fi Grátis</label>
+        <label><input type="checkbox" value="pool" /> Piscina</label>
+        <label><input type="checkbox" value="parking" /> Estacionamento</label>
+        <label><input type="checkbox" value="gym" /> Academia</label>
+        <label><input type="checkbox" value="pets" /> Aceita Pets</label>
+      </div>
+
+      <!-- Botão Aplicar (poderia ser automático) -->
+      <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
+    </aside>
+
+    <!-- SEÇÃO DE RESULTADOS (CARDS) -->
+    <section id="hotelResults">
+      <div id="status"></div>
+      <div id="hotelsList" class="hotels-list"></div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </div>
 
   <!-- TEMPLATE DO CARD -->
   <template id="hotelCardTemplate">
@@ -626,26 +820,26 @@
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
-    * A) TABS + FLATPICKR
-    ***********************************************/
+     * A) TABS + FLATPICKR
+     ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(tc => tc.classList.remove('active'));
+        tabs.forEach((t) => t.classList.remove('active'));
+        tabContents.forEach((tc) => tc.classList.remove('active'));
         tab.classList.add('active');
         const target = tab.getAttribute('data-tab');
         document.getElementById(target).classList.add('active');
       });
     });
-  
+
     if (typeof flatpickr !== 'undefined') {
       flatpickr('#dataIngresso', {
         locale: 'pt',
         dateFormat: 'd/m/Y',
         minDate: 'today',
-        defaultDate: 'today'
+        defaultDate: 'today',
       });
       flatpickr('#dataRangeHoteis', {
         locale: 'pt',
@@ -653,25 +847,23 @@
         dateFormat: 'd/m/Y',
         showMonths: 2,
         minDate: 'today',
-        allowInput: true
+        allowInput: true,
       });
     }
-  
+
     /***********************************************
-    * B) DROPDOWN DE QUARTOS E PESSOAS
-    ***********************************************/
-    const quartosInput   = document.getElementById('quartos');
-    const dropdown       = document.getElementById('quartosDropdown');
-    const roomsMinus     = document.getElementById('roomsMinus');
-    const roomsPlus      = document.getElementById('roomsPlus');
-    const roomsTotalEl   = document.getElementById('roomsTotal');
+     * B) DROPDOWN DE QUARTOS E PESSOAS
+     ***********************************************/
+    const quartosInput = document.getElementById('quartos');
+    const dropdown = document.getElementById('quartosDropdown');
+    const roomsMinus = document.getElementById('roomsMinus');
+    const roomsPlus = document.getElementById('roomsPlus');
+    const roomsTotalEl = document.getElementById('roomsTotal');
     const roomsContainer = document.getElementById('roomsContainer');
-    const applyQuartos   = document.getElementById('applyQuartos');
-  
-    let roomsData = [
-      { adults: 2, children: 0, childAges: [] }
-    ];
-  
+    const applyQuartos = document.getElementById('applyQuartos');
+
+    let roomsData = [{ adults: 2, children: 0, childAges: [] }];
+
     if (quartosInput) {
       quartosInput.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -682,7 +874,7 @@
       dropdown.addEventListener('click', (e) => e.stopPropagation());
     }
     document.addEventListener('click', () => { if (dropdown) dropdown.classList.remove('active'); });
-  
+
     function renderRooms() {
       if (!roomsContainer || !roomsTotalEl) return;
       roomsContainer.innerHTML = '';
@@ -744,67 +936,62 @@
     if (applyQuartos) {
       applyQuartos.addEventListener('click', () => {
         let totalA = 0, totalC = 0;
-        roomsData.forEach(r => { totalA += r.adults; totalC += r.children; });
-        if (quartosInput) {
-          quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
-        }
+        roomsData.forEach((r) => { totalA += r.adults; totalC += r.children; });
+        if (quartosInput) { quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`; }
         if (dropdown) dropdown.classList.remove('active');
       });
     }
     renderRooms();
-  
+
     /***********************************************
-    * C) CRIAÇÃO DE CARD E FUNÇÕES
-    ***********************************************/
+     * C) CRIAÇÃO DE CARD E FUNÇÕES
+     ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
-    const priorityFacilities = ["Wi-fi", "Gym", "Pool", "Parking"];
+    const priorityFacilities = ['Wi-fi', 'Gym', 'Pool', 'Parking'];
     function convertDistanceToKm(distStr) {
       const meters = parseFloat(distStr) || 0;
       const km = meters / 1000;
-      return km.toFixed(1).replace('.', ',') + " km";
+      return km.toFixed(1).replace('.', ',') + ' km';
     }
     function createHotelCard(hotelData) {
-      const template = document.getElementById("hotelCardTemplate");
+      const template = document.getElementById('hotelCardTemplate');
       if (!template) return document.createDocumentFragment();
       const clone = template.content.cloneNode(true);
       clone.querySelector('.hotel-card').setAttribute('data-hotel-id', hotelData.code);
-      clone.querySelector(".hotel-name").textContent = hotelData.name || "";
-      clone.querySelector(".hotel-address").textContent = hotelData.address || "";
-      clone.querySelector(".days-nights").textContent = hotelData.daysNights || "";
-      clone.querySelector(".price-starting").textContent = hotelData.priceFrom || "";
-      clone.querySelector(".ten-installments").textContent = hotelData.installments || "";
-      const starEl = clone.querySelector(".stars");
-      starEl.innerHTML = "";
+      clone.querySelector('.hotel-name').textContent = hotelData.name || '';
+      clone.querySelector('.hotel-address').textContent = hotelData.address || '';
+      clone.querySelector('.days-nights').textContent = hotelData.daysNights || '';
+      clone.querySelector('.price-starting').textContent = hotelData.priceFrom || '';
+      clone.querySelector('.ten-installments').textContent = hotelData.installments || '';
+      const starEl = clone.querySelector('.stars');
+      starEl.innerHTML = '';
       const r = Math.round(hotelData.ratingStars || 0);
       for (let i = 1; i <= 5; i++) {
         const star = document.createElement('i');
-        if (i <= r) star.classList.add('fas', 'fa-star'); 
+        if (i <= r) star.classList.add('fas', 'fa-star');
         else star.classList.add('far', 'fa-star', 'empty');
         starEl.appendChild(star);
       }
-      clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
+      clone.querySelector('.rating-value').textContent = hotelData.ratingValue || '';
       let facArr = hotelData.facilities || [];
       facArr.sort((a, b) => {
-        const aIndex = priorityFacilities.findIndex(p => a.toLowerCase().includes(p.toLowerCase()));
-        const bIndex = priorityFacilities.findIndex(p => b.toLowerCase().includes(p.toLowerCase()));
+        const aIndex = priorityFacilities.findIndex((p) => a.toLowerCase().includes(p.toLowerCase()));
+        const bIndex = priorityFacilities.findIndex((p) => b.toLowerCase().includes(p.toLowerCase()));
         if (aIndex === -1 && bIndex === -1) return 0;
         if (aIndex === -1) return 1;
         if (bIndex === -1) return -1;
         return aIndex - bIndex;
       });
       facArr = facArr.slice(0, 3);
-      const facDiv = clone.querySelector(".facility-icons");
-      facArr.forEach(f => {
+      const facDiv = clone.querySelector('.facility-icons');
+      facArr.forEach((f) => {
         let foundKey = null;
-        if (window.facilitiesMap && window.facilitiesMap[f]) { 
-          foundKey = f; 
-        } else if (window.facilitiesMap) {
+        if (window.facilitiesMap && window.facilitiesMap[f]) { foundKey = f; }
+        else if (window.facilitiesMap) {
           for (const k in window.facilitiesMap) {
-            if (f.toLowerCase().includes(k.toLowerCase())) { 
-              foundKey = k; break;
-            }
+            if (f.toLowerCase().includes(k.toLowerCase())) { foundKey = k; break; }
           }
         }
         const iconDiv = document.createElement('div');
@@ -826,14 +1013,16 @@
         facDiv.appendChild(iconDiv);
       });
       const poiUl = clone.querySelector('.poi-list');
-      (hotelData.poiList || []).slice(0, 3).forEach(p => {
-        const li = document.createElement('li');
-        li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${convertDistanceToKm(p.distance)}`;
-        poiUl.appendChild(li);
-      });
+      (hotelData.poiList || [])
+        .slice(0, 3)
+        .forEach((p) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${convertDistanceToKm(p.distance)}`;
+          poiUl.appendChild(li);
+        });
       const track = clone.querySelector('.carousel-track');
       let currentSlide = 0;
-      (hotelData.images || []).forEach(url => {
+      (hotelData.images || []).forEach((url) => {
         const slide = document.createElement('div');
         slide.className = 'carousel-slide';
         slide.innerHTML = `<img loading="lazy" src="${url}" alt="Foto do Hotel">`;
@@ -860,33 +1049,32 @@
       window.addEventListener('resize', updateCarousel);
       return clone;
     }
-  
+
     /***********************************************
-    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
-    ***********************************************/
-    document.addEventListener("click", function(e) {
-      const btn = e.target.closest(".btn-options, .select-room-button");
+     * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
+     ***********************************************/
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-options, .select-room-button');
       if (!btn) return;
-      const card = btn.closest(".hotel-card");
+      const card = btn.closest('.hotel-card');
       if (!card) return;
-      const hotelCode = card.getAttribute("data-hotel-id");
+      const hotelCode = card.getAttribute('data-hotel-id');
       if (!hotelCode) {
-        console.error("Código do hotel não encontrado no card.");
+        console.error('Código do hotel não encontrado no card.');
         return;
       }
-      const dateRange = document.getElementById("dataRangeHoteis")?.value || "";
-      let checkIn = "", checkOut = "";
+      const dateRange = document.getElementById('dataRangeHoteis')?.value || '';
+      let checkIn = '', checkOut = '';
       if (dateRange) {
-        const dates = dateRange.split(" - ");
-        checkIn = dates[0] || "";
-        checkOut = dates[1] || "";
+        const dates = dateRange.split(' - ');
+        checkIn = dates[0] || '';
+        checkOut = dates[1] || '';
       }
       checkIn = convertDateFormat(checkIn);
       checkOut = convertDateFormat(checkOut);
-  
       let totalRooms = roomsData.length;
       let totalAdults = 0, totalChildren = 0;
-      roomsData.forEach(room => {
+      roomsData.forEach((room) => {
         totalAdults += room.adults;
         totalChildren += room.children;
       });
@@ -896,24 +1084,30 @@
         checkOut: checkOut,
         rooms: totalRooms,
         adults: totalAdults,
-        children: totalChildren
+        children: totalChildren,
       };
       const queryString = new URLSearchParams(searchParams).toString();
-      window.location.href = "hoteldetails.html?" + queryString;
+      window.location.href = 'hoteldetails.html?' + queryString;
     });
-  
+
     /***********************************************
-    * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
-    ***********************************************/
+     * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
+     ***********************************************/
     async function buscarHoteis() {
-      const destination  = document.getElementById('destinoHoteis')?.value || 'MCO';
-      const range        = document.getElementById('dataRangeHoteis')?.value || '';
+      const destination = document.getElementById('destinoHoteis')?.value || 'MCO';
+      const range = document.getElementById('dataRangeHoteis')?.value || '';
       const hotelsListEl = document.getElementById('hotelsList');
-      const statusEl     = document.getElementById('status');
+      const statusEl = document.getElementById('status');
       const paginationEl = document.getElementById('pagination');
-  
-      if (!range) { alert('Selecione as datas!'); return; }
-  
+
+      if (!range) {
+        alert('Selecione as datas!');
+        return;
+      }
+
+      // Exibe o painel de filtros somente após o clique em "Buscar Hotéis"
+      showFiltersPanel();
+
       function toISO(dmy) {
         const [d, m, y] = dmy.split('/');
         return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
@@ -921,46 +1115,59 @@
       let checkIn = '', checkOut = '';
       const parts = range.split(' ');
       if (parts.length >= 2) {
-        checkIn  = parts[0];
+        checkIn = parts[0];
         checkOut = parts[2] || parts[1];
       }
-      const isoIn  = toISO(checkIn);
+      const isoIn = toISO(checkIn);
       const isoOut = toISO(checkOut);
-  
+
       let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
       roomsData.forEach((r, i) => {
         const idx = i + 1;
         query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
       });
-  
+
       if (hotelsListEl) hotelsListEl.innerHTML = '';
-      if (paginationEl) { paginationEl.innerHTML = ''; paginationEl.style.display = 'none'; }
-      if (statusEl) { statusEl.textContent = 'Carregando hotéis...'; statusEl.style.display = 'block'; }
-  
+      if (paginationEl) {
+        paginationEl.innerHTML = '';
+        paginationEl.style.display = 'none';
+      }
+      if (statusEl) {
+        statusEl.textContent = 'Carregando hotéis...';
+        statusEl.style.display = 'block';
+      }
+
       const url = `/api/hotelbeds/hotels${query}`;
       console.log('API de Hotéis:', url);
-  
+
       try {
         const bookingResp = await fetch(url);
-        if (!bookingResp.ok) { throw new Error('Booking API Error: ' + bookingResp.status); }
+        if (!bookingResp.ok) {
+          throw new Error('Booking API Error: ' + bookingResp.status);
+        }
         const bookingData = await bookingResp.json();
         const hotelsArr = bookingData.hotels?.hotels || [];
-        if (!hotelsArr.length) { if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.'; return; }
+
+        if (!hotelsArr.length) {
+          if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
+          return;
+        }
         if (statusEl) statusEl.style.display = 'none';
-  
+
         for (const hotel of hotelsArr) {
           const code = hotel.code;
           const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
-          if (!contentResp.ok) { console.warn('Falha ao buscar content do hotel:', code); continue; }
+          if (!contentResp.ok) {
+            console.warn('Falha ao buscar content do hotel:', code);
+            continue;
+          }
           const contentData = await contentResp.json();
           const content = contentData?.hotel || {};
-  
           const name = content.name?.content || hotel.name || 'Sem Nome';
           const street = content.address?.street || '';
-          const city   = content.city?.content || '';
+          const city = content.city?.content || '';
           let addressFull = street;
-          if (city) { addressFull += (addressFull ? `, ${city}` : city); }
-  
+          if (city) { addressFull += addressFull ? `, ${city}` : city; }
           let ratingNum = 0;
           if (hotel.categoryCode) {
             const mm = hotel.categoryCode.match(/\d+/);
@@ -970,43 +1177,43 @@
             if (mm2) ratingNum = parseFloat(mm2[0]);
           }
           if (!ratingNum) ratingNum = 3;
-  
           let priceLabel = 'A partir de R$ ???';
           if (hotel.minRate != null) {
             const pr = parseFloat(hotel.minRate);
-            if (!isNaN(pr)) { priceLabel = 'A partir de ' + formatPriceBRL(pr); }
+            if (!isNaN(pr)) {
+              priceLabel = 'A partir de ' + formatPriceBRL(pr);
+            }
           }
-  
-          let facArr = (content.facilities || []).map(f => f.description?.content || '');
+          let facArr = (content.facilities || []).map((f) => f.description?.content || '');
           let poiArr = [];
           if (content.interestPoints?.length) {
-            poiArr = content.interestPoints.map(ip => ({
+            poiArr = content.interestPoints.map((ip) => ({
               poiName: ip.poiName || 'Ponto de Interesse',
-              distance: ip.distance || '0'
+              distance: ip.distance || '0',
             }));
           }
-  
           let imagesArr = [];
           if (content.images?.length) {
-            const roomImgs = content.images.filter(img => img.type?.code === 'HAB');
+            const roomImgs = content.images.filter((img) => img.type?.code === 'HAB');
             const arr = roomImgs.length ? roomImgs : content.images;
-            imagesArr = arr.map(img => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
+            imagesArr = arr.map((img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
           } else {
             imagesArr = ['https://dummyimage.com/300x200/ccc/000.png&text=No+Image'];
           }
-  
           let daysNightsLabel = '';
           if (checkIn && checkOut) {
-            const parseDmy = (dmy) => { const [D, M, A] = dmy.split('/'); return new Date(+A, +M - 1, +D); };
+            const parseDmy = (dmy) => {
+              const [D, M, A] = dmy.split('/');
+              return new Date(+A, +M - 1, +D);
+            };
             const d1 = parseDmy(checkIn);
             const d2 = parseDmy(checkOut);
             const ms = d2 - d1;
-            if (ms > 0) { 
+            if (ms > 0) {
               const diffDays = Math.round(ms / (1000 * 60 * 60 * 24));
               daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
             }
           }
-  
           const hotelObj = {
             code: code,
             name: name,
@@ -1018,9 +1225,8 @@
             priceFrom: priceLabel,
             installments: 'Até 10x sem juros',
             facilities: facArr,
-            poiList: poiArr
+            poiList: poiArr,
           };
-  
           const cardEl = createHotelCard(hotelObj);
           hotelsListEl?.appendChild(cardEl);
         }
@@ -1029,7 +1235,7 @@
         if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
       }
     }
-  
+
     function exibirPaginacao(totalPages, currentPage) {
       const pagEl = document.getElementById('pagination');
       if (!pagEl || totalPages <= 1) return;
@@ -1045,34 +1251,53 @@
         pagEl.appendChild(btnNext);
       }
     }
-  
+
     function convertDateFormat(dateStr) {
       const [d, m, a] = dateStr.split('/');
       return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
-  
+
     /***********************************************
-    * Otimização: Exibe o conteúdo somente após o carregamento completo
-    ***********************************************/
+     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS
+     * O painel inicia oculto e só é exibido após o clique em "Buscar Hotéis"
+     ***********************************************/
+    function showFiltersPanel() {
+      const panel = document.getElementById('filtersPanel');
+      // Remove a classe "hidden" e adiciona "visible" para acionar a animação
+      panel.classList.remove('hidden');
+      panel.classList.add('visible');
+    }
+
+    /***********************************************
+     * TOGGLE DE FILTROS NO MOBILE
+     ***********************************************/
+    function toggleFilters() {
+      const panel = document.getElementById('filtersPanel');
+      panel.classList.toggle('active');
+    }
+
+    /***********************************************
+     * Otimização: Exibe o conteúdo somente após o carregamento completo
+     ***********************************************/
     // Carrega o conteúdo de "loading.html" para o overlay
-    document.addEventListener("DOMContentLoaded", function() {
-      fetch("loading.html")
-        .then(response => {
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('loading.html')
+        .then((response) => {
           if (response.ok) return response.text();
-          else throw new Error("Arquivo não encontrado");
+          else throw new Error('Arquivo não encontrado');
         })
-        .then(html => {
-          document.getElementById("loading-overlay").innerHTML = html;
+        .then((html) => {
+          document.getElementById('loading-overlay').innerHTML = html;
         })
-        .catch(err => console.error("Erro ao carregar loading.html:", err));
+        .catch((err) => console.error('Erro ao carregar loading.html:', err));
     });
-  
+
     // Exibe o conteúdo principal após o evento "load", fontes prontas e a próxima frame renderizada
-    window.addEventListener("load", function() {
+    window.addEventListener('load', function () {
       Promise.all([document.fonts.ready]).then(() => {
         requestAnimationFrame(() => {
-          document.getElementById("loading-overlay").style.display = "none";
-          document.getElementById("hotelDetail").style.display = "block";
+          document.getElementById('loading-overlay').style.display = 'none';
+          document.getElementById('hotelDetail').style.display = 'block';
         });
       });
     });
