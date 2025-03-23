@@ -1,3 +1,21 @@
+// Função auxiliar para esperar que o shadowRoot esteja disponível
+function waitForShadow(cart, callback, delay = 50, maxAttempts = 20) {
+  let attempts = 0;
+  function check() {
+    if (cart.shadowRoot) {
+      callback();
+    } else {
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(check, delay);
+      } else {
+        console.warn("ShadowRoot do shopping-cart não está disponível após a espera.");
+      }
+    }
+  }
+  check();
+}
+
 class HeaderComponent extends HTMLElement {
   constructor() {
     super();
@@ -54,9 +72,7 @@ class HeaderComponent extends HTMLElement {
           font-weight: 500;
           transition: color 0.3s;
         }
-        .nav-item:hover {
-          color: #005CFF;
-        }
+        .nav-item:hover { color: #005CFF; }
         .right-actions {
           display: flex;
           align-items: center;
@@ -75,9 +91,7 @@ class HeaderComponent extends HTMLElement {
           text-decoration: none;
           position: relative;
         }
-        .bubble-btn:hover {
-          background-color: #e9e9e9;
-        }
+        .bubble-btn:hover { background-color: #e9e9e9; }
         .flag-icon {
           width: 20px;
           height: 20px;
@@ -105,9 +119,7 @@ class HeaderComponent extends HTMLElement {
           padding: 2px 6px;
           display: none;
         }
-        .profile-wrapper {
-          position: relative;
-        }
+        .profile-wrapper { position: relative; }
         .profile-menu {
           position: absolute;
           top: 120%;
@@ -129,40 +141,17 @@ class HeaderComponent extends HTMLElement {
           font-size: 0.85rem;
           cursor: pointer;
         }
-        .profile-menu button:hover {
-          background-color: #f1f1f1;
-        }
+        .profile-menu button:hover { background-color: #f1f1f1; }
         @media (max-width: 1024px) {
-          .header-container {
-            flex-direction: column;
-            padding: 15px 20px;
-          }
-          .nav-menu {
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 10px 0;
-            justify-content: center;
-          }
-          .right-actions {
-            margin-top: 10px;
-            justify-content: center;
-          }
+          .header-container { flex-direction: column; padding: 15px 20px; }
+          .nav-menu { flex-wrap: wrap; gap: 20px; margin: 10px 0; justify-content: center; }
+          .right-actions { margin-top: 10px; justify-content: center; }
         }
         @media (max-width: 768px) {
-          .header-container {
-            padding: 10px 15px;
-          }
-          .logo img {
-            width: 70px;
-          }
-          .nav-menu {
-            gap: 15px;
-            margin-left: 0;
-          }
-          .bubble-btn {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-          }
+          .header-container { padding: 10px 15px; }
+          .logo img { width: 70px; }
+          .nav-menu { gap: 15px; margin-left: 0; }
+          .bubble-btn { padding: 5px 10px; font-size: 0.8rem; }
         }
         @media (max-width: 480px) {
           .header-container {
@@ -171,19 +160,10 @@ class HeaderComponent extends HTMLElement {
             justify-content: space-between;
             padding: 8px 10px;
           }
-          .logo img {
-            width: 60px;
-          }
-          .nav-menu {
-            display: none;
-          }
-          .right-actions {
-            flex-direction: row;
-            gap: 10px;
-          }
-          .right-actions > .bubble-btn:first-child {
-            display: none;
-          }
+          .logo img { width: 60px; }
+          .nav-menu { display: none; }
+          .right-actions { flex-direction: row; gap: 10px; }
+          .right-actions > .bubble-btn:first-child { display: none; }
         }
       </style>
 
@@ -241,23 +221,19 @@ class HeaderComponent extends HTMLElement {
         cart = document.createElement("shopping-cart");
         document.body.appendChild(cart);
       }
-      // Aguarda 100ms para garantir que o shadowRoot do carrinho esteja disponível
-      setTimeout(() => {
-        if (cart.shadowRoot) {
-          const cartContainer = cart.shadowRoot.querySelector(".cart-container");
-          if (cartContainer) {
-            if (cartContainer.classList.contains("open")) {
-              cart.closeCart();
-            } else {
-              cart.openCart();
-            }
+      // Usa uma função de polling para aguardar o shadowRoot do carrinho
+      waitForShadow(cart, () => {
+        const cartContainer = cart.shadowRoot.querySelector(".cart-container");
+        if (cartContainer) {
+          if (cartContainer.classList.contains("open")) {
+            cart.closeCart();
           } else {
-            console.warn("Elemento '.cart-container' não encontrado no shopping-cart.");
+            cart.openCart();
           }
         } else {
-          console.warn("ShadowRoot do shopping-cart não está disponível.");
+          console.warn("Elemento '.cart-container' não encontrado no shopping-cart.");
         }
-      }, 100);
+      });
     });
 
     // Perfil: toggle do menu ou abrir login
@@ -325,6 +301,24 @@ class HeaderComponent extends HTMLElement {
       console.error("Erro ao buscar perfil do usuário:", err);
     }
   }
+}
+
+// Função auxiliar para aguardar que o shadowRoot esteja disponível
+function waitForShadow(cart, callback, delay = 50, maxAttempts = 20) {
+  let attempts = 0;
+  function check() {
+    if (cart.shadowRoot) {
+      callback();
+    } else {
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(check, delay);
+      } else {
+        console.warn("ShadowRoot do shopping-cart não está disponível após a espera.");
+      }
+    }
+  }
+  check();
 }
 
 customElements.define("app-header", HeaderComponent);
