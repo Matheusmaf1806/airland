@@ -4,261 +4,433 @@
   <meta charset="UTF-8">
   <title>Checkout - Viagem para Bangcoc</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    /* 
+================================================================================
+    RESET BÁSICO
+================================================================================
+*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    body {
-      background-color: #f7f7f7;
-      color: #333;
-    }
+/* 
+================================================================================
+    VARIÁVEIS DE CORES E FONTES
+================================================================================
+*/
+:root {
+  --color-primary: #007aff;      /* Cor principal (botões, destaques) */
+  --color-primary-hover: #005fb8;/* Cor ao passar o mouse nos botões */
+  --color-secondary: #ff9900;    /* Cor secundária (botão de finalizar) */
+  --color-secondary-hover: #e68a00;
+  --color-bg: #f7f7f7;           /* Cor de fundo geral */
+  --color-white: #ffffff;
+  --color-border: #ddd;
+  --color-text: #333;
+  --color-subtext: #666;
+  --color-success: #28a745;
+  --color-info-bg: #f2f8ff;
+  --color-info-border: #cce1ff;
 
-    header, .checkout-section, footer {
-      width: 90%;
-      max-width: 1200px;
-      margin: 20px auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 6px;
-    }
+  --font-primary: 'Arial', sans-serif;
 
-    header {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+  --transition-speed: 0.3s;
+}
 
-    header h1 {
-      font-size: 24px;
-      font-weight: 600;
-    }
+/* 
+================================================================================
+    ESTILOS GERAIS DO BODY E CONTAINERS
+================================================================================
+*/
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.4;
+}
 
-    .steps {
-      display: flex;
-      gap: 20px;
-      font-size: 14px;
-    }
+/* Container principal para seções */
+.checkout-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    .steps span {
-      color: #888;
-    }
+/* 
+================================================================================
+    CABEÇALHO / TÍTULO E PASSOS
+================================================================================
+*/
+header {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    /* Seção: Informações da viagem */
-    .trip-info {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
+header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
 
-    .trip-info h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--color-subtext);
+}
 
-    .flight-details {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+.steps span {
+  position: relative;
+  padding-right: 20px;
+}
 
-    .flight-details > div {
-      flex: 1 1 200px;
-    }
+.steps span::after {
+  content: "|";
+  position: absolute;
+  right: 8px;
+  color: var(--color-border);
+}
 
-    .price-box {
-      background-color: #f2f8ff;
-      border: 1px solid #cce1ff;
-      padding: 15px;
-      border-radius: 6px;
-      max-width: 300px;
-    }
+.steps span:last-of-type::after {
+  content: "";
+}
 
-    .price-box h3 {
-      margin-bottom: 10px;
-      font-size: 16px;
-      color: #333;
-    }
+/* 
+================================================================================
+    INFORMAÇÕES DA VIAGEM (TRIP-INFO)
+================================================================================
+*/
+.trip-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 15px;
+}
 
-    .price-box p {
-      font-size: 14px;
-      margin-bottom: 6px;
-    }
+.trip-info h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
 
-    .price-highlight {
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 10px;
-      color: #333;
-    }
+.flight-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
 
-    /* Seção: Detalhes do preço */
-    .price-details {
-      margin-top: 15px;
-    }
+.flight-details > div {
+  flex: 1 1 200px;
+  min-width: 220px;
+}
 
-    .price-details ul {
-      list-style: none;
-      margin-top: 10px;
-    }
+.flight-details p {
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--color-text);
+}
 
-    .price-details li {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
+.price-box {
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-info-border);
+  padding: 15px;
+  border-radius: 6px;
+  max-width: 300px;
+  flex: 1 1 280px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 
-    /* Seção: Formulário de passageiro */
-    .passenger-form {
-      margin-top: 20px;
-    }
+.price-box h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: var(--color-text);
+}
 
-    .passenger-form h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
+.price-box p {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
 
-    .passenger-form .form-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+.price-highlight {
+  font-weight: bold;
+  font-size: 18px;
+  margin-top: 10px;
+  color: var(--color-text);
+}
 
-    .passenger-form .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
+.price-details {
+  margin-top: 15px;
+}
 
-    .passenger-form .form-group input,
-    .passenger-form .form-group select {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+.price-details ul {
+  list-style: none;
+  margin-top: 10px;
+}
 
-    .form-row {
-      flex: 1 1 200px;
-    }
+.price-details li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
 
-    /* Seção: Extras (Salas VIP, códigos promocionais) */
-    .extras-section {
-      margin-top: 20px;
-    }
+/* 
+================================================================================
+    FORMULÁRIO DE PASSAGEIROS
+================================================================================
+*/
+.passenger-form {
+  margin-top: 20px;
+}
 
-    .extras-section h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
+.passenger-form h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
 
-    .vip-lounge,
-    .promo-codes {
-      background-color: #f2f2f2;
-      border-radius: 6px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
+.passenger-form .form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-    .vip-lounge h3,
-    .promo-codes h3 {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
+.passenger-form .form-row {
+  flex: 1 1 200px;
+  min-width: 220px;
+}
 
-    .vip-lounge .lounge-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      align-items: center;
-    }
+.passenger-form .form-row label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-subtext);
+}
 
-    .lounge-item button {
-      background-color: #007aff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
+.passenger-form .form-row input,
+.passenger-form .form-row select {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  outline: none;
+  transition: border var(--transition-speed);
+}
 
-    .promo-codes .promo-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      align-items: center;
-    }
+.passenger-form .form-row input:focus,
+.passenger-form .form-row select:focus {
+  border: 1px solid var(--color-primary);
+}
 
-    .promo-item button {
-      background-color: #28a745;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
+/* 
+================================================================================
+    EXTRAS (SALAS VIP, CÓDIGOS PROMOCIONAIS)
+================================================================================
+*/
+.extras-section {
+  margin-top: 20px;
+}
 
-    /* Seção: Pagamento */
-    .payment-section {
-      margin-top: 20px;
-    }
+.extras-section h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
 
-    .payment-section h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
+.vip-lounge,
+.promo-codes {
+  background-color: #f2f2f2;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
 
-    .payment-method {
-      background-color: #f9f9f9;
-      border-radius: 6px;
-      padding: 15px;
-    }
+.vip-lounge h3,
+.promo-codes h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--color-text);
+}
 
-    .payment-method .form-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
+.lounge-item,
+.promo-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--color-white);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  transition: box-shadow var(--transition-speed);
+}
 
-    .payment-method .form-group input {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+.lounge-item:hover,
+.promo-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
-    /* Botão final */
-    .finalize-btn {
-      margin-top: 20px;
-      background-color: #ff9900;
-      color: #fff;
-      border: none;
-      padding: 15px 20px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+.lounge-item button,
+.promo-item button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color var(--transition-speed);
+}
 
-    .finalize-btn:hover {
-      background-color: #e68a00;
-    }
+.lounge-item button:hover,
+.promo-item button:hover {
+  background-color: var(--color-primary-hover);
+}
 
-    footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #666;
-    }
+/* 
+================================================================================
+    SEÇÃO DE PAGAMENTO
+================================================================================
+*/
+.payment-section {
+  margin-top: 20px;
+}
+
+.payment-section h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
+
+.payment-method {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.payment-method .form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.payment-method .form-row {
+  flex: 1 1 200px;
+  min-width: 220px;
+}
+
+.payment-method .form-row label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-subtext);
+}
+
+.payment-method .form-row input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  outline: none;
+  transition: border var(--transition-speed);
+}
+
+.payment-method .form-row input:focus {
+  border: 1px solid var(--color-primary);
+}
+
+/* Botão Finalizar */
+.finalize-btn {
+  margin-top: 20px;
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  border: none;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.finalize-btn:hover {
+  background-color: var(--color-secondary-hover);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* 
+================================================================================
+    RODAPÉ
+================================================================================
+*/
+footer {
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-subtext);
+  padding: 20px;
+  background-color: var(--color-white);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 
+================================================================================
+    RESPONSIVIDADE
+================================================================================
+*/
+@media (max-width: 768px) {
+  .flight-details {
+    flex-direction: column;
+  }
+
+  .price-box {
+    max-width: 100%;
+  }
+
+  .steps {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 20px;
+  }
+
+  .passenger-form .form-row,
+  .payment-method .form-row {
+    min-width: 100%;
+  }
+
+  .finalize-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
   </style>
 </head>
 <body>
