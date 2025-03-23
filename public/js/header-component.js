@@ -8,7 +8,6 @@ class HeaderComponent extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
       <style>
-        /* RESET e Estilos Básicos */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :host {
           font-family: 'Montserrat', sans-serif;
@@ -33,12 +32,12 @@ class HeaderComponent extends HTMLElement {
           border-bottom: 1px solid rgba(0,0,0,0.1);
         }
         .logo {
-          text-decoration: none;
+          text-decoration: none; 
           display: flex;
           align-items: center;
         }
         .logo img {
-          width: 80px;
+          width: 80px; 
           height: auto;
         }
         .nav-menu {
@@ -106,7 +105,6 @@ class HeaderComponent extends HTMLElement {
           padding: 2px 6px;
           display: none;
         }
-        /* Submenu de perfil */
         .profile-wrapper {
           position: relative;
         }
@@ -134,7 +132,6 @@ class HeaderComponent extends HTMLElement {
         .profile-menu button:hover {
           background-color: #f1f1f1;
         }
-        /* RESPONSIVIDADE MOBILE */
         @media (max-width: 1024px) {
           .header-container {
             flex-direction: column;
@@ -234,14 +231,22 @@ class HeaderComponent extends HTMLElement {
       </header>
     `;
 
+    // Atualiza valores e perfil
     this.updateDollar();
     this.updateUserProfile();
 
+    // Alterado: ao clicar no botão do carrinho, buscamos o componente shopping-cart
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
-      if (typeof window.toggleCart === "function") {
-        window.toggleCart();
+      const cart = document.querySelector("shopping-cart");
+      if (cart && typeof cart.openCart === "function") {
+        const cartContainer = cart.shadowRoot.querySelector(".cart-container");
+        if (cartContainer.classList.contains("open")) {
+          cart.closeCart();
+        } else {
+          cart.openCart();
+        }
       } else {
-        console.warn("toggleCart() não encontrado.");
+        console.warn("Componente shopping-cart não encontrado ou método openCart() indisponível.");
       }
     });
 
@@ -315,15 +320,5 @@ class HeaderComponent extends HTMLElement {
     }
   }
 }
-
-window.toggleCart = function() {
-  // Exemplo de lógica para exibir/ocultar o carrinho
-  const cart = document.getElementById('cart-container');
-  if (cart) {
-    cart.style.display = cart.style.display === 'block' ? 'none' : 'block';
-  } else {
-    console.warn("Elemento do carrinho não encontrado.");
-  }
-};
 
 customElements.define("app-header", HeaderComponent);
