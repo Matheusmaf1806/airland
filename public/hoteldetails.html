@@ -41,6 +41,11 @@
       height: 100%;
       background-color: #fff;
       z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5em;
+      color: #333;
     }
     
     /* Resto dos estilos (cabeçalho, galeria, facilidades, etc.) */
@@ -204,8 +209,8 @@
   </style>
 </head>
 <body>
-  <!-- Loading Overlay (conteúdo carregado de loading.html) -->
-  <div id="loading-overlay"></div>
+  <!-- Loading Overlay (com conteúdo padrão e carregamento de loading.html se possível) -->
+  <div id="loading-overlay">Carregando...</div>
 
   <!-- HEADER: Carregado via fetch -->
   <app-header></app-header>
@@ -298,17 +303,20 @@
 
   <!-- SCRIPT PRINCIPAL UNIFICADO -->
   <script>
-  // Carrega o conteúdo do loading.html no overlay
+  // Tenta carregar o conteúdo de "loading.html". Se não der certo, o texto "Carregando..." já foi definido.
   document.addEventListener("DOMContentLoaded", function() {
     fetch("loading.html")
-      .then(response => response.text())
+      .then(response => {
+        if (response.ok) return response.text();
+        else throw new Error("Arquivo não encontrado");
+      })
       .then(html => {
         document.getElementById("loading-overlay").innerHTML = html;
       })
       .catch(err => console.error("Erro ao carregar loading.html:", err));
   });
   
-  // Quando a página estiver totalmente carregada, exibe o site e oculta o overlay
+  // Quando tudo estiver carregado, oculta o overlay e exibe o conteúdo principal
   window.addEventListener("load", function() {
     document.getElementById("loading-overlay").style.display = "none";
     document.getElementById("hotelDetail").style.display = "block";
