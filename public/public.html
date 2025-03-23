@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout - Viagem para Bangcoc</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f7f7f7;
+      color: #333;
+    }
+
+    header, .checkout-section, footer {
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 6px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .steps {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+    }
+
+    .steps span {
+      color: #888;
+    }
+
+    /* Seção: Informações da viagem */
+    .trip-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .trip-info h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .flight-details {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .flight-details > div {
+      flex: 1 1 200px;
+    }
+
+    .price-box {
+      background-color: #f2f8ff;
+      border: 1px solid #cce1ff;
+      padding: 15px;
+      border-radius: 6px;
+      max-width: 300px;
+    }
+
+    .price-box h3 {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .price-box p {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .price-highlight {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    /* Seção: Detalhes do preço */
+    .price-details {
+      margin-top: 15px;
+    }
+
+    .price-details ul {
+      list-style: none;
+      margin-top: 10px;
+    }
+
+    .price-details li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    /* Seção: Formulário de passageiro */
+    .passenger-form {
+      margin-top: 20px;
+    }
+
+    .passenger-form h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .passenger-form .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .passenger-form .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .passenger-form .form-group input,
+    .passenger-form .form-group select {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .form-row {
+      flex: 1 1 200px;
+    }
+
+    /* Seção: Extras (Salas VIP, códigos promocionais) */
+    .extras-section {
+      margin-top: 20px;
+    }
+
+    .extras-section h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .vip-lounge,
+    .promo-codes {
+      background-color: #f2f2f2;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .vip-lounge h3,
+    .promo-codes h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .vip-lounge .lounge-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .lounge-item button {
+      background-color: #007aff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .promo-codes .promo-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .promo-item button {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Seção: Pagamento */
+    .payment-section {
+      margin-top: 20px;
+    }
+
+    .payment-section h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .payment-method {
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      padding: 15px;
+    }
+
+    .payment-method .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .payment-method .form-group input {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Botão final */
+    .finalize-btn {
+      margin-top: 20px;
+      background-color: #ff9900;
+      color: #fff;
+      border: none;
+      padding: 15px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .finalize-btn:hover {
+      background-color: #e68a00;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho / Passos -->
+  <header>
+    <h1>Checkout - Viagem para Bangcoc</h1>
+    <div class="steps">
+      <span>Preencha suas informações</span> |
+      <span>Mais vendidos</span> |
+      <span>Selecionar extras</span> |
+      <span>Finalize seu pagamento</span>
+    </div>
+  </header>
+
+  <!-- Seção de Informações da Viagem e Preço -->
+  <section class="checkout-section trip-info">
+    <h2>Viagem para Bangcoc</h2>
+    <div class="flight-details">
+      <div>
+        <p><strong>Ida</strong>: Qua, 15 Mar (Duração: 7h 25m)</p>
+        <p>09:00 - NRT (Tóquio Narita Int. T1)</p>
+        <p>15:00 - BKK (Bangkok Suvarnabhumi)</p>
+      </div>
+      <div>
+        <p><strong>Volta</strong>: Qua, 22 Mar (Duração: 7h 25m)</p>
+        <p>23:50 - DMK (Bangkok Don Mueang Int. T1)</p>
+        <p>06:00 - NRT (Tóquio Narita Int. T1)</p>
+      </div>
+      <div class="price-box">
+        <h3>Detalhes do preço</h3>
+        <p>Passagem: Grátis</p>
+        <p>Bagagem de mão: Grátis</p>
+        <p>Serviços: Incluído</p>
+        <div class="price-highlight">Total: R$ 3.013,84</div>
+      </div>
+    </div>
+    <div class="price-details">
+      <ul>
+        <li><span>Tarifa base</span> <span>R$ 2.500,00</span></li>
+        <li><span>Taxas e impostos</span> <span>R$ 513,84</span></li>
+        <li><span>Total</span> <strong>R$ 3.013,84</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Seção de Formulário de Passageiros -->
+  <section class="checkout-section passenger-form">
+    <h2>Quem vai viajar?</h2>
+    <div class="form-group">
+      <div class="form-row">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" placeholder="Nome">
+      </div>
+      <div class="form-row">
+        <label for="sobrenome">Sobrenome</label>
+        <input type="text" id="sobrenome" placeholder="Sobrenome">
+      </div>
+      <div class="form-row">
+        <label for="genero">Gênero no documento</label>
+        <select id="genero">
+          <option value="">Selecione</option>
+          <option value="M">Masculino</option>
+          <option value="F">Feminino</option>
+          <option value="O">Outro</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="nascimento">Data de Nascimento</label>
+        <input type="date" id="nascimento">
+      </div>
+      <div class="form-row">
+        <label for="nacionalidade">Nacionalidade</label>
+        <input type="text" id="nacionalidade" placeholder="Brasil">
+      </div>
+      <div class="form-row">
+        <label for="tipo-doc">Tipo de Documento</label>
+        <select id="tipo-doc">
+          <option value="">Selecione</option>
+          <option value="rg">RG</option>
+          <option value="cpf">CPF</option>
+          <option value="passaporte">Passaporte</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="numero-doc">Número do Documento</label>
+        <input type="text" id="numero-doc" placeholder="123456789">
+      </div>
+      <div class="form-row">
+        <label for="programa-frequente">Programa de passageiro frequente (opcional)</label>
+        <input type="text" id="programa-frequente" placeholder="Número do programa">
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção de Extras (Salas VIP, Códigos promocionais) -->
+  <section class="checkout-section extras-section">
+    <h2>Extras</h2>
+
+    <div class="vip-lounge">
+      <h3>Salas VIP</h3>
+      <div class="lounge-item">
+        <div>
+          <strong>Tóquio Narita International Airport T1</strong>  
+          <p>TIAS Executive Lounge</p>
+        </div>
+        <button>Adicionar</button>
+      </div>
+      <div class="lounge-item">
+        <div>
+          <strong>Bangkok Don Mueang International Airport T1</strong>  
+          <p>Miracle Lounge</p>
+        </div>
+        <button>Adicionar</button>
+      </div>
+    </div>
+
+    <div class="promo-codes">
+      <h3>Seus códigos promocionais gratuitos</h3>
+      <div class="promo-item">
+        <div>
+          <strong>12% de desconto em transfers de aeroporto</strong>
+          <p>Solicite um código promocional gratuito</p>
+        </div>
+        <button>Resgatar</button>
+      </div>
+      <div class="promo-item">
+        <div>
+          <strong>Código promocional de 8% de desconto no aluguel de veículos</strong>
+          <p>Solicite um código promocional gratuito</p>
+        </div>
+        <button>Resgatar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seção de Pagamento -->
+  <section class="checkout-section payment-section">
+    <h2>Selecione um método de pagamento</h2>
+    <div class="payment-method">
+      <div class="form-group">
+        <div class="form-row">
+          <label for="numero-cartao">Número do cartão de crédito/débito</label>
+          <input type="text" id="numero-cartao" placeholder="1234 5678 9012 3456">
+        </div>
+        <div class="form-row">
+          <label for="nome-cartao">Nome do titular do cartão</label>
+          <input type="text" id="nome-cartao" placeholder="Como está no cartão">
+        </div>
+        <div class="form-row">
+          <label for="validade-cartao">Data de validade (MM/AA)</label>
+          <input type="text" id="validade-cartao" placeholder="MM/AA">
+        </div>
+        <div class="form-row">
+          <label for="codigo-cvv">CVV/CVC</label>
+          <input type="text" id="codigo-cvv" placeholder="3 dígitos">
+        </div>
+      </div>
+    </div>
+
+    <button class="finalize-btn" onclick="finalizarCompra()">Finalizar Pagamento</button>
+  </section>
+
+  <footer>
+    <p>© 2025 - Exemplo de Checkout em uma só página</p>
+  </footer>
+
+  <script>
+    function finalizarCompra() {
+      alert('Compra finalizada com sucesso!');
+    }
+  </script>
+
+</body>
+</html>
