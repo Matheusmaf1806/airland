@@ -95,8 +95,6 @@ class HeaderComponent extends HTMLElement {
 
         .cart-btn {
           cursor: pointer;
-          padding: 10px 20px;
-          border-radius: 100px;
         }
 
         .cart-icon {
@@ -148,64 +146,6 @@ class HeaderComponent extends HTMLElement {
         .profile-menu button:hover {
           background-color: #f1f1f1;
         }
-
-        /* RESPONSIVIDADE MOBILE */
-        @media (max-width: 1024px) {
-          .header-container {
-            flex-direction: column;
-            padding: 15px 20px;
-          }
-          .nav-menu {
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 10px 0;
-            justify-content: center;
-          }
-          .right-actions {
-            margin-top: 10px;
-            justify-content: center;
-          }
-        }
-        @media (max-width: 768px) {
-          .header-container {
-            padding: 10px 15px;
-          }
-          .logo img {
-            width: 70px;
-          }
-          .nav-menu {
-            gap: 15px;
-            margin-left: 0;
-          }
-          .bubble-btn {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-          }
-        }
-        @media (max-width: 480px) {
-          .header-container {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 10px;
-          }
-          .logo img {
-            width: 60px;
-          }
-          /* Esconde a barra de navegação no mobile */
-          .nav-menu {
-            display: none;
-          }
-          /* Exibe apenas o botão do dólar, carrinho e login na direita */
-          .right-actions {
-            flex-direction: row;
-            gap: 10px;
-          }
-          /* Esconde o primeiro bubble-btn ("Dúvidas") */
-          .right-actions > .bubble-btn:first-child {
-            display: none;
-          }
-        }
       </style>
 
       <div class="top-offer-bar">
@@ -227,10 +167,12 @@ class HeaderComponent extends HTMLElement {
 
         <div class="right-actions">
           <a href="#" class="bubble-btn">Dúvidas</a>
+
           <div class="bubble-btn" id="dollar-btn">
             <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="Bandeira EUA" class="flag-icon" />
             <span class="dollar-value">R$ 0.00</span>
           </div>
+
           <div class="bubble-btn cart-btn" id="cart-btn">
             <svg class="cart-icon" viewBox="0 0 24 24">
               <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 
@@ -242,6 +184,7 @@ class HeaderComponent extends HTMLElement {
             </svg>
             <span class="cart-count" id="cart-count">0</span>
           </div>
+
           <div class="bubble-btn profile-wrapper">
             <span class="profile-name">Login</span>
             <div class="profile-menu" id="profileMenu">
