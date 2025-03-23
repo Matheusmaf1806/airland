@@ -1,0 +1,113 @@
+<!-- Bloco de Cards e Filtros: Resultados, Filtros e Template de Card -->
+<div class="results-container">
+  <!-- Botão para abrir filtros no mobile -->
+  <button class="mobile-filter-toggle" onclick="toggleFilters()">Filtrar</button>
+
+  <!-- Painel de Filtros -->
+  <aside class="filters-panel hidden" id="filtersPanel">
+    <h2>Filtrar Resultados</h2>
+    <!-- Filtro por Nome da Propriedade -->
+    <div class="filter-group">
+      <h3>Buscar por nome da propriedade</h3>
+      <div class="property-search">
+        <input type="text" id="propertyName" placeholder="por ex., Marriott" />
+      </div>
+    </div>
+    <!-- Filtro por Preço por diária -->
+    <div class="filter-group">
+      <h3>Preço por diária</h3>
+      <div class="price-range">
+        <div class="price-inputs">
+          <div>
+            <label>Mín.</label>
+            <input type="number" placeholder="R$ 0" id="priceMin" />
+          </div>
+          <div>
+            <label>Máx.</label>
+            <input type="number" placeholder="R$ 2.400+" id="priceMax" />
+          </div>
+        </div>
+        <div class="price-slider">
+          <input type="range" id="rangeMin" min="0" max="2400" value="0" step="50" />
+          <input type="range" id="rangeMax" min="0" max="2400" value="2400" step="50" />
+        </div>
+      </div>
+    </div>
+    <!-- Filtro por Estrelas -->
+    <div class="filter-group">
+      <h3>Estrelas</h3>
+      <label><input type="checkbox" value="5" /> 5 estrelas</label>
+      <label><input type="checkbox" value="4" /> 4 estrelas</label>
+      <label><input type="checkbox" value="3" /> 3 estrelas</label>
+      <label><input type="checkbox" value="2" /> 2 estrelas</label>
+      <label><input type="checkbox" value="1" /> 1 estrela</label>
+    </div>
+    <!-- Filtro por Tipo de Acomodação -->
+    <div class="filter-group">
+      <h3>Tipo de Acomodação</h3>
+      <label><input type="checkbox" value="hotel" /> Hotel</label>
+      <label><input type="checkbox" value="resort" /> Resort</label>
+      <label><input type="checkbox" value="pousada" /> Pousada</label>
+      <label><input type="checkbox" value="apart" /> Apart-hotel</label>
+    </div>
+    <!-- Filtro por Comodidades -->
+    <div class="filter-group">
+      <h3>Comodidades</h3>
+      <label><input type="checkbox" value="wifi" /> Wi-Fi Grátis</label>
+      <label><input type="checkbox" value="pool" /> Piscina</label>
+      <label><input type="checkbox" value="parking" /> Estacionamento</label>
+      <label><input type="checkbox" value="gym" /> Academia</label>
+      <label><input type="checkbox" value="pets" /> Aceita Pets</label>
+    </div>
+    <!-- Botão Aplicar (opcional; a busca também é automática) -->
+    <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
+  </aside>
+
+  <!-- Seção de Resultados (Cards) -->
+  <section id="hotelResults">
+    <div id="status"></div>
+    <div id="hotelsList" class="hotels-list"></div>
+    <div id="pagination" class="pagination"></div>
+  </section>
+</div>
+
+<!-- Template do Card -->
+<template id="hotelCardTemplate">
+  <div class="hotel-card" data-hotel-id="">
+    <div class="hotel-image">
+      <button class="carousel-button prev-button">&#10094;</button>
+      <button class="carousel-button next-button">&#10095;</button>
+      <div class="carousel-track"></div>
+    </div>
+    <div class="hotel-info">
+      <div>
+        <div class="hotel-name"></div>
+        <div class="hotel-rating">
+          <div class="stars"></div>
+          <span class="rating-value"></span>
+          <span class="rating-divider">|</span>
+          <div class="facility-icons"></div>
+        </div>
+        <div class="hotel-address"></div>
+        <div class="hotel-details">
+          <ul class="poi-list"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="hotel-price">
+      <div class="pix-flag">-5% no Pix</div>
+      <div class="days-nights"></div>
+      <div class="price-starting"></div>
+      <div class="ten-installments"></div>
+      <button class="btn-options">Visualizar opções</button>
+    </div>
+  </div>
+</template>
+
+<!-- Seção de Destaque (opcional) -->
+<section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
+  <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
+  <p style="color: #666; margin-bottom: 1rem;">
+    Explore nossas ofertas imperdíveis para destinos incríveis.
+  </p>
+</section>
