@@ -234,20 +234,30 @@ class HeaderComponent extends HTMLElement {
     this.updateDollar();
     this.updateUserProfile();
 
-    // Ao clicar no botão do carrinho, procura (ou cria) o componente shopping-cart
+    // Ao clicar no botão do carrinho, procura (ou cria) o componente <shopping-cart>
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
       let cart = document.querySelector("shopping-cart");
       if (!cart) {
         cart = document.createElement("shopping-cart");
         document.body.appendChild(cart);
       }
-      // Alterna o estado do carrinho chamando os métodos do componente
-      const cartContainer = cart.shadowRoot.querySelector(".cart-container");
-      if (cartContainer.classList.contains("open")) {
-        cart.closeCart();
-      } else {
-        cart.openCart();
-      }
+      // Aguarda que o componente esteja definido e seu Shadow DOM seja acessível
+      customElements.whenDefined("shopping-cart").then(() => {
+        if (cart.shadowRoot) {
+          const cartContainer = cart.shadowRoot.querySelector(".cart-container");
+          if (cartContainer) {
+            if (cartContainer.classList.contains("open")) {
+              cart.closeCart();
+            } else {
+              cart.openCart();
+            }
+          } else {
+            console.warn("Elemento '.cart-container' não encontrado no shopping-cart.");
+          }
+        } else {
+          console.warn("ShadowRoot do shopping-cart não está disponível.");
+        }
+      });
     });
 
     // Perfil: toggle do menu ou abrir login
