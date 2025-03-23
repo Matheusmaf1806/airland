@@ -32,12 +32,12 @@ class HeaderComponent extends HTMLElement {
           border-bottom: 1px solid rgba(0,0,0,0.1);
         }
         .logo {
-          text-decoration: none; 
+          text-decoration: none;
           display: flex;
           align-items: center;
         }
         .logo img {
-          width: 80px; 
+          width: 80px;
           height: auto;
         }
         .nav-menu {
@@ -231,45 +231,42 @@ class HeaderComponent extends HTMLElement {
       </header>
     `;
 
-    // Atualiza valores e perfil
     this.updateDollar();
     this.updateUserProfile();
 
-    // Alterado: ao clicar no botão do carrinho, buscamos o componente shopping-cart
+    // Ao clicar no botão do carrinho, procura (ou cria) o componente shopping-cart
     this.shadowRoot.querySelector("#cart-btn").addEventListener("click", () => {
-      const cart = document.querySelector("shopping-cart");
-      if (cart && typeof cart.openCart === "function") {
-        const cartContainer = cart.shadowRoot.querySelector(".cart-container");
-        if (cartContainer.classList.contains("open")) {
-          cart.closeCart();
-        } else {
-          cart.openCart();
-        }
+      let cart = document.querySelector("shopping-cart");
+      if (!cart) {
+        cart = document.createElement("shopping-cart");
+        document.body.appendChild(cart);
+      }
+      // Alterna o estado do carrinho chamando os métodos do componente
+      const cartContainer = cart.shadowRoot.querySelector(".cart-container");
+      if (cartContainer.classList.contains("open")) {
+        cart.closeCart();
       } else {
-        console.warn("Componente shopping-cart não encontrado ou método openCart() indisponível.");
+        cart.openCart();
       }
     });
 
-    // Perfil: toggle menu ou abrir login
+    // Perfil: toggle do menu ou abrir login
     const profileWrapper = this.shadowRoot.querySelector(".profile-wrapper");
     const profileMenu = this.shadowRoot.querySelector("#profileMenu");
     const profileName = this.shadowRoot.querySelector(".profile-name");
 
     profileWrapper.addEventListener("click", async (e) => {
       e.preventDefault();
-
       const isLoggedIn = !!localStorage.getItem("agentId");
       if (isLoggedIn) {
         profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
         return;
       }
-
       if (!customElements.get("login-component")) {
         await import("/js/login-component.js").catch(err =>
           console.error("Erro ao importar login-component.js", err)
         );
       }
-
       if (!document.querySelector("login-component")) {
         const login = document.createElement("login-component");
         document.body.appendChild(login);
@@ -282,7 +279,7 @@ class HeaderComponent extends HTMLElement {
       location.reload();
     });
 
-    // Atualiza contador do carrinho
+    // Atualiza o contador do carrinho
     window.updateCartCount = (count) => {
       const badge = this.shadowRoot.querySelector("#cart-count");
       if (badge) {
@@ -307,7 +304,6 @@ class HeaderComponent extends HTMLElement {
   async updateUserProfile() {
     const userId = localStorage.getItem("agentId");
     if (!userId) return;
-
     try {
       const res = await fetch(`/api/users/profile?id=${userId}`);
       const data = await res.json();
