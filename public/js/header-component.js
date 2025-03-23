@@ -241,8 +241,8 @@ class HeaderComponent extends HTMLElement {
         cart = document.createElement("shopping-cart");
         document.body.appendChild(cart);
       }
-      // Aguarda que o componente esteja definido e seu Shadow DOM seja acessível
-      customElements.whenDefined("shopping-cart").then(() => {
+      // Aguarda 100ms para garantir que o shadowRoot do carrinho esteja disponível
+      setTimeout(() => {
         if (cart.shadowRoot) {
           const cartContainer = cart.shadowRoot.querySelector(".cart-container");
           if (cartContainer) {
@@ -257,7 +257,7 @@ class HeaderComponent extends HTMLElement {
         } else {
           console.warn("ShadowRoot do shopping-cart não está disponível.");
         }
-      });
+      }, 100);
     });
 
     // Perfil: toggle do menu ou abrir login
