@@ -15,16 +15,13 @@
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="css/cart.css">
 
+  <!-- Scripts essenciais -->
   <script src="/js/afcop.js" defer></script>
-  
-  <!-- Script extra: facilitiesMap.js -->
   <script src="/js/facilitiesMap.js" defer></script>
-  
-  <!-- Web Components -->
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
   
-  <!-- Importa o módulo loacomp.js que gerencia o loading -->
+  <!-- Importa o módulo loacomp.js para gerenciar o loading -->
   <script src="/js/loacomp.js" defer></script>
   
   <style>
@@ -216,7 +213,7 @@
   </style>
 </head>
 <body>
-  <!-- O módulo loacomp.js se encarrega de criar e exibir o loading -->
+  <!-- O módulo loacomp.js se encarrega de criar e inserir o loading na página -->
 
   <!-- HEADER: Carregado via fetch -->
   <app-header></app-header>
@@ -444,7 +441,7 @@
           .then(data => {
             if (data.hotel) {
               const facilities = data.hotel.facilities || [];
-              // Preenche a seção principal de facilities (ignorando os itens ocultos e os que possuem grupo)
+              // Preenche a seção principal de facilities
               fillFacilities(facilities);
               // Extrai informações adicionais e preenche os blocos informativos
               const additionalInfo = extractAdditionalInfo(facilities);
