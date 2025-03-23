@@ -558,7 +558,7 @@
     }
     .carousel-slide img {
       width: 100%;
-      height: 100%;
+      height: 280px;
       object-fit: cover;
       display: block;
       transition: transform 0.3s ease;
@@ -1195,7 +1195,10 @@
     if (applyQuartos) {
       applyQuartos.addEventListener('click', () => {
         let totalA = 0, totalC = 0;
-        roomsData.forEach((r) => { totalA += r.adults; totalC += r.children; });
+        roomsData.forEach((r) => {
+          totalA += r.adults;
+          totalC += r.children;
+        });
         if (quartosInput) { quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`; }
         if (dropdown) dropdown.classList.remove('active');
       });
@@ -1411,13 +1414,13 @@
         const bookingData = await bookingResp.json();
         let hotelsArr = bookingData.hotels?.hotels || [];
 
-        // Filtrar por nome da propriedade (campo "propertyName")
+        // Filtro: Buscar por nome da propriedade (automaticamente)
         const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
         if (propertyNameFilter) {
           hotelsArr = hotelsArr.filter(hotel => hotel.name.toLowerCase().includes(propertyNameFilter));
         }
 
-        // Filtrar por estrelas utilizando categoryName (ex: "3 STARS AND A HALF" => 3)
+        // Filtro: Por estrelas (extraindo o número de estrelas da categoryName)
         const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
         const selectedStars = Array.from(starCheckboxes)
           .filter(cb => cb.checked)
@@ -1583,6 +1586,26 @@
           document.getElementById('loading-overlay').style.display = 'none';
           document.getElementById('hotelDetail').style.display = 'block';
         });
+      });
+    });
+
+    /***********************************************
+    * EVENTOS AUTOMÁTICOS PARA FILTROS
+    ***********************************************/
+    // Quando o usuário digita no campo de busca por nome, aplica automaticamente
+    const propertyNameInput = document.getElementById('propertyName');
+    if (propertyNameInput) {
+      propertyNameInput.addEventListener('input', () => {
+        // Opcional: implementar debounce se necessário
+        buscarHoteis();
+      });
+    }
+
+    // Quando o usuário altera os checkboxes de estrelas, aplica automaticamente
+    const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
+    starCheckboxes.forEach((cb) => {
+      cb.addEventListener('change', () => {
+        buscarHoteis();
       });
     });
   </script>
