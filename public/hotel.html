@@ -12,10 +12,7 @@
   <link rel="preload" href="/css/cart.css" as="style" />
 
   <!-- Fonte Montserrat -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <!-- Flatpickr CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
@@ -24,18 +21,15 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
 
   <!-- Font Awesome -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="/css/cart.css" />
 
-  <!-- Importa o header-component via módulo ES (este script deve registrar o componente <app-header>) -->
+  <!-- Importa o header-component via módulo ES -->
   <script type="module" src="/js/header-component.js"></script>
 
-  <!-- Carrega o facilitiesMap (se necessário) -->
+  <!-- Carrega o facilitiesMap -->
   <script src="/js/facilitiesMap.js" defer></script>
 
   <style>
@@ -45,13 +39,11 @@
     body { width: 100%; min-height: 100vh; display: flex; flex-direction: column; background: #f6f8fb; color: #333; }
     ::placeholder { color: #999; opacity: 1; }
 
-    /* Loading Overlay: O conteúdo será carregado via loading.html */
+    /* Loading Overlay: o conteúdo será carregado via loading.html */
     #loading-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: #fff;
       z-index: 9999;
       display: flex;
@@ -62,7 +54,7 @@
     /* Oculta o conteúdo principal até que tudo esteja carregado */
     #hotelDetail { display: none; }
 
-    /* Exemplo de alguns estilos do layout (HERO, SEARCH CONTAINER, etc.) */
+    /* HERO */
     .hero {
       width: 100%; min-height: 50vh;
       background: linear-gradient(to bottom right, #0e65e0, #1f3070);
@@ -72,6 +64,7 @@
     .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; }
     .hero p { font-size: 1.1rem; opacity: 0.9; }
 
+    /* SEARCH CONTAINER */
     .search-container {
       position: relative; width: 90%; max-width: 1200px;
       margin: -4rem auto 2rem auto; background: #fff;
@@ -88,15 +81,16 @@
     .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Outras partes do CSS... */
-    /* (Inclua aqui o restante do seu CSS conforme necessário) */
+    /* (Inclua o restante do CSS do seu layout conforme necessário, como formulários, dropdowns, hotel cards etc.) */
+    /* Para manter o exemplo enxuto, os estilos a seguir são apenas exemplares. */
+    .hotels-list { margin-top: 1rem; }
   </style>
 </head>
 <body>
-  <!-- Loading Overlay (será preenchido via loading.html) -->
+  <!-- Loading Overlay: será substituído pelo conteúdo de loading.html -->
   <div id="loading-overlay"></div>
 
-  <!-- Header via Web Component -->
+  <!-- Header: o componente <app-header> é importado e registrado via header-component.js -->
   <app-header></app-header>
 
   <!-- HERO -->
@@ -156,6 +150,7 @@
         <div class="form-field">
           <label for="quartos">Quartos e Pessoas</label>
           <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
+          <!-- Dropdown para quartos -->
           <div id="quartosDropdown" class="quartos-dropdown">
             <div class="qd-row">
               <span>Quartos</span>
@@ -188,7 +183,7 @@
     </div>
   </div>
 
-  <!-- SEÇÃO DE RESULTADOS -->
+  <!-- SEÇÃO DE RESULTADOS (CARDS) -->
   <section id="hotelResults">
     <div id="status"></div>
     <div id="hotelsList" class="hotels-list"></div>
@@ -240,7 +235,7 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 
-  <!-- JavaScript da página de listagem -->
+  <!-- JavaScript da Página -->
   <script>
     /***********************************************
     * A) TABS + FLATPICKR
@@ -371,7 +366,7 @@
     renderRooms();
   
     /***********************************************
-    * C) CRIAÇÃO DE CARD + OUTRAS FUNÇÕES (Exemplo)
+    * C) CRIAÇÃO DE CARD + FUNÇÕES
     ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -397,27 +392,31 @@
       const r = Math.round(hotelData.ratingStars || 0);
       for (let i = 1; i <= 5; i++) {
         const star = document.createElement('i');
-        if (i <= r) star.classList.add('fas', 'fa-star'); else star.classList.add('far', 'fa-star', 'empty');
+        if (i <= r) star.classList.add('fas', 'fa-star'); 
+        else star.classList.add('far', 'fa-star', 'empty');
         starEl.appendChild(star);
       }
       clone.querySelector(".rating-value").textContent = hotelData.ratingValue || "";
       let facArr = hotelData.facilities || [];
       facArr.sort((a, b) => {
-        if (a === b) return 0;
         const aIndex = priorityFacilities.findIndex(p => a.toLowerCase().includes(p.toLowerCase()));
         const bIndex = priorityFacilities.findIndex(p => b.toLowerCase().includes(p.toLowerCase()));
-        if (aIndex === -1 && bIndex === -1) return 0; if (aIndex === -1) return 1; if (bIndex === -1) return -1;
+        if (aIndex === -1 && bIndex === -1) return 0;
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
         return aIndex - bIndex;
       });
       facArr = facArr.slice(0, 3);
       const facDiv = clone.querySelector(".facility-icons");
       facArr.forEach(f => {
-        if (!window.facilitiesMap) return;
         let foundKey = null;
-        if (window.facilitiesMap[f]) { foundKey = f; }
-        else {
+        if (window.facilitiesMap && window.facilitiesMap[f]) { 
+          foundKey = f; 
+        } else if (window.facilitiesMap) {
           for (const k in window.facilitiesMap) {
-            if (f.toLowerCase().includes(k.toLowerCase())) { foundKey = k; break; }
+            if (f.toLowerCase().includes(k.toLowerCase())) { 
+              foundKey = k; break; 
+            }
           }
         }
         const iconDiv = document.createElement('div');
@@ -462,13 +461,11 @@
       }
       prevBtn.addEventListener('click', () => {
         const slides = track.querySelectorAll('.carousel-slide');
-        if (!slides.length) return;
         currentSlide = (currentSlide - 1 + slides.length) % slides.length;
         updateCarousel();
       });
       nextBtn.addEventListener('click', () => {
         const slides = track.querySelectorAll('.carousel-slide');
-        if (!slides.length) return;
         currentSlide = (currentSlide + 1) % slides.length;
         updateCarousel();
       });
@@ -477,7 +474,7 @@
     }
   
     /***********************************************
-    * D) EVENTO PARA ENVIAR OS DADOS CORRETOS PARA A PÁGINA DE DETALHES
+    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
     ***********************************************/
     document.addEventListener("click", function(e) {
       const btn = e.target.closest(".btn-options, .select-room-button");
@@ -518,7 +515,7 @@
     });
   
     /***********************************************
-    * E) FUNÇÕES PARA A LISTAGEM (BUSCAR HOTÉIS, PAGINAÇÃO, ETC.) – EXEMPLO
+    * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
     ***********************************************/
     async function buscarHoteis() {
       const destination  = document.getElementById('destinoHoteis')?.value || 'MCO';
@@ -614,7 +611,10 @@
             const d1 = parseDmy(checkIn);
             const d2 = parseDmy(checkOut);
             const ms = d2 - d1;
-            if (ms > 0) { const diffDays = Math.round(ms / (1000 * 60 * 60 * 24)); daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`; }
+            if (ms > 0) { 
+              const diffDays = Math.round(ms / (1000 * 60 * 60 * 24));
+              daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
+            }
           }
   
           const hotelObj = {
@@ -677,7 +677,7 @@
         .catch(err => console.error("Erro ao carregar loading.html:", err));
     });
   
-    // Exibe o conteúdo principal após o evento "load" e renderização completa
+    // Exibe o conteúdo principal após o evento "load", fontes prontas e a próxima frame renderizada
     window.addEventListener("load", function() {
       Promise.all([document.fonts.ready]).then(() => {
         requestAnimationFrame(() => {
