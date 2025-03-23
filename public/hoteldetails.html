@@ -24,7 +24,34 @@
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
   
+  <!-- Módulo de Loading: loacomp.js (implementado inline para este exemplo) -->
+  <script defer>
+    window.addEventListener('load', function() {
+      const loading = document.getElementById('loading');
+      if (loading) {
+        // Você pode optar por remover o elemento ou apenas escondê-lo
+        loading.style.display = 'none';
+      }
+    });
+  </script>
+  
   <style>
+    /* Estilo do Loading */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5em;
+      color: #333;
+    }
+    
     /* RESET e estilos básicos */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background-color: #f0f2f5; color: #333; line-height: 1.6; }
@@ -213,6 +240,11 @@
   </style>
 </head>
 <body>
+  <!-- Elemento de Loading -->
+  <div id="loading">
+    <p>Carregando...</p>
+  </div>
+
   <!-- HEADER: Carregado via fetch -->
   <app-header></app-header>
 
