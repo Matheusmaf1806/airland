@@ -1,4 +1,8 @@
 (function() {
+  // Impede que rode múltiplas vezes
+  if (window.__loacompInitialized) return;
+  window.__loacompInitialized = true;
+
   // --- INJEÇÃO DO CSS ---
   var css = `
 /* Reset básico */
@@ -15,22 +19,29 @@ body {
   color: #2e2e2f;
 }
 
-/* Container geral para organizar o loader em cima e o card embaixo */
+/* Container overlay cobrindo a tela */
 .loading-container {
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 9999;
+
+  /* Alinhamento em coluna (loader + card) */
   display: flex;
-  flex-direction: column; /* Empilha o loader e o card verticalmente */
-  align-items: center;    /* Centraliza horizontalmente */
-  justify-content: flex-start; /* Alinhar ao topo */
-  max-width: 1200px;     /* Maior largura para preencher mais a tela */
-  margin: 0 auto;        /* Centraliza no meio da página */
-  padding: 2rem;         /* Espaço interno se desejar */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Centraliza verticalmente */
+  padding: 2rem;
 }
 
 /*************************************************
- * LOADER (Bloco superior, sem alterações)
+ * LOADER (com pontinhos pulsantes)
  *************************************************/
 .loader {
-  width: 420px;          /* Um pouco maior que 320px */
+  width: 420px;
   min-height: 180px;
   border-radius: 10px;
   display: flex;
@@ -61,15 +72,9 @@ body {
 }
 
 /* Delays diferentes para cada pontinho */
-.dot:nth-child(1) {
-  animation-delay: -0.3s;
-}
-.dot:nth-child(2) {
-  animation-delay: -0.1s;
-}
-.dot:nth-child(3) {
-  animation-delay: 0.1s;
-}
+.dot:nth-child(1) { animation-delay: -0.3s; }
+.dot:nth-child(2) { animation-delay: -0.1s; }
+.dot:nth-child(3) { animation-delay: 0.1s; }
 
 @keyframes pulse {
   0% {
@@ -120,7 +125,7 @@ body {
   border-radius: 8px;
   box-shadow: rgba(99, 99, 99, 0.1) 0px 2px 8px 0px;
   border: 3px dashed transparent;
-  max-width: 500px;  /* Aumentamos para 500px */
+  max-width: 500px;
   width: 100%;
   margin-bottom: 1rem;
 }
@@ -158,7 +163,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem; /* Espaço entre o título e a imagem */
+  margin-bottom: 1rem;
 }
 
 .options {
@@ -220,23 +225,26 @@ body {
   stroke: #fff;
 }
   `;
+
+  // Injeta o <style> no <head>
   var style = document.createElement("style");
   style.type = "text/css";
   style.appendChild(document.createTextNode(css));
   document.head.appendChild(style);
 
   // --- CRIAÇÃO DA ESTRUTURA HTML ---
-  // Cria o elemento para o header externo
+
+  // 1) Cria o elemento para o header externo
   var headerDiv = document.createElement("div");
   headerDiv.id = "externalHeader";
   document.body.appendChild(headerDiv);
 
-  // Cria o container principal de loading
+  // 2) Cria o container principal (overlay) que ocupará a tela
   var loadingContainer = document.createElement("div");
   loadingContainer.className = "loading-container";
   document.body.appendChild(loadingContainer);
 
-  // Cria o bloco do loader
+  // 3) Cria o bloco do loader
   var loader = document.createElement("div");
   loader.className = "loader";
   loader.innerHTML = `
@@ -252,24 +260,18 @@ body {
   `;
   loadingContainer.appendChild(loader);
 
-  // Cria o container para o card aleatório
+  // 4) Cria o container para o card aleatório (logo abaixo do loader)
   var randomCardContainer = document.createElement("div");
   randomCardContainer.id = "randomCardContainer";
   loadingContainer.appendChild(randomCardContainer);
 
-  // --- CARREGA O HEADER EXTERNO ---
-  // Alteração: agora importamos de "header-component.js" em vez de "header.html"
-  fetch("https://business.airland.com.br/header-component.js")
-    .then(function(resp) { return resp.text(); })
-    .then(function(html) {
-      document.getElementById("externalHeader").innerHTML = html;
-    })
-    .catch(function(err) {
-      console.error("Erro ao carregar header externa:", err);
-    });
+  // 5) Carrega o header externo via <script> (caso seja mesmo JS)
+  const script = document.createElement('script');
+  script.src = 'https://business.airland.com.br/js/header-component.js';
+  document.head.appendChild(script);
 
   /**************************************************************
-   * DEFINIÇÃO DOS 4 ITENS (com o HTML original que você passou)
+   * DEFINIÇÃO DOS 4 ITENS (Cards) - Copiados integralmente
    **************************************************************/
 
   /* ITEM 01 */
@@ -303,16 +305,16 @@ body {
           </svg>
         </button>
       </div>
-  
+
       <img 
         src="https://www.vaipradisney.com/blog/wp-content/uploads/2024/08/WDW_Monsters_Street-View-2048x1180-1-780x449.jpg"
         alt="Banner da Magic Travel"
       >
-  
+    
       <p>
         No Hollywood Studios uma nova área de “Monstros S.A”, que será inspirada na cidade fictícia do filme, Monstrópolis. Uma montanha-russa suspensa também será inaugurada pela primeira vez, com portas penduradas, assim como nas cenas da animação.
       </p>
-  
+    
       <div class="stats">
         <div>
           <div>
@@ -355,7 +357,7 @@ body {
             7
           </div>
         </div>
-  
+    
         <div class="viewer">
           <span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -376,8 +378,8 @@ body {
         </div>
       </div>
     </div>
-  `; // FIM ITEM 01
-  
+  `;
+
   /* ITEM 02 (TROPICAL AMERICAS) */
   var item2 = `
     <div class="task" draggable="true">
@@ -448,8 +450,8 @@ body {
         </div>
       </div>
     </div>
-  `; // FIM ITEM 02
-  
+  `;
+
   /* ITEM 03 (CARROS NO MAGIC KINGDOM) */
   var item3 = `
     <div class="task" draggable="true">
@@ -520,8 +522,8 @@ body {
         </div>
       </div>
     </div>
-  `; // FIM ITEM 03
-  
+  `;
+
   /* ITEM 04 (CURIOSIDADE DISNEY - EPIC UNIVERSE) */
   var item4 = `
     <div class="task" draggable="true">
@@ -593,12 +595,26 @@ body {
         </div>
       </div>
     </div>
-  `; // FIM ITEM 04
-  
-  /*****************************************************************
-   * Seleciona aleatoriamente um card e injeta no container
-   *****************************************************************/
+  `;
+
+  // Seleciona aleatoriamente um card e injeta no container
   var items = [item1, item2, item3, item4];
   var randomIndex = Math.floor(Math.random() * items.length);
-  document.getElementById("randomCardContainer").innerHTML = items[randomIndex];
+  randomCardContainer.innerHTML = items[randomIndex];
+
+  // --- Remove ou esconde o loader após o carregamento completo
+  window.addEventListener('load', function() {
+    // Remove apenas o loader, mantendo o card
+    loader.remove();
+
+    // Ajusta o container para não mais ocupar a tela toda
+    loadingContainer.style.position = "static";
+    loadingContainer.style.width = "auto";
+    loadingContainer.style.height = "auto";
+    loadingContainer.style.background = "transparent";
+    loadingContainer.style.zIndex = "auto";
+
+    // Pode trocar para "display:block" ou "flex" normal, para alinhar do jeito que quiser
+    loadingContainer.style.display = "block";
+  });
 })();
