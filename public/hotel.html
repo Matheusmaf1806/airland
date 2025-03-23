@@ -1071,8 +1071,8 @@
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
-     * A) TABS + FLATPICKR
-     ***********************************************/
+    * A) TABS + FLATPICKR
+    ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach((tab) => {
@@ -1090,7 +1090,7 @@
         locale: 'pt',
         dateFormat: 'd/m/Y',
         minDate: 'today',
-        defaultDate: 'today',
+        defaultDate: 'today'
       });
       flatpickr('#dataRangeHoteis', {
         locale: 'pt',
@@ -1098,13 +1098,13 @@
         dateFormat: 'd/m/Y',
         showMonths: 2,
         minDate: 'today',
-        allowInput: true,
+        allowInput: true
       });
     }
 
     /***********************************************
-     * B) DROPDOWN DE QUARTOS E PESSOAS
-     ***********************************************/
+    * B) DROPDOWN DE QUARTOS E PESSOAS
+    ***********************************************/
     const quartosInput = document.getElementById('quartos');
     const dropdown = document.getElementById('quartosDropdown');
     const roomsMinus = document.getElementById('roomsMinus');
@@ -1179,69 +1179,34 @@
           agesDiv.appendChild(sel);
         });
         block.appendChild(agesDiv);
-        adRow.querySelector('.adultPlus').addEventListener('click', () => {
-          room.adults++;
-          renderRooms();
-        });
-        adRow.querySelector('.adultMinus').addEventListener('click', () => {
-          if (room.adults > 1) {
-            room.adults--;
-            renderRooms();
-          }
-        });
-        chRow.querySelector('.childPlus').addEventListener('click', () => {
-          room.children++;
-          room.childAges.push(0);
-          renderRooms();
-        });
-        chRow.querySelector('.childMinus').addEventListener('click', () => {
-          if (room.children > 0) {
-            room.children--;
-            room.childAges.pop();
-            renderRooms();
-          }
-        });
+        adRow.querySelector('.adultPlus').addEventListener('click', () => { room.adults++; renderRooms(); });
+        adRow.querySelector('.adultMinus').addEventListener('click', () => { if (room.adults > 1) { room.adults--; renderRooms(); } });
+        chRow.querySelector('.childPlus').addEventListener('click', () => { room.children++; room.childAges.push(0); renderRooms(); });
+        chRow.querySelector('.childMinus').addEventListener('click', () => { if (room.children > 0) { room.children--; room.childAges.pop(); renderRooms(); } });
         roomsContainer.appendChild(block);
       });
     }
     if (roomsPlus) {
-      roomsPlus.addEventListener('click', () => {
-        roomsData.push({ adults: 2, children: 0, childAges: [] });
-        renderRooms();
-      });
+      roomsPlus.addEventListener('click', () => { roomsData.push({ adults: 2, children: 0, childAges: [] }); renderRooms(); });
     }
     if (roomsMinus) {
-      roomsMinus.addEventListener('click', () => {
-        if (roomsData.length > 1) {
-          roomsData.pop();
-          renderRooms();
-        }
-      });
+      roomsMinus.addEventListener('click', () => { if (roomsData.length > 1) { roomsData.pop(); renderRooms(); } });
     }
     if (applyQuartos) {
       applyQuartos.addEventListener('click', () => {
-        let totalA = 0,
-          totalC = 0;
-        roomsData.forEach((r) => {
-          totalA += r.adults;
-          totalC += r.children;
-        });
-        if (quartosInput) {
-          quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`;
-        }
+        let totalA = 0, totalC = 0;
+        roomsData.forEach((r) => { totalA += r.adults; totalC += r.children; });
+        if (quartosInput) { quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`; }
         if (dropdown) dropdown.classList.remove('active');
       });
     }
     renderRooms();
 
     /***********************************************
-     * C) CRIAÇÃO DE CARD E FUNÇÕES
-     ***********************************************/
+    * C) CRIAÇÃO DE CARD E FUNÇÕES
+    ***********************************************/
     function formatPriceBRL(value) {
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }).format(value);
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
     const priorityFacilities = ['Wi-fi', 'Gym', 'Pool', 'Parking'];
     function convertDistanceToKm(distStr) {
@@ -1349,8 +1314,8 @@
     }
 
     /***********************************************
-     * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
-     ***********************************************/
+    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
+    ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
       if (!btn) return;
@@ -1389,8 +1354,8 @@
     });
 
     /***********************************************
-     * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
-     ***********************************************/
+    * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
+    ***********************************************/
     async function buscarHoteis() {
       const destination = document.getElementById('destinoHoteis')?.value || 'MCO';
       const range = document.getElementById('dataRangeHoteis')?.value || '';
@@ -1444,7 +1409,26 @@
           throw new Error('Booking API Error: ' + bookingResp.status);
         }
         const bookingData = await bookingResp.json();
-        const hotelsArr = bookingData.hotels?.hotels || [];
+        let hotelsArr = bookingData.hotels?.hotels || [];
+
+        // Filtrar por nome da propriedade (campo "propertyName")
+        const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
+        if (propertyNameFilter) {
+          hotelsArr = hotelsArr.filter(hotel => hotel.name.toLowerCase().includes(propertyNameFilter));
+        }
+
+        // Filtrar por estrelas utilizando categoryName (ex: "3 STARS AND A HALF" => 3)
+        const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
+        const selectedStars = Array.from(starCheckboxes)
+          .filter(cb => cb.checked)
+          .map(cb => parseInt(cb.value, 10));
+        if (selectedStars.length > 0) {
+          hotelsArr = hotelsArr.filter(hotel => {
+            if (!hotel.categoryName) return false;
+            const stars = parseInt(hotel.categoryName, 10);
+            return selectedStars.includes(stars);
+          });
+        }
 
         if (!hotelsArr.length) {
           if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
@@ -1453,85 +1437,83 @@
         if (statusEl) statusEl.style.display = 'none';
 
         for (const hotel of hotelsArr) {
-        const code = hotel.code;
-        const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
-        if (!contentResp.ok) {
-          console.warn('Falha ao buscar content do hotel:', code);
-          continue;
-        }
-        const contentData = await contentResp.json();
-        const content = contentData?.hotel || {};
-        const name = content.name?.content || hotel.name || 'Sem Nome';
-        const street = content.address?.street || '';
-        const city = content.city?.content || '';
-        let addressFull = street;
-        if (city) {
-          addressFull += addressFull ? `, ${city}` : city;
-        }
-        let ratingNum = 0;
-        if (hotel.categoryCode) {
-          const mm = hotel.categoryCode.match(/\d+/);
-          if (mm) ratingNum = parseInt(mm[0], 10);
-        } else if (hotel.categoryName) {
-          const mm2 = hotel.categoryName.match(/\d+(\.\d+)?/);
-          if (mm2) ratingNum = parseFloat(mm2[0]);
-        }
-        if (!ratingNum) ratingNum = 3;
-        let priceLabel = 'A partir de R$ ???';
-        if (hotel.minRate != null) {
-          const pr = parseFloat(hotel.minRate);
-          if (!isNaN(pr)) {
-            priceLabel = 'A partir de ' + formatPriceBRL(pr);
+          const code = hotel.code;
+          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
+          if (!contentResp.ok) {
+            console.warn('Falha ao buscar content do hotel:', code);
+            continue;
           }
-        }
-        let facArr = (content.facilities || []).map((f) => f.description?.content || '');
-        let poiArr = [];
-        if (content.interestPoints?.length) {
-          poiArr = content.interestPoints.map((ip) => ({
-            poiName: ip.poiName || 'Ponto de Interesse',
-            distance: ip.distance || '0',
-          }));
-        }
-        let imagesArr = [];
-        if (content.images?.length) {
-          const roomImgs = content.images.filter((img) => img.type?.code === 'HAB');
-          const arr = roomImgs.length ? roomImgs : content.images;
-          imagesArr = arr.map((img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
-        } else {
-          imagesArr = [
-            'https://dummyimage.com/300x200/ccc/000.png&text=No+Image',
-          ];
-        }
-        let daysNightsLabel = '';
-        if (checkIn && checkOut) {
-          const parseDmy = (dmy) => {
-            const [D, M, A] = dmy.split('/');
-            return new Date(+A, +M - 1, +D);
+          const contentData = await contentResp.json();
+          const content = contentData?.hotel || {};
+          const name = content.name?.content || hotel.name || 'Sem Nome';
+          const street = content.address?.street || '';
+          const city = content.city?.content || '';
+          let addressFull = street;
+          if (city) {
+            addressFull += addressFull ? `, ${city}` : city;
+          }
+          let ratingNum = 0;
+          if (hotel.categoryCode) {
+            const mm = hotel.categoryCode.match(/\d+/);
+            if (mm) ratingNum = parseInt(mm[0], 10);
+          } else if (hotel.categoryName) {
+            const mm2 = hotel.categoryName.match(/\d+(\.\d+)?/);
+            if (mm2) ratingNum = parseFloat(mm2[0]);
+          }
+          if (!ratingNum) ratingNum = 3;
+          let priceLabel = 'A partir de R$ ???';
+          if (hotel.minRate != null) {
+            const pr = parseFloat(hotel.minRate);
+            if (!isNaN(pr)) {
+              priceLabel = 'A partir de ' + formatPriceBRL(pr);
+            }
+          }
+          let facArr = (content.facilities || []).map((f) => f.description?.content || '');
+          let poiArr = [];
+          if (content.interestPoints?.length) {
+            poiArr = content.interestPoints.map((ip) => ({
+              poiName: ip.poiName || 'Ponto de Interesse',
+              distance: ip.distance || '0',
+            }));
+          }
+          let imagesArr = [];
+          if (content.images?.length) {
+            const roomImgs = content.images.filter((img) => img.type?.code === 'HAB');
+            const arr = roomImgs.length ? roomImgs : content.images;
+            imagesArr = arr.map((img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
+          } else {
+            imagesArr = ['https://dummyimage.com/300x200/ccc/000.png&text=No+Image'];
+          }
+          let daysNightsLabel = '';
+          if (checkIn && checkOut) {
+            const parseDmy = (dmy) => {
+              const [D, M, A] = dmy.split('/');
+              return new Date(+A, +M - 1, +D);
+            };
+            const d1 = parseDmy(checkIn);
+            const d2 = parseDmy(checkOut);
+            const ms = d2 - d1;
+            if (ms > 0) {
+              const diffDays = Math.round(ms / (1000 * 60 * 60 * 24));
+              daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
+            }
+          }
+          const hotelObj = {
+            code: code,
+            name: name,
+            address: addressFull,
+            ratingStars: ratingNum,
+            ratingValue: ratingNum.toString(),
+            images: imagesArr,
+            daysNights: daysNightsLabel,
+            priceFrom: priceLabel,
+            installments: 'Até 10x sem juros',
+            facilities: facArr,
+            poiList: poiArr,
           };
-          const d1 = parseDmy(checkIn);
-          const d2 = parseDmy(checkOut);
-          const ms = d2 - d1;
-          if (ms > 0) {
-            const diffDays = Math.round(ms / (1000 * 60 * 60 * 24));
-            daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
-          }
+          const cardEl = createHotelCard(hotelObj);
+          hotelsListEl?.appendChild(cardEl);
         }
-        const hotelObj = {
-          code: code,
-          name: name,
-          address: addressFull,
-          ratingStars: ratingNum,
-          ratingValue: ratingNum.toString(),
-          images: imagesArr,
-          daysNights: daysNightsLabel,
-          priceFrom: priceLabel,
-          installments: 'Até 10x sem juros',
-          facilities: facArr,
-          poiList: poiArr,
-        };
-        const cardEl = createHotelCard(hotelObj);
-        hotelsListEl?.appendChild(cardEl);
-      }
       } catch (e) {
         console.error(e);
         if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
@@ -1558,29 +1540,29 @@
       const [d, m, a] = dateStr.split('/');
       return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
-    
+
     /***********************************************
-     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS
-     * O painel inicia oculto e só é exibido após o clique em "Buscar Hotéis"
-     ***********************************************/
+    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS
+    * O painel inicia oculto e só é exibido após o clique em "Buscar Hotéis"
+    ***********************************************/
     function showFiltersPanel() {
       const panel = document.getElementById('filtersPanel');
       // Remove a classe "hidden" e adiciona "visible" para acionar a animação
       panel.classList.remove('hidden');
       panel.classList.add('visible');
     }
-    
+
     /***********************************************
-     * TOGGLE DE FILTROS NO MOBILE
-     ***********************************************/
+    * TOGGLE DE FILTROS NO MOBILE
+    ***********************************************/
     function toggleFilters() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.toggle('active');
     }
-    
+
     /***********************************************
-     * Otimização: Exibe o conteúdo somente após o carregamento completo
-     ***********************************************/
+    * Otimização: Exibe o conteúdo somente após o carregamento completo
+    ***********************************************/
     // Carrega o conteúdo de "loading.html" para o overlay
     document.addEventListener('DOMContentLoaded', function () {
       fetch('loading.html')
@@ -1593,7 +1575,7 @@
         })
         .catch((err) => console.error('Erro ao carregar loading.html:', err));
     });
-    
+
     // Exibe o conteúdo principal após o evento "load", fontes prontas e a próxima frame renderizada
     window.addEventListener('load', function () {
       Promise.all([document.fonts.ready]).then(() => {
