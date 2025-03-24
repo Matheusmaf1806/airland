@@ -5,7 +5,7 @@
   <title>Trip.com - Checkout (2 colunas)</title>
   <style>
     /* ----------------------------------------------------------------------------
-      IMPORTANDO FONTE (Poppins ou Arial, conforme preferência)
+      IMPORTANDO FONTE (Poppins ou Arial)
     ---------------------------------------------------------------------------- */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
@@ -124,14 +124,14 @@
       min-width: 0; /* evita estouro em flex */
     }
 
-    /* COLUNA DIREITA (DETALHES DO PREÇO) */
+    /* COLUNA DIREITA (BRINDES DISPONÍVEIS) */
     .right-col {
-      width: 400px; /* ajuste conforme desejar */
+      width: 320px; /* ajuste conforme desejar */
       flex-shrink: 0;
     }
 
     /* ----------------------------------------------------------------------------
-      CONTEÚDO DA ESQUERDA (VOOS, SALAS VIP, PASSAGEIROS)
+      CONTEÚDO DA ESQUERDA (EXEMPLOS DE SEÇÕES)
     ---------------------------------------------------------------------------- */
     .section {
       background-color: #fff;
@@ -155,13 +155,69 @@
       margin-bottom: 1rem;
     }
 
-    /* Voos */
-    .flight-info h2 {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 0.3rem;
+    /* ----------------------------------------------------------------------------
+      BRINDE DISPONÍVEL (COLUNA DIREITA)
+    ---------------------------------------------------------------------------- */
+    .brindes-section {
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
+    .brindes-section h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .brinde-item {
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 0.5rem;
+    }
+
+    .brinde-item:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .brinde-category,
+    .brinde-name,
+    .brinde-info {
+      font-size: 0.85rem;
+      color: var(--color-text);
+      margin: 2px 0;
+    }
+
+    .brinde-category {
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .brinde-name {
+      color: var(--color-subtext);
+    }
+
+    .brinde-info {
+      color: var(--color-subtext-light);
+    }
+
+    .brindes-total {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-secondary);
+      text-align: right;
+    }
+
+    /* ----------------------------------------------------------------------------
+      EXEMPLO DE SEÇÃO: VOOS, SALAS VIP, FORM PASSAGEIROS
+    ---------------------------------------------------------------------------- */
     .flight-subinfo {
       font-size: 0.9rem;
       color: var(--color-subtext-light);
@@ -199,92 +255,13 @@
       font-weight: 600;
     }
 
-    /* Salas VIP */
-    .vip-item {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      padding: 0.8rem;
-      margin-bottom: 0.8rem;
-      background-color: #fff;
-      transition: box-shadow var(--transition-speed);
-    }
-
-    .vip-item:hover {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    .vip-img {
-      width: 100px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid var(--color-border);
-    }
-
-    .vip-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      flex: 1;
-    }
-
-    .vip-badge {
-      display: inline-block;
-      background-color: var(--color-primary);
-      color: #fff;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    .vip-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--color-text);
-    }
-
-    .vip-price {
-      font-size: 0.9rem;
-      color: var(--color-primary);
-      font-weight: 500;
-    }
-
-    .vip-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.3rem;
-    }
-
-    .vip-details {
-      font-size: 0.8rem;
-      color: var(--color-subtext-light);
-      text-decoration: none;
-      transition: color var(--transition-speed);
-    }
-
-    .vip-details:hover {
-      color: var(--color-primary-dark);
-    }
-
-    .btn-add {
-      background-color: var(--color-primary);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: background-color var(--transition-speed);
-    }
-
-    .btn-add:hover {
-      background-color: var(--color-primary-dark);
-    }
-
     /* Formulário de passageiros */
+    .passenger-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
     .form-row {
       display: flex;
       flex-direction: column;
@@ -314,12 +291,6 @@
       border-color: var(--color-primary);
     }
 
-    .passenger-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
     .info-text {
       font-size: 0.75rem;
       color: var(--color-subtext-light);
@@ -341,49 +312,6 @@
 
     .btn-save:hover {
       background-color: var(--color-primary-dark);
-    }
-
-    .add-passenger-link {
-      font-size: 0.8rem;
-      color: var(--color-primary);
-      text-decoration: none;
-      margin-left: 1rem;
-    }
-
-    .add-passenger-link:hover {
-      text-decoration: underline;
-    }
-
-    /* ----------------------------------------------------------------------------
-      COLUNA DIREITA: DETALHES DO PREÇO
-    ---------------------------------------------------------------------------- */
-    .price-section {
-      background-color: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .price-section h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
-      font-weight: 600;
-    }
-
-    .price-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
-
-    .price-total {
-      margin-top: 0.8rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--color-secondary);
     }
 
     /* ----------------------------------------------------------------------------
@@ -411,7 +339,6 @@
         width: 100%;
       }
     }
-
   </style>
 </head>
 <body>
@@ -438,39 +365,41 @@
   <!-- Container principal em 2 colunas -->
   <div class="main-container">
 
-    <!-- Coluna Esquerda -->
+    <!-- Coluna Esquerda (Exemplo de Conteúdo) -->
     <div class="left-col">
-      <!-- Formulário: Quem vai viajar? -->
+
+      <!-- Exemplo: Informações de voo -->
+      <div class="section">
+        <h2>Viagem para Bangcoc</h2>
+        <p class="flight-subinfo">qui, 13 mar | Duração: 7h 25m</p>
+        <div class="flight-block">
+          <div class="flight-time">17:35</div>
+          <span class="flight-airport">Narita International Airport T1</span>
+          <span class="flight-arrow">→</span>
+          <div class="flight-time">23:00</div>
+          <span class="flight-airport highlight-orange">Suvarnabhumi Airport</span>
+        </div>
+        <p class="flight-subinfo">sab, 15 mar | Duração: 6h 5m</p>
+        <div class="flight-block">
+          <div class="flight-time">11:55</div>
+          <span class="flight-airport">Don Mueang Int. Airport T1</span>
+          <span class="flight-arrow">→</span>
+          <div class="flight-time">20:00</div>
+          <span class="flight-airport">Narita International Airport T1</span>
+        </div>
+        <div class="flight-airport" style="margin-left: 50px;">
+          <span class="highlight-orange">AirAsia X X000 | 3850 Econômica</span>
+        </div>
+      </div>
+
+      <!-- Exemplo: Salas VIP -->
       <div class="section">
         <h2>Salas VIP</h2>
         <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
-
-        <div class="vip-item">
-          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
-          <div class="vip-info">
-            <span class="vip-badge">Ida</span>
-            <span class="vip-title">Tóquio Narita International Airport T1 IASS Executive Lounge</span>
-            <span class="vip-price">R$ 119,00 /pessoa</span>
-            <div class="vip-actions">
-              <a href="#" class="vip-details">Detalhes</a>
-              <button class="btn-add">Adicionar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="vip-item">
-          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
-          <div class="vip-info">
-            <span class="vip-badge">Volta</span>
-            <span class="vip-title">Bangcoc Don Mueang Int. Airport T1 Miracle Lounge (T1 - Level 3)</span>
-            <span class="vip-price">R$ 145,13 /pessoa</span>
-            <div class="vip-actions">
-              <a href="#" class="vip-details">Detalhes</a>
-              <button class="btn-add">Adicionar</button>
-            </div>
-          </div>
-        </div>
+        <!-- Conteúdo de salas VIP... -->
       </div>
+
+      <!-- Exemplo: Formulário de passageiros -->
       <div class="section">
         <h2>Quem vai viajar?</h2>
         <p style="font-size:0.8rem; color: var(--color-primary); text-align:right; cursor:pointer;">
@@ -524,44 +453,38 @@
             Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
           </p>
           <button class="btn-save">Salvar</button>
-          <a href="#" class="add-passenger-link">Adicionar passageiros</a>
         </form>
       </div>
-      <!-- Salas VIP -->
     </div>
 
-    <!-- Coluna Direita (Detalhes do preço) -->
+    <!-- Coluna Direita (Brindes Disponíveis) -->
     <div class="right-col">
-      <div class="price-section">
-        <h3>Detalhes do preço</h3>
-        <div class="price-item">
-          <span>Passagem (1 adulto)</span>
-          <span>Grátis</span>
+      <div class="brindes-section">
+        <h3>Brindes Disponíveis</h3>
+        
+        <!-- Brinde 1: Chip de Celular -->
+        <div class="brinde-item">
+          <span class="brinde-category">Categoria: Chip de Celular</span>
+          <span class="brinde-name">Nome: Vivo 10GB</span>
+          <span class="brinde-info">qui, 13 mar | Adultos: 1 | Crianças: 0</span>
         </div>
-        <div class="price-item">
-          <span>Bagagem</span>
-          <span>Grátis</span>
+
+        <!-- Brinde 2: Copo da Universal -->
+        <div class="brinde-item">
+          <span class="brinde-category">Categoria: Copo da Universal</span>
+          <span class="brinde-name">Nome: Copo do Harry Potter</span>
+          <span class="brinde-info">sab, 15 mar | Adultos: 2 | Crianças: 1</span>
         </div>
-        <div class="price-item">
-          <span>Bagagem de mão</span>
-          <span>Grátis</span>
-        </div>
-        <div class="price-item">
-          <span>Bagagem despachada</span>
-          <span>Não incluso</span>
-        </div>
-        <div class="price-item">
-          <span>Serviços</span>
-          <span>Incluído</span>
-        </div>
-        <div class="price-total">R$ 3.013,84</div>
+
+        <!-- Exemplo de um total ao final (opcional) -->
+        <div class="brindes-total">R$ 3.013,84</div>
       </div>
     </div>
   </div>
 
   <!-- Rodapé -->
   <footer>
-    © 2025 - Checkout Trip.com (2 colunas)
+    © 2025 - Checkout Trip.com (Brindes Disponíveis)
   </footer>
 
 </body>
