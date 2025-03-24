@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Trip.com - Checkout Completo</title>
+  <title>Trip.com - Checkout Profissional</title>
   <style>
     /* IMPORTAÇÃO DE FONTE – Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* RESET */
+    /* RESET E CONFIGURAÇÕES BASE */
     * {
       margin: 0;
       padding: 0;
@@ -19,14 +19,12 @@
       color: #333;
       line-height: 1.6;
     }
-
-    /* VARIÁVEIS */
     :root {
       --color-primary: #007aff;
       --color-primary-dark: #005dbf;
       --color-secondary: #ff9900;
       --color-bg: #ffffff;
-      --color-border: #eee;
+      --color-border: #e0e0e0;
       --color-text: #333;
       --color-subtext: #666;
       --color-subtext-light: #888;
@@ -35,23 +33,23 @@
       --header-height: 64px;
     }
 
-    /* HEADER */
-    .top-bar {
+    /* HEADER – BARRA SUPERIOR */
+    header.top-bar {
       width: 100%;
       height: var(--header-height);
       background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      padding: 1rem 5%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 5%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .top-bar .logo {
-      font-size: 1.8rem;
+    header.top-bar .logo {
+      font-size: 2rem;
       color: #fff;
       font-weight: 600;
     }
-    .top-bar .nav-links a {
+    header.top-bar .nav-links a {
       color: #fff;
       margin-left: 1.5rem;
       font-size: 1rem;
@@ -60,12 +58,12 @@
       position: relative;
       padding-left: 24px;
     }
-    .top-bar .nav-links a:hover {
+    header.top-bar .nav-links a:hover {
       opacity: 0.85;
     }
-    /* Pseudo-ícones para links */
-    .top-bar .nav-links a[href*="Ajuda"]::before,
-    .top-bar .nav-links a[href*="Entrar"]::before {
+    /* Ícones via pseudo-elementos */
+    header.top-bar .nav-links a[href*="Ajuda"]::before,
+    header.top-bar .nav-links a[href*="Entrar"]::before {
       content: "";
       position: absolute;
       left: 0;
@@ -76,32 +74,32 @@
       background-size: cover;
       background-repeat: no-repeat;
     }
-    .top-bar .nav-links a[href*="Ajuda"]::before {
+    header.top-bar .nav-links a[href*="Ajuda"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-.25 17h-.5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h.5c.41 0 .75.34.75.75s-.34.75-.75.75zm1.74-5.48c-.44.36-.74.61-.74 1.23v.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-.25c0-1.16.77-1.75 1.24-2.11.43-.33.76-.58.76-1.14 0-.66-.54-1.2-1.2-1.2s-1.2.54-1.2 1.2c0 .41-.34.75-.75.75s-.75-.34-.75-.75c0-1.51 1.24-2.75 2.75-2.75S14 9.74 14 11.25c0 .99-.53 1.52-1.51 2.27z"%3E%3C/path%3E%3C/svg%3E');
     }
-    .top-bar .nav-links a[href*="Entrar"]::before {
+    header.top-bar .nav-links a[href*="Entrar"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 12c2.7 0 4.88-2.2 4.88-4.88S14.7 2.24 12 2.24c-2.7 0-4.88 2.2-4.88 4.88S9.3 12 12 12zm6.65 1.3c-.44-.11-.85-.37-1.16-.72-.79-.91-1.94-1.44-3.24-1.44h-4.7c-1.3 0-2.45.53-3.24 1.44-.31.35-.72.61-1.16.72C4.48 13.37 4 14.04 4 14.78v1.72c0 .97.79 1.76 1.76 1.76h12.48c.97 0 1.76-.79 1.76-1.76v-1.72c0-.74-.48-1.41-1.35-1.48z"%3E%3C/path%3E%3C/svg%3E');
     }
 
-    /* PASSOS – Etapas */
+    /* PASSOS – Etapas com círculos */
     .steps {
       width: 90%;
       max-width: var(--max-width);
-      margin: 1rem auto;
+      margin: 1.5rem auto;
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
+      gap: 2rem;
     }
     .step {
       display: flex;
       flex-direction: column;
       align-items: center;
       font-size: 1rem;
-      color: #666;
+      color: var(--color-subtext);
     }
     .step .circle {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #ccc;
       margin-bottom: 0.5rem;
@@ -114,20 +112,28 @@
       color: var(--color-primary);
     }
 
-    /* CONTAINER PRINCIPAL – 2 COLUNAS */
+    /* MAIN CONTAINER – USANDO CSS GRID (assimétrico) */
     .main-container {
       width: 90%;
       max-width: var(--max-width);
       margin: 2rem auto;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 350px;
       gap: 2rem;
     }
+
+    /* COLUNA ESQUERDA */
     .left-col {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
+
+    /* COLUNA DIREITA */
     .right-col {
-      width: 400px;
-      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
 
     /* CARD BASE */
@@ -136,7 +142,6 @@
       border-radius: 8px;
       padding: 1.5rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
     }
 
     /* SALAS VIP – Left Column */
@@ -144,7 +149,7 @@
       display: flex;
       gap: 1rem;
       padding-bottom: 1rem;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--color-border);
       margin-bottom: 1rem;
     }
     .vip-card:last-child {
@@ -156,7 +161,7 @@
       height: 60px;
       object-fit: cover;
       border-radius: 4px;
-      border: 1px solid #eee;
+      border: 1px solid var(--color-border);
     }
     .vip-info {
       display: flex;
@@ -169,12 +174,11 @@
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.7rem;
-      display: inline-block;
     }
     .vip-info .title {
       font-size: 0.9rem;
       font-weight: 600;
-      color: #333;
+      color: var(--color-text);
     }
     .vip-info .price {
       font-size: 0.9rem;
@@ -187,7 +191,7 @@
     }
     .vip-info .actions a {
       font-size: 0.8rem;
-      color: #888;
+      color: var(--color-subtext);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -208,11 +212,11 @@
       background: var(--color-primary-dark);
     }
 
-    /* PASSAGEIROS – Formulário (Left Column) */
+    /* PASSAGEIROS – Formulário */
     .passenger-form h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
-      color: #333;
+      color: var(--color-text);
     }
     .passenger-form .form-grid {
       display: grid;
@@ -222,14 +226,14 @@
     }
     .passenger-form label {
       font-size: 0.8rem;
-      color: #666;
+      color: var(--color-subtext);
       margin-bottom: 0.25rem;
     }
     .passenger-form input,
     .passenger-form select {
       padding: 0.5rem;
       font-size: 0.85rem;
-      border: 1px solid #eee;
+      border: 1px solid var(--color-border);
       border-radius: 4px;
       transition: border 0.2s;
     }
@@ -239,7 +243,7 @@
     }
     .passenger-form .info-text {
       font-size: 0.75rem;
-      color: #888;
+      color: var(--color-subtext-light);
       margin: 0.5rem 0;
     }
     .passenger-form button {
@@ -260,7 +264,7 @@
     .info-reserva-section h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
-      color: #333;
+      color: var(--color-text);
       font-weight: 600;
     }
     .reserva-item {
@@ -268,7 +272,7 @@
       grid-template-columns: 1fr auto;
       gap: 1rem;
       padding: 0.75rem 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--color-border);
       margin-bottom: 0.75rem;
     }
     .reserva-item:last-child {
@@ -287,11 +291,11 @@
     }
     .reserva-left .nome {
       font-size: 0.85rem;
-      color: #333;
+      color: var(--color-text);
     }
     .reserva-left .subinfo {
       font-size: 0.8rem;
-      color: #888;
+      color: var(--color-subtext-light);
     }
     .reserva-preco {
       font-size: 1rem;
@@ -300,16 +304,16 @@
       align-self: center;
     }
 
-    /* BRINDES DISPONÍVEIS – Right Column */
+    /* BRINDES – Right Column (abaixo da Reserva) */
     .brindes-section h3 {
       font-size: 1rem;
       margin-bottom: 1rem;
-      color: #333;
+      color: var(--color-text);
       font-weight: 600;
     }
     .brinde-item {
       padding: 0.75rem 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--color-border);
       margin-bottom: 0.75rem;
     }
     .brinde-item:last-child {
@@ -318,7 +322,7 @@
     }
     .brinde-item span {
       font-size: 0.85rem;
-      color: #333;
+      color: var(--color-text);
       display: block;
       margin: 0.25rem 0;
     }
@@ -330,15 +334,15 @@
       margin: 2rem auto;
       text-align: center;
       font-size: 0.85rem;
-      color: #888;
-      border-top: 1px solid #eee;
+      color: var(--color-subtext-light);
+      border-top: 1px solid var(--color-border);
       padding-top: 1rem;
     }
 
     /* RESPONSIVIDADE */
     @media (max-width: 768px) {
       .main-container {
-        flex-direction: column;
+        grid-template-columns: 1fr;
       }
       .right-col {
         width: 100%;
@@ -359,7 +363,7 @@
     </div>
   </header>
 
-  <!-- PASSOS -->
+  <!-- STEPS -->
   <div class="steps">
     <div class="step active">
       <div class="circle"></div>
@@ -379,7 +383,7 @@
     </div>
   </div>
 
-  <!-- MAIN CONTAINER – 2 COLUNAS -->
+  <!-- MAIN CONTAINER -->
   <div class="main-container">
     <!-- COLUNA ESQUERDA -->
     <div class="left-col">
@@ -483,7 +487,7 @@
       <!-- INFORMAÇÕES DA RESERVA -->
       <div class="card info-reserva-section">
         <h2>Informações da reserva</h2>
-        <!-- Item 1: Ingressos -->
+        <!-- Ingresso -->
         <div class="reserva-item">
           <div class="reserva-left">
             <span class="categoria">Ingressos</span>
@@ -492,7 +496,7 @@
           </div>
           <div class="reserva-preco">R$ 3.627,19</div>
         </div>
-        <!-- Item 2: Hospedagem -->
+        <!-- Hospedagem -->
         <div class="reserva-item">
           <div class="reserva-left">
             <span class="categoria">Hospedagem</span>
