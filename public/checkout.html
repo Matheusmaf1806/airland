@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Trip.com - Checkout Completo</title>
+  <meta charset="UTF-8">
+  <title>Trip.com - Checkout Radical</title>
   <style>
-    /* ----------------------------------------------------------------------------
-       IMPORTAÇÃO DE FONTE (Poppins) e RESET
-    ---------------------------------------------------------------------------- */
+    /* IMPORTANDO FONTE – Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+    /* RESET E CONFIGURAÇÕES BASE */
     * {
       margin: 0;
       padding: 0;
@@ -15,32 +15,26 @@
     }
     html, body {
       font-family: 'Poppins', sans-serif;
-      background-color: #ffffff;
+      background: #f7f9fc;
       color: #333;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    /* ----------------------------------------------------------------------------
-       VARIÁVEIS DE ESTILO
-    ---------------------------------------------------------------------------- */
+    /* VARIÁVEIS DE ESTILO */
     :root {
       --color-primary: #007aff;
       --color-primary-dark: #005dbf;
       --color-secondary: #ff9900;
       --color-bg: #ffffff;
       --color-border: #eee;
-      --color-border-dark: #ddd;
       --color-text: #333;
       --color-subtext: #666;
-      --color-subtext-light: #888;
       --transition-speed: 0.25s;
       --max-width: 1200px;
       --header-height: 64px;
     }
 
-    /* ----------------------------------------------------------------------------
-       TOPO – BARRA SUPERIOR COM GRADIENTE E MICROINTERAÇÕES
-    ---------------------------------------------------------------------------- */
+    /* TOPO – BARRA SUPERIOR */
     .top-bar {
       width: 100%;
       height: var(--header-height);
@@ -51,26 +45,26 @@
       padding: 0 5%;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .top-bar-left h1 {
+    .top-bar .logo {
+      font-size: 1.8rem;
       color: #fff;
-      font-size: 1.6rem;
       font-weight: 600;
     }
-    .top-bar-right a {
-      margin-left: 1.5rem;
+    .top-bar .nav-links a {
       color: #fff;
       text-decoration: none;
-      font-size: 0.9rem;
+      margin-left: 1.5rem;
+      font-size: 1rem;
       transition: opacity var(--transition-speed);
       position: relative;
       padding-left: 24px;
     }
-    .top-bar-right a:hover {
+    .top-bar .nav-links a:hover {
       opacity: 0.85;
     }
     /* Ícones simples via pseudo-elementos */
-    .top-bar-right a[href*="Ajuda"]::before,
-    .top-bar-right a[href*="Entrar"]::before {
+    .top-bar .nav-links a[href*="Ajuda"]::before,
+    .top-bar .nav-links a[href*="Entrar"]::before {
       content: "";
       position: absolute;
       left: 0;
@@ -81,94 +75,209 @@
       background-size: cover;
       background-repeat: no-repeat;
     }
-    .top-bar-right a[href*="Ajuda"]::before {
+    .top-bar .nav-links a[href*="Ajuda"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-.25 17h-.5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h.5c.41 0 .75.34.75.75s-.34.75-.75.75zm1.74-5.48c-.44.36-.74.61-.74 1.23v.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-.25c0-1.16.77-1.75 1.24-2.11.43-.33.76-.58.76-1.14 0-.66-.54-1.2-1.2-1.2s-1.2.54-1.2 1.2c0 .41-.34.75-.75.75s-.75-.34-.75-.75c0-1.51 1.24-2.75 2.75-2.75S14 9.74 14 11.25c0 .99-.53 1.52-1.51 2.27z"%3E%3C/path%3E%3C/svg%3E');
     }
-    .top-bar-right a[href*="Entrar"]::before {
+    .top-bar .nav-links a[href*="Entrar"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 12c2.7 0 4.88-2.2 4.88-4.88S14.7 2.24 12 2.24c-2.7 0-4.88 2.2-4.88 4.88S9.3 12 12 12zm6.65 1.3c-.44-.11-.85-.37-1.16-.72-.79-.91-1.94-1.44-3.24-1.44h-4.7c-1.3 0-2.45.53-3.24 1.44-.31.35-.72.61-1.16.72C4.48 13.37 4 14.04 4 14.78v1.72c0 .97.79 1.76 1.76 1.76h12.48c.97 0 1.76-.79 1.76-1.76v-1.72c0-.74-.48-1.41-1.35-1.48z"%3E%3C/path%3E%3C/svg%3E');
     }
 
-    /* ----------------------------------------------------------------------------
-       PASSOS – ETAPAS
-    ---------------------------------------------------------------------------- */
-    .steps-container {
+    /* PASSOS – Etapas horizontais com círculos */
+    .steps {
       width: 90%;
       max-width: var(--max-width);
       margin: 1rem auto;
       display: flex;
+      justify-content: center;
       gap: 1.5rem;
-      font-size: 0.9rem;
-      color: var(--color-subtext);
     }
-    .steps-container span {
-      position: relative;
-      padding-right: 16px;
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      color: #666;
     }
-    .steps-container span::after {
-      content: ">";
-      position: absolute;
-      right: 5px;
-      top: 0;
-      color: var(--color-border);
+    .step .circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ccc;
+      transition: background var(--transition-speed);
     }
-    .steps-container span:last-of-type::after {
-      content: "";
+    .step.active .circle {
+      background: var(--color-primary);
+    }
+    .step.active {
+      color: var(--color-primary);
     }
 
-    /* ----------------------------------------------------------------------------
-       CONTAINER PRINCIPAL – 2 COLUNAS
-    ---------------------------------------------------------------------------- */
+    /* CONTAINER PRINCIPAL – 2 COLUNAS */
     .main-container {
       width: 90%;
       max-width: var(--max-width);
-      margin: 1.5rem auto 3rem auto;
+      margin: 2rem auto;
       display: flex;
       gap: 2rem;
     }
-    /* Coluna Esquerda: Salas VIP e Formulário */
     .left-col {
       flex: 1;
-      min-width: 0;
     }
-    /* Coluna Direita: Informações da Reserva + Brindes */
     .right-col {
       width: 320px;
       flex-shrink: 0;
     }
 
-    /* ----------------------------------------------------------------------------
-       SEÇÃO: INFORMAÇÕES DA RESERVA (na Coluna Direita)
-    ---------------------------------------------------------------------------- */
-    .info-reserva-section {
-      background-color: #fff;
-      border: 1px solid var(--color-border);
+    /* CARD BASE */
+    .card {
+      background: #fff;
       border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
     }
+
+    /* SALAS VIP – Left Column */
+    .vip-card {
+      display: flex;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+    }
+    .vip-card:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .vip-card img {
+      width: 100px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
+    }
+    .vip-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .vip-info .badge {
+      background: var(--color-primary);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      display: inline-block;
+    }
+    .vip-info .title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .vip-info .price {
+      font-size: 0.9rem;
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+    .vip-info .actions {
+      display: flex;
+      gap: 1rem;
+    }
+    .vip-info .actions a {
+      font-size: 0.8rem;
+      color: #888;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .vip-info .actions a:hover {
+      color: var(--color-primary-dark);
+    }
+    .vip-info .actions button {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .vip-info .actions button:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* PASSAGEIROS – Formulário (Left Column) */
+    .passenger-form h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    .passenger-form .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .passenger-form label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+    .passenger-form input,
+    .passenger-form select {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      transition: border 0.2s;
+    }
+    .passenger-form input:focus,
+    .passenger-form select:focus {
+      border-color: var(--color-primary);
+    }
+    .passenger-form .info-text {
+      font-size: 0.75rem;
+      color: #888;
+      margin: 0.5rem 0;
+    }
+    .passenger-form button {
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .passenger-form button:hover {
+      background: var(--color-primary-dark);
+    }
+
+    /* INFORMACOES DA RESERVA – Right Column */
     .info-reserva-section h2 {
       font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #333;
       font-weight: 600;
-      margin-bottom: 0.8rem;
-      color: var(--color-text);
     }
     .reserva-item {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--color-border);
-      padding: 0.5rem 0;
-      margin-bottom: 0.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 0.75rem;
     }
-    .reserva-item:last-of-type {
+    .reserva-item:last-child {
       border-bottom: none;
       margin-bottom: 0;
     }
     .reserva-left {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 0.25rem;
     }
     .reserva-left .categoria {
       font-size: 0.85rem;
@@ -177,223 +286,55 @@
     }
     .reserva-left .nome {
       font-size: 0.85rem;
-      color: var(--color-text);
+      color: #333;
     }
     .reserva-left .subinfo {
       font-size: 0.8rem;
-      color: var(--color-subtext-light);
+      color: #888;
     }
     .reserva-preco {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--color-secondary);
-      margin-left: 1rem;
-      white-space: nowrap;
+      align-self: center;
     }
 
-    /* ----------------------------------------------------------------------------
-       SEÇÃO: BRINDES DISPONÍVEIS (na Coluna Direita, abaixo da Reserva)
-    ---------------------------------------------------------------------------- */
-    .brindes-section {
-      background-color: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
+    /* BRINDES DISPONÍVEIS – Right Column (abaixo da reserva) */
     .brindes-section h3 {
       font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
+      margin-bottom: 1rem;
+      color: #333;
       font-weight: 600;
     }
     .brinde-item {
-      display: flex;
-      flex-direction: column;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--color-border);
-      margin-bottom: 0.5rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 0.75rem;
     }
-    .brinde-item:last-of-type {
+    .brinde-item:last-child {
       border-bottom: none;
       margin-bottom: 0;
     }
     .brinde-item span {
       font-size: 0.85rem;
-      color: var(--color-text);
-      margin: 2px 0;
-    }
-    .brinde-item span:first-of-type {
-      font-weight: 600;
-      color: var(--color-primary);
+      color: #333;
+      display: block;
+      margin: 0.25rem 0;
     }
 
-    /* ----------------------------------------------------------------------------
-       SEÇÃO: SALAS VIP (na Coluna Esquerda)
-    ---------------------------------------------------------------------------- */
-    .section {
-      background-color: #fff;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .section h2 {
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
-    }
-    .section p {
-      font-size: 0.9rem;
-      color: var(--color-subtext-light);
-      margin-bottom: 1rem;
-    }
-    .vip-item {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      padding: 0.8rem;
-      margin-bottom: 0.8rem;
-      background-color: #fff;
-      transition: box-shadow var(--transition-speed);
-    }
-    .vip-item:hover {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .vip-img {
-      width: 100px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid var(--color-border);
-    }
-    .vip-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      flex: 1;
-    }
-    .vip-badge {
-      display: inline-block;
-      background-color: var(--color-primary);
-      color: #fff;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-    .vip-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--color-text);
-    }
-    .vip-price {
-      font-size: 0.9rem;
-      color: var(--color-primary);
-      font-weight: 500;
-    }
-    .vip-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.3rem;
-    }
-    .vip-details {
-      font-size: 0.8rem;
-      color: var(--color-subtext-light);
-      text-decoration: none;
-      transition: color var(--transition-speed);
-    }
-    .vip-details:hover {
-      color: var(--color-primary-dark);
-    }
-    .btn-add {
-      background-color: var(--color-primary);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: background-color var(--transition-speed);
-    }
-    .btn-add:hover {
-      background-color: var(--color-primary-dark);
-    }
-
-    /* ----------------------------------------------------------------------------
-       FORMULÁRIO: QUEM VAI VIAJAR?
-    ---------------------------------------------------------------------------- */
-    .passenger-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      flex: 1 1 200px;
-      min-width: 180px;
-    }
-    .form-row label {
-      font-size: 0.8rem;
-      color: var(--color-subtext);
-      font-weight: 500;
-    }
-    .form-row input,
-    .form-row select {
-      font-size: 0.85rem;
-      padding: 0.5rem;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      outline: none;
-      transition: border var(--transition-speed);
-    }
-    .form-row input:focus,
-    .form-row select:focus {
-      border-color: var(--color-primary);
-    }
-    .info-text {
-      font-size: 0.75rem;
-      color: var(--color-subtext-light);
-      margin: 0.5rem 0;
-      flex: 1 1 100%;
-    }
-    .btn-save {
-      background-color: var(--color-primary);
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 0.6rem 1rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background-color var(--transition-speed);
-      margin-top: 0.5rem;
-    }
-    .btn-save:hover {
-      background-color: var(--color-primary-dark);
-    }
-
-    /* ----------------------------------------------------------------------------
-       RODAPÉ
-    ---------------------------------------------------------------------------- */
+    /* RODAPÉ */
     footer {
       width: 90%;
       max-width: var(--max-width);
       margin: 2rem auto;
       text-align: center;
       font-size: 0.85rem;
-      color: var(--color-subtext-light);
-      border-top: 1px solid var(--color-border);
+      color: #888;
+      border-top: 1px solid #eee;
       padding-top: 1rem;
     }
 
-    /* ----------------------------------------------------------------------------
-       RESPONSIVIDADE
-    ---------------------------------------------------------------------------- */
+    /* RESPONSIVIDADE */
     @media (max-width: 768px) {
       .main-container {
         flex-direction: column;
@@ -409,15 +350,15 @@
   <!-- Barra Superior -->
   <header class="top-bar">
     <div class="top-bar-left">
-      <h1>Trip.com</h1>
+      <h1 class="logo">Trip.com</h1>
     </div>
-    <div class="top-bar-right">
+    <div class="top-bar-right nav-links">
       <a href="#">Ajuda</a>
       <a href="#">Entrar / Criar conta</a>
     </div>
   </header>
 
-  <!-- Passos (Etapas) -->
+  <!-- Passos -->
   <div class="steps-container">
     <span>Preencha suas informações</span>
     <span>Mais vendidos</span>
@@ -425,107 +366,110 @@
     <span>Finalize seu pagamento</span>
   </div>
 
-  <!-- Container Principal em 2 Colunas -->
+  <!-- Container Principal – 2 Colunas -->
   <div class="main-container">
-
-    <!-- COLUNA ESQUERDA: Salas VIP e Quem vai viajar? -->
+    <!-- Coluna Esquerda -->
     <div class="left-col">
-
       <!-- Salas VIP -->
-      <div class="section">
+      <div class="card">
         <h2>Salas VIP</h2>
         <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
-        <div class="vip-item">
-          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
+        <div class="vip-card">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
           <div class="vip-info">
-            <span class="vip-badge">Ida</span>
-            <span class="vip-title">Tóquio Narita Int. Airport T1 IASS Executive Lounge</span>
-            <span class="vip-price">R$ 119,00 /pessoa</span>
-            <div class="vip-actions">
-              <a href="#" class="vip-details">Detalhes</a>
-              <button class="btn-add">Adicionar</button>
+            <span class="badge">Ida</span>
+            <span class="title">Tóquio Narita Int. Airport T1 IASS Executive Lounge</span>
+            <span class="price">R$ 119,00 /pessoa</span>
+            <div class="actions">
+              <a href="#">Detalhes</a>
+              <button>Adicionar</button>
             </div>
           </div>
         </div>
-        <div class="vip-item">
-          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
+        <div class="vip-card">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
           <div class="vip-info">
-            <span class="vip-badge">Volta</span>
-            <span class="vip-title">Bangcoc Don Mueang Int. Airport T1 Miracle Lounge (T1 - Level 3)</span>
-            <span class="vip-price">R$ 145,13 /pessoa</span>
-            <div class="vip-actions">
-              <a href="#" class="vip-details">Detalhes</a>
-              <button class="btn-add">Adicionar</button>
+            <span class="badge">Volta</span>
+            <span class="title">Bangcoc Don Mueang Int. Airport T1 Miracle Lounge (T1 - Level 3)</span>
+            <span class="price">R$ 145,13 /pessoa</span>
+            <div class="actions">
+              <a href="#">Detalhes</a>
+              <button>Adicionar</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Quem vai viajar? -->
-      <div class="section">
+      <div class="card">
         <h2>Quem vai viajar?</h2>
-        <p style="font-size:0.8rem; color: var(--color-primary); text-align:right; cursor:pointer;">
-          Faça login para fazer reservas mais facilmente
+        <p style="font-size:0.8rem; color: #007aff; text-align:right; cursor:pointer;">
+          Faça login para reservas mais rápidas
         </p>
         <form class="passenger-form">
-          <div class="form-row">
-            <label>Nome</label>
-            <input type="text" placeholder="Nome">
+          <div class="form-grid">
+            <div class="form-row">
+              <label>Nome</label>
+              <input type="text" placeholder="Nome">
+            </div>
+            <div class="form-row">
+              <label>Sobrenome</label>
+              <input type="text" placeholder="Sobrenome">
+            </div>
           </div>
-          <div class="form-row">
-            <label>Sobrenome</label>
-            <input type="text" placeholder="Sobrenome">
+          <div class="form-grid">
+            <div class="form-row">
+              <label>Gênero</label>
+              <select>
+                <option value="">Selecione</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+                <option value="O">Outro</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Data de Nascimento</label>
+              <input type="date">
+            </div>
           </div>
-          <div class="form-row">
-            <label>Gênero no documento</label>
-            <select>
-              <option value="">Selecione</option>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-              <option value="O">Outro</option>
-            </select>
+          <div class="form-grid">
+            <div class="form-row">
+              <label>Nacionalidade</label>
+              <input type="text" placeholder="Brasil">
+            </div>
+            <div class="form-row">
+              <label>Tipo de Documento</label>
+              <select>
+                <option value="">Selecione</option>
+                <option value="rg">RG</option>
+                <option value="cpf">CPF</option>
+                <option value="passaporte">Passaporte</option>
+              </select>
+            </div>
           </div>
-          <div class="form-row">
-            <label>Data de nascimento</label>
-            <input type="date">
-          </div>
-          <div class="form-row">
-            <label>Nacionalidade</label>
-            <input type="text" placeholder="Brasil">
-          </div>
-          <div class="form-row">
-            <label>Tipo de documento</label>
-            <select>
-              <option value="">Selecione</option>
-              <option value="rg">RG</option>
-              <option value="cpf">CPF</option>
-              <option value="passaporte">Passaporte</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Número do documento</label>
-            <input type="text" placeholder="123456789">
-          </div>
-          <div class="form-row">
-            <label>Programa de passageiro frequente (opcional)</label>
-            <input type="text" placeholder="Número do programa">
+          <div class="form-grid">
+            <div class="form-row">
+              <label>Número do Documento</label>
+              <input type="text" placeholder="123456789">
+            </div>
+            <div class="form-row">
+              <label>Programa de Passageiro (opcional)</label>
+              <input type="text" placeholder="Número do programa">
+            </div>
           </div>
           <p class="info-text">
-            * Insira o nome exatamente como aparece em seus documentos para o check-in. Caso contrário, você poderá enfrentar problemas no embarque ou taxas extras.
+            * Insira os dados exatamente como aparecem nos documentos para evitar problemas no check-in.
           </p>
           <button class="btn-save">Salvar</button>
         </form>
       </div>
-
     </div>
 
-    <!-- COLUNA DIREITA: Informações da reserva + Brindes Disponíveis -->
+    <!-- Coluna Direita -->
     <div class="right-col">
-
-      <!-- Informações da reserva -->
-      <div class="info-reserva-section">
+      <!-- Informações da Reserva -->
+      <div class="card info-reserva-section">
         <h2>Informações da reserva</h2>
-
         <!-- Item 1: Ingressos -->
         <div class="reserva-item">
           <div class="reserva-left">
@@ -535,7 +479,6 @@
           </div>
           <div class="reserva-preco">R$ 3.627,19</div>
         </div>
-
         <!-- Item 2: Hospedagem -->
         <div class="reserva-item">
           <div class="reserva-left">
@@ -546,9 +489,9 @@
           <div class="reserva-preco">R$ 6.359,97</div>
         </div>
       </div>
-
+      
       <!-- Brindes Disponíveis -->
-      <div class="brindes-section">
+      <div class="card brindes-section">
         <h3>Brindes Disponíveis</h3>
         <div class="brinde-item">
           <span>Chip de Celular</span>
@@ -559,15 +502,12 @@
           <span>Ganhe na retirada do seu voucher</span>
         </div>
       </div>
-
     </div>
-
   </div>
 
   <!-- Rodapé -->
   <footer>
     © 2025 - Checkout Trip.com (Completo)
   </footer>
-
 </body>
 </html>
