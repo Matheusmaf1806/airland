@@ -1,716 +1,335 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Trip.com - Checkout</title>
   <style>
-    /* ----------------------------------------------------------------------------
-      VARIÁVEIS DE CORES, FONTES E TRANSIÇÕES
-    ---------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------
+       VARIÁVEIS DE CORES, FONTES E TRANSIÇÕES
+    ------------------------------------------------------------------------ */
     :root {
-      --color-primary: #007aff;      /* Azul principal (header, botões) */
-      --color-primary-hover: #005dbf;/* Hover do azul principal */
-      --color-bg: #f7f7f7;           /* Fundo geral */
-      --color-white: #ffffff;
-      --color-border: #ddd;
+      --color-primary: #007aff;       /* Azul principal do Trip.com */
+      --color-primary-hover: #005dbf; /* Azul mais escuro para hover */
+      --color-bg: #ffffff;            /* Fundo branco, como no print */
+      --color-border: #eee;
       --color-text: #333;
-      --color-subtext: #666;
-      --color-green: #28a745;        /* Para botões de "Resgatado" */
-      --color-card-bg: #f2f8ff;      /* Fundo do card de preço */
-      --color-card-border: #cce1ff;  /* Borda do card de preço */
-
+      --color-subtext: #888;
+      --color-highlight: #f2f8ff;     /* Fundo leve para destacar algo */
+      --color-highlight-border: #cce1ff;
       --font-family: 'Arial', sans-serif;
       --transition-speed: 0.2s;
     }
 
-    /* ----------------------------------------------------------------------------
-      RESET BÁSICO
-    ---------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------
+       RESET BÁSICO
+    ------------------------------------------------------------------------ */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    html, body {
-      font-family: var(--font-family);
+    body {
       background-color: var(--color-bg);
+      font-family: var(--font-family);
       color: var(--color-text);
       line-height: 1.4;
     }
 
-    /* ----------------------------------------------------------------------------
-      CABEÇALHO SUPERIOR (LOGO, LINKS)
-    ---------------------------------------------------------------------------- */
-    .navbar {
-      background-color: var(--color-primary);
+    /* ------------------------------------------------------------------------
+       CABEÇALHO SUPERIOR (LOGO, AJUDA, ENTRAR/CRIAR CONTA)
+    ------------------------------------------------------------------------ */
+    .top-bar {
+      width: 100%;
+      padding: 1rem 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 5%;
+      border-bottom: 1px solid var(--color-border);
     }
 
-    .navbar-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .navbar-left h1 {
-      color: var(--color-white);
-      font-size: 1.4rem;
+    .top-bar-left h1 {
+      font-size: 1.5rem;
+      color: var(--color-primary);
       font-weight: 600;
     }
 
-    .navbar-right {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .navbar-right a {
-      color: var(--color-white);
+    .top-bar-right a {
+      margin-left: 1.5rem;
       text-decoration: none;
+      color: var(--color-primary);
       font-size: 0.9rem;
       transition: opacity var(--transition-speed);
     }
 
-    .navbar-right a:hover {
+    .top-bar-right a:hover {
       opacity: 0.8;
     }
 
-    /* ----------------------------------------------------------------------------
-      LINHA DE PROGRESSO (ETAPAS)
-    ---------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------
+       LINHA DE ETAPAS
+    ------------------------------------------------------------------------ */
     .steps-container {
       width: 90%;
-      max-width: 1200px;
       margin: 1rem auto;
       display: flex;
       justify-content: flex-start;
       gap: 2rem;
       font-size: 0.95rem;
-      color: var(--color-text);
-    }
-
-    .steps-container .step {
-      position: relative;
       color: var(--color-subtext);
     }
 
-    .steps-container .step::after {
+    .steps-container span {
+      position: relative;
+      padding-right: 20px;
+    }
+
+    .steps-container span::after {
       content: ">";
       position: absolute;
-      right: -15px;
+      right: 5px;
       top: 0;
       color: var(--color-border);
     }
 
-    .steps-container .step:last-of-type::after {
+    .steps-container span:last-of-type::after {
       content: "";
     }
 
-    /* ----------------------------------------------------------------------------
-      CONTAINER PRINCIPAL
-    ---------------------------------------------------------------------------- */
-    .main-container {
+    /* ------------------------------------------------------------------------
+       CONTEÚDO PRINCIPAL (TÍTULO DA VIAGEM, HORÁRIOS, ETC.)
+    ------------------------------------------------------------------------ */
+    .main-content {
       width: 90%;
-      max-width: 1200px;
-      margin: 1rem auto 3rem auto;
-    }
-
-    /* ----------------------------------------------------------------------------
-      SEÇÃO: INFORMAÇÕES DA VIAGEM
-    ---------------------------------------------------------------------------- */
-    .trip-section {
-      background-color: var(--color-white);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .trip-section h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      color: var(--color-text);
-    }
-
-    .flight-info {
+      margin: 2rem auto;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 1rem;
+      flex-direction: column;
+      gap: 1.5rem;
+      /* Esse padding-bottom pode ajudar a não sobrepor o card fixo no mobile */
+      padding-bottom: 4rem;
     }
 
-    /* Coluna esquerda (voos) */
-    .flight-info-left {
-      flex: 1 1 400px;
+    .main-content h2 {
+      font-size: 1.75rem;
+      color: var(--color-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .flight-summary {
+      font-size: 0.95rem;
+      color: var(--color-subtext);
+      margin-bottom: 1rem;
+    }
+
+    /* Sessão que agrupa ida/volta */
+    .flight-section {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 1rem;
     }
 
     .flight-block {
-      background-color: var(--color-white);
-      border-left: 3px solid var(--color-primary);
-      padding-left: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
-    .flight-block p {
-      font-size: 0.95rem;
-      margin: 0.2rem 0;
+    .flight-time {
+      font-size: 1.1rem;
+      font-weight: 600;
       color: var(--color-text);
     }
 
-    /* Coluna direita (card de preço) */
-    .flight-info-right {
-      flex: 0 0 280px;
-      background-color: var(--color-card-bg);
-      border: 1px solid var(--color-card-border);
-      border-radius: 6px;
+    .flight-airport {
+      font-size: 0.9rem;
+      color: var(--color-subtext);
+    }
+
+    .flight-duration {
+      color: var(--color-primary);
+      font-size: 0.9rem;
+      margin-left: auto;
+    }
+
+    /* ------------------------------------------------------------------------
+       CARD DE "DETALHES DO PREÇO" (FIXO NA DIREITA)
+    ------------------------------------------------------------------------ */
+    .price-card {
+      position: fixed;
+      top: 120px;       /* Ajuste conforme o header/etapas */
+      right: 5%;
+      width: 280px;
+      background-color: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-      min-height: 150px;
+      z-index: 10;      /* Para ficar acima de outros elementos */
     }
 
-    .flight-info-right h3 {
+    .price-card h3 {
       font-size: 1rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       color: var(--color-text);
       font-weight: 600;
     }
 
-    .flight-info-right p {
+    .price-list {
       font-size: 0.9rem;
-      color: var(--color-text);
-      margin-bottom: 0.3rem;
+      margin-bottom: 1rem;
     }
 
-    .total-price {
-      margin-top: 0.5rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--color-text);
-    }
-
-    /* Lista de preço detalhado */
-    .price-details {
-      margin-top: 1rem;
-    }
-
-    .price-details ul {
-      list-style: none;
-      margin-top: 0.5rem;
-    }
-
-    .price-details li {
+    .price-list .item {
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.3rem;
-      font-size: 0.9rem;
-      color: var(--color-text);
     }
 
-    /* ----------------------------------------------------------------------------
-      SEÇÃO: FORMULÁRIO DE PASSAGEIRO
-    ---------------------------------------------------------------------------- */
-    .passenger-section {
-      background-color: var(--color-white);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .passenger-section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--color-text);
-    }
-
-    .passenger-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .passenger-form .form-field {
-      flex: 1 1 200px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .passenger-form label {
-      font-size: 0.9rem;
-      color: var(--color-subtext);
-    }
-
-    .passenger-form input,
-    .passenger-form select {
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      outline: none;
-      transition: border var(--transition-speed);
-    }
-
-    .passenger-form input:focus,
-    .passenger-form select:focus {
-      border-color: var(--color-primary);
-    }
-
-    /* ----------------------------------------------------------------------------
-      SEÇÃO: EXTRAS (Salas VIP e Códigos Promocionais)
-    ---------------------------------------------------------------------------- */
-    .extras-section {
-      background-color: var(--color-white);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .extras-section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--color-text);
-    }
-
-    /* Salas VIP */
-    .vip-lounge {
-      margin-bottom: 1rem;
-    }
-
-    .vip-lounge h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
+    .price-total {
+      font-size: 1.3rem;
       font-weight: 600;
+      color: var(--color-primary);
+      margin-top: 0.5rem;
     }
 
-    .lounge-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      padding: 0.8rem;
-      margin-bottom: 0.5rem;
-      background-color: var(--color-white);
-      transition: box-shadow var(--transition-speed);
-    }
-
-    .lounge-item:hover {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    .lounge-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    .lounge-info strong {
-      font-size: 0.9rem;
-      color: var(--color-text);
-    }
-
-    .lounge-item button {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-      border: none;
-      border-radius: 4px;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background-color var(--transition-speed);
-    }
-
-    .lounge-item button:hover {
-      background-color: var(--color-primary-hover);
-    }
-
-    /* Códigos Promocionais */
-    .promo-codes h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
-      font-weight: 600;
-    }
-
-    .promo-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      padding: 0.8rem;
-      margin-bottom: 0.5rem;
-      background-color: var(--color-white);
-      transition: box-shadow var(--transition-speed);
-    }
-
-    .promo-item:hover {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-
-    .promo-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-
-    .promo-item button {
-      background-color: var(--color-green);
-      color: var(--color-white);
-      border: none;
-      border-radius: 4px;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background-color var(--transition-speed);
-    }
-
-    .promo-item button:hover {
-      background-color: #218838;
-    }
-
-    /* ----------------------------------------------------------------------------
-      SEÇÃO: PAGAMENTO
-    ---------------------------------------------------------------------------- */
-    .payment-section {
-      background-color: var(--color-white);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .payment-section h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--color-text);
-    }
-
-    .payment-method .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .payment-field {
-      flex: 1 1 200px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .payment-field label {
-      font-size: 0.9rem;
-      color: var(--color-subtext);
-    }
-
-    .payment-field input {
-      padding: 0.5rem;
-      font-size: 0.9rem;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      outline: none;
-      transition: border var(--transition-speed);
-    }
-
-    .payment-field input:focus {
-      border-color: var(--color-primary);
-    }
-
-    /* Botão de pagamento + valor total */
-    .payment-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .payment-bottom .total-amount {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: var(--color-text);
-    }
-
-    .btn-pay {
-      background-color: var(--color-primary);
-      color: var(--color-white);
-      border: none;
-      border-radius: 4px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
-    }
-
-    .btn-pay:hover {
-      background-color: var(--color-primary-hover);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    /* ----------------------------------------------------------------------------
-      RODAPÉ
-    ---------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------
+       EXEMPLO DE RODAPÉ (OPCIONAL)
+    ------------------------------------------------------------------------ */
     footer {
       width: 90%;
-      max-width: 1200px;
-      margin: 0 auto 2rem auto;
+      margin: 2rem auto;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--color-subtext);
+      border-top: 1px solid var(--color-border);
+      padding-top: 1rem;
     }
 
-    /* ----------------------------------------------------------------------------
-      RESPONSIVIDADE
-    ---------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------
+       RESPONSIVIDADE
+    ------------------------------------------------------------------------ */
     @media (max-width: 768px) {
-      .flight-info {
-        flex-direction: column;
-      }
-
-      .flight-info-right {
-        max-width: 100%;
-        margin-top: 1rem;
-      }
-
       .steps-container {
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 1rem;
+      }
+
+      .price-card {
+        position: static;
+        width: 100%;
+        margin-top: 1rem;
       }
     }
 
     @media (max-width: 480px) {
-      .navbar-left h1 {
-        font-size: 1rem;
+      .top-bar-left h1 {
+        font-size: 1.2rem;
       }
 
-      .steps-container {
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-
-      .flight-info-left, .flight-info-right {
-        flex: 1 1 100%;
-      }
-
-      .payment-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .payment-bottom .total-amount {
-        margin-bottom: 0.5rem;
+      .price-card {
+        margin-top: 1rem;
       }
     }
-
   </style>
 </head>
 <body>
 
-  <!-- Barra superior (logo Trip.com, Ajuda, Entrar) -->
-  <nav class="navbar">
-    <div class="navbar-left">
+  <!-- Topo com logo e links -->
+  <header class="top-bar">
+    <div class="top-bar-left">
       <h1>Trip.com</h1>
     </div>
-    <div class="navbar-right">
+    <div class="top-bar-right">
       <a href="#">Ajuda</a>
       <a href="#">Entrar / Criar conta</a>
     </div>
-  </nav>
+  </header>
 
-  <!-- Linha de progresso (etapas) -->
+  <!-- Linha de etapas -->
   <div class="steps-container">
-    <div class="step">Preencha suas informações</div>
-    <div class="step">Mais vendidos</div>
-    <div class="step">Selecionar extras</div>
-    <div class="step">Finalize seu pagamento</div>
+    <span>Preencha suas informações</span>
+    <span>Mais vendidos</span>
+    <span>Selecionar extras</span>
+    <span>Finalize seu pagamento</span>
   </div>
+
+  <!-- Card de preço (fixo na direita) -->
+  <aside class="price-card">
+    <h3>Detalhes do preço</h3>
+    <div class="price-list">
+      <div class="item">
+        <span>Passagem (1 adulto)</span>
+        <span>Grátis</span>
+      </div>
+      <div class="item">
+        <span>Bagagem</span>
+        <span>Grátis</span>
+      </div>
+      <div class="item">
+        <span>Bagagem de mão</span>
+        <span>Grátis</span>
+      </div>
+      <div class="item">
+        <span>Bagagem despachada</span>
+        <span>Não incluso</span>
+      </div>
+      <div class="item">
+        <span>Serviços</span>
+        <span>Incluído</span>
+      </div>
+    </div>
+    <div class="price-total">R$ 3.013,84</div>
+  </aside>
 
   <!-- Conteúdo principal -->
-  <div class="main-container">
-    <!-- Seção: Informações da Viagem -->
-    <section class="trip-section">
-      <h2>Viagem para Bangcoc</h2>
-      <div class="flight-info">
-        <!-- Coluna esquerda: Voos -->
-        <div class="flight-info-left">
-          <div class="flight-block">
-            <p><strong>Qua, 15 Mar (Duração: 7h 25m)</strong></p>
-            <p>09:00 - NRT Tóquio Narita Int. T1</p>
-            <p>15:00 - BKK Bangkok Suvarnabhumi</p>
-          </div>
-          <div class="flight-block">
-            <p><strong>Qua, 22 Mar (Duração: 7h 25m)</strong></p>
-            <p>23:50 - DMK Bangkok Don Mueang Int. T1</p>
-            <p>06:00 - NRT Tóquio Narita Int. T1</p>
-          </div>
+  <main class="main-content">
+    <h2>Viagem para Bangcoc</h2>
+    <p class="flight-summary">qua, 15 mar | Duração: 7h 25m</p>
+    
+    <!-- Seção de ida -->
+    <section class="flight-section">
+      <div class="flight-block">
+        <div>
+          <div class="flight-time">09:00</div>
+          <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
         </div>
-
-        <!-- Coluna direita: Card de preço -->
-        <div class="flight-info-right">
-          <h3>Detalhes do preço</h3>
-          <p>Passagem (1 adulto): Grátis</p>
-          <p>Bagagem: Grátis</p>
-          <p>Bagagem de mão: Grátis</p>
-          <p>Serviços: Incluído</p>
-          <div class="total-price">Total: R$ 3.013,84</div>
+        <div>
+          <div class="flight-time">15:00</div>
+          <div class="flight-airport">BKK Bangkok Suvarnabhumi</div>
         </div>
-      </div>
-      <!-- Lista de preço detalhado (opcional) -->
-      <div class="price-details">
-        <ul>
-          <li><span>Tarifa base</span> <span>R$ 2.500,00</span></li>
-          <li><span>Taxas e impostos</span> <span>R$ 513,84</span></li>
-          <li><span>Total</span> <strong>R$ 3.013,84</strong></li>
-        </ul>
+        <div class="flight-duration">Econômica</div>
       </div>
     </section>
 
-    <!-- Seção: Formulário de Passageiro -->
-    <section class="passenger-section">
-      <h2>Quem vai viajar?</h2>
-      <div class="passenger-form">
-        <div class="form-field">
-          <label>Nome</label>
-          <input type="text" placeholder="Nome">
+    <!-- Seção de volta -->
+    <section class="flight-section">
+      <p class="flight-summary">qua, 22 mar | Duração: 7h 25m</p>
+      <div class="flight-block">
+        <div>
+          <div class="flight-time">23:50</div>
+          <div class="flight-airport">DMK Bangkok Don Mueang Int. T1</div>
         </div>
-        <div class="form-field">
-          <label>Sobrenome</label>
-          <input type="text" placeholder="Sobrenome">
+        <div>
+          <div class="flight-time">06:00</div>
+          <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
         </div>
-        <div class="form-field">
-          <label>Gênero no documento</label>
-          <select>
-            <option value="">Selecione</option>
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-            <option value="O">Outro</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Data de Nascimento</label>
-          <input type="date">
-        </div>
-        <div class="form-field">
-          <label>Nacionalidade</label>
-          <input type="text" placeholder="Brasil">
-        </div>
-        <div class="form-field">
-          <label>Tipo de Documento</label>
-          <select>
-            <option value="">Selecione</option>
-            <option value="rg">RG</option>
-            <option value="cpf">CPF</option>
-            <option value="passaporte">Passaporte</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label>Número do Documento</label>
-          <input type="text" placeholder="123456789">
-        </div>
-        <div class="form-field">
-          <label>Programa de passageiro frequente (opcional)</label>
-          <input type="text" placeholder="Número do programa">
-        </div>
+        <div class="flight-duration">AirAsia X X000 | 3850 Econômica</div>
       </div>
     </section>
 
-    <!-- Seção: Extras (Salas VIP, Códigos promocionais) -->
-    <section class="extras-section">
-      <h2>Extras</h2>
-      <!-- Salas VIP -->
-      <div class="vip-lounge">
-        <h3>Salas VIP</h3>
-        <div class="lounge-item">
-          <div class="lounge-info">
-            <strong>Tóquio Narita International Airport T1</strong>
-            <span>TIAS Executive Lounge</span>
-          </div>
-          <button>Adicionar</button>
-        </div>
-        <div class="lounge-item">
-          <div class="lounge-info">
-            <strong>Bangkok Don Mueang International Airport T1</strong>
-            <span>Miracle Lounge</span>
-          </div>
-          <button>Adicionar</button>
-        </div>
-      </div>
-      <!-- Códigos Promocionais -->
-      <div class="promo-codes">
-        <h3>Seus códigos promocionais gratuitos</h3>
-        <div class="promo-item">
-          <div class="promo-info">
-            <strong>12% de desconto em transfers de aeroporto</strong>
-            <p>Solicite um código promocional gratuito</p>
-          </div>
-          <button>Resgatado</button>
-        </div>
-        <div class="promo-item">
-          <div class="promo-info">
-            <strong>Código promocional de 8% de desconto no aluguel de veículos</strong>
-            <p>Solicite um código promocional gratuito</p>
-          </div>
-          <button>Resgatado</button>
-        </div>
-      </div>
-    </section>
+    <!-- Aqui você pode adicionar mais conteúdo,
+         como formulários de passageiro, extras, etc. -->
+  </main>
 
-    <!-- Seção: Pagamento -->
-    <section class="payment-section">
-      <h2>Selecione um método de pagamento</h2>
-      <div class="payment-method">
-        <div class="form-row">
-          <div class="payment-field">
-            <label>Número do cartão de crédito/débito</label>
-            <input type="text" placeholder="1234 5678 9012 3456">
-          </div>
-          <div class="payment-field">
-            <label>Nome do titular do cartão</label>
-            <input type="text" placeholder="Como está no cartão">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="payment-field">
-            <label>Data de validade (MM/AA)</label>
-            <input type="text" placeholder="MM/AA">
-          </div>
-          <div class="payment-field">
-            <label>CVV/CVC</label>
-            <input type="text" placeholder="3 dígitos">
-          </div>
-        </div>
-      </div>
-      <!-- Valor total e botão de pagar -->
-      <div class="payment-bottom">
-        <div class="total-amount">Total: R$ 3.013,84</div>
-        <button class="btn-pay" onclick="finalizarCompra()">Pagar</button>
-      </div>
-    </section>
-  </div>
-
-  <!-- Rodapé -->
+  <!-- Rodapé (opcional) -->
   <footer>
-    © 2025 - Checkout Trip.com (Exemplo)
+    © 2025 - Exemplo de Checkout Trip.com
   </footer>
 
   <script>
-    function finalizarCompra() {
-      alert('Compra finalizada com sucesso!');
-    }
+    // Se precisar de alguma funcionalidade JS, adicione aqui
   </script>
 </body>
 </html>
