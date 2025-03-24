@@ -2,7 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Trip.com - Checkout Ajustado</title>
+    <title>Checkout</title>
     <style>
       /*===========================
           COMMON CSS
@@ -524,15 +524,15 @@
             </div>
             <div class="resumo-row">
               <label>Subtotal</label>
-              <p id="subtotalValue">R$ 10.000,00</p>
+              <p id="subtotalValue">R$ 0,00</p>
             </div>
             <div class="resumo-row">
               <label>Desconto</label>
-              <p id="discountValue">- R$ 500,00</p>
+              <p id="discountValue">- R$ 0,00</p>
             </div>
             <div class="resumo-row total-line">
               <label>Total do pedido</label>
-              <p id="totalValue">R$ 9.500,00</p>
+              <p id="totalValue">R$ 0,00</p>
             </div>
           </div>
         </div>
@@ -694,7 +694,7 @@
         e.target.value = formatCEP(e.target.value);
       });
       
-      // Integração com <shopping-cart>
+      // Integração com o carrinho: atualiza o resumo do pedido
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -722,10 +722,19 @@
       }
       
       window.addEventListener("load", () => {
+        let items = [];
+        // Tenta obter os itens do componente (caso esteja disponível e possua dados)
         const cart = document.getElementById("shoppingCart");
-        if (cart && cart.items) {
-          updateCheckoutCart(cart.items);
+        if (cart && cart.items && cart.items.length > 0) {
+          items = cart.items;
+        } else {
+          // Se o componente não tiver os itens (ou estiver oculto), obtém do localStorage
+          const savedCart = localStorage.getItem("cartItems");
+          if (savedCart) {
+            items = JSON.parse(savedCart);
+          }
         }
+        updateCheckoutCart(items);
       });
     </script>
   </body>
