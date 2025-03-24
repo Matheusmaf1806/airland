@@ -148,27 +148,29 @@
       
       /* ================= NOVO MENU DE STEPS ================== */
       .steps-menu {
-        background-color: #365cf5; /* Cor de fundo (pode ajustar conforme desejar) */
+        background-color: #365cf5;
         padding: 20px 0;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 1rem;
+        margin-bottom: 20px;
       }
       
       .steps-menu .step {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: #fff; /* Texto branco */
+        color: #fff;
+        cursor: pointer;
       }
       
       .steps-menu .circle {
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background-color: #fff;  /* Círculo branco */
-        color: #365cf5;         /* Número em azul */
+        background-color: #fff;
+        color: #365cf5;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -180,16 +182,17 @@
         font-weight: bold;
       }
       
-      /* Se desejar destacar a etapa atual, use a classe .active no .step */
+      /* Se a etapa estiver ativa, destaque */
       .steps-menu .step.active .circle {
         background-color: #365cf5;
-        color: #fff;          /* Número em branco */
+        color: #fff;
         border: 2px solid #fff;
       }
       
-      /* Exemplo de step "desabilitado" (opcional) */
+      /* Se a etapa estiver desabilitada, use opacidade */
       .steps-menu .step.disabled {
         opacity: 0.5;
+        cursor: not-allowed;
       }
       
       /* ================= Layout Principal ================== */
@@ -478,6 +481,18 @@
       .mb-10 {
         margin-bottom: 10px;
       }
+      
+      /* ========== Multi-step Conteúdo Oculto/Visível ========== */
+      .step-content {
+        display: none;
+      }
+      .step-content.active {
+        display: block;
+      }
+      .navigation {
+        margin-top: 1rem;
+        text-align: right;
+      }
     </style>
     <!-- Importa o componente de Header do primeiro projeto -->
     <script src="/js/header-component.js" type="module"></script>
@@ -486,122 +501,173 @@
     <!-- Cabeçalho substituído pela header importada -->
     <app-header></app-header>
     
-    <!-- Novo Menu de Steps (estilo do screenshot) -->
-    <div class="steps-menu">
-      <!-- Passo 1 (ativo) -->
-      <div class="step active">
+    <!-- Menu de Steps -->
+    <div class="steps-menu" id="stepsMenu">
+      <!-- Passo 1: Passageiros -->
+      <div class="step active" data-step="1">
         <div class="circle">1</div>
-        <span>Sua seleção</span>
+        <span>Passageiros</span>
       </div>
       <div class="separator">></div>
       
-      <!-- Passo 2 -->
-      <div class="step">
+      <!-- Passo 2: Detalhes -->
+      <div class="step" data-step="2">
         <div class="circle">2</div>
-        <span>Seus detalhes</span>
+        <span>Detalhes</span>
       </div>
       <div class="separator">></div>
       
-      <!-- Passo 3 (desabilitado como exemplo) -->
-      <div class="step disabled">
+      <!-- Passo 3: Etapa Final -->
+      <div class="step" data-step="3">
         <div class="circle">3</div>
-        <span>Etapa final</span>
+        <span>Etapa Final</span>
       </div>
     </div>
     
     <!-- Container Principal – 2 Colunas -->
     <div class="main-container">
-      <!-- Coluna Esquerda -->
+      <!-- Coluna Esquerda: Multi-Steps -->
       <div class="left-col">
-        <!-- Salas VIP -->
-        <div class="card-style-1 mb-20">
-          <h2 class="mb-10">Seguro Viagem em Poucos Cliques</h2>
-          <p class="mb-15">
-            Evite riscos: o seguro do cartão tende a exigir pagamento adiantado com reembolso incerto. Garanta já seu seguro viagem e deixe os especialistas cuidarem de tudo.
-          </p>
-          <div class="vip-card mb-15">
-            <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
-            <div class="vip-info">
-              <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-              <span class="title">
-                Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
-              </span>
-              <span class="price">R$ 119,00 /pessoa</span>
+        <!-- Step 1: Passageiros -->
+        <div class="step-content active" data-step="1">
+          <div class="card-style-1 mb-20">
+            <div class="traveler-form-header mb-15">
+              <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <button>Adicionar</button>
-                <a href="#">Detalhes</a>
+                <a href="#">Faça login para fazer reservas mais facilmente</a>
+                <a href="#">Limpar</a>
               </div>
             </div>
-          </div>
-          <div class="vip-card mb-15">
-            <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" />
-            <div class="vip-info">
-              <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-              <span class="title">
-                Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
-              </span>
-              <span class="price">R$ 119,00 /pessoa</span>
-              <div class="actions">
-                <button>Adicionar</button>
-                <a href="#">Detalhes</a>
+            <div class="passenger-box mb-20">
+              <div class="box-header mb-15">
+                <h3>Passageiro</h3>
               </div>
+              <div class="fields-grid">
+                <div class="form-field">
+                  <label>Nome</label>
+                  <input type="text" placeholder="Nome" />
+                </div>
+                <div class="form-field">
+                  <label>Sobrenome</label>
+                  <input type="text" placeholder="Sobrenome" />
+                </div>
+                <div class="form-field">
+                  <label>Gênero no documento de idex</label>
+                  <input type="text" placeholder="Selecione" />
+                </div>
+                <div class="form-field">
+                  <label>Data de nascimento</label>
+                  <input type="date" />
+                </div>
+                <div class="form-field">
+                  <label>Nacionalidade</label>
+                  <input type="text" placeholder="Brasil" />
+                </div>
+                <div class="form-field">
+                  <label>Tipo de documento</label>
+                  <input type="text" placeholder="Selecione" />
+                </div>
+                <div class="form-field">
+                  <label>Número do documento de identidade</label>
+                  <input type="text" placeholder="123456789" />
+                </div>
+                <div class="form-field">
+                  <label>Programa de passageiro frequente (opcional)</label>
+                  <input type="text" placeholder="Número do programa" />
+                </div>
+              </div>
+              <p class="form-note mt-15">
+                * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
+              </p>
+            </div>
+            <div class="navigation">
+              <!-- Botão para ir para o Step 2 -->
+              <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
           </div>
         </div>
         
-        <!-- Formulário: Quem vai viajar? -->
-        <div class="card-style-1 mb-20">
-          <div class="traveler-form-header mb-15">
-            <h2>Quem vai viajar?</h2>
-            <div class="actions">
-              <a href="#">Faça login para fazer reservas mais facilmente</a>
-              <a href="#">Limpar</a>
+        <!-- Step 2: Detalhes (Seguro Viagem, etc.) -->
+        <div class="step-content" data-step="2">
+          <div class="card-style-1 mb-20">
+            <h2 class="mb-10">Seguro Viagem em Poucos Cliques</h2>
+            <p class="mb-15">
+              Evite riscos: o seguro do cartão tende a exigir pagamento adiantado com reembolso incerto. Garanta já seu seguro viagem e deixe os especialistas cuidarem de tudo.
+            </p>
+            <div class="vip-card mb-15">
+              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
+              <div class="vip-info">
+                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+                <span class="title">
+                  Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
+                </span>
+                <span class="price">R$ 119,00 /pessoa</span>
+                <div class="actions">
+                  <button>Adicionar</button>
+                  <a href="#">Detalhes</a>
+                </div>
+              </div>
+            </div>
+            <div class="vip-card mb-15">
+              <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" />
+              <div class="vip-info">
+                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+                <span class="title">
+                  Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
+                </span>
+                <span class="price">R$ 119,00 /pessoa</span>
+                <div class="actions">
+                  <button>Adicionar</button>
+                  <a href="#">Detalhes</a>
+                </div>
+              </div>
+            </div>
+            <div class="navigation">
+              <!-- Botão para voltar ao Step 1 -->
+              <button class="btn-save-passenger" id="backToStep1">Voltar</button>
+              <!-- Botão para ir ao Step 3 -->
+              <button class="btn-save-passenger" id="toStep3">Próximo</button>
             </div>
           </div>
-          <div class="passenger-box mb-20">
-            <div class="box-header mb-15">
-              <h3>Passageiro</h3>
-            </div>
+        </div>
+        
+        <!-- Step 3: Etapa Final (Métodos de pagamento) -->
+        <div class="step-content" data-step="3">
+          <div class="card-style-1 mb-20">
+            <h2 class="mb-10">Métodos de Pagamento</h2>
+            <p class="mb-15">
+              Selecione a forma de pagamento para finalizar sua reserva.
+            </p>
+            <!-- Exemplo de lista de métodos de pagamento -->
             <div class="fields-grid">
               <div class="form-field">
-                <label>Nome</label>
-                <input type="text" placeholder="Nome" />
+                <label>Forma de Pagamento</label>
+                <select>
+                  <option>Cartão de Crédito</option>
+                  <option>Pix</option>
+                  <option>Boleto</option>
+                </select>
               </div>
               <div class="form-field">
-                <label>Sobrenome</label>
-                <input type="text" placeholder="Sobrenome" />
+                <label>Número do Cartão</label>
+                <input type="text" placeholder="**** **** **** 1234" />
               </div>
               <div class="form-field">
-                <label>Gênero no documento de idex</label>
-                <input type="text" placeholder="Selecione" />
+                <label>Validade (MM/AA)</label>
+                <input type="text" placeholder="10/28" />
               </div>
               <div class="form-field">
-                <label>Data de nascimento</label>
-                <input type="date" />
-              </div>
-              <div class="form-field">
-                <label>Nacionalidade</label>
-                <input type="text" placeholder="Brasil" />
-              </div>
-              <div class="form-field">
-                <label>Tipo de documento</label>
-                <input type="text" placeholder="Selecione" />
-              </div>
-              <div class="form-field">
-                <label>Número do documento de identidade</label>
-                <input type="text" placeholder="123456789" />
-              </div>
-              <div class="form-field">
-                <label>Programa de passageiro frequente (opcional)</label>
-                <input type="text" placeholder="Número do programa" />
+                <label>CVV</label>
+                <input type="text" placeholder="123" />
               </div>
             </div>
-            <p class="form-note mt-15">
-              * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
-            </p>
+            <div class="navigation">
+              <!-- Botão para voltar ao Step 2 -->
+              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <!-- Botão final -->
+              <button class="btn-save-passenger" id="finishBtn">Finalizar</button>
+            </div>
           </div>
-          <button class="btn-save-passenger mt-20">Salvar</button>
-          <a href="#" class="add-passengers mt-10">Adicionar passageiros</a>
         </div>
       </div>
       
@@ -634,7 +700,6 @@
               <span class="subinfo">15/03/2025 | Adultos: 2 | Crianças: 0</span>
             </div>
             <div class="reserva-preco">R$ 6.359,97</div>
-            <div class="reserva-preco">até 10x Sem Juros</div>
           </div>
           <h2 class="brindes-title mt-20">Brindes Disponíveis</h2>
           <div class="brinde-item mt-10 mb-10">
@@ -653,5 +718,64 @@
     <footer class="mt-40 mb-40" style="text-align: center;">
       © 2025 - Checkout Trip.com (Completo)
     </footer>
+    
+    <script>
+      // Referências
+      const stepsMenu = document.getElementById("stepsMenu");
+      const stepContents = document.querySelectorAll(".step-content");
+      const stepButtons = stepsMenu.querySelectorAll(".step");
+      
+      // Botões de navegação
+      const toStep2Btn = document.getElementById("toStep2");
+      const backToStep1Btn = document.getElementById("backToStep1");
+      const toStep3Btn = document.getElementById("toStep3");
+      const backToStep2Btn = document.getElementById("backToStep2");
+      const finishBtn = document.getElementById("finishBtn");
+      
+      // Função para mostrar/ocultar steps
+      function showStep(stepNumber) {
+        // Atualiza conteúdo
+        stepContents.forEach(content => {
+          content.classList.remove("active");
+          if (content.dataset.step === String(stepNumber)) {
+            content.classList.add("active");
+          }
+        });
+        // Atualiza menu
+        stepButtons.forEach(button => {
+          button.classList.remove("active");
+          button.classList.remove("disabled");
+          const btnStep = button.dataset.step;
+          if (btnStep < stepNumber) {
+            // Passos anteriores não ficam "ativos", mas podemos deixá-los clicáveis se quiser
+          }
+          if (btnStep == stepNumber) {
+            button.classList.add("active");
+          }
+          if (btnStep > stepNumber) {
+            button.classList.add("disabled");
+          }
+        });
+      }
+      
+      // Eventos de navegação
+      toStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
+      backToStep1Btn.addEventListener("click", () => {
+        showStep(1);
+      });
+      toStep3Btn.addEventListener("click", () => {
+        showStep(3);
+      });
+      backToStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
+      
+      finishBtn.addEventListener("click", () => {
+        alert("Reserva finalizada com sucesso!");
+        // Aqui você pode redirecionar para outra página, etc.
+      });
+    </script>
   </body>
 </html>
