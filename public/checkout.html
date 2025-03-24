@@ -5,10 +5,10 @@
     <title>Trip.com - Checkout Ajustado</title>
     <style>
       /*===========================
-          COMMON css
+          COMMON CSS
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-
+      
       html {
         scroll-behavior: smooth;
       }
@@ -40,8 +40,7 @@
         color: #365cf5;
       }
       
-      button,
-      a {
+      button, a {
         transition: all 0.3s ease-out;
       }
       
@@ -55,6 +54,7 @@
         gap: 1rem;
         margin-bottom: 20px;
       }
+      
       .steps-menu .step {
         display: flex;
         align-items: center;
@@ -62,6 +62,7 @@
         color: #fff;
         cursor: pointer;
       }
+      
       .steps-menu .circle {
         width: 30px;
         height: 30px;
@@ -73,21 +74,24 @@
         justify-content: center;
         font-weight: 700;
       }
+      
       .steps-menu .separator {
         color: #fff;
         font-weight: bold;
       }
+      
       .steps-menu .step.active .circle {
         background-color: #365cf5;
         color: #fff;
         border: 2px solid #fff;
       }
+      
       .steps-menu .step.disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
       
-      /* ================= Layout Principal ================== */
+      /* ================= LAYOUT PRINCIPAL ================== */
       .main-container {
         width: 90%;
         max-width: 1200px;
@@ -95,15 +99,17 @@
         display: flex;
         gap: 2rem;
       }
+      
       .left-col {
         flex: 1;
       }
+      
       .right-col {
         width: 400px;
         flex-shrink: 0;
       }
       
-      /* ================= Formulários ================== */
+      /* ================= FORMULÁRIOS E CAMPOS ================== */
       .fields-grid-2cols {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -116,16 +122,19 @@
         gap: 1rem;
         margin-bottom: 1rem;
       }
+      
       .form-field {
         display: flex;
         flex-direction: column;
       }
+      
       .form-field label {
         font-size: 0.85rem;
         color: #666;
         margin-bottom: 0.3rem;
         font-weight: 500;
       }
+      
       .form-field input,
       .form-field select {
         font-size: 0.85rem;
@@ -133,13 +142,35 @@
         border: 1px solid #eee;
         border-radius: 4px;
       }
+      
+      .form-field input:focus,
+      .form-field select:focus {
+        border-color: #007aff;
+      }
+      
       .form-note {
         font-size: 0.75rem;
         color: #888;
         margin-top: 1rem;
       }
       
-      /* ======= Multi-step e Navegação ======= */
+      /* ================= BOTÕES ================== */
+      .btn-save-passenger {
+        background: #007aff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      
+      .btn-save-passenger:hover {
+        background: #005dbf;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      }
+      
+      /* ================= MULTI-STEP ================== */
       .step-content {
         display: none;
       }
@@ -157,7 +188,6 @@
         justify-content: space-between;
       }
       
-      /* ========== Card Style (Checkout) ========== */
       .card-style-1 {
         background: #fff;
         border: 1px solid #efefef;
@@ -167,7 +197,68 @@
         margin-bottom: 20px;
       }
       
-      /* ======= Resumo da Compra (Informações da reserva) ======= */
+      /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================== */
+      .reservation-gifts-card {
+        background: #fff;
+        border: 1px solid #efefef;
+        border-radius: 10px;
+        padding: 25px 30px;
+        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+      }
+      
+      .reserva-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.75rem;
+        align-items: center;
+      }
+      
+      .reserva-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      
+      .reserva-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #eee;
+      }
+      
+      .reserva-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      
+      .reserva-left .categoria {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #007aff;
+      }
+      
+      .reserva-left .nome {
+        font-size: 0.85rem;
+        color: #333;
+      }
+      
+      .reserva-left .subinfo {
+        font-size: 0.8rem;
+        color: #888;
+      }
+      
+      .reserva-preco {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00c853;
+        text-align: right;
+      }
+      
+      /* ======= Resumo da Compra ======= */
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
@@ -192,60 +283,7 @@
         font-weight: 600;
       }
       
-      /* ================= Coluna da direita (Informações da reserva) ================== */
-      .reservation-gifts-card {
-        background: #fff;
-        border: 1px solid #efefef;
-        border-radius: 10px;
-        padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
-      }
-      .reserva-item {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 1rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 0.75rem;
-        align-items: center;
-      }
-      .reserva-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-      }
-      .reserva-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-      }
-      .reserva-left {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-      .reserva-left .categoria {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #007aff;
-      }
-      .reserva-left .nome {
-        font-size: 0.85rem;
-        color: #333;
-      }
-      .reserva-left .subinfo {
-        font-size: 0.8rem;
-        color: #888;
-      }
-      .reserva-preco {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #00c853;
-        text-align: right;
-      }
-      
-      /* ================= Rodapé ================== */
+      /* ================= RODAPÉ ================== */
       footer {
         width: 90%;
         max-width: 1200px;
@@ -265,10 +303,13 @@
           width: 100%;
         }
       }
+      
+      .mt-10 { margin-top: 10px; }
+      .mb-10 { margin-bottom: 10px; }
     </style>
   </head>
   <body>
-    <!-- Cabeçalho (importado) -->
+    <!-- Header (importado pelo componente) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -289,9 +330,9 @@
       </div>
     </div>
     
-    <!-- Container Principal – 2 Colunas -->
+    <!-- Main Container -->
     <div class="main-container">
-      <!-- Coluna Esquerda: Multi-Steps (Formulário) -->
+      <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
         <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
@@ -469,13 +510,12 @@
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva e Resumo do Carrinho -->
+      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
-          <!-- Container para os itens do carrinho (será atualizado com os itens do <shopping-cart>) -->
+          <!-- Itens do carrinho serão renderizados aqui -->
           <div id="cartItemsList"></div>
-          
           <!-- Resumo da Compra -->
           <div class="resumo-compra">
             <div class="form-field cupom">
@@ -484,15 +524,15 @@
             </div>
             <div class="resumo-row">
               <label>Subtotal</label>
-              <p id="subtotalValue">R$ 0,00</p>
+              <p id="subtotalValue">R$ 10.000,00</p>
             </div>
             <div class="resumo-row">
               <label>Desconto</label>
-              <p id="discountValue">- R$ 0,00</p>
+              <p id="discountValue">- R$ 500,00</p>
             </div>
             <div class="resumo-row total-line">
               <label>Total do pedido</label>
-              <p id="totalValue">R$ 0,00</p>
+              <p id="totalValue">R$ 9.500,00</p>
             </div>
           </div>
         </div>
@@ -504,7 +544,7 @@
       © 2025 - Checkout Trip.com (Completo)
     </footer>
     
-    <!-- Exemplo de inclusão do componente de carrinho (pode estar oculto se já gerenciado internamente) -->
+    <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
@@ -556,7 +596,7 @@
         alert("Reserva finalizada com sucesso!");
       });
       
-      // Funções de formatação para os campos
+      // Funções de formatação dos campos
       function formatCelular(value) {
         if (value.charAt(0) === '+') {
           let digits = value.slice(1).replace(/\D/g, '');
@@ -654,13 +694,12 @@
         e.target.value = formatCEP(e.target.value);
       });
       
-      // Atualiza a área "Informações da reserva" com os itens do <shopping-cart>
+      // Integração com <shopping-cart>
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
         let html = "";
         items.forEach(item => {
-          // Exemplo: cálculo simples baseado no preço do item
           let price = item.basePriceAdult || 80;
           subtotal += price;
           html += `
@@ -676,15 +715,12 @@
           `;
         });
         container.innerHTML = html;
-        // Atualiza os valores do resumo
         document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        // Exemplo de desconto fixo
         const discount = 500;
         document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
-      // Ao carregar a página, obtenha os itens do <shopping-cart> e atualize o checkout
       window.addEventListener("load", () => {
         const cart = document.getElementById("shoppingCart");
         if (cart && cart.items) {
@@ -692,8 +728,5 @@
         }
       });
     </script>
-    
-    <!-- Inclua o componente <shopping-cart> (pode estar oculto, se já estiver sendo usado em outra parte) -->
-    <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
   </body>
 </html>
