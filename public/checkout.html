@@ -7,14 +7,15 @@
       /*===========================
           COMMON css
       ===========================*/
-      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+
       html {
         scroll-behavior: smooth;
       }
       
       body {
-        font-family: "Plus Jakarta Sans", sans-serif !important;
-        font-weight: normal;
+        font-family: "Montserrat", sans-serif !important;
+        font-weight: 400;
         font-style: normal;
         color: #5d657b;
         overflow-x: hidden;
@@ -25,6 +26,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        font-family: "Montserrat", sans-serif; /* Garante que inputs e placeholders use Montserrat */
       }
       
       a:focus,
@@ -112,7 +114,7 @@
         }
       }
       
-      /* ========== cart style ========== */
+      /* ========== card style ========== */
       .card-style,
       .card-style-1 {
         background: #fff;
@@ -146,7 +148,7 @@
         margin-bottom: 10px;
       }
       
-      /* ================= NOVO MENU DE STEPS ================== */
+      /* ================= MENU DE STEPS ================== */
       .steps-menu {
         background-color: #365cf5;
         padding: 20px 0;
@@ -182,14 +184,12 @@
         font-weight: bold;
       }
       
-      /* Se a etapa estiver ativa, destaque */
       .steps-menu .step.active .circle {
         background-color: #365cf5;
         color: #fff;
         border: 2px solid #fff;
       }
       
-      /* Se a etapa estiver desabilitada, use opacidade */
       .steps-menu .step.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -214,16 +214,17 @@
       }
       
       /* ================= Formulários e Campos ================== */
-      .fields-grid {
+      .fields-grid-2cols {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+        margin-bottom: 1rem;
       }
-      
-      @media (max-width: 600px) {
-        .fields-grid {
-          grid-template-columns: 1fr;
-        }
+      .fields-grid-3cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
       }
       
       .form-field {
@@ -232,7 +233,7 @@
       }
       
       .form-field label {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: #666;
         margin-bottom: 0.3rem;
         font-weight: 500;
@@ -498,7 +499,7 @@
     <script src="/js/header-component.js" type="module"></script>
   </head>
   <body>
-    <!-- Cabeçalho substituído pela header importada -->
+    <!-- Cabeçalho -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -538,11 +539,11 @@
                 <a href="#">Limpar</a>
               </div>
             </div>
+            
+            <!-- Formulário com as linhas solicitadas -->
             <div class="passenger-box mb-20">
-              <div class="box-header mb-15">
-                <h3>Passageiro</h3>
-              </div>
-              <div class="fields-grid">
+              <!-- Linha 1: Nome | Sobrenome -->
+              <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
                   <input type="text" placeholder="Nome" />
@@ -551,37 +552,82 @@
                   <label>Sobrenome</label>
                   <input type="text" placeholder="Sobrenome" />
                 </div>
+              </div>
+              
+              <!-- Linha 2: Celular | E-mail -->
+              <div class="fields-grid-2cols">
                 <div class="form-field">
-                  <label>Gênero no documento de idex</label>
-                  <input type="text" placeholder="Selecione" />
+                  <label>Celular</label>
+                  <input type="text" placeholder="(XX) 99999-9999" />
                 </div>
                 <div class="form-field">
-                  <label>Data de nascimento</label>
-                  <input type="date" />
-                </div>
-                <div class="form-field">
-                  <label>Nacionalidade</label>
-                  <input type="text" placeholder="Brasil" />
-                </div>
-                <div class="form-field">
-                  <label>Tipo de documento</label>
-                  <input type="text" placeholder="Selecione" />
-                </div>
-                <div class="form-field">
-                  <label>Número do documento de identidade</label>
-                  <input type="text" placeholder="123456789" />
-                </div>
-                <div class="form-field">
-                  <label>Programa de passageiro frequente (opcional)</label>
-                  <input type="text" placeholder="Número do programa" />
+                  <label>E-mail</label>
+                  <input type="email" placeholder="seuemail@exemplo.com" />
                 </div>
               </div>
+              
+              <!-- Linha 3: Senha | Repetir Senha -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+              </div>
+              
+              <!-- Linha 4: CPF | RG | Data de Nascimento -->
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CPF</label>
+                  <input type="text" placeholder="123.456.789-00" />
+                </div>
+                <div class="form-field">
+                  <label>RG</label>
+                  <input type="text" placeholder="12.345.678-9" />
+                </div>
+                <div class="form-field">
+                  <label>Data de Nascimento</label>
+                  <input type="date" />
+                </div>
+              </div>
+              
+              <!-- Linha 5: CEP | Estado | Cidade -->
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CEP</label>
+                  <input type="text" placeholder="12345-678" />
+                </div>
+                <div class="form-field">
+                  <label>Estado</label>
+                  <input type="text" placeholder="Ex: SP" />
+                </div>
+                <div class="form-field">
+                  <label>Cidade</label>
+                  <input type="text" placeholder="São Paulo" />
+                </div>
+              </div>
+              
+              <!-- Linha 6: Endereço | Número -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Endereço</label>
+                  <input type="text" placeholder="Rua, Avenida..." />
+                </div>
+                <div class="form-field">
+                  <label>Número</label>
+                  <input type="text" placeholder="123" />
+                </div>
+              </div>
+              
               <p class="form-note mt-15">
                 * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
               </p>
             </div>
             <div class="navigation">
-              <!-- Botão para ir para o Step 2 -->
+              <!-- Botão para ir ao Step 2 -->
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
           </div>
@@ -639,7 +685,7 @@
               Selecione a forma de pagamento para finalizar sua reserva.
             </p>
             <!-- Exemplo de lista de métodos de pagamento -->
-            <div class="fields-grid">
+            <div class="fields-grid-2cols">
               <div class="form-field">
                 <label>Forma de Pagamento</label>
                 <select>
@@ -652,6 +698,8 @@
                 <label>Número do Cartão</label>
                 <input type="text" placeholder="**** **** **** 1234" />
               </div>
+            </div>
+            <div class="fields-grid-2cols">
               <div class="form-field">
                 <label>Validade (MM/AA)</label>
                 <input type="text" placeholder="10/28" />
@@ -746,9 +794,6 @@
           button.classList.remove("active");
           button.classList.remove("disabled");
           const btnStep = button.dataset.step;
-          if (btnStep < stepNumber) {
-            // Passos anteriores não ficam "ativos", mas podemos deixá-los clicáveis se quiser
-          }
           if (btnStep == stepNumber) {
             button.classList.add("active");
           }
