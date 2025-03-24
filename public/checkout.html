@@ -75,14 +75,6 @@
       background-size: cover;
       background-repeat: no-repeat;
     }
-    /* Ajuste aqui se quiser ícone de ajuda real */
-    .top-bar .nav-links a[href*="Ajuda"]::before {
-      background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" ...%3E%3C/svg%3E');
-    }
-    /* Ajuste aqui se quiser ícone de login real */
-    .top-bar .nav-links a[href*="Entrar"]::before {
-      background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" ...%3E%3C/svg%3E');
-    }
 
     /* PASSOS – ETAPAS */
     .steps-container {
@@ -268,15 +260,15 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* INFORMACOES DA RESERVA – Right Column */
-    .info-reserva-section h2 {
+    /* INFORMAÇÕES DA RESERVA + BRINDES – UNIFICADO NUM SÓ CARD */
+    .reservation-gifts-card h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
       color: #333;
       font-weight: 600;
     }
 
-    /* Adicionamos espaço para a imagem do produto */
+    /* Cada produto com imagem e preço em verde */
     .reserva-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -290,8 +282,6 @@
       border-bottom: none;
       margin-bottom: 0;
     }
-
-    /* Imagem do produto (Disney, Hospedagem) */
     .reserva-img {
       width: 60px;
       height: 60px;
@@ -299,7 +289,6 @@
       border-radius: 4px;
       border: 1px solid #eee;
     }
-
     .reserva-left {
       display: flex;
       flex-direction: column;
@@ -321,21 +310,21 @@
     .reserva-preco {
       font-size: 1rem;
       font-weight: 700;
-      color: var(--color-secondary); /* Verde agora */
+      color: var(--color-secondary);
       align-self: center;
     }
 
-    /* BRINDES DISPONÍVEIS – Right Column */
-    .brindes-section h3 {
+    /* Bloco de brinde dentro do mesmo card */
+    .brindes-title {
       font-size: 1rem;
-      margin-bottom: 1rem;
+      margin: 1rem 0 0.5rem;
       color: #333;
       font-weight: 600;
     }
     .brinde-item {
-      padding: 0.75rem 0;
+      padding: 0.5rem 0;
       border-bottom: 1px solid #eee;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
     }
     .brinde-item:last-child {
       border-bottom: none;
@@ -396,8 +385,7 @@
   <div class="main-container">
     <!-- Coluna Esquerda -->
     <div class="left-col">
-
-      <!-- Salas VIP (Exemplo) -->
+      <!-- Salas VIP -->
       <div class="card">
         <h2>Salas VIP</h2>
         <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
@@ -489,11 +477,9 @@
       </div>
     </div>
 
-    <!-- Coluna Direita -->
+    <!-- Coluna Direita (Bloco Unificado) -->
     <div class="right-col">
-
-      <!-- Informações da reserva (AGORA COM FOTOS) -->
-      <div class="card info-reserva-section">
+      <div class="card reservation-gifts-card">
         <h2>Informações da reserva</h2>
         <!-- Produto 1: Disney (com imagem) -->
         <div class="reserva-item">
@@ -505,7 +491,6 @@
           </div>
           <div class="reserva-preco">R$ 3.627,19</div>
         </div>
-
         <!-- Produto 2: Hospedagem (com imagem) -->
         <div class="reserva-item">
           <img class="reserva-img" src="https://monrealeorlando.com/wp-content/uploads/2024/05/hotel-monreale-orlando-i-drive-12.jpg" alt="Hospedagem">
@@ -516,11 +501,9 @@
           </div>
           <div class="reserva-preco">R$ 6.359,97</div>
         </div>
-      </div>
-      
-      <!-- Brindes Disponíveis -->
-      <div class="card brindes-section">
-        <h3>Brindes Disponíveis</h3>
+
+        <!-- Título para Brindes (mesmo card) -->
+        <h2 class="brindes-title">Brindes Disponíveis</h2>
         <div class="brinde-item">
           <span>Chip de Celular</span>
           <span>Incluso na sua reserva</span>
