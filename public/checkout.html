@@ -2,19 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Trip.com - Checkout (UI/UX Avançado)</title>
+  <title>Trip.com - Checkout Completo</title>
   <style>
     /* ----------------------------------------------------------------------------
-      IMPORTANDO FONTE
+      IMPORTANDO FONTE (Poppins)
     ---------------------------------------------------------------------------- */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
     /* ----------------------------------------------------------------------------
       VARIÁVEIS DE ESTILO
     ---------------------------------------------------------------------------- */
     :root {
       --color-primary: #007aff;        /* Azul principal Trip.com */
-      --color-primary-dark: #005dbf;   /* Azul escuro para hover */
+      --color-primary-dark: #005dbf;   /* Azul escuro (hover) */
       --color-secondary: #ff9900;      /* Laranja para destaque de preço */
       --color-bg: #ffffff;
       --color-border: #eee;
@@ -22,6 +22,7 @@
       --color-text: #333;
       --color-subtext: #666;
       --color-subtext-light: #888;
+
       --font-family: 'Poppins', sans-serif;
       --transition-speed: 0.2s;
       --max-width: 1200px;
@@ -46,7 +47,7 @@
     }
 
     /* ----------------------------------------------------------------------------
-      TOPO (BARRA COM GRADIENTE)
+      TOPO (BARRA SUPERIOR GRADIENTE)
     ---------------------------------------------------------------------------- */
     .top-bar {
       width: 100%;
@@ -84,7 +85,7 @@
       opacity: 0.8;
     }
 
-    /* Exemplos de pseudo-ícones em links */
+    /* Exemplos de pseudo-ícones (Ajuda, Login) */
     .top-bar-right a[href*="Ajuda"]::before {
       content: "";
       position: absolute;
@@ -126,38 +127,24 @@
     }
 
     .step {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      transition: color var(--transition-speed);
       position: relative;
-    }
-
-    .step:hover {
-      color: var(--color-primary-dark);
+      padding-right: 20px;
+      cursor: default;
     }
 
     .step::after {
       content: ">";
       position: absolute;
-      right: -15px;
-      color: var(--color-border);
+      right: 5px;
+      color: var(--color-border-dark);
     }
 
     .step:last-of-type::after {
       content: "";
     }
 
-    .step-circle {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: var(--color-primary);
-    }
-
     /* ----------------------------------------------------------------------------
-      CONTEÚDO PRINCIPAL
+      CONTEÚDO PRINCIPAL (VOOS, VIP, PASSAGEIROS)
     ---------------------------------------------------------------------------- */
     .content-container {
       width: 90%;
@@ -169,7 +156,7 @@
     }
 
     /* 
-      COLUNA ESQUERDA (VOOS)
+      COLUNA ESQUERDA
     */
     .left-section {
       flex: 1;
@@ -189,9 +176,7 @@
       margin-bottom: 1.5rem;
     }
 
-    /* 
-      BLOCO DE VOO (IDA / VOLTA)
-    */
+    /* BLOCO DE VOO (IDA / VOLTA) */
     .flight-block {
       display: flex;
       align-items: center;
@@ -274,6 +259,217 @@
     }
 
     /* ----------------------------------------------------------------------------
+      SEÇÃO DE SALAS VIP
+    ---------------------------------------------------------------------------- */
+    .vip-section {
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .vip-section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--color-text);
+    }
+
+    .vip-section p {
+      font-size: 0.85rem;
+      color: var(--color-subtext-light);
+      margin-bottom: 1rem;
+    }
+
+    .vip-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      background-color: #fff;
+      transition: box-shadow var(--transition-speed);
+    }
+
+    .vip-card:hover {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    }
+
+    .vip-card img {
+      width: 100px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+    }
+
+    .vip-card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: var(--color-primary);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .vip-card-content h3 {
+      font-size: 0.9rem;
+      color: var(--color-text);
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .price {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--color-primary);
+    }
+
+    .vip-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.3rem;
+    }
+
+    .details-link {
+      font-size: 0.8rem;
+      color: var(--color-subtext-light);
+      text-decoration: none;
+      transition: color var(--transition-speed);
+    }
+
+    .details-link:hover {
+      color: var(--color-primary-dark);
+    }
+
+    .btn-add {
+      background-color: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background-color var(--transition-speed);
+    }
+
+    .btn-add:hover {
+      background-color: var(--color-primary-dark);
+    }
+
+    /* ----------------------------------------------------------------------------
+      SEÇÃO: QUEM VAI VIAJAR? (FORMULÁRIO)
+    ---------------------------------------------------------------------------- */
+    .passenger-section {
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .passenger-section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+    }
+
+    .login-suggestion {
+      font-size: 0.8rem;
+      color: var(--color-primary);
+      text-align: right;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    .login-suggestion:hover {
+      text-decoration: underline;
+    }
+
+    .passenger-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 200px;
+      min-width: 180px;
+      gap: 0.3rem;
+    }
+
+    .form-row label {
+      font-size: 0.8rem;
+      color: var(--color-subtext);
+      font-weight: 500;
+    }
+
+    .form-row input,
+    .form-row select {
+      font-size: 0.85rem;
+      padding: 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      outline: none;
+      transition: border var(--transition-speed);
+    }
+
+    .form-row input:focus,
+    .form-row select:focus {
+      border-color: var(--color-primary);
+    }
+
+    .info-text {
+      font-size: 0.75rem;
+      color: var(--color-subtext-light);
+      margin: 0.5rem 0;
+      flex: 1 1 100%;
+    }
+
+    .btn-save {
+      background-color: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color var(--transition-speed);
+      margin-top: 0.5rem;
+    }
+
+    .btn-save:hover {
+      background-color: var(--color-primary-dark);
+    }
+
+    .add-passenger-link {
+      font-size: 0.8rem;
+      color: var(--color-primary);
+      text-decoration: none;
+      margin-top: 0.5rem;
+    }
+
+    .add-passenger-link:hover {
+      text-decoration: underline;
+    }
+
+    /* ----------------------------------------------------------------------------
       RODAPÉ
     ---------------------------------------------------------------------------- */
     footer {
@@ -300,10 +496,6 @@
     }
 
     @media (max-width: 768px) {
-      .steps-container {
-        flex-wrap: wrap;
-        gap: 0.8rem;
-      }
       .price-card {
         position: static;
         width: 100%;
@@ -325,12 +517,11 @@
         font-size: 1rem;
       }
     }
-
   </style>
 </head>
 <body>
 
-  <!-- BARRA SUPERIOR (GRADIENTE) -->
+  <!-- TOPO (BARRA GRADIENTE) -->
   <header class="top-bar">
     <div class="top-bar-left">
       <h1>Trip.com</h1>
@@ -343,25 +534,13 @@
 
   <!-- PASSOS (ETAPAS) -->
   <div class="steps-container">
-    <div class="step">
-      <div class="step-circle"></div>
-      <span>Preencha suas informações</span>
-    </div>
-    <div class="step">
-      <div class="step-circle"></div>
-      <span>Mais vendidos</span>
-    </div>
-    <div class="step">
-      <div class="step-circle"></div>
-      <span>Selecionar extras</span>
-    </div>
-    <div class="step">
-      <div class="step-circle"></div>
-      <span>Finalize seu pagamento</span>
-    </div>
+    <div class="step">Preencha suas informações</div>
+    <div class="step">Mais vendidos</div>
+    <div class="step">Selecionar extras</div>
+    <div class="step">Finalize seu pagamento</div>
   </div>
 
-  <!-- CARTÃO DE PREÇO FIXO -->
+  <!-- CARTÃO DE PREÇO (FIXO) -->
   <aside class="price-card">
     <h3>Detalhes do preço</h3>
     <div class="price-item">
@@ -390,10 +569,11 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <div class="content-container">
     <div class="left-section">
+
+      <!-- Título e Blocos de voo (Ida e Volta) -->
       <h2>Viagem para Bangcoc</h2>
       <div class="flight-subinfo">qua, 15 mar | Duração: 7h 25m</div>
 
-      <!-- BLOCO DE VOO: IDA -->
       <div class="flight-block">
         <div class="flight-time">09:00</div>
         <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
@@ -402,7 +582,6 @@
         <div class="flight-airport highlight-orange">BKK Bangkok Suvarnabhumi</div>
       </div>
 
-      <!-- BLOCO DE VOO: VOLTA -->
       <div class="flight-subinfo">qua, 22 mar | Duração: 7h 25m</div>
       <div class="flight-block">
         <div class="flight-time">23:50</div>
@@ -414,12 +593,100 @@
       <div class="flight-airport" style="margin-left: 50px;">
         <span class="highlight-orange">AirAsia X X000 | 3850 Econômica</span>
       </div>
+
+      <!-- SEÇÃO DE SALAS VIP -->
+      <section class="vip-section">
+        <h2>Salas VIP</h2>
+        <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
+
+        <div class="vip-card">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
+          <div class="vip-card-content">
+            <span class="badge">Ida</span>
+            <h3>Tóquio Narita International Airport T1 IASS Executive Lounge</h3>
+            <p class="price">R$ 119,00 <span>/pessoa</span></p>
+            <div class="vip-actions">
+              <a href="#" class="details-link">Detalhes</a>
+              <button class="btn-add">Adicionar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-card">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
+          <div class="vip-card-content">
+            <span class="badge">Volta</span>
+            <h3>Bangcoc Don Mueang International Airport T1 Miracle Lounge (T1 - Level 3)</h3>
+            <p class="price">R$ 145,13 <span>/pessoa</span></p>
+            <div class="vip-actions">
+              <a href="#" class="details-link">Detalhes</a>
+              <button class="btn-add">Adicionar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO: QUEM VAI VIAJAR? -->
+      <section class="passenger-section">
+        <h2>Quem vai viajar?</h2>
+        <p class="login-suggestion">Faça login para fazer reservas mais facilmente</p>
+        <form class="passenger-form">
+          <div class="form-row">
+            <label>Nome</label>
+            <input type="text" placeholder="Nome">
+          </div>
+          <div class="form-row">
+            <label>Sobrenome</label>
+            <input type="text" placeholder="Sobrenome">
+          </div>
+          <div class="form-row">
+            <label>Gênero no documento de idex</label>
+            <select>
+              <option value="">Selecione</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+              <option value="O">Outro</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Data de nascimento</label>
+            <input type="date">
+          </div>
+          <div class="form-row">
+            <label>Nacionalidade</label>
+            <input type="text" placeholder="Brasil">
+          </div>
+          <div class="form-row">
+            <label>Tipo de documento</label>
+            <select>
+              <option value="">Selecione</option>
+              <option value="rg">RG</option>
+              <option value="cpf">CPF</option>
+              <option value="passaporte">Passaporte</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Número do documento de identidade</label>
+            <input type="text" placeholder="123456789">
+          </div>
+          <div class="form-row">
+            <label>Programa de passageiro frequente (opcional)</label>
+            <input type="text" placeholder="Número do programa">
+          </div>
+          <p class="info-text">
+            * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrada uma taxa de cancelamento.
+          </p>
+          <button class="btn-save">Salvar</button>
+          <a href="#" class="add-passenger-link">Adicionar passageiros</a>
+        </form>
+      </section>
+
     </div>
   </div>
 
   <!-- RODAPÉ -->
   <footer>
-    © 2025 - Checkout Trip.com (Exemplo UI/UX Avançado)
+    © 2025 - Checkout Trip.com (Completo)
   </footer>
 
 </body>
