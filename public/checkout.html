@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Trip.com - Checkout Radical</title>
+  <title>Trip.com - Checkout Profissional</title>
   <style>
-    /* IMPORTANDO FONTE – Poppins */
+    /* IMPORTAÇÃO DE FONTE – Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* RESET E CONFIGURAÇÕES BASE */
+    /* RESET */
     * {
       margin: 0;
       padding: 0;
@@ -62,7 +62,7 @@
     .top-bar .nav-links a:hover {
       opacity: 0.85;
     }
-    /* Ícones simples via pseudo-elementos */
+    /* Ícones via pseudo-elementos (exemplo) */
     .top-bar .nav-links a[href*="Ajuda"]::before,
     .top-bar .nav-links a[href*="Entrar"]::before {
       content: "";
@@ -82,7 +82,7 @@
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" ...%3E%3C/svg%3E');
     }
 
-    /* PASSOS – Etapas horizontais com espaçamento */
+    /* PASSOS (ETAPAS) */
     .steps-container {
       width: 90%;
       max-width: var(--max-width);
@@ -115,24 +115,43 @@
       display: flex;
       gap: 2rem;
     }
+
+    /* COLUNA ESQUERDA (SEM BORDA/FUNDO) */
     .left-col {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
+
+    /* COLUNA DIREITA (COM BORDA E SOMBRA) */
     .right-col {
       width: 400px;
       flex-shrink: 0;
-    }
-
-    /* CARD BASE */
-    .card {
-      background: #fff;
+      border: 1px solid var(--color-border);
       border-radius: 8px;
+      background: #fff;
       padding: 1.5rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
 
-    /* SALAS VIP – Left Column */
+    /* SEÇÃO: SALAS VIP (APENAS TÍTULO/TEXTO) */
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+    }
+    .section-subtext {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    /* SALAS VIP - CARDS */
     .vip-card {
       display: flex;
       gap: 1rem;
@@ -166,7 +185,7 @@
     .vip-info .title {
       font-size: 0.9rem;
       font-weight: 600;
-      color: #333;
+      color: var(--color-text);
     }
     .vip-info .price {
       font-size: 0.9rem;
@@ -200,13 +219,17 @@
       background: var(--color-primary-dark);
     }
 
-    /* QUEM VAI VIAJAR? – Formulário */
+    /* QUEM VAI VIAJAR? - FORMULÁRIO */
+    .passenger-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
     .passenger-form h2 {
       font-size: 1.2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       color: #333;
     }
-    /* Removendo o style inline do parágrafo e criando uma classe */
     .login-cta {
       font-size: 0.8rem;
       color: var(--color-primary);
@@ -217,39 +240,36 @@
     .login-cta:hover {
       text-decoration: underline;
     }
-
-    .passenger-form .form-grid {
+    .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
-      margin-bottom: 1rem;
     }
-    .passenger-form .form-row {
+    .form-row {
       display: flex;
       flex-direction: column;
     }
-    .passenger-form label {
+    .form-row label {
       font-size: 0.8rem;
       color: #666;
       margin-bottom: 0.25rem;
       font-weight: 500;
     }
-    .passenger-form input,
-    .passenger-form select {
+    .form-row input,
+    .form-row select {
       padding: 0.5rem;
       font-size: 0.85rem;
       border: 1px solid #eee;
       border-radius: 4px;
       transition: border var(--transition-speed);
     }
-    .passenger-form input:focus,
-    .passenger-form select:focus {
+    .form-row input:focus,
+    .form-row select:focus {
       border-color: var(--color-primary);
     }
-    .passenger-form .info-text {
+    .info-text {
       font-size: 0.75rem;
       color: #888;
-      margin: 0.5rem 0;
     }
     .btn-save {
       background: var(--color-primary);
@@ -260,30 +280,42 @@
       font-size: 0.9rem;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+      width: 150px;
     }
     .btn-save:hover {
       background: var(--color-primary-dark);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* INFORMACOES DA RESERVA – Right Column */
+    /* COLUNA DIREITA: INFORMACOES DA RESERVA E BRINDES */
     .info-reserva-section h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
       color: #333;
       font-weight: 600;
     }
+
+    /* Cada item com imagem e texto */
     .reserva-item {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: auto 1fr auto;
       gap: 1rem;
       padding: 0.75rem 0;
       border-bottom: 1px solid #eee;
       margin-bottom: 0.75rem;
+      align-items: center;
     }
     .reserva-item:last-child {
       border-bottom: none;
       margin-bottom: 0;
+    }
+    .reserva-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
     }
     .reserva-left {
       display: flex;
@@ -307,10 +339,8 @@
       font-size: 1rem;
       font-weight: 700;
       color: var(--color-secondary);
-      align-self: center;
     }
 
-    /* BRINDES DISPONÍVEIS – Right Column */
     .brindes-section h3 {
       font-size: 1rem;
       margin-bottom: 1rem;
@@ -369,7 +399,7 @@
     </div>
   </header>
 
-  <!-- Passos -->
+  <!-- Passos (Etapas) -->
   <div class="steps-container">
     <span>Preencha suas informações</span>
     <span>Mais vendidos</span>
@@ -377,16 +407,16 @@
     <span>Finalize seu pagamento</span>
   </div>
 
-  <!-- Container Principal – 2 Colunas -->
+  <!-- Container Principal em 2 colunas -->
   <div class="main-container">
-    <!-- Coluna Esquerda -->
+
+    <!-- Coluna Esquerda (SEM borda/fundo) -->
     <div class="left-col">
 
-      <!-- Salas VIP (Exemplo) -->
-      <div class="card">
-        <h2>Salas VIP</h2>
-        <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
-        <!-- Exemplo de items VIP -->
+      <!-- Salas VIP -->
+      <section>
+        <h2 class="section-title">Salas VIP</h2>
+        <p class="section-subtext">Aproveite o conforto de uma sala VIP antes do seu voo.</p>
         <div class="vip-card">
           <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
           <div class="vip-info">
@@ -411,15 +441,13 @@
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <!-- Quem vai viajar? -->
-      <div class="card">
+      <section class="passenger-form">
         <h2>Quem vai viajar?</h2>
-        <!-- Link de login (substituindo style inline) -->
         <p class="login-cta">Faça login para reservas mais rápidas</p>
-
-        <form class="passenger-form">
+        <form>
           <div class="form-grid">
             <div class="form-row">
               <label>Nome</label>
@@ -475,15 +503,19 @@
           </p>
           <button class="btn-save">Salvar</button>
         </form>
-      </div>
+      </section>
     </div>
 
-    <!-- Coluna Direita -->
+    <!-- Coluna Direita (COM borda/fundo) -->
     <div class="right-col">
-      <!-- Informações da reserva (Exemplo) -->
-      <div class="card info-reserva-section">
+
+      <!-- Informações da reserva (com imagens) -->
+      <section class="info-reserva-section">
         <h2>Informações da reserva</h2>
+        <!-- Item 1: Disney -->
         <div class="reserva-item">
+          <img src="https://image-tc.galaxy.tf/wijpeg-1i1xmcd0t03zdvqkmbtodjfz5/walt-disney-world-mickey-mouse-and-boy-1_standard.jpg?crop=39%2C0%2C723%2C542" 
+               alt="Disney" class="reserva-img">
           <div class="reserva-left">
             <span class="categoria">Ingressos</span>
             <span class="nome">Walt Disney World - 02 Dias - Base Tickets</span>
@@ -491,7 +523,10 @@
           </div>
           <div class="reserva-preco">R$ 3.627,19</div>
         </div>
+        <!-- Item 2: Hospedagem -->
         <div class="reserva-item">
+          <img src="https://monrealeorlando.com/wp-content/uploads/2024/05/hotel-monreale-orlando-i-drive-12.jpg" 
+               alt="Hospedagem" class="reserva-img">
           <div class="reserva-left">
             <span class="categoria">Hospedagem</span>
             <span class="nome">Monreale Express Orlando - 2 BEDROOM Suite</span>
@@ -499,10 +534,10 @@
           </div>
           <div class="reserva-preco">R$ 6.359,97</div>
         </div>
-      </div>
-      
-      <!-- Brindes Disponíveis (Exemplo) -->
-      <div class="card brindes-section">
+      </section>
+
+      <!-- Brindes Disponíveis -->
+      <section class="brindes-section">
         <h3>Brindes Disponíveis</h3>
         <div class="brinde-item">
           <span>Chip de Celular</span>
@@ -512,7 +547,7 @@
           <span>Copo da Universal</span>
           <span>Ganhe na retirada do seu voucher</span>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 
