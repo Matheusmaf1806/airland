@@ -26,7 +26,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Montserrat", sans-serif; /* Garante que inputs e placeholders use Montserrat */
+        font-family: "Montserrat", sans-serif;
       }
       
       a:focus,
@@ -818,83 +818,86 @@
         alert("Reserva finalizada com sucesso!");
       });
       
-      // Funções de formatação para os campos
+      // Funções de formatação
       function formatCelular(value) {
-        value = value.replace(/\D/g, '');
-        value = value.substring(0, 11);
+        let digits = value.replace(/\D/g, '');
+        if (digits === '') return '';
+        // Limita a 11 dígitos
+        digits = digits.substring(0, 11);
         let formatted = '+55 ';
-        if (value.length > 0) {
-          if (value.length >= 2) {
-            formatted += '(' + value.substring(0,2) + ') ';
-            if (value.length >= 7) {
-              formatted += value.substring(2,7) + '-' + value.substring(7);
-            } else if (value.length > 2) {
-              formatted += value.substring(2);
-            }
+        if (digits.length < 2) {
+          formatted += '(' + digits;
+        } else {
+          formatted += '(' + digits.substring(0,2) + ') ';
+          if (digits.length < 7) {
+            formatted += digits.substring(2);
           } else {
-            formatted += '(' + value;
+            formatted += digits.substring(2,7) + '-' + digits.substring(7);
           }
         }
         return formatted;
       }
       
       function formatCPF(value) {
-        value = value.replace(/\D/g, '');
-        value = value.substring(0, 11);
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 11);
         let formatted = '';
-        if (value.length > 3) {
-          formatted = value.substring(0,3) + '.';
-          if (value.length > 6) {
-            formatted += value.substring(3,6) + '.';
-            if (value.length > 9) {
-              formatted += value.substring(6,9) + '-' + value.substring(9);
+        if (digits.length > 3) {
+          formatted = digits.substring(0,3) + '.';
+          if (digits.length > 6) {
+            formatted += digits.substring(3,6) + '.';
+            if (digits.length > 9) {
+              formatted += digits.substring(6,9) + '-' + digits.substring(9);
             } else {
-              formatted += value.substring(6);
+              formatted += digits.substring(6);
             }
           } else {
-            formatted += value.substring(3);
+            formatted += digits.substring(3);
           }
         } else {
-          formatted = value;
+          formatted = digits;
         }
         return formatted;
       }
       
       function formatRG(value) {
-        value = value.replace(/\D/g, '');
-        value = value.substring(0, 9);
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 9);
         let formatted = '';
-        if (value.length > 2) {
-          formatted = value.substring(0,2) + '.';
-          if (value.length > 5) {
-            formatted += value.substring(2,5) + '.';
-            if (value.length > 8) {
-              formatted += value.substring(5,8) + '-' + value.substring(8);
+        if (digits.length > 2) {
+          formatted = digits.substring(0,2) + '.';
+          if (digits.length > 5) {
+            formatted += digits.substring(2,5) + '.';
+            if (digits.length > 8) {
+              formatted += digits.substring(5,8) + '-' + digits.substring(8);
             } else {
-              formatted += value.substring(5);
+              formatted += digits.substring(5);
             }
           } else {
-            formatted += value.substring(2);
+            formatted += digits.substring(2);
           }
         } else {
-          formatted = value;
+          formatted = digits;
         }
         return formatted;
       }
       
       function formatCEP(value) {
-        value = value.replace(/\D/g, '');
-        value = value.substring(0, 8);
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 8);
         let formatted = '';
-        if (value.length > 5) {
-          formatted = value.substring(0,5) + '-' + value.substring(5);
+        if (digits.length > 5) {
+          formatted = digits.substring(0,5) + '-' + digits.substring(5);
         } else {
-          formatted = value;
+          formatted = digits;
         }
         return formatted;
       }
       
-      // Adiciona os eventos de input para formatar automaticamente
+      // Eventos de input para formatação
       document.getElementById("celular").addEventListener("input", function(e) {
         e.target.value = formatCelular(e.target.value);
       });
