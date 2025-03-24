@@ -368,7 +368,7 @@
         background: var(--color-primary-dark, #005dbf);
       }
       
-      /* ================= Reservation & Brindes ================== */
+      /* ================= Reservation & Resumo da Compra ================== */
       .reservation-gifts-card h2 {
         font-size: 1.2rem;
         margin-bottom: 1rem;
@@ -428,56 +428,34 @@
         align-self: center;
       }
       
-      .brindes-title {
-        font-size: 1rem;
-        margin: 1rem 0 0.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      
-      .brinde-item {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 0.5rem;
-      }
-      
-      .brinde-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-      }
-      
-      .brinde-item span {
-        font-size: 0.85rem;
-        color: #333;
-        display: block;
-        margin: 0.25rem 0;
-      }
-      
       /* ======= Resumo da Compra (dentro do mesmo cartão de reserva) ======= */
       .resumo-compra {
         margin-top: 20px;
-        padding: 15px;
+        padding-top: 15px;
         border-top: 1px solid #eee;
       }
       
-      .resumo-compra h2 {
-        font-size: 1.1rem;
+      .resumo-compra .resumo-row {
+        display: flex;
+        justify-content: space-between;
         margin-bottom: 10px;
-        color: #333;
+      }
+      
+      .resumo-compra .resumo-row label {
         font-weight: 600;
       }
       
-      .resumo-compra .form-field {
-        margin-bottom: 10px;
-      }
-      
-      .resumo-compra p {
-        font-weight: 500;
+      .resumo-compra .resumo-row p {
+        font-weight: 600;
         margin: 0;
       }
       
-      .resumo-compra .fields-grid-2cols {
-        margin-bottom: 10px;
+      .resumo-compra .cupom {
+        margin-top: 15px;
+      }
+      
+      .resumo-compra .cupom label {
+        font-weight: 600;
       }
       
       /* ================= Rodapé ================== */
@@ -731,7 +709,7 @@
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Brindes + Resumo da Compra -->
+      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
@@ -761,33 +739,25 @@
             </div>
             <div class="reserva-preco">R$ 6.359,97</div>
           </div>
-          <h2 class="brindes-title mt-20">Brindes Disponíveis</h2>
-          <div class="brinde-item mt-10 mb-10">
-            <span>Chip de Celular</span>
-            <span>Incluso na sua reserva</span>
-          </div>
-          <div class="brinde-item mt-10 mb-10">
-            <span>Copo da Universal</span>
-            <span>Ganhe na retirada do seu voucher</span>
-          </div>
-          <!-- Resumo da Compra integrado no mesmo cartão -->
+          <!-- Área de Resumo da Compra -->
           <div class="resumo-compra">
-            <h2>Resumo da Compra</h2>
-            <div class="form-field">
+            <!-- Linha para Cupom de desconto -->
+            <div class="form-field cupom">
               <label>Cupom de desconto</label>
               <input type="text" placeholder="Insira seu cupom" />
             </div>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Subtotal</label>
-                <p>R$ 10.000,00</p>
-              </div>
-              <div class="form-field">
-                <label>Desconto</label>
-                <p>R$ 500,00</p>
-              </div>
+            <!-- Linha para Subtotal -->
+            <div class="resumo-row">
+              <label>Subtotal</label>
+              <p>R$ 10.000,00</p>
             </div>
-            <div class="form-field">
+            <!-- Linha para Desconto -->
+            <div class="resumo-row">
+              <label>Desconto</label>
+              <p>R$ 500,00</p>
+            </div>
+            <!-- Linha para Total -->
+            <div class="resumo-row">
               <label>Total</label>
               <p>R$ 9.500,00</p>
             </div>
