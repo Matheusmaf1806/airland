@@ -820,23 +820,33 @@
       
       // Funções de formatação
       function formatCelular(value) {
-        // Remove o prefixo "+55" se já estiver presente
-        value = value.replace(/^\+55\s?/, '');
+        // Se o usuário digitar um "+" no início, não forçamos o "+55"
+        if (value.charAt(0) === '+') {
+          // Remove caracteres não numéricos após o "+"
+          let digits = value.slice(1).replace(/\D/g, '');
+          return '+' + digits;
+        }
+        // Se não começar com "+", removemos todos os caracteres não numéricos
         let digits = value.replace(/\D/g, '');
-        // Limita a 11 dígitos
-        digits = digits.substring(0, 11);
-        let formatted = '+55 ';
-        if (digits.length < 2) {
-          formatted += '(' + digits;
-        } else {
-          formatted += '(' + digits.substring(0,2) + ') ';
-          if (digits.length < 7) {
-            formatted += digits.substring(2);
+        if (digits === '') return '';
+        // Se os dígitos não iniciarem com "55", prefixamos "55"
+        if (!digits.startsWith('55')) {
+          digits = '55' + digits;
+        }
+        // Extrai partes: país (2 dígitos), DDD (2 dígitos) e o número (o restante)
+        let country = digits.substring(0, 2);
+        let ddd = digits.substring(2, 4) || '';
+        let part1 = '';
+        let part2 = '';
+        if (digits.length > 4) {
+          if (digits.length - 4 <= 5) {
+            part1 = digits.substring(4);
           } else {
-            formatted += digits.substring(2,7) + '-' + digits.substring(7);
+            part1 = digits.substring(4, 9);
+            part2 = digits.substring(9);
           }
         }
-        return formatted;
+        return '+' + country + (ddd ? ' (' + ddd + ') ' : '') + part1 + (part2 ? '-' + part2 : '');
       }
       
       function formatCPF(value) {
