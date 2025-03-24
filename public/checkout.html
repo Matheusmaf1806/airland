@@ -453,6 +453,36 @@
         margin: 0.25rem 0;
       }
       
+      /* ======== NOVA CARD: Resumo da Compra ======== */
+      .resumo-compra {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #efefef;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0px 12px 24px -4px rgba(145, 158, 171, 0.12),
+          0px 0px 2px 0px rgba(145, 158, 171, 0.2);
+      }
+      
+      .resumo-compra h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: #333;
+        font-weight: 600;
+      }
+      
+      .resumo-compra .form-field {
+        margin-bottom: 15px;
+      }
+      
+      .resumo-compra p {
+        font-weight: 500;
+      }
+      
+      .resumo-compra .fields-grid-2cols {
+        margin-bottom: 15px;
+      }
+      
       /* ================= Rodapé ================== */
       footer {
         width: 90%;
@@ -527,6 +557,7 @@
     
     <!-- Container Principal – 2 Colunas -->
     <div class="main-container">
+      <!-- Coluna Esquerda: Multi-Steps -->
       <div class="left-col">
         <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
@@ -703,7 +734,7 @@
         </div>
       </div>
       
-      <!-- Coluna Direita -->
+      <!-- Coluna Direita: Informações da reserva + Brindes + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
@@ -743,6 +774,28 @@
             <span>Ganhe na retirada do seu voucher</span>
           </div>
         </div>
+        <!-- Nova área: Resumo da Compra -->
+        <div class="card-style-1 resumo-compra">
+          <h2>Resumo da Compra</h2>
+          <div class="form-field">
+            <label>Cupom de desconto</label>
+            <input type="text" placeholder="Insira seu cupom" />
+          </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Subtotal</label>
+              <p>R$ 10.000,00</p>
+            </div>
+            <div class="form-field">
+              <label>Desconto</label>
+              <p>R$ 500,00</p>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Total</label>
+            <p>R$ 9.500,00</p>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -764,14 +817,12 @@
       const finishBtn = document.getElementById("finishBtn");
       
       function showStep(stepNumber) {
-        // Atualiza conteúdo dos steps
         stepContents.forEach(content => {
           content.classList.remove("active");
           if (content.dataset.step === String(stepNumber)) {
             content.classList.add("active");
           }
         });
-        // Atualiza o menu de steps
         stepButtons.forEach(button => {
           button.classList.remove("active");
           button.classList.remove("disabled");
