@@ -7,7 +7,7 @@
     /* IMPORTANDO FONTE – Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* RESET E CONFIGURAÇÕES BASE */
+    /* RESET */
     * {
       margin: 0;
       padding: 0;
@@ -22,9 +22,9 @@
 
     /* VARIÁVEIS DE ESTILO */
     :root {
-      --color-primary: #007aff;
-      --color-primary-dark: #005dbf;
-      --color-secondary: #00c853; /* Verde para destaques */
+      --color-primary: #007aff;       /* Azul principal */
+      --color-primary-dark: #005dbf;  /* Azul escuro (hover) */
+      --color-secondary: #00c853;     /* Verde para destaques */
       --color-bg: #ffffff;
       --color-border: #eee;
       --color-text: #333;
@@ -126,7 +126,7 @@
       margin-bottom: 1.5rem;
     }
 
-    /* SALAS VIP – Left Column */
+    /* SALAS VIP – Left Column (Exemplo) */
     .vip-card {
       display: flex;
       gap: 1rem;
@@ -194,81 +194,120 @@
       background: var(--color-primary-dark);
     }
 
-    /* QUEM VAI VIAJAR? – Formulário */
-    .passenger-form h2 {
-      font-size: 1.2rem;
+    /* FORMULÁRIO “QUEM VAI VIAJAR?” – NO ESTILO DO PRINT */
+    .who-is-traveling {
+      position: relative;
+    }
+    /* Topo do formulário: Título + Links (“Faça login...”, “Limpar”) */
+    .form-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 1rem;
+    }
+    .form-top-bar h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
       color: #333;
     }
-    .login-cta {
-      font-size: 0.8rem;
-      color: var(--color-primary);
-      text-align: right;
-      cursor: pointer;
-      margin-bottom: 1rem;
+    .form-top-bar .form-actions-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
-    .login-cta:hover {
-      text-decoration: underline;
+    .form-top-bar .form-actions-top a {
+      font-size: 0.85rem;
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: opacity var(--transition-speed);
+    }
+    .form-top-bar .form-actions-top a:hover {
+      opacity: 0.8;
     }
 
-    .passenger-form .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    /* Caixa de campos: estilo “cartão” com borda sutil */
+    .passenger-box {
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .passenger-box .passenger-row {
+      display: flex;
       gap: 1rem;
       margin-bottom: 1rem;
     }
-    .passenger-form .form-row {
+    .passenger-box .passenger-row:last-child {
+      margin-bottom: 0;
+    }
+    .passenger-box .form-field {
       display: flex;
       flex-direction: column;
+      flex: 1;
     }
-    .passenger-form label {
+    .passenger-box label {
       font-size: 0.8rem;
       color: #666;
       margin-bottom: 0.25rem;
       font-weight: 500;
     }
-    .passenger-form input,
-    .passenger-form select {
-      padding: 0.5rem;
+    .passenger-box input,
+    .passenger-box select {
       font-size: 0.85rem;
+      padding: 0.6rem;
       border: 1px solid #eee;
       border-radius: 4px;
       transition: border var(--transition-speed);
     }
-    .passenger-form input:focus,
-    .passenger-form select:focus {
+    .passenger-box input:focus,
+    .passenger-box select:focus {
       border-color: var(--color-primary);
     }
-    .passenger-form .info-text {
+
+    /* Nota no fim do box */
+    .passenger-note {
       font-size: 0.75rem;
       color: #888;
-      margin: 0.5rem 0;
-      grid-column: 1 / -1;
+      margin-top: 1rem;
     }
-    .btn-save {
+
+    /* Botão Salvar */
+    .btn-save-form {
       background: var(--color-primary);
       color: #fff;
       border: none;
       border-radius: 4px;
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 1.25rem;
       font-size: 0.9rem;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
+      margin-top: 1rem;
     }
-    .btn-save:hover {
+    .btn-save-form:hover {
       background: var(--color-primary-dark);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* INFORMAÇÕES DA RESERVA + BRINDES – UNIFICADO NUM SÓ CARD */
+    /* Link “Adicionar passageiros” */
+    .add-passengers-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: opacity var(--transition-speed);
+    }
+    .add-passengers-link:hover {
+      opacity: 0.7;
+    }
+
+    /* INFORMACOES DA RESERVA + BRINDES (COLUNA DIREITA UNIFICADO) */
     .reservation-gifts-card h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
       color: #333;
       font-weight: 600;
     }
-
-    /* Cada produto com imagem e preço em verde */
     .reserva-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -313,8 +352,6 @@
       color: var(--color-secondary);
       align-self: center;
     }
-
-    /* Bloco de brinde dentro do mesmo card */
     .brindes-title {
       font-size: 1rem;
       margin: 1rem 0 0.5rem;
@@ -383,9 +420,11 @@
 
   <!-- Container Principal – 2 Colunas -->
   <div class="main-container">
+
     <!-- Coluna Esquerda -->
     <div class="left-col">
-      <!-- Salas VIP -->
+
+      <!-- Salas VIP (Exemplo) -->
       <div class="card">
         <h2>Salas VIP</h2>
         <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
@@ -415,69 +454,72 @@
         </div>
       </div>
 
-      <!-- Quem vai viajar? -->
-      <div class="card passenger-form">
-        <h2>Quem vai viajar?</h2>
-        <p class="login-cta">Faça login para reservas mais rápidas</p>
+      <!-- Quem vai viajar? (Formulário no estilo do print) -->
+      <div class="card who-is-traveling">
+        <!-- Top bar do form: Título + “Faça login...” + “Limpar” -->
+        <div class="form-top-bar">
+          <h2>Quem vai viajar?</h2>
+          <div class="form-actions-top">
+            <a href="#">Faça login para fazer reservas mais facilmente</a>
+            <a href="#">Limpar</a>
+          </div>
+        </div>
 
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Nome</label>
-            <input type="text" placeholder="Nome">
+        <!-- Caixa com campos de “Passageiro” -->
+        <div class="passenger-box">
+          <div class="passenger-row">
+            <div class="form-field">
+              <label>Nome</label>
+              <input type="text" placeholder="Nome">
+            </div>
+            <div class="form-field">
+              <label>Sobrenome</label>
+              <input type="text" placeholder="Sobrenome">
+            </div>
           </div>
-          <div class="form-row">
-            <label>Sobrenome</label>
-            <input type="text" placeholder="Sobrenome">
+          <div class="passenger-row">
+            <div class="form-field">
+              <label>Gênero no documento de idex</label>
+              <input type="text" placeholder="Selecione">
+            </div>
+            <div class="form-field">
+              <label>Data de nascimento</label>
+              <input type="date">
+            </div>
           </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Gênero</label>
-            <select>
-              <option value="">Selecione</option>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-              <option value="O">Outro</option>
-            </select>
+          <div class="passenger-row">
+            <div class="form-field">
+              <label>Nacionalidade</label>
+              <input type="text" placeholder="Brasil">
+            </div>
+            <div class="form-field">
+              <label>Tipo de documento</label>
+              <input type="text" placeholder="Selecione">
+            </div>
           </div>
-          <div class="form-row">
-            <label>Data de Nascimento</label>
-            <input type="date">
+          <div class="passenger-row">
+            <div class="form-field">
+              <label>Número do documento de identidade</label>
+              <input type="text" placeholder="123456789">
+            </div>
+            <div class="form-field">
+              <label>Programa de passageiro frequente (opcional)</label>
+              <input type="text" placeholder="Número do programa">
+            </div>
           </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Nacionalidade</label>
-            <input type="text" placeholder="Brasil">
-          </div>
-          <div class="form-row">
-            <label>Tipo de Documento</label>
-            <select>
-              <option value="">Selecione</option>
-              <option value="rg">RG</option>
-              <option value="cpf">CPF</option>
-              <option value="passaporte">Passaporte</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Número do Documento</label>
-            <input type="text" placeholder="123456789">
-          </div>
-          <div class="form-row">
-            <label>Programa de Passageiro (opcional)</label>
-            <input type="text" placeholder="Número do programa">
-          </div>
-          <p class="info-text">
-            * Insira os dados exatamente como aparecem nos documentos para evitar problemas no check-in.
+          <p class="passenger-note">
+            * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in.
+            Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
           </p>
         </div>
-        <button class="btn-save">Salvar</button>
+
+        <!-- Botão “Salvar” e link “Adicionar passageiros” -->
+        <button class="btn-save-form">Salvar</button>
+        <a href="#" class="add-passengers-link">Adicionar passageiros</a>
       </div>
     </div>
 
-    <!-- Coluna Direita (Bloco Unificado) -->
+    <!-- Coluna Direita (Informações da reserva + Brindes) -->
     <div class="right-col">
       <div class="card reservation-gifts-card">
         <h2>Informações da reserva</h2>
@@ -502,7 +544,7 @@
           <div class="reserva-preco">R$ 6.359,97</div>
         </div>
 
-        <!-- Título para Brindes (mesmo card) -->
+        <!-- Brindes Disponíveis (no mesmo card) -->
         <h2 class="brindes-title">Brindes Disponíveis</h2>
         <div class="brinde-item">
           <span>Chip de Celular</span>
