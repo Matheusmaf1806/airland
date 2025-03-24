@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Trip.com - Checkout</title>
+  <meta charset="UTF-8" />
+  <title>Trip.com - Checkout (UI/UX Avançado)</title>
   <style>
-    /* 
-    ============================================================================
-      VARIÁVEIS DE CORES, FONTES E AJUSTES
-    ============================================================================
-    */
+    /* ----------------------------------------------------------------------------
+      IMPORTANDO FONTE
+    ---------------------------------------------------------------------------- */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    /* ----------------------------------------------------------------------------
+      VARIÁVEIS DE ESTILO
+    ---------------------------------------------------------------------------- */
     :root {
-      --color-primary: #007aff;       /* Azul Trip.com */
-      --color-primary-dark: #005dbf;  /* Azul escuro para hover */
-      --color-orange: #ff9900;        /* Laranja do valor total */
+      --color-primary: #007aff;        /* Azul principal Trip.com */
+      --color-primary-dark: #005dbf;   /* Azul escuro para hover */
+      --color-secondary: #ff9900;      /* Laranja para destaque de preço */
       --color-bg: #ffffff;
       --color-border: #eee;
       --color-border-dark: #ddd;
       --color-text: #333;
       --color-subtext: #666;
       --color-subtext-light: #888;
-      --font-family: Arial, sans-serif;
+      --font-family: 'Poppins', sans-serif;
       --transition-speed: 0.2s;
       --max-width: 1200px;
-      --header-height: 64px;          /* Ajuste conforme necessário */
+      --header-height: 64px;
     }
 
-    /* 
-    ============================================================================
+    /* ----------------------------------------------------------------------------
       RESET BÁSICO
-    ============================================================================
-    */
+    ---------------------------------------------------------------------------- */
     * {
       margin: 0;
       padding: 0;
@@ -41,111 +42,156 @@
       background-color: var(--color-bg);
       color: var(--color-text);
       line-height: 1.4;
+      overflow-x: hidden; /* Evitar scroll horizontal */
     }
 
-    /* 
-    ============================================================================
-      TOPO (BARRA AZUL) - LOGO E LINKS
-    ============================================================================
-    */
+    /* ----------------------------------------------------------------------------
+      TOPO (BARRA COM GRADIENTE)
+    ---------------------------------------------------------------------------- */
     .top-bar {
       width: 100%;
       height: var(--header-height);
-      background-color: var(--color-primary);
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 5%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .top-bar-left h1 {
       color: #fff;
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 600;
     }
 
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
     .top-bar-right a {
-      margin-left: 2rem;
       color: #fff;
       text-decoration: none;
       font-size: 0.9rem;
       transition: opacity var(--transition-speed);
+      position: relative;
+      padding-left: 24px;
     }
 
     .top-bar-right a:hover {
       opacity: 0.8;
     }
 
-    /* 
-    ============================================================================
-      PASSOS (ETAPAS) ABAIXO DA BARRA AZUL
-    ============================================================================
-    */
+    /* Exemplos de pseudo-ícones em links */
+    .top-bar-right a[href*="Ajuda"]::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm-.25 17h-.5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h.5c.41 0 .75.34.75.75s-.34.75-.75.75zm1.74-5.48c-.44.36-.74.61-.74 1.23v.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-.25c0-1.16.77-1.75 1.24-2.11.43-.33.76-.58.76-1.14 0-.66-.54-1.2-1.2-1.2s-1.2.54-1.2 1.2c0 .41-.34.75-.75.75s-.75-.34-.75-.75c0-1.51 1.24-2.75 2.75-2.75S14 9.74 14 11.25c0 .99-.53 1.52-1.51 2.27z"%3E%3C/path%3E%3C/svg%3E');
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .top-bar-right a[href*="Entrar"]::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" viewBox="0 0 24 24" width="16" height="16"%3E%3Cpath d="M12 12c2.7 0 4.88-2.2 4.88-4.88S14.7 2.24 12 2.24c-2.7 0-4.88 2.2-4.88 4.88S9.3 12 12 12zm6.65 1.3c-.44-.11-.85-.37-1.16-.72-.79-.91-1.94-1.44-3.24-1.44h-4.7c-1.3 0-2.45.53-3.24 1.44-.31.35-.72.61-1.16.72C4.48 13.37 4 14.04 4 14.78v1.72c0 .97.79 1.76 1.76 1.76h12.48c.97 0 1.76-.79 1.76-1.76v-1.72c0-.74-.48-1.41-1.35-1.48z"%3E%3C/path%3E%3C/svg%3E');
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    /* ----------------------------------------------------------------------------
+      PASSOS (ETAPAS)
+    ---------------------------------------------------------------------------- */
     .steps-container {
       width: 90%;
       max-width: var(--max-width);
       margin: 1rem auto;
       display: flex;
-      justify-content: flex-start;
-      gap: 1.5rem;
+      align-items: center;
+      gap: 2rem;
       font-size: 0.9rem;
       color: var(--color-subtext);
     }
 
-    .steps-container span {
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: color var(--transition-speed);
       position: relative;
-      padding-right: 16px;
     }
 
-    .steps-container span::after {
+    .step:hover {
+      color: var(--color-primary-dark);
+    }
+
+    .step::after {
       content: ">";
       position: absolute;
-      right: 5px;
-      top: 0;
+      right: -15px;
       color: var(--color-border);
     }
 
-    .steps-container span:last-of-type::after {
+    .step:last-of-type::after {
       content: "";
     }
 
-    /* 
-    ============================================================================
-      CONTAINER PRINCIPAL DO CONTEÚDO (VOOS, ETC.)
-    ============================================================================
-    */
+    .step-circle {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+    }
+
+    /* ----------------------------------------------------------------------------
+      CONTEÚDO PRINCIPAL
+    ---------------------------------------------------------------------------- */
     .content-container {
       width: 90%;
       max-width: var(--max-width);
-      margin: 1rem auto 3rem auto;
+      margin: 2rem auto 3rem auto;
       display: flex;
-      gap: 2rem;  /* Espaço entre o bloco de voos e o card fixo */
+      gap: 2rem;
       position: relative;
     }
 
     /* 
-    ============================================================================
-      COLUNA ESQUERDA: INFORMAÇÕES DA VIAGEM
-    ============================================================================
+      COLUNA ESQUERDA (VOOS)
     */
     .left-section {
       flex: 1;
-      min-width: 0; /* Para evitar overflow em flex */
+      min-width: 0;
     }
 
     .left-section h2 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 500;
       margin-bottom: 0.5rem;
       color: var(--color-text);
     }
 
-    .left-section .flight-meta {
+    .flight-subinfo {
       font-size: 0.95rem;
-      color: var(--color-subtext);
+      color: var(--color-subtext-light);
       margin-bottom: 1.5rem;
     }
 
-    /* Exemplo de bloco de voo (Ida, Volta) */
+    /* 
+      BLOCO DE VOO (IDA / VOLTA)
+    */
     .flight-block {
       display: flex;
       align-items: center;
@@ -158,6 +204,7 @@
       font-weight: 600;
       color: var(--color-text);
       width: 50px;
+      text-align: right;
     }
 
     .flight-airport {
@@ -172,17 +219,14 @@
       margin: 0 0.5rem;
     }
 
-    /* Para destacar o aeroporto ou a cia em laranja, se quiser */
     .highlight-orange {
-      color: var(--color-orange);
+      color: var(--color-secondary);
       font-weight: 600;
     }
 
-    /* 
-    ============================================================================
-      CARD DE PREÇO FIXO (DIREITA)
-    ============================================================================
-    */
+    /* ----------------------------------------------------------------------------
+      CARTÃO DE PREÇO (FIXO)
+    ---------------------------------------------------------------------------- */
     .price-card {
       position: fixed;
       top: calc(var(--header-height) + 60px);
@@ -194,6 +238,12 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       padding: 1rem;
       z-index: 10;
+      transition: transform 0.3s ease;
+    }
+
+    .price-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .price-card h3 {
@@ -214,52 +264,73 @@
       margin-top: 0.8rem;
       font-size: 1.3rem;
       font-weight: 700;
-      color: var(--color-orange);
+      color: var(--color-secondary);
+      transition: transform var(--transition-speed);
+      cursor: default;
     }
 
-    /* 
-    ============================================================================
-      RODAPÉ (OPCIONAL)
-    ============================================================================
-    */
+    .price-total:hover {
+      transform: scale(1.03);
+    }
+
+    /* ----------------------------------------------------------------------------
+      RODAPÉ
+    ---------------------------------------------------------------------------- */
     footer {
       width: 90%;
       max-width: var(--max-width);
       margin: 2rem auto;
       text-align: center;
       font-size: 0.85rem;
-      color: var(--color-subtext);
+      color: var(--color-subtext-light);
       border-top: 1px solid var(--color-border);
       padding-top: 1rem;
     }
 
-    /* 
-    ============================================================================
+    /* ----------------------------------------------------------------------------
       RESPONSIVIDADE
-    ============================================================================
-    */
+    ---------------------------------------------------------------------------- */
+    @media (max-width: 992px) {
+      .top-bar-right {
+        gap: 1rem;
+      }
+      .flight-time {
+        width: 40px;
+      }
+    }
+
     @media (max-width: 768px) {
       .steps-container {
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.8rem;
       }
-
       .price-card {
         position: static;
         width: 100%;
         margin-top: 1rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       }
-
       .content-container {
         flex-direction: column;
       }
     }
+
+    @media (max-width: 480px) {
+      .top-bar-left h1 {
+        font-size: 1.2rem;
+      }
+      .flight-time {
+        width: 40px;
+      }
+      .flight-arrow {
+        font-size: 1rem;
+      }
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- Barra Superior (Azul) -->
+  <!-- BARRA SUPERIOR (GRADIENTE) -->
   <header class="top-bar">
     <div class="top-bar-left">
       <h1>Trip.com</h1>
@@ -270,84 +341,85 @@
     </div>
   </header>
 
-  <!-- Passos (Etapas) -->
+  <!-- PASSOS (ETAPAS) -->
   <div class="steps-container">
-    <span>Preencha suas informações</span>
-    <span>Mais vendidos</span>
-    <span>Selecionar extras</span>
-    <span>Finalize seu pagamento</span>
+    <div class="step">
+      <div class="step-circle"></div>
+      <span>Preencha suas informações</span>
+    </div>
+    <div class="step">
+      <div class="step-circle"></div>
+      <span>Mais vendidos</span>
+    </div>
+    <div class="step">
+      <div class="step-circle"></div>
+      <span>Selecionar extras</span>
+    </div>
+    <div class="step">
+      <div class="step-circle"></div>
+      <span>Finalize seu pagamento</span>
+    </div>
   </div>
 
-  <!-- Container Principal -->
+  <!-- CARTÃO DE PREÇO FIXO -->
+  <aside class="price-card">
+    <h3>Detalhes do preço</h3>
+    <div class="price-item">
+      <span>Passagem (1 adulto)</span>
+      <span>Grátis</span>
+    </div>
+    <div class="price-item">
+      <span>Bagagem</span>
+      <span>Grátis</span>
+    </div>
+    <div class="price-item">
+      <span>Bagagem de mão</span>
+      <span>Grátis</span>
+    </div>
+    <div class="price-item">
+      <span>Bagagem despachada</span>
+      <span>Não incluso</span>
+    </div>
+    <div class="price-item">
+      <span>Serviços</span>
+      <span>Incluído</span>
+    </div>
+    <div class="price-total">R$ 3.013,84</div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
   <div class="content-container">
-    
-    <!-- Coluna Esquerda: Detalhes do voo -->
     <div class="left-section">
       <h2>Viagem para Bangcoc</h2>
-      <div class="flight-meta">qua, 15 mar | Duração: 7h 25m</div>
+      <div class="flight-subinfo">qua, 15 mar | Duração: 7h 25m</div>
 
-      <!-- Ida -->
+      <!-- BLOCO DE VOO: IDA -->
       <div class="flight-block">
         <div class="flight-time">09:00</div>
-        <div>
-          <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
-        </div>
+        <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
         <div class="flight-arrow">→</div>
         <div class="flight-time">15:00</div>
-        <div>
-          <div class="flight-airport highlight-orange">BKK Bangkok Suvarnabhumi</div>
-        </div>
+        <div class="flight-airport highlight-orange">BKK Bangkok Suvarnabhumi</div>
       </div>
 
-      <!-- Volta -->
-      <div class="flight-meta">qua, 22 mar | Duração: 7h 25m</div>
+      <!-- BLOCO DE VOO: VOLTA -->
+      <div class="flight-subinfo">qua, 22 mar | Duração: 7h 25m</div>
       <div class="flight-block">
         <div class="flight-time">23:50</div>
-        <div>
-          <div class="flight-airport">DMK Bangkok Don Mueang Int. T1</div>
-        </div>
+        <div class="flight-airport">DMK Bangkok Don Mueang Int. T1</div>
         <div class="flight-arrow">→</div>
         <div class="flight-time">06:00</div>
-        <div>
-          <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
-        </div>
-        <!-- Linha com cia e classe em subtexto ou cor diferenciada -->
+        <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
       </div>
       <div class="flight-airport" style="margin-left: 50px;">
         <span class="highlight-orange">AirAsia X X000 | 3850 Econômica</span>
       </div>
     </div>
-
-    <!-- Cartão de preço fixo (Coluna Direita) -->
-    <aside class="price-card">
-      <h3>Detalhes do preço</h3>
-      <div class="price-item">
-        <span>Passagem (1 adulto)</span>
-        <span>Grátis</span>
-      </div>
-      <div class="price-item">
-        <span>Bagagem</span>
-        <span>Grátis</span>
-      </div>
-      <div class="price-item">
-        <span>Bagagem de mão</span>
-        <span>Grátis</span>
-      </div>
-      <div class="price-item">
-        <span>Bagagem despachada</span>
-        <span>Não incluso</span>
-      </div>
-      <div class="price-item">
-        <span>Serviços</span>
-        <span>Incluído</span>
-      </div>
-      <div class="price-total">R$ 3.013,84</div>
-    </aside>
   </div>
 
-  <!-- Rodapé -->
+  <!-- RODAPÉ -->
   <footer>
-    © 2025 - Checkout Trip.com (Exemplo)
+    © 2025 - Checkout Trip.com (Exemplo UI/UX Avançado)
   </footer>
 
 </body>
