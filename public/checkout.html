@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Checkout</title>
+    <!-- Importa o header-component para que o <app-header> seja registrado -->
     <script src="/js/header-component.js" type="module"></script>
     <style>
       /*===========================
@@ -257,6 +258,13 @@
         font-weight: 700;
         color: #00c853;
         text-align: right;
+      }
+      
+      /* Detalhes adicionais do item */
+      .reserva-details p {
+        font-size: 0.8rem;
+        margin: 2px 0;
+        color: #555;
       }
       
       /* ======= Resumo da Compra ======= */
@@ -695,7 +703,7 @@
         e.target.value = formatCEP(e.target.value);
       });
       
-      // Integração com o carrinho: atualiza o resumo do pedido
+      // Integração com o carrinho: atualiza o resumo do pedido com os detalhes
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -708,6 +716,12 @@
               <div class="reserva-left">
                 <span class="categoria">${item.type || "Hospedagem"}</span>
                 <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+                <div class="reserva-details">
+                  <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                  <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                  <p>Quartos: ${item.rooms || 1}</p>
+                  <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+                </div>
               </div>
               <div class="reserva-preco">
                 R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
