@@ -1,5 +1,3 @@
-Nesse código
-
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -9,7 +7,7 @@ Nesse código
       /*===========================
           COMMON css
       ===========================*/
-      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap");
       html {
         scroll-behavior: smooth;
       }
@@ -146,41 +144,6 @@ Nesse código
       }
       .mb-10 {
         margin-bottom: 10px;
-      }
-      
-      /* ================= Header ================== */
-      .header {
-        padding: 22px 0;
-        background: #fff;
-        position: sticky;
-        top: 0;
-        z-index: 99;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-left: 5%;
-        padding-right: 5%;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-      
-      .header .logo {
-        font-size: 1.8rem;
-        color: #333;
-        font-weight: 600;
-      }
-      
-      .header .nav-links a {
-        color: #333;
-        text-decoration: none;
-        margin-left: 1.5rem;
-        font-size: 1rem;
-        transition: opacity 0.25s;
-        position: relative;
-        padding-left: 24px;
-      }
-      
-      .header .nav-links a:hover {
-        opacity: 0.85;
       }
       
       /* ================= Steps ================== */
@@ -498,18 +461,12 @@ Nesse código
         margin-bottom: 10px;
       }
     </style>
+    <!-- Importa o componente de Header do primeiro projeto -->
+    <script src="/js/header-component.js" type="module"></script>
   </head>
   <body>
-    <!-- Cabeçalho -->
-    <header class="header">
-      <div class="header-left">
-        <h1 class="logo">Trip.com</h1>
-      </div>
-      <div class="header-right nav-links">
-        <a href="#">Ajuda</a>
-        <a href="#">Entrar / Criar conta</a>
-      </div>
-    </header>
+    <!-- Cabeçalho substituído pela header importada -->
+    <app-header></app-header>
     
     <!-- Passos -->
     <div class="steps-container mt-20 mb-20">
@@ -527,14 +484,15 @@ Nesse código
         <div class="card-style-1 mb-20">
           <h2 class="mb-10">Seguro Viagem em Poucos Cliques</h2>
           <p class="mb-15">
-          Evite riscos: o seguro do cartão tende a exigir pagamento adiantado com reembolso incerto. Garanta já seu seguro viagem e deixe os especialistas cuidarem de tudo.
+            Evite riscos: o seguro do cartão tende a exigir pagamento adiantado com reembolso incerto. Garanta já seu seguro viagem e deixe os especialistas cuidarem de tudo.
           </p>
           <div class="vip-card mb-15">
             <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
             <div class="vip-info">
               <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-              <span class="title"
-                >Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.</span>
+              <span class="title">
+                Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
+              </span>
               <span class="price">R$ 119,00 /pessoa</span>
               <div class="actions">
                 <a href="#">Detalhes</a>
@@ -546,8 +504,9 @@ Nesse código
             <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
             <div class="vip-info">
               <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-              <span class="title"
-                >Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.</span>
+              <span class="title">
+                Cobertura de até U$ 60 mil que incluem Despesas Médicas, Hospitalares, Atraso de Vôo, Atraso e perda de bagagem e muito mais.
+              </span>
               <span class="price">R$ 119,00 /pessoa</span>
               <div class="actions">
                 <a href="#">Detalhes</a>
@@ -562,9 +521,7 @@ Nesse código
           <div class="traveler-form-header mb-15">
             <h2>Quem vai viajar?</h2>
             <div class="actions">
-              <a href="#"
-                >Faça login para fazer reservas mais facilmente</a
-              >
+              <a href="#">Faça login para fazer reservas mais facilmente</a>
               <a href="#">Limpar</a>
             </div>
           </div>
@@ -602,16 +559,12 @@ Nesse código
                 <input type="text" placeholder="123456789" />
               </div>
               <div class="form-field">
-                <label
-                  >Programa de passageiro frequente (opcional)</label
-                >
+                <label>Programa de passageiro frequente (opcional)</label>
                 <input type="text" placeholder="Número do programa" />
               </div>
             </div>
             <p class="form-note mt-15">
-              * Insira o nome exatamente como aparece em seus documentos de
-              viagem para o check-in. Se o nome estiver incorreto, você pode não
-              conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
+              * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
             </p>
           </div>
           <button class="btn-save-passenger mt-20">Salvar</button>
@@ -631,12 +584,8 @@ Nesse código
             />
             <div class="reserva-left">
               <span class="categoria">Ingressos</span>
-              <span class="nome"
-                >Walt Disney World - 02 Dias - Base Tickets</span
-              >
-              <span class="subinfo"
-                >13/03/2025 | Adultos: 2 | Crianças: 1</span
-              >
+              <span class="nome">Walt Disney World - 02 Dias - Base Tickets</span>
+              <span class="subinfo">13/03/2025 | Adultos: 2 | Crianças: 1</span>
             </div>
             <div class="reserva-preco">R$ 3.627,19</div>
           </div>
@@ -648,12 +597,8 @@ Nesse código
             />
             <div class="reserva-left">
               <span class="categoria">Hospedagem</span>
-              <span class="nome"
-                >Monreale Express Orlando - 2 BEDROOM Suite</span
-              >
-              <span class="subinfo"
-                >15/03/2025 | Adultos: 2 | Crianças: 0</span
-              >
+              <span class="nome">Monreale Express Orlando - 2 BEDROOM Suite</span>
+              <span class="subinfo">15/03/2025 | Adultos: 2 | Crianças: 0</span>
             </div>
             <div class="reserva-preco">R$ 6.359,97</div>
           </div>
