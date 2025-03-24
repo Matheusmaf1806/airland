@@ -327,6 +327,13 @@ class ShoppingCart extends HTMLElement {
   }
 
   connectedCallback() {
+    // Carregar itens salvos do localStorage, se houver
+    const savedItems = localStorage.getItem("cartItems");
+    if (savedItems) {
+      this.items = JSON.parse(savedItems);
+      this.renderCartItems();
+    }
+    
     const stored = localStorage.getItem("shareId");
     if (stored) {
       this.shareId = stored;
@@ -362,6 +369,8 @@ class ShoppingCart extends HTMLElement {
 
   addItem(item) {
     this.items.push(item);
+    // Salva os itens no localStorage
+    localStorage.setItem("cartItems", JSON.stringify(this.items));
     this.renderCartItems();
   }
 
@@ -435,6 +444,8 @@ class ShoppingCart extends HTMLElement {
 
   removeItem(index) {
     this.items.splice(index, 1);
+    // Atualiza o localStorage após remover
+    localStorage.setItem("cartItems", JSON.stringify(this.items));
     this.renderCartItems();
   }
 
@@ -570,6 +581,7 @@ class ShoppingCart extends HTMLElement {
   async clearCartServer() {
     if (!this.shareId) {
       this.items = [];
+      localStorage.removeItem("cartItems"); // Limpa o localStorage
       this.renderCartItems();
       alert("Carrinho local limpo!");
       return;
@@ -584,6 +596,7 @@ class ShoppingCart extends HTMLElement {
       if (data.success) {
         alert("Carrinho removido do servidor!");
         this.items = [];
+        localStorage.removeItem("cartItems"); // Limpa o localStorage
         this.renderCartItems();
         this.shareId = null;
         localStorage.removeItem("shareId");
