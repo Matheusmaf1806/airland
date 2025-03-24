@@ -327,13 +327,14 @@ class ShoppingCart extends HTMLElement {
   }
 
   connectedCallback() {
-    // Carregar itens salvos do localStorage, se houver
+    // Carrega itens salvos do localStorage, se houver
     const savedItems = localStorage.getItem("cartItems");
     if (savedItems) {
       this.items = JSON.parse(savedItems);
       this.renderCartItems();
     }
     
+    // Tratamento do shareId (se houver)
     const stored = localStorage.getItem("shareId");
     if (stored) {
       this.shareId = stored;
@@ -349,12 +350,21 @@ class ShoppingCart extends HTMLElement {
 
     this.renderCartItems();
 
+    // Eventos do componente
     this.shadowRoot.querySelector('.close-cart-btn')
       .addEventListener('click', () => this.closeCart());
     this.shadowRoot.querySelector('.share-cart-btn')
       .addEventListener('click', () => this.shareCart());
     this.shadowRoot.querySelector('.clear-cart-btn')
       .addEventListener('click', () => this.clearCartServer());
+
+    // Redireciona para o checkout ao clicar no botão
+    const checkoutBtn = this.shadowRoot.querySelector('.checkout-btn');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', () => {
+        window.location.href = "checkout.html";
+      });
+    }
   }
 
   openCart() {
@@ -493,7 +503,6 @@ class ShoppingCart extends HTMLElement {
     const storedAgentId = localStorage.getItem("agentId");
     if (!storedAgentId) {
       alert("Você precisa estar logado para compartilhar o carrinho.");
-      // Aqui você pode redirecionar o usuário para a página de login ou exibir o componente de login
       return;
     }
 
@@ -510,7 +519,6 @@ class ShoppingCart extends HTMLElement {
     }
 
     const affiliateId = "aff123";
-    // Agora, usamos o agentId armazenado
     const requestBody = {
       affiliateId,
       agentId: storedAgentId,
@@ -528,7 +536,6 @@ class ShoppingCart extends HTMLElement {
         this.shareId = data.shareId;
         localStorage.setItem("shareId", this.shareId);
         const link = window.location.origin + window.location.pathname + "?shareId=" + this.shareId;
-
         try {
           await navigator.clipboard.writeText(link);
           alert("Carrinho compartilhado e link copiado para a área de transferência!\n" + link);
@@ -581,7 +588,7 @@ class ShoppingCart extends HTMLElement {
   async clearCartServer() {
     if (!this.shareId) {
       this.items = [];
-      localStorage.removeItem("cartItems"); // Limpa o localStorage
+      localStorage.removeItem("cartItems");
       this.renderCartItems();
       alert("Carrinho local limpo!");
       return;
@@ -596,7 +603,7 @@ class ShoppingCart extends HTMLElement {
       if (data.success) {
         alert("Carrinho removido do servidor!");
         this.items = [];
-        localStorage.removeItem("cartItems"); // Limpa o localStorage
+        localStorage.removeItem("cartItems");
         this.renderCartItems();
         this.shareId = null;
         localStorage.removeItem("shareId");
