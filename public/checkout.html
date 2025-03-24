@@ -453,34 +453,31 @@
         margin: 0.25rem 0;
       }
       
-      /* ======== NOVA CARD: Resumo da Compra ======== */
+      /* ======= Resumo da Compra (dentro do mesmo cartão de reserva) ======= */
       .resumo-compra {
         margin-top: 20px;
-        padding: 20px;
-        border: 1px solid #efefef;
-        border-radius: 10px;
-        background: #fff;
-        box-shadow: 0px 12px 24px -4px rgba(145, 158, 171, 0.12),
-          0px 0px 2px 0px rgba(145, 158, 171, 0.2);
+        padding: 15px;
+        border-top: 1px solid #eee;
       }
       
       .resumo-compra h2 {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
         color: #333;
         font-weight: 600;
       }
       
       .resumo-compra .form-field {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
       }
       
       .resumo-compra p {
         font-weight: 500;
+        margin: 0;
       }
       
       .resumo-compra .fields-grid-2cols {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
       }
       
       /* ================= Rodapé ================== */
@@ -773,27 +770,27 @@
             <span>Copo da Universal</span>
             <span>Ganhe na retirada do seu voucher</span>
           </div>
-        </div>
-        <!-- Nova área: Resumo da Compra -->
-        <div class="card-style-1 resumo-compra">
-          <h2>Resumo da Compra</h2>
-          <div class="form-field">
-            <label>Cupom de desconto</label>
-            <input type="text" placeholder="Insira seu cupom" />
-          </div>
-          <div class="fields-grid-2cols">
+          <!-- Resumo da Compra integrado no mesmo cartão -->
+          <div class="resumo-compra">
+            <h2>Resumo da Compra</h2>
             <div class="form-field">
-              <label>Subtotal</label>
-              <p>R$ 10.000,00</p>
+              <label>Cupom de desconto</label>
+              <input type="text" placeholder="Insira seu cupom" />
+            </div>
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Subtotal</label>
+                <p>R$ 10.000,00</p>
+              </div>
+              <div class="form-field">
+                <label>Desconto</label>
+                <p>R$ 500,00</p>
+              </div>
             </div>
             <div class="form-field">
-              <label>Desconto</label>
-              <p>R$ 500,00</p>
+              <label>Total</label>
+              <p>R$ 9.500,00</p>
             </div>
-          </div>
-          <div class="form-field">
-            <label>Total</label>
-            <p>R$ 9.500,00</p>
           </div>
         </div>
       </div>
@@ -855,14 +852,12 @@
       
       // Funções de formatação
       function formatCelular(value) {
-        // Se o usuário digitar um "+" no início, não forçamos o "+55"
         if (value.charAt(0) === '+') {
           let digits = value.slice(1).replace(/\D/g, '');
           return '+' + digits;
         }
         let digits = value.replace(/\D/g, '');
         if (digits === '') return '';
-        // Se os dígitos não iniciarem com "55", prefixamos "55"
         if (!digits.startsWith('55')) {
           digits = '55' + digits;
         }
