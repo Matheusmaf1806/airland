@@ -820,8 +820,9 @@
       
       // Funções de formatação
       function formatCelular(value) {
+        // Remove o prefixo "+55" se já estiver presente
+        value = value.replace(/^\+55\s?/, '');
         let digits = value.replace(/\D/g, '');
-        if (digits === '') return '';
         // Limita a 11 dígitos
         digits = digits.substring(0, 11);
         let formatted = '+55 ';
