@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Trip.com - Checkout (2 colunas)</title>
+  <title>Trip.com - Checkout Completo</title>
   <style>
     /* ----------------------------------------------------------------------------
-      IMPORTANDO FONTE (Poppins ou Arial)
+      IMPORTANDO FONTE (Exemplo: Poppins)
     ---------------------------------------------------------------------------- */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
@@ -13,9 +13,9 @@
       VARIÁVEIS DE ESTILO
     ---------------------------------------------------------------------------- */
     :root {
-      --color-primary: #007aff;       /* Azul principal Trip.com */
+      --color-primary: #007aff;       /* Azul principal (Trip.com) */
       --color-primary-dark: #005dbf;  /* Azul escuro (hover) */
-      --color-secondary: #ff9900;     /* Laranja (valor total) */
+      --color-secondary: #ff9900;     /* Laranja (para destaques) */
       --color-bg: #ffffff;
       --color-border: #eee;
       --color-border-dark: #ddd;
@@ -46,7 +46,7 @@
     }
 
     /* ----------------------------------------------------------------------------
-      TOPO (BARRA AZUL)
+      BARRA SUPERIOR (LOGO, LINKS)
     ---------------------------------------------------------------------------- */
     .top-bar {
       width: 100%;
@@ -118,20 +118,83 @@
       gap: 2rem;
     }
 
-    /* COLUNA ESQUERDA (FLEX:1) */
+    /* COLUNA ESQUERDA */
     .left-col {
       flex: 1;
-      min-width: 0; /* evita estouro em flex */
+      min-width: 0; /* Evita estouro em flex */
     }
 
-    /* COLUNA DIREITA (BRINDES DISPONÍVEIS) */
+    /* COLUNA DIREITA */
     .right-col {
-      width: 320px; /* ajuste conforme desejar */
+      width: 320px; /* Ajuste conforme desejar */
       flex-shrink: 0;
     }
 
     /* ----------------------------------------------------------------------------
-      CONTEÚDO DA ESQUERDA (EXEMPLOS DE SEÇÕES)
+      SEÇÃO: INFORMAÇÕES DA RESERVA
+    ---------------------------------------------------------------------------- */
+    .info-reserva-section {
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .info-reserva-section h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: var(--color-text);
+    }
+
+    .reserva-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+      padding: 0.5rem 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .reserva-item:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .reserva-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .reserva-left .categoria {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    .reserva-left .nome {
+      font-size: 0.85rem;
+      color: var(--color-text);
+    }
+
+    .reserva-left .subinfo {
+      font-size: 0.8rem;
+      color: var(--color-subtext-light);
+    }
+
+    .reserva-preco {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-left: 1rem;
+      white-space: nowrap; /* Evita quebra de linha no preço */
+    }
+
+    /* ----------------------------------------------------------------------------
+      SEÇÃO: SALAS VIP
     ---------------------------------------------------------------------------- */
     .section {
       background-color: #fff;
@@ -155,107 +218,93 @@
       margin-bottom: 1rem;
     }
 
-    /* ----------------------------------------------------------------------------
-      BRINDE DISPONÍVEL (COLUNA DIREITA)
-    ---------------------------------------------------------------------------- */
-    .brindes-section {
-      background-color: #fff;
+    .vip-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
       border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 6px;
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      background-color: #fff;
+      transition: box-shadow var(--transition-speed);
     }
 
-    .brindes-section h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
-      font-weight: 600;
+    .vip-item:hover {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
 
-    .brinde-item {
+    .vip-img {
+      width: 100px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+    }
+
+    .vip-info {
       display: flex;
       flex-direction: column;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--color-border);
-      margin-bottom: 0.5rem;
+      gap: 0.2rem;
+      flex: 1;
     }
 
-    .brinde-item:last-of-type {
-      border-bottom: none;
-      margin-bottom: 0;
+    .vip-badge {
+      display: inline-block;
+      background-color: var(--color-primary);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
     }
 
-    .brinde-category,
-    .brinde-name,
-    .brinde-info {
-      font-size: 0.85rem;
-      color: var(--color-text);
-      margin: 2px 0;
-    }
-
-    .brinde-category {
+    .vip-title {
+      font-size: 0.9rem;
       font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .vip-price {
+      font-size: 0.9rem;
       color: var(--color-primary);
+      font-weight: 500;
     }
 
-    .brinde-name {
-      color: var(--color-subtext);
+    .vip-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.3rem;
     }
 
-    .brinde-info {
+    .vip-details {
+      font-size: 0.8rem;
       color: var(--color-subtext-light);
+      text-decoration: none;
+      transition: color var(--transition-speed);
     }
 
-    .brindes-total {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--color-secondary);
-      text-align: right;
+    .vip-details:hover {
+      color: var(--color-primary-dark);
+    }
+
+    .btn-add {
+      background-color: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background-color var(--transition-speed);
+    }
+
+    .btn-add:hover {
+      background-color: var(--color-primary-dark);
     }
 
     /* ----------------------------------------------------------------------------
-      EXEMPLO DE SEÇÃO: VOOS, SALAS VIP, FORM PASSAGEIROS
+      SEÇÃO: QUEM VAI VIAJAR?
     ---------------------------------------------------------------------------- */
-    .flight-subinfo {
-      font-size: 0.9rem;
-      color: var(--color-subtext-light);
-      margin-bottom: 1rem;
-    }
-
-    .flight-block {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .flight-time {
-      font-size: 1rem;
-      font-weight: 600;
-      width: 50px;
-      text-align: right;
-      color: var(--color-text);
-    }
-
-    .flight-arrow {
-      color: var(--color-primary);
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-
-    .flight-airport {
-      font-size: 0.85rem;
-      color: var(--color-subtext);
-    }
-
-    .highlight-orange {
-      color: var(--color-secondary);
-      font-weight: 600;
-    }
-
-    /* Formulário de passageiros */
     .passenger-form {
       display: flex;
       flex-wrap: wrap;
@@ -315,6 +364,48 @@
     }
 
     /* ----------------------------------------------------------------------------
+      COLUNA DIREITA: BRINDES DISPONÍVEIS
+    ---------------------------------------------------------------------------- */
+    .brindes-section {
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .brindes-section h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .brinde-item {
+      display: flex;
+      flex-direction: column;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 0.5rem;
+    }
+
+    .brinde-item:last-of-type {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .brinde-item span {
+      font-size: 0.85rem;
+      color: var(--color-text);
+      margin: 2px 0;
+    }
+
+    .brinde-item span:first-of-type {
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    /* ----------------------------------------------------------------------------
       RODAPÉ
     ---------------------------------------------------------------------------- */
     footer {
@@ -339,6 +430,7 @@
         width: 100%;
       }
     }
+
   </style>
 </head>
 <body>
@@ -365,41 +457,67 @@
   <!-- Container principal em 2 colunas -->
   <div class="main-container">
 
-    <!-- Coluna Esquerda (Exemplo de Conteúdo) -->
+    <!-- COLUNA ESQUERDA -->
     <div class="left-col">
 
-      <!-- Exemplo: Informações de voo -->
-      <div class="section">
-        <h2>Viagem para Bangcoc</h2>
-        <p class="flight-subinfo">qui, 13 mar | Duração: 7h 25m</p>
-        <div class="flight-block">
-          <div class="flight-time">17:35</div>
-          <span class="flight-airport">Narita International Airport T1</span>
-          <span class="flight-arrow">→</span>
-          <div class="flight-time">23:00</div>
-          <span class="flight-airport highlight-orange">Suvarnabhumi Airport</span>
+      <!-- Informações da reserva (Categoria, Nome, Data, Adultos, Crianças, Preço à direita) -->
+      <div class="info-reserva-section">
+        <h2>Informações da reserva</h2>
+
+        <!-- Exemplo 1: Ingressos -->
+        <div class="reserva-item">
+          <div class="reserva-left">
+            <span class="categoria">Ingressos</span>
+            <span class="nome">Walt Disney World - 02 Dias - Base Tickets</span>
+            <span class="subinfo">13/03/2025 | Adultos: 2 | Crianças: 1</span>
+          </div>
+          <div class="reserva-preco">R$ 3.627,19</div>
         </div>
-        <p class="flight-subinfo">sab, 15 mar | Duração: 6h 5m</p>
-        <div class="flight-block">
-          <div class="flight-time">11:55</div>
-          <span class="flight-airport">Don Mueang Int. Airport T1</span>
-          <span class="flight-arrow">→</span>
-          <div class="flight-time">20:00</div>
-          <span class="flight-airport">Narita International Airport T1</span>
-        </div>
-        <div class="flight-airport" style="margin-left: 50px;">
-          <span class="highlight-orange">AirAsia X X000 | 3850 Econômica</span>
+
+        <!-- Exemplo 2: Hospedagem -->
+        <div class="reserva-item">
+          <div class="reserva-left">
+            <span class="categoria">Hospedagem</span>
+            <span class="nome">Monreale Express Orlando - 2 BEDROOM Suite</span>
+            <span class="subinfo">15/03/2025 | Adultos: 2 | Crianças: 0</span>
+          </div>
+          <div class="reserva-preco">R$ 6.359,97</div>
         </div>
       </div>
 
-      <!-- Exemplo: Salas VIP -->
+      <!-- Salas VIP -->
       <div class="section">
         <h2>Salas VIP</h2>
         <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
-        <!-- Conteúdo de salas VIP... -->
+
+        <div class="vip-item">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
+          <div class="vip-info">
+            <span class="vip-badge">Ida</span>
+            <span class="vip-title">Tóquio Narita International Airport T1 IASS Executive Lounge</span>
+            <span class="vip-price">R$ 119,00 /pessoa</span>
+            <div class="vip-actions">
+              <a href="#" class="vip-details">Detalhes</a>
+              <button class="btn-add">Adicionar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="vip-item">
+          <img src="https://via.placeholder.com/100x60" alt="Sala VIP" class="vip-img">
+          <div class="vip-info">
+            <span class="vip-badge">Volta</span>
+            <span class="vip-title">Bangcoc Don Mueang Int. Airport T1 Miracle Lounge (T1 - Level 3)</span>
+            <span class="vip-price">R$ 145,13 /pessoa</span>
+            <div class="vip-actions">
+              <a href="#" class="vip-details">Detalhes</a>
+              <button class="btn-add">Adicionar</button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Exemplo: Formulário de passageiros -->
+      <!-- Quem vai viajar? (Formulário de Passageiros) -->
       <div class="section">
         <h2>Quem vai viajar?</h2>
         <p style="font-size:0.8rem; color: var(--color-primary); text-align:right; cursor:pointer;">
@@ -457,34 +575,30 @@
       </div>
     </div>
 
-    <!-- Coluna Direita (Brindes Disponíveis) -->
+    <!-- COLUNA DIREITA: Brindes Disponíveis -->
     <div class="right-col">
       <div class="brindes-section">
         <h3>Brindes Disponíveis</h3>
-        
-        <!-- Brinde 1: Chip de Celular -->
+
+        <!-- Brinde 1 -->
         <div class="brinde-item">
-          <span class="brinde-category">Categoria: Chip de Celular</span>
-          <span class="brinde-name">Nome: Vivo 10GB</span>
-          <span class="brinde-info">qui, 13 mar | Adultos: 1 | Crianças: 0</span>
+          <span>Chip de Celular</span>
+          <span>Incluso na sua reserva</span>
         </div>
 
-        <!-- Brinde 2: Copo da Universal -->
+        <!-- Brinde 2 -->
         <div class="brinde-item">
-          <span class="brinde-category">Categoria: Copo da Universal</span>
-          <span class="brinde-name">Nome: Copo do Harry Potter</span>
-          <span class="brinde-info">sab, 15 mar | Adultos: 2 | Crianças: 1</span>
+          <span>Copo da Universal</span>
+          <span>Ganhe na retirada do seu voucher</span>
         </div>
-
-        <!-- Exemplo de um total ao final (opcional) -->
-        <div class="brindes-total">R$ 3.013,84</div>
       </div>
     </div>
+
   </div>
 
   <!-- Rodapé -->
   <footer>
-    © 2025 - Checkout Trip.com (Brindes Disponíveis)
+    © 2025 - Checkout Trip.com (Completo)
   </footer>
 
 </body>
