@@ -4,84 +4,145 @@
   <meta charset="UTF-8" />
   <title>Trip.com - Checkout</title>
   <style>
-    /* ------------------------------------------------------------------------
-       VARIÁVEIS DE CORES, FONTES E TRANSIÇÕES
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      FONTES E VARIÁVEIS DE ESTILO
+    =============================================================================
+    */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
     :root {
+      /* Cores principais e auxiliares */
       --color-primary: #007aff;       /* Azul principal do Trip.com */
-      --color-primary-hover: #005dbf; /* Azul mais escuro para hover */
-      --color-bg: #ffffff;            /* Fundo branco, como no print */
+      --color-primary-dark: #005dbf;  /* Azul mais escuro para hover */
+      --color-bg: #ffffff;            /* Fundo branco */
       --color-border: #eee;
+      --color-border-dark: #ddd;
       --color-text: #333;
-      --color-subtext: #888;
-      --color-highlight: #f2f8ff;     /* Fundo leve para destacar algo */
+      --color-subtext: #666;
+      --color-subtext-light: #888;
+      --color-highlight: #f2f8ff;
       --color-highlight-border: #cce1ff;
-      --font-family: 'Arial', sans-serif;
+
+      /* Cores extras para realces */
+      --color-step-active: #007aff;   /* Cor do passo ativo */
+      --color-step-inactive: #bbb;
+
+      /* Fontes e transições */
+      --font-family: 'Roboto', sans-serif;
       --transition-speed: 0.2s;
+
+      /* Tamanhos e espaçamentos */
+      --header-height: 60px;  /* Altura aproximada do cabeçalho */
+      --max-width: 1200px;
     }
 
-    /* ------------------------------------------------------------------------
-       RESET BÁSICO
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      RESET BÁSICO
+    =============================================================================
+    */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    body {
-      background-color: var(--color-bg);
+    html, body {
       font-family: var(--font-family);
+      background-color: var(--color-bg);
       color: var(--color-text);
       line-height: 1.4;
     }
 
-    /* ------------------------------------------------------------------------
-       CABEÇALHO SUPERIOR (LOGO, AJUDA, ENTRAR/CRIAR CONTA)
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      CABEÇALHO SUPERIOR (GRADIENTE, LOGO, LINKS)
+    =============================================================================
+    */
     .top-bar {
       width: 100%;
-      padding: 1rem 5%;
+      min-height: var(--header-height);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--color-border);
+      padding: 0 5%;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .top-bar-left h1 {
+      color: #fff;
       font-size: 1.5rem;
-      color: var(--color-primary);
-      font-weight: 600;
+      font-weight: 700;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
     }
 
     .top-bar-right a {
-      margin-left: 1.5rem;
+      color: #fff;
       text-decoration: none;
-      color: var(--color-primary);
       font-size: 0.9rem;
       transition: opacity var(--transition-speed);
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .top-bar-right a::before {
+      /* Exemplo de pseudo-ícone (ajuda, user) */
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-size: cover;
+    }
+
+    /* Ícone de Ajuda */
+    .top-bar-right a[href*="Ajuda"]::before {
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23fff" height="16" width="16" viewBox="0 0 24 24"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm-.25 17h-.5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h.5c.41 0 .75.34.75.75s-.34.75-.75.75zm1.74-5.48c-.44.36-.74.61-.74 1.23v.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-.25c0-1.16.77-1.75 1.24-2.11.43-.33.76-.58.76-1.14 0-.66-.54-1.2-1.2-1.2s-1.2.54-1.2 1.2c0 .41-.34.75-.75.75s-.75-.34-.75-.75c0-1.51 1.24-2.75 2.75-2.75S14 9.74 14 11.25c0 .99-.53 1.52-1.51 2.27z"></path></svg>');
+    }
+
+    /* Ícone de Login */
+    .top-bar-right a[href*="Entrar"]::before {
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23fff" height="16" width="16" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.88-2.2 4.88-4.88S14.7 2.24 12 2.24c-2.7 0-4.88 2.2-4.88 4.88S9.3 12 12 12zm6.65 1.3c-.44-.11-.85-.37-1.16-.72-.79-.91-1.94-1.44-3.24-1.44h-4.7c-1.3 0-2.45.53-3.24 1.44-.31.35-.72.61-1.16.72C4.48 13.37 4 14.04 4 14.78v1.72c0 .97.79 1.76 1.76 1.76h12.48c.97 0 1.76-.79 1.76-1.76v-1.72c0-.74-.48-1.41-1.35-1.48z"></path></svg>');
     }
 
     .top-bar-right a:hover {
       opacity: 0.8;
     }
 
-    /* ------------------------------------------------------------------------
-       LINHA DE ETAPAS
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      LINHA DE ETAPAS (PASSOS)
+    =============================================================================
+    */
     .steps-container {
       width: 90%;
+      max-width: var(--max-width);
       margin: 1rem auto;
       display: flex;
       justify-content: flex-start;
       gap: 2rem;
       font-size: 0.95rem;
-      color: var(--color-subtext);
+      color: var(--color-subtext-light);
     }
 
     .steps-container span {
       position: relative;
       padding-right: 20px;
+      cursor: pointer;
+      transition: color var(--transition-speed);
+    }
+
+    .steps-container span:hover {
+      color: var(--color-primary-dark);
     }
 
     .steps-container span::after {
@@ -96,48 +157,77 @@
       content: "";
     }
 
-    /* ------------------------------------------------------------------------
-       CONTEÚDO PRINCIPAL (TÍTULO DA VIAGEM, HORÁRIOS, ETC.)
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      CONTEÚDO PRINCIPAL
+    =============================================================================
+    */
     .main-content {
       width: 90%;
-      margin: 2rem auto;
+      max-width: var(--max-width);
+      margin: 1rem auto 3rem auto;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      /* Esse padding-bottom pode ajudar a não sobrepor o card fixo no mobile */
-      padding-bottom: 4rem;
     }
 
     .main-content h2 {
       font-size: 1.75rem;
       color: var(--color-text);
       margin-bottom: 0.5rem;
+      font-weight: 500;
     }
 
-    .flight-summary {
-      font-size: 0.95rem;
-      color: var(--color-subtext);
+    .flight-subinfo {
+      font-size: 1rem;
+      color: var(--color-subtext-light);
       margin-bottom: 1rem;
     }
 
-    /* Sessão que agrupa ida/volta */
+    /* 
+      Seção que agrupa as infos de ida/volta
+    */
     .flight-section {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      border-bottom: 1px solid var(--color-border);
       padding-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
     }
 
+    /* 
+      Cada "bloco" de horário e aeroporto 
+      com uma linha de "timeline" no meio
+    */
     .flight-block {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
+      position: relative;
+      padding: 1rem 0;
+    }
+
+    .flight-block::before {
+      content: "";
+      position: absolute;
+      left: 40px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: var(--color-border-dark);
+      z-index: 0;
+    }
+
+    .flight-time-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      position: relative;
+      z-index: 1;
     }
 
     .flight-time {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 600;
       color: var(--color-text);
     }
@@ -148,25 +238,29 @@
     }
 
     .flight-duration {
-      color: var(--color-primary);
-      font-size: 0.9rem;
       margin-left: auto;
+      font-size: 0.9rem;
+      color: var(--color-primary);
+      font-weight: 500;
+      z-index: 1;
     }
 
-    /* ------------------------------------------------------------------------
-       CARD DE "DETALHES DO PREÇO" (FIXO NA DIREITA)
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      CARD DE PREÇO (FIXO NA DIREITA)
+    =============================================================================
+    */
     .price-card {
       position: fixed;
-      top: 120px;       /* Ajuste conforme o header/etapas */
+      top: calc(var(--header-height) + 70px); 
       right: 5%;
       width: 280px;
       background-color: var(--color-bg);
       border: 1px solid var(--color-border);
       border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       padding: 1rem;
-      z-index: 10;      /* Para ficar acima de outros elementos */
+      z-index: 10;
     }
 
     .price-card h3 {
@@ -184,42 +278,63 @@
     .price-list .item {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.4rem;
     }
 
     .price-total {
       font-size: 1.3rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--color-primary);
       margin-top: 0.5rem;
+      transition: transform var(--transition-speed);
+      cursor: default;
     }
 
-    /* ------------------------------------------------------------------------
-       EXEMPLO DE RODAPÉ (OPCIONAL)
-    ------------------------------------------------------------------------ */
+    .price-total:hover {
+      transform: scale(1.02);
+    }
+
+    /* 
+    =============================================================================
+      RODAPÉ
+    =============================================================================
+    */
     footer {
       width: 90%;
+      max-width: var(--max-width);
       margin: 2rem auto;
       text-align: center;
       font-size: 0.85rem;
-      color: var(--color-subtext);
+      color: var(--color-subtext-light);
       border-top: 1px solid var(--color-border);
       padding-top: 1rem;
     }
 
-    /* ------------------------------------------------------------------------
-       RESPONSIVIDADE
-    ------------------------------------------------------------------------ */
+    /* 
+    =============================================================================
+      RESPONSIVIDADE
+    =============================================================================
+    */
+    @media (max-width: 992px) {
+      .flight-block {
+        padding-left: 1rem;
+      }
+      .flight-block::before {
+        left: 20px;
+      }
+    }
+
     @media (max-width: 768px) {
       .steps-container {
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.8rem;
       }
 
       .price-card {
         position: static;
         width: 100%;
         margin-top: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       }
     }
 
@@ -227,16 +342,16 @@
       .top-bar-left h1 {
         font-size: 1.2rem;
       }
-
-      .price-card {
-        margin-top: 1rem;
+      .flight-block::before {
+        left: 30px;
       }
     }
+
   </style>
 </head>
 <body>
 
-  <!-- Topo com logo e links -->
+  <!-- Topo com gradiente e links -->
   <header class="top-bar">
     <div class="top-bar-left">
       <h1>Trip.com</h1>
@@ -247,7 +362,7 @@
     </div>
   </header>
 
-  <!-- Linha de etapas -->
+  <!-- Etapas (passos) -->
   <div class="steps-container">
     <span>Preencha suas informações</span>
     <span>Mais vendidos</span>
@@ -255,7 +370,7 @@
     <span>Finalize seu pagamento</span>
   </div>
 
-  <!-- Card de preço (fixo na direita) -->
+  <!-- Card de preço fixo (detalhes do preço) -->
   <aside class="price-card">
     <h3>Detalhes do preço</h3>
     <div class="price-list">
@@ -283,35 +398,35 @@
     <div class="price-total">R$ 3.013,84</div>
   </aside>
 
-  <!-- Conteúdo principal -->
+  <!-- Conteúdo principal (informações de voo) -->
   <main class="main-content">
     <h2>Viagem para Bangcoc</h2>
-    <p class="flight-summary">qua, 15 mar | Duração: 7h 25m</p>
-    
+    <div class="flight-subinfo">qua, 15 mar | Duração: 7h 25m</div>
+
     <!-- Seção de ida -->
     <section class="flight-section">
       <div class="flight-block">
-        <div>
+        <div class="flight-time-group">
           <div class="flight-time">09:00</div>
           <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
         </div>
-        <div>
+        <div class="flight-time-group">
           <div class="flight-time">15:00</div>
           <div class="flight-airport">BKK Bangkok Suvarnabhumi</div>
         </div>
-        <div class="flight-duration">Econômica</div>
+        <div class="flight-duration">Economica</div>
       </div>
     </section>
 
     <!-- Seção de volta -->
+    <div class="flight-subinfo">qua, 22 mar | Duração: 7h 25m</div>
     <section class="flight-section">
-      <p class="flight-summary">qua, 22 mar | Duração: 7h 25m</p>
       <div class="flight-block">
-        <div>
+        <div class="flight-time-group">
           <div class="flight-time">23:50</div>
           <div class="flight-airport">DMK Bangkok Don Mueang Int. T1</div>
         </div>
-        <div>
+        <div class="flight-time-group">
           <div class="flight-time">06:00</div>
           <div class="flight-airport">NRT Tóquio Narita Int. T1</div>
         </div>
@@ -319,8 +434,8 @@
       </div>
     </section>
 
-    <!-- Aqui você pode adicionar mais conteúdo,
-         como formulários de passageiro, extras, etc. -->
+    <!-- Aqui você pode adicionar seções de formulário de passageiro, extras, pagamento, etc. -->
+
   </main>
 
   <!-- Rodapé (opcional) -->
@@ -329,7 +444,8 @@
   </footer>
 
   <script>
-    // Se precisar de alguma funcionalidade JS, adicione aqui
+    // Caso precise de alguma funcionalidade JavaScript, adicione aqui
   </script>
+
 </body>
 </html>
