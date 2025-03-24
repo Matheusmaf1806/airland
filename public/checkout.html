@@ -494,31 +494,31 @@
         margin-top: 1rem;
         text-align: right;
       }
+      
+      /* ======= Ajuste para a header do form "Quem vai viajar?" ======= */
+      .traveler-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
     </style>
-    <!-- Importa o componente de Header do primeiro projeto -->
     <script src="/js/header-component.js" type="module"></script>
   </head>
   <body>
-    <!-- Cabeçalho -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
     <div class="steps-menu" id="stepsMenu">
-      <!-- Passo 1: Passageiros -->
       <div class="step active" data-step="1">
         <div class="circle">1</div>
         <span>Passageiros</span>
       </div>
       <div class="separator">></div>
-      
-      <!-- Passo 2: Detalhes -->
       <div class="step" data-step="2">
         <div class="circle">2</div>
         <span>Detalhes</span>
       </div>
       <div class="separator">></div>
-      
-      <!-- Passo 3: Etapa Final -->
       <div class="step" data-step="3">
         <div class="circle">3</div>
         <span>Etapa Final</span>
@@ -527,7 +527,6 @@
     
     <!-- Container Principal – 2 Colunas -->
     <div class="main-container">
-      <!-- Coluna Esquerda: Multi-Steps -->
       <div class="left-col">
         <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
@@ -535,12 +534,9 @@
             <div class="traveler-form-header mb-15">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <a href="#">Faça login para fazer reservas mais facilmente</a>
-                <a href="#">Limpar</a>
+                <a href="#">Economize tempo fazendo Login</a>
               </div>
             </div>
-            
-            <!-- Formulário com as linhas solicitadas -->
             <div class="passenger-box mb-20">
               <!-- Linha 1: Nome | Sobrenome -->
               <div class="fields-grid-2cols">
@@ -553,7 +549,6 @@
                   <input type="text" placeholder="Sobrenome" />
                 </div>
               </div>
-              
               <!-- Linha 2: Celular | E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -565,7 +560,6 @@
                   <input type="email" placeholder="seuemail@exemplo.com" />
                 </div>
               </div>
-              
               <!-- Linha 3: Senha | Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -577,7 +571,6 @@
                   <input type="password" placeholder="********" />
                 </div>
               </div>
-              
               <!-- Linha 4: CPF | RG | Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -593,7 +586,6 @@
                   <input type="date" />
                 </div>
               </div>
-              
               <!-- Linha 5: CEP | Estado | Cidade -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -609,7 +601,6 @@
                   <input type="text" placeholder="São Paulo" />
                 </div>
               </div>
-              
               <!-- Linha 6: Endereço | Número -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -621,19 +612,17 @@
                   <input type="text" placeholder="123" />
                 </div>
               </div>
-              
               <p class="form-note mt-15">
                 * Insira o nome exatamente como aparece em seus documentos de viagem para o check-in. Se o nome estiver incorreto, você pode não conseguir embarcar ou ser cobrado(a) uma taxa de cancelamento.
               </p>
             </div>
             <div class="navigation">
-              <!-- Botão para ir ao Step 2 -->
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
           </div>
         </div>
         
-        <!-- Step 2: Detalhes (Seguro Viagem, etc.) -->
+        <!-- Step 2: Detalhes -->
         <div class="step-content" data-step="2">
           <div class="card-style-1 mb-20">
             <h2 class="mb-10">Seguro Viagem em Poucos Cliques</h2>
@@ -669,22 +658,19 @@
               </div>
             </div>
             <div class="navigation">
-              <!-- Botão para voltar ao Step 1 -->
               <button class="btn-save-passenger" id="backToStep1">Voltar</button>
-              <!-- Botão para ir ao Step 3 -->
               <button class="btn-save-passenger" id="toStep3">Próximo</button>
             </div>
           </div>
         </div>
         
-        <!-- Step 3: Etapa Final (Métodos de pagamento) -->
+        <!-- Step 3: Etapa Final -->
         <div class="step-content" data-step="3">
           <div class="card-style-1 mb-20">
             <h2 class="mb-10">Métodos de Pagamento</h2>
             <p class="mb-15">
               Selecione a forma de pagamento para finalizar sua reserva.
             </p>
-            <!-- Exemplo de lista de métodos de pagamento -->
             <div class="fields-grid-2cols">
               <div class="form-field">
                 <label>Forma de Pagamento</label>
@@ -710,16 +696,14 @@
               </div>
             </div>
             <div class="navigation">
-              <!-- Botão para voltar ao Step 2 -->
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-              <!-- Botão final -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar</button>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Coluna Direita (Informações da reserva + Brindes) -->
+      <!-- Coluna Direita -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
@@ -822,18 +806,15 @@
       function formatCelular(value) {
         // Se o usuário digitar um "+" no início, não forçamos o "+55"
         if (value.charAt(0) === '+') {
-          // Remove caracteres não numéricos após o "+"
           let digits = value.slice(1).replace(/\D/g, '');
           return '+' + digits;
         }
-        // Se não começar com "+", removemos todos os caracteres não numéricos
         let digits = value.replace(/\D/g, '');
         if (digits === '') return '';
         // Se os dígitos não iniciarem com "55", prefixamos "55"
         if (!digits.startsWith('55')) {
           digits = '55' + digits;
         }
-        // Extrai partes: país (2 dígitos), DDD (2 dígitos) e o número (o restante)
         let country = digits.substring(0, 2);
         let ddd = digits.substring(2, 4) || '';
         let part1 = '';
@@ -908,7 +889,6 @@
         return formatted;
       }
       
-      // Eventos de input para formatação
       document.getElementById("celular").addEventListener("input", function(e) {
         e.target.value = formatCelular(e.target.value);
       });
