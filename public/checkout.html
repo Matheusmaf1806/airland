@@ -2,12 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Trip.com - Checkout Profissional</title>
+  <title>Trip.com - Checkout Ajustado</title>
   <style>
-    /* IMPORTAÇÃO DE FONTE – Poppins */
+    /* IMPORTANDO FONTE – Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-    /* RESET */
+    /* RESET E CONFIGURAÇÕES BASE */
     * {
       margin: 0;
       padding: 0;
@@ -24,7 +24,7 @@
     :root {
       --color-primary: #007aff;
       --color-primary-dark: #005dbf;
-      --color-secondary: #ff9900;
+      --color-secondary: #00c853; /* Verde para destaques */
       --color-bg: #ffffff;
       --color-border: #eee;
       --color-text: #333;
@@ -62,7 +62,7 @@
     .top-bar .nav-links a:hover {
       opacity: 0.85;
     }
-    /* Ícones via pseudo-elementos (exemplo) */
+    /* Ícones via pseudo-elementos */
     .top-bar .nav-links a[href*="Ajuda"]::before,
     .top-bar .nav-links a[href*="Entrar"]::before {
       content: "";
@@ -75,14 +75,16 @@
       background-size: cover;
       background-repeat: no-repeat;
     }
+    /* Ajuste aqui se quiser ícone de ajuda real */
     .top-bar .nav-links a[href*="Ajuda"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" ...%3E%3C/svg%3E');
     }
+    /* Ajuste aqui se quiser ícone de login real */
     .top-bar .nav-links a[href*="Entrar"]::before {
       background-image: url('data:image/svg+xml,%3Csvg fill="%23fff" ...%3E%3C/svg%3E');
     }
 
-    /* PASSOS (ETAPAS) */
+    /* PASSOS – ETAPAS */
     .steps-container {
       width: 90%;
       max-width: var(--max-width);
@@ -115,43 +117,24 @@
       display: flex;
       gap: 2rem;
     }
-
-    /* COLUNA ESQUERDA (SEM BORDA/FUNDO) */
     .left-col {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
     }
-
-    /* COLUNA DIREITA (COM BORDA E SOMBRA) */
     .right-col {
       width: 400px;
       flex-shrink: 0;
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
+    }
+
+    /* CARD BASE */
+    .card {
       background: #fff;
+      border-radius: 8px;
       padding: 1.5rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* SEÇÃO: SALAS VIP (APENAS TÍTULO/TEXTO) */
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: var(--color-text);
-    }
-    .section-subtext {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 1rem;
-    }
-
-    /* SALAS VIP - CARDS */
+    /* SALAS VIP – Left Column */
     .vip-card {
       display: flex;
       gap: 1rem;
@@ -185,7 +168,7 @@
     .vip-info .title {
       font-size: 0.9rem;
       font-weight: 600;
-      color: var(--color-text);
+      color: #333;
     }
     .vip-info .price {
       font-size: 0.9rem;
@@ -219,15 +202,10 @@
       background: var(--color-primary-dark);
     }
 
-    /* QUEM VAI VIAJAR? - FORMULÁRIO */
-    .passenger-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+    /* QUEM VAI VIAJAR? – Formulário */
     .passenger-form h2 {
       font-size: 1.2rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       color: #333;
     }
     .login-cta {
@@ -240,36 +218,40 @@
     .login-cta:hover {
       text-decoration: underline;
     }
-    .form-grid {
+
+    .passenger-form .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
+      margin-bottom: 1rem;
     }
-    .form-row {
+    .passenger-form .form-row {
       display: flex;
       flex-direction: column;
     }
-    .form-row label {
+    .passenger-form label {
       font-size: 0.8rem;
       color: #666;
       margin-bottom: 0.25rem;
       font-weight: 500;
     }
-    .form-row input,
-    .form-row select {
+    .passenger-form input,
+    .passenger-form select {
       padding: 0.5rem;
       font-size: 0.85rem;
       border: 1px solid #eee;
       border-radius: 4px;
       transition: border var(--transition-speed);
     }
-    .form-row input:focus,
-    .form-row select:focus {
+    .passenger-form input:focus,
+    .passenger-form select:focus {
       border-color: var(--color-primary);
     }
-    .info-text {
+    .passenger-form .info-text {
       font-size: 0.75rem;
       color: #888;
+      margin: 0.5rem 0;
+      grid-column: 1 / -1;
     }
     .btn-save {
       background: var(--color-primary);
@@ -280,15 +262,13 @@
       font-size: 0.9rem;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
-      margin-top: 0.5rem;
-      width: 150px;
     }
     .btn-save:hover {
       background: var(--color-primary-dark);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* COLUNA DIREITA: INFORMACOES DA RESERVA E BRINDES */
+    /* INFORMACOES DA RESERVA – Right Column */
     .info-reserva-section h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
@@ -296,7 +276,7 @@
       font-weight: 600;
     }
 
-    /* Cada item com imagem e texto */
+    /* Adicionamos espaço para a imagem do produto */
     .reserva-item {
       display: grid;
       grid-template-columns: auto 1fr auto;
@@ -310,6 +290,8 @@
       border-bottom: none;
       margin-bottom: 0;
     }
+
+    /* Imagem do produto (Disney, Hospedagem) */
     .reserva-img {
       width: 60px;
       height: 60px;
@@ -317,6 +299,7 @@
       border-radius: 4px;
       border: 1px solid #eee;
     }
+
     .reserva-left {
       display: flex;
       flex-direction: column;
@@ -338,9 +321,11 @@
     .reserva-preco {
       font-size: 1rem;
       font-weight: 700;
-      color: var(--color-secondary);
+      color: var(--color-secondary); /* Verde agora */
+      align-self: center;
     }
 
+    /* BRINDES DISPONÍVEIS – Right Column */
     .brindes-section h3 {
       font-size: 1rem;
       margin-bottom: 1rem;
@@ -399,7 +384,7 @@
     </div>
   </header>
 
-  <!-- Passos (Etapas) -->
+  <!-- Passos -->
   <div class="steps-container">
     <span>Preencha suas informações</span>
     <span>Mais vendidos</span>
@@ -407,16 +392,15 @@
     <span>Finalize seu pagamento</span>
   </div>
 
-  <!-- Container Principal em 2 colunas -->
+  <!-- Container Principal – 2 Colunas -->
   <div class="main-container">
-
-    <!-- Coluna Esquerda (SEM borda/fundo) -->
+    <!-- Coluna Esquerda -->
     <div class="left-col">
 
-      <!-- Salas VIP -->
-      <section>
-        <h2 class="section-title">Salas VIP</h2>
-        <p class="section-subtext">Aproveite o conforto de uma sala VIP antes do seu voo.</p>
+      <!-- Salas VIP (Exemplo) -->
+      <div class="card">
+        <h2>Salas VIP</h2>
+        <p>Aproveite o conforto de uma sala VIP antes do seu voo.</p>
         <div class="vip-card">
           <img src="https://via.placeholder.com/100x60" alt="Sala VIP">
           <div class="vip-info">
@@ -441,81 +425,79 @@
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <!-- Quem vai viajar? -->
-      <section class="passenger-form">
+      <div class="card passenger-form">
         <h2>Quem vai viajar?</h2>
         <p class="login-cta">Faça login para reservas mais rápidas</p>
-        <form>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Nome</label>
-              <input type="text" placeholder="Nome">
-            </div>
-            <div class="form-row">
-              <label>Sobrenome</label>
-              <input type="text" placeholder="Sobrenome">
-            </div>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Nome</label>
+            <input type="text" placeholder="Nome">
           </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Gênero</label>
-              <select>
-                <option value="">Selecione</option>
-                <option value="M">Masculino</option>
-                <option value="F">Feminino</option>
-                <option value="O">Outro</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label>Data de Nascimento</label>
-              <input type="date">
-            </div>
+          <div class="form-row">
+            <label>Sobrenome</label>
+            <input type="text" placeholder="Sobrenome">
           </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Nacionalidade</label>
-              <input type="text" placeholder="Brasil">
-            </div>
-            <div class="form-row">
-              <label>Tipo de Documento</label>
-              <select>
-                <option value="">Selecione</option>
-                <option value="rg">RG</option>
-                <option value="cpf">CPF</option>
-                <option value="passaporte">Passaporte</option>
-              </select>
-            </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Gênero</label>
+            <select>
+              <option value="">Selecione</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
+              <option value="O">Outro</option>
+            </select>
           </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <label>Número do Documento</label>
-              <input type="text" placeholder="123456789">
-            </div>
-            <div class="form-row">
-              <label>Programa de Passageiro (opcional)</label>
-              <input type="text" placeholder="Número do programa">
-            </div>
+          <div class="form-row">
+            <label>Data de Nascimento</label>
+            <input type="date">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Nacionalidade</label>
+            <input type="text" placeholder="Brasil">
+          </div>
+          <div class="form-row">
+            <label>Tipo de Documento</label>
+            <select>
+              <option value="">Selecione</option>
+              <option value="rg">RG</option>
+              <option value="cpf">CPF</option>
+              <option value="passaporte">Passaporte</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Número do Documento</label>
+            <input type="text" placeholder="123456789">
+          </div>
+          <div class="form-row">
+            <label>Programa de Passageiro (opcional)</label>
+            <input type="text" placeholder="Número do programa">
           </div>
           <p class="info-text">
             * Insira os dados exatamente como aparecem nos documentos para evitar problemas no check-in.
           </p>
-          <button class="btn-save">Salvar</button>
-        </form>
-      </section>
+        </div>
+        <button class="btn-save">Salvar</button>
+      </div>
     </div>
 
-    <!-- Coluna Direita (COM borda/fundo) -->
+    <!-- Coluna Direita -->
     <div class="right-col">
 
-      <!-- Informações da reserva (com imagens) -->
-      <section class="info-reserva-section">
+      <!-- Informações da reserva (AGORA COM FOTOS) -->
+      <div class="card info-reserva-section">
         <h2>Informações da reserva</h2>
-        <!-- Item 1: Disney -->
+        <!-- Produto 1: Disney (com imagem) -->
         <div class="reserva-item">
-          <img src="https://image-tc.galaxy.tf/wijpeg-1i1xmcd0t03zdvqkmbtodjfz5/walt-disney-world-mickey-mouse-and-boy-1_standard.jpg?crop=39%2C0%2C723%2C542" 
-               alt="Disney" class="reserva-img">
+          <img class="reserva-img" src="https://image-tc.galaxy.tf/wijpeg-1i1xmcd0t03zdvqkmbtodjfz5/walt-disney-world-mickey-mouse-and-boy-1_standard.jpg?crop=39%2C0%2C723%2C542" alt="Disney">
           <div class="reserva-left">
             <span class="categoria">Ingressos</span>
             <span class="nome">Walt Disney World - 02 Dias - Base Tickets</span>
@@ -523,10 +505,10 @@
           </div>
           <div class="reserva-preco">R$ 3.627,19</div>
         </div>
-        <!-- Item 2: Hospedagem -->
+
+        <!-- Produto 2: Hospedagem (com imagem) -->
         <div class="reserva-item">
-          <img src="https://monrealeorlando.com/wp-content/uploads/2024/05/hotel-monreale-orlando-i-drive-12.jpg" 
-               alt="Hospedagem" class="reserva-img">
+          <img class="reserva-img" src="https://monrealeorlando.com/wp-content/uploads/2024/05/hotel-monreale-orlando-i-drive-12.jpg" alt="Hospedagem">
           <div class="reserva-left">
             <span class="categoria">Hospedagem</span>
             <span class="nome">Monreale Express Orlando - 2 BEDROOM Suite</span>
@@ -534,10 +516,10 @@
           </div>
           <div class="reserva-preco">R$ 6.359,97</div>
         </div>
-      </section>
-
+      </div>
+      
       <!-- Brindes Disponíveis -->
-      <section class="brindes-section">
+      <div class="card brindes-section">
         <h3>Brindes Disponíveis</h3>
         <div class="brinde-item">
           <span>Chip de Celular</span>
@@ -547,7 +529,7 @@
           <span>Copo da Universal</span>
           <span>Ganhe na retirada do seu voucher</span>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 
