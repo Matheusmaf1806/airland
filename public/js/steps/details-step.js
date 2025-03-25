@@ -1,4 +1,4 @@
-/* js/steps/details-step.js */
+/* details-step.js - Define o HTML da etapa Detalhes (Seguro Viagem) */
 export function renderDetailsStep() {
   return `
     <div class="step-content" data-step="2">
