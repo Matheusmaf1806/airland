@@ -3,14 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <title>Checkout</title>
-    <!-- Importa o CSS global do checkout -->
-    <link rel="stylesheet" href="css/checkout.css">
-    <!-- Importa os CSS específicos para cada etapa -->
-    <link rel="stylesheet" href="css/steps/passenger-step.css">
-    <link rel="stylesheet" href="css/steps/details-step.css">
-    <link rel="stylesheet" href="css/steps/payment-step.css">
-    
-    <!-- Importa o header-component (já existente) -->
+
+    <!-- CSS Global do Checkout -->
+    <link rel="stylesheet" href="css/checkout.css" />
+
+    <!-- CSS Específico para cada etapa -->
+    <link rel="stylesheet" href="css/steps/passenger-step.css" />
+    <link rel="stylesheet" href="css/steps/details-step.css" />
+    <link rel="stylesheet" href="css/steps/payment-step.css" />
+
+    <!-- Importa o header-component (se necessário) -->
     <script src="js/header-component.js" type="module"></script>
   </head>
   <body>
@@ -34,14 +36,196 @@
       </div>
     </div>
     
-    <!-- Container Principal -->
+    <!-- Main Container -->
     <div class="main-container">
-      <!-- Coluna Esquerda: O conteúdo das etapas será carregado dinamicamente -->
+      <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
-        <div id="step-container"></div>
+        <!-- Step 1: Passageiros -->
+        <div class="step-content active" data-step="1">
+          <div class="card-style-1">
+            <div class="traveler-form-header">
+              <h2>Quem vai viajar?</h2>
+              <div class="actions">
+                <a href="#">Economize tempo fazendo Login</a>
+              </div>
+            </div>
+            <div class="passenger-box">
+              <!-- Linha 1: Nome | Sobrenome -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Nome</label>
+                  <input type="text" id="firstName" placeholder="Nome" />
+                </div>
+                <div class="form-field">
+                  <label>Sobrenome</label>
+                  <input type="text" id="lastName" placeholder="Sobrenome" />
+                </div>
+              </div>
+              <!-- Linha 2: Celular | E-mail -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Celular</label>
+                  <input type="text" id="celular" placeholder="(XX) 99999-9999" />
+                </div>
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" placeholder="seuemail@exemplo.com" />
+                </div>
+              </div>
+              <!-- Linha 3: Senha | Repetir Senha -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+              </div>
+              <!-- Linha 4: CPF | RG | Data de Nascimento -->
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CPF</label>
+                  <input type="text" id="cpf" placeholder="123.456.789-00" />
+                </div>
+                <div class="form-field">
+                  <label>RG</label>
+                  <input type="text" id="rg" placeholder="12.345.678-9" />
+                </div>
+                <div class="form-field">
+                  <label>Data de Nascimento</label>
+                  <input type="date" />
+                </div>
+              </div>
+              <!-- Linha 5: CEP | Estado | Cidade -->
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CEP</label>
+                  <input type="text" id="cep" placeholder="12345-678" />
+                </div>
+                <div class="form-field">
+                  <label>Estado</label>
+                  <input type="text" id="state" placeholder="Ex: SP" />
+                </div>
+                <div class="form-field">
+                  <label>Cidade</label>
+                  <input type="text" id="city" placeholder="São Paulo" />
+                </div>
+              </div>
+              <!-- Linha 6: Endereço | Número -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Endereço</label>
+                  <input type="text" id="address" placeholder="Rua, Avenida..." />
+                </div>
+                <div class="form-field">
+                  <label>Número</label>
+                  <input type="text" id="number" placeholder="123" />
+                </div>
+              </div>
+              <p class="form-note">
+                * Insira o nome exatamente como aparece em seus documentos para o check-in.
+              </p>
+            </div>
+            <div class="navigation">
+              <button class="btn-save-passenger" id="toStep2">Próximo</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 2: Detalhes -->
+        <div class="step-content" data-step="2">
+          <div class="card-style-1">
+            <h2>Seguro Viagem em Poucos Cliques</h2>
+            <p>
+              Evite riscos: o seguro do cartão exige pagamento adiantado com reembolso incerto.
+              Garanta já seu seguro e deixe os especialistas cuidarem de tudo.
+            </p>
+            <div class="vip-card">
+              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
+              <div class="vip-info">
+                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+                <span class="title">
+                  Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
+                </span>
+                <span class="price">R$ 119,00 /pessoa</span>
+                <div class="actions">
+                  <button>Adicionar</button>
+                  <a href="#">Detalhes</a>
+                </div>
+              </div>
+            </div>
+            <div class="vip-card">
+              <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" />
+              <div class="vip-info">
+                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+                <span class="title">
+                  Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
+                </span>
+                <span class="price">R$ 119,00 /pessoa</span>
+                <div class="actions">
+                  <button>Adicionar</button>
+                  <a href="#">Detalhes</a>
+                </div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="btn-save-passenger" id="backToStep1">Voltar</button>
+              <button class="btn-save-passenger" id="toStep3">Próximo</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Step 3: Etapa Final (Pagamento) -->
+        <div class="step-content" data-step="3">
+          <div class="card-style-1">
+            <h2>Métodos de Pagamento</h2>
+            <p>
+              Insira os dados do seu cartão para finalizar a reserva.
+            </p>
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Número do Cartão</label>
+                <input type="text" id="payment-card-number" placeholder="4111 1111 1111 1111" />
+              </div>
+              <div class="form-field">
+                <label>Validade (MM/AA)</label>
+                <input type="text" id="payment-expiry" placeholder="10/28" />
+              </div>
+            </div>
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>CVV</label>
+                <input type="text" id="payment-cvv" placeholder="123" />
+              </div>
+              <div class="form-field">
+                <label>Nº de Parcelas</label>
+                <select id="installmentsCount">
+                  <option value="1">1x sem juros</option>
+                  <option value="2">2x</option>
+                  <option value="3">3x</option>
+                  <option value="4">4x</option>
+                  <option value="5">5x</option>
+                  <option value="6">6x</option>
+                  <option value="7">7x</option>
+                  <option value="8">8x</option>
+                  <option value="9">9x</option>
+                  <option value="10">10x</option>
+                  <option value="11">11x</option>
+                  <option value="12">12x</option>
+                </select>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva e resumo da compra -->
+      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
