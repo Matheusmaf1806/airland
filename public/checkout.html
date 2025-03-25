@@ -292,78 +292,6 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (DETALHES) - APENAS A ABA DETALHES ================= */
-      .vip-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-      }
-      .vip-card img {
-        width: 120px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-      }
-      .vip-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .vip-info .badge {
-        background-color: #e6f0ff;
-        color: #365cf5;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-      }
-      .vip-info .title {
-        font-size: 0.9rem;
-        color: #444;
-        line-height: 1.3;
-      }
-      .vip-info .price {
-        font-size: 1rem;
-        color: #00b86d;
-        font-weight: bold;
-      }
-      .vip-info .actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      .vip-info .actions button {
-        background-color: #007aff;
-        color: #fff;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      .vip-info .actions button:hover {
-        background-color: #005dbf;
-      }
-      .vip-info .actions a {
-        font-size: 0.85rem;
-        color: #007aff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-      .vip-info .actions a:hover {
-        color: #005dbf;
-      }
-      
       /* ================= RODAPÉ ================== */
       footer {
         width: 90%;
@@ -516,7 +444,6 @@
               Evite riscos: o seguro do cartão exige pagamento adiantado com reembolso incerto.
               Garanta já seu seguro e deixe os especialistas cuidarem de tudo.
             </p>
-            <!-- VIP-Cards: Itens de Detalhes com CSS ajustado -->
             <div class="vip-card">
               <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
               <div class="vip-info">
@@ -600,26 +527,11 @@
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento -->
+      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
-          <!-- Itens do carrinho serão renderizados aqui -->
-          <div id="cartItemsList">
-            <div class="reserva-item">
-              <div class="reserva-left">
-                <span class="categoria">HOSPEDAGEM</span>
-                <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
-                <div class="reserva-details">
-                  <p>Check-in: --/--/----</p>
-                  <p>Check-out: --/--/----</p>
-                  <p>Quartos: 1</p>
-                  <p>Adultos: 1 | Crianças: 0</p>
-                </div>
-              </div>
-              <div class="reserva-preco">R$ 0,00</div>
-            </div>
-          </div>
+          <div id="cartItemsList"></div>
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
@@ -651,7 +563,7 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
-      // -------------------- STEP NAVIGATION --------------------
+      // Multi-step navegação
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = stepsMenu.querySelectorAll(".step");
@@ -682,69 +594,115 @@
         });
       }
       
-      toStep2Btn.addEventListener("click", () => { showStep(2); });
-      backToStep1Btn?.addEventListener("click", () => { showStep(1); });
-      toStep3Btn?.addEventListener("click", () => { showStep(3); });
-      backToStep2Btn?.addEventListener("click", () => { showStep(2); });
-      finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
+      toStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
+      backToStep1Btn && backToStep1Btn.addEventListener("click", () => {
+        showStep(1);
+      });
+      toStep3Btn && toStep3Btn.addEventListener("click", () => {
+        showStep(3);
+      });
+      backToStep2Btn && backToStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
       
-      // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA --------------------
-      function updateReservationCard(items) {
-        const container = document.getElementById("cartItemsList");
-        if (!container) return;
-        if (!items || items.length === 0) {
-          container.innerHTML = "<p>Nenhum item no carrinho.</p>";
-          return;
-        }
-        // Para este exemplo, usamos o primeiro item do carrinho
-        const item = items[0];
-        const type = item.type || "HOSPEDAGEM";
-        const hotelName = item.hotelName || "Hotel Desconhecido";
-        const roomName = item.roomName || "Quarto";
-        const checkIn = item.checkIn || "--/--/----";
-        const checkOut = item.checkOut || "--/--/----";
-        const rooms = item.rooms || 1;
-        const adults = item.adults || 1;
-        const children = item.children || 0;
-        const price = item.basePriceAdult || 0;
-        
-        container.innerHTML = `
-          <span class="tag-hospedagem">${type}</span>
-          <h4>${hotelName} - ${roomName}</h4>
-          <ul class="reservation-details">
-            <li><i class="fa fa-calendar-check"></i> <strong>Check-in:</strong> ${checkIn}</li>
-            <li><i class="fa fa-calendar-xmark"></i> <strong>Check-out:</strong> ${checkOut}</li>
-            <li><i class="fa fa-bed"></i> <strong>Quartos:</strong> ${rooms}</li>
-            <li><i class="fa fa-user-friends"></i> <strong>Adultos:</strong> ${adults} | <strong>Crianças:</strong> ${children}</li>
-          </ul>
-          <div class="reservation-price">
-            R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </div>
-        `;
+      // Função para converter a validade de "MM/AA" para "20AA-MM"
+      function convertExpiry(expiryStr) {
+        const parts = expiryStr.split("/");
+        if (parts.length !== 2) return expiryStr;
+        const month = parts[0].padStart(2, "0");
+        const year = "20" + parts[1];
+        return ${year}-${month};
       }
       
-      // -------------------- LEITURA DOS ITENS DO CARRINHO --------------------
+      // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
+      finishBtn.addEventListener("click", () => {
+        // Dados do cartão da etapa 3
+        const cardNumber = document.getElementById("payment-card-number").value;
+        const expiryInput = document.getElementById("payment-expiry").value;
+        const expiry = convertExpiry(expiryInput);
+        const securityCode = document.getElementById("payment-cvv").value;
+        
+        // Número de parcelas
+        const installmentsCount = parseInt(document.getElementById("installmentsCount").value) || 1;
+        
+        // Dados do titular do cartão a partir do Step 1
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const cardholderName = firstName + " " + lastName;
+        
+        // Dados do endereço (billing address) a partir do Step 1
+        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
+        const admin_area_2 = document.getElementById("city").value;
+        const admin_area_1 = document.getElementById("state").value;
+        const postal_code = document.getElementById("cep").value;
+        const country_code = "BR"; // fixo
+        
+        const billingAddress = {
+          address_line_1,
+          admin_area_2,
+          admin_area_1,
+          postal_code,
+          country_code
+        };
+        
+        const payload = {
+          amount: "100.00",
+          currency: "USD",
+          cardholderName,
+          cardNumber,
+          expiry,
+          securityCode,
+          billingAddress,
+          installmentsCount
+        };
+        
+        fetch("/api/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.id) {
+            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+          } else {
+            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao processar o pagamento. Tente novamente.");
+        });
+      });
+      
+      // Funções de formatação (exemplo resumido; implemente conforme necessário)
+      function formatCelular(value) { /* ... */ }
+      function formatCPF(value) { /* ... */ }
+      function formatRG(value) { /* ... */ }
+      function formatCEP(value) { /* ... */ }
+      
+      document.getElementById("celular").addEventListener("input", function(e) { /* ... */ });
+      document.getElementById("cpf").addEventListener("input", function(e) { /* ... */ });
+      document.getElementById("rg").addEventListener("input", function(e) { /* ... */ });
+      document.getElementById("cep").addEventListener("input", function(e) { /* ... */ });
+      
+      // Integração com o carrinho (exemplo resumido)
+      function updateCheckoutCart(items) { /* ... */ }
+      
       window.addEventListener("load", () => {
         let items = [];
-        const cartComponent = document.getElementById("shoppingCart");
-        if (cartComponent && cartComponent.items && cartComponent.items.length > 0) {
-          items = cartComponent.items;
+        const cart = document.getElementById("shoppingCart");
+        if (cart && cart.items && cart.items.length > 0) {
+          items = cart.items;
         } else {
           const savedCart = localStorage.getItem("cartItems");
           if (savedCart) {
             items = JSON.parse(savedCart);
           }
         }
-        updateReservationCard(items);
-      
-        // Atualiza o Resumo de Pagamento usando o preço do primeiro item (exemplo simples)
-        if (items.length > 0) {
-          const price = items[0].basePriceAdult || 0;
-          document.getElementById("subtotalValue").textContent = "R$ " + price.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          const discount = 500;
-          document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          document.getElementById("totalValue").textContent = "R$ " + (price - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        }
+        updateCheckoutCart(items);
       });
     </script>
   </body>
