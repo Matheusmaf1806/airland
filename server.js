@@ -34,7 +34,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
 // ------------------------------------------------------
-// IMPORTAR ROUTERS EXISTENTES
+// IMPORTAR ROTAS EXISTENTES
 // ------------------------------------------------------
 import ticketsGenieRouter from "./routes/ticketsgenie.routes.js";
 import hbdetailRouter from "./routes/hbdetail.js";
@@ -42,6 +42,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
+import payRouter from "./routes/pay.routes.js";
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
@@ -49,6 +50,7 @@ app.use("/api", cartRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
 app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
+app.use("/api/pay", payRouter); // Rota para pagamento inline com parcelamento
 
 // ------------------------------------------------------
 // Rota principal (teste)
@@ -68,7 +70,6 @@ function generateSignature() {
 
 // ------------------------------------------------------
 // Rota GET para Preço / Disponibilidade (Hotelbeds)
-// Exemplo: GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
 app.get("/api/hotelbeds/hotels", async (req, res) => {
   try {
     const { checkIn, checkOut, destination } = req.query;
@@ -121,7 +122,6 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
 
 // ------------------------------------------------------
 // Rota GET para Conteúdo Detalhado (Hotelbeds - Content API)
-// Exemplo: GET /api/hotelbeds/hotel-content?hotelCode=123223
 app.get("/api/hotelbeds/hotel-content", async (req, res) => {
   try {
     const { hotelCode } = req.query;
@@ -190,10 +190,10 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Endpoints do PayPal (Sandbox, USD)
+// Endpoints do PayPal (fluxo padrão)
 // ------------------------------------------------------
 
-// Endpoint para criar um pedido no PayPal
+// Endpoint para criar um pedido no PayPal (fluxo padrão com redirecionamento)
 app.post("/api/create-order", async (req, res) => {
   try {
     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
@@ -204,7 +204,6 @@ app.post("/api/create-order", async (req, res) => {
         amount: { currency_code: "USD", value: "100.00" }
       }],
       application_context: {
-        // Atualize essas URLs para suas páginas de retorno e cancelamento
         return_url: "https://seu-dominio.com/return",
         cancel_url: "https://seu-dominio.com/cancel"
       }
@@ -225,7 +224,7 @@ app.post("/api/create-order", async (req, res) => {
   }
 });
 
-// Endpoint para capturar um pedido no PayPal
+// Endpoint para capturar um pedido no PayPal (fluxo padrão)
 app.post("/api/capture-order", async (req, res) => {
   try {
     const { orderId } = req.body;
