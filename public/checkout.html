@@ -480,7 +480,7 @@
           </div>
         </div>
         
-        <!-- Step 3: Etapa Final -->
+        <!-- Step 3: Etapa Final (Pagamento) -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Métodos de Pagamento</h2>
@@ -513,6 +513,7 @@
             </div>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <!-- Ao clicar em Finalizar, inicia o fluxo do PayPal -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar</button>
             </div>
           </div>
@@ -601,8 +602,23 @@
         showStep(2);
       });
       
+      // Ao clicar em "Finalizar", inicia o fluxo de pagamento do PayPal
       finishBtn.addEventListener("click", () => {
-        alert("Reserva finalizada com sucesso!");
+        fetch('/api/create-order', { method: 'POST' })
+          .then(res => res.json())
+          .then(data => {
+            // Procura o link de aprovação retornado pela API do PayPal
+            const approvalLink = data.links.find(link => link.rel === 'approve');
+            if (approvalLink) {
+              window.location.href = approvalLink.href;
+            } else {
+              alert('Erro: link de aprovação não encontrado.');
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert('Erro ao criar o pedido. Tente novamente.');
+          });
       });
       
       // Funções de formatação dos campos
@@ -751,6 +767,32 @@
         }
         updateCheckoutCart(items);
       });
+      
+      // Verifica se há o parâmetro "token" na URL (retorno do PayPal) e, se houver, captura o pagamento
+      (function(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if(token) {
+          fetch('/api/capture-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: token })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.status === 'COMPLETED'){
+              alert('Pagamento aprovado com sucesso!');
+              // Opcional: redirecione para uma página de sucesso ou atualize a interface
+            } else {
+              alert('Falha na captura do pagamento.');
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert('Erro ao capturar o pagamento.');
+          });
+        }
+      })();
     </script>
   </body>
 </html>
