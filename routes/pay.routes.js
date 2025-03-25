@@ -3,6 +3,7 @@
 import { Router } from "express";
 import checkoutNodeJssdk from "@paypal/checkout-server-sdk";
 import dotenv from "dotenv";
+import crypto from "crypto";
 
 dotenv.config();
 const router = Router();
@@ -55,6 +56,15 @@ router.post("/", async (req, res) => {
         }
       }
     });
+
+    // Gerar um ID único para a requisição (PayPal-Request-Id)
+    const requestId = (typeof crypto.randomUUID === "function")
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2);
+    
+    // Assegura que a propriedade headers exista e adiciona o PayPal-Request-Id
+    request.headers = request.headers || {};
+    request.headers["PayPal-Request-Id"] = requestId;
     
     const paypalHttpClient = paypalClient();
     const response = await paypalHttpClient.execute(request);
