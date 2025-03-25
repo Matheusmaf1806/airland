@@ -1,4 +1,4 @@
-/* js/steps/passenger-step.js */
+/* passenger-step.js - Define o HTML da etapa Passageiros */
 export function renderPassengerStep() {
   return `
     <div class="step-content" data-step="1">
