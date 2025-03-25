@@ -1,709 +1,711 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Checkout</title>
-    <!-- Importa o header-component para que o <app-header> seja registrado -->
-    <script src="/js/header-component.js" type="module"></script>
-    <style>
-      /*===========================
-          COMMON CSS
-      ===========================*/
-      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-      
-      html {
-        scroll-behavior: smooth;
-      }
-      
-      body {
-        font-family: "Montserrat", sans-serif !important;
-        font-weight: 400;
-        color: #5d657b;
-        overflow-x: hidden;
-        background: #f1f5f9;
-      }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Montserrat", sans-serif;
-      }
-      
-      a:focus,
-      input:focus,
-      textarea:focus,
-      button:focus {
-        outline: none;
-        box-shadow: none;
-      }
-      
-      a:hover {
-        color: #365cf5;
-      }
-      
-      button, a {
-        transition: all 0.3s ease-out;
-      }
-      
-      /* ================= MENU DE STEPS ================== */
-      .steps-menu {
-        background-color: #365cf5;
-        padding: 20px 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin-bottom: 20px;
-      }
-      
-      .steps-menu .step {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #fff;
-        cursor: pointer;
-      }
-      
-      .steps-menu .circle {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background-color: #fff;
-        color: #365cf5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-      }
-      
-      .steps-menu .separator {
-        color: #fff;
-        font-weight: bold;
-      }
-      
-      .steps-menu .step.active .circle {
-        background-color: #365cf5;
-        color: #fff;
-        border: 2px solid #fff;
-      }
-      
-      .steps-menu .step.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      
-      /* ================= LAYOUT PRINCIPAL ================== */
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout - Página Completa</title>
+  <!-- Importa o Font Awesome para os ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Importa o header-component.js se você o utiliza -->
+  <script src="/js/header-component.js" type="module"></script>
+  <style>
+    /* =================== RESET BÁSICO =================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Montserrat", sans-serif;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-weight: 400;
+      color: #5d657b;
+      overflow-x: hidden;
+      background: #f1f5f9;
+    }
+    a:focus,
+    input:focus,
+    textarea:focus,
+    button:focus {
+      outline: none;
+      box-shadow: none;
+    }
+    a:hover {
+      color: #365cf5;
+    }
+    button, a {
+      transition: all 0.3s ease-out;
+    }
+    
+    /* ================= MENU DE STEPS ================= */
+    .steps-menu {
+      background-color: #365cf5;
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 20px;
+    }
+    .steps-menu .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+      cursor: pointer;
+    }
+    .steps-menu .circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #fff;
+      color: #365cf5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .steps-menu .separator {
+      color: #fff;
+      font-weight: bold;
+    }
+    .steps-menu .step.active .circle {
+      background-color: #365cf5;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+    .steps-menu .step.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* ================= LAYOUT PRINCIPAL ================= */
+    .main-container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      display: flex;
+      gap: 2rem;
+    }
+    .left-col {
+      flex: 1;
+      /* Para o formulário, pode-se adicionar um background ou borda se necessário */
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .right-col {
+      width: 400px;
+      flex-shrink: 0;
+    }
+    
+    /* ================= FORMULÁRIOS E CAMPOS ================= */
+    .fields-grid-2cols {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .fields-grid-3cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-field label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    .form-field input,
+    .form-field select {
+      font-size: 0.85rem;
+      padding: 0.6rem;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: #007aff;
+    }
+    .form-note {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 1rem;
+    }
+    
+    /* ================= BOTÕES ================= */
+    .btn-save-passenger {
+      background: #007aff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-save-passenger:hover {
+      background: #005dbf;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    
+    /* ================= MULTI-STEP ================= */
+    .step-content {
+      display: none;
+    }
+    .step-content.active {
+      display: block;
+    }
+    .navigation {
+      margin-top: 1rem;
+      text-align: right;
+    }
+    .traveler-form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-style-1 {
+      background: #fff;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+      margin-bottom: 20px;
+    }
+    
+    /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================= */
+    .reservation-gifts-card {
+      background: #fff;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+    }
+    .reserva-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+    .reserva-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .reserva-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
+    }
+    .reserva-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .reserva-left .categoria {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #007aff;
+    }
+    .reserva-left .nome {
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .reserva-left .subinfo {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .reserva-preco {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #00c853;
+      text-align: right;
+    }
+    /* Detalhes adicionais do item */
+    .reserva-details p {
+      font-size: 0.8rem;
+      margin: 2px 0;
+      color: #555;
+    }
+    
+    /* ======= Resumo da Compra ======= */
+    .resumo-compra {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .resumo-compra .resumo-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .resumo-compra .resumo-row label {
+      font-weight: 600;
+    }
+    .resumo-compra .resumo-row p {
+      font-weight: 600;
+      margin: 0;
+    }
+    .resumo-compra .cupom {
+      margin-top: 15px;
+    }
+    .resumo-compra .cupom label {
+      font-weight: 600;
+    }
+    
+    /* ================= NOVO: ESTILIZAÇÃO DOS ITENS DO DETALHES (VIP-CARD) ================= */
+    .vip-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .vip-card img {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .vip-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .vip-info .badge {
+      background-color: #e6f0ff;
+      color: #365cf5;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .vip-info .title {
+      font-size: 0.9rem;
+      color: #444;
+      line-height: 1.3;
+    }
+    .vip-info .price {
+      font-size: 1rem;
+      color: #00b86d;
+      font-weight: bold;
+    }
+    .vip-info .actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .vip-info .actions button {
+      background-color: #007aff;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .vip-info .actions button:hover {
+      background-color: #005dbf;
+    }
+    .vip-info .actions a {
+      font-size: 0.85rem;
+      color: #007aff;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .vip-info .actions a:hover {
+      color: #005dbf;
+    }
+    
+    /* ================= RODAPÉ ================= */
+    footer {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #888;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+    
+    /* ================= RESPONSIVIDADE ================= */
+    @media (max-width: 768px) {
       .main-container {
-        width: 90%;
-        max-width: 1200px;
-        margin: 2rem auto;
-        display: flex;
-        gap: 2rem;
+        flex-direction: column;
       }
-      
-      .left-col {
-        flex: 1;
-      }
-      
       .right-col {
-        width: 400px;
-        flex-shrink: 0;
+        width: 100%;
       }
-      
-      /* ================= FORMULÁRIOS E CAMPOS ================== */
-      .fields-grid-2cols {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-      .fields-grid-3cols {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-      
-      .form-field {
-        display: flex;
-        flex-direction: column;
-      }
-      
-      .form-field label {
-        font-size: 0.85rem;
-        color: #666;
-        margin-bottom: 0.3rem;
-        font-weight: 500;
-      }
-      
-      .form-field input,
-      .form-field select {
-        font-size: 0.85rem;
-        padding: 0.6rem;
-        border: 1px solid #eee;
-        border-radius: 4px;
-      }
-      
-      .form-field input:focus,
-      .form-field select:focus {
-        border-color: #007aff;
-      }
-      
-      .form-note {
-        font-size: 0.75rem;
-        color: #888;
-        margin-top: 1rem;
-      }
-      
-      /* ================= BOTÕES ================== */
-      .btn-save-passenger {
-        background: #007aff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 0.75rem 1.5rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-      
-      .btn-save-passenger:hover {
-        background: #005dbf;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      }
-      
-      /* ================= MULTI-STEP ================== */
-      .step-content {
-        display: none;
-      }
-      .step-content.active {
-        display: block;
-      }
-      .navigation {
-        margin-top: 1rem;
-        text-align: right;
-      }
-      
-      .traveler-form-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      
-      .card-style-1 {
-        background: #fff;
-        border: 1px solid #efefef;
-        border-radius: 10px;
-        padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
-        margin-bottom: 20px;
-      }
-      
-      /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================== */
-      .reservation-gifts-card {
-        background: #fff;
-        border: 1px solid #efefef;
-        border-radius: 10px;
-        padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
-      }
-      
-      .reserva-item {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 1rem;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 0.75rem;
-        align-items: center;
-      }
-      
-      .reserva-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-      }
-      
-      .reserva-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-      }
-      
-      .reserva-left {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-      
-      .reserva-left .categoria {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #007aff;
-      }
-      
-      .reserva-left .nome {
-        font-size: 0.85rem;
-        color: #333;
-      }
-      
-      .reserva-left .subinfo {
-        font-size: 0.8rem;
-        color: #888;
-      }
-      
-      .reserva-preco {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #00c853;
-        text-align: right;
-      }
-      
-      /* Detalhes adicionais do item */
-      .reserva-details p {
-        font-size: 0.8rem;
-        margin: 2px 0;
-        color: #555;
-      }
-      
-      /* ======= Resumo da Compra ======= */
-      .resumo-compra {
-        margin-top: 20px;
-        padding-top: 15px;
-        border-top: 1px solid #eee;
-      }
-      .resumo-compra .resumo-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-      .resumo-compra .resumo-row label {
-        font-weight: 600;
-      }
-      .resumo-compra .resumo-row p {
-        font-weight: 600;
-        margin: 0;
-      }
-      .resumo-compra .cupom {
-        margin-top: 15px;
-      }
-      .resumo-compra .cupom label {
-        font-weight: 600;
-      }
-      
-      /* ================= RODAPÉ ================== */
-      footer {
-        width: 90%;
-        max-width: 1200px;
-        margin: 2rem auto;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #888;
-        border-top: 1px solid #eee;
-        padding-top: 1rem;
-      }
-      
-      @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-        }
-        .right-col {
-          width: 100%;
-        }
-      }
-      
-      .mt-10 { margin-top: 10px; }
-      .mb-10 { margin-bottom: 10px; }
-    </style>
-  </head>
-  <body>
-    <app-header></app-header>
+    }
     
-    <!-- Menu de Steps -->
-    <div class="steps-menu" id="stepsMenu">
-      <div class="step active" data-step="1">
-        <div class="circle">1</div>
-        <span>Passageiros</span>
-      </div>
-      <div class="separator">></div>
-      <div class="step" data-step="2">
-        <div class="circle">2</div>
-        <span>Detalhes</span>
-      </div>
-      <div class="separator">></div>
-      <div class="step" data-step="3">
-        <div class="circle">3</div>
-        <span>Etapa Final</span>
-      </div>
+    .mt-10 { margin-top: 10px; }
+    .mb-10 { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <!-- Cabeçalho: utiliza o <app-header> se implementado -->
+  <app-header></app-header>
+  
+  <!-- Menu de Steps -->
+  <div class="steps-menu" id="stepsMenu">
+    <div class="step active" data-step="1">
+      <div class="circle">1</div>
+      <span>Passageiros</span>
     </div>
-    
-    <!-- Main Container -->
-    <div class="main-container">
-      <!-- Coluna Esquerda: Formulário Multi-Step -->
-      <div class="left-col">
-        <!-- Step 1: Passageiros -->
-        <div class="step-content active" data-step="1">
-          <div class="card-style-1">
-            <div class="traveler-form-header">
-              <h2>Quem vai viajar?</h2>
+    <div class="separator">></div>
+    <div class="step" data-step="2">
+      <div class="circle">2</div>
+      <span>Detalhes</span>
+    </div>
+    <div class="separator">></div>
+    <div class="step" data-step="3">
+      <div class="circle">3</div>
+      <span>Etapa Final</span>
+    </div>
+  </div>
+  
+  <!-- Container Principal -->
+  <div class="main-container">
+    <!-- Coluna Esquerda: Formulário Multi-Step -->
+    <div class="left-col">
+      <!-- STEP 1: Passageiros -->
+      <div class="step-content active" data-step="1">
+        <div class="card-style-1">
+          <div class="traveler-form-header">
+            <h2>Quem vai viajar?</h2>
+            <div class="actions">
+              <a href="#">Economize tempo fazendo Login</a>
+            </div>
+          </div>
+          <div class="passenger-box">
+            <!-- Linha 1: Nome | Sobrenome -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Nome</label>
+                <input type="text" id="firstName" placeholder="Nome" />
+              </div>
+              <div class="form-field">
+                <label>Sobrenome</label>
+                <input type="text" id="lastName" placeholder="Sobrenome" />
+              </div>
+            </div>
+            <!-- Linha 2: Celular | E-mail -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Celular</label>
+                <input type="text" id="celular" placeholder="(XX) 99999-9999" />
+              </div>
+              <div class="form-field">
+                <label>E-mail</label>
+                <input type="email" placeholder="seuemail@exemplo.com" />
+              </div>
+            </div>
+            <!-- Linha 3: Senha | Repetir Senha -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Senha</label>
+                <input type="password" placeholder="********" />
+              </div>
+              <div class="form-field">
+                <label>Repetir Senha</label>
+                <input type="password" placeholder="********" />
+              </div>
+            </div>
+            <!-- Linha 4: CPF | RG | Data de Nascimento -->
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CPF</label>
+                <input type="text" id="cpf" placeholder="123.456.789-00" />
+              </div>
+              <div class="form-field">
+                <label>RG</label>
+                <input type="text" id="rg" placeholder="12.345.678-9" />
+              </div>
+              <div class="form-field">
+                <label>Data de Nascimento</label>
+                <input type="date" />
+              </div>
+            </div>
+            <!-- Linha 5: CEP | Estado | Cidade -->
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CEP</label>
+                <input type="text" id="cep" placeholder="12345-678" />
+              </div>
+              <div class="form-field">
+                <label>Estado</label>
+                <input type="text" id="state" placeholder="Ex: SP" />
+              </div>
+              <div class="form-field">
+                <label>Cidade</label>
+                <input type="text" id="city" placeholder="São Paulo" />
+              </div>
+            </div>
+            <!-- Linha 6: Endereço | Número -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Endereço</label>
+                <input type="text" id="address" placeholder="Rua, Avenida..." />
+              </div>
+              <div class="form-field">
+                <label>Número</label>
+                <input type="text" id="number" placeholder="123" />
+              </div>
+            </div>
+            <p class="form-note">
+              * Insira o nome exatamente como aparece em seus documentos para o check-in.
+            </p>
+          </div>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="toStep2">Próximo</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- STEP 2: Detalhes (Exibe itens de seguro, etc.) -->
+      <div class="step-content" data-step="2">
+        <div class="card-style-1">
+          <h2>Seguro Viagem em Poucos Cliques</h2>
+          <p>
+            Evite riscos: o seguro do cartão exige pagamento adiantado com reembolso incerto.
+            Garanta já seu seguro e deixe os especialistas cuidarem de tudo.
+          </p>
+          <!-- VIP-Cards: Itens de Detalhes -->
+          <div class="vip-card">
+            <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
+            <div class="vip-info">
+              <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+              <span class="title">
+                Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
+              </span>
+              <span class="price">R$ 119,00 /pessoa</span>
               <div class="actions">
-                <a href="#">Economize tempo fazendo Login</a>
+                <button>Adicionar</button>
+                <a href="#">Detalhes</a>
               </div>
-            </div>
-            <div class="passenger-box">
-              <!-- Linha 1: Nome | Sobrenome -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Nome</label>
-                  <input type="text" id="firstName" placeholder="Nome" />
-                </div>
-                <div class="form-field">
-                  <label>Sobrenome</label>
-                  <input type="text" id="lastName" placeholder="Sobrenome" />
-                </div>
-              </div>
-              <!-- Linha 2: Celular | E-mail -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Celular</label>
-                  <input type="text" id="celular" placeholder="(XX) 99999-9999" />
-                </div>
-                <div class="form-field">
-                  <label>E-mail</label>
-                  <input type="email" placeholder="seuemail@exemplo.com" />
-                </div>
-              </div>
-              <!-- Linha 3: Senha | Repetir Senha -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Senha</label>
-                  <input type="password" placeholder="********" />
-                </div>
-                <div class="form-field">
-                  <label>Repetir Senha</label>
-                  <input type="password" placeholder="********" />
-                </div>
-              </div>
-              <!-- Linha 4: CPF | RG | Data de Nascimento -->
-              <div class="fields-grid-3cols">
-                <div class="form-field">
-                  <label>CPF</label>
-                  <input type="text" id="cpf" placeholder="123.456.789-00" />
-                </div>
-                <div class="form-field">
-                  <label>RG</label>
-                  <input type="text" id="rg" placeholder="12.345.678-9" />
-                </div>
-                <div class="form-field">
-                  <label>Data de Nascimento</label>
-                  <input type="date" />
-                </div>
-              </div>
-              <!-- Linha 5: CEP | Estado | Cidade -->
-              <div class="fields-grid-3cols">
-                <div class="form-field">
-                  <label>CEP</label>
-                  <input type="text" id="cep" placeholder="12345-678" />
-                </div>
-                <div class="form-field">
-                  <label>Estado</label>
-                  <input type="text" id="state" placeholder="Ex: SP" />
-                </div>
-                <div class="form-field">
-                  <label>Cidade</label>
-                  <input type="text" id="city" placeholder="São Paulo" />
-                </div>
-              </div>
-              <!-- Linha 6: Endereço | Número -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Endereço</label>
-                  <input type="text" id="address" placeholder="Rua, Avenida..." />
-                </div>
-                <div class="form-field">
-                  <label>Número</label>
-                  <input type="text" id="number" placeholder="123" />
-                </div>
-              </div>
-              <p class="form-note">
-                * Insira o nome exatamente como aparece em seus documentos para o check-in.
-              </p>
-            </div>
-            <div class="navigation">
-              <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
           </div>
-        </div>
-        
-        <!-- Step 2: Detalhes -->
-        <div class="step-content" data-step="2">
-          <div class="card-style-1">
-            <h2>Seguro Viagem em Poucos Cliques</h2>
-            <p>
-              Evite riscos: o seguro do cartão exige pagamento adiantado com reembolso incerto.
-              Garanta já seu seguro e deixe os especialistas cuidarem de tudo.
-            </p>
-            <div class="vip-card">
-              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" />
-              <div class="vip-info">
-                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-                <span class="title">
-                  Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
-                </span>
-                <span class="price">R$ 119,00 /pessoa</span>
-                <div class="actions">
-                  <button>Adicionar</button>
-                  <a href="#">Detalhes</a>
-                </div>
+          <div class="vip-card">
+            <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" />
+            <div class="vip-info">
+              <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
+              <span class="title">
+                Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
+              </span>
+              <span class="price">R$ 119,00 /pessoa</span>
+              <div class="actions">
+                <button>Adicionar</button>
+                <a href="#">Detalhes</a>
               </div>
-            </div>
-            <div class="vip-card">
-              <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" />
-              <div class="vip-info">
-                <span class="badge">Cobertura robusta para U$60.000 - Intermac</span>
-                <span class="title">
-                  Cobertura de até U$ 60 mil para despesas médicas, hospitalares, atraso de voo, entre outros.
-                </span>
-                <span class="price">R$ 119,00 /pessoa</span>
-                <div class="actions">
-                  <button>Adicionar</button>
-                  <a href="#">Detalhes</a>
-                </div>
-              </div>
-            </div>
-            <div class="navigation">
-              <button class="btn-save-passenger" id="backToStep1">Voltar</button>
-              <button class="btn-save-passenger" id="toStep3">Próximo</button>
             </div>
           </div>
-        </div>
-        
-        <!-- Step 3: Etapa Final (Pagamento) -->
-        <div class="step-content" data-step="3">
-          <div class="card-style-1">
-            <h2>Métodos de Pagamento</h2>
-            <p>
-              Insira os dados do seu cartão para finalizar a reserva.
-            </p>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Número do Cartão</label>
-                <input type="text" id="payment-card-number" placeholder="4111 1111 1111 1111" />
-              </div>
-              <div class="form-field">
-                <label>Validade (MM/AA)</label>
-                <input type="text" id="payment-expiry" placeholder="10/28" />
-              </div>
-            </div>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>CVV</label>
-                <input type="text" id="payment-cvv" placeholder="123" />
-              </div>
-              <div class="form-field">
-                <label>Nº de Parcelas</label>
-                <select id="installmentsCount">
-                  <option value="1">1x sem juros</option>
-                  <option value="2">2x</option>
-                  <option value="3">3x</option>
-                  <option value="4">4x</option>
-                  <option value="5">5x</option>
-                  <option value="6">6x</option>
-                  <option value="7">7x</option>
-                  <option value="8">8x</option>
-                  <option value="9">9x</option>
-                  <option value="10">10x</option>
-                  <option value="11">11x</option>
-                  <option value="12">12x</option>
-                </select>
-              </div>
-            </div>
-            <div class="navigation">
-              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-              <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
-            </div>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep1">Voltar</button>
+            <button class="btn-save-passenger" id="toStep3">Próximo</button>
           </div>
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
-      <div class="right-col">
-        <div class="card-style-1 reservation-gifts-card">
-          <h2>Informações da reserva</h2>
-          <div id="cartItemsList"></div>
-          <div class="resumo-compra">
-            <div class="form-field cupom">
-              <label>Cupom de desconto</label>
-              <input type="text" id="couponInput" placeholder="Insira seu cupom" />
+      <!-- STEP 3: Métodos de Pagamento -->
+      <div class="step-content" data-step="3">
+        <div class="card-style-1">
+          <h2>Métodos de Pagamento</h2>
+          <p>
+            Insira os dados do seu cartão para finalizar a reserva.
+          </p>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Número do Cartão</label>
+              <input type="text" id="payment-card-number" placeholder="4111 1111 1111 1111" />
             </div>
-            <div class="resumo-row">
-              <label>Subtotal</label>
-              <p id="subtotalValue">R$ 0,00</p>
+            <div class="form-field">
+              <label>Validade (MM/AA)</label>
+              <input type="text" id="payment-expiry" placeholder="10/28" />
             </div>
-            <div class="resumo-row">
-              <label>Desconto</label>
-              <p id="discountValue">- R$ 0,00</p>
+          </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>CVV</label>
+              <input type="text" id="payment-cvv" placeholder="123" />
             </div>
-            <div class="resumo-row total-line">
-              <label>Total do pedido</label>
-              <p id="totalValue">R$ 0,00</p>
+            <div class="form-field">
+              <label>Nº de Parcelas</label>
+              <select id="installmentsCount">
+                <option value="1">1x sem juros</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="11">11x</option>
+                <option value="12">12x</option>
+              </select>
             </div>
+          </div>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+            <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Rodapé -->
-    <footer class="mt-40 mb-40" style="text-align: center;">
-      © 2025 - Checkout Trip.com (Completo)
-    </footer>
-    
-    <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
-    <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
-    
-    <script>
-      // Multi-step navegação
-      const stepsMenu = document.getElementById("stepsMenu");
-      const stepContents = document.querySelectorAll(".step-content");
-      const stepButtons = stepsMenu.querySelectorAll(".step");
-      
-      const toStep2Btn = document.getElementById("toStep2");
-      const backToStep1Btn = document.getElementById("backToStep1");
-      const toStep3Btn = document.getElementById("toStep3");
-      const backToStep2Btn = document.getElementById("backToStep2");
-      const finishBtn = document.getElementById("finishBtn");
-      
-      function showStep(stepNumber) {
-        stepContents.forEach(content => {
-          content.classList.remove("active");
-          if (content.dataset.step === String(stepNumber)) {
-            content.classList.add("active");
-          }
-        });
-        stepButtons.forEach(button => {
-          button.classList.remove("active");
-          button.classList.remove("disabled");
-          const btnStep = button.dataset.step;
-          if (btnStep == stepNumber) {
-            button.classList.add("active");
-          }
-          if (btnStep > stepNumber) {
-            button.classList.add("disabled");
-          }
-        });
-      }
-      
-      toStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
-      backToStep1Btn && backToStep1Btn.addEventListener("click", () => {
-        showStep(1);
-      });
-      toStep3Btn && toStep3Btn.addEventListener("click", () => {
-        showStep(3);
-      });
-      backToStep2Btn && backToStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
-      
-      // Função para converter a validade de "MM/AA" para "20AA-MM"
-      function convertExpiry(expiryStr) {
-        const parts = expiryStr.split("/");
-        if (parts.length !== 2) return expiryStr;
-        const month = parts[0].padStart(2, "0");
-        const year = "20" + parts[1];
-        return `${year}-${month}`;
-      }
-      
-      // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
-      finishBtn.addEventListener("click", () => {
-        // Dados do cartão da etapa 3
-        const cardNumber = document.getElementById("payment-card-number").value;
-        const expiryInput = document.getElementById("payment-expiry").value;
-        const expiry = convertExpiry(expiryInput);
-        const securityCode = document.getElementById("payment-cvv").value;
-        
-        // Número de parcelas
-        const installmentsCount = parseInt(document.getElementById("installmentsCount").value) || 1;
-        
-        // Dados do titular do cartão a partir do Step 1
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const cardholderName = firstName + " " + lastName;
-        
-        // Dados do endereço (billing address) a partir do Step 1
-        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
-        const admin_area_2 = document.getElementById("city").value;
-        const admin_area_1 = document.getElementById("state").value;
-        const postal_code = document.getElementById("cep").value;
-        const country_code = "BR"; // fixo
-        
-        const billingAddress = {
-          address_line_1,
-          admin_area_2,
-          admin_area_1,
-          postal_code,
-          country_code
-        };
-        
-        const payload = {
-          amount: "100.00",
-          currency: "USD",
-          cardholderName,
-          cardNumber,
-          expiry,
-          securityCode,
-          billingAddress,
-          installmentsCount
-        };
-        
-        fetch("/api/pay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
-          if(data.id) {
-            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
-          } else {
-            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Erro ao processar o pagamento. Tente novamente.");
-        });
-      });
-      
-      // Funções de formatação (exemplo resumido; implemente conforme necessário)
-      function formatCelular(value) { /* ... */ }
-      function formatCPF(value) { /* ... */ }
-      function formatRG(value) { /* ... */ }
-      function formatCEP(value) { /* ... */ }
-      
-      document.getElementById("celular").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("cpf").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("rg").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("cep").addEventListener("input", function(e) { /* ... */ });
-      
-      // Integração com o carrinho (exemplo resumido)
-      function updateCheckoutCart(items) { /* ... */ }
-      
-      window.addEventListener("load", () => {
-        let items = [];
-        const cart = document.getElementById("shoppingCart");
-        if (cart && cart.items && cart.items.length > 0) {
-          items = cart.items;
-        } else {
-          const savedCart = localStorage.getItem("cartItems");
-          if (savedCart) {
-            items = JSON.parse(savedCart);
-          }
+    <!-- Coluna Direita: Card de Informações da Reserva e Resumo de Pagamento -->
+    <div class="right-col">
+      <div class="card-style-1 reservation-gifts-card">
+        <h2>Informações da reserva</h2>
+        <div id="cartItemsList">
+          <!-- O conteúdo será atualizado via JavaScript -->
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">HOSPEDAGEM</span>
+              <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
+              <div class="reserva-details">
+                <p>Check-in: --/--/----</p>
+                <p>Check-out: --/--/----</p>
+                <p>Quartos: 1</p>
+                <p>Adultos: 1 | Crianças: 0</p>
+              </div>
+            </div>
+            <div class="reserva-preco">R$ 0,00</div>
+          </div>
+        </div>
+        <div class="resumo-compra">
+          <div class="form-field cupom">
+            <label>Cupom de desconto</label>
+            <input type="text" id="couponInput" placeholder="Insira seu cupom" />
+          </div>
+          <div class="resumo-row">
+            <label>Subtotal</label>
+            <p id="subtotalValue">R$ 0,00</p>
+          </div>
+          <div class="resumo-row">
+            <label>Desconto</label>
+            <p id="discountValue">- R$ 0,00</p>
+          </div>
+          <div class="resumo-row total-line">
+            <label>Total do pedido</label>
+            <p id="totalValue">R$ 0,00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Rodapé -->
+  <footer class="mt-40 mb-40" style="text-align: center;">
+    © 2025 - Checkout Trip.com (Completo)
+  </footer>
+  
+  <!-- Componente de Carrinho (oculto para armazenamento, se utilizado) -->
+  <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
+  
+  <script>
+    // -------------------- STEP NAVIGATION --------------------
+    const toStep2Btn = document.getElementById("toStep2");
+    const backToStep1Btn = document.getElementById("backToStep1");
+    const toStep3Btn = document.getElementById("toStep3");
+    const backToStep2Btn = document.getElementById("backToStep2");
+    const finishBtn = document.getElementById("finishBtn");
+    const stepContents = document.querySelectorAll(".step-content");
+
+    function showStep(stepNumber) {
+      stepContents.forEach(content => {
+        content.classList.remove("active");
+        if (content.dataset.step === String(stepNumber)) {
+          content.classList.add("active");
         }
-        updateCheckoutCart(items);
       });
-    </script>
-  </body>
+    }
+    toStep2Btn.addEventListener("click", () => { showStep(2); });
+    backToStep1Btn?.addEventListener("click", () => { showStep(1); });
+    toStep3Btn?.addEventListener("click", () => { showStep(3); });
+    backToStep2Btn?.addEventListener("click", () => { showStep(2); });
+    finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
+
+    // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA --------------------
+    function updateReservationCard(items) {
+      const container = document.getElementById("cartItemsList");
+      if (!container) return;
+      if (!items || items.length === 0) {
+        container.innerHTML = "<p>Nenhum item no carrinho.</p>";
+        return;
+      }
+      // Para este exemplo, usamos o primeiro item do carrinho
+      const item = items[0];
+      const type = item.type || "HOSPEDAGEM";
+      const hotelName = item.hotelName || "Hotel Desconhecido";
+      const roomName = item.roomName || "Quarto";
+      const checkIn = item.checkIn || "--/--/----";
+      const checkOut = item.checkOut || "--/--/----";
+      const rooms = item.rooms || 1;
+      const adults = item.adults || 1;
+      const children = item.children || 0;
+      const price = item.basePriceAdult || 0;
+      
+      container.innerHTML = `
+        <span class="tag-hospedagem">${type}</span>
+        <h4>${hotelName} - ${roomName}</h4>
+        <ul class="reservation-details">
+          <li><i class="fa fa-calendar-check"></i> <strong>Check-in:</strong> ${checkIn}</li>
+          <li><i class="fa fa-calendar-xmark"></i> <strong>Check-out:</strong> ${checkOut}</li>
+          <li><i class="fa fa-bed"></i> <strong>Quartos:</strong> ${rooms}</li>
+          <li><i class="fa fa-user-friends"></i> <strong>Adultos:</strong> ${adults} | <strong>Crianças:</strong> ${children}</li>
+        </ul>
+        <div class="reservation-price">
+          R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </div>
+      `;
+    }
+
+    // -------------------- LEITURA DOS ITENS DO CARRINHO --------------------
+    window.addEventListener("load", () => {
+      let items = [];
+      const cartComponent = document.getElementById("shoppingCart");
+      if (cartComponent && cartComponent.items && cartComponent.items.length > 0) {
+        items = cartComponent.items;
+      } else {
+        const savedCart = localStorage.getItem("cartItems");
+        if (savedCart) {
+          items = JSON.parse(savedCart);
+        }
+      }
+      updateReservationCard(items);
+      
+      // Atualiza o Resumo de Pagamento usando o preço do primeiro item (exemplo simples)
+      if (items.length > 0) {
+        const price = items[0].basePriceAdult || 0;
+        document.getElementById("subtotalValue").textContent = "R$ " + price.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const discount = 500;
+        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent = "R$ " + (price - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      }
+    });
+  </script>
+</body>
 </html>
