@@ -1,0 +1,307 @@
+/* Importação de fontes e resets */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Montserrat", sans-serif !important;
+  font-weight: 400;
+  color: #5d657b;
+  overflow-x: hidden;
+  background: #f1f5f9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Foco e transições */
+a:focus,
+input:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+a:hover {
+  color: #365cf5;
+}
+
+button, a {
+  transition: all 0.3s ease-out;
+}
+
+/* Layout principal */
+.main-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  display: flex;
+  gap: 2rem;
+}
+
+.left-col {
+  flex: 1;
+}
+
+.right-col {
+  width: 400px;
+  flex-shrink: 0;
+}
+
+/* Formulários e grids */
+.fields-grid-2cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fields-grid-3cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+.form-field input,
+.form-field select {
+  font-size: 0.85rem;
+  padding: 0.6rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #007aff;
+}
+
+.form-note {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+/* Botões globais */
+.btn-save-passenger {
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-save-passenger:hover {
+  background: #005dbf;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Multi-step e navegação */
+.step-content {
+  display: none;
+}
+.step-content.active {
+  display: block;
+}
+
+.navigation {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+/* Card padrão */
+.card-style-1 {
+  background: #fff;
+  border: 1px solid #efefef;
+  border-radius: 10px;
+  padding: 25px 30px;
+  box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+  margin-bottom: 20px;
+}
+
+/* Menu de steps */
+.steps-menu {
+  background-color: #365cf5;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 20px;
+}
+
+.steps-menu .step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+.steps-menu .circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #365cf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.steps-menu .separator {
+  color: #fff;
+  font-weight: bold;
+}
+
+.steps-menu .step.active .circle {
+  background-color: #365cf5;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.steps-menu .step.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Resumo da compra e carrinho */
+.reservation-gifts-card {
+  background: #fff;
+  border: 1px solid #efefef;
+  border-radius: 10px;
+  padding: 25px 30px;
+  box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+}
+
+.reserva-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.reserva-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reserva-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.reserva-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reserva-left .categoria {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #007aff;
+}
+
+.reserva-left .nome {
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.reserva-left .subinfo {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.reserva-preco {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00c853;
+  text-align: right;
+}
+
+.reserva-details p {
+  font-size: 0.8rem;
+  margin: 2px 0;
+  color: #555;
+}
+
+.resumo-compra {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.resumo-compra .resumo-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.resumo-compra .resumo-row label {
+  font-weight: 600;
+}
+
+.resumo-compra .resumo-row p {
+  font-weight: 600;
+  margin: 0;
+}
+
+.resumo-compra .cupom {
+  margin-top: 15px;
+}
+
+.resumo-compra .cupom label {
+  font-weight: 600;
+}
+
+/* Rodapé */
+footer {
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .right-col {
+    width: 100%;
+  }
+}
+
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
