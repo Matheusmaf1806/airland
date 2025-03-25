@@ -1,4 +1,6 @@
-/* js/checkout.js */
+/* checkout.js - Gerencia a navegação entre etapas e integra o carrinho */
+
+// Importa os módulos das etapas
 import { renderPassengerStep } from './steps/passenger-step.js';
 import { renderDetailsStep } from './steps/details-step.js';
 import { renderPaymentStep } from './steps/payment-step.js';
@@ -32,9 +34,9 @@ function updateStepsMenu() {
   stepButtons.forEach(button => {
     const btnStep = parseInt(button.dataset.step);
     button.classList.remove('active', 'disabled');
-    if(btnStep === currentStep) {
+    if (btnStep === currentStep) {
       button.classList.add('active');
-    } else if(btnStep > currentStep) {
+    } else if (btnStep > currentStep) {
       button.classList.add('disabled');
     }
   });
@@ -43,7 +45,7 @@ function updateStepsMenu() {
 function attachEventListeners() {
   if (currentStep === 1) {
     const toStep2Btn = document.getElementById("toStep2");
-    if(toStep2Btn) {
+    if (toStep2Btn) {
       toStep2Btn.addEventListener("click", () => {
         loadStep(2);
       });
@@ -51,12 +53,12 @@ function attachEventListeners() {
   } else if (currentStep === 2) {
     const backToStep1Btn = document.getElementById("backToStep1");
     const toStep3Btn = document.getElementById("toStep3");
-    if(backToStep1Btn) {
+    if (backToStep1Btn) {
       backToStep1Btn.addEventListener("click", () => {
         loadStep(1);
       });
     }
-    if(toStep3Btn) {
+    if (toStep3Btn) {
       toStep3Btn.addEventListener("click", () => {
         loadStep(3);
       });
@@ -64,12 +66,12 @@ function attachEventListeners() {
   } else if (currentStep === 3) {
     const backToStep2Btn = document.getElementById("backToStep2");
     const finishBtn = document.getElementById("finishBtn");
-    if(backToStep2Btn) {
+    if (backToStep2Btn) {
       backToStep2Btn.addEventListener("click", () => {
         loadStep(2);
       });
     }
-    if(finishBtn) {
+    if (finishBtn) {
       finishBtn.addEventListener("click", handlePayment);
     }
   }
@@ -89,6 +91,7 @@ function handlePayment() {
   const admin_area_1 = document.getElementById("state").value;
   const postal_code = document.getElementById("cep").value;
   const country_code = "BR";
+  
   const billingAddress = {
     address_line_1,
     admin_area_2,
@@ -96,6 +99,7 @@ function handlePayment() {
     postal_code,
     country_code
   };
+
   const payload = {
     amount: "100.00",
     currency: "USD",
@@ -112,23 +116,23 @@ function handlePayment() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   })
-  .then(res => res.json())
-  .then(data => {
-    if(data.id) {
-      alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
-    } else {
-      alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Erro ao processar o pagamento. Tente novamente.");
-  });
+    .then(res => res.json())
+    .then(data => {
+      if (data.id) {
+        alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+      } else {
+        alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Erro ao processar o pagamento. Tente novamente.");
+    });
 }
 
 function convertExpiry(expiryStr) {
   const parts = expiryStr.split("/");
-  if(parts.length !== 2) return expiryStr;
+  if (parts.length !== 2) return expiryStr;
   const month = parts[0].padStart(2, "0");
   const year = "20" + parts[1];
   return `${year}-${month}`;
@@ -137,7 +141,7 @@ function convertExpiry(expiryStr) {
 document.addEventListener("DOMContentLoaded", () => {
   loadStep(1);
 
-  // Integração com o carrinho (exemplo simplificado)
+  // Integração com o carrinho (exemplo completo)
   let items = [];
   const cart = document.getElementById("shoppingCart");
   if (cart && cart.items && cart.items.length > 0) {
