@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Versão Final
+// server.js (ESM) - Versão Final com PayPal Integrado
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -10,8 +10,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-// Importação do SDK do PayPal
-import checkoutNodeJssdk from "@paypal/checkout-server-sdk";
+import checkoutNodeJssdk from "@paypal/checkout-server-sdk";  // SDK do PayPal
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -54,7 +53,7 @@ app.get("/api/affiliateColors", getAffiliateColors);
 // ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integração das APIs Hotelbeds!");
+  res.send("Olá, API rodando com ESM, Express e integração das APIs Hotelbeds e PayPal!");
 });
 
 // ------------------------------------------------------
@@ -68,7 +67,8 @@ function generateSignature() {
 }
 
 // ------------------------------------------------------
-// Rota GET para Preço / Disponibilidade (Hotel Booking API)
+// Rota GET para Preço / Disponibilidade (Hotelbeds)
+// Exemplo: GET /api/hotelbeds/hotels?checkIn=2025-06-15&checkOut=2025-06-16&destination=MCO&rooms=2&adults1=2&children1=1&adults2=2&children2=0
 app.get("/api/hotelbeds/hotels", async (req, res) => {
   try {
     const { checkIn, checkOut, destination } = req.query;
@@ -113,15 +113,15 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
       return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Booking)" });
     }
     return res.json(result);
-
   } catch (err) {
-    console.error("Erro ao buscar hotéis (GET /api/hotelbeds/hotels):", err);
+    console.error("Erro ao buscar hotéis:", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
   }
 });
 
 // ------------------------------------------------------
-// Rota GET para Conteúdo Detalhado (Hotel Content API)
+// Rota GET para Conteúdo Detalhado (Hotelbeds - Content API)
+// Exemplo: GET /api/hotelbeds/hotel-content?hotelCode=123223
 app.get("/api/hotelbeds/hotel-content", async (req, res) => {
   try {
     const { hotelCode } = req.query;
@@ -144,7 +144,6 @@ app.get("/api/hotelbeds/hotel-content", async (req, res) => {
       return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Content)" });
     }
     return res.json(result);
-
   } catch (err) {
     console.error("Erro ao buscar conteúdo detalhado do hotel:", err);
     res.status(500).json({ error: "Erro interno ao buscar conteúdo detalhado do hotel" });
@@ -184,18 +183,17 @@ app.post("/proxy-hotelbeds", async (req, res) => {
       return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds" });
     }
     return res.json(result);
-
   } catch (err) {
-    console.error("Erro ao buscar dados dos hotéis (POST /proxy-hotelbeds):", err);
+    console.error("Erro ao buscar dados dos hotéis:", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
   }
 });
 
 // ------------------------------------------------------
-// Endpoints do PayPal
+// Endpoints do PayPal (Sandbox, USD)
 // ------------------------------------------------------
 
-// Endpoint para criar um pedido no PayPal (Sandbox, USD)
+// Endpoint para criar um pedido no PayPal
 app.post("/api/create-order", async (req, res) => {
   try {
     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
@@ -206,7 +204,7 @@ app.post("/api/create-order", async (req, res) => {
         amount: { currency_code: "USD", value: "100.00" }
       }],
       application_context: {
-        // Ajuste as URLs conforme seu domínio
+        // Atualize essas URLs para suas páginas de retorno e cancelamento
         return_url: "https://seu-dominio.com/return",
         cancel_url: "https://seu-dominio.com/cancel"
       }
@@ -227,7 +225,7 @@ app.post("/api/create-order", async (req, res) => {
   }
 });
 
-// Endpoint para capturar um pedido no PayPal (Sandbox)
+// Endpoint para capturar um pedido no PayPal
 app.post("/api/capture-order", async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -279,7 +277,6 @@ app.get("/park-details/:id", async (req, res) => {
       </html>
     `;
     res.send(parkDetails);
-
   } catch (err) {
     console.error("Erro ao buscar parque:", err);
     res.status(500).json({ error: "Erro interno ao buscar parque" });
@@ -287,7 +284,7 @@ app.get("/park-details/:id", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Iniciar o servidor localmente (caso não esteja na Vercel)
+// Iniciar o servidor localmente (para ambiente não serverless)
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
