@@ -10,6 +10,8 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+// Importar o SDK do PayPal
+import checkoutNodeJssdk from "@paypal/checkout-server-sdk";
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -242,6 +244,71 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   } catch (err) {
     console.error("Erro ao buscar dados dos hotéis (POST /proxy-hotelbeds):", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+  }
+});
+
+// ------------------------------------------------------
+// Endpoints do PayPal
+// ------------------------------------------------------
+
+// Endpoint para criar um pedido no PayPal (Sandbox, USD)
+app.post("/api/create-order", async (req, res) => {
+  try {
+    const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
+    request.prefer("return=representation");
+    request.requestBody({
+      intent: "CAPTURE",
+      purchase_units: [{
+        amount: {
+          currency_code: "USD",
+          value: "100.00"
+        }
+      }],
+      application_context: {
+        // Ajuste as URLs conforme seu domínio
+        return_url: "https://seu-dominio.com/return",
+        cancel_url: "https://seu-dominio.com/cancel"
+      }
+    });
+    
+    const paypalHttpClient = new checkoutNodeJssdk.core.PayPalHttpClient(
+      new checkoutNodeJssdk.core.SandboxEnvironment(
+        process.env.PAYPAL_CLIENT_ID,
+        process.env.PAYPAL_CLIENT_SECRET
+      )
+    );
+    
+    const response = await paypalHttpClient.execute(request);
+    res.status(200).json(response.result);
+  } catch (err) {
+    console.error("Erro ao criar pedido no PayPal:", err);
+    res.status(500).json({ error: err.toString() });
+  }
+});
+
+// Endpoint para capturar um pedido no PayPal (Sandbox)
+app.post("/api/capture-order", async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId é obrigatório" });
+    }
+    
+    const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderId);
+    request.requestBody({});
+    
+    const paypalHttpClient = new checkoutNodeJssdk.core.PayPalHttpClient(
+      new checkoutNodeJssdk.core.SandboxEnvironment(
+        process.env.PAYPAL_CLIENT_ID,
+        process.env.PAYPAL_CLIENT_SECRET
+      )
+    );
+    
+    const response = await paypalHttpClient.execute(request);
+    res.status(200).json(response.result);
+  } catch (err) {
+    console.error("Erro ao capturar pedido no PayPal:", err);
+    res.status(500).json({ error: err.toString() });
   }
 });
 
