@@ -1,82 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Checkout</title>
-  <!-- Importa o CSS global -->
-  <link rel="stylesheet" href="css/checkout.css">
-  <!-- Importa os CSS específicos para cada etapa -->
-  <link rel="stylesheet" href="css/steps/passenger-step.css">
-  <link rel="stylesheet" href="css/steps/details-step.css">
-  <link rel="stylesheet" href="css/steps/payment-step.css">
-  
-  <!-- Header Component (já existente) -->
-  <script src="js/header-component.js" type="module"></script>
-</head>
-<body>
-  <app-header></app-header>
-  
-  <!-- Menu de Steps -->
-  <div class="steps-menu" id="stepsMenu">
-    <div class="step active" data-step="1">
-      <div class="circle">1</div>
-      <span>Passageiros</span>
-    </div>
-    <div class="separator">></div>
-    <div class="step" data-step="2">
-      <div class="circle">2</div>
-      <span>Detalhes</span>
-    </div>
-    <div class="separator">></div>
-    <div class="step" data-step="3">
-      <div class="circle">3</div>
-      <span>Etapa Final</span>
-    </div>
-  </div>
-  
-  <!-- Container Principal -->
-  <div class="main-container">
-    <!-- Coluna Esquerda: Etapas do Checkout -->
-    <div class="left-col">
-      <div id="step-container"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Checkout</title>
+    <!-- Importa o CSS global do checkout -->
+    <link rel="stylesheet" href="css/checkout.css">
+    <!-- Importa os CSS específicos para cada etapa -->
+    <link rel="stylesheet" href="css/steps/passenger-step.css">
+    <link rel="stylesheet" href="css/steps/details-step.css">
+    <link rel="stylesheet" href="css/steps/payment-step.css">
+    
+    <!-- Importa o header-component (já existente) -->
+    <script src="js/header-component.js" type="module"></script>
+  </head>
+  <body>
+    <app-header></app-header>
+    
+    <!-- Menu de Steps -->
+    <div class="steps-menu" id="stepsMenu">
+      <div class="step active" data-step="1">
+        <div class="circle">1</div>
+        <span>Passageiros</span>
+      </div>
+      <div class="separator">></div>
+      <div class="step" data-step="2">
+        <div class="circle">2</div>
+        <span>Detalhes</span>
+      </div>
+      <div class="separator">></div>
+      <div class="step" data-step="3">
+        <div class="circle">3</div>
+        <span>Etapa Final</span>
+      </div>
     </div>
     
-    <!-- Coluna Direita: Informações da Reserva -->
-    <div class="right-col">
-      <div class="card-style-1 reservation-gifts-card">
-        <h2>Informações da reserva</h2>
-        <div id="cartItemsList"></div>
-        <div class="resumo-compra">
-          <div class="form-field cupom">
-            <label>Cupom de desconto</label>
-            <input type="text" id="couponInput" placeholder="Insira seu cupom" />
-          </div>
-          <div class="resumo-row">
-            <label>Subtotal</label>
-            <p id="subtotalValue">R$ 0,00</p>
-          </div>
-          <div class="resumo-row">
-            <label>Desconto</label>
-            <p id="discountValue">- R$ 0,00</p>
-          </div>
-          <div class="resumo-row total-line">
-            <label>Total do pedido</label>
-            <p id="totalValue">R$ 0,00</p>
+    <!-- Container Principal -->
+    <div class="main-container">
+      <!-- Coluna Esquerda: O conteúdo das etapas será carregado dinamicamente -->
+      <div class="left-col">
+        <div id="step-container"></div>
+      </div>
+      
+      <!-- Coluna Direita: Informações da reserva e resumo da compra -->
+      <div class="right-col">
+        <div class="card-style-1 reservation-gifts-card">
+          <h2>Informações da reserva</h2>
+          <div id="cartItemsList"></div>
+          <div class="resumo-compra">
+            <div class="form-field cupom">
+              <label>Cupom de desconto</label>
+              <input type="text" id="couponInput" placeholder="Insira seu cupom" />
+            </div>
+            <div class="resumo-row">
+              <label>Subtotal</label>
+              <p id="subtotalValue">R$ 0,00</p>
+            </div>
+            <div class="resumo-row">
+              <label>Desconto</label>
+              <p id="discountValue">- R$ 0,00</p>
+            </div>
+            <div class="resumo-row total-line">
+              <label>Total do pedido</label>
+              <p id="totalValue">R$ 0,00</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Rodapé -->
-  <footer class="mt-40 mb-40" style="text-align: center;">
-    © 2025 - Checkout Trip.com (Completo)
-  </footer>
-  
-  <!-- Componente de Carrinho -->
-  <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
-  
-  <!-- Importa o script principal do Checkout -->
-  <script src="js/checkout.js" type="module"></script>
-</body>
+    
+    <!-- Rodapé -->
+    <footer class="mt-40 mb-40" style="text-align: center;">
+      © 2025 - Checkout Trip.com (Completo)
+    </footer>
+    
+    <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
+    <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
+    
+    <!-- Importa o script principal do Checkout -->
+    <script src="js/checkout.js" type="module"></script>
+  </body>
 </html>
