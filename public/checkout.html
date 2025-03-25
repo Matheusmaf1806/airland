@@ -357,11 +357,11 @@
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
-                  <input type="text" placeholder="Nome" />
+                  <input type="text" id="firstName" placeholder="Nome" />
                 </div>
                 <div class="form-field">
                   <label>Sobrenome</label>
-                  <input type="text" placeholder="Sobrenome" />
+                  <input type="text" id="lastName" placeholder="Sobrenome" />
                 </div>
               </div>
               <!-- Linha 2: Celular | E-mail -->
@@ -409,22 +409,22 @@
                 </div>
                 <div class="form-field">
                   <label>Estado</label>
-                  <input type="text" placeholder="Ex: SP" />
+                  <input type="text" id="state" placeholder="Ex: SP" />
                 </div>
                 <div class="form-field">
                   <label>Cidade</label>
-                  <input type="text" placeholder="São Paulo" />
+                  <input type="text" id="city" placeholder="São Paulo" />
                 </div>
               </div>
               <!-- Linha 6: Endereço | Número -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Endereço</label>
-                  <input type="text" placeholder="Rua, Avenida..." />
+                  <input type="text" id="address" placeholder="Rua, Avenida..." />
                 </div>
                 <div class="form-field">
                   <label>Número</label>
-                  <input type="text" placeholder="123" />
+                  <input type="text" id="number" placeholder="123" />
                 </div>
               </div>
               <p class="form-note">
@@ -485,36 +485,28 @@
           <div class="card-style-1">
             <h2>Métodos de Pagamento</h2>
             <p>
-              Selecione a forma de pagamento para finalizar sua reserva.
+              Insira os dados do seu cartão para finalizar a reserva.
             </p>
             <div class="fields-grid-2cols">
               <div class="form-field">
-                <label>Forma de Pagamento</label>
-                <select>
-                  <option>Cartão de Crédito</option>
-                  <option>Pix</option>
-                  <option>Boleto</option>
-                </select>
+                <label>Número do Cartão</label>
+                <input type="text" id="payment-card-number" placeholder="4111 1111 1111 1111" />
               </div>
               <div class="form-field">
-                <label>Número do Cartão</label>
-                <input type="text" placeholder="**** **** **** 1234" />
+                <label>Validade (MM/AA)</label>
+                <input type="text" id="payment-expiry" placeholder="10/28" />
               </div>
             </div>
             <div class="fields-grid-2cols">
               <div class="form-field">
-                <label>Validade (MM/AA)</label>
-                <input type="text" placeholder="10/28" />
-              </div>
-              <div class="form-field">
                 <label>CVV</label>
-                <input type="text" placeholder="123" />
+                <input type="text" id="payment-cvv" placeholder="123" />
               </div>
             </div>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-              <!-- Ao clicar em Finalizar, inicia o fluxo do PayPal -->
-              <button class="btn-save-passenger" id="finishBtn">Finalizar</button>
+              <!-- Botão que processa o pagamento via /api/pay -->
+              <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
             </div>
           </div>
         </div>
@@ -602,26 +594,73 @@
         showStep(2);
       });
       
-      // Ao clicar em "Finalizar", inicia o fluxo de pagamento do PayPal
+      // Função para converter a validade de "MM/AA" para "20AA-MM"
+      function convertExpiry(expiryStr) {
+        // Ex: "10/28" -> "2028-10"
+        const parts = expiryStr.split("/");
+        if (parts.length !== 2) return expiryStr;
+        const month = parts[0].padStart(2, '0');
+        const year = "20" + parts[1];
+        return `${year}-${month}`;
+      }
+      
+      // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
       finishBtn.addEventListener("click", () => {
-        fetch('/api/create-order', { method: 'POST' })
-          .then(res => res.json())
-          .then(data => {
-            // Procura o link de aprovação retornado pela API do PayPal
-            const approvalLink = data.links.find(link => link.rel === 'approve');
-            if (approvalLink) {
-              window.location.href = approvalLink.href;
-            } else {
-              alert('Erro: link de aprovação não encontrado.');
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            alert('Erro ao criar o pedido. Tente novamente.');
-          });
+        // Dados do cartão da etapa 3
+        const cardNumber = document.getElementById("payment-card-number").value;
+        const expiryInput = document.getElementById("payment-expiry").value;
+        const expiry = convertExpiry(expiryInput);
+        const securityCode = document.getElementById("payment-cvv").value;
+        
+        // Dados do titular do cartão a partir do Step 1
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const cardholderName = firstName + " " + lastName;
+        
+        // Dados do endereço (billing address) a partir do Step 1
+        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
+        const admin_area_2 = document.getElementById("city").value;
+        const admin_area_1 = document.getElementById("state").value;
+        const postal_code = document.getElementById("cep").value;
+        const country_code = "BR"; // padrão
+        
+        // Monta o payload para /api/pay
+        const payload = {
+          amount: "100.00",
+          currency: "USD",
+          cardholderName,
+          cardNumber,
+          expiry,
+          securityCode,
+          billingAddress: {
+            address_line_1,
+            admin_area_2,
+            admin_area_1,
+            postal_code,
+            country_code
+          }
+        };
+        
+        fetch('/api/pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.id) {
+            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+          } else {
+            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao processar o pagamento. Tente novamente.");
+        });
       });
       
-      // Funções de formatação dos campos
+      // Funções de formatação (continua igual)
       function formatCelular(value) {
         if (value.charAt(0) === '+') {
           let digits = value.slice(1).replace(/\D/g, '');
@@ -754,12 +793,10 @@
       
       window.addEventListener("load", () => {
         let items = [];
-        // Tenta obter os itens do componente (caso esteja disponível e possua dados)
         const cart = document.getElementById("shoppingCart");
         if (cart && cart.items && cart.items.length > 0) {
           items = cart.items;
         } else {
-          // Se o componente não tiver os itens (ou estiver oculto), obtém do localStorage
           const savedCart = localStorage.getItem("cartItems");
           if (savedCart) {
             items = JSON.parse(savedCart);
@@ -767,32 +804,6 @@
         }
         updateCheckoutCart(items);
       });
-      
-      // Verifica se há o parâmetro "token" na URL (retorno do PayPal) e, se houver, captura o pagamento
-      (function(){
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        if(token) {
-          fetch('/api/capture-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: token })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if(data.status === 'COMPLETED'){
-              alert('Pagamento aprovado com sucesso!');
-              // Opcional: redirecione para uma página de sucesso ou atualize a interface
-            } else {
-              alert('Falha na captura do pagamento.');
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            alert('Erro ao capturar o pagamento.');
-          });
-        }
-      })();
     </script>
   </body>
 </html>
