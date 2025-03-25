@@ -1,4 +1,4 @@
-/* js/steps/payment-step.js */
+/* payment-step.js - Define o HTML da etapa de Pagamento */
 export function renderPaymentStep() {
   return `
     <div class="step-content" data-step="3">
