@@ -292,7 +292,7 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (ABA DETALHES) - CSS AJUSTADO ========== */
+      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
       .vip-card {
         display: flex;
         align-items: flex-start;
@@ -414,70 +414,67 @@
     <div class="main-container">
       <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
-        <!-- STEP 1: Quem vai viajar? -->
+        <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
-          <div class="card-style-1" id="passengerFullForm">
+          <div class="card-style-1">
             <div class="traveler-form-header">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <!-- Clique para alternar para o formulário de login -->
-                <a href="#" id="toggleLoginForm">Economize tempo fazendo Login</a>
+                <!-- Toggle de Login: aparece somente se o usuário NÃO estiver logado -->
+                <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
-            <div class="passenger-box">
-              <!-- Agrupa os campos completos -->
-              <div id="fullFormFields">
-                <!-- Linha 1: Nome | Sobrenome -->
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>Nome</label>
-                    <input type="text" id="firstName" placeholder="Nome" />
-                  </div>
-                  <div class="form-field">
-                    <label>Sobrenome</label>
-                    <input type="text" id="lastName" placeholder="Sobrenome" />
-                  </div>
+            <!-- Container dos campos de cadastro (dados pessoais) -->
+            <div id="registrationFields">
+              <!-- Linha 1: Nome | Sobrenome -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Nome</label>
+                  <input type="text" id="firstName" placeholder="Nome" />
                 </div>
-                <!-- Linha 2: Celular | E-mail -->
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>Celular</label>
-                    <input type="text" id="celular" placeholder="(XX) 99999-9999" />
-                  </div>
-                  <div class="form-field">
-                    <label>E-mail</label>
-                    <input type="email" id="email" placeholder="seuemail@exemplo.com" />
-                  </div>
-                </div>
-                <!-- Linha 3: Senha | Repetir Senha -->
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>Senha</label>
-                    <input type="password" id="password" placeholder="********" />
-                  </div>
-                  <div class="form-field">
-                    <label>Repetir Senha</label>
-                    <input type="password" id="passwordConfirm" placeholder="********" />
-                  </div>
+                <div class="form-field">
+                  <label>Sobrenome</label>
+                  <input type="text" id="lastName" placeholder="Sobrenome" />
                 </div>
               </div>
-              <!-- Novo: Formulário de Login (apenas email e senha) – oculto por padrão -->
-              <div id="loginFormFields" style="display: none;">
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>E-mail</label>
-                    <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" />
-                  </div>
-                  <div class="form-field">
-                    <label>Senha</label>
-                    <input type="password" id="loginPassword" placeholder="********" />
-                  </div>
+              <!-- Linha 2: Celular | E-mail -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Celular</label>
+                  <input type="text" id="celular" placeholder="(XX) 99999-9999" />
                 </div>
-                <div class="navigation">
-                  <button class="btn-save-passenger" id="backToFullForm">Não tenho Login</button>
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" placeholder="seuemail@exemplo.com" />
                 </div>
               </div>
-              <!-- Campos que sempre serão exibidos (ex: endereço) -->
+              <!-- Linha 3: Senha | Repetir Senha -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+              </div>
+            </div>
+            <!-- Container do formulário de login (apenas e-mail e senha) -->
+            <div id="loginFields" style="display: none;">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" />
+                </div>
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" id="loginPassword" placeholder="********" />
+                </div>
+              </div>
+            </div>
+            <!-- Outros campos que devem ser sempre exibidos -->
+            <div id="otherFields">
               <!-- Linha 4: CPF | RG | Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -519,10 +516,10 @@
                   <input type="text" id="number" placeholder="123" />
                 </div>
               </div>
-              <p class="form-note">
-                * Insira o nome exatamente como aparece em seus documentos para o check-in.
-              </p>
             </div>
+            <p class="form-note">
+              * Insira o nome exatamente como aparece em seus documentos para o check-in.
+            </p>
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
@@ -667,7 +664,7 @@
       © 2025 - Checkout Trip.com (Completo)
     </footer>
     
-    <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
+    <!-- Componente de Carrinho (oculto para armazenamento, se utilizado) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
@@ -703,46 +700,48 @@
       }
       
       toStep2Btn.addEventListener("click", () => { showStep(2); });
-      backToStep1Btn && backToStep1Btn.addEventListener("click", () => { showStep(1); });
-      toStep3Btn && toStep3Btn.addEventListener("click", () => { showStep(3); });
-      backToStep2Btn && backToStep2Btn.addEventListener("click", () => { showStep(2); });
+      backToStep1Btn?.addEventListener("click", () => { showStep(1); });
+      toStep3Btn?.addEventListener("click", () => { showStep(3); });
+      backToStep2Btn?.addEventListener("click", () => { showStep(2); });
       finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
       
-      // -------------------- LÓGICA DE LOGIN / MODO FULL --------------------
-      // Função que verifica se o usuário está logado (exemplo: usando agentId no localStorage)
+      // -------------------- LÓGICA DE LOGIN / REGISTRO NA ABA "QUEM VAI VIAJAR" --------------------
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFields = document.getElementById("registrationFields");
+      const loginFields = document.getElementById("loginFields");
+      
+      // Função para verificar se o usuário está logado (exemplo: presença de agentId no localStorage)
       function isUserLoggedIn() {
-        return localStorage.getItem("agentId") ? true : false;
+        return !!localStorage.getItem("agentId");
       }
       
-      // Alterna para o modo de login (apenas email e senha)
-      const toggleLoginLink = document.getElementById("toggleLoginForm");
-      const fullFormFields = document.getElementById("fullFormFields");
-      const loginFormFields = document.getElementById("loginFormFields");
-      const backToFullFormBtn = document.getElementById("backToFullForm");
-      
-      // Se o usuário estiver logado, esconda o full form automaticamente
+      // Se o usuário já estiver logado, oculta os campos de registro e o link de login
       window.addEventListener("load", () => {
         if (isUserLoggedIn()) {
-          fullFormFields.style.display = "none";
-          loginFormFields.style.display = "none"; // Usuário logado: não exibe nenhum formulário de login
-          // Opcional: você pode preencher os campos com dados do perfil se desejar
+          registrationFields.style.display = "none";
+          if (toggleLoginLink) {
+            toggleLoginLink.style.display = "none";
+          }
         }
       });
       
-      // Ao clicar no link "Economize tempo fazendo Login", mostra o formulário de login
-      toggleLoginLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        fullFormFields.style.display = "none";
-        loginFormFields.style.display = "block";
-        toggleLoginLink.textContent = "Não tenho Login"; // Alterar o texto do link
-      });
-      
-      // Ao clicar no botão "Não tenho Login", volta para o formulário completo
-      backToFullFormBtn.addEventListener("click", () => {
-        loginFormFields.style.display = "none";
-        fullFormFields.style.display = "block";
-        toggleLoginLink.textContent = "Economize tempo fazendo Login";
-      });
+      // Toggle para alternar entre registro e login (apenas para usuários não logados)
+      if (toggleLoginLink) {
+        toggleLoginLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (registrationFields.style.display !== "none") {
+            // Esconde os campos de registro e mostra os de login
+            registrationFields.style.display = "none";
+            loginFields.style.display = "block";
+            toggleLoginLink.textContent = "Não tenho Login";
+          } else {
+            // Volta para o formulário completo de registro
+            registrationFields.style.display = "block";
+            loginFields.style.display = "none";
+            toggleLoginLink.textContent = "Economize tempo fazendo Login";
+          }
+        });
+      }
       
       // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA --------------------
       function updateReservationCard(items) {
