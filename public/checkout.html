@@ -5,6 +5,8 @@
     <title>Checkout</title>
     <!-- Importa o header-component para que o <app-header> seja registrado -->
     <script src="/js/header-component.js" type="module"></script>
+    <!-- Carregar o SDK do PayPal para Smart Payment Buttons -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=BRL&locale=pt_BR&intent=capture"></script>
     <style>
       /*===========================
           COMMON CSS
@@ -318,7 +320,6 @@
     </style>
   </head>
   <body>
-    <!-- Header (importado pelo header-component.js) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -343,7 +344,6 @@
     <div class="main-container">
       <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
-        
         <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
@@ -353,8 +353,6 @@
                 <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
-            
-            <!-- Campos de cadastro -->
             <div id="registrationFields">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -387,8 +385,6 @@
                 </div>
               </div>
             </div>
-            
-            <!-- Campos de login (por exemplo, se o usuário quiser logar em vez de se registrar) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -404,8 +400,6 @@
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
-            
-            <!-- Outros campos sempre visíveis -->
             <div id="otherFields">
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -446,11 +440,9 @@
                 </div>
               </div>
             </div>
-            
             <p class="form-note">
               * Insira o nome exatamente como aparece em seus documentos para o check-in.
             </p>
-            
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
@@ -505,8 +497,16 @@
           <div class="card-style-1">
             <h2>Métodos de Pagamento</h2>
             <p>
-              Insira os dados do seu cartão para finalizar a reserva (ou use PayPal Checkout).
+              Escolha entre:
+              <br />
+              • Realizar o pagamento com PayPal (via Smart Payment Buttons) ou
+              <br />
+              • Processar o pagamento com cartão de crédito (caso sua conta esteja habilitada para essa opção – observe que essa opção inline não oferece parcelamento no Brasil).
             </p>
+            <!-- Container para os Smart Payment Buttons -->
+            <div id="paypal-button-container" style="margin-bottom: 1rem;"></div>
+            <p style="text-align: center; font-weight: bold;">OU</p>
+            <!-- Campos customizados para cartão de crédito -->
             <div class="fields-grid-2cols">
               <div class="form-field">
                 <label>Número do Cartão</label>
@@ -540,12 +540,9 @@
                 </select>
               </div>
             </div>
-            
-            <!-- Container para o Smart Payment Button, se desejar oferecer PayPal Wallet -->
-            <div id="paypal-button-container" style="margin-top: 1rem;"></div>
-            
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <!-- Botão para processar pagamento customizado -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
             </div>
           </div>
@@ -556,8 +553,21 @@
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
-          <!-- Itens do carrinho serão renderizados aqui -->
-          <div id="cartItemsList"></div>
+          <div id="cartItemsList">
+            <div class="reserva-item">
+              <div class="reserva-left">
+                <span class="categoria">HOSPEDAGEM</span>
+                <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
+                <div class="reserva-details">
+                  <p>Check-in: --/--/----</p>
+                  <p>Check-out: --/--/----</p>
+                  <p>Quartos: 1</p>
+                  <p>Adultos: 1 | Crianças: 0</p>
+                </div>
+              </div>
+              <div class="reserva-preco">R$ 0,00</div>
+            </div>
+          </div>
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
@@ -587,9 +597,6 @@
     
     <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
-    
-    <!-- Se quiser usar Smart Payment Buttons para PayPal Wallet -->
-    <!-- <script src="https://www.paypal.com/sdk/js?client-id=SEU_CLIENT_ID&currency=BRL&intent=capture"></script> -->
     
     <script>
       // -------------------- STEP NAVIGATION --------------------
@@ -628,10 +635,110 @@
       toStep3Btn?.addEventListener("click", () => { showStep(3); });
       backToStep2Btn?.addEventListener("click", () => { showStep(2); });
       
-      // Exemplo de finalização offline (apenas teste)
+      // -------------------- SMART PAYMENT BUTTONS --------------------
+      // Renderiza o botão do PayPal na etapa 3 (se o usuário optar pelo PayPal Checkout)
+      paypal.Buttons({
+        createOrder: function(data, actions) {
+          // Chama o endpoint /api/create-order
+          return fetch("/api/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({})
+          })
+          .then((response) => response.json())
+          .then((order) => order.id);
+        },
+        onApprove: function(data, actions) {
+          // Após aprovação, captura o pedido
+          return fetch("/api/capture-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.orderID })
+          })
+          .then((response) => response.json())
+          .then((orderData) => {
+            alert("Pagamento aprovado! Status: " + orderData.status);
+          });
+        },
+        onCancel: function(data) {
+          alert("Pagamento cancelado.");
+        },
+        onError: function(err) {
+          console.error(err);
+          alert("Erro no pagamento via PayPal.");
+        }
+      }).render("#paypal-button-container");
+      
+      // -------------------- PROCESSAMENTO DO PAGAMENTO INLINE (CUSTOM) --------------------
+      // Caso o usuário opte por usar os campos de cartão (apesar de não ser a abordagem recomendada para o Brasil)
       finishBtn.addEventListener("click", () => {
-        alert("Reserva finalizada com sucesso!");
+        // Dados do cartão da etapa 3
+        const cardNumber = document.getElementById("payment-card-number").value;
+        const expiryInput = document.getElementById("payment-expiry").value;
+        const expiry = convertExpiry(expiryInput);
+        const securityCode = document.getElementById("payment-cvv").value;
+        
+        // Número de parcelas
+        const installmentsCount = parseInt(document.getElementById("installmentsCount").value) || 1;
+        
+        // Dados do titular do cartão (Step 1)
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const cardholderName = firstName + " " + lastName;
+        
+        // Dados do endereço (Step 1)
+        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
+        const admin_area_2 = document.getElementById("city").value;
+        const admin_area_1 = document.getElementById("state").value;
+        const postal_code = document.getElementById("cep").value;
+        const country_code = "BR";
+        
+        const billingAddress = {
+          address_line_1,
+          admin_area_2,
+          admin_area_1,
+          postal_code,
+          country_code
+        };
+        
+        const payload = {
+          amount: "100.00",
+          currency: "USD",
+          cardholderName,
+          cardNumber,
+          expiry,
+          securityCode,
+          billingAddress,
+          installmentsCount
+        };
+        
+        fetch("/api/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.id) {
+            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+          } else {
+            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao processar o pagamento. Tente novamente.");
+        });
       });
+      
+      // Função para converter validade de "MM/AA" para "YYYY-MM"
+      function convertExpiry(expiryStr) {
+        const parts = expiryStr.split("/");
+        if (parts.length !== 2) return expiryStr;
+        const month = parts[0].padStart(2, "0");
+        const year = "20" + parts[1];
+        return `${year}-${month}`;
+      }
       
       // -------------------- LOGIN / REGISTRO --------------------
       const toggleLoginLink = document.getElementById("toggleLogin");
@@ -671,7 +778,7 @@
         loginValidateBtn.addEventListener("click", () => {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;
-          // Exemplo de chamada à API
+          
           fetch("/api/users/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -742,43 +849,6 @@
         }
         updateCheckoutCart(items);
       });
-      
-      // -------------------- SMART PAYMENT BUTTONS (Opcional) --------------------
-      // Se quiser habilitar PayPal Checkout
-      // É preciso descomentar a <script src="https://www.paypal.com/sdk/js?client-id=..."></script> no <head>
-      /*
-      paypal.Buttons({
-        createOrder: function(data, actions) {
-          // Chama seu endpoint /api/create-order
-          return fetch('/api/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
-          })
-          .then(res => res.json())
-          .then(order => order.id);
-        },
-        onApprove: function(data, actions) {
-          // Ao aprovar, chama /api/capture-order
-          return fetch('/api/capture-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: data.orderID })
-          })
-          .then(res => res.json())
-          .then(details => {
-            alert("Pagamento aprovado! Status: " + details.status);
-          });
-        },
-        onCancel: function(data) {
-          alert("Pagamento cancelado.");
-        },
-        onError: function(err) {
-          console.error(err);
-          alert("Erro no pagamento via PayPal.");
-        }
-      }).render('#paypal-button-container');
-      */
     </script>
   </body>
 </html>
