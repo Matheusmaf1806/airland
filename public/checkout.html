@@ -292,86 +292,6 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
-      .vip-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-      }
-      .vip-card img {
-        width: 120px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-      }
-      .vip-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .vip-info .badge {
-        background-color: #e6f0ff;
-        color: #365cf5;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-      }
-      .vip-info .title {
-        font-size: 0.9rem;
-        color: #444;
-        line-height: 1.3;
-      }
-      .vip-info .price {
-        font-size: 1rem;
-        color: #00b86d;
-        font-weight: bold;
-      }
-      .vip-info .actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      .vip-info .actions button {
-        background-color: #007aff;
-        color: #fff;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      .vip-info .actions button:hover {
-        background-color: #005dbf;
-      }
-      .vip-info .actions a {
-        font-size: 0.85rem;
-        color: #007aff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-      .vip-info .actions a:hover {
-        color: #005dbf;
-      }
-      
-      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ========= */
-      .reservation-gifts-card h4 {
-        font-size: 1rem;
-        color: #444;
-        font-weight: 600;
-        margin: 0.5rem 0;
-      }
-      
       /* ================= RODAPÉ ================== */
       footer {
         width: 90%;
@@ -398,6 +318,7 @@
     </style>
   </head>
   <body>
+    <!-- Header (importado pelo header-component.js) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -428,12 +349,10 @@
             <div class="traveler-form-header">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <!-- Toggle de Login: aparece somente se o usuário NÃO estiver logado -->
-                <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
+                <a href="#">Economize tempo fazendo Login</a>
               </div>
             </div>
-            <!-- Container dos campos de cadastro (dados pessoais) -->
-            <div id="registrationFields">
+            <div class="passenger-box">
               <!-- Linha 1: Nome | Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -467,22 +386,6 @@
                   <input type="password" placeholder="********" />
                 </div>
               </div>
-            </div>
-            <!-- Container do formulário de login (apenas e-mail e senha) -->
-            <div id="loginFields" style="display: none;">
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>E-mail</label>
-                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" />
-                </div>
-                <div class="form-field">
-                  <label>Senha</label>
-                  <input type="password" id="loginPassword" placeholder="********" />
-                </div>
-              </div>
-            </div>
-            <!-- Outros campos que devem ser sempre exibidos -->
-            <div id="otherFields">
               <!-- Linha 4: CPF | RG | Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -524,10 +427,10 @@
                   <input type="text" id="number" placeholder="123" />
                 </div>
               </div>
+              <p class="form-note">
+                * Insira o nome exatamente como aparece em seus documentos para o check-in.
+              </p>
             </div>
-            <p class="form-note">
-              * Insira o nome exatamente como aparece em seus documentos para o check-in.
-            </p>
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
@@ -599,52 +502,23 @@
                 <label>CVV</label>
                 <input type="text" id="payment-cvv" placeholder="123" />
               </div>
-              <div class="form-field">
-                <label>Nº de Parcelas</label>
-                <select id="installmentsCount">
-                  <option value="1">1x sem juros</option>
-                  <option value="2">2x</option>
-                  <option value="3">3x</option>
-                  <option value="4">4x</option>
-                  <option value="5">5x</option>
-                  <option value="6">6x</option>
-                  <option value="7">7x</option>
-                  <option value="8">8x</option>
-                  <option value="9">9x</option>
-                  <option value="10">10x</option>
-                  <option value="11">11x</option>
-                  <option value="12">12x</option>
-                </select>
-              </div>
             </div>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <!-- Botão que processa o pagamento via /api/pay -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento -->
+      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
           <!-- Itens do carrinho serão renderizados aqui -->
-          <div id="cartItemsList">
-            <div class="reserva-item">
-              <div class="reserva-left">
-                <span class="categoria">HOSPEDAGEM</span>
-                <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
-                <div class="reserva-details">
-                  <p>Check-in: --/--/----</p>
-                  <p>Check-out: --/--/----</p>
-                  <p>Quartos: 1</p>
-                  <p>Adultos: 1 | Crianças: 0</p>
-                </div>
-              </div>
-              <div class="reserva-preco">R$ 0,00</div>
-            </div>
-          </div>
+          <div id="cartItemsList"></div>
+          <!-- Resumo da Compra -->
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
