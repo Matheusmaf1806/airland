@@ -292,7 +292,7 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (ABA DETALHES) - SOMENTE ESTA ABA FOI ALTERADA ========= */
+      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
       .vip-card {
         display: flex;
         align-items: flex-start;
@@ -302,7 +302,7 @@
         border-radius: 8px;
         padding: 1rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
       }
       .vip-card img {
         width: 120px;
@@ -362,6 +362,14 @@
       }
       .vip-info .actions a:hover {
         color: #005dbf;
+      }
+      
+      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ======== */
+      .reservation-gifts-card h4 {
+        font-size: 1rem;
+        color: #444;
+        font-weight: 600;
+        margin: 0.5rem 0;
       }
       
       /* ================= RODAPÉ ================== */
@@ -664,7 +672,7 @@
       © 2025 - Checkout Trip.com (Completo)
     </footer>
     
-    <!-- Componente de Carrinho (oculto para armazenamento, se utilizado) -->
+    <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
@@ -725,15 +733,17 @@
         }
       });
       
-      // Toggle para alternar entre registro e login (para usuários não logados)
+      // Toggle para alternar entre registro e login (apenas para usuários não logados)
       if (toggleLoginLink) {
         toggleLoginLink.addEventListener("click", (e) => {
           e.preventDefault();
           if (registrationFields.style.display !== "none") {
+            // Esconde os campos de registro e mostra os de login
             registrationFields.style.display = "none";
             loginFields.style.display = "block";
             toggleLoginLink.textContent = "Não tenho Login";
           } else {
+            // Volta para o formulário completo de registro
             registrationFields.style.display = "block";
             loginFields.style.display = "none";
             toggleLoginLink.textContent = "Economize tempo fazendo Login";
