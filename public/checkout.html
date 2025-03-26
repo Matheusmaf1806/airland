@@ -117,7 +117,6 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
-        margin-top: 15px;
       }
       .fields-grid-3cols {
         display: grid;
@@ -144,7 +143,6 @@
         padding: 0.6rem;
         border: 1px solid #eee;
         border-radius: 4px;
-        margin-bottom: 15px;
       }
       
       .form-field input:focus,
@@ -167,7 +165,6 @@
         padding: 0.75rem 1.5rem;
         font-size: 0.9rem;
         cursor: pointer;
-        margin-bottom: 15px;
       }
       
       .btn-save-passenger:hover {
@@ -191,7 +188,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
       }
       
       .card-style-1 {
@@ -296,87 +292,6 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
-      .vip-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        margin-top: 15px;
-      }
-      .vip-card img {
-        width: 120px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-      }
-      .vip-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .vip-info .badge {
-        background-color: #e6f0ff;
-        color: #365cf5;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-      }
-      .vip-info .title {
-        font-size: 0.9rem;
-        color: #444;
-        line-height: 1.3;
-      }
-      .vip-info .price {
-        font-size: 1rem;
-        color: #00b86d;
-        font-weight: bold;
-      }
-      .vip-info .actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      .vip-info .actions button {
-        background-color: #007aff;
-        color: #fff;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.3s ease;
-      }
-      .vip-info .actions button:hover {
-        background-color: #005dbf;
-      }
-      .vip-info .actions a {
-        font-size: 0.85rem;
-        color: #007aff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-      }
-      .vip-info .actions a:hover {
-        color: #005dbf;
-      }
-      
-      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ========= */
-      .reservation-gifts-card h4 {
-        font-size: 1rem;
-        color: #444;
-        font-weight: 600;
-        margin: 0.5rem 0;
-      }
-      
       /* ================= RODAPÉ ================== */
       footer {
         width: 90%;
@@ -403,6 +318,7 @@
     </style>
   </head>
   <body>
+    <!-- Header (importado pelo header-component.js) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -427,19 +343,19 @@
     <div class="main-container">
       <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
+        
         <!-- Step 1: Passageiros -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
             <div class="traveler-form-header">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <!-- Toggle de Login: aparece somente se o usuário NÃO estiver logado -->
                 <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
-            <!-- Container dos campos de cadastro (dados pessoais) -->
+            
+            <!-- Campos de cadastro -->
             <div id="registrationFields">
-              <!-- Linha 1: Nome | Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -450,7 +366,6 @@
                   <input type="text" id="lastName" placeholder="Sobrenome" />
                 </div>
               </div>
-              <!-- Linha 2: Celular | E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular</label>
@@ -461,7 +376,6 @@
                   <input type="email" placeholder="seuemail@exemplo.com" />
                 </div>
               </div>
-              <!-- Linha 3: Senha | Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Senha</label>
@@ -473,7 +387,8 @@
                 </div>
               </div>
             </div>
-            <!-- Container do formulário de login (apenas e-mail e senha) -->
+            
+            <!-- Campos de login (por exemplo, se o usuário quiser logar em vez de se registrar) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -485,14 +400,13 @@
                   <input type="password" id="loginPassword" placeholder="********" />
                 </div>
               </div>
-              <!-- Botão para validar o login -->
               <div class="login-actions" style="text-align: right; margin-top: 10px;">
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
-            <!-- Outros campos que devem ser sempre exibidos -->
+            
+            <!-- Outros campos sempre visíveis -->
             <div id="otherFields">
-              <!-- Linha 4: CPF | RG | Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
                   <label>CPF</label>
@@ -507,7 +421,6 @@
                   <input type="date" />
                 </div>
               </div>
-              <!-- Linha 5: CEP | Estado | Cidade -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
                   <label>CEP</label>
@@ -522,7 +435,6 @@
                   <input type="text" id="city" placeholder="São Paulo" />
                 </div>
               </div>
-              <!-- Linha 6: Endereço | Número -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Endereço</label>
@@ -534,9 +446,11 @@
                 </div>
               </div>
             </div>
+            
             <p class="form-note">
               * Insira o nome exatamente como aparece em seus documentos para o check-in.
             </p>
+            
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
@@ -591,7 +505,7 @@
           <div class="card-style-1">
             <h2>Métodos de Pagamento</h2>
             <p>
-              Insira os dados do seu cartão para finalizar a reserva.
+              Insira os dados do seu cartão para finalizar a reserva (ou use PayPal Checkout).
             </p>
             <div class="fields-grid-2cols">
               <div class="form-field">
@@ -626,6 +540,10 @@
                 </select>
               </div>
             </div>
+            
+            <!-- Container para o Smart Payment Button, se desejar oferecer PayPal Wallet -->
+            <div id="paypal-button-container" style="margin-top: 1rem;"></div>
+            
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
               <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
@@ -634,26 +552,12 @@
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento -->
+      <!-- Coluna Direita: Informações da reserva + Resumo do Pedido -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
           <!-- Itens do carrinho serão renderizados aqui -->
-          <div id="cartItemsList">
-            <div class="reserva-item">
-              <div class="reserva-left">
-                <span class="categoria">HOSPEDAGEM</span>
-                <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
-                <div class="reserva-details">
-                  <p>Check-in: --/--/----</p>
-                  <p>Check-out: --/--/----</p>
-                  <p>Quartos: 1</p>
-                  <p>Adultos: 1 | Crianças: 0</p>
-                </div>
-              </div>
-              <div class="reserva-preco">R$ 0,00</div>
-            </div>
-          </div>
+          <div id="cartItemsList"></div>
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
@@ -683,6 +587,9 @@
     
     <!-- Componente de Carrinho (pode ser oculto se gerenciado internamente) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
+    
+    <!-- Se quiser usar Smart Payment Buttons para PayPal Wallet -->
+    <!-- <script src="https://www.paypal.com/sdk/js?client-id=SEU_CLIENT_ID&currency=BRL&intent=capture"></script> -->
     
     <script>
       // -------------------- STEP NAVIGATION --------------------
@@ -720,19 +627,21 @@
       backToStep1Btn?.addEventListener("click", () => { showStep(1); });
       toStep3Btn?.addEventListener("click", () => { showStep(3); });
       backToStep2Btn?.addEventListener("click", () => { showStep(2); });
-      finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
       
-      // -------------------- LÓGICA DE LOGIN / REGISTRO NA ABA "QUEM VAI VIAJAR" --------------------
+      // Exemplo de finalização offline (apenas teste)
+      finishBtn.addEventListener("click", () => {
+        alert("Reserva finalizada com sucesso!");
+      });
+      
+      // -------------------- LOGIN / REGISTRO --------------------
       const toggleLoginLink = document.getElementById("toggleLogin");
       const registrationFields = document.getElementById("registrationFields");
       const loginFields = document.getElementById("loginFields");
       
-      // Função para verificar se o usuário está logado (exemplo: presença de agentId no localStorage)
       function isUserLoggedIn() {
         return !!localStorage.getItem("agentId");
       }
       
-      // Se o usuário já estiver logado, oculta os campos de registro e o link de login
       window.addEventListener("load", () => {
         if (isUserLoggedIn()) {
           registrationFields.style.display = "none";
@@ -742,17 +651,14 @@
         }
       });
       
-      // Toggle para alternar entre registro e login (apenas para usuários não logados)
       if (toggleLoginLink) {
         toggleLoginLink.addEventListener("click", (e) => {
           e.preventDefault();
           if (registrationFields.style.display !== "none") {
-            // Esconde os campos de registro e mostra os de login
             registrationFields.style.display = "none";
             loginFields.style.display = "block";
             toggleLoginLink.textContent = "Não tenho Login";
           } else {
-            // Volta para o formulário completo de registro
             registrationFields.style.display = "block";
             loginFields.style.display = "none";
             toggleLoginLink.textContent = "Economize tempo fazendo Login";
@@ -760,14 +666,12 @@
         });
       }
       
-      // -------------------- VALIDAÇÃO DO LOGIN --------------------
       const loginValidateBtn = document.getElementById("loginValidateBtn");
       if (loginValidateBtn) {
         loginValidateBtn.addEventListener("click", () => {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;
-          
-          // Simula chamada à API de login (utilize seu endpoint real, por exemplo, /api/users/login)
+          // Exemplo de chamada à API
           fetch("/api/users/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -776,10 +680,8 @@
           .then(res => res.json())
           .then(data => {
             if(data.success) {
-              // Armazena o agentId para indicar que o usuário está logado
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              // Oculta os campos de login e registro
               registrationFields.style.display = "none";
               loginFields.style.display = "none";
               toggleLoginLink.style.display = "none";
@@ -795,7 +697,6 @@
       }
       
       // -------------------- INTEGRAÇÃO COM O CARRINHO --------------------
-      // Lógica dos itens do carrinho conforme sua versão original
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -841,6 +742,43 @@
         }
         updateCheckoutCart(items);
       });
+      
+      // -------------------- SMART PAYMENT BUTTONS (Opcional) --------------------
+      // Se quiser habilitar PayPal Checkout
+      // É preciso descomentar a <script src="https://www.paypal.com/sdk/js?client-id=..."></script> no <head>
+      /*
+      paypal.Buttons({
+        createOrder: function(data, actions) {
+          // Chama seu endpoint /api/create-order
+          return fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+          })
+          .then(res => res.json())
+          .then(order => order.id);
+        },
+        onApprove: function(data, actions) {
+          // Ao aprovar, chama /api/capture-order
+          return fetch('/api/capture-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: data.orderID })
+          })
+          .then(res => res.json())
+          .then(details => {
+            alert("Pagamento aprovado! Status: " + details.status);
+          });
+        },
+        onCancel: function(data) {
+          alert("Pagamento cancelado.");
+        },
+        onError: function(err) {
+          console.error(err);
+          alert("Erro no pagamento via PayPal.");
+        }
+      }).render('#paypal-button-container');
+      */
     </script>
   </body>
 </html>
