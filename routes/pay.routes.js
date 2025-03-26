@@ -1,77 +1,82 @@
 // routes/pay.routes.js
-
-import { Router } from "express";
-import checkoutNodeJssdk from "@paypal/checkout-server-sdk";
-import dotenv from "dotenv";
-import crypto from "crypto";
+import express from 'express';
+import dotenv from 'dotenv';
+import checkoutNodeJssdk from '@paypal/checkout-server-sdk';
 
 dotenv.config();
-const router = Router();
 
-// Função para criar o cliente do PayPal (Sandbox)
-function paypalClient() {
-  const environment = new checkoutNodeJssdk.core.SandboxEnvironment(
+const router = express.Router();
+
+// Configura o ambiente do PayPal (Sandbox ou Live)
+let environment;
+if (process.env.NODE_ENV === 'production') {
+  environment = new checkoutNodeJssdk.core.LiveEnvironment(
     process.env.PAYPAL_CLIENT_ID,
     process.env.PAYPAL_CLIENT_SECRET
   );
-  return new checkoutNodeJssdk.core.PayPalHttpClient(environment);
+} else {
+  environment = new checkoutNodeJssdk.core.SandboxEnvironment(
+    process.env.PAYPAL_CLIENT_ID,
+    process.env.PAYPAL_CLIENT_SECRET
+  );
 }
 
-// Endpoint para pagamento inline (direto com dados do cartão e parcelamento)
-router.post("/", async (req, res) => {
-  try {
-    const {
-      amount,
-      currency,
-      cardholderName,
-      cardNumber,
-      expiry,         // Formato: "YYYY-MM", ex: "2025-12"
-      securityCode,
-      billingAddress,
-      installmentsCount  // Número de parcelas, ex: 3
-    } = req.body;
+const paypalClient = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
 
+// Endpoint para criar uma ordem
+router.post('/create-order', async (req, res) => {
+  try {
+    // Dados enviados do front (nome, e-mail, endereço e valor)
+    const { firstName, lastName, email, address, amount } = req.body;
+    
     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
     request.prefer("return=representation");
     request.requestBody({
       intent: "CAPTURE",
-      purchase_units: [{
-        amount: { 
-          currency_code: currency || "USD", 
-          value: amount || "100.00" 
-        }
-      }],
-      payment_instruction: {
-        installments: {
-          count: installmentsCount || 1
-        }
+      application_context: {
+        shipping_preference: "NO_SHIPPING", // Não solicitar endereço de envio
+        user_action: "PAY_NOW"
       },
-      payment_source: {
-        card: {
-          name: cardholderName,
-          number: cardNumber,
-          expiry: expiry,
-          security_code: securityCode,
-          billing_address: billingAddress
+      purchase_units: [
+        {
+          reference_id: "default",
+          amount: {
+            currency_code: "BRL",
+            value: amount,
+            breakdown: {
+              item_total: {
+                currency_code: "BRL",
+                value: amount
+              }
+            }
+          }
+          // Se necessário, adicione billing details aqui utilizando os dados coletados
         }
-      }
+      ]
     });
-
-    // Gerar um ID único para a requisição (PayPal-Request-Id)
-    const requestId = (typeof crypto.randomUUID === "function")
-      ? crypto.randomUUID()
-      : Math.random().toString(36).substring(2);
     
-    // Assegura que a propriedade headers exista e adiciona o PayPal-Request-Id
-    request.headers = request.headers || {};
-    request.headers["PayPal-Request-Id"] = requestId;
-    
-    const paypalHttpClient = paypalClient();
-    const response = await paypalHttpClient.execute(request);
-    return res.status(200).json(response.result);
+    const order = await paypalClient.execute(request);
+    res.status(200).json(order.result);
   } catch (err) {
-    console.error("Erro ao processar o pagamento:", err);
-    return res.status(500).json({ error: err.toString() });
+    console.error("Erro ao criar a ordem:", err);
+    res.status(500).json({ error: err.toString() });
+  }
+});
+
+// Endpoint para capturar uma ordem
+router.post('/capture-order', async (req, res) => {
+  try {
+    const { orderID } = req.body;
+    if (!orderID) {
+      return res.status(400).json({ error: "orderID é obrigatório" });
+    }
+    const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderID);
+    request.requestBody({});
+    const capture = await paypalClient.execute(request);
+    res.status(200).json(capture.result);
+  } catch (err) {
+    console.error("Erro ao capturar a ordem:", err);
+    res.status(500).json({ error: err.toString() });
   }
 });
 
