@@ -364,7 +364,7 @@
         color: #005dbf;
       }
       
-      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ======== */
+      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ========= */
       .reservation-gifts-card h4 {
         font-size: 1rem;
         color: #444;
@@ -789,13 +789,18 @@
       // -------------------- LEITURA DOS ITENS DO CARRINHO --------------------
       window.addEventListener("load", () => {
         let items = [];
+        // Tenta obter os itens do componente <shopping-cart> se presente
         const cartComponent = document.getElementById("shoppingCart");
         if (cartComponent && cartComponent.items && cartComponent.items.length > 0) {
           items = cartComponent.items;
+          console.log("Itens obtidos do <shopping-cart>:", items);
         } else {
           const savedCart = localStorage.getItem("cartItems");
           if (savedCart) {
             items = JSON.parse(savedCart);
+            console.log("Itens obtidos do localStorage:", items);
+          } else {
+            console.log("Nenhum item encontrado no carrinho.");
           }
         }
         updateReservationCard(items);
