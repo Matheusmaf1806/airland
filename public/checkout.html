@@ -6,8 +6,8 @@
     <!-- Componente do header (se necessário) -->
     <script src="/js/header-component.js" type="module"></script>
     <style>
-      /* ==========================
-         COMMON CSS
+      /*===========================
+          COMMON CSS
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       
@@ -27,6 +27,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        font-family: "Montserrat", sans-serif;
       }
       
       a:focus,
@@ -198,7 +199,7 @@
         margin-bottom: 20px;
       }
       
-      /* ================= COLUNA DA DIREITA (RESUMO DA RESERVA) ================== */
+      /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================== */
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
@@ -259,7 +260,14 @@
         text-align: right;
       }
       
-      /* ======= Resumo da Reserva ======= */
+      /* Detalhes adicionais do item */
+      .reserva-details p {
+        font-size: 0.8rem;
+        margin: 2px 0;
+        color: #555;
+      }
+      
+      /* ======= Resumo da Compra ======= */
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
@@ -282,6 +290,86 @@
       }
       .resumo-compra .cupom label {
         font-weight: 600;
+      }
+      
+      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
+      .vip-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .vip-card img {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      .vip-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .vip-info .badge {
+        background-color: #e6f0ff;
+        color: #365cf5;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .vip-info .title {
+        font-size: 0.9rem;
+        color: #444;
+        line-height: 1.3;
+      }
+      .vip-info .price {
+        font-size: 1rem;
+        color: #00b86d;
+        font-weight: bold;
+      }
+      .vip-info .actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .vip-info .actions button {
+        background-color: #007aff;
+        color: #fff;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .vip-info .actions button:hover {
+        background-color: #005dbf;
+      }
+      .vip-info .actions a {
+        font-size: 0.85rem;
+        color: #007aff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      .vip-info .actions a:hover {
+        color: #005dbf;
+      }
+      
+      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ========= */
+      .reservation-gifts-card h4 {
+        font-size: 1rem;
+        color: #444;
+        font-weight: 600;
+        margin: 0.5rem 0;
       }
       
       /* ================= RODAPÉ ================== */
@@ -307,7 +395,7 @@
       
       .mt-10 { margin-top: 10px; }
       .mb-10 { margin-bottom: 10px; }
-    </style>
+      </style>
     <!-- Inclua o SDK do PayPal com os parâmetros desejados -->
     <script src="https://www.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
   </head>
