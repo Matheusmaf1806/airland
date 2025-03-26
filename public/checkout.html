@@ -5,8 +5,8 @@
     <title>Checkout</title>
     <!-- Importa o header-component para que o <app-header> seja registrado -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carregar o SDK do PayPal para Smart Payment Buttons -->
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=BRL&locale=pt_BR&intent=capture"></script>
+    <!-- Carrega o SDK do PayPal com seu Client ID, moeda BRL, localidade pt_BR e intent=capture -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
     <style>
       /*===========================
           COMMON CSS
@@ -499,9 +499,9 @@
             <p>
               Escolha entre:
               <br />
-              • Realizar o pagamento com PayPal (via Smart Payment Buttons) ou
+              • Pagar com PayPal (via Smart Payment Buttons) ou
               <br />
-              • Processar o pagamento com cartão de crédito (caso sua conta esteja habilitada para essa opção – observe que essa opção inline não oferece parcelamento no Brasil).
+              • Pagar com Cartão de Crédito (opção customizada – observe que essa opção inline não é recomendada para parcelamento no Brasil).
             </p>
             <!-- Container para os Smart Payment Buttons -->
             <div id="paypal-button-container" style="margin-bottom: 1rem;"></div>
@@ -636,10 +636,8 @@
       backToStep2Btn?.addEventListener("click", () => { showStep(2); });
       
       // -------------------- SMART PAYMENT BUTTONS --------------------
-      // Renderiza o botão do PayPal na etapa 3 (se o usuário optar pelo PayPal Checkout)
       paypal.Buttons({
         createOrder: function(data, actions) {
-          // Chama o endpoint /api/create-order
           return fetch("/api/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -649,7 +647,6 @@
           .then((order) => order.id);
         },
         onApprove: function(data, actions) {
-          // Após aprovação, captura o pedido
           return fetch("/api/capture-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -670,7 +667,6 @@
       }).render("#paypal-button-container");
       
       // -------------------- PROCESSAMENTO DO PAGAMENTO INLINE (CUSTOM) --------------------
-      // Caso o usuário opte por usar os campos de cartão (apesar de não ser a abordagem recomendada para o Brasil)
       finishBtn.addEventListener("click", () => {
         // Dados do cartão da etapa 3
         const cardNumber = document.getElementById("payment-card-number").value;
