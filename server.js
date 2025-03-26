@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import checkoutNodeJssdk from "@paypal/checkout-server-sdk";  // SDK do PayPal
+import checkoutNodeJssdk from "@paypal/checkout-server-sdk"; // SDK do PayPal
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -190,22 +190,28 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Endpoints do PayPal (fluxo padrão)
+// Endpoints do PayPal (fluxo padrão para BCDC)
 // ------------------------------------------------------
 
-// Endpoint para criar um pedido no PayPal (fluxo padrão com redirecionamento)
+// Endpoint para criar um pedido no PayPal
 app.post("/api/create-order", async (req, res) => {
   try {
+    // Recebe os dados do pedido do front-end (ex.: amount, currency, checkoutData)
+    const { amount, currency } = req.body;
+
     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
     request.prefer("return=representation");
     request.requestBody({
       intent: "CAPTURE",
       purchase_units: [{
-        amount: { currency_code: "USD", value: "100.00" }
+        amount: { 
+          currency_code: currency || "BRL", 
+          value: amount || "100.00" 
+        }
       }],
       application_context: {
-        return_url: "https://seu-dominio.com/return",
-        cancel_url: "https://seu-dominio.com/cancel"
+        return_url: process.env.RETURN_URL || "http://localhost:3000/return",
+        cancel_url: process.env.CANCEL_URL || "http://localhost:3000/cancel"
       }
     });
     
@@ -224,7 +230,7 @@ app.post("/api/create-order", async (req, res) => {
   }
 });
 
-// Endpoint para capturar um pedido no PayPal (fluxo padrão)
+// Endpoint para capturar um pedido no PayPal
 app.post("/api/capture-order", async (req, res) => {
   try {
     const { orderId } = req.body;
