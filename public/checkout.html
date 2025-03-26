@@ -188,7 +188,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
       }
       
       .card-style-1 {
@@ -481,6 +480,10 @@
                   <input type="password" id="loginPassword" placeholder="********" />
                 </div>
               </div>
+              <!-- Botão para validar o login -->
+              <div class="login-actions" style="text-align: right; margin-top: 10px;">
+                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
+              </div>
             </div>
             <!-- Outros campos que devem ser sempre exibidos -->
             <div id="otherFields">
@@ -752,8 +755,42 @@
         });
       }
       
+      // -------------------- VALIDAÇÃO DO LOGIN --------------------
+      const loginValidateBtn = document.getElementById("loginValidateBtn");
+      if (loginValidateBtn) {
+        loginValidateBtn.addEventListener("click", () => {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          
+          // Simula chamada à API de login (utilize seu endpoint real, por exemplo, /api/users/login)
+          fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.success) {
+              // Armazena o agentId para indicar que o usuário está logado
+              localStorage.setItem("agentId", data.user.id);
+              alert("Login efetuado com sucesso!");
+              // Oculta os campos de login e registro
+              registrationFields.style.display = "none";
+              loginFields.style.display = "none";
+              toggleLoginLink.style.display = "none";
+            } else {
+              alert("Erro no login: " + (data.error || "Dados inválidos."));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Erro ao realizar o login. Tente novamente.");
+          });
+        });
+      }
+      
       // -------------------- INTEGRAÇÃO COM O CARRINHO --------------------
-      // A lógica abaixo é a que você informou estar correta:
+      // Lógica dos itens do carrinho conforme sua versão original
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
