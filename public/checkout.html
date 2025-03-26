@@ -2,11 +2,11 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Checkout</title>
+    <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carrega o SDK do PayPal com seu Client ID, moeda BRL, idioma pt_BR e intenção CAPTURE -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
+    <!-- Carrega o SDK do PayPal para Sandbox com seu Client ID, moeda BRL, idioma pt_BR e intenção CAPTURE -->
+    <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
     <style>
       /*===========================
           COMMON CSS
@@ -686,7 +686,7 @@
         showStep(2);
       });
       
-      // Renderiza os Smart Payment Buttons do PayPal, utilizando apenas a opção de cartão
+      // Renderiza os Smart Payment Buttons do PayPal, utilizando a opção de cartão (BCDC)
       function renderPayPalButton() {
         // Limpa o container para evitar renderizações múltiplas
         document.getElementById("paypal-button-container").innerHTML = "";
@@ -698,7 +698,7 @@
             label: 'pay'
           },
           createOrder: function(data, actions) {
-            // Cria a ordem chamando o endpoint backend e enviando os dados do checkout
+            // Cria a ordem chamando o endpoint backend (/api/create-order)
             return fetch("/api/create-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -712,7 +712,7 @@
             .then(order => order.id);
           },
           onApprove: function(data, actions) {
-            // Captura a ordem chamando o endpoint backend
+            // Captura a ordem chamando o endpoint backend (/api/capture-order)
             return fetch("/api/capture-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
