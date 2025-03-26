@@ -550,7 +550,7 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
-      // -------------------- STEP NAVIGATION --------------------
+      // Multi-step navegação
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = stepsMenu.querySelectorAll(".step");
@@ -581,112 +581,228 @@
         });
       }
       
-      toStep2Btn.addEventListener("click", () => { showStep(2); });
-      backToStep1Btn?.addEventListener("click", () => { showStep(1); });
-      toStep3Btn?.addEventListener("click", () => { showStep(3); });
-      backToStep2Btn?.addEventListener("click", () => { showStep(2); });
-      finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
-      
-      // -------------------- LÓGICA DE LOGIN / REGISTRO NA ABA "QUEM VAI VIAJAR" --------------------
-      const toggleLoginLink = document.getElementById("toggleLogin");
-      const registrationFields = document.getElementById("registrationFields");
-      const loginFields = document.getElementById("loginFields");
-      
-      // Função para verificar se o usuário está logado (exemplo: presença de agentId no localStorage)
-      function isUserLoggedIn() {
-        return !!localStorage.getItem("agentId");
-      }
-      
-      // Se o usuário já estiver logado, oculta os campos de registro e o link de login
-      window.addEventListener("load", () => {
-        if (isUserLoggedIn()) {
-          registrationFields.style.display = "none";
-          if (toggleLoginLink) {
-            toggleLoginLink.style.display = "none";
-          }
-        }
+      toStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
+      backToStep1Btn && backToStep1Btn.addEventListener("click", () => {
+        showStep(1);
+      });
+      toStep3Btn && toStep3Btn.addEventListener("click", () => {
+        showStep(3);
+      });
+      backToStep2Btn && backToStep2Btn.addEventListener("click", () => {
+        showStep(2);
       });
       
-      // Toggle para alternar entre registro e login (apenas para usuários não logados)
-      if (toggleLoginLink) {
-        toggleLoginLink.addEventListener("click", (e) => {
-          e.preventDefault();
-          if (registrationFields.style.display !== "none") {
-            // Esconde os campos de registro e mostra os de login
-            registrationFields.style.display = "none";
-            loginFields.style.display = "block";
-            toggleLoginLink.textContent = "Não tenho Login";
-          } else {
-            // Volta para o formulário completo de registro
-            registrationFields.style.display = "block";
-            loginFields.style.display = "none";
-            toggleLoginLink.textContent = "Economize tempo fazendo Login";
-          }
-        });
+      // Função para converter a validade de "MM/AA" para "20AA-MM"
+      function convertExpiry(expiryStr) {
+        // Ex: "10/28" -> "2028-10"
+        const parts = expiryStr.split("/");
+        if (parts.length !== 2) return expiryStr;
+        const month = parts[0].padStart(2, '0');
+        const year = "20" + parts[1];
+        return `${year}-${month}`;
       }
       
-      // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA --------------------
-      function updateReservationCard(items) {
-        const container = document.getElementById("cartItemsList");
-        if (!container) return;
-        if (!items || items.length === 0) {
-          container.innerHTML = "<p>Nenhum item no carrinho.</p>";
-          return;
-        }
-        // Para este exemplo, usamos o primeiro item do carrinho
-        const item = items[0];
-        const type = item.type || "HOSPEDAGEM";
-        const hotelName = item.hotelName || "Hotel Desconhecido";
-        const roomName = item.roomName || "Quarto";
-        const checkIn = item.checkIn || "--/--/----";
-        const checkOut = item.checkOut || "--/--/----";
-        const rooms = item.rooms || 1;
-        const adults = item.adults || 1;
-        const children = item.children || 0;
-        const price = item.basePriceAdult || 0;
+      // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
+      finishBtn.addEventListener("click", () => {
+        // Dados do cartão da etapa 3
+        const cardNumber = document.getElementById("payment-card-number").value;
+        const expiryInput = document.getElementById("payment-expiry").value;
+        const expiry = convertExpiry(expiryInput);
+        const securityCode = document.getElementById("payment-cvv").value;
         
-        container.innerHTML = `
-          <span class="tag-hospedagem">${type}</span>
-          <h4>${hotelName} - ${roomName}</h4>
-          <ul class="reservation-details">
-            <li><i class="fa fa-calendar-check"></i> <strong>Check-in:</strong> ${checkIn}</li>
-            <li><i class="fa fa-calendar-xmark"></i> <strong>Check-out:</strong> ${checkOut}</li>
-            <li><i class="fa fa-bed"></i> <strong>Quartos:</strong> ${rooms}</li>
-            <li><i class="fa fa-user-friends"></i> <strong>Adultos:</strong> ${adults} | <strong>Crianças:</strong> ${children}</li>
-          </ul>
-          <div class="reservation-price">
-            R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </div>
-        `;
+        // Dados do titular do cartão a partir do Step 1
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const cardholderName = firstName + " " + lastName;
+        
+        // Dados do endereço (billing address) a partir do Step 1
+        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
+        const admin_area_2 = document.getElementById("city").value;
+        const admin_area_1 = document.getElementById("state").value;
+        const postal_code = document.getElementById("cep").value;
+        const country_code = "BR"; // padrão
+        
+        // Monta o payload para /api/pay
+        const payload = {
+          amount: "100.00",
+          currency: "USD",
+          cardholderName,
+          cardNumber,
+          expiry,
+          securityCode,
+          billingAddress: {
+            address_line_1,
+            admin_area_2,
+            admin_area_1,
+            postal_code,
+            country_code
+          }
+        };
+        
+        fetch('/api/pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.id) {
+            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+          } else {
+            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao processar o pagamento. Tente novamente.");
+        });
+      });
+      
+      // Funções de formatação (continua igual)
+      function formatCelular(value) {
+        if (value.charAt(0) === '+') {
+          let digits = value.slice(1).replace(/\D/g, '');
+          return '+' + digits;
+        }
+        let digits = value.replace(/\D/g, '');
+        if (digits === '') return '';
+        if (!digits.startsWith('55')) {
+          digits = '55' + digits;
+        }
+        let country = digits.substring(0, 2);
+        let ddd = digits.substring(2, 4) || '';
+        let part1 = '';
+        let part2 = '';
+        if (digits.length > 4) {
+          if (digits.length - 4 <= 5) {
+            part1 = digits.substring(4);
+          } else {
+            part1 = digits.substring(4, 9);
+            part2 = digits.substring(9);
+          }
+        }
+        return '+' + country + (ddd ? ' (' + ddd + ') ' : '') + part1 + (part2 ? '-' + part2 : '');
       }
       
-      // -------------------- LEITURA DOS ITENS DO CARRINHO --------------------
+      function formatCPF(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 11);
+        let formatted = '';
+        if (digits.length > 3) {
+          formatted = digits.substring(0,3) + '.';
+          if (digits.length > 6) {
+            formatted += digits.substring(3,6) + '.';
+            if (digits.length > 9) {
+              formatted += digits.substring(6,9) + '-' + digits.substring(9);
+            } else {
+              formatted += digits.substring(6);
+            }
+          } else {
+            formatted += digits.substring(3);
+          }
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
+      
+      function formatRG(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 9);
+        let formatted = '';
+        if (digits.length > 2) {
+          formatted = digits.substring(0,2) + '.';
+          if (digits.length > 5) {
+            formatted += digits.substring(2,5) + '.';
+            if (digits.length > 8) {
+              formatted += digits.substring(5,8) + '-' + digits.substring(8);
+            } else {
+              formatted += digits.substring(5);
+            }
+          } else {
+            formatted += digits.substring(2);
+          }
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
+      
+      function formatCEP(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 8);
+        let formatted = '';
+        if (digits.length > 5) {
+          formatted = digits.substring(0,5) + '-' + digits.substring(5);
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
+      
+      document.getElementById("celular").addEventListener("input", function(e) {
+        e.target.value = formatCelular(e.target.value);
+      });
+      document.getElementById("cpf").addEventListener("input", function(e) {
+        e.target.value = formatCPF(e.target.value);
+      });
+      document.getElementById("rg").addEventListener("input", function(e) {
+        e.target.value = formatRG(e.target.value);
+      });
+      document.getElementById("cep").addEventListener("input", function(e) {
+        e.target.value = formatCEP(e.target.value);
+      });
+      
+      // Integração com o carrinho: atualiza o resumo do pedido com os detalhes
+      function updateCheckoutCart(items) {
+        const container = document.getElementById("cartItemsList");
+        let subtotal = 0;
+        let html = "";
+        items.forEach(item => {
+          let price = item.basePriceAdult || 80;
+          subtotal += price;
+          html += `
+            <div class="reserva-item">
+              <div class="reserva-left">
+                <span class="categoria">${item.type || "Hospedagem"}</span>
+                <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+                <div class="reserva-details">
+                  <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                  <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                  <p>Quartos: ${item.rooms || 1}</p>
+                  <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+                </div>
+              </div>
+              <div class="reserva-preco">
+                R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const discount = 500;
+        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      }
+      
       window.addEventListener("load", () => {
         let items = [];
-        // Tenta obter os itens do componente <shopping-cart> se presente
-        const cartComponent = document.getElementById("shoppingCart");
-        if (cartComponent && cartComponent.items && cartComponent.items.length > 0) {
-          items = cartComponent.items;
-          console.log("Itens obtidos do <shopping-cart>:", items);
+        const cart = document.getElementById("shoppingCart");
+        if (cart && cart.items && cart.items.length > 0) {
+          items = cart.items;
         } else {
           const savedCart = localStorage.getItem("cartItems");
           if (savedCart) {
             items = JSON.parse(savedCart);
-            console.log("Itens obtidos do localStorage:", items);
-          } else {
-            console.log("Nenhum item encontrado no carrinho.");
           }
         }
-        updateReservationCard(items);
-      
-        // Atualiza o Resumo de Pagamento usando o preço do primeiro item (exemplo simples)
-        if (items.length > 0) {
-          const price = items[0].basePriceAdult || 0;
-          document.getElementById("subtotalValue").textContent = "R$ " + price.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          const discount = 500;
-          document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-          document.getElementById("totalValue").textContent = "R$ " + (price - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        }
+        updateCheckoutCart(items);
       });
     </script>
   </body>
