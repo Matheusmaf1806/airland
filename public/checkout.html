@@ -5,7 +5,7 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carrega o SDK do PayPal para Sandbox com seu Client ID, moeda BRL, idioma pt_BR e intenção CAPTURE -->
+    <!-- Carrega o SDK do PayPal para Sandbox (caso ainda seja necessário para outras operações) -->
     <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
     <style>
       /*===========================
@@ -525,37 +525,42 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento com PayPal Smart Payment Buttons -->
+        <!-- Step 3: Pagamento com Cartão (Custom Form para BCDC) -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e selecione o número de parcelas para finalizar o pagamento.</p>
+            <p>Revise seus dados e informe os dados do cartão para finalizar o pagamento.</p>
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
-            <!-- Seleção do número de parcelas -->
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Nº de Parcelas</label>
-                <select id="installmentsCount">
-                  <option value="1">1x sem juros</option>
-                  <option value="2">2x</option>
-                  <option value="3">3x</option>
-                  <option value="4">4x</option>
-                  <option value="5">5x</option>
-                  <option value="6">6x</option>
-                  <option value="7">7x</option>
-                  <option value="8">8x</option>
-                  <option value="9">9x</option>
-                  <option value="10">10x</option>
-                  <option value="11">11x</option>
-                  <option value="12">12x</option>
-                </select>
+            <!-- Formulário customizado para os dados do cartão -->
+            <div id="card-payment-form">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label for="card-type">Tipo do Cartão</label>
+                  <select id="card-type">
+                    <option value="CREDIT">Crédito</option>
+                    <option value="DEBIT">Débito</option>
+                  </select>
+                </div>
               </div>
-            </div>
-            <!-- Container para renderizar os Smart Payment Buttons do PayPal -->
-            <div id="paypal-button-container"></div>
-            <div class="navigation">
-              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <div class="form-field">
+                <label for="card-number">Número do Cartão</label>
+                <input type="text" id="card-number" placeholder="Digite o número do cartão" />
+              </div>
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label for="card-expiration">Vencimento</label>
+                  <input type="text" id="card-expiration" placeholder="MM/AA" />
+                </div>
+                <div class="form-field">
+                  <label for="card-csc">CSC</label>
+                  <input type="text" id="card-csc" placeholder="Código de Segurança" />
+                </div>
+              </div>
+              <div class="navigation">
+                <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+                <button class="btn-save-passenger" id="submitCardPayment">Pagar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -663,9 +668,6 @@
       
       // Navegação: Step 2 -> Step 3
       toStep3Btn.addEventListener("click", () => {
-        // Salva o número de parcelas selecionado
-        checkoutData.installments = document.getElementById("installmentsCount").value;
-        
         // Atualiza o resumo dos dados pessoais para exibição no Step 3
         const summaryDiv = document.getElementById("summaryData");
         summaryDiv.innerHTML = `
@@ -674,7 +676,6 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
-        renderPayPalButton();
       });
       
       // Navegação: Voltar para etapas anteriores
@@ -686,50 +687,48 @@
         showStep(2);
       });
       
-      // Renderiza os Smart Payment Buttons do PayPal, utilizando a opção de cartão (BCDC)
-      function renderPayPalButton() {
-        // Limpa o container para evitar renderizações múltiplas
-        document.getElementById("paypal-button-container").innerHTML = "";
-        paypal.Buttons({
-          fundingSource: paypal.FUNDING.CARD,
-          style: {
-            layout: 'vertical',
-            shape: 'rect',
-            label: 'pay'
-          },
-          createOrder: function(data, actions) {
-            // Cria a ordem chamando o endpoint backend (/api/create-order)
-            return fetch("/api/create-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                amount: "100.00", // Valor de exemplo; ajuste conforme sua lógica
-                currency: "BRL",
-                checkoutData: checkoutData
-              })
-            })
-            .then(res => res.json())
-            .then(order => order.id);
-          },
-          onApprove: function(data, actions) {
-            // Captura a ordem chamando o endpoint backend (/api/capture-order)
-            return fetch("/api/capture-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderId: data.orderID })
-            })
-            .then(res => res.json())
-            .then(captureResult => {
-              alert("Pagamento realizado com sucesso!");
-              // Aqui você pode redirecionar ou atualizar a interface conforme necessário
-            });
-          },
-          onError: function(err) {
-            console.error("Erro no pagamento:", err);
-            alert("Erro no pagamento. Tente novamente.");
-          }
-        }).render('#paypal-button-container');
-      }
+      // Função para processar o pagamento com os dados do cartão (BCDC)
+      document.getElementById("submitCardPayment").addEventListener("click", () => {
+        // Coleta os dados do cartão
+        const cardDetails = {
+          type: document.getElementById("card-type").value,
+          number: document.getElementById("card-number").value,
+          expiration: document.getElementById("card-expiration").value,
+          csc: document.getElementById("card-csc").value
+        };
+        // Adiciona os dados do cartão ao checkoutData
+        checkoutData.cardDetails = cardDetails;
+        
+        // Cria o pedido chamando o endpoint backend (/api/create-order)
+        fetch("/api/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: "100.00", // Valor de exemplo; ajuste conforme sua lógica
+            currency: "BRL",
+            checkoutData: checkoutData
+          })
+        })
+        .then(res => res.json())
+        .then(order => {
+          const orderId = order.id;
+          // Captura o pedido chamando o endpoint backend (/api/capture-order)
+          return fetch("/api/capture-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: orderId })
+          });
+        })
+        .then(res => res.json())
+        .then(captureResult => {
+          alert("Pagamento realizado com sucesso!");
+          // Aqui você pode redirecionar ou atualizar a interface conforme necessário
+        })
+        .catch(err => {
+          console.error("Erro no pagamento com cartão:", err);
+          alert("Erro no pagamento. Tente novamente.");
+        });
+      });
       
       // Função de exemplo para atualizar o resumo do carrinho (ajuste conforme sua lógica)
       function updateCheckoutCart(items) {
