@@ -318,6 +318,7 @@
     </style>
   </head>
   <body>
+    <!-- Header (importado pelo header-component.js) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -501,26 +502,10 @@
                 <label>CVV</label>
                 <input type="text" id="payment-cvv" placeholder="123" />
               </div>
-              <div class="form-field">
-                <label>Nº de Parcelas</label>
-                <select id="installmentsCount">
-                  <option value="1">1x sem juros</option>
-                  <option value="2">2x</option>
-                  <option value="3">3x</option>
-                  <option value="4">4x</option>
-                  <option value="5">5x</option>
-                  <option value="6">6x</option>
-                  <option value="7">7x</option>
-                  <option value="8">8x</option>
-                  <option value="9">9x</option>
-                  <option value="10">10x</option>
-                  <option value="11">11x</option>
-                  <option value="12">12x</option>
-                </select>
-              </div>
             </div>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <!-- Botão que processa o pagamento via /api/pay -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
             </div>
           </div>
@@ -531,7 +516,9 @@
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
+          <!-- Itens do carrinho serão renderizados aqui -->
           <div id="cartItemsList"></div>
+          <!-- Resumo da Compra -->
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
@@ -609,11 +596,12 @@
       
       // Função para converter a validade de "MM/AA" para "20AA-MM"
       function convertExpiry(expiryStr) {
+        // Ex: "10/28" -> "2028-10"
         const parts = expiryStr.split("/");
         if (parts.length !== 2) return expiryStr;
-        const month = parts[0].padStart(2, "0");
+        const month = parts[0].padStart(2, '0');
         const year = "20" + parts[1];
-        return ${year}-${month};
+        return `${year}-${month}`;
       }
       
       // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
@@ -623,9 +611,6 @@
         const expiryInput = document.getElementById("payment-expiry").value;
         const expiry = convertExpiry(expiryInput);
         const securityCode = document.getElementById("payment-cvv").value;
-        
-        // Número de parcelas
-        const installmentsCount = parseInt(document.getElementById("installmentsCount").value) || 1;
         
         // Dados do titular do cartão a partir do Step 1
         const firstName = document.getElementById("firstName").value;
@@ -637,16 +622,9 @@
         const admin_area_2 = document.getElementById("city").value;
         const admin_area_1 = document.getElementById("state").value;
         const postal_code = document.getElementById("cep").value;
-        const country_code = "BR"; // fixo
+        const country_code = "BR"; // padrão
         
-        const billingAddress = {
-          address_line_1,
-          admin_area_2,
-          admin_area_1,
-          postal_code,
-          country_code
-        };
-        
+        // Monta o payload para /api/pay
         const payload = {
           amount: "100.00",
           currency: "USD",
@@ -654,13 +632,18 @@
           cardNumber,
           expiry,
           securityCode,
-          billingAddress,
-          installmentsCount
+          billingAddress: {
+            address_line_1,
+            admin_area_2,
+            admin_area_1,
+            postal_code,
+            country_code
+          }
         };
         
-        fetch("/api/pay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        fetch('/api/pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })
         .then(res => res.json())
@@ -677,19 +660,136 @@
         });
       });
       
-      // Funções de formatação (exemplo resumido; implemente conforme necessário)
-      function formatCelular(value) { /* ... */ }
-      function formatCPF(value) { /* ... */ }
-      function formatRG(value) { /* ... */ }
-      function formatCEP(value) { /* ... */ }
+      // Funções de formatação (continua igual)
+      function formatCelular(value) {
+        if (value.charAt(0) === '+') {
+          let digits = value.slice(1).replace(/\D/g, '');
+          return '+' + digits;
+        }
+        let digits = value.replace(/\D/g, '');
+        if (digits === '') return '';
+        if (!digits.startsWith('55')) {
+          digits = '55' + digits;
+        }
+        let country = digits.substring(0, 2);
+        let ddd = digits.substring(2, 4) || '';
+        let part1 = '';
+        let part2 = '';
+        if (digits.length > 4) {
+          if (digits.length - 4 <= 5) {
+            part1 = digits.substring(4);
+          } else {
+            part1 = digits.substring(4, 9);
+            part2 = digits.substring(9);
+          }
+        }
+        return '+' + country + (ddd ? ' (' + ddd + ') ' : '') + part1 + (part2 ? '-' + part2 : '');
+      }
       
-      document.getElementById("celular").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("cpf").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("rg").addEventListener("input", function(e) { /* ... */ });
-      document.getElementById("cep").addEventListener("input", function(e) { /* ... */ });
+      function formatCPF(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 11);
+        let formatted = '';
+        if (digits.length > 3) {
+          formatted = digits.substring(0,3) + '.';
+          if (digits.length > 6) {
+            formatted += digits.substring(3,6) + '.';
+            if (digits.length > 9) {
+              formatted += digits.substring(6,9) + '-' + digits.substring(9);
+            } else {
+              formatted += digits.substring(6);
+            }
+          } else {
+            formatted += digits.substring(3);
+          }
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
       
-      // Integração com o carrinho (exemplo resumido)
-      function updateCheckoutCart(items) { /* ... */ }
+      function formatRG(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 9);
+        let formatted = '';
+        if (digits.length > 2) {
+          formatted = digits.substring(0,2) + '.';
+          if (digits.length > 5) {
+            formatted += digits.substring(2,5) + '.';
+            if (digits.length > 8) {
+              formatted += digits.substring(5,8) + '-' + digits.substring(8);
+            } else {
+              formatted += digits.substring(5);
+            }
+          } else {
+            formatted += digits.substring(2);
+          }
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
+      
+      function formatCEP(value) {
+        let digits = value.replace(/\D/g, '');
+        if(digits === '') return '';
+        digits = digits.substring(0, 8);
+        let formatted = '';
+        if (digits.length > 5) {
+          formatted = digits.substring(0,5) + '-' + digits.substring(5);
+        } else {
+          formatted = digits;
+        }
+        return formatted;
+      }
+      
+      document.getElementById("celular").addEventListener("input", function(e) {
+        e.target.value = formatCelular(e.target.value);
+      });
+      document.getElementById("cpf").addEventListener("input", function(e) {
+        e.target.value = formatCPF(e.target.value);
+      });
+      document.getElementById("rg").addEventListener("input", function(e) {
+        e.target.value = formatRG(e.target.value);
+      });
+      document.getElementById("cep").addEventListener("input", function(e) {
+        e.target.value = formatCEP(e.target.value);
+      });
+      
+      // Integração com o carrinho: atualiza o resumo do pedido com os detalhes
+      function updateCheckoutCart(items) {
+        const container = document.getElementById("cartItemsList");
+        let subtotal = 0;
+        let html = "";
+        items.forEach(item => {
+          let price = item.basePriceAdult || 80;
+          subtotal += price;
+          html += `
+            <div class="reserva-item">
+              <div class="reserva-left">
+                <span class="categoria">${item.type || "Hospedagem"}</span>
+                <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+                <div class="reserva-details">
+                  <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                  <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                  <p>Quartos: ${item.rooms || 1}</p>
+                  <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+                </div>
+              </div>
+              <div class="reserva-preco">
+                R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const discount = 500;
+        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      }
       
       window.addEventListener("load", () => {
         let items = [];
