@@ -200,6 +200,7 @@
       }
       
       /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================== */
+      /* *** Esta seção NÃO foi alterada *** */
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
@@ -267,7 +268,6 @@
         color: #555;
       }
       
-      /* ======= Resumo da Compra ======= */
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
@@ -292,7 +292,7 @@
         font-weight: 600;
       }
       
-      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
+      /* ================= VIP-CARD (ABA DETALHES) - SOMENTE ESTA ABA FOI AJUSTADA ================= */
       .vip-card {
         display: flex;
         align-items: flex-start;
@@ -302,7 +302,7 @@
         border-radius: 8px;
         padding: 1rem;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
       }
       .vip-card img {
         width: 120px;
@@ -420,7 +420,7 @@
             <div class="traveler-form-header">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <!-- Toggle de Login: aparece somente se o usuário NÃO estiver logado -->
+                <!-- Toggle de Login: Aparece somente se o usuário NÃO estiver logado -->
                 <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
@@ -617,7 +617,7 @@
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento -->
+      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento (SEM ALTERAÇÕES) -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
@@ -715,7 +715,7 @@
         return !!localStorage.getItem("agentId");
       }
       
-      // Se o usuário já estiver logado, oculta os campos de registro e o link de login
+      // Se o usuário já estiver logado, oculta os campos de registro e o link de toggle
       window.addEventListener("load", () => {
         if (isUserLoggedIn()) {
           registrationFields.style.display = "none";
@@ -725,17 +725,15 @@
         }
       });
       
-      // Toggle para alternar entre registro e login (apenas para usuários não logados)
+      // Toggle para alternar entre registro e login (para usuários não logados)
       if (toggleLoginLink) {
         toggleLoginLink.addEventListener("click", (e) => {
           e.preventDefault();
           if (registrationFields.style.display !== "none") {
-            // Esconde os campos de registro e mostra os de login
             registrationFields.style.display = "none";
             loginFields.style.display = "block";
             toggleLoginLink.textContent = "Não tenho Login";
           } else {
-            // Volta para o formulário completo de registro
             registrationFields.style.display = "block";
             loginFields.style.display = "none";
             toggleLoginLink.textContent = "Economize tempo fazendo Login";
@@ -743,7 +741,7 @@
         });
       }
       
-      // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA --------------------
+      // -------------------- ATUALIZAÇÃO DO CARD DE RESERVA (Sem alterações na seção "Informações da reserva") --------------------
       function updateReservationCard(items) {
         const container = document.getElementById("cartItemsList");
         if (!container) return;
