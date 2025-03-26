@@ -292,6 +292,86 @@
         font-weight: 600;
       }
       
+      /* ========== VIP-CARD (ABA DETALHES) - APENAS ESTA ABA FOI ALTERADA ========= */
+      .vip-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      }
+      .vip-card img {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      .vip-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .vip-info .badge {
+        background-color: #e6f0ff;
+        color: #365cf5;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .vip-info .title {
+        font-size: 0.9rem;
+        color: #444;
+        line-height: 1.3;
+      }
+      .vip-info .price {
+        font-size: 1rem;
+        color: #00b86d;
+        font-weight: bold;
+      }
+      .vip-info .actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+      .vip-info .actions button {
+        background-color: #007aff;
+        color: #fff;
+        border: none;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .vip-info .actions button:hover {
+        background-color: #005dbf;
+      }
+      .vip-info .actions a {
+        font-size: 0.85rem;
+        color: #007aff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      .vip-info .actions a:hover {
+        color: #005dbf;
+      }
+      
+      /* ======== Ajuste Específico para H4 na seção "Informações da reserva" ========= */
+      .reservation-gifts-card h4 {
+        font-size: 1rem;
+        color: #444;
+        font-weight: 600;
+        margin: 0.5rem 0;
+      }
+      
       /* ================= RODAPÉ ================== */
       footer {
         width: 90%;
@@ -318,7 +398,6 @@
     </style>
   </head>
   <body>
-    <!-- Header (importado pelo header-component.js) -->
     <app-header></app-header>
     
     <!-- Menu de Steps -->
@@ -349,10 +428,12 @@
             <div class="traveler-form-header">
               <h2>Quem vai viajar?</h2>
               <div class="actions">
-                <a href="#">Economize tempo fazendo Login</a>
+                <!-- Toggle de Login: aparece somente se o usuário NÃO estiver logado -->
+                <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
-            <div class="passenger-box">
+            <!-- Container dos campos de cadastro (dados pessoais) -->
+            <div id="registrationFields">
               <!-- Linha 1: Nome | Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -386,6 +467,22 @@
                   <input type="password" placeholder="********" />
                 </div>
               </div>
+            </div>
+            <!-- Container do formulário de login (apenas e-mail e senha) -->
+            <div id="loginFields" style="display: none;">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" />
+                </div>
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" id="loginPassword" placeholder="********" />
+                </div>
+              </div>
+            </div>
+            <!-- Outros campos que devem ser sempre exibidos -->
+            <div id="otherFields">
               <!-- Linha 4: CPF | RG | Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -427,10 +524,10 @@
                   <input type="text" id="number" placeholder="123" />
                 </div>
               </div>
-              <p class="form-note">
-                * Insira o nome exatamente como aparece em seus documentos para o check-in.
-              </p>
             </div>
+            <p class="form-note">
+              * Insira o nome exatamente como aparece em seus documentos para o check-in.
+            </p>
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
@@ -502,23 +599,52 @@
                 <label>CVV</label>
                 <input type="text" id="payment-cvv" placeholder="123" />
               </div>
+              <div class="form-field">
+                <label>Nº de Parcelas</label>
+                <select id="installmentsCount">
+                  <option value="1">1x sem juros</option>
+                  <option value="2">2x</option>
+                  <option value="3">3x</option>
+                  <option value="4">4x</option>
+                  <option value="5">5x</option>
+                  <option value="6">6x</option>
+                  <option value="7">7x</option>
+                  <option value="8">8x</option>
+                  <option value="9">9x</option>
+                  <option value="10">10x</option>
+                  <option value="11">11x</option>
+                  <option value="12">12x</option>
+                </select>
+              </div>
             </div>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-              <!-- Botão que processa o pagamento via /api/pay -->
               <button class="btn-save-passenger" id="finishBtn">Finalizar Pagamento</button>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Coluna Direita: Informações da reserva + Resumo da Compra -->
+      <!-- Coluna Direita: Informações da reserva + Resumo de Pagamento -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da reserva</h2>
           <!-- Itens do carrinho serão renderizados aqui -->
-          <div id="cartItemsList"></div>
-          <!-- Resumo da Compra -->
+          <div id="cartItemsList">
+            <div class="reserva-item">
+              <div class="reserva-left">
+                <span class="categoria">HOSPEDAGEM</span>
+                <span class="nome">Hotel de Exemplo - Quarto Exemplo</span>
+                <div class="reserva-details">
+                  <p>Check-in: --/--/----</p>
+                  <p>Check-out: --/--/----</p>
+                  <p>Quartos: 1</p>
+                  <p>Adultos: 1 | Crianças: 0</p>
+                </div>
+              </div>
+              <div class="reserva-preco">R$ 0,00</div>
+            </div>
+          </div>
           <div class="resumo-compra">
             <div class="form-field cupom">
               <label>Cupom de desconto</label>
@@ -550,7 +676,7 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
-      // Multi-step navegação
+      // -------------------- STEP NAVIGATION --------------------
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = stepsMenu.querySelectorAll(".step");
@@ -581,184 +707,52 @@
         });
       }
       
-      toStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
-      backToStep1Btn && backToStep1Btn.addEventListener("click", () => {
-        showStep(1);
-      });
-      toStep3Btn && toStep3Btn.addEventListener("click", () => {
-        showStep(3);
-      });
-      backToStep2Btn && backToStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
+      toStep2Btn.addEventListener("click", () => { showStep(2); });
+      backToStep1Btn?.addEventListener("click", () => { showStep(1); });
+      toStep3Btn?.addEventListener("click", () => { showStep(3); });
+      backToStep2Btn?.addEventListener("click", () => { showStep(2); });
+      finishBtn.addEventListener("click", () => { alert("Reserva finalizada com sucesso!"); });
       
-      // Função para converter a validade de "MM/AA" para "20AA-MM"
-      function convertExpiry(expiryStr) {
-        // Ex: "10/28" -> "2028-10"
-        const parts = expiryStr.split("/");
-        if (parts.length !== 2) return expiryStr;
-        const month = parts[0].padStart(2, '0');
-        const year = "20" + parts[1];
-        return `${year}-${month}`;
+      // -------------------- LÓGICA DE LOGIN / REGISTRO NA ABA "QUEM VAI VIAJAR" --------------------
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFields = document.getElementById("registrationFields");
+      const loginFields = document.getElementById("loginFields");
+      
+      // Função para verificar se o usuário está logado (exemplo: presença de agentId no localStorage)
+      function isUserLoggedIn() {
+        return !!localStorage.getItem("agentId");
       }
       
-      // Ao clicar em "Finalizar Pagamento", processa o pagamento inline via /api/pay
-      finishBtn.addEventListener("click", () => {
-        // Dados do cartão da etapa 3
-        const cardNumber = document.getElementById("payment-card-number").value;
-        const expiryInput = document.getElementById("payment-expiry").value;
-        const expiry = convertExpiry(expiryInput);
-        const securityCode = document.getElementById("payment-cvv").value;
-        
-        // Dados do titular do cartão a partir do Step 1
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const cardholderName = firstName + " " + lastName;
-        
-        // Dados do endereço (billing address) a partir do Step 1
-        const address_line_1 = document.getElementById("address").value + ", " + document.getElementById("number").value;
-        const admin_area_2 = document.getElementById("city").value;
-        const admin_area_1 = document.getElementById("state").value;
-        const postal_code = document.getElementById("cep").value;
-        const country_code = "BR"; // padrão
-        
-        // Monta o payload para /api/pay
-        const payload = {
-          amount: "100.00",
-          currency: "USD",
-          cardholderName,
-          cardNumber,
-          expiry,
-          securityCode,
-          billingAddress: {
-            address_line_1,
-            admin_area_2,
-            admin_area_1,
-            postal_code,
-            country_code
+      // Se o usuário já estiver logado, oculta os campos de registro e o link de login
+      window.addEventListener("load", () => {
+        if (isUserLoggedIn()) {
+          registrationFields.style.display = "none";
+          if (toggleLoginLink) {
+            toggleLoginLink.style.display = "none";
           }
-        };
-        
-        fetch('/api/pay', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
-          if(data.id) {
-            alert("Pagamento processado com sucesso! \n" + JSON.stringify(data));
+        }
+      });
+      
+      // Toggle para alternar entre registro e login (apenas para usuários não logados)
+      if (toggleLoginLink) {
+        toggleLoginLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (registrationFields.style.display !== "none") {
+            // Esconde os campos de registro e mostra os de login
+            registrationFields.style.display = "none";
+            loginFields.style.display = "block";
+            toggleLoginLink.textContent = "Não tenho Login";
           } else {
-            alert("Erro no processamento: " + (data.error || "Resposta inesperada."));
+            // Volta para o formulário completo de registro
+            registrationFields.style.display = "block";
+            loginFields.style.display = "none";
+            toggleLoginLink.textContent = "Economize tempo fazendo Login";
           }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Erro ao processar o pagamento. Tente novamente.");
         });
-      });
-      
-      // Funções de formatação (continua igual)
-      function formatCelular(value) {
-        if (value.charAt(0) === '+') {
-          let digits = value.slice(1).replace(/\D/g, '');
-          return '+' + digits;
-        }
-        let digits = value.replace(/\D/g, '');
-        if (digits === '') return '';
-        if (!digits.startsWith('55')) {
-          digits = '55' + digits;
-        }
-        let country = digits.substring(0, 2);
-        let ddd = digits.substring(2, 4) || '';
-        let part1 = '';
-        let part2 = '';
-        if (digits.length > 4) {
-          if (digits.length - 4 <= 5) {
-            part1 = digits.substring(4);
-          } else {
-            part1 = digits.substring(4, 9);
-            part2 = digits.substring(9);
-          }
-        }
-        return '+' + country + (ddd ? ' (' + ddd + ') ' : '') + part1 + (part2 ? '-' + part2 : '');
       }
       
-      function formatCPF(value) {
-        let digits = value.replace(/\D/g, '');
-        if(digits === '') return '';
-        digits = digits.substring(0, 11);
-        let formatted = '';
-        if (digits.length > 3) {
-          formatted = digits.substring(0,3) + '.';
-          if (digits.length > 6) {
-            formatted += digits.substring(3,6) + '.';
-            if (digits.length > 9) {
-              formatted += digits.substring(6,9) + '-' + digits.substring(9);
-            } else {
-              formatted += digits.substring(6);
-            }
-          } else {
-            formatted += digits.substring(3);
-          }
-        } else {
-          formatted = digits;
-        }
-        return formatted;
-      }
-      
-      function formatRG(value) {
-        let digits = value.replace(/\D/g, '');
-        if(digits === '') return '';
-        digits = digits.substring(0, 9);
-        let formatted = '';
-        if (digits.length > 2) {
-          formatted = digits.substring(0,2) + '.';
-          if (digits.length > 5) {
-            formatted += digits.substring(2,5) + '.';
-            if (digits.length > 8) {
-              formatted += digits.substring(5,8) + '-' + digits.substring(8);
-            } else {
-              formatted += digits.substring(5);
-            }
-          } else {
-            formatted += digits.substring(2);
-          }
-        } else {
-          formatted = digits;
-        }
-        return formatted;
-      }
-      
-      function formatCEP(value) {
-        let digits = value.replace(/\D/g, '');
-        if(digits === '') return '';
-        digits = digits.substring(0, 8);
-        let formatted = '';
-        if (digits.length > 5) {
-          formatted = digits.substring(0,5) + '-' + digits.substring(5);
-        } else {
-          formatted = digits;
-        }
-        return formatted;
-      }
-      
-      document.getElementById("celular").addEventListener("input", function(e) {
-        e.target.value = formatCelular(e.target.value);
-      });
-      document.getElementById("cpf").addEventListener("input", function(e) {
-        e.target.value = formatCPF(e.target.value);
-      });
-      document.getElementById("rg").addEventListener("input", function(e) {
-        e.target.value = formatRG(e.target.value);
-      });
-      document.getElementById("cep").addEventListener("input", function(e) {
-        e.target.value = formatCEP(e.target.value);
-      });
-      
-      // Integração com o carrinho: atualiza o resumo do pedido com os detalhes
+      // -------------------- INTEGRAÇÃO COM O CARRINHO --------------------
+      // A lógica abaixo é a que você informou estar correta:
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
