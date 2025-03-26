@@ -1,82 +1,85 @@
-// routes/pay.routes.js
-import express from 'express';
-import dotenv from 'dotenv';
-import checkoutNodeJssdk from '@paypal/checkout-server-sdk';
+// pay.routes.js
+import express from "express";
+import dotenv from "dotenv";
+import checkoutNodeJssdk from "@paypal/checkout-server-sdk"; // SDK oficial do PayPal
 
 dotenv.config();
 
 const router = express.Router();
 
-// Configura o ambiente do PayPal (Sandbox ou Live)
-let environment;
-if (process.env.NODE_ENV === 'production') {
-  environment = new checkoutNodeJssdk.core.LiveEnvironment(
-    process.env.PAYPAL_CLIENT_ID,
-    process.env.PAYPAL_CLIENT_SECRET
-  );
-} else {
-  environment = new checkoutNodeJssdk.core.SandboxEnvironment(
-    process.env.PAYPAL_CLIENT_ID,
-    process.env.PAYPAL_CLIENT_SECRET
-  );
+// Ambiente de sandbox ou produção (ajuste conforme necessidade)
+function environment() {
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+
+  // Para Sandbox:
+  return new checkoutNodeJssdk.core.SandboxEnvironment(clientId, clientSecret);
+
+  // Se quiser produção, troque por:
+  // return new checkoutNodeJssdk.core.LiveEnvironment(clientId, clientSecret);
 }
 
-const paypalClient = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
+// Cria o cliente HTTP do PayPal
+function client() {
+  return new checkoutNodeJssdk.core.PayPalHttpClient(environment());
+}
 
-// Endpoint para criar uma ordem
-router.post('/create-order', async (req, res) => {
+/**
+ * POST /api/create-order
+ * Cria a ordem no PayPal e retorna o ID para o front.
+ */
+router.post("/create-order", async (req, res) => {
   try {
-    // Dados enviados do front (nome, e-mail, endereço e valor)
-    const { firstName, lastName, email, address, amount } = req.body;
-    
+    // Esses campos podem vir do front
+    const { amount, currency } = req.body;
+
     const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
     request.prefer("return=representation");
     request.requestBody({
       intent: "CAPTURE",
-      application_context: {
-        shipping_preference: "NO_SHIPPING", // Não solicitar endereço de envio
-        user_action: "PAY_NOW"
-      },
       purchase_units: [
         {
-          reference_id: "default",
           amount: {
-            currency_code: "BRL",
-            value: amount,
-            breakdown: {
-              item_total: {
-                currency_code: "BRL",
-                value: amount
-              }
-            }
-          }
-          // Se necessário, adicione billing details aqui utilizando os dados coletados
-        }
-      ]
+            currency_code: currency || "BRL", // "BRL" por padrão
+            value: amount || "100.00",        // Valor fixo de exemplo
+          },
+        },
+      ],
     });
-    
-    const order = await paypalClient.execute(request);
-    res.status(200).json(order.result);
+
+    // Executa a criação da ordem
+    const response = await client().execute(request);
+
+    // Retorna somente o 'id' da ordem pro front
+    return res.status(200).json({ id: response.result.id });
   } catch (err) {
-    console.error("Erro ao criar a ordem:", err);
-    res.status(500).json({ error: err.toString() });
+    console.error("Erro em /create-order:", err);
+    return res.status(500).json({ error: err.toString() });
   }
 });
 
-// Endpoint para capturar uma ordem
-router.post('/capture-order', async (req, res) => {
+/**
+ * POST /api/capture-order
+ * Recebe o orderId do front e faz a captura no PayPal.
+ */
+router.post("/capture-order", async (req, res) => {
   try {
-    const { orderID } = req.body;
-    if (!orderID) {
-      return res.status(400).json({ error: "orderID é obrigatório" });
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId é obrigatório." });
     }
-    const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderID);
+
+    const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderId);
     request.requestBody({});
-    const capture = await paypalClient.execute(request);
-    res.status(200).json(capture.result);
+
+    // Executa a captura da ordem
+    const response = await client().execute(request);
+
+    // Retorna o resultado completo da transação
+    return res.status(200).json(response.result);
   } catch (err) {
-    console.error("Erro ao capturar a ordem:", err);
-    res.status(500).json({ error: err.toString() });
+    console.error("Erro em /capture-order:", err);
+    return res.status(500).json({ error: err.toString() });
   }
 });
 
