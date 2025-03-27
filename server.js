@@ -10,7 +10,6 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import payRouter from "./routes/pay.routes.js"; // Rota do PayPal
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -42,8 +41,8 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
+import payRouter from "./routes/pay.routes.js"; // Rota para pagamento com PayPal
 
-// Usar rotas existentes
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
@@ -52,13 +51,13 @@ app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
 
 // ------------------------------------------------------
-// Rota para integração do PayPal
-app.use("/api/pay", payRouter); // Rota para pagamento com PayPal
+// Usar a rota do PayPal
+app.use("/api/pay", payRouter); // Integrando a rota de pagamento PayPal
 
 // ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integração com PayPal!");
+  res.send("Olá, API rodando com ESM, Express e integração das APIs Hotelbeds e PayPal!");
 });
 
 // ------------------------------------------------------
@@ -193,51 +192,15 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Endpoints do PayPal (fluxo padrão para BCDC)
-// ------------------------------------------------------
-
-// Agora você pode acessar a integração do PayPal via as rotas de /api/pay criadas no arquivo pay.routes.js
-// Já importamos e configuramos a rota /api/pay
-
-// ------------------------------------------------------
-// Exemplo: rota dinâmica usando Supabase (busca "parks")
-app.get("/park-details/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { data, error } = await supabase
-      .from("parks")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error || !data) {
-      return res.status(404).json({ error: "Parque não encontrado" });
-    }
-
-    const parkDetails = `
-      <html>
-        <head><title>${data.name}</title></head>
-        <body>
-          <h1>${data.name}</h1>
-          <p>${data.description}</p>
-          <img src="${data.images.cover}" alt="${data.name}" />
-        </body>
-      </html>
-    `;
-    res.send(parkDetails);
-  } catch (err) {
-    console.error("Erro ao buscar parque:", err);
-    res.status(500).json({ error: "Erro interno ao buscar parque" });
-  }
-});
+// Usando a rota do PayPal (sem SDK, via API)
+import payRouter from './routes/pay.routes.js';
+app.use("/api/pay", payRouter); // Integrando a rota de pagamento com o PayPal
 
 // ------------------------------------------------------
 // Iniciar o servidor localmente (para ambiente não serverless)
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-  });
-}
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
 
 export default app;
