@@ -194,7 +194,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 // ------------------------------------------------------
 // ENDPOINTS PARA INTEGRAÇÃO COM BRAINTREE (Checkout 100% Transparente)
 // ------------------------------------------------------
-import { gateway } from "./braintree.js";
+import { gateway } from "./api/braintree.js";
 
 app.get("/api/braintree/get-client-token", async (req, res) => {
   try {
