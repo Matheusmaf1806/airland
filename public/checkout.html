@@ -566,21 +566,37 @@
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Função para renderizar o botão do PayPal usando o SDK
+      // Função para renderizar o botão do PayPal usando o SDK e integrando com seus endpoints
       function renderPayPalButton() {
         const container = document.getElementById("paypal-button-container");
         // Evita re-renderizar se já existir um botão
         if (container.childElementCount === 0) {
           paypal.Buttons({
             createOrder: function(data, actions) {
-              return actions.order.create({
-                purchase_units: [{
-                  amount: { value: '100.00', currency_code: 'BRL' }
-                }]
+              // Chama o endpoint do backend para criar o pedido com configuração de parcelamento
+              return fetch('/api/create-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: "500.00" })
+              })
+              .then(function(res) { return res.json(); })
+              .then(function(orderData) {
+                return orderData.id; // Retorna o ID do pedido criado
               });
             },
             onApprove: function(data, actions) {
-              return actions.order.capture().then(function(details) {
+              // Após a aprovação, chama o endpoint do backend para capturar o pagamento
+              return fetch('/api/capture-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId: data.orderID })
+              })
+              .then(function(res) { return res.json(); })
+              .then(function(details) {
                 console.log('Pagamento aprovado:', details);
                 alert('Pagamento aprovado! ID: ' + details.id);
                 // Avança para o Step 4 (confirmação)
