@@ -1,16 +1,41 @@
 // routes/braintreeRoutes.js
-const express = require('express');
-const router = express.Router();
-const { gateway } = require('../braintree');
+import express from "express";
+import { gateway } from "../api/braintree.js";  // certifique-se do caminho correto
 
-router.get('/get-client-token', async (req, res) => {
+const router = express.Router();
+
+router.get("/get-client-token", async (req, res) => {
   try {
     const response = await gateway.clientToken.generate({});
     res.json({ clientToken: response.clientToken });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao gerar client token' });
+    console.error("Erro ao gerar client token:", error);
+    res.status(500).json({ error: "Erro ao gerar client token" });
   }
 });
 
-module.exports = router;
+router.post("/create-transaction", async (req, res) => {
+  const { paymentMethodNonce, amount, customer, billing } = req.body;
+  try {
+    const saleRequest = {
+      amount: amount,
+      paymentMethodNonce: paymentMethodNonce,
+      customer: customer,
+      billing: billing,
+      options: {
+        submitForSettlement: true
+      }
+    };
+    const result = await gateway.transaction.sale(saleRequest);
+    if (result.success) {
+      return res.json({ success: true, transactionId: result.transaction.id });
+    } else {
+      return res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error("Erro ao criar transação Braintree:", error);
+    res.status(500).json({ success: false, message: error.toString() });
+  }
+});
+
+export default router;
