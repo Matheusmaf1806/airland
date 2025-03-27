@@ -631,7 +631,7 @@
                   alert("Erro ao processar os dados do cartão.");
                   return;
                 }
-                // Enviar o nonce para criar a transação
+                // Enviar o nonce para criar a transação com os dados do cliente
                 processPayment(payload.nonce);
               });
             });
@@ -639,13 +639,34 @@
         });
       }
       
-      // Função para enviar o nonce para o backend e criar a transação via Braintree
+      // Função para enviar o nonce e os dados para o backend e criar a transação via Braintree
       async function processPayment(nonce) {
+        // Extrair o valor total do pedido do elemento e formatar para um número (exemplo: "R$ 500,00" -> "500.00")
+        let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 500,00"
+        let amount = totalText.replace("R$", "").trim().replace(",", ".");
+        
         try {
           const res = await fetch('/api/braintree/create-transaction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentMethodNonce: nonce, amount: "500.00" })
+            body: JSON.stringify({
+              paymentMethodNonce: nonce,
+              amount: amount,
+              customer: {
+                firstName: checkoutData.firstName,
+                lastName: checkoutData.lastName,
+                email: checkoutData.email,
+                phone: checkoutData.celular
+              },
+              billing: {
+                streetAddress: checkoutData.address,
+                extendedAddress: checkoutData.number,
+                locality: checkoutData.city,
+                region: checkoutData.state,
+                postalCode: checkoutData.cep,
+                countryCodeAlpha2: "BR"
+              }
+            })
           });
           const result = await res.json();
           if (result.success) {
