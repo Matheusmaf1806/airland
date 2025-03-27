@@ -14,7 +14,9 @@
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       
-      html { scroll-behavior: smooth; }
+      html {
+        scroll-behavior: smooth;
+      }
       
       body {
         font-family: "Montserrat", sans-serif !important;
@@ -24,15 +26,28 @@
         background: #f1f5f9;
       }
       
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      
-      a:focus, input:focus, textarea:focus, button:focus {
-        outline: none; box-shadow: none;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
       
-      a:hover { color: #365cf5; }
+      a:focus,
+      input:focus,
+      textarea:focus,
+      button:focus {
+        outline: none;
+        box-shadow: none;
+      }
       
-      button, a { transition: all 0.3s ease-out; }
+      a:hover {
+        color: #365cf5;
+      }
+      
+      button,
+      a {
+        transition: all 0.3s ease-out;
+      }
       
       /* ================= MENU DE STEPS ================== */
       .steps-menu {
@@ -65,7 +80,10 @@
         font-weight: 700;
       }
       
-      .steps-menu .separator { color: #fff; font-weight: bold; }
+      .steps-menu .separator {
+        color: #fff;
+        font-weight: bold;
+      }
       
       .steps-menu .step.active .circle {
         background-color: #365cf5;
@@ -87,7 +105,9 @@
         gap: 2rem;
       }
       
-      .left-col { flex: 1; }
+      .left-col {
+        flex: 1;
+      }
       
       .right-col {
         width: 400px;
@@ -130,7 +150,9 @@
       }
       
       .form-field input:focus,
-      .form-field select:focus { border-color: #007aff; }
+      .form-field select:focus {
+        border-color: #007aff;
+      }
       
       .form-note {
         font-size: 0.75rem;
@@ -153,13 +175,20 @@
       .btn-save-passenger:hover,
       .btn-pay-pal:hover {
         background: #005dbf;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       }
       
       /* ================= MULTI-STEP ================== */
-      .step-content { display: none; }
-      .step-content.active { display: block; }
-      .navigation { margin-top: 1rem; text-align: right; }
+      .step-content {
+        display: none;
+      }
+      .step-content.active {
+        display: block;
+      }
+      .navigation {
+        margin-top: 1rem;
+        text-align: right;
+      }
       .traveler-form-header {
         display: flex;
         align-items: center;
@@ -283,12 +312,20 @@
       }
       
       @media (max-width: 768px) {
-        .main-container { flex-direction: column; }
-        .right-col { width: 100%; }
+        .main-container {
+          flex-direction: column;
+        }
+        .right-col {
+          width: 100%;
+        }
       }
       
-      .mt-10 { margin-top: 10px; }
-      .mb-10 { margin-bottom: 10px; }
+      .mt-10 {
+        margin-top: 10px;
+      }
+      .mb-10 {
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   <body>
@@ -425,8 +462,23 @@
           <div class="card-style-1">
             <h2>Pagamento</h2>
             <p>Revise seus dados e conclua o pagamento.</p>
+            
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
+            
+            <!-- Seletor de Parcelas -->
+            <div class="form-field">
+              <label>Parcelas</label>
+              <select id="installments">
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+              </select>
+            </div>
+
             <!-- Formulário para pagamento via Braintree -->
             <form id="checkout-form">
               <div class="form-field">
@@ -445,6 +497,7 @@
               </div>
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
+            
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
@@ -570,13 +623,20 @@
           <p><strong>E-mail:</strong> ${checkoutData.email}</p>
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
+        // Armazena a escolha de parcelas no checkoutData (caso usuário já tenha selecionado)
+        // ou faz isso depois, no processPayment. Aqui é só um passo intermediário.
+        
         showStep(3);
         initializeBraintree(); // Inicializa a integração Braintree na etapa de pagamento
       });
       
       // Navegação: Voltar para etapas anteriores
-      backToStep1Btn.addEventListener("click", () => { showStep(1); });
-      backToStep2Btn.addEventListener("click", () => { showStep(2); });
+      backToStep1Btn.addEventListener("click", () => {
+        showStep(1);
+      });
+      backToStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
       
       // Função para inicializar a Braintree e criar os Hosted Fields
       async function initializeBraintree() {
@@ -642,13 +702,16 @@
       // Função para enviar o nonce e os dados para o backend e criar a transação via Braintree
       async function processPayment(nonce) {
         // Extrair o valor total do pedido do elemento "totalValue"
-        // Exemplo: "R$ 8.247,20" -> remove "R$", remove pontos de milhar, substitui vírgula por ponto e garante duas casas decimais
         let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 8.247,20"
         let amount = totalText.replace("R$", "").trim();
         // Remove todos os pontos de milhar e substitui a vírgula por ponto
         amount = amount.replace(/\./g, "").replace(",", ".");
         // Converte para número e garante duas casas decimais
         amount = parseFloat(amount).toFixed(2);
+        
+        // Capturar a escolha de parcelas do <select id="installments">
+        const installmentsSelect = document.getElementById("installments");
+        checkoutData.installments = installmentsSelect.value; // ex: "1", "2", "3", ...
         
         try {
           const res = await fetch('/api/braintree/create-transaction', {
@@ -657,6 +720,7 @@
             body: JSON.stringify({
               paymentMethodNonce: nonce,
               amount: amount,
+              installments: checkoutData.installments, // Envia o número de parcelas
               customer: {
                 firstName: checkoutData.firstName,
                 lastName: checkoutData.lastName,
@@ -713,10 +777,13 @@
           `;
         });
         container.innerHTML = html;
-        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("subtotalValue").textContent =
+          "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         const discount = 500;
-        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("discountValue").textContent =
+          "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent =
+          "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
       // Atualiza o carrinho ao carregar a página
