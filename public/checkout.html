@@ -6,7 +6,7 @@
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
     <!-- Carrega o SDK do PayPal para Sandbox com Client ID, moeda BRL, idioma pt_BR e intenção CAPTURE -->
-    <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture&components=buttons,funding-eligibility"></script>
+    <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture&components=buttons"></script>
     <style>
       /* ===========================
           COMMON CSS
@@ -310,6 +310,11 @@
         <div class="circle">3</div>
         <span>Pagamento</span>
       </div>
+      <div class="separator">></div>
+      <div class="step" data-step="4">
+        <div class="circle">4</div>
+        <span>Confirmação</span>
+      </div>
     </div>
     
     <!-- Main Container -->
@@ -428,6 +433,15 @@
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
+          </div>
+        </div>
+        
+        <!-- Step 4: Confirmação de Pagamento -->
+        <div class="step-content" data-step="4">
+          <div class="card-style-1">
+            <h2>Pagamento Concluído</h2>
+            <p>Seu pagamento foi efetuado com sucesso!</p>
+            <p>Obrigado por sua compra.</p>
           </div>
         </div>
       </div>
@@ -560,7 +574,7 @@
           fundingSource: paypal.FUNDING.PAYPAL,
           style: { layout: 'vertical', shape: 'rect', label: 'paypal' },
           createOrder: function(data, actions) {
-            return fetch("/api/create-order", {
+            return fetch("/api/pay/create-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -573,14 +587,15 @@
             .then(order => order.id);
           },
           onApprove: function(data, actions) {
-            return fetch("/api/capture-order", {
+            return fetch("/api/pay/capture-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ orderId: data.orderID })
             })
             .then(res => res.json())
             .then(captureResult => {
-              alert("Pagamento realizado com sucesso via PayPal Wallet!");
+              // Em vez de alert(), redireciona para o Step 4
+              showStep(4);
             })
             .catch(err => {
               console.error("Erro no pagamento via PayPal Wallet:", err);
@@ -597,7 +612,7 @@
           fundingSource: paypal.FUNDING.CARD,
           style: { layout: 'vertical', shape: 'rect', label: 'pay' },
           createOrder: function(data, actions) {
-            return fetch("/api/create-order", {
+            return fetch("/api/pay/create-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -610,14 +625,15 @@
             .then(order => order.id);
           },
           onApprove: function(data, actions) {
-            return fetch("/api/capture-order", {
+            return fetch("/api/pay/capture-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ orderId: data.orderID })
             })
             .then(res => res.json())
             .then(captureResult => {
-              alert("Pagamento realizado com sucesso via Cartão!");
+              // Em vez de alert(), redireciona para o Step 4
+              showStep(4);
             })
             .catch(err => {
               console.error("Erro no pagamento via Cartão:", err);
