@@ -5,8 +5,7 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carrega o SDK do PayPal para Sandbox com Client ID, moeda BRL, idioma pt_BR e intenção CAPTURE -->
-    <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture&components=buttons"></script>
+    <!-- Removemos o SDK do PayPal, pois usaremos API com nosso próprio botão -->
     <style>
       /* ===========================
           COMMON CSS
@@ -138,7 +137,8 @@
       }
       
       /* ================= BOTÕES ================== */
-      .btn-save-passenger {
+      .btn-save-passenger,
+      .btn-pay-pal {
         background: #007aff;
         color: #fff;
         border: none;
@@ -148,7 +148,8 @@
         cursor: pointer;
       }
       
-      .btn-save-passenger:hover {
+      .btn-save-passenger:hover,
+      .btn-pay-pal:hover {
         background: #005dbf;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       }
@@ -420,17 +421,16 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento com Smart Payment Buttons -->
+        <!-- Step 3: Pagamento com Botão Customizado -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e escolha o método de pagamento.</p>
+            <p>Revise seus dados e clique em "Pagar com PayPal" para iniciar o pagamento.</p>
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
-            <!-- Containers para os botões do PayPal -->
-            <div id="paypal-wallet-container"></div>
-            <div id="paypal-card-container"></div>
+            <!-- Botão customizado para iniciar o pagamento -->
             <div class="navigation">
+              <button class="btn-pay-pal" id="payWithPayPal">Pagar com PayPal</button>
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
           </div>
@@ -556,94 +556,44 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
-        renderPayPalButtons();
       });
       
       // Navegação: Voltar para etapas anteriores
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Função para renderizar os botões do PayPal para Wallet e Cartão (BCDC)
-      function renderPayPalButtons() {
-        // Limpa os containers para evitar renderizações múltiplas
-        document.getElementById("paypal-wallet-container").innerHTML = "";
-        document.getElementById("paypal-card-container").innerHTML = "";
-        
-        // Renderiza o botão do PayPal Wallet
-        paypal.Buttons({
-          fundingSource: paypal.FUNDING.PAYPAL,
-          style: { layout: 'vertical', shape: 'rect', label: 'paypal' },
-          createOrder: function(data, actions) {
-            return fetch("/api/pay/create-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                amount: "100.00", // Exemplo – ajuste conforme sua lógica
-                currency: "BRL",
-                checkoutData: checkoutData
-              })
-            })
-            .then(res => res.json())
-            .then(order => order.id);
-          },
-          onApprove: function(data, actions) {
-            return fetch("/api/pay/capture-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderId: data.orderID })
-            })
-            .then(res => res.json())
-            .then(captureResult => {
-              // Em vez de alert(), redireciona para o Step 4
-              showStep(4);
-            })
-            .catch(err => {
-              console.error("Erro no pagamento via PayPal Wallet:", err);
-              alert("Erro no pagamento. Tente novamente.");
-            });
-          },
-          onError: function(err) {
-            console.error("Erro no botão do PayPal Wallet:", err);
+      // Função para iniciar o pagamento via API (sem botões do PayPal)
+      function payWithPayPal() {
+        fetch("/api/pay/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: "100.00", // Ajuste conforme sua lógica
+            currency: "BRL",
+            checkoutData: checkoutData
+          })
+        })
+        .then(res => res.json())
+        .then(order => {
+          // Procura o link de aprovação na resposta do PayPal
+          const approvalLink = order.links.find(link => link.rel === "payer-action");
+          if (approvalLink) {
+            // Redireciona o usuário para a página de aprovação do PayPal
+            window.location.href = approvalLink.href;
+          } else {
+            alert("Não foi possível obter o link de aprovação. Tente novamente.");
           }
-        }).render('#paypal-wallet-container');
-        
-        // Renderiza o botão do Cartão (BCDC)
-        paypal.Buttons({
-          fundingSource: paypal.FUNDING.CARD,
-          style: { layout: 'vertical', shape: 'rect', label: 'pay' },
-          createOrder: function(data, actions) {
-            return fetch("/api/pay/create-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                amount: "100.00", // Exemplo – ajuste conforme sua lógica
-                currency: "BRL",
-                checkoutData: checkoutData
-              })
-            })
-            .then(res => res.json())
-            .then(order => order.id);
-          },
-          onApprove: function(data, actions) {
-            return fetch("/api/pay/capture-order", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderId: data.orderID })
-            })
-            .then(res => res.json())
-            .then(captureResult => {
-              // Em vez de alert(), redireciona para o Step 4
-              showStep(4);
-            })
-            .catch(err => {
-              console.error("Erro no pagamento via Cartão:", err);
-              alert("Erro no pagamento. Tente novamente.");
-            });
-          },
-          onError: function(err) {
-            console.error("Erro no botão de Cartão:", err);
-          }
-        }).render('#paypal-card-container');
+        })
+        .catch(err => {
+          console.error("Erro ao criar pedido:", err);
+          alert("Erro ao iniciar pagamento. Tente novamente.");
+        });
+      }
+      
+      // Evento do botão customizado para iniciar o pagamento
+      const payWithPayPalBtn = document.getElementById("payWithPayPal");
+      if (payWithPayPalBtn) {
+        payWithPayPalBtn.addEventListener("click", payWithPayPal);
       }
       
       // Função de exemplo para atualizar o resumo do carrinho (ajuste conforme sua lógica)
