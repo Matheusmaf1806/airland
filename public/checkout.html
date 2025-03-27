@@ -5,7 +5,10 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Removemos o SDK do PayPal, pois usaremos API com nosso próprio botão -->
+    <!-- Carrega o SDK do PayPal com os componentes necessários -->
+    <script
+      src="https://www.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&components=buttons,hosted-fields&currency=BRL&intent=capture">
+    </script>
     <style>
       /* ===========================
           COMMON CSS
@@ -421,16 +424,16 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento com Botão Customizado -->
+        <!-- Step 3: Pagamento -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e clique em "Pagar com PayPal" para iniciar o pagamento.</p>
+            <p>Revise seus dados e conclua o pagamento através do PayPal.</p>
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
-            <!-- Botão customizado para iniciar o pagamento -->
+            <!-- Container para renderizar o botão do PayPal -->
+            <div id="paypal-button-container"></div>
             <div class="navigation">
-              <button class="btn-pay-pal" id="payWithPayPal">Pagar com PayPal</button>
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
           </div>
@@ -556,44 +559,40 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
+        renderPayPalButton(); // Renderiza o botão do PayPal ao entrar na etapa de pagamento
       });
       
       // Navegação: Voltar para etapas anteriores
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Função para iniciar o pagamento via API (sem botões do PayPal)
-      function payWithPayPal() {
-        fetch("/api/pay/create-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: "100.00", // Ajuste conforme sua lógica
-            currency: "BRL",
-            checkoutData: checkoutData
-          })
-        })
-        .then(res => res.json())
-        .then(order => {
-          // Procura o link de aprovação na resposta do PayPal
-          const approvalLink = order.links.find(link => link.rel === "payer-action");
-          if (approvalLink) {
-            // Redireciona o usuário para a página de aprovação do PayPal
-            window.location.href = approvalLink.href;
-          } else {
-            alert("Não foi possível obter o link de aprovação. Tente novamente.");
-          }
-        })
-        .catch(err => {
-          console.error("Erro ao criar pedido:", err);
-          alert("Erro ao iniciar pagamento. Tente novamente.");
-        });
-      }
-      
-      // Evento do botão customizado para iniciar o pagamento
-      const payWithPayPalBtn = document.getElementById("payWithPayPal");
-      if (payWithPayPalBtn) {
-        payWithPayPalBtn.addEventListener("click", payWithPayPal);
+      // Função para renderizar o botão do PayPal usando o SDK
+      function renderPayPalButton() {
+        const container = document.getElementById("paypal-button-container");
+        // Evita re-renderizar se já existir um botão
+        if (container.childElementCount === 0) {
+          paypal.Buttons({
+            createOrder: function(data, actions) {
+              return actions.order.create({
+                purchase_units: [{
+                  amount: { value: '100.00', currency_code: 'BRL' }
+                }]
+              });
+            },
+            onApprove: function(data, actions) {
+              return actions.order.capture().then(function(details) {
+                console.log('Pagamento aprovado:', details);
+                alert('Pagamento aprovado! ID: ' + details.id);
+                // Avança para o Step 4 (confirmação)
+                showStep(4);
+              });
+            },
+            onError: function(err) {
+              console.error('Erro no pagamento:', err);
+              alert('Ocorreu um erro no pagamento. Por favor, tente novamente.');
+            }
+          }).render('#paypal-button-container');
+        }
       }
       
       // Função de exemplo para atualizar o resumo do carrinho (ajuste conforme sua lógica)
