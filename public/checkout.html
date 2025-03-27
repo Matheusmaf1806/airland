@@ -682,7 +682,6 @@
       backToStep1Btn.addEventListener("click", () => {
         showStep(1);
       });
-      
       backToStep2Btn.addEventListener("click", () => {
         showStep(2);
       });
@@ -696,7 +695,7 @@
           expiration: document.getElementById("card-expiration").value,
           csc: document.getElementById("card-csc").value
         };
-        // Adiciona os dados do cartão ao checkoutData
+        // Adiciona os dados do cartão ao checkoutData (meramente ilustrativo aqui)
         checkoutData.cardDetails = cardDetails;
         
         // Cria o pedido chamando o endpoint backend (/api/create-order)
@@ -758,6 +757,8 @@
         });
         container.innerHTML = html;
         document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        
+        // Exemplo: desconto fixo de R$500,00
         const discount = 500;
         document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
