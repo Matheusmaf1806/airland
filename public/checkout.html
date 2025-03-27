@@ -8,15 +8,12 @@
     <!-- Carrega o SDK do PayPal para Sandbox (caso ainda seja necessário para outras operações) -->
     <script src="https://www.sandbox.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&currency=BRL&locale=pt_BR&intent=capture"></script>
     <style>
-      /*===========================
-          COMMON CSS
-      ===========================*/
+      /* ===========================
+         COMMON CSS
+      ============================ */
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       
-      html {
-        scroll-behavior: smooth;
-      }
-      
+      html { scroll-behavior: smooth; }
       body {
         font-family: "Montserrat", sans-serif !important;
         font-weight: 400;
@@ -24,28 +21,10 @@
         overflow-x: hidden;
         background: #f1f5f9;
       }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      a:focus,
-      input:focus,
-      textarea:focus,
-      button:focus {
-        outline: none;
-        box-shadow: none;
-      }
-      
-      a:hover {
-        color: #365cf5;
-      }
-      
-      button, a {
-        transition: all 0.3s ease-out;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      a:focus, input:focus, textarea:focus, button:focus { outline: none; box-shadow: none; }
+      a:hover { color: #365cf5; }
+      button, a { transition: all 0.3s ease-out; }
       
       /* ================= MENU DE STEPS ================== */
       .steps-menu {
@@ -57,7 +36,6 @@
         gap: 1rem;
         margin-bottom: 20px;
       }
-      
       .steps-menu .step {
         display: flex;
         align-items: center;
@@ -65,7 +43,6 @@
         color: #fff;
         cursor: pointer;
       }
-      
       .steps-menu .circle {
         width: 30px;
         height: 30px;
@@ -77,22 +54,13 @@
         justify-content: center;
         font-weight: 700;
       }
-      
-      .steps-menu .separator {
-        color: #fff;
-        font-weight: bold;
-      }
-      
+      .steps-menu .separator { color: #fff; font-weight: bold; }
       .steps-menu .step.active .circle {
         background-color: #365cf5;
         color: #fff;
         border: 2px solid #fff;
       }
-      
-      .steps-menu .step.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+      .steps-menu .step.disabled { opacity: 0.5; cursor: not-allowed; }
       
       /* ================= LAYOUT PRINCIPAL ================== */
       .main-container {
@@ -102,15 +70,8 @@
         display: flex;
         gap: 2rem;
       }
-      
-      .left-col {
-        flex: 1;
-      }
-      
-      .right-col {
-        width: 400px;
-        flex-shrink: 0;
-      }
+      .left-col { flex: 1; }
+      .right-col { width: 400px; flex-shrink: 0; }
       
       /* ================= FORMULÁRIOS E CAMPOS ================== */
       .fields-grid-2cols {
@@ -119,44 +80,27 @@
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
       .fields-grid-3cols {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
-      .form-field {
-        display: flex;
-        flex-direction: column;
-      }
-      
+      .form-field { display: flex; flex-direction: column; }
       .form-field label {
         font-size: 0.85rem;
         color: #666;
         margin-bottom: 0.3rem;
         font-weight: 500;
       }
-      
-      .form-field input,
-      .form-field select {
+      .form-field input, .form-field select {
         font-size: 0.85rem;
         padding: 0.6rem;
         border: 1px solid #eee;
         border-radius: 4px;
       }
-      
-      .form-field input:focus,
-      .form-field select:focus {
-        border-color: #007aff;
-      }
-      
-      .form-note {
-        font-size: 0.75rem;
-        color: #888;
-        margin-top: 1rem;
-      }
+      .form-field input:focus, .form-field select:focus { border-color: #007aff; }
+      .form-note { font-size: 0.75rem; color: #888; margin-top: 1rem; }
       
       /* ================= BOTÕES ================== */
       .btn-save-passenger {
@@ -168,32 +112,16 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
-      
       .btn-save-passenger:hover {
         background: #005dbf;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       }
       
       /* ================= MULTI-STEP ================== */
-      .step-content {
-        display: none;
-      }
-      
-      .step-content.active {
-        display: block;
-      }
-      
-      .navigation {
-        margin-top: 1rem;
-        text-align: right;
-      }
-      
-      .traveler-form-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      
+      .step-content { display: none; }
+      .step-content.active { display: block; }
+      .navigation { margin-top: 1rem; text-align: right; }
+      .traveler-form-header { display: flex; align-items: center; justify-content: space-between; }
       .card-style-1 {
         background: #fff;
         border: 1px solid #efefef;
@@ -211,7 +139,6 @@
         padding: 25px 30px;
         box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
       }
-      
       .reserva-item {
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -221,155 +148,24 @@
         margin-bottom: 0.75rem;
         align-items: center;
       }
-      
-      .reserva-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-      }
-      
-      .reserva-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-      }
-      
-      .reserva-left {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-      }
-      
-      .reserva-left .categoria {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #007aff;
-      }
-      
-      .reserva-left .nome {
-        font-size: 0.85rem;
-        color: #333;
-      }
-      
-      .reserva-left .subinfo {
-        font-size: 0.8rem;
-        color: #888;
-      }
-      
-      .reserva-preco {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #00c853;
-        text-align: right;
-      }
-      
-      .reserva-details p {
-        font-size: 0.8rem;
-        margin: 2px 0;
-        color: #555;
-      }
-      
+      .reserva-item:last-child { border-bottom: none; margin-bottom: 0; }
+      .reserva-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+      .reserva-left { display: flex; flex-direction: column; gap: 0.25rem; }
+      .reserva-left .categoria { font-size: 0.85rem; font-weight: 600; color: #007aff; }
+      .reserva-left .nome { font-size: 0.85rem; color: #333; }
+      .reserva-left .subinfo { font-size: 0.8rem; color: #888; }
+      .reserva-preco { font-size: 1rem; font-weight: 700; color: #00c853; text-align: right; }
+      .reserva-details p { font-size: 0.8rem; margin: 2px 0; color: #555; }
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
         border-top: 1px solid #eee;
       }
-      
-      .resumo-compra .resumo-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
-      }
-      
-      .resumo-compra .resumo-row label {
-        font-weight: 600;
-      }
-      
-      .resumo-compra .resumo-row p {
-        font-weight: 600;
-        margin: 0;
-      }
-      
-      .resumo-compra .cupom {
-        margin-top: 15px;
-      }
-      
-      .resumo-compra .cupom label {
-        font-weight: 600;
-      }
-      
-      /* ======= VIP-CARD (detalhes extras) ======= */
-      .vip-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-      }
-      
-      .vip-card img {
-        width: 120px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-      }
-      
-      .vip-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      
-      .vip-info .badge {
-        background-color: #e6f0ff;
-        color: #365cf5;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-      }
-      
-      .vip-info .title {
-        font-size: 0.9rem;
-        color: #444;
-        line-height: 1.3;
-      }
-      
-      .vip-info .price {
-        font-size: 1rem;
-        color: #00b86d;
-        font-weight: bold;
-      }
-      
-      .vip-info .actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-      
-      .vip-info .actions button {
-        background-color: #007aff;
-        color: #fff;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        cursor: pointer;
-      }
-      
-      .vip-info .actions a {
-        font-size: 0.85rem;
-        color: #007aff;
-        text-decoration: none;
-      }
+      .resumo-compra .resumo-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+      .resumo-compra .resumo-row label { font-weight: 600; }
+      .resumo-compra .resumo-row p { font-weight: 600; margin: 0; }
+      .resumo-compra .cupom { margin-top: 15px; }
+      .resumo-compra .cupom label { font-weight: 600; }
       
       footer {
         width: 90%;
@@ -383,21 +179,15 @@
       }
       
       @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-        }
-        .right-col {
-          width: 100%;
-        }
+        .main-container { flex-direction: column; }
+        .right-col { width: 100%; }
       }
       
       .mt-10 { margin-top: 10px; }
       .mb-10 { margin-bottom: 10px; }
       
       /* Oculta o elemento "paypal-powered-by", se presente */
-      .paypal-powered-by {
-        display: none !important;
-      }
+      .paypal-powered-by { display: none !important; }
     </style>
   </head>
   <body>
@@ -525,42 +315,16 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento com Cartão (Custom Form para BCDC) -->
+        <!-- Step 3: Pagamento com Cartão (Fluxo com redirecionamento para aprovação no PayPal) -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e informe os dados do cartão para finalizar o pagamento.</p>
+            <p>Revise seus dados e clique em "Pagar" para ser redirecionado para o PayPal e aprovar o pagamento.</p>
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
-            <!-- Formulário customizado para os dados do cartão -->
-            <div id="card-payment-form">
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label for="card-type">Tipo do Cartão</label>
-                  <select id="card-type">
-                    <option value="CREDIT">Crédito</option>
-                    <option value="DEBIT">Débito</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-field">
-                <label for="card-number">Número do Cartão</label>
-                <input type="text" id="card-number" placeholder="Digite o número do cartão" />
-              </div>
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label for="card-expiration">Vencimento (MM/AA)</label>
-                  <input type="text" id="card-expiration" placeholder="MM/AA" />
-                </div>
-                <div class="form-field">
-                  <label for="card-csc">CSC</label>
-                  <input type="text" id="card-csc" placeholder="Código de Segurança" />
-                </div>
-              </div>
-              <div class="navigation">
-                <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-                <button class="btn-save-passenger" id="submitCardPayment">Pagar</button>
-              </div>
+            <div class="navigation">
+              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <button class="btn-save-passenger" id="submitCardPayment">Pagar</button>
             </div>
           </div>
         </div>
@@ -686,19 +450,10 @@
         showStep(2);
       });
       
-      // Função para processar o pagamento com os dados do cartão (BCDC)
+      // Função para processar o pagamento: chama /api/create-order e redireciona para o link de aprovação do PayPal
       document.getElementById("submitCardPayment").addEventListener("click", () => {
-        // Coleta os dados do cartão
-        const cardDetails = {
-          type: document.getElementById("card-type").value,
-          number: document.getElementById("card-number").value,
-          expiration: document.getElementById("card-expiration").value, // Ex: "12/25"
-          csc: document.getElementById("card-csc").value
-        };
-        // Adiciona os dados do cartão ao checkoutData
-        checkoutData.cardDetails = cardDetails;
-        
-        // Cria o pedido chamando o endpoint backend (/api/create-order)
+        // Neste fluxo, não usamos os dados do cartão no front-end;
+        // o usuário será redirecionado para o PayPal para aprovar o pagamento.
         fetch("/api/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -710,22 +465,14 @@
         })
         .then(res => res.json())
         .then(order => {
-          const orderId = order.id;
-          // Captura o pedido chamando o endpoint backend (/api/capture-order)
-          return fetch("/api/capture-order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: orderId })
-          });
-        })
-        .then(res => res.json())
-        .then(captureResult => {
-          alert("Pagamento realizado com sucesso!");
-          // Aqui você pode redirecionar ou atualizar a interface conforme necessário
+          // Procura o link de aprovação
+          const approveLink = order.links.find(link => link.rel === "approve").href;
+          // Redireciona o usuário para a página do PayPal para aprovação do pagamento
+          window.location.href = approveLink;
         })
         .catch(err => {
-          console.error("Erro no pagamento com cartão:", err);
-          alert("Erro no pagamento. Tente novamente.");
+          console.error("Erro ao criar pedido:", err);
+          alert("Erro ao criar o pedido. Tente novamente.");
         });
       });
       
@@ -757,8 +504,6 @@
         });
         container.innerHTML = html;
         document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        
-        // Exemplo: desconto fixo de R$500,00
         const discount = 500;
         document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
