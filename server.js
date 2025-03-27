@@ -41,7 +41,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
-import payRouter from "./routes/pay.routes.js"; // Rota para pagamento com PayPal
+import payRouter from "./routes/pay.routes.js"; // Importação única da rota de pagamento com PayPal
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
@@ -52,7 +52,7 @@ app.get("/api/affiliateColors", getAffiliateColors);
 
 // ------------------------------------------------------
 // Usar a rota do PayPal
-app.use("/api/pay", payRouter); // Integrando a rota de pagamento PayPal
+app.use("/api/pay", payRouter); // Integrando a rota de pagamento com o PayPal
 
 // ------------------------------------------------------
 // Rota principal (teste)
@@ -190,11 +190,6 @@ app.post("/proxy-hotelbeds", async (req, res) => {
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
   }
 });
-
-// ------------------------------------------------------
-// Usando a rota do PayPal (sem SDK, via API)
-import payRouter from './routes/pay.routes.js';
-app.use("/api/pay", payRouter); // Integrando a rota de pagamento com o PayPal
 
 // ------------------------------------------------------
 // Iniciar o servidor localmente (para ambiente não serverless)
