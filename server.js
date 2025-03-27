@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
-import checkoutNodeJssdk from "@paypal/checkout-server-sdk"; // SDK do PayPal
+import payRouter from "./routes/pay.routes.js"; // Rota do PayPal
 
 // 1) Carregar variáveis do .env
 dotenv.config();
@@ -42,20 +42,23 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
-import payRouter from "./routes/pay.routes.js";
 
+// Usar rotas existentes
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
 app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
-app.use("/api/pay", payRouter); // Rota para pagamento inline com parcelamento
+
+// ------------------------------------------------------
+// Rota para integração do PayPal
+app.use("/api/pay", payRouter); // Rota para pagamento com PayPal
 
 // ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integração das APIs Hotelbeds e PayPal!");
+  res.send("Olá, API rodando com ESM, Express e integração com PayPal!");
 });
 
 // ------------------------------------------------------
@@ -193,68 +196,8 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 // Endpoints do PayPal (fluxo padrão para BCDC)
 // ------------------------------------------------------
 
-// Endpoint para criar um pedido no PayPal
-app.post("/api/create-order", async (req, res) => {
-  try {
-    // Recebe os dados do pedido do front-end (ex.: amount, currency, checkoutData)
-    const { amount, currency } = req.body;
-
-    const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-    request.prefer("return=representation");
-    request.requestBody({
-      intent: "CAPTURE",
-      purchase_units: [{
-        amount: { 
-          currency_code: currency || "BRL", 
-          value: amount || "100.00" 
-        }
-      }],
-      application_context: {
-        return_url: process.env.RETURN_URL || "http://localhost:3000/return",
-        cancel_url: process.env.CANCEL_URL || "http://localhost:3000/cancel"
-      }
-    });
-    
-    const paypalHttpClient = new checkoutNodeJssdk.core.PayPalHttpClient(
-      new checkoutNodeJssdk.core.SandboxEnvironment(
-        process.env.PAYPAL_CLIENT_ID,
-        process.env.PAYPAL_CLIENT_SECRET
-      )
-    );
-    
-    const response = await paypalHttpClient.execute(request);
-    res.status(200).json(response.result);
-  } catch (err) {
-    console.error("Erro ao criar pedido no PayPal:", err);
-    res.status(500).json({ error: err.toString() });
-  }
-});
-
-// Endpoint para capturar um pedido no PayPal
-app.post("/api/capture-order", async (req, res) => {
-  try {
-    const { orderId } = req.body;
-    if (!orderId) {
-      return res.status(400).json({ error: "orderId é obrigatório" });
-    }
-    
-    const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderId);
-    request.requestBody({});
-    
-    const paypalHttpClient = new checkoutNodeJssdk.core.PayPalHttpClient(
-      new checkoutNodeJssdk.core.SandboxEnvironment(
-        process.env.PAYPAL_CLIENT_ID,
-        process.env.PAYPAL_CLIENT_SECRET
-      )
-    );
-    
-    const response = await paypalHttpClient.execute(request);
-    res.status(200).json(response.result);
-  } catch (err) {
-    console.error("Erro ao capturar pedido no PayPal:", err);
-    res.status(500).json({ error: err.toString() });
-  }
-});
+// Agora você pode acessar a integração do PayPal via as rotas de /api/pay criadas no arquivo pay.routes.js
+// Já importamos e configuramos a rota /api/pay
 
 // ------------------------------------------------------
 // Exemplo: rota dinâmica usando Supabase (busca "parks")
