@@ -1,6 +1,6 @@
 // routes/braintreeRoutes.js
 import express from "express";
-import { gateway } from "../api/braintree.js";  // certifique-se do caminho correto
+import { gateway } from "../api/braintree.js"; // ajuste o caminho se necessário
 
 const router = express.Router();
 
@@ -15,18 +15,23 @@ router.get("/get-client-token", async (req, res) => {
 });
 
 router.post("/create-transaction", async (req, res) => {
-  const { paymentMethodNonce, amount, customer, billing } = req.body;
+  const { paymentMethodNonce, amount, customer, billing, installments } = req.body;
   try {
     const saleRequest = {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
+      merchantAccountId: "7jhfwkgqsgq2fpg", // Sua merchant account para BRL
+      // Se o campo installments foi enviado, adiciona-o à requisição
+      ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
       options: {
         submitForSettlement: true
       }
     };
+    
     const result = await gateway.transaction.sale(saleRequest);
+    
     if (result.success) {
       return res.json({ success: true, transactionId: result.transaction.id });
     } else {
