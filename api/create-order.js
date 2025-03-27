@@ -1,18 +1,6 @@
 // api/create-order.js
 import checkoutNodeJssdk from '@paypal/checkout-server-sdk';
-import { paypalClient } from './paypalClient';
-
-// Função auxiliar para converter o vencimento do cartão de "MM/AA" para "YYYY-MM"
-function convertExpiration(expiration) {
-  const parts = expiration.split("/");
-  if (parts.length !== 2) return expiration;
-  const month = parts[0].trim();
-  let year = parts[1].trim();
-  if (year.length === 2) {
-    year = "20" + year;
-  }
-  return `${year}-${month.padStart(2, '0')}`;
-}
+import { paypalClient } from './paypalClient.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -22,8 +10,37 @@ export default async function handler(req, res) {
   
   const { amount, currency, checkoutData } = req.body;
   
-  // Monta o corpo da requisição para criar o pedido
-  let requestBody = {
+  // Se houver dados do cartão, prepare o objeto payment_source
+  let payment_source;
+  if (checkoutData && checkoutData.cardDetails) {
+    const card = checkoutData.cardDetails;
+    // Supõe que o usuário digita no formato "MM/YY". Converte para "YYYY-MM"
+    const [month, year] = card.expiration.split("/");
+    const expiry = `20${year}-${month.padStart(2, '0')}`;
+    
+    payment_source = {
+      card: {
+        number: card.number,
+        expiry: expiry,
+        security_code: card.csc,
+        name: `${checkoutData.firstName || ""} ${checkoutData.lastName || ""}`.trim(),
+        billing_address: {
+          address_line_1: checkoutData.address || "",
+          address_line_2: checkoutData.number || "",
+          admin_area_2: checkoutData.city || "",
+          admin_area_1: checkoutData.state || "",
+          postal_code: checkoutData.cep || "",
+          country_code: "BR"
+        }
+      }
+    };
+  }
+  
+  // Cria o payload para a criação do pedido
+  const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
+  request.prefer("return=representation");
+  
+  const bodyPayload = {
     intent: "CAPTURE",
     purchase_units: [{
       amount: {
@@ -32,51 +49,24 @@ export default async function handler(req, res) {
       }
     }],
     application_context: {
-      return_url: process.env.RETURN_URL || "http://localhost:3000/return",
-      cancel_url: process.env.CANCEL_URL || "http://localhost:3000/cancel"
+      return_url: process.env.RETURN_URL || "https://business.airland.com.br/return",
+      cancel_url: process.env.CANCEL_URL || "https://business.airland.com.br/cancel"
     }
   };
   
-  // Cria o pedido
-  const createRequest = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-  createRequest.prefer("return=representation");
-  createRequest.requestBody(requestBody);
+  // Se payment_source foi definido, inclua-o no payload
+  if (payment_source) {
+    bodyPayload.payment_source = payment_source;
+  }
+  
+  request.requestBody(bodyPayload);
   
   try {
-    const createResponse = await paypalClient().execute(createRequest);
-    const order = createResponse.result;
-    
-    // Se os dados do cartão estiverem presentes, anexa o payment_source via PATCH
-    if (checkoutData && checkoutData.cardDetails) {
-      const card = checkoutData.cardDetails;
-      const patchRequest = new checkoutNodeJssdk.orders.OrdersPatchRequest(order.id);
-      patchRequest.requestBody([
-        {
-          op: "add",
-          path: "/payment_source",
-          value: {
-            card: {
-              name: `${checkoutData.firstName} ${checkoutData.lastName}`,
-              number: card.number,
-              expiry: convertExpiration(card.expiration),
-              security_code: card.csc,
-              billing_address: {
-                address_line_1: checkoutData.address,
-                admin_area_2: checkoutData.city,
-                admin_area_1: checkoutData.state,
-                postal_code: checkoutData.cep,
-                country_code: "BR"
-              }
-            }
-          }
-        }
-      ]);
-      await paypalClient().execute(patchRequest);
-    }
-    
-    res.status(200).json(order);
+    const response = await paypalClient().execute(request);
+    // Retorna a resposta do PayPal
+    res.status(200).json(response.result);
   } catch (err) {
-    console.error("Erro ao criar/atualizar pedido no PayPal:", err);
+    console.error("Erro ao criar pedido no PayPal:", err);
     res.status(500).json({ error: err.toString() });
   }
 }
