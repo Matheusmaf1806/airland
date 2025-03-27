@@ -641,9 +641,9 @@
       
       // Função para enviar o nonce e os dados para o backend e criar a transação via Braintree
       async function processPayment(nonce) {
-        // Extrair o valor total do pedido do elemento e formatar para um número (exemplo: "R$ 500,00" -> "500.00")
+        // Extrair o valor total do pedido do elemento, remover "R$", substituir vírgula por ponto e garantir duas casas decimais
         let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 500,00"
-        let amount = totalText.replace("R$", "").trim().replace(",", ".");
+        let amount = parseFloat(totalText.replace("R$", "").trim().replace(",", ".")).toFixed(2);
         
         try {
           const res = await fetch('/api/braintree/create-transaction', {
