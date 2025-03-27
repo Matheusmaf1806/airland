@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Versão Final com PayPal Integrado
+// server.js (ESM) - Versão Final com Integração de Hotelbeds, PayPal e Braintree
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -41,7 +41,7 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
-import payRouter from "./routes/pay.routes.js"; // Importação única da rota de pagamento com PayPal
+import payRouter from "./routes/pay.routes.js"; // Rota de pagamento (PayPal ou outra integração)
 
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
@@ -51,13 +51,13 @@ app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
 
 // ------------------------------------------------------
-// Usar a rota do PayPal
-app.use("/api/pay", payRouter); // Integrando a rota de pagamento com o PayPal
+// Usar a rota do PayPal (se aplicável)
+app.use("/api/pay", payRouter); // Rota para integração com PayPal
 
 // ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integração das APIs Hotelbeds e PayPal!");
+  res.send("Olá, API rodando com ESM, Express e integrações das APIs Hotelbeds, PayPal e Braintree!");
 });
 
 // ------------------------------------------------------
@@ -188,6 +188,43 @@ app.post("/proxy-hotelbeds", async (req, res) => {
   } catch (err) {
     console.error("Erro ao buscar dados dos hotéis:", err);
     res.status(500).json({ error: "Erro interno ao buscar hotéis" });
+  }
+});
+
+// ------------------------------------------------------
+// ENDPOINTS PARA INTEGRAÇÃO COM BRAINTREE (Checkout 100% Transparente)
+// ------------------------------------------------------
+import { gateway } from "./config/braintree.js";
+
+app.get("/api/braintree/get-client-token", async (req, res) => {
+  try {
+    const response = await gateway.clientToken.generate({});
+    res.json({ clientToken: response.clientToken });
+  } catch (error) {
+    console.error("Erro ao gerar client token Braintree:", error);
+    res.status(500).json({ error: "Erro ao gerar client token" });
+  }
+});
+
+app.post("/api/braintree/create-transaction", async (req, res) => {
+  const { paymentMethodNonce, amount } = req.body;
+  try {
+    const saleRequest = {
+      amount: amount,
+      paymentMethodNonce: paymentMethodNonce,
+      options: {
+        submitForSettlement: true
+      }
+    };
+    const result = await gateway.transaction.sale(saleRequest);
+    if (result.success) {
+      return res.json({ success: true, transactionId: result.transaction.id });
+    } else {
+      return res.status(500).json({ success: false, message: result.message });
+    }
+  } catch (error) {
+    console.error("Erro ao criar transação Braintree:", error);
+    res.status(500).json({ success: false, message: error.toString() });
   }
 });
 
