@@ -1,6 +1,6 @@
-// api/create-order.js
+// /api/create-order.js
 import checkoutNodeJssdk from '@paypal/checkout-server-sdk';
-import { paypalClient } from './paypalClient';
+import { paypalClient } from './paypalClient'; // Certifique-se de que este arquivo exporta a função paypalClient() corretamente
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,21 +8,21 @@ export default async function handler(req, res) {
     return;
   }
   
-  // Recebe os dados do pedido enviados pelo front-end
+  // Extrai os dados enviados pelo front-end
   const { amount, currency, checkoutData } = req.body;
   const cardDetails = checkoutData.cardDetails;
   const payerName = `${checkoutData.firstName} ${checkoutData.lastName}`;
   
-  // Monta o payload com a fonte de pagamento usando os dados do cartão
+  // Monta o payload para criar o pedido com pagamento direto via cartão (BCDC)
   const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
   request.prefer("return=representation");
   request.requestBody({
     intent: "CAPTURE",
     payment_source: {
       card: {
-        type: cardDetails.type,               // "CREDIT" ou "DEBIT"
+        type: cardDetails.type,            // "CREDIT" ou "DEBIT"
         number: cardDetails.number,
-        expiry: cardDetails.expiration,         // Deve estar no formato "AAAA-MM"
+        expiry: cardDetails.expiration,      // Formato: "AAAA-MM"
         security_code: cardDetails.csc,
         name: payerName,
         billing_address: {
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   
   try {
     const response = await paypalClient().execute(request);
-    // Retorna o resultado para o front-end (incluindo o id do pedido)
+    // Retorna a resposta completa (incluindo o id do pedido)
     res.status(200).json(response.result);
   } catch (err) {
     console.error("Erro na criação do pedido:", err);
