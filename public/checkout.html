@@ -12,6 +12,7 @@
           COMMON CSS
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+      
       html { scroll-behavior: smooth; }
       body {
         font-family: "Montserrat", sans-serif !important;
@@ -374,9 +375,8 @@
       
       // Função para processar o pagamento com os dados do cartão (BCDC)
       document.getElementById("submitCardPayment").addEventListener("click", () => {
-        // Coleta os dados do cartão
+        // Coleta os dados do cartão e converte o vencimento se necessário
         let expiration = document.getElementById("card-expiration").value.trim();
-        // Se o usuário digitar no formato "MM/AA", converte para "20AA-MM"
         if(expiration.includes("/")){
           const parts = expiration.split("/");
           if(parts[0].length === 2 && parts[1].length === 2){
@@ -451,7 +451,6 @@
         });
         container.innerHTML = html;
         document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        // Exemplo: desconto fixo de R$500,00
         const discount = 500;
         document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
