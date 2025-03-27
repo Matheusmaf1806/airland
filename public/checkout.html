@@ -5,10 +5,9 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carrega o SDK do PayPal com os componentes necessários -->
-    <script
-      src="https://www.paypal.com/sdk/js?client-id=AfYsAaShEQPUxa3lc79_lSL4We5EVmQbqkBbRHvsXtDjfWirAEAEypTWwCmRPJPsylE24577VA4Gwf6L&components=buttons,hosted-fields&currency=BRL&intent=capture">
-    </script>
+    <!-- Carrega as bibliotecas do Braintree -->
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <style>
       /* ===========================
           COMMON CSS
@@ -290,9 +289,6 @@
       
       .mt-10 { margin-top: 10px; }
       .mb-10 { margin-bottom: 10px; }
-      
-      /* Oculta o elemento "paypal-powered-by", se presente */
-      .paypal-powered-by { display: none !important; }
     </style>
   </head>
   <body>
@@ -424,15 +420,31 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento -->
+        <!-- Step 3: Pagamento com Braintree -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e conclua o pagamento através do PayPal.</p>
+            <p>Revise seus dados e conclua o pagamento.</p>
             <!-- Exibe o resumo dos dados pessoais já coletados -->
             <div id="summaryData"></div>
-            <!-- Container para renderizar o botão do PayPal -->
-            <div id="paypal-button-container"></div>
+            <!-- Formulário para pagamento via Braintree -->
+            <form id="checkout-form">
+              <div class="form-field">
+                <label>Número do Cartão</label>
+                <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
+              </div>
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Data de Expiração (MM/AA)</label>
+                  <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
+                </div>
+                <div class="form-field">
+                  <label>CVV</label>
+                  <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
+                </div>
+              </div>
+              <button type="submit" class="btn-pay-pal">Pagar</button>
+            </form>
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
@@ -559,55 +571,92 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
-        renderPayPalButton(); // Renderiza o botão do PayPal ao entrar na etapa de pagamento
+        initializeBraintree(); // Inicializa a integração Braintree na etapa de pagamento
       });
       
       // Navegação: Voltar para etapas anteriores
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Função para renderizar o botão do PayPal usando o SDK e integrando com seus endpoints
-      function renderPayPalButton() {
-        const container = document.getElementById("paypal-button-container");
-        // Evita re-renderizar se já existir um botão
-        if (container.childElementCount === 0) {
-          paypal.Buttons({
-            createOrder: function(data, actions) {
-              // Chama o endpoint do backend para criar o pedido com configuração de parcelamento
-              return fetch('/api/create-order', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ amount: "500.00" })
-              })
-              .then(function(res) { return res.json(); })
-              .then(function(orderData) {
-                return orderData.id; // Retorna o ID do pedido criado
-              });
+      // Função para inicializar a Braintree e criar os Hosted Fields
+      async function initializeBraintree() {
+        // Obter o client token do backend
+        const res = await fetch('/api/braintree/get-client-token');
+        const data = await res.json();
+        const clientToken = data.clientToken;
+        
+        braintree.client.create({
+          authorization: clientToken
+        }, (clientErr, clientInstance) => {
+          if (clientErr) {
+            console.error("Erro ao criar o client Braintree:", clientErr);
+            alert("Erro na inicialização do pagamento. Tente novamente.");
+            return;
+          }
+          // Criar os Hosted Fields
+          braintree.hostedFields.create({
+            client: clientInstance,
+            styles: {
+              'input': { 'font-size': '16px', 'color': '#333' },
+              'input.invalid': { 'color': 'red' },
+              'input.valid': { 'color': 'green' }
             },
-            onApprove: function(data, actions) {
-              // Após a aprovação, chama o endpoint do backend para capturar o pagamento
-              return fetch('/api/capture-order', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ orderId: data.orderID })
-              })
-              .then(function(res) { return res.json(); })
-              .then(function(details) {
-                console.log('Pagamento aprovado:', details);
-                alert('Pagamento aprovado! ID: ' + details.id);
-                // Avança para o Step 4 (confirmação)
-                showStep(4);
-              });
-            },
-            onError: function(err) {
-              console.error('Erro no pagamento:', err);
-              alert('Ocorreu um erro no pagamento. Por favor, tente novamente.');
+            fields: {
+              number: {
+                selector: '#card-number',
+                placeholder: 'Número do Cartão'
+              },
+              cvv: {
+                selector: '#cvv',
+                placeholder: 'CVV'
+              },
+              expirationDate: {
+                selector: '#expiration-date',
+                placeholder: 'MM/AA'
+              }
             }
-          }).render('#paypal-button-container');
+          }, (hostedFieldsErr, hostedFieldsInstance) => {
+            if (hostedFieldsErr) {
+              console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
+              alert("Erro ao configurar os campos de pagamento.");
+              return;
+            }
+            // Lidar com o envio do formulário para tokenizar os dados do cartão
+            const form = document.getElementById('checkout-form');
+            form.addEventListener('submit', (event) => {
+              event.preventDefault();
+              hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
+                if (tokenizeErr) {
+                  console.error("Erro ao tokenizar:", tokenizeErr);
+                  alert("Erro ao processar os dados do cartão.");
+                  return;
+                }
+                // Enviar o nonce para criar a transação
+                processPayment(payload.nonce);
+              });
+            });
+          });
+        });
+      }
+      
+      // Função para enviar o nonce para o backend e criar a transação via Braintree
+      async function processPayment(nonce) {
+        try {
+          const res = await fetch('/api/braintree/create-transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentMethodNonce: nonce, amount: "500.00" })
+          });
+          const result = await res.json();
+          if (result.success) {
+            alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
+            showStep(4);
+          } else {
+            alert("Falha no pagamento: " + result.message);
+          }
+        } catch (error) {
+          console.error("Erro ao processar o pagamento:", error);
+          alert("Erro ao processar o pagamento. Tente novamente.");
         }
       }
       
