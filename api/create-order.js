@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       card: {
         type: cardDetails.type,               // "CREDIT" ou "DEBIT"
         number: cardDetails.number,
-        expiry: cardDetails.expiration,         // Formato: "MM/AA"
+        expiry: cardDetails.expiration,         // Deve estar no formato "AAAA-MM"
         security_code: cardDetails.csc,
         name: payerName,
         billing_address: {
