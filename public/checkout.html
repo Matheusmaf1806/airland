@@ -645,9 +645,9 @@
         // Exemplo: "R$ 8.247,20" -> remove "R$", remove pontos de milhar, substitui vírgula por ponto e garante duas casas decimais
         let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 8.247,20"
         let amount = totalText.replace("R$", "").trim();
-        // Remover pontos de milhar e substituir vírgula por ponto
+        // Remove todos os pontos de milhar e substitui a vírgula por ponto
         amount = amount.replace(/\./g, "").replace(",", ".");
-        // Garantir duas casas decimais
+        // Converte para número e garante duas casas decimais
         amount = parseFloat(amount).toFixed(2);
         
         try {
