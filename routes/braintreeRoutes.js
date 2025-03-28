@@ -4,6 +4,11 @@ import { gateway } from "../api/braintree.js"; // ajuste o caminho conforme sua 
 
 const router = express.Router();
 
+/*
+  Endpoint para gerar o client token.
+  Esse token é utilizado no front-end para inicializar as bibliotecas do Braintree,
+  seja para Cartão (com ou sem 3DS), PayPal ou Google Pay.
+*/
 router.get("/get-client-token", async (req, res) => {
   try {
     const response = await gateway.clientToken.generate({});
@@ -14,6 +19,16 @@ router.get("/get-client-token", async (req, res) => {
   }
 });
 
+/*
+  Endpoint para criar a transação.
+  Esse endpoint recebe o nonce final (que pode ser originado de um cartão (com 3DS), PayPal ou Google Pay)
+  e os dados da transação, incluindo o valor, informações do cliente, de cobrança e, opcionalmente,
+  o número de parcelas (installments).
+  
+  Note que o campo installments é adicionado condicionalmente se for enviado no corpo da requisição.
+  
+  O campo merchantAccountId é fixo para sua conta BRL.
+*/
 router.post("/create-transaction", async (req, res) => {
   const { paymentMethodNonce, amount, customer, billing, installments } = req.body;
   try {
@@ -21,7 +36,7 @@ router.post("/create-transaction", async (req, res) => {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
       merchantAccountId: "7jhfwkgqsgq2fpg", // Sua merchant account para BRL
-      // Se o número de parcelas for enviado, adiciona o campo installments
+      // Adiciona o parcelamento se o campo installments estiver presente
       ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
