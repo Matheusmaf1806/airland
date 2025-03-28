@@ -353,11 +353,11 @@
     <div class="main-container">
       <!-- COLUNA ESQUERDA (STEPS) -->
       <div class="left-col">
-        <!-- STEP 1: Dados Pessoais -->
+        <!-- STEP 1: Dados Pessoais e Nomeação de Passageiro -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
             <h2>Dados Pessoais</h2>
-            <!-- Link para Login (apenas exibido se o usuário não estiver logado) -->
+            <!-- Link para Login (exibido se o usuário não estiver logado) -->
             <div style="text-align: right; margin-bottom: 1rem;">
               <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
             </div>
@@ -405,15 +405,15 @@
               <div class="fields-grid-3cols">
                 <div class="form-field">
                   <label>CPF</label>
-                  <input type="text" id="cpf" placeholder="123.456.789-00">
+                  <input type="text" id="cpf" placeholder="123.456.789-00" pattern="^\d{3}\.\d{3}\.\d{3}-\d{2}$">
                 </div>
                 <div class="form-field">
                   <label>RG</label>
-                  <input type="text" id="rg" placeholder="12.345.678-9">
+                  <input type="text" id="rg" placeholder="12.345.678-9" pattern="^\d{1,2}\.\d{3}\.\d{3}-[\dXx]$">
                 </div>
                 <div class="form-field">
                   <label>Data de Nascimento</label>
-                  <input type="date" id="birthdate">
+                  <input type="date" id="birthdate" placeholder="dd/mm/aaaa">
                 </div>
               </div>
               <!-- Grid 5: CEP, Estado e Cidade -->
@@ -459,6 +459,25 @@
               <div style="text-align: right; margin-top: 10px;">
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
+            </div>
+
+            <!-- Seção para Nomeação de Passageiro -->
+            <div id="passengersContainer" style="margin-top: 2rem;">
+              <h3>Dados do Passageiro 1</h3>
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Nome Completo</label>
+                  <input type="text" id="passenger1Name" placeholder="Nome Completo">
+                </div>
+                <div class="form-field">
+                  <label>Data de Nascimento</label>
+                  <input type="date" id="passenger1Birthdate" placeholder="dd/mm/aaaa">
+                </div>
+              </div>
+            </div>
+            <!-- Botão para adicionar passageiros (exibido se houver mais de um adulto) -->
+            <div id="addPassengerButtonContainer" style="margin-top: 1rem; text-align: right; display: none;">
+              <button class="btn-save-passenger" id="addPassengerBtn">Adicionar Passageiro</button>
             </div>
 
             <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
@@ -631,6 +650,7 @@
          LÓGICA DE MULTI-STEP E INTEGRAÇÃO BRAINTREE
          ============================================= */
       let checkoutData = {};
+      let passengerCount = 1; // Já há o primeiro passageiro
 
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
@@ -641,7 +661,7 @@
       const toStep3Btn = document.getElementById("toStep3");
       const backToStep2Btn = document.getElementById("backToStep2");
 
-      // Exibe um step e oculta os demais
+      // Função para exibir o step correto
       function showStep(stepNumber) {
         stepContents.forEach((content) => {
           content.classList.toggle("active", content.dataset.step === String(stepNumber));
@@ -958,10 +978,12 @@
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
+        let totalAdults = 0;
         let html = "";
         items.forEach((item) => {
           let price = item.basePriceAdult || 80;
           subtotal += price;
+          totalAdults += item.adults || 1;
           html += `
             <div class="reserva-item">
               <div class="reserva-left">
@@ -986,9 +1008,16 @@
         document.getElementById("discountValue").textContent = "- R$ 0,00";
         document.getElementById("totalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
+        // Exibe o botão "Adicionar Passageiro" se houver mais de 1 adulto
+        if (totalAdults > 1) {
+          document.getElementById("addPassengerButtonContainer").style.display = "block";
+        } else {
+          document.getElementById("addPassengerButtonContainer").style.display = "none";
+        }
       }
 
-      // Ao carregar a página, atualiza o carrinho e verifica login
+      // Ao carregar a página, atualiza o carrinho e verifica se o usuário está logado
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
@@ -1008,7 +1037,7 @@
         const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
         const loginFields = document.getElementById("loginFields");
         if (isLoggedIn) {
-          // Usuário logado: esconde o link e os campos de registro (gerais)
+          // Se estiver logado, esconde o link e os campos gerais de registro
           toggleLoginLink.style.display = "none";
           registrationFieldsGeneral.style.display = "none";
           loginFields.style.display = "none";
@@ -1021,7 +1050,6 @@
       /* ===================== LOGIN/REGISTRO ===================== */
       const toggleLogin = document.getElementById("toggleLogin");
       const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-      const documentFields = document.getElementById("documentFields");
       const loginFields = document.getElementById("loginFields");
 
       if (toggleLogin) {
@@ -1056,7 +1084,7 @@
             if(data.success) {
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              // Ao logar, esconde os campos de registro geral e o link de login
+              // Ao logar, esconde os campos gerais e o link de login
               toggleLogin.style.display = "none";
               registrationFieldsGeneral.style.display = "none";
               loginFields.style.display = "none";
@@ -1098,6 +1126,28 @@
       
       document.getElementById("cep").addEventListener("blur", function() {
         buscarCEP(this.value);
+      });
+
+      /* ===================== ADICIONAR PASSAGEIRO ===================== */
+      const addPassengerBtn = document.getElementById("addPassengerBtn");
+      addPassengerBtn?.addEventListener("click", () => {
+        passengerCount++;
+        const container = document.getElementById("passengersContainer");
+        const passengerBlock = document.createElement("div");
+        passengerBlock.innerHTML = `
+          <h3>Dados do Passageiro ${passengerCount}</h3>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Nome Completo</label>
+              <input type="text" name="passengerName_${passengerCount}" placeholder="Nome Completo">
+            </div>
+            <div class="form-field">
+              <label>Data de Nascimento</label>
+              <input type="date" name="passengerBirthdate_${passengerCount}" placeholder="dd/mm/aaaa">
+            </div>
+          </div>
+        `;
+        container.appendChild(passengerBlock);
       });
     </script>
   </body>
