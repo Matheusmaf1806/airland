@@ -12,6 +12,7 @@
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
+    
     <style>
       /* ===========================
           COMMON CSS
@@ -179,9 +180,16 @@
       }
       
       /* ================= MULTI-STEP ================== */
-      .step-content { display: none; }
-      .step-content.active { display: block; }
-      .navigation { margin-top: 1rem; text-align: right; }
+      .step-content {
+        display: none;
+      }
+      .step-content.active {
+        display: block;
+      }
+      .navigation {
+        margin-top: 1rem;
+        text-align: right;
+      }
       .traveler-form-header {
         display: flex;
         align-items: center;
@@ -305,12 +313,58 @@
       }
       
       @media (max-width: 768px) {
-        .main-container { flex-direction: column; }
-        .right-col { width: 100%; }
+        .main-container {
+          flex-direction: column;
+        }
+        .right-col {
+          width: 100%;
+        }
       }
       
-      .mt-10 { margin-top: 10px; }
-      .mb-10 { margin-bottom: 10px; }
+      .mt-10 {
+        margin-top: 10px;
+      }
+      .mb-10 {
+        margin-bottom: 10px;
+      }
+      
+      /* ==================== ESTILOS ADICIONAIS PARA A ETAPA 3 (PAGAMENTO) ==================== */
+      .form-field div[id^="card-"] {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        height: 45px; 
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        background: #fdfdfd;
+      }
+      .form-field div[id^="card-"]:focus-within {
+        border-color: #007aff;
+      }
+      /* Melhorar a aparência dos radios de pagamento */
+      .form-field div {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+      .form-field div label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .form-field div input[type="radio"] {
+        margin-right: 5px;
+      }
+      /* Botão de pagar */
+      #checkout-form button.btn-pay-pal {
+        margin-top: 1rem;
+        width: 100%;
+      }
+      /* Container do PayPal e Google Pay */
+      #paypal-container, #google-pay-container {
+        margin-top: 1rem;
+      }
     </style>
   </head>
   <body>
@@ -484,16 +538,16 @@
               <form id="checkout-form">
                 <div class="form-field">
                   <label>Número do Cartão</label>
-                  <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
+                  <div id="card-number"></div>
                 </div>
                 <div class="fields-grid-2cols">
                   <div class="form-field">
                     <label>Data de Expiração (MM/AA)</label>
-                    <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
+                    <div id="expiration-date"></div>
                   </div>
                   <div class="form-field">
                     <label>CVV</label>
-                    <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
+                    <div id="cvv"></div>
                   </div>
                 </div>
                 <button type="submit" class="btn-pay-pal">Pagar</button>
@@ -714,7 +768,7 @@
                     return;
                   }
                   const amount = getOrderAmount();
-                  // Certifique-se de que o payload possui os detalhes com o BIN
+                  // Se for usar 3DS, precisamos do BIN do cartão
                   if (!payload.details || !payload.details.bin) {
                     alert("Erro: BIN do cartão não disponível. Verifique se o cartão foi digitado corretamente.");
                     return;
@@ -722,7 +776,7 @@
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
-                    bin: payload.details.bin, // Adiciona o BIN conforme requerido
+                    bin: payload.details.bin,
                     onLookupComplete: (data, next) => { next(); }
                   }, (verifyErr, threeDSecurePayload) => {
                     if(verifyErr) {
@@ -799,7 +853,7 @@
               braintree.googlePayment.create({
                 client: clientInstance,
                 googlePayVersion: 2,
-                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID' // Substitua pelo seu Google Merchant ID
+                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID'
               }, (err, googlePaymentInstance) => {
                 if(err) {
                   console.error("Erro ao criar Google Pay:", err);
@@ -839,9 +893,9 @@
         amount = parseFloat(amount).toFixed(2);
         
         let installments = "1";
-        if(method === "card") {
+        if (method === "card") {
           const installmentsSelect = document.getElementById("installments");
-          if(installmentsSelect) {
+          if (installmentsSelect) {
             installments = installmentsSelect.value;
           }
         }
@@ -929,11 +983,11 @@
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
-        if(cart && cart.items && cart.items.length > 0) {
+        if (cart && cart.items && cart.items.length > 0) {
           items = cart.items;
         } else {
           const savedCart = localStorage.getItem("cartItems");
-          if(savedCart) {
+          if (savedCart) {
             items = JSON.parse(savedCart);
           }
         }
