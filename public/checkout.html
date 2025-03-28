@@ -8,25 +8,41 @@
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
-    <!-- Observe que o arquivo correto é "three-d-secure.min.js" -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
     <style>
       /* ===== FONT & RESET ===== */
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html { scroll-behavior: smooth; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
       body {
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
         color: #5d657b;
         background: #f1f5f9;
       }
-      a:focus, input:focus, textarea:focus, button:focus { outline: none; box-shadow: none; }
-      a:hover { color: #365cf5; }
-      button, a { transition: all 0.3s ease-out; }
-      
+      a:focus,
+      input:focus,
+      textarea:focus,
+      button:focus {
+        outline: none;
+        box-shadow: none;
+      }
+      a:hover {
+        color: #365cf5;
+      }
+      button,
+      a {
+        transition: all 0.3s ease-out;
+      }
+
       /* ===== GLOBAL LAYOUT ===== */
       .main-container {
         width: 90%;
@@ -35,9 +51,14 @@
         display: flex;
         gap: 2rem;
       }
-      .left-col { flex: 1; }
-      .right-col { width: 400px; flex-shrink: 0; }
-      
+      .left-col {
+        flex: 1;
+      }
+      .right-col {
+        width: 400px;
+        flex-shrink: 0;
+      }
+
       /* ===== STEPS MENU ===== */
       .steps-menu {
         background-color: #365cf5;
@@ -67,28 +88,48 @@
         justify-content: center;
         font-weight: 700;
       }
-      .steps-menu .separator { color: #fff; font-weight: bold; }
+      .steps-menu .separator {
+        color: #fff;
+        font-weight: bold;
+      }
       .steps-menu .step.active .circle {
         background-color: #fff;
         color: #365cf5;
         border: 2px solid #fff;
       }
-      .steps-menu .step.disabled { opacity: 0.6; cursor: not-allowed; }
-      
+      .steps-menu .step.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
       /* ===== CARD STYLE ===== */
       .card-style-1 {
         background: #fff;
         border: 1px solid #efefef;
         border-radius: 10px;
         padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+        box-shadow: 0px 12px 24px -4px rgba(145, 158, 171, 0.12);
         margin-bottom: 20px;
       }
-      
+
       /* ===== FORMULÁRIOS & CAMPOS ===== */
-      .fields-grid-2cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem; }
-      .fields-grid-3cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
-      .form-field { display: flex; flex-direction: column; margin-bottom: 1rem; }
+      .fields-grid-2cols {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .fields-grid-3cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+      }
       .form-field label {
         font-size: 0.85rem;
         color: #666;
@@ -103,11 +144,18 @@
         border-radius: 4px;
       }
       .form-field input:focus,
-      .form-field select:focus { border-color: #007aff; }
-      .form-note { font-size: 0.75rem; color: #888; margin-top: 1rem; }
-      
+      .form-field select:focus {
+        border-color: #007aff;
+      }
+      .form-note {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 1rem;
+      }
+
       /* ===== BOTÕES ===== */
-      .btn-save-passenger, .btn-pay-pal {
+      .btn-save-passenger,
+      .btn-pay-pal {
         background: #007aff;
         color: #fff;
         border: none;
@@ -116,19 +164,23 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
-      .btn-save-passenger:hover, .btn-pay-pal:hover {
+      .btn-save-passenger:hover,
+      .btn-pay-pal:hover {
         background: #005dbf;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       }
-      .navigation { margin-top: 1rem; text-align: right; }
-      
+      .navigation {
+        margin-top: 1rem;
+        text-align: right;
+      }
+
       /* ===== RESERVATION / CART ===== */
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
         border-radius: 10px;
         padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+        box-shadow: 0px 12px 24px -4px rgba(145, 158, 171, 0.12);
       }
       .reserva-item {
         display: grid;
@@ -139,38 +191,77 @@
         margin-bottom: 0.75rem;
         align-items: center;
       }
-      .reserva-item:last-child { border-bottom: none; margin-bottom: 0; }
-      .reserva-left { display: flex; flex-direction: column; gap: 0.25rem; }
-      .reserva-left .categoria { font-size: 0.85rem; font-weight: 600; color: #007aff; }
-      .reserva-left .nome { font-size: 0.85rem; color: #333; }
-      .reserva-left .subinfo { font-size: 0.8rem; color: #888; }
-      .reserva-preco { font-size: 1rem; font-weight: 700; color: #00c853; text-align: right; }
-      .reserva-details p { font-size: 0.8rem; margin: 2px 0; color: #555; }
+      .reserva-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      .reserva-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .reserva-left .categoria {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #007aff;
+      }
+      .reserva-left .nome {
+        font-size: 0.85rem;
+        color: #333;
+      }
+      .reserva-left .subinfo {
+        font-size: 0.8rem;
+        color: #888;
+      }
+      .reserva-preco {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00c853;
+        text-align: right;
+      }
+      .reserva-details p {
+        font-size: 0.8rem;
+        margin: 2px 0;
+        color: #555;
+      }
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
         border-top: 1px solid #eee;
       }
-      .resumo-compra .resumo-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-      .resumo-compra .resumo-row label { font-weight: 600; }
-      .resumo-compra .resumo-row p { font-weight: 600; margin: 0; }
-      .resumo-compra .cupom { margin-top: 15px; }
-      .resumo-compra .cupom label { font-weight: 600; }
-      
+      .resumo-compra .resumo-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .resumo-compra .resumo-row label {
+        font-weight: 600;
+      }
+      .resumo-compra .resumo-row p {
+        font-weight: 600;
+        margin: 0;
+      }
+      .resumo-compra .cupom {
+        margin-top: 15px;
+      }
+      .resumo-compra .cupom label {
+        font-weight: 600;
+      }
+
       /* ===== STEP 3: PAGAMENTO ===== */
-      /* Área de escolha do método */
       .form-field div {
         display: flex;
         gap: 1rem;
         align-items: center;
         margin-top: 0.5rem;
       }
-      .form-field div label { cursor: pointer; }
+      .form-field div label {
+        cursor: pointer;
+      }
       .form-field div input[type="radio"] {
         margin-right: 5px;
         accent-color: #007aff;
       }
-      /* Container do Cartão de Crédito */
       #card-container {
         margin-top: 1rem;
         background: #fafafa;
@@ -178,7 +269,6 @@
         border-radius: 8px;
         padding: 1.5rem;
       }
-      /* Estilização dos campos de Hosted Fields */
       #card-number,
       #expiration-date,
       #cvv {
@@ -196,7 +286,6 @@
       #cvv:focus-within {
         border-color: #007aff;
       }
-      /* Seletor de Parcelas */
       #installments {
         width: 100px;
         border: 1px solid #ccc;
@@ -204,13 +293,11 @@
         padding: 0.4rem;
         margin-top: 0.2rem;
       }
-      /* Botão de Pagar */
       #checkout-form button.btn-pay-pal {
         margin-top: 1rem;
         width: 100%;
         font-weight: 600;
       }
-      /* Containers para PayPal e Google Pay */
       #paypal-container,
       #google-pay-container {
         margin-top: 1rem;
@@ -219,7 +306,7 @@
         border-radius: 8px;
         padding: 1rem;
       }
-      
+
       /* ===== FOOTER ===== */
       footer {
         width: 90%;
@@ -231,14 +318,15 @@
         border-top: 1px solid #eee;
         padding-top: 1rem;
       }
-      
+
       @media (max-width: 768px) {
-        .main-container { flex-direction: column; }
-        .right-col { width: 100%; }
+        .main-container {
+          flex-direction: column;
+        }
+        .right-col {
+          width: 100%;
+        }
       }
-      
-      .mt-10 { margin-top: 10px; }
-      .mb-10 { margin-bottom: 10px; }
     </style>
   </head>
   <body>
@@ -347,14 +435,30 @@
           <div class="card-style-1">
             <h2>Detalhes Adicionais</h2>
             <p>Selecione os serviços adicionais (ex: seguro de viagem):</p>
-            <div class="vip-card" style="margin-top:1rem;">
-              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
-              <div class="vip-info">
-                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px;">Cobertura para U$60.000</span>
-                <span class="title" style="display:block; font-weight:600; margin-top:0.5rem;">Seguro para despesas médicas, atrasos, etc.</span>
-                <span class="price" style="display:block; color:#00c853; font-weight:700; margin-top:0.5rem;">R$ 119,00 /pessoa</span>
-                <div class="actions" style="margin-top:0.5rem;">
-                  <button id="addInsurance1" style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Adicionar</button>
+            <div style="margin-top:1rem;">
+              <img
+                src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg"
+                alt="Seguro Viagem"
+                style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+              />
+              <div>
+                <span
+                  style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;"
+                  >Cobertura para U$60.000</span
+                >
+                <div style="margin-top:0.5rem; font-weight:600;">
+                  Seguro para despesas médicas, atrasos, etc.
+                </div>
+                <div style="margin-top:0.5rem; color:#00c853; font-weight:700;">
+                  R$ 119,00 /pessoa
+                </div>
+                <div style="margin-top:0.5rem;">
+                  <button
+                    id="addInsurance1"
+                    style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;"
+                  >
+                    Adicionar
+                  </button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
                 </div>
               </div>
@@ -366,7 +470,7 @@
           </div>
         </div>
         
-        <!-- STEP 3: PAGAMENTO (exibido quando chega a este step) -->
+        <!-- STEP 3: PAGAMENTO (oculto inicialmente, exibido ao chegar neste step) -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
@@ -376,11 +480,11 @@
             <div class="form-field">
               <label>Método de Pagamento</label>
               <div>
-                <input type="radio" id="methodCard" name="paymentMethod" value="card" checked>
+                <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
                 <label for="methodCard">Cartão de Crédito</label>
-                <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal">
+                <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal" />
                 <label for="methodPayPal">PayPal</label>
-                <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay">
+                <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay" />
                 <label for="methodGooglePay">Google Pay</label>
               </div>
             </div>
@@ -389,7 +493,7 @@
             <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;"></div>
             
             <!-- Container para Cartão de Crédito (com parcelamento e 3DS) -->
-            <div id="card-container" style="display:block;"> <!-- Exibido por padrão no Step 3 -->
+            <div id="card-container" style="display:block;">
               <div class="form-field">
                 <label>Parcelas</label>
                 <select id="installments">
@@ -561,10 +665,14 @@
       });
       
       // Botões de voltar
-      backToStep1Btn.addEventListener("click", () => { showStep(1); });
-      backToStep2Btn.addEventListener("click", () => { showStep(2); });
+      backToStep1Btn.addEventListener("click", () => {
+        showStep(1);
+      });
+      backToStep2Btn.addEventListener("click", () => {
+        showStep(2);
+      });
       
-      // Quando o método de pagamento é alterado, reinicializa a seção
+      // Quando o método de pagamento muda, reinicializa a seção
       document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
         input.addEventListener('change', initializePaymentMethod);
       });
@@ -593,6 +701,7 @@
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
         const clientToken = data.clientToken;
+        
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if (clientErr) {
             console.error("Erro ao criar o client Braintree:", clientErr);
@@ -841,10 +950,13 @@
           `;
         });
         container.innerHTML = html;
-        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("subtotalValue").textContent =
+          "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         const discount = 500;
-        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("discountValue").textContent =
+          "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent =
+          "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
       window.addEventListener("load", () => {
