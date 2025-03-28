@@ -2,16 +2,14 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Checkout - Completo</title>
-
+    <title>Checkout Completo</title>
     <!-- Braintree Scripts (para Cartão e PayPal) -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
-
     <style>
-      /* ===== RESET & FONT ===== */
+      /* RESET & FONT */
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap");
       * {
         margin: 0;
@@ -26,8 +24,54 @@
       a, button {
         cursor: pointer;
       }
-
-      /* ===== STEPS MENU ===== */
+      
+      /* HEADER E LOGIN */
+      .header-container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 1rem auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      header h1 {
+        font-size: 1.8rem;
+        color: #365cf5;
+      }
+      /* Modal Login */
+      .modal {
+        display: none; /* escondido por padrão */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 400px;
+        border-radius: 8px;
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .close:hover,
+      .close:focus {
+        color: #000;
+        text-decoration: none;
+      }
+      
+      /* STEPS MENU */
       .steps-menu {
         background-color: #365cf5;
         padding: 20px 0;
@@ -69,8 +113,8 @@
         opacity: 0.6;
         cursor: not-allowed;
       }
-
-      /* ===== MAIN CONTAINER ===== */
+      
+      /* MAIN CONTAINER */
       .main-container {
         width: 90%;
         max-width: 1200px;
@@ -85,22 +129,22 @@
         width: 400px;
         flex-shrink: 0;
       }
-
-      /* ===== CARD PADRÃO ===== */
+      
+      /* CARD PADRÃO */
       .card-style-1 {
         background: #fff;
         border: 1px solid #eee;
         border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       }
       .card-style-1 h2 {
         margin-bottom: 0.5rem;
         font-size: 1.2rem;
       }
-
-      /* ===== FORM FIELDS ===== */
+      
+      /* FORM FIELDS */
       .fields-grid-2cols {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -138,8 +182,8 @@
         color: #888;
         margin-top: 1rem;
       }
-
-      /* ===== BUTTONS ===== */
+      
+      /* BUTTONS */
       .btn {
         display: inline-block;
         border: none;
@@ -167,22 +211,22 @@
         margin-top: 1rem;
         text-align: right;
       }
-
-      /* ===== STEP CONTENTS (MULTI-STEP) ===== */
+      
+      /* STEP CONTENTS (MULTI-STEP) */
       .step-content {
         display: none;
       }
       .step-content.active {
         display: block;
       }
-
-      /* ===== RESUMO DO CARRINHO (COLUNA DIREITA) ===== */
+      
+      /* RESUMO (CARRINHO) */
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
         border-radius: 8px;
         padding: 1.5rem;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       }
       .reserva-item {
         display: flex;
@@ -207,8 +251,8 @@
         justify-content: space-between;
         margin-bottom: 0.5rem;
       }
-
-      /* ===== PAGAMENTO SECTION (PASSO 3) ===== */
+      
+      /* PAGAMENTO SECTION (PASSO 3) */
       .payment-section h2 {
         font-size: 1.2rem;
         margin-bottom: 0.5rem;
@@ -260,8 +304,7 @@
         margin-bottom: 1rem;
         font-size: 0.9rem;
       }
-
-      /* Campos do cartão (Hosted Fields) */
+      /* Campos do Cartão (Hosted Fields) */
       .card-fields {
         border: 1px solid #ddd;
         border-radius: 6px;
@@ -272,7 +315,7 @@
       .hosted-field {
         display: block;
         width: 100%;
-        height: 36px; /* altura compacta */
+        height: 36px;
         border: 1px solid #ccc;
         border-radius: 4px;
         margin-bottom: 1rem;
@@ -289,10 +332,9 @@
         gap: 1rem;
       }
       .inline-fields .hosted-field {
-        margin-bottom: 0; /* sem margem extra */
+        margin-bottom: 0;
       }
-
-      /* Containers para PayPal, Boleto e Pix (ocultos por padrão) */
+      /* Containers PayPal, Boleto e Pix */
       #paypal-container,
       #boleto-container,
       #pix-container {
@@ -302,15 +344,15 @@
         margin-bottom: 1rem;
         display: none;
       }
-
-      /* ===== FOOTER ===== */
+      
+      /* FOOTER */
       footer {
         text-align: center;
         margin-top: 2rem;
         font-size: 0.85rem;
         color: #666;
       }
-
+      
       @media (max-width: 768px) {
         .main-container {
           flex-direction: column;
@@ -322,7 +364,26 @@
     </style>
   </head>
   <body>
-    <!-- MENU DE STEPS (1, 2, 3, 4) -->
+    <!-- Header com botão de Login -->
+    <header>
+      <div class="header-container">
+        <h1>Checkout Exemplo</h1>
+        <button id="btnLogin" class="btn btn-primary">Login</button>
+      </div>
+    </header>
+    
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <h2>Login</h2>
+        <input type="text" id="loginEmail" placeholder="E-mail" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+        <input type="password" id="loginPassword" placeholder="Senha" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+        <button id="btnSubmitLogin" class="btn btn-primary" style="width:100%;">Entrar</button>
+      </div>
+    </div>
+    
+    <!-- MENU DE STEPS -->
     <div class="steps-menu" id="stepsMenu">
       <div class="step active" data-step="1">
         <div class="circle">1</div>
@@ -344,10 +405,10 @@
         <span>Confirmação</span>
       </div>
     </div>
-
+    
     <!-- CONTAINER PRINCIPAL -->
     <div class="main-container">
-      <!-- COLUNA ESQUERDA (STEPS) -->
+      <!-- COLUNA ESQUERDA (Conteúdo dos Steps) -->
       <div class="left-col">
         <!-- STEP 1: Dados Pessoais -->
         <div class="step-content active" data-step="1">
@@ -411,26 +472,20 @@
                 <input type="text" id="number" placeholder="123">
               </div>
             </div>
-            <p class="form-note">
-              * Insira o nome exatamente como aparece em seus documentos.
-            </p>
+            <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
             <div class="navigation">
               <button class="btn btn-primary" id="toStep2">Próximo</button>
             </div>
           </div>
         </div>
-
+        
         <!-- STEP 2: Detalhes Adicionais -->
         <div class="step-content" data-step="2">
           <div class="card-style-1">
             <h2>Detalhes Adicionais</h2>
             <p>Selecione serviços adicionais (ex: seguro de viagem):</p>
             <div style="margin-top:1rem;">
-              <img
-                src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg"
-                alt="Seguro Viagem"
-                style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
-              />
+              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
               <div>
                 <span style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
                 <div style="margin-top:0.5rem; font-weight:600;">Seguro para despesas médicas, atrasos, etc.</div>
@@ -447,17 +502,15 @@
             </div>
           </div>
         </div>
-
+        
         <!-- STEP 3: Pagamento -->
         <div class="step-content" data-step="3">
           <div class="card-style-1 payment-section">
             <h2>Pagamento</h2>
             <p class="subtitle">Revise seus dados e escolha o método de pagamento.</p>
-
-            <!-- Resumo dos dados do Step 1 e 2 -->
+            <!-- Resumo do Step 1 e 2 -->
             <div id="summaryData" style="margin-bottom:1rem; font-size:0.9rem; line-height:1.4;"></div>
-
-            <!-- Métodos de Pagamento (Cartão, PayPal, Boleto, Pix) -->
+            <!-- Métodos de Pagamento -->
             <ul class="payment-method-list">
               <li>
                 <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
@@ -488,10 +541,10 @@
                 </label>
               </li>
             </ul>
-
-            <!-- Container do Cartão -->
+            
+            <!-- Container para Cartão -->
             <div id="card-container">
-              <!-- Seleção de Parcelas -->
+              <!-- Parcelas -->
               <select id="installments" class="installments-select">
                 <option value="1">1x</option>
                 <option value="2">2x</option>
@@ -504,50 +557,47 @@
                 <option value="9">9x</option>
                 <option value="10">10x</option>
               </select>
-
+              
               <!-- Campos do Cartão (Hosted Fields) -->
               <div class="card-fields">
-                <!-- Número do Cartão -->
                 <div id="card-number" class="hosted-field"></div>
-                <!-- Nome do Titular (campo normal) -->
                 <input type="text" id="cardholderName" class="hosted-field" placeholder="Nome do titular do cartão" />
-                <!-- Validade e CVV em linha -->
                 <div class="inline-fields">
                   <div id="expiration-date" class="hosted-field"></div>
                   <div id="cvv" class="hosted-field"></div>
                 </div>
               </div>
-
-              <!-- Formulário para envio do pagamento -->
+              
+              <!-- Botão de pagar (form) -->
               <form id="checkout-form">
                 <button type="submit" class="btn btn-primary" style="width:100%;">Pagar</button>
               </form>
             </div>
-
+            
             <!-- Container PayPal -->
             <div id="paypal-container">
               <p style="margin-bottom:0.5rem;">Pagamento via PayPal:</p>
               <div id="paypal-button-container"></div>
             </div>
-
-            <!-- Container Boleto (exemplo ilustrativo) -->
+            
+            <!-- Container Boleto (ilustrativo) -->
             <div id="boleto-container">
               <p>Gerar Boleto:</p>
               <button id="btnGerarBoleto" class="btn btn-primary">Gerar Boleto</button>
             </div>
-
-            <!-- Container Pix (exemplo ilustrativo) -->
+            
+            <!-- Container Pix (ilustrativo) -->
             <div id="pix-container">
               <p>Gerar Pix (QR Code):</p>
               <button id="btnGerarPix" class="btn btn-primary">Gerar Pix</button>
             </div>
-
+            
             <div class="navigation">
               <button class="btn btn-secondary" id="backToStep2">Voltar</button>
             </div>
           </div>
         </div>
-
+        
         <!-- STEP 4: Confirmação -->
         <div class="step-content" data-step="4">
           <div class="card-style-1">
@@ -557,13 +607,13 @@
           </div>
         </div>
       </div>
-
+      
       <!-- COLUNA DIREITA: RESUMO DO CARRINHO -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
           <h2>Resumo da Compra</h2>
           <div id="cartItemsList">
-            <!-- Itens do carrinho serão carregados aqui via JS -->
+            <!-- Exemplo de item; idealmente este conteúdo virá do seu backend ou localStorage -->
             <div class="reserva-item">
               <div class="reserva-left">
                 <span>Hotel Exemplo - Quarto Simples</span>
@@ -588,28 +638,59 @@
         </div>
       </div>
     </div>
-
+    
     <footer>
       © 2025 - Checkout Completo
     </footer>
-
+    
+    <!-- Elemento de carrinho (opcional, pode ser usado para armazenar itens) -->
+    <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
+    
     <script>
       /* =============================================
-         LÓGICA DE MULTI-STEP E INTEGRAÇÃO BRAINTREE
-         ============================================= */
-
+         LÓGICA DE LOGIN (Modal)
+      ============================================= */
+      const btnLogin = document.getElementById("btnLogin");
+      const loginModal = document.getElementById("loginModal");
+      const closeModal = document.getElementById("closeModal");
+      const btnSubmitLogin = document.getElementById("btnSubmitLogin");
+      
+      btnLogin.addEventListener("click", () => {
+        loginModal.style.display = "block";
+      });
+      closeModal.addEventListener("click", () => {
+        loginModal.style.display = "none";
+      });
+      btnSubmitLogin.addEventListener("click", () => {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        if (email && password) {
+          alert("Login efetuado com sucesso!");
+          loginModal.style.display = "none";
+          // Aqui você pode salvar os dados do usuário ou redirecionar conforme necessário
+        } else {
+          alert("Preencha os campos de login.");
+        }
+      });
+      window.onclick = function(event) {
+        if (event.target == loginModal) {
+          loginModal.style.display = "none";
+        }
+      };
+      
+      /* =============================================
+         LÓGICA DE MULTI-STEP
+      ============================================= */
       let checkoutData = {};
-
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = stepsMenu.querySelectorAll(".step");
-
+      
       const toStep2Btn = document.getElementById("toStep2");
       const backToStep1Btn = document.getElementById("backToStep1");
       const toStep3Btn = document.getElementById("toStep3");
       const backToStep2Btn = document.getElementById("backToStep2");
-
-      // Exibe um step e oculta os demais
+      
       function showStep(stepNumber) {
         stepContents.forEach((content) => {
           content.classList.toggle("active", content.dataset.step === String(stepNumber));
@@ -624,10 +705,9 @@
           }
         });
       }
-
-      // STEP 1 -> STEP 2
+      
+      // Step 1 -> Step 2
       toStep2Btn.addEventListener("click", () => {
-        // Coleta dados do Step 1
         checkoutData = {
           firstName: document.getElementById("firstName").value,
           lastName: document.getElementById("lastName").value,
@@ -644,10 +724,9 @@
         };
         showStep(2);
       });
-
-      // STEP 2 -> STEP 3
+      
+      // Step 2 -> Step 3
       toStep3Btn.addEventListener("click", () => {
-        // Monta resumo dos dados
         const summaryDiv = document.getElementById("summaryData");
         if (checkoutData.firstName && checkoutData.email) {
           summaryDiv.innerHTML = `
@@ -662,24 +741,23 @@
         showStep(3);
         initializePaymentMethod();
       });
-
-      // Botões de voltar
-      backToStep1Btn.addEventListener("click", () => showStep(1));
-      backToStep2Btn.addEventListener("click", () => showStep(2));
-
-      // Seleção de método de pagamento
+      
+      // Voltar
+      backToStep1Btn && backToStep1Btn.addEventListener("click", () => showStep(1));
+      backToStep2Btn && backToStep2Btn.addEventListener("click", () => showStep(2));
+      
+      // Atualiza método de pagamento ao selecionar
       document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
         input.addEventListener("change", initializePaymentMethod);
       });
-
+      
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-        // Esconde todos os containers de pagamento
         document.getElementById("card-container").style.display = "none";
         document.getElementById("paypal-container").style.display = "none";
         document.getElementById("boleto-container").style.display = "none";
         document.getElementById("pix-container").style.display = "none";
-
+      
         if (method === "card") {
           document.getElementById("card-container").style.display = "block";
           initBraintreeCard();
@@ -692,16 +770,16 @@
           document.getElementById("pix-container").style.display = "block";
         }
       }
-
-      /* ============== BRAINTREE: CARTÃO ============== */
+      
+      /* =============================================
+         INTEGRAÇÃO BRAINTRREE - CARTÃO
+      ============================================= */
       let clientToken = null;
       let hostedFieldsInstance = null;
       let threeDSecureInstance = null;
-
+      
       async function initBraintreeCard() {
-        // Se já existe uma instância, não recria
-        if (hostedFieldsInstance) return;
-        // Busca token do backend, se ainda não estiver definido
+        if (hostedFieldsInstance) return; // Evita recriar
         if (!clientToken) {
           try {
             const res = await fetch("/api/braintree/get-client-token");
@@ -714,12 +792,12 @@
         }
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if (clientErr) {
-            console.error("Erro no client Braintree:", clientErr);
+            console.error("Erro no Braintree client:", clientErr);
             return;
           }
           braintree.threeDSecure.create({ version: 2, client: clientInstance }, (threeDSErr, threeDS) => {
             if (threeDSErr) {
-              console.error("Erro ao criar 3D Secure:", threeDSErr);
+              console.error("Erro no 3D Secure:", threeDSErr);
               return;
             }
             threeDSecureInstance = threeDS;
@@ -759,7 +837,7 @@
           });
         });
       }
-
+      
       function onCardFormSubmit(evt) {
         evt.preventDefault();
         if (!hostedFieldsInstance || !threeDSecureInstance) {
@@ -780,7 +858,7 @@
             },
             (verifyErr, threeDSecurePayload) => {
               if (verifyErr) {
-                console.error("Erro na verificação 3D Secure:", verifyErr);
+                console.error("Erro no 3D Secure:", verifyErr);
                 alert("Erro na verificação 3D Secure.");
                 return;
               }
@@ -789,8 +867,10 @@
           );
         });
       }
-
-      /* ============== BRAINTREE: PAYPAL ============== */
+      
+      /* =============================================
+         INTEGRAÇÃO BRAINTRREE - PAYPAL
+      ============================================= */
       function initPayPal() {
         if (!clientToken) {
           fetch("/api/braintree/get-client-token")
@@ -799,16 +879,16 @@
               clientToken = data.clientToken;
               createPayPalButton();
             })
-            .catch((err) => console.error("Erro ao obter token PayPal:", err));
+            .catch((err) => console.error("Erro ao obter token para PayPal:", err));
         } else {
           createPayPalButton();
         }
       }
-
+      
       function createPayPalButton() {
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if (clientErr) {
-            console.error("Erro no client PayPal:", clientErr);
+            console.error("Erro no cliente PayPal:", clientErr);
             return;
           }
           braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
@@ -841,28 +921,34 @@
           });
         });
       }
-
-      /* ============== BOLETO & PIX (ILUSTRATIVO) ============== */
+      
+      /* =============================================
+         BOLETO & PIX (ILUSTRATIVO)
+      ============================================= */
       const btnGerarBoleto = document.getElementById("btnGerarBoleto");
       if (btnGerarBoleto) {
         btnGerarBoleto.addEventListener("click", () => {
-          alert("Boleto gerado (exemplo). Integre com seu backend ou gateway real.");
+          alert("Boleto gerado (exemplo). Integre com seu backend real.");
         });
       }
+      
       const btnGerarPix = document.getElementById("btnGerarPix");
       if (btnGerarPix) {
         btnGerarPix.addEventListener("click", () => {
-          alert("Pix gerado (exemplo). Exiba QR Code ou link via backend real.");
+          alert("Pix gerado (exemplo). Exiba QR Code via backend real.");
         });
       }
-
-      /* ============== PROCESSAMENTO DO PAGAMENTO ============== */
+      
+      /* =============================================
+         PROCESSAMENTO FINAL DO PAGAMENTO
+      ============================================= */
       async function processPayment(nonce, method) {
         const cardholderName = document.getElementById("cardholderName")?.value || "";
         let installments = "1";
         if (method === "card") {
           installments = document.getElementById("installments").value;
         }
+      
         const body = {
           paymentMethodNonce: nonce,
           amount: getOrderAmount(),
@@ -883,7 +969,7 @@
             countryCodeAlpha2: "BR"
           }
         };
-
+      
         try {
           const res = await fetch("/api/braintree/create-transaction", {
             method: "POST",
@@ -902,15 +988,17 @@
           alert("Erro ao processar pagamento. Tente novamente.");
         }
       }
-
-      /* ============== OBTÉM VALOR DO TOTAL ============== */
+      
       function getOrderAmount() {
         const totalText = document.getElementById("totalValue").textContent;
         const numeric = totalText.replace("R$", "").replace(".", "").replace(",", ".").trim();
         return parseFloat(numeric).toFixed(2);
       }
-
-      /* ============== FUNÇÃO PARA ATUALIZAR O CARRINHO ============== */
+      
+      /* =============================================
+         (Opcional) Atualiza o carrinho
+         Exemplo: carrega do localStorage ou de um objeto no shopping-cart.
+      ============================================= */
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -921,14 +1009,7 @@
           html += `
             <div class="reserva-item">
               <div class="reserva-left">
-                <span class="categoria">${item.type || "Hospedagem"}</span>
-                <span class="nome">${item.hotelName || "Hotel Exemplo"} - ${item.roomName || "Quarto Simples"}</span>
-                <div class="reserva-details">
-                  <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-                  <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-                  <p>Quartos: ${item.rooms || 1}</p>
-                  <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-                </div>
+                <span>${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
               </div>
               <div class="reserva-preco">
                 R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -937,15 +1018,21 @@
           `;
         });
         container.innerHTML = html;
-        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        document.getElementById("subtotalValue").textContent =
+          "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
         const discount = 500;
-        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-        document.getElementById("totalValue").textContent = "R$ " + (subtotal - discount).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        document.getElementById("discountValue").textContent =
+          "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        const total = subtotal - discount;
+        document.getElementById("totalValue").textContent =
+          "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
-
-      /* ============== AO CARREGAR A PÁGINA ============== */
+      
+      /* =============================================
+         AO CARREGAR A PÁGINA
+      ============================================= */
       window.addEventListener("load", () => {
-        // Carrega itens do carrinho a partir de um elemento customizado ou localStorage
+        // Exemplo: carregar itens do carrinho
         let items = [];
         const cart = document.getElementById("shoppingCart");
         if (cart && cart.items && cart.items.length > 0) {
@@ -954,6 +1041,11 @@
           const savedCart = localStorage.getItem("cartItems");
           if (savedCart) {
             items = JSON.parse(savedCart);
+          } else {
+            // Exemplo estático se não houver carrinho salvo
+            items = [
+              { hotelName: "Hotel Exemplo", roomName: "Quarto Simples", basePriceAdult: 1200 }
+            ];
           }
         }
         updateCheckoutCart(items);
