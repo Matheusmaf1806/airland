@@ -111,7 +111,7 @@
         margin-bottom: 20px;
       }
 
-      /* ===== FORMULÁRIOS E CAMPOS ===== */
+      /* ===== FORMULÁRIOS & CAMPOS ===== */
       .fields-grid-2cols {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -363,6 +363,7 @@
             </div>
             <!-- Formulário de Registro -->
             <div id="registrationFields">
+              <!-- Grid 1: Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -373,6 +374,7 @@
                   <input type="text" id="lastName" placeholder="Sobrenome">
                 </div>
               </div>
+              <!-- Grid 2: Celular e E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular</label>
@@ -383,6 +385,18 @@
                   <input type="email" id="email" placeholder="seuemail@exemplo.com">
                 </div>
               </div>
+              <!-- Grid 3: Senha e Repetir Senha -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" id="password" placeholder="********">
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha</label>
+                  <input type="password" id="confirmPassword" placeholder="********">
+                </div>
+              </div>
+              <!-- Grid 4: CPF, RG e Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
                   <label>CPF</label>
@@ -397,6 +411,7 @@
                   <input type="date" id="birthdate">
                 </div>
               </div>
+              <!-- Grid 5: CEP, Estado e Cidade -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
                   <label>CEP</label>
@@ -411,6 +426,7 @@
                   <input type="text" id="city" placeholder="São Paulo">
                 </div>
               </div>
+              <!-- Grid 6: Endereço e Número -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Endereço</label>
@@ -459,8 +475,7 @@
               <div>
                 <span
                   style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;"
-                  >Cobertura para U$60.000</span
-                >
+                  >Cobertura para U$60.000</span>
                 <div style="margin-top:0.5rem; font-weight:600;">
                   Seguro para despesas médicas, atrasos, etc.
                 </div>
@@ -656,6 +671,9 @@
           lastName: document.getElementById("lastName").value,
           celular: document.getElementById("celular").value,
           email: document.getElementById("email").value,
+          // Campos de senha apenas se visíveis (usuário não logado)
+          password: document.getElementById("password") ? document.getElementById("password").value : "",
+          confirmPassword: document.getElementById("confirmPassword") ? document.getElementById("confirmPassword").value : "",
           cpf: document.getElementById("cpf").value,
           rg: document.getElementById("rg").value,
           birthdate: document.getElementById("birthdate").value,
