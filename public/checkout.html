@@ -5,19 +5,19 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Carrega as bibliotecas do Braintree -->
+    <!-- Bibliotecas do Braintree para diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/3d-secure.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
     <style>
       /* ===========================
           COMMON CSS
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       
-      html {
-        scroll-behavior: smooth;
-      }
-      
+      html { scroll-behavior: smooth; }
       body {
         font-family: "Montserrat", sans-serif !important;
         font-weight: 400;
@@ -25,29 +25,10 @@
         overflow-x: hidden;
         background: #f1f5f9;
       }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      a:focus,
-      input:focus,
-      textarea:focus,
-      button:focus {
-        outline: none;
-        box-shadow: none;
-      }
-      
-      a:hover {
-        color: #365cf5;
-      }
-      
-      button,
-      a {
-        transition: all 0.3s ease-out;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      a:focus, input:focus, textarea:focus, button:focus { outline: none; box-shadow: none; }
+      a:hover { color: #365cf5; }
+      button, a { transition: all 0.3s ease-out; }
       
       /* ================= MENU DE STEPS ================== */
       .steps-menu {
@@ -59,7 +40,6 @@
         gap: 1rem;
         margin-bottom: 20px;
       }
-      
       .steps-menu .step {
         display: flex;
         align-items: center;
@@ -67,7 +47,6 @@
         color: #fff;
         cursor: pointer;
       }
-      
       .steps-menu .circle {
         width: 30px;
         height: 30px;
@@ -79,18 +58,12 @@
         justify-content: center;
         font-weight: 700;
       }
-      
-      .steps-menu .separator {
-        color: #fff;
-        font-weight: bold;
-      }
-      
+      .steps-menu .separator { color: #fff; font-weight: bold; }
       .steps-menu .step.active .circle {
         background-color: #365cf5;
         color: #fff;
         border: 2px solid #fff;
       }
-      
       .steps-menu .step.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -104,11 +77,7 @@
         display: flex;
         gap: 2rem;
       }
-      
-      .left-col {
-        flex: 1;
-      }
-      
+      .left-col { flex: 1; }
       .right-col {
         width: 400px;
         flex-shrink: 0;
@@ -121,26 +90,22 @@
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
       .fields-grid-3cols {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
       .form-field {
         display: flex;
         flex-direction: column;
       }
-      
       .form-field label {
         font-size: 0.85rem;
         color: #666;
         margin-bottom: 0.3rem;
         font-weight: 500;
       }
-      
       .form-field input,
       .form-field select {
         font-size: 0.85rem;
@@ -148,12 +113,8 @@
         border: 1px solid #eee;
         border-radius: 4px;
       }
-      
       .form-field input:focus,
-      .form-field select:focus {
-        border-color: #007aff;
-      }
-      
+      .form-field select:focus { border-color: #007aff; }
       .form-note {
         font-size: 0.75rem;
         color: #888;
@@ -171,7 +132,6 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
-      
       .btn-save-passenger:hover,
       .btn-pay-pal:hover {
         background: #005dbf;
@@ -179,16 +139,9 @@
       }
       
       /* ================= MULTI-STEP ================== */
-      .step-content {
-        display: none;
-      }
-      .step-content.active {
-        display: block;
-      }
-      .navigation {
-        margin-top: 1rem;
-        text-align: right;
-      }
+      .step-content { display: none; }
+      .step-content.active { display: block; }
+      .navigation { margin-top: 1rem; text-align: right; }
       .traveler-form-header {
         display: flex;
         align-items: center;
@@ -212,7 +165,6 @@
         padding: 25px 30px;
         box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
       }
-      
       .reserva-item {
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -222,12 +174,10 @@
         margin-bottom: 0.75rem;
         align-items: center;
       }
-      
       .reserva-item:last-child {
         border-bottom: none;
         margin-bottom: 0;
       }
-      
       .reserva-img {
         width: 60px;
         height: 60px;
@@ -235,71 +185,58 @@
         border-radius: 4px;
         border: 1px solid #eee;
       }
-      
       .reserva-left {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
       }
-      
       .reserva-left .categoria {
         font-size: 0.85rem;
         font-weight: 600;
         color: #007aff;
       }
-      
       .reserva-left .nome {
         font-size: 0.85rem;
         color: #333;
       }
-      
       .reserva-left .subinfo {
         font-size: 0.8rem;
         color: #888;
       }
-      
       .reserva-preco {
         font-size: 1rem;
         font-weight: 700;
         color: #00c853;
         text-align: right;
       }
-      
       .reserva-details p {
         font-size: 0.8rem;
         margin: 2px 0;
         color: #555;
       }
-      
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
         border-top: 1px solid #eee;
       }
-      
       .resumo-compra .resumo-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: 10px;
       }
-      
       .resumo-compra .resumo-row label {
         font-weight: 600;
       }
-      
       .resumo-compra .resumo-row p {
         font-weight: 600;
         margin: 0;
       }
-      
       .resumo-compra .cupom {
         margin-top: 15px;
       }
-      
       .resumo-compra .cupom label {
         font-weight: 600;
       }
-      
       footer {
         width: 90%;
         max-width: 1200px;
@@ -310,22 +247,12 @@
         border-top: 1px solid #eee;
         padding-top: 1rem;
       }
-      
       @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-        }
-        .right-col {
-          width: 100%;
-        }
+        .main-container { flex-direction: column; }
+        .right-col { width: 100%; }
       }
-      
-      .mt-10 {
-        margin-top: 10px;
-      }
-      .mb-10 {
-        margin-bottom: 10px;
-      }
+      .mt-10 { margin-top: 10px; }
+      .mb-10 { margin-bottom: 10px; }
     </style>
   </head>
   <body>
@@ -457,46 +384,75 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento com Braintree -->
+        <!-- Step 3: Pagamento -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e conclua o pagamento.</p>
+            <p>Revise seus dados e escolha o método de pagamento.</p>
             
-            <!-- Exibe o resumo dos dados pessoais já coletados -->
+            <!-- Área de escolha de método -->
+            <div class="form-field">
+              <label>Método de Pagamento</label>
+              <div>
+                <input type="radio" id="methodCard" name="paymentMethod" value="card" checked>
+                <label for="methodCard">Cartão de Crédito</label>
+                <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal">
+                <label for="methodPayPal">PayPal</label>
+                <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay">
+                <label for="methodGooglePay">Google Pay</label>
+              </div>
+            </div>
+            
+            <!-- Container para exibir o resumo dos dados -->
             <div id="summaryData"></div>
             
-            <!-- Seletor de Parcelas -->
-            <div class="form-field">
-              <label>Parcelas</label>
-              <select id="installments">
-                <option value="1">1x</option>
-                <option value="2">2x</option>
-                <option value="3">3x</option>
-                <option value="4">4x</option>
-                <option value="5">5x</option>
-                <option value="6">6x</option>
-              </select>
-            </div>
-
-            <!-- Formulário para pagamento via Braintree -->
-            <form id="checkout-form">
+            <!-- Seção para Cartão de Crédito -->
+            <div id="card-container">
+              <!-- Seletor de Parcelamento -->
               <div class="form-field">
-                <label>Número do Cartão</label>
-                <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
+                <label>Parcelas</label>
+                <select id="installments">
+                  <option value="1">1x</option>
+                  <option value="2">2x</option>
+                  <option value="3">3x</option>
+                  <option value="4">4x</option>
+                  <option value="5">5x</option>
+                  <option value="6">6x</option>
+                  <option value="7">7x</option>
+                  <option value="8">8x</option>
+                  <option value="9">9x</option>
+                  <option value="10">10x</option>
+                </select>
               </div>
-              <div class="fields-grid-2cols">
+              <!-- Formulário para pagamento via Hosted Fields -->
+              <form id="checkout-form">
                 <div class="form-field">
-                  <label>Data de Expiração (MM/AA)</label>
-                  <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
+                  <label>Número do Cartão</label>
+                  <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
                 </div>
-                <div class="form-field">
-                  <label>CVV</label>
-                  <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
+                <div class="fields-grid-2cols">
+                  <div class="form-field">
+                    <label>Data de Expiração (MM/AA)</label>
+                    <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
+                  </div>
+                  <div class="form-field">
+                    <label>CVV</label>
+                    <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
+                  </div>
                 </div>
-              </div>
-              <button type="submit" class="btn-pay-pal">Pagar</button>
-            </form>
+                <button type="submit" class="btn-pay-pal">Pagar</button>
+              </form>
+            </div>
+            
+            <!-- Container para PayPal -->
+            <div id="paypal-container" style="display:none;">
+              <div id="paypal-button-container"></div>
+            </div>
+            
+            <!-- Container para Google Pay -->
+            <div id="google-pay-container" style="display:none;">
+              <div id="google-pay-button-container"></div>
+            </div>
             
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
@@ -623,37 +579,48 @@
           <p><strong>E-mail:</strong> ${checkoutData.email}</p>
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
-        // Armazena a escolha de parcelas no checkoutData (caso usuário já tenha selecionado)
-        // ou faz isso depois, no processPayment. Aqui é só um passo intermediário.
-        
         showStep(3);
-        initializeBraintree(); // Inicializa a integração Braintree na etapa de pagamento
+        initializePaymentMethod(); // Inicializa o método de pagamento conforme a escolha
       });
       
       // Navegação: Voltar para etapas anteriores
-      backToStep1Btn.addEventListener("click", () => {
-        showStep(1);
-      });
-      backToStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
+      backToStep1Btn.addEventListener("click", () => { showStep(1); });
+      backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Função para inicializar a Braintree e criar os Hosted Fields
+      // Função para inicializar o método de pagamento escolhido
+      function initializePaymentMethod() {
+        const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+        // Oculta todos os containers
+        document.getElementById("card-container").style.display = "none";
+        document.getElementById("paypal-container").style.display = "none";
+        document.getElementById("google-pay-container").style.display = "none";
+        
+        if(method === "card") {
+          document.getElementById("card-container").style.display = "block";
+          initializeBraintree();
+        } else if(method === "paypal") {
+          document.getElementById("paypal-container").style.display = "block";
+          initializePayPal();
+        } else if(method === "googlePay") {
+          document.getElementById("google-pay-container").style.display = "block";
+          initializeGooglePay();
+        }
+      }
+      
+      // Inicialização do Braintree para Cartão de Crédito (com 3DS se necessário)
       async function initializeBraintree() {
-        // Obter o client token do backend
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
         const clientToken = data.clientToken;
-        
         braintree.client.create({
           authorization: clientToken
         }, (clientErr, clientInstance) => {
-          if (clientErr) {
+          if(clientErr) {
             console.error("Erro ao criar o client Braintree:", clientErr);
             alert("Erro na inicialização do pagamento. Tente novamente.");
             return;
           }
-          // Criar os Hosted Fields
+          // Se necessário, inicialize 3DS aqui usando braintree.threeDSecure.create(...)
           braintree.hostedFields.create({
             client: clientInstance,
             styles: {
@@ -662,36 +629,25 @@
               'input.valid': { 'color': 'green' }
             },
             fields: {
-              number: {
-                selector: '#card-number',
-                placeholder: 'Número do Cartão'
-              },
-              cvv: {
-                selector: '#cvv',
-                placeholder: 'CVV'
-              },
-              expirationDate: {
-                selector: '#expiration-date',
-                placeholder: 'MM/AA'
-              }
+              number: { selector: '#card-number', placeholder: 'Número do Cartão' },
+              cvv: { selector: '#cvv', placeholder: 'CVV' },
+              expirationDate: { selector: '#expiration-date', placeholder: 'MM/AA' }
             }
           }, (hostedFieldsErr, hostedFieldsInstance) => {
-            if (hostedFieldsErr) {
+            if(hostedFieldsErr) {
               console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
               alert("Erro ao configurar os campos de pagamento.");
               return;
             }
-            // Lidar com o envio do formulário para tokenizar os dados do cartão
             const form = document.getElementById('checkout-form');
             form.addEventListener('submit', (event) => {
               event.preventDefault();
               hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-                if (tokenizeErr) {
+                if(tokenizeErr) {
                   console.error("Erro ao tokenizar:", tokenizeErr);
                   alert("Erro ao processar os dados do cartão.");
                   return;
                 }
-                // Enviar o nonce para criar a transação com os dados do cliente
                 processPayment(payload.nonce);
               });
             });
@@ -699,19 +655,110 @@
         });
       }
       
+      // Inicialização do PayPal via Braintree
+      function initializePayPal() {
+        fetch('/api/braintree/get-client-token')
+          .then(res => res.json())
+          .then(data => {
+            const clientToken = data.clientToken;
+            braintree.paypalCheckout.create({
+              client: clientToken
+            }, (err, paypalCheckoutInstance) => {
+              if(err) {
+                console.error("Erro ao criar PayPal Checkout:", err);
+                alert("Erro na inicialização do PayPal.");
+                return;
+              }
+              paypal.Button.render({
+                env: 'sandbox',
+                payment: () => {
+                  return paypalCheckoutInstance.createPayment({
+                    flow: 'checkout',
+                    amount: document.getElementById("totalValue").textContent.replace("R$", "").trim().replace(/\./g, "").replace(",", "."),
+                    currency: 'BRL'
+                  });
+                },
+                onAuthorize: (data, actions) => {
+                  return paypalCheckoutInstance.tokenizePayment(data)
+                    .then(payload => {
+                      processPayment(payload.nonce);
+                    });
+                },
+                onError: err => {
+                  console.error("Erro no PayPal:", err);
+                  alert("Erro no pagamento com PayPal.");
+                }
+              }, '#paypal-button-container');
+            });
+          })
+          .catch(err => {
+            console.error("Erro ao obter client token para PayPal:", err);
+          });
+      }
+      
+      // Inicialização do Google Pay via Braintree
+      function initializeGooglePay() {
+        fetch('/api/braintree/get-client-token')
+          .then(res => res.json())
+          .then(data => {
+            const clientToken = data.clientToken;
+            braintree.googlePayment.create({
+              client: clientToken,
+              googlePayVersion: 2,
+              googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID' // ajuste conforme sua configuração
+            }, (err, googlePaymentInstance) => {
+              if(err) {
+                console.error("Erro ao criar Google Pay:", err);
+                alert("Erro na inicialização do Google Pay.");
+                return;
+              }
+              const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
+                transactionInfo: {
+                  totalPriceStatus: 'FINAL',
+                  totalPrice: document.getElementById("totalValue").textContent.replace("R$", "").trim().replace(/\./g, "").replace(",", "."),
+                  currencyCode: 'BRL'
+                }
+              });
+              const paymentsClient = new google.payments.api.PaymentsClient({
+                environment: 'TEST'
+              });
+              paymentsClient.loadPaymentData(paymentDataRequest)
+                .then(paymentData => {
+                  return googlePaymentInstance.parseResponse(paymentData);
+                })
+                .then(payload => {
+                  processPayment(payload.nonce);
+                })
+                .catch(err => {
+                  console.error("Erro no Google Pay:", err);
+                  alert("Erro no pagamento com Google Pay.");
+                });
+              // Renderiza o botão do Google Pay
+              const button = paymentsClient.createButton({
+                onClick: () => {
+                  // A lógica de loadPaymentData já é acionada acima
+                }
+              });
+              document.getElementById("google-pay-button-container").appendChild(button);
+            });
+          })
+          .catch(err => {
+            console.error("Erro ao obter client token para Google Pay:", err);
+          });
+      }
+      
       // Função para enviar o nonce e os dados para o backend e criar a transação via Braintree
       async function processPayment(nonce) {
-        // Extrair o valor total do pedido do elemento "totalValue"
+        // Converter o total do pedido para o formato "8247.20"
         let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 8.247,20"
-        let amount = totalText.replace("R$", "").trim();
-        // Remove todos os pontos de milhar e substitui a vírgula por ponto
-        amount = amount.replace(/\./g, "").replace(",", ".");
-        // Converte para número e garante duas casas decimais
+        let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
         amount = parseFloat(amount).toFixed(2);
         
-        // Capturar a escolha de parcelas do <select id="installments">
+        // Se o método for cartão, o valor de parcelas já foi selecionado
         const installmentsSelect = document.getElementById("installments");
-        checkoutData.installments = installmentsSelect.value; // ex: "1", "2", "3", ...
+        if(installmentsSelect) {
+          checkoutData.installments = installmentsSelect.value;
+        }
         
         try {
           const res = await fetch('/api/braintree/create-transaction', {
@@ -720,7 +767,7 @@
             body: JSON.stringify({
               paymentMethodNonce: nonce,
               amount: amount,
-              installments: checkoutData.installments, // Envia o número de parcelas
+              installments: checkoutData.installments, // Envia o número de parcelas (se houver)
               customer: {
                 firstName: checkoutData.firstName,
                 lastName: checkoutData.lastName,
@@ -738,19 +785,19 @@
             })
           });
           const result = await res.json();
-          if (result.success) {
+          if(result.success) {
             alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
             showStep(4);
           } else {
             alert("Falha no pagamento: " + result.message);
           }
-        } catch (error) {
+        } catch(error) {
           console.error("Erro ao processar o pagamento:", error);
           alert("Erro ao processar o pagamento. Tente novamente.");
         }
       }
       
-      // Função de exemplo para atualizar o resumo do carrinho (ajuste conforme sua lógica)
+      // Função para atualizar o resumo do carrinho
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -790,11 +837,11 @@
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
-        if (cart && cart.items && cart.items.length > 0) {
+        if(cart && cart.items && cart.items.length > 0) {
           items = cart.items;
         } else {
           const savedCart = localStorage.getItem("cartItems");
-          if (savedCart) {
+          if(savedCart) {
             items = JSON.parse(savedCart);
           }
         }
