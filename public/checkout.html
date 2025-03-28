@@ -5,26 +5,26 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    
+
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
-    
+
     <style>
       /* ===========================
           FONT & RESET
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       * {
-        margin: 0; 
-        padding: 0; 
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
       }
-      html { 
-        scroll-behavior: smooth; 
+      html {
+        scroll-behavior: smooth;
       }
       body {
         font-family: "Montserrat", sans-serif;
@@ -32,15 +32,19 @@
         color: #5d657b;
         background: #f1f5f9;
       }
-      a:focus, input:focus, textarea:focus, button:focus {
-        outline: none; 
+      a:focus,
+      input:focus,
+      textarea:focus,
+      button:focus {
+        outline: none;
         box-shadow: none;
       }
-      button, a { 
-        transition: all 0.3s ease-out; 
+      button,
+      a {
+        transition: all 0.3s ease-out;
       }
-      a:hover { 
-        color: #365cf5; 
+      a:hover {
+        color: #365cf5;
       }
 
       /* ===========================
@@ -53,8 +57,8 @@
         display: flex;
         gap: 2rem;
       }
-      .left-col { 
-        flex: 1; 
+      .left-col {
+        flex: 1;
       }
       .right-col {
         width: 400px;
@@ -180,11 +184,11 @@
       .btn-save-passenger:hover,
       .btn-pay-pal:hover {
         background: #005dbf;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
       }
-      .navigation { 
-        margin-top: 1rem; 
-        text-align: right; 
+      .navigation {
+        margin-top: 1rem;
+        text-align: right;
       }
 
       /* ===========================
@@ -296,8 +300,9 @@
         font-size: 0.85rem;
         font-weight: 500;
       }
-      /* Ajuste para exibir as divs do Hosted Fields de forma consistente */
-      #card-number, #expiration-date, #cvv {
+      #card-number,
+      #expiration-date,
+      #cvv {
         display: flex;
         align-items: center;
         height: 44px;
@@ -307,8 +312,8 @@
         padding: 0 8px;
         transition: border-color 0.3s;
       }
-      #card-number:focus-within, 
-      #expiration-date:focus-within, 
+      #card-number:focus-within,
+      #expiration-date:focus-within,
       #cvv:focus-within {
         border-color: #007aff;
       }
@@ -334,7 +339,8 @@
       }
 
       /* PayPal e Google Pay containers */
-      #paypal-container, #google-pay-container {
+      #paypal-container,
+      #google-pay-container {
         margin-top: 1rem;
         background: #fafafa;
         border: 1px solid #ddd;
@@ -398,14 +404,11 @@
       <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
         
-        <!-- Step 1: Dados Pessoais -->
+        <!-- STEP 1: DADOS PESSOAIS -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
-            <div class="traveler-form-header">
-              <h2>Dados Pessoais</h2>
-            </div>
+            <h2>Dados Pessoais</h2>
             <div id="step1-fields">
-              <!-- Exemplo de campos do Step 1 -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -474,12 +477,12 @@
           </div>
         </div>
         
-        <!-- Step 2: Detalhes Adicionais -->
+        <!-- STEP 2: DETALHES ADICIONAIS -->
         <div class="step-content" data-step="2">
           <div class="card-style-1">
             <h2>Detalhes Adicionais</h2>
             <p>Selecione os serviços adicionais (ex: seguro de viagem):</p>
-            <div class="vip-card">
+            <div class="vip-card" style="margin-top:1rem;">
               <img 
                 src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" 
                 alt="Seguro Viagem" 
@@ -522,7 +525,7 @@
           </div>
         </div>
         
-        <!-- Step 3: Pagamento -->
+        <!-- STEP 3: PAGAMENTO -->
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
@@ -532,19 +535,22 @@
             <div class="form-field">
               <label>Método de Pagamento</label>
               <div>
+                <!-- Cartão de Crédito já vem selecionado por padrão -->
                 <input type="radio" id="methodCard" name="paymentMethod" value="card" checked>
                 <label for="methodCard">Cartão de Crédito</label>
+                
                 <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal">
                 <label for="methodPayPal">PayPal</label>
+                
                 <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay">
                 <label for="methodGooglePay">Google Pay</label>
               </div>
             </div>
             
-            <!-- Container para exibir o resumo dos dados (nome, e-mail, etc.) -->
+            <!-- Resumo dos dados pessoais -->
             <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;"></div>
             
-            <!-- Container para Cartão de Crédito (com parcelamento e 3DS) -->
+            <!-- Cartão de Crédito (com parcelamento e 3DS) -->
             <div id="card-container" style="display:none;">
               <div class="form-field">
                 <label>Parcelas</label>
@@ -580,12 +586,12 @@
               </form>
             </div>
             
-            <!-- Container para PayPal -->
+            <!-- PayPal -->
             <div id="paypal-container" style="display:none;">
               <div id="paypal-button-container"></div>
             </div>
             
-            <!-- Container para Google Pay -->
+            <!-- Google Pay -->
             <div id="google-pay-container" style="display:none;">
               <div id="google-pay-button-container"></div>
             </div>
@@ -596,7 +602,7 @@
           </div>
         </div>
         
-        <!-- Step 4: Confirmação de Pagamento -->
+        <!-- STEP 4: CONFIRMAÇÃO -->
         <div class="step-content" data-step="4">
           <div class="card-style-1">
             <h2>Pagamento Concluído</h2>
@@ -611,6 +617,7 @@
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da Reserva</h2>
           <div id="cartItemsList">
+            <!-- Exemplo de item -->
             <div class="reserva-item">
               <div class="reserva-left">
                 <span class="categoria">HOSPEDAGEM</span>
@@ -647,10 +654,11 @@
       </div>
     </div>
     
-    <footer class="mt-40 mb-40" style="text-align: center;">
+    <footer style="text-align:center;">
       © 2025 - Checkout Trip.com (Completo)
     </footer>
     
+    <!-- Um shopping-cart "oculto" para potencial uso -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
@@ -658,9 +666,7 @@
        * LÓGICA DE STEPS, PAGAMENTO E BRAINTREE
        ****************************************/
       
-      // Objeto global para armazenar os dados do checkout (Passo 1)
-      let checkoutData = {};
-      
+      let checkoutData = {}; // Armazena dados do step 1 e 2
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = stepsMenu.querySelectorAll(".step");
@@ -670,7 +676,7 @@
       const toStep3Btn = document.getElementById("toStep3");
       const backToStep2Btn = document.getElementById("backToStep2");
       
-      // Função para exibir o step correto
+      // Exibe step
       function showStep(stepNumber) {
         stepContents.forEach(content => {
           content.classList.remove("active");
@@ -691,9 +697,8 @@
         });
       }
       
-      // Passo 1 -> Passo 2
+      // Step 1 -> Step 2
       toStep2Btn.addEventListener("click", () => {
-        // Captura dados do step 1
         checkoutData = {
           firstName: document.getElementById("firstName").value,
           lastName: document.getElementById("lastName").value,
@@ -711,9 +716,9 @@
         showStep(2);
       });
       
-      // Passo 2 -> Passo 3
+      // Step 2 -> Step 3
       toStep3Btn.addEventListener("click", () => {
-        // Exibe resumo dos dados no Step 3
+        // Exibe resumo
         const summaryDiv = document.getElementById("summaryData");
         summaryDiv.innerHTML = `
           <p><strong>Nome:</strong> ${checkoutData.firstName} ${checkoutData.lastName}</p>
@@ -721,19 +726,19 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
-        initializePaymentMethod(); // Inicializa o método de pagamento escolhido
+        initializePaymentMethod();
       });
       
       // Botões de voltar
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Quando o método de pagamento muda, reinicializa
+      // Quando troca método de pagamento, reinicializa
       document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
         input.addEventListener('change', initializePaymentMethod);
       });
       
-      // Exibe/oculta containers de pagamento e inicia Braintree/PayPal/GooglePay
+      // Exibe container e inicia Braintree/PayPal/GooglePay
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
         document.getElementById("card-container").style.display = "none";
@@ -752,7 +757,6 @@
         }
       }
       
-      // Braintree para Cartão de Crédito + 3DS
       async function initializeBraintree() {
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
@@ -760,8 +764,8 @@
         
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if(clientErr) {
-            console.error("Erro ao criar client Braintree:", clientErr);
-            alert("Erro na inicialização do pagamento.");
+            console.error("Erro ao criar o client Braintree:", clientErr);
+            alert("Erro na inicialização do pagamento. Tente novamente.");
             return;
           }
           braintree.threeDSecure.create({
@@ -781,18 +785,9 @@
                 'input.valid': { 'color': 'green' }
               },
               fields: {
-                number: {
-                  selector: '#card-number',
-                  placeholder: 'Número do Cartão'
-                },
-                cvv: {
-                  selector: '#cvv',
-                  placeholder: 'CVV'
-                },
-                expirationDate: {
-                  selector: '#expiration-date',
-                  placeholder: 'MM/AA'
-                }
+                number: { selector: '#card-number', placeholder: 'Número do Cartão' },
+                cvv: { selector: '#cvv', placeholder: 'CVV' },
+                expirationDate: { selector: '#expiration-date', placeholder: 'MM/AA' }
               }
             }, (hostedFieldsErr, hostedFieldsInstance) => {
               if(hostedFieldsErr) {
@@ -810,12 +805,11 @@
                     return;
                   }
                   const amount = getOrderAmount();
-                  // Verifica se temos o BIN
+                  // Verifica se temos BIN
                   if (!payload.details || !payload.details.bin) {
-                    alert("Erro: BIN do cartão não disponível. Verifique se o cartão foi digitado corretamente.");
+                    alert("Erro: BIN do cartão não disponível. Digite novamente.");
                     return;
                   }
-                  // 3D Secure
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
@@ -836,7 +830,6 @@
         });
       }
       
-      // Braintree PayPal
       function initializePayPal() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -883,7 +876,6 @@
           });
       }
       
-      // Braintree Google Pay
       function initializeGooglePay() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -932,16 +924,15 @@
           });
       }
       
-      // Dispara a criação da transação no backend
       async function processPayment(nonce, method = "card") {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
         amount = parseFloat(amount).toFixed(2);
         
         let installments = "1";
-        if (method === "card") {
+        if(method === "card") {
           const installmentsSelect = document.getElementById("installments");
-          if (installmentsSelect) {
+          if(installmentsSelect) {
             installments = installmentsSelect.value;
           }
         }
@@ -985,14 +976,12 @@
         }
       }
       
-      // Retorna o valor total do pedido
       function getOrderAmount() {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
         return parseFloat(amount).toFixed(2);
       }
       
-      // Atualiza o carrinho ao carregar a página
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -1020,7 +1009,7 @@
         });
         container.innerHTML = html;
         
-        // Exemplo de "desconto" fixo
+        // Exemplo de desconto fixo
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         
@@ -1032,7 +1021,7 @@
           "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
-      // Ao carregar a página, carrega carrinho
+      // Ao carregar a página, atualiza carrinho
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
