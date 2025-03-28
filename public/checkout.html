@@ -361,8 +361,9 @@
             <div style="text-align: right; margin-bottom: 1rem;">
               <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
             </div>
-            <!-- Formulário de Registro -->
-            <div id="registrationFields">
+
+            <!-- Container de Registro (parte "geral") -->
+            <div id="registrationFieldsGeneral">
               <!-- Grid 1: Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -396,6 +397,10 @@
                   <input type="password" id="confirmPassword" placeholder="********">
                 </div>
               </div>
+            </div>
+
+            <!-- Campos de Documentos/Endereço (sempre visíveis) -->
+            <div id="documentFields">
               <!-- Grid 4: CPF, RG e Data de Nascimento -->
               <div class="fields-grid-3cols">
                 <div class="form-field">
@@ -438,7 +443,8 @@
                 </div>
               </div>
             </div>
-            <!-- Formulário de Login -->
+
+            <!-- Formulário de Login (alternando) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -454,6 +460,7 @@
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
+
             <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
             <div class="navigation">
               <button class="btn-save-passenger" id="toStep2">Próximo</button>
@@ -518,8 +525,6 @@
                 <label for="methodGooglePay">Google Pay</label>
               </div>
             </div>
-
-            <!-- (REMOVIDO o bloco #summaryData) -->
 
             <!-- Container para Cartão de Crédito (com 3DS e Parcelas) -->
             <div id="card-container" style="display:block;">
@@ -989,14 +994,10 @@
         });
         container.innerHTML = html;
 
-        // Sem desconto fixo de R$500
+        // Sem desconto
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-
-        // Desconto = 0
         document.getElementById("discountValue").textContent = "- R$ 0,00";
-
-        // Total = subtotal
         document.getElementById("totalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
@@ -1014,31 +1015,46 @@
           }
         }
         updateCheckoutCart(items);
+
+        // Verifica se o usuário está logado
+        const toggleLoginLink = document.getElementById("toggleLogin");
+        const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+        const loginFields = document.getElementById("loginFields");
+        const isLoggedIn = !!localStorage.getItem("agentId");
+
+        if (isLoggedIn) {
+          // Usuário logado -> Oculta o link de login e os campos gerais (nome, sobrenome, etc.)
+          toggleLoginLink.style.display = "none";
+          registrationFieldsGeneral.style.display = "none";
+          loginFields.style.display = "none";
+          // Mantemos "documentFields" (CPF, RG, etc.) sempre visível
+        } else {
+          // Usuário não logado -> Mostra o link de login e campos gerais
+          toggleLoginLink.style.display = "block";
+          registrationFieldsGeneral.style.display = "block";
+        }
       });
 
       /* ===================== LOGIN/REGISTRO ===================== */
-      const toggleLoginLink = document.getElementById("toggleLogin");
-      const registrationFields = document.getElementById("registrationFields");
+      const toggleLogin = document.getElementById("toggleLogin");
+      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+      const documentFields = document.getElementById("documentFields");
       const loginFields = document.getElementById("loginFields");
 
-      function isUserLoggedIn() {
-        return !!localStorage.getItem("agentId");
-      }
-
-      // Removido o código que escondia campos se o usuário estiver logado,
-      // para que os campos de dados pessoais (CPF, RG, etc.) fiquem sempre visíveis.
-
-      if (toggleLoginLink) {
-        toggleLoginLink.addEventListener("click", (e) => {
+      if (toggleLogin) {
+        toggleLogin.addEventListener("click", (e) => {
           e.preventDefault();
-          if (registrationFields.style.display !== "none") {
-            registrationFields.style.display = "none";
+          // Alterna exibição entre registro e login
+          if (registrationFieldsGeneral.style.display !== "none") {
+            // Esconde registro e exibe login
+            registrationFieldsGeneral.style.display = "none";
             loginFields.style.display = "block";
-            toggleLoginLink.textContent = "Não tenho Login";
+            toggleLogin.textContent = "Não tenho Login";
           } else {
-            registrationFields.style.display = "block";
+            // Exibe registro e esconde login
+            registrationFieldsGeneral.style.display = "block";
             loginFields.style.display = "none";
-            toggleLoginLink.textContent = "Economize tempo fazendo Login";
+            toggleLogin.textContent = "Economize tempo fazendo Login";
           }
         });
       }
@@ -1059,10 +1075,10 @@
             if(data.success) {
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              // Mantém os campos de dados pessoais visíveis
-              registrationFields.style.display = "block";
+              // Ao logar, some link e campos de registro
+              toggleLogin.style.display = "none";
+              registrationFieldsGeneral.style.display = "none";
               loginFields.style.display = "none";
-              toggleLoginLink.style.display = "none";
             } else {
               alert("Erro no login: " + (data.error || "Dados inválidos."));
             }
