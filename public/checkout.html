@@ -5,7 +5,7 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- Bibliotecas do Braintree para diferentes métodos -->
+    <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/3d-secure.min.js"></script>
@@ -641,7 +641,7 @@
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Inicializa o método de pagamento de acordo com a escolha do usuário
+      // Inicializa o método de pagamento conforme a escolha do usuário
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
         document.getElementById("card-container").style.display = "none";
@@ -671,7 +671,7 @@
             alert("Erro na inicialização do pagamento. Tente novamente.");
             return;
           }
-          // Cria instância do 3D Secure
+          // Cria instância do 3D Secure (versão 2)
           braintree.threeDSecure.create({
             version: 2,
             client: clientInstance
@@ -681,7 +681,7 @@
               alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            // Cria os Hosted Fields
+            // Cria os Hosted Fields para cartão
             braintree.hostedFields.create({
               client: clientInstance,
               styles: {
@@ -710,7 +710,7 @@
                     return;
                   }
                   const amount = getOrderAmount();
-                  // Verifica com 3D Secure antes de enviar o nonce final
+                  // Verifica com 3D Secure antes de finalizar o nonce
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
@@ -742,9 +742,7 @@
                 alert("Erro na inicialização do PayPal.");
                 return;
               }
-              braintree.paypalCheckout.create({
-                client: clientInstance
-              }, (err, paypalCheckoutInstance) => {
+              braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
                 if(err) {
                   console.error("Erro ao criar PayPal Checkout:", err);
                   alert("Erro na inicialização do PayPal.");
@@ -794,7 +792,7 @@
               braintree.googlePayment.create({
                 client: clientInstance,
                 googlePayVersion: 2,
-                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID' // ajuste conforme sua configuração
+                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID' // Substitua pelo seu Google Merchant ID
               }, (err, googlePaymentInstance) => {
                 if(err) {
                   console.error("Erro ao criar Google Pay:", err);
@@ -831,7 +829,7 @@
           });
       }
       
-      // Função para enviar o nonce e os dados para o backend e criar a transação via Braintree
+      // Função para enviar o nonce e os dados para o back-end e criar a transação via Braintree
       async function processPayment(nonce, method = "card") {
         let totalText = document.getElementById("totalValue").textContent; // ex: "R$ 8.247,20"
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
