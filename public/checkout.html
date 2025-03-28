@@ -5,13 +5,13 @@
     <title>Checkout Completo</title>
     <!-- Componente do header (se necessário) -->
     <script src="/js/header-component.js" type="module"></script>
-    <!-- SDK do PayPal (para Smart Payment Buttons) -->
-    <script src="https://www.paypal.com/sdk/js?client-id=SEU_CLIENT_ID_AQUI&currency=BRL&locale=pt_BR&intent=capture"></script>
+
     <!-- Braintree Scripts (para Cartão e PayPal via Braintree) -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
+
     <style>
       /* ==========================
          COMMON CSS & RESET
@@ -384,7 +384,7 @@
         margin-bottom: 1rem;
         font-size: 0.9rem;
       }
-      /* Campos do Cartão (Hosted Fields) */
+      /* Campos do Cartão (Hosted Fields) - menores */
       .card-fields {
         border: 1px solid #ddd;
         border-radius: 6px;
@@ -395,7 +395,7 @@
       .hosted-field {
         display: block;
         width: 100%;
-        height: 36px;
+        height: 36px; /* Altura menor */
         border: 1px solid #ccc;
         border-radius: 4px;
         margin-bottom: 1rem;
@@ -459,8 +459,18 @@
       <div class="modal-content">
         <span id="closeModal" class="close">&times;</span>
         <h2>Login</h2>
-        <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
-        <input type="password" id="loginPassword" placeholder="********" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="seuemail@exemplo.com"
+          style="width:100%; padding:0.5rem; margin-bottom:1rem;"
+        />
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="********"
+          style="width:100%; padding:0.5rem; margin-bottom:1rem;"
+        />
         <button id="btnSubmitLogin" class="btn btn-primary" style="width:100%;">Entrar</button>
       </div>
     </div>
@@ -520,7 +530,7 @@
                 </div>
                 <div class="form-field">
                   <label>E-mail</label>
-                  <input type="email" placeholder="seuemail@exemplo.com" />
+                  <input type="email" placeholder="seuemail@exemplo.com" id="email"/>
                 </div>
               </div>
               <div class="fields-grid-2cols">
@@ -563,7 +573,7 @@
                 </div>
                 <div class="form-field">
                   <label>Data de Nascimento</label>
-                  <input type="date" />
+                  <input type="date" id="birthdate"/>
                 </div>
               </div>
               <div class="fields-grid-3cols">
@@ -607,11 +617,22 @@
             <p>Confirme os detalhes e adicione serviços extras, se necessário.</p>
             <!-- Exemplo de seguro viagem (2 opções) -->
             <div class="vip-card mb-10">
-              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
+              <img
+                src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg"
+                alt="Seguro Viagem"
+                style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+              />
               <div class="vip-info">
-                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
-                <div class="title" style="margin-top:0.5rem; font-weight:600;">Cobertura de até U$ 60 mil para despesas médicas, atraso de voo e mais.</div>
-                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
+                <span
+                  class="badge"
+                  style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;"
+                >Cobertura para U$60.000</span>
+                <div class="title" style="margin-top:0.5rem; font-weight:600;">
+                  Cobertura de até U$ 60 mil para despesas médicas, atraso de voo e mais.
+                </div>
+                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">
+                  R$ 119,00 /pessoa
+                </div>
                 <div class="actions" style="margin-top:0.5rem;">
                   <button class="btn btn-primary">Adicionar</button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
@@ -619,11 +640,22 @@
               </div>
             </div>
             <div class="vip-card">
-              <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
+              <img
+                src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg"
+                alt="Seguro Viagem"
+                style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+              />
               <div class="vip-info">
-                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
-                <div class="title" style="margin-top:0.5rem; font-weight:600;">Cobertura completa para imprevistos durante a viagem.</div>
-                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
+                <span
+                  class="badge"
+                  style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;"
+                >Cobertura para U$60.000</span>
+                <div class="title" style="margin-top:0.5rem; font-weight:600;">
+                  Cobertura completa para imprevistos durante a viagem.
+                </div>
+                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">
+                  R$ 119,00 /pessoa
+                </div>
                 <div class="actions" style="margin-top:0.5rem;">
                   <button class="btn btn-primary">Adicionar</button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
@@ -644,6 +676,7 @@
             <p class="subtitle">Revise seus dados e escolha o método de pagamento.</p>
             <!-- Resumo dos dados (Preenchido no Step 3 via JS) -->
             <div id="summaryData" style="margin-bottom:1rem; font-size:0.9rem; line-height:1.4;"></div>
+            
             <!-- Lista de métodos (Cartão, PayPal, Boleto e Pix) -->
             <ul class="payment-method-list">
               <li>
@@ -663,18 +696,27 @@
               <li>
                 <input type="radio" id="methodBoleto" name="paymentMethod" value="boleto" />
                 <label for="methodBoleto">
-                  <img src="https://cdn-icons-png.flaticon.com/512/187/187473.png" alt="Boleto" style="height:18px;" />
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/187/187473.png"
+                    alt="Boleto"
+                    style="height:18px;"
+                  />
                   Boleto
                 </label>
               </li>
               <li>
                 <input type="radio" id="methodPix" name="paymentMethod" value="pix" />
                 <label for="methodPix">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/QR_code_example.svg" alt="Pix" style="height:18px;" />
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/0/04/QR_code_example.svg"
+                    alt="Pix"
+                    style="height:18px;"
+                  />
                   Pix
                 </label>
               </li>
             </ul>
+
             <!-- Container para Cartão (com 3DS e Hosted Fields) -->
             <div id="card-container">
               <!-- Select de Parcelas -->
@@ -692,11 +734,24 @@
               </select>
               <!-- Campos do Cartão -->
               <div class="card-fields">
-                <div id="card-number" class="hosted-field"></div>
-                <input type="text" id="cardholderName" class="hosted-field" placeholder="Nome do titular do cartão" />
+                <div
+                  id="card-number"
+                  class="hosted-field"
+                  placeholder="Número do cartão de crédito/débito"
+                ></div>
+                <input
+                  type="text"
+                  id="cardholderName"
+                  class="hosted-field"
+                  placeholder="Nome do titular do cartão"
+                />
                 <div class="inline-fields">
-                  <div id="expiration-date" class="hosted-field"></div>
-                  <div id="cvv" class="hosted-field"></div>
+                  <div
+                    id="expiration-date"
+                    class="hosted-field"
+                    placeholder="MM/AA"
+                  ></div>
+                  <div id="cvv" class="hosted-field" placeholder="CVV/CVC"></div>
                 </div>
               </div>
               <!-- Formulário de pagamento -->
@@ -704,21 +759,25 @@
                 <button type="submit" class="btn btn-primary" style="width:100%;">Pagar</button>
               </form>
             </div>
+
             <!-- Container PayPal -->
             <div id="paypal-container">
               <p style="margin-bottom:0.5rem;">Pagamento via PayPal:</p>
               <div id="paypal-button-container"></div>
             </div>
+
             <!-- Container Boleto (Placeholder) -->
             <div id="boleto-container">
               <p>Gerar Boleto:</p>
               <button id="btnGerarBoleto" class="btn btn-primary">Gerar Boleto</button>
             </div>
+
             <!-- Container Pix (Placeholder) -->
             <div id="pix-container">
               <p>Gerar Pix (QR Code):</p>
               <button id="btnGerarPix" class="btn btn-primary">Gerar Pix</button>
             </div>
+
             <div class="navigation">
               <button class="btn btn-secondary" id="backToStep2">Voltar</button>
             </div>
@@ -787,7 +846,6 @@
       /* ===============================
          LÓGICA DE LOGIN (Modal e Alternância)
       ================================ */
-      const btnLogin = document.getElementById("btnLogin") || document.querySelector("#toggleLogin");
       const loginModal = document.getElementById("loginModal");
       const closeModal = document.getElementById("closeModal");
       const btnSubmitLogin = document.getElementById("btnSubmitLogin");
@@ -811,7 +869,7 @@
         });
       }
       
-      // Validação de login
+      // Validação de login (exemplo)
       if (btnSubmitLogin) {
         btnSubmitLogin.addEventListener("click", () => {
           const email = document.getElementById("loginEmail").value;
@@ -821,27 +879,27 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
           })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              localStorage.setItem("agentId", data.user.id);
-              alert("Login efetuado com sucesso!");
-              registrationFields.style.display = "none";
-              loginFields.style.display = "none";
-              toggleLoginLink.style.display = "none";
-            } else {
-              alert("Erro no login: " + (data.error || "Dados inválidos."));
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            alert("Erro ao realizar o login. Tente novamente.");
-          });
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                localStorage.setItem("agentId", data.user.id);
+                alert("Login efetuado com sucesso!");
+                registrationFields.style.display = "none";
+                loginFields.style.display = "none";
+                toggleLoginLink.style.display = "none";
+              } else {
+                alert("Erro no login: " + (data.error || "Dados inválidos."));
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              alert("Erro ao realizar o login. Tente novamente.");
+            });
         });
       }
       
       // Fechar modal se clicar fora
-      window.onclick = function(event) {
+      window.onclick = function (event) {
         if (event.target == loginModal) {
           loginModal.style.display = "none";
         }
@@ -861,10 +919,10 @@
       const backToStep2Btn = document.getElementById("backToStep2");
       
       function showStep(stepNumber) {
-        stepContents.forEach(content => {
+        stepContents.forEach((content) => {
           content.classList.toggle("active", content.dataset.step === String(stepNumber));
         });
-        stepButtons.forEach(button => {
+        stepButtons.forEach((button) => {
           const btnStep = button.dataset.step;
           button.classList.remove("active");
           button.classList.remove("disabled");
@@ -918,7 +976,7 @@
       backToStep2Btn && backToStep2Btn.addEventListener("click", () => showStep(2));
       
       // Atualiza método de pagamento ao selecionar
-      document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+      document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
         input.addEventListener("change", initializePaymentMethod);
       });
       
@@ -950,7 +1008,9 @@
       let threeDSecureInstance = null;
       
       async function initBraintreeCard() {
+        // Se já inicializou Hosted Fields, não recria
         if (hostedFieldsInstance) return;
+
         if (!clientToken) {
           try {
             const res = await fetch("/api/braintree/get-client-token");
@@ -1077,7 +1137,7 @@
                     currency: "BRL"
                   });
                 },
-                onApprove: (data, actions) => {
+                onAuthorize: (data, actions) => {
                   return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
                     processPayment(payload.nonce, "paypal");
                   });
@@ -1172,7 +1232,7 @@
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
         let html = "";
-        items.forEach(item => {
+        items.forEach((item) => {
           let price = item.basePriceAdult || 80;
           subtotal += price;
           html += `
@@ -1194,11 +1254,14 @@
           `;
         });
         container.innerHTML = html;
-        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        const discount = 500;
-        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("subtotalValue").textContent =
+          "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const discount = 500;  // Desconto fixo de 500
+        document.getElementById("discountValue").textContent =
+          "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         const total = subtotal - discount;
-        document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent =
+          "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
       window.addEventListener("load", () => {
