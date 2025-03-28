@@ -8,7 +8,7 @@
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
-    <!-- Ajuste aqui: trocar 3d-secure.min.js por three-d-secure.min.js -->
+    <!-- Observe que o arquivo correto é "three-d-secure.min.js" -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
@@ -179,16 +179,9 @@
       }
       
       /* ================= MULTI-STEP ================== */
-      .step-content {
-        display: none;
-      }
-      .step-content.active {
-        display: block;
-      }
-      .navigation {
-        margin-top: 1rem;
-        text-align: right;
-      }
+      .step-content { display: none; }
+      .step-content.active { display: block; }
+      .navigation { margin-top: 1rem; text-align: right; }
       .traveler-form-header {
         display: flex;
         align-items: center;
@@ -312,20 +305,12 @@
       }
       
       @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-        }
-        .right-col {
-          width: 100%;
-        }
+        .main-container { flex-direction: column; }
+        .right-col { width: 100%; }
       }
       
-      .mt-10 {
-        margin-top: 10px;
-      }
-      .mb-10 {
-        margin-bottom: 10px;
-      }
+      .mt-10 { margin-top: 10px; }
+      .mb-10 { margin-bottom: 10px; }
     </style>
   </head>
   <body>
@@ -589,7 +574,7 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
-      // Objeto global para armazenar os dados do checkout (Step 1)
+      // Objeto global para armazenar os dados do checkout (Passo 1)
       let checkoutData = {};
       
       const stepsMenu = document.getElementById("stepsMenu");
@@ -653,14 +638,10 @@
       });
       
       // Botões de voltar
-      backToStep1Btn.addEventListener("click", () => {
-        showStep(1);
-      });
-      backToStep2Btn.addEventListener("click", () => {
-        showStep(2);
-      });
+      backToStep1Btn.addEventListener("click", () => { showStep(1); });
+      backToStep2Btn.addEventListener("click", () => { showStep(2); });
       
-      // Se trocar o método de pagamento no rádio, reinicializa
+      // Quando o método de pagamento muda, reinicializa
       document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
         input.addEventListener('change', initializePaymentMethod);
       });
@@ -671,13 +652,13 @@
         document.getElementById("paypal-container").style.display = "none";
         document.getElementById("google-pay-container").style.display = "none";
         
-        if (method === "card") {
+        if(method === "card") {
           document.getElementById("card-container").style.display = "block";
           initializeBraintree();
-        } else if (method === "paypal") {
+        } else if(method === "paypal") {
           document.getElementById("paypal-container").style.display = "block";
           initializePayPal();
-        } else if (method === "googlePay") {
+        } else if(method === "googlePay") {
           document.getElementById("google-pay-container").style.display = "block";
           initializeGooglePay();
         }
@@ -688,71 +669,63 @@
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
         const clientToken = data.clientToken;
-        
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-          if (clientErr) {
-            console.error("Erro ao criar client Braintree:", clientErr);
+          if(clientErr) {
+            console.error("Erro ao criar o client Braintree:", clientErr);
             alert("Erro na inicialização do pagamento.");
             return;
           }
-          // Cria instância do 3D Secure
+          // Cria instância do 3D Secure (versão 2)
           braintree.threeDSecure.create({
             version: 2,
             client: clientInstance
           }, (threeDSErr, threeDSecureInstance) => {
-            if (threeDSErr) {
+            if(threeDSErr) {
               console.error("Erro ao criar 3D Secure:", threeDSErr);
               alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            // Cria Hosted Fields
+            // Cria os Hosted Fields para o cartão de crédito
             braintree.hostedFields.create({
               client: clientInstance,
               styles: {
-                'input': {
-                  'font-size': '16px',
-                  'color': '#333'
-                },
+                'input': { 'font-size': '16px', 'color': '#333' },
                 'input.invalid': { 'color': 'red' },
                 'input.valid': { 'color': 'green' }
               },
               fields: {
-                number: {
-                  selector: '#card-number',
-                  placeholder: 'Número do Cartão'
-                },
-                cvv: {
-                  selector: '#cvv',
-                  placeholder: 'CVV'
-                },
-                expirationDate: {
-                  selector: '#expiration-date',
-                  placeholder: 'MM/AA'
-                }
+                number: { selector: '#card-number', placeholder: 'Número do Cartão' },
+                cvv: { selector: '#cvv', placeholder: 'CVV' },
+                expirationDate: { selector: '#expiration-date', placeholder: 'MM/AA' }
               }
             }, (hostedFieldsErr, hostedFieldsInstance) => {
-              if (hostedFieldsErr) {
+              if(hostedFieldsErr) {
                 console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
                 alert("Erro ao configurar os campos de pagamento.");
                 return;
               }
-              // Ao enviar o formulário, tokeniza e verifica 3DS
               const form = document.getElementById('checkout-form');
               form.addEventListener('submit', (evt) => {
                 evt.preventDefault();
                 hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-                  if (tokenizeErr) {
+                  if(tokenizeErr) {
                     console.error("Erro ao tokenizar:", tokenizeErr);
                     alert("Erro ao processar dados do cartão.");
                     return;
                   }
                   const amount = getOrderAmount();
+                  // Certifique-se de que o payload possui os detalhes com o BIN
+                  if (!payload.details || !payload.details.bin) {
+                    alert("Erro: BIN do cartão não disponível. Verifique se o cartão foi digitado corretamente.");
+                    return;
+                  }
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
+                    bin: payload.details.bin, // Adiciona o BIN conforme requerido
                     onLookupComplete: (data, next) => { next(); }
                   }, (verifyErr, threeDSecurePayload) => {
-                    if (verifyErr) {
+                    if(verifyErr) {
                       console.error("Erro no 3D Secure:", verifyErr);
                       alert("Erro na verificação 3D Secure.");
                       return;
@@ -772,13 +745,13 @@
           .then(data => {
             const clientToken = data.clientToken;
             braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-              if (clientErr) {
+              if(clientErr) {
                 console.error("Erro ao criar client para PayPal:", clientErr);
                 alert("Erro na inicialização do PayPal.");
                 return;
               }
               braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
-                if (err) {
+                if(err) {
                   console.error("Erro ao criar PayPal Checkout:", err);
                   alert("Erro na inicialização do PayPal.");
                   return;
@@ -818,7 +791,7 @@
           .then(data => {
             const clientToken = data.clientToken;
             braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-              if (clientErr) {
+              if(clientErr) {
                 console.error("Erro ao criar client para Google Pay:", clientErr);
                 alert("Erro na inicialização do Google Pay.");
                 return;
@@ -826,9 +799,9 @@
               braintree.googlePayment.create({
                 client: clientInstance,
                 googlePayVersion: 2,
-                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID'
+                googleMerchantId: 'YOUR_GOOGLE_MERCHANT_ID' // Substitua pelo seu Google Merchant ID
               }, (err, googlePaymentInstance) => {
-                if (err) {
+                if(err) {
                   console.error("Erro ao criar Google Pay:", err);
                   alert("Erro na inicialização do Google Pay.");
                   return;
@@ -866,9 +839,9 @@
         amount = parseFloat(amount).toFixed(2);
         
         let installments = "1";
-        if (method === "card") {
+        if(method === "card") {
           const installmentsSelect = document.getElementById("installments");
-          if (installmentsSelect) {
+          if(installmentsSelect) {
             installments = installmentsSelect.value;
           }
         }
@@ -900,7 +873,7 @@
             body: JSON.stringify(body)
           });
           const result = await res.json();
-          if (result.success) {
+          if(result.success) {
             alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
             showStep(4);
           } else {
@@ -956,11 +929,11 @@
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
-        if (cart && cart.items && cart.items.length > 0) {
+        if(cart && cart.items && cart.items.length > 0) {
           items = cart.items;
         } else {
           const savedCart = localStorage.getItem("cartItems");
-          if (savedCart) {
+          if(savedCart) {
             items = JSON.parse(savedCart);
           }
         }
