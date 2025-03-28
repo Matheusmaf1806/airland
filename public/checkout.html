@@ -5,6 +5,7 @@
     <title>Checkout - BCDC Sandbox</title>
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
+    
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
@@ -18,9 +19,13 @@
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
       * {
-        margin: 0; padding: 0; box-sizing: border-box;
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box;
       }
-      html { scroll-behavior: smooth; }
+      html { 
+        scroll-behavior: smooth; 
+      }
       body {
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
@@ -28,10 +33,15 @@
         background: #f1f5f9;
       }
       a:focus, input:focus, textarea:focus, button:focus {
-        outline: none; box-shadow: none;
+        outline: none; 
+        box-shadow: none;
       }
-      button, a { transition: all 0.3s ease-out; }
-      a:hover { color: #365cf5; }
+      button, a { 
+        transition: all 0.3s ease-out; 
+      }
+      a:hover { 
+        color: #365cf5; 
+      }
 
       /* ===========================
           GLOBAL LAYOUT
@@ -43,14 +53,16 @@
         display: flex;
         gap: 2rem;
       }
-      .left-col { flex: 1; }
+      .left-col { 
+        flex: 1; 
+      }
       .right-col {
         width: 400px;
         flex-shrink: 0;
       }
 
       /* ===========================
-          STEPS MENU
+          STEPS MENU (barra superior)
       ===========================*/
       .steps-menu {
         background-color: #365cf5;
@@ -58,19 +70,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
-        margin-bottom: 20px;
+        gap: 1.5rem;
+        margin-bottom: 30px;
       }
       .steps-menu .step {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         color: #fff;
+        font-weight: 500;
         cursor: pointer;
       }
       .steps-menu .circle {
-        width: 30px;
-        height: 30px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         background-color: #fff;
         color: #365cf5;
@@ -79,14 +92,20 @@
         justify-content: center;
         font-weight: 700;
       }
-      .steps-menu .separator { color: #fff; font-weight: bold; }
-      .steps-menu .step.active .circle {
-        background-color: #365cf5;
+      .steps-menu .separator {
         color: #fff;
+        font-weight: bold;
+      }
+      .steps-menu .step.active .circle {
+        background-color: #fff;
+        color: #365cf5;
         border: 2px solid #fff;
       }
+      .steps-menu .step.active {
+        font-weight: 700;
+      }
       .steps-menu .step.disabled {
-        opacity: 0.5;
+        opacity: 0.6;
         cursor: not-allowed;
       }
 
@@ -163,7 +182,10 @@
         background: #005dbf;
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       }
-      .navigation { margin-top: 1rem; text-align: right; }
+      .navigation { 
+        margin-top: 1rem; 
+        text-align: right; 
+      }
 
       /* ===========================
           RESERVATION / CART
@@ -187,13 +209,6 @@
       .reserva-item:last-child {
         border-bottom: none;
         margin-bottom: 0;
-      }
-      .reserva-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
       }
       .reserva-left {
         display: flex;
@@ -382,6 +397,7 @@
     <div class="main-container">
       <!-- Coluna Esquerda: Formulário Multi-Step -->
       <div class="left-col">
+        
         <!-- Step 1: Dados Pessoais -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
@@ -389,7 +405,7 @@
               <h2>Dados Pessoais</h2>
             </div>
             <div id="step1-fields">
-              <!-- Campos de exemplo -->
+              <!-- Exemplo de campos do Step 1 -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -464,13 +480,37 @@
             <h2>Detalhes Adicionais</h2>
             <p>Selecione os serviços adicionais (ex: seguro de viagem):</p>
             <div class="vip-card">
-              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
+              <img 
+                src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" 
+                alt="Seguro Viagem" 
+                style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+              >
               <div class="vip-info">
-                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px;">Cobertura para U$60.000</span>
-                <span class="title" style="display:block; font-weight:600; margin-top:0.5rem;">Seguro para despesas médicas, atrasos, etc.</span>
-                <span class="price" style="display:block; color:#00c853; font-weight:700; margin-top:0.5rem;">R$ 119,00 /pessoa</span>
+                <span 
+                  class="badge" 
+                  style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px;"
+                >
+                  Cobertura para U$60.000
+                </span>
+                <span 
+                  class="title" 
+                  style="display:block; font-weight:600; margin-top:0.5rem;"
+                >
+                  Seguro para despesas médicas, atrasos, etc.
+                </span>
+                <span 
+                  class="price" 
+                  style="display:block; color:#00c853; font-weight:700; margin-top:0.5rem;"
+                >
+                  R$ 119,00 /pessoa
+                </span>
                 <div class="actions" style="margin-top:0.5rem;">
-                  <button id="addInsurance1" style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Adicionar</button>
+                  <button 
+                    id="addInsurance1" 
+                    style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;"
+                  >
+                    Adicionar
+                  </button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
                 </div>
               </div>
@@ -501,7 +541,7 @@
               </div>
             </div>
             
-            <!-- Container para exibir o resumo dos dados -->
+            <!-- Container para exibir o resumo dos dados (nome, e-mail, etc.) -->
             <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;"></div>
             
             <!-- Container para Cartão de Crédito (com parcelamento e 3DS) -->
@@ -630,6 +670,7 @@
       const toStep3Btn = document.getElementById("toStep3");
       const backToStep2Btn = document.getElementById("backToStep2");
       
+      // Função para exibir o step correto
       function showStep(stepNumber) {
         stepContents.forEach(content => {
           content.classList.remove("active");
@@ -652,6 +693,7 @@
       
       // Passo 1 -> Passo 2
       toStep2Btn.addEventListener("click", () => {
+        // Captura dados do step 1
         checkoutData = {
           firstName: document.getElementById("firstName").value,
           lastName: document.getElementById("lastName").value,
@@ -671,6 +713,7 @@
       
       // Passo 2 -> Passo 3
       toStep3Btn.addEventListener("click", () => {
+        // Exibe resumo dos dados no Step 3
         const summaryDiv = document.getElementById("summaryData");
         summaryDiv.innerHTML = `
           <p><strong>Nome:</strong> ${checkoutData.firstName} ${checkoutData.lastName}</p>
@@ -678,7 +721,7 @@
           <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
         `;
         showStep(3);
-        initializePaymentMethod();
+        initializePaymentMethod(); // Inicializa o método de pagamento escolhido
       });
       
       // Botões de voltar
@@ -690,37 +733,37 @@
         input.addEventListener('change', initializePaymentMethod);
       });
       
+      // Exibe/oculta containers de pagamento e inicia Braintree/PayPal/GooglePay
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
         document.getElementById("card-container").style.display = "none";
         document.getElementById("paypal-container").style.display = "none";
         document.getElementById("google-pay-container").style.display = "none";
         
-        if(method === "card") {
+        if (method === "card") {
           document.getElementById("card-container").style.display = "block";
           initializeBraintree();
-        } else if(method === "paypal") {
+        } else if (method === "paypal") {
           document.getElementById("paypal-container").style.display = "block";
           initializePayPal();
-        } else if(method === "googlePay") {
+        } else if (method === "googlePay") {
           document.getElementById("google-pay-container").style.display = "block";
           initializeGooglePay();
         }
       }
       
+      // Braintree para Cartão de Crédito + 3DS
       async function initializeBraintree() {
-        // Obter client token do backend
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
         const clientToken = data.clientToken;
         
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if(clientErr) {
-            console.error("Erro ao criar o client Braintree:", clientErr);
+            console.error("Erro ao criar client Braintree:", clientErr);
             alert("Erro na inicialização do pagamento.");
             return;
           }
-          // Cria instância do 3D Secure (versão 2)
           braintree.threeDSecure.create({
             version: 2,
             client: clientInstance
@@ -730,7 +773,6 @@
               alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            // Cria os Hosted Fields para o cartão de crédito
             braintree.hostedFields.create({
               client: clientInstance,
               styles: {
@@ -768,11 +810,12 @@
                     return;
                   }
                   const amount = getOrderAmount();
-                  // Se for usar 3DS, precisamos do BIN do cartão
+                  // Verifica se temos o BIN
                   if (!payload.details || !payload.details.bin) {
                     alert("Erro: BIN do cartão não disponível. Verifique se o cartão foi digitado corretamente.");
                     return;
                   }
+                  // 3D Secure
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
@@ -793,6 +836,7 @@
         });
       }
       
+      // Braintree PayPal
       function initializePayPal() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -839,6 +883,7 @@
           });
       }
       
+      // Braintree Google Pay
       function initializeGooglePay() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -887,6 +932,7 @@
           });
       }
       
+      // Dispara a criação da transação no backend
       async function processPayment(nonce, method = "card") {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -939,12 +985,14 @@
         }
       }
       
+      // Retorna o valor total do pedido
       function getOrderAmount() {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
         return parseFloat(amount).toFixed(2);
       }
       
+      // Atualiza o carrinho ao carregar a página
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
@@ -971,15 +1019,20 @@
           `;
         });
         container.innerHTML = html;
+        
+        // Exemplo de "desconto" fixo
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        
         const discount = 500;
         document.getElementById("discountValue").textContent =
           "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        
         document.getElementById("totalValue").textContent =
           "R$ " + (subtotal - discount).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
+      // Ao carregar a página, carrega carrinho
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
