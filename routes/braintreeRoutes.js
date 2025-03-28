@@ -1,6 +1,6 @@
 // routes/braintreeRoutes.js
 import express from "express";
-import { gateway } from "../api/braintree.js"; // Verifique se o caminho está correto
+import { gateway } from "../api/braintree.js"; // Certifique-se de que o caminho está correto
 
 const router = express.Router();
 
@@ -20,10 +20,10 @@ router.get("/get-client-token", async (req, res) => {
 
 /*
   Endpoint para criar a transação.
-  Recebe o nonce (que pode ser originado de cartão com 3DS, PayPal ou Google Pay),
-  o valor da transação, dados do cliente, de cobrança e, opcionalmente, o número de parcelas.
-  O campo installments é adicionado condicionalmente se for enviado.
-  O campo merchantAccountId está fixo para sua conta BRL.
+  Recebe o nonce (originado do cartão com 3DS, PayPal ou Google Pay),
+  o valor, os dados do cliente, de cobrança e, opcionalmente, o número de parcelas.
+  O campo installments é adicionado se enviado.
+  O merchantAccountId está fixo para sua conta BRL.
 */
 router.post("/create-transaction", async (req, res) => {
   const { paymentMethodNonce, amount, customer, billing, installments } = req.body;
@@ -32,7 +32,6 @@ router.post("/create-transaction", async (req, res) => {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
       merchantAccountId: "7jhfwkgqsgq2fpg", // Sua Merchant Account para BRL
-      // Se o campo installments for enviado, adiciona-o à requisição
       ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
