@@ -8,49 +8,50 @@
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
-    <!-- Observe que o arquivo correto é "three-d-secure.min.js" -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
     
     <style>
       /* ===========================
-          COMMON CSS
+          FONT & RESET
       ===========================*/
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-      
-      html {
-        scroll-behavior: smooth;
+      * {
+        margin: 0; padding: 0; box-sizing: border-box;
       }
-      
+      html { scroll-behavior: smooth; }
       body {
-        font-family: "Montserrat", sans-serif !important;
+        font-family: "Montserrat", sans-serif;
         font-weight: 400;
         color: #5d657b;
-        overflow-x: hidden;
         background: #f1f5f9;
       }
-      
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
       a:focus, input:focus, textarea:focus, button:focus {
-        outline: none;
-        box-shadow: none;
+        outline: none; box-shadow: none;
       }
-      
-      a:hover {
-        color: #365cf5;
+      button, a { transition: all 0.3s ease-out; }
+      a:hover { color: #365cf5; }
+
+      /* ===========================
+          GLOBAL LAYOUT
+      ===========================*/
+      .main-container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        display: flex;
+        gap: 2rem;
       }
-      
-      button, a {
-        transition: all 0.3s ease-out;
+      .left-col { flex: 1; }
+      .right-col {
+        width: 400px;
+        flex-shrink: 0;
       }
-      
-      /* ================= MENU DE STEPS ================== */
+
+      /* ===========================
+          STEPS MENU
+      ===========================*/
       .steps-menu {
         background-color: #365cf5;
         padding: 20px 0;
@@ -60,7 +61,6 @@
         gap: 1rem;
         margin-bottom: 20px;
       }
-      
       .steps-menu .step {
         display: flex;
         align-items: center;
@@ -68,7 +68,6 @@
         color: #fff;
         cursor: pointer;
       }
-      
       .steps-menu .circle {
         width: 30px;
         height: 30px;
@@ -80,68 +79,55 @@
         justify-content: center;
         font-weight: 700;
       }
-      
-      .steps-menu .separator {
-        color: #fff;
-        font-weight: bold;
-      }
-      
+      .steps-menu .separator { color: #fff; font-weight: bold; }
       .steps-menu .step.active .circle {
         background-color: #365cf5;
         color: #fff;
         border: 2px solid #fff;
       }
-      
       .steps-menu .step.disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
-      
-      /* ================= LAYOUT PRINCIPAL ================== */
-      .main-container {
-        width: 90%;
-        max-width: 1200px;
-        margin: 2rem auto;
-        display: flex;
-        gap: 2rem;
+
+      /* ===========================
+          CARD-STYLE BOX
+      ===========================*/
+      .card-style-1 {
+        background: #fff;
+        border: 1px solid #efefef;
+        border-radius: 10px;
+        padding: 25px 30px;
+        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+        margin-bottom: 20px;
       }
-      
-      .left-col {
-        flex: 1;
-      }
-      
-      .right-col {
-        width: 400px;
-        flex-shrink: 0;
-      }
-      
-      /* ================= FORMULÁRIOS E CAMPOS ================== */
+
+      /* ===========================
+          FORMS & FIELDS
+      ===========================*/
       .fields-grid-2cols {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
       .fields-grid-3cols {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
       }
-      
       .form-field {
         display: flex;
         flex-direction: column;
+        margin-bottom: 1rem;
       }
-      
       .form-field label {
         font-size: 0.85rem;
         color: #666;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.4rem;
         font-weight: 500;
       }
-      
       .form-field input,
       .form-field select {
         font-size: 0.85rem;
@@ -149,19 +135,19 @@
         border: 1px solid #eee;
         border-radius: 4px;
       }
-      
       .form-field input:focus,
       .form-field select:focus {
         border-color: #007aff;
       }
-      
       .form-note {
         font-size: 0.75rem;
         color: #888;
         margin-top: 1rem;
       }
-      
-      /* ================= BOTÕES ================== */
+
+      /* ===========================
+          BUTTONS
+      ===========================*/
       .btn-save-passenger,
       .btn-pay-pal {
         background: #007aff;
@@ -172,40 +158,16 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
-      
       .btn-save-passenger:hover,
       .btn-pay-pal:hover {
         background: #005dbf;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       }
-      
-      /* ================= MULTI-STEP ================== */
-      .step-content {
-        display: none;
-      }
-      .step-content.active {
-        display: block;
-      }
-      .navigation {
-        margin-top: 1rem;
-        text-align: right;
-      }
-      .traveler-form-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      
-      .card-style-1 {
-        background: #fff;
-        border: 1px solid #efefef;
-        border-radius: 10px;
-        padding: 25px 30px;
-        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
-        margin-bottom: 20px;
-      }
-      
-      /* ================= COLUNA DA DIREITA (RESUMO DO CARRINHO) ================== */
+      .navigation { margin-top: 1rem; text-align: right; }
+
+      /* ===========================
+          RESERVATION / CART
+      ===========================*/
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
@@ -213,7 +175,6 @@
         padding: 25px 30px;
         box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
       }
-      
       .reserva-item {
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -223,12 +184,10 @@
         margin-bottom: 0.75rem;
         align-items: center;
       }
-      
       .reserva-item:last-child {
         border-bottom: none;
         margin-bottom: 0;
       }
-      
       .reserva-img {
         width: 60px;
         height: 60px;
@@ -236,112 +195,63 @@
         border-radius: 4px;
         border: 1px solid #eee;
       }
-      
       .reserva-left {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
       }
-      
       .reserva-left .categoria {
         font-size: 0.85rem;
         font-weight: 600;
         color: #007aff;
       }
-      
       .reserva-left .nome {
         font-size: 0.85rem;
         color: #333;
       }
-      
       .reserva-left .subinfo {
         font-size: 0.8rem;
         color: #888;
       }
-      
       .reserva-preco {
         font-size: 1rem;
         font-weight: 700;
         color: #00c853;
         text-align: right;
       }
-      
       .reserva-details p {
         font-size: 0.8rem;
         margin: 2px 0;
         color: #555;
       }
-      
       .resumo-compra {
         margin-top: 20px;
         padding-top: 15px;
         border-top: 1px solid #eee;
       }
-      
       .resumo-compra .resumo-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: 10px;
       }
-      
       .resumo-compra .resumo-row label {
         font-weight: 600;
       }
-      
       .resumo-compra .resumo-row p {
         font-weight: 600;
         margin: 0;
       }
-      
       .resumo-compra .cupom {
         margin-top: 15px;
       }
-      
       .resumo-compra .cupom label {
         font-weight: 600;
       }
-      
-      footer {
-        width: 90%;
-        max-width: 1200px;
-        margin: 2rem auto;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #888;
-        border-top: 1px solid #eee;
-        padding-top: 1rem;
-      }
-      
-      @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-        }
-        .right-col {
-          width: 100%;
-        }
-      }
-      
-      .mt-10 {
-        margin-top: 10px;
-      }
-      .mb-10 {
-        margin-bottom: 10px;
-      }
-      
-      /* ==================== ESTILOS ADICIONAIS PARA A ETAPA 3 (PAGAMENTO) ==================== */
-      .form-field div[id^="card-"] {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        height: 45px; 
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        background: #fdfdfd;
-      }
-      .form-field div[id^="card-"]:focus-within {
-        border-color: #007aff;
-      }
-      /* Melhorar a aparência dos radios de pagamento */
+
+      /* ===========================
+          STEP 3: PAGAMENTO
+      ===========================*/
+      /* Ajuste do container de método de pagamento */
       .form-field div {
         display: flex;
         gap: 1rem;
@@ -355,15 +265,90 @@
       }
       .form-field div input[type="radio"] {
         margin-right: 5px;
+        accent-color: #007aff;
       }
-      /* Botão de pagar */
+
+      /* Campos Hosted Fields */
+      #card-container {
+        margin-top: 1rem;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+      #card-container .form-field label {
+        margin-bottom: 0.3rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      /* Ajuste para exibir as divs do Hosted Fields de forma consistente */
+      #card-number, #expiration-date, #cvv {
+        display: flex;
+        align-items: center;
+        height: 44px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 0 8px;
+        transition: border-color 0.3s;
+      }
+      #card-number:focus-within, 
+      #expiration-date:focus-within, 
+      #cvv:focus-within {
+        border-color: #007aff;
+      }
+      .fields-grid-2cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      /* Parcelas */
+      #installments {
+        width: 100px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 0.4rem;
+        margin-top: 0.2rem;
+      }
+
+      /* Botão de Pagar */
       #checkout-form button.btn-pay-pal {
         margin-top: 1rem;
         width: 100%;
+        font-weight: 600;
       }
-      /* Container do PayPal e Google Pay */
+
+      /* PayPal e Google Pay containers */
       #paypal-container, #google-pay-container {
         margin-top: 1rem;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      /* ===========================
+          FOOTER
+      ===========================*/
+      footer {
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #888;
+        border-top: 1px solid #eee;
+        padding-top: 1rem;
+      }
+
+      /* MOBILE RESPONSIVE */
+      @media (max-width: 768px) {
+        .main-container {
+          flex-direction: column;
+        }
+        .right-col {
+          width: 100%;
+        }
       }
     </style>
   </head>
@@ -404,6 +389,7 @@
               <h2>Dados Pessoais</h2>
             </div>
             <div id="step1-fields">
+              <!-- Campos de exemplo -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -478,14 +464,14 @@
             <h2>Detalhes Adicionais</h2>
             <p>Selecione os serviços adicionais (ex: seguro de viagem):</p>
             <div class="vip-card">
-              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem">
+              <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
               <div class="vip-info">
-                <span class="badge">Cobertura para U$60.000</span>
-                <span class="title">Seguro para despesas médicas, atrasos, etc.</span>
-                <span class="price">R$ 119,00 /pessoa</span>
-                <div class="actions">
-                  <button id="addInsurance1">Adicionar</button>
-                  <a href="#">Detalhes</a>
+                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px;">Cobertura para U$60.000</span>
+                <span class="title" style="display:block; font-weight:600; margin-top:0.5rem;">Seguro para despesas médicas, atrasos, etc.</span>
+                <span class="price" style="display:block; color:#00c853; font-weight:700; margin-top:0.5rem;">R$ 119,00 /pessoa</span>
+                <div class="actions" style="margin-top:0.5rem;">
+                  <button id="addInsurance1" style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Adicionar</button>
+                  <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
                 </div>
               </div>
             </div>
@@ -500,7 +486,7 @@
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p>Revise seus dados e escolha o método de pagamento.</p>
+            <p style="margin-bottom:1rem;">Revise seus dados e escolha o método de pagamento.</p>
             
             <!-- Área de escolha de método -->
             <div class="form-field">
@@ -516,7 +502,7 @@
             </div>
             
             <!-- Container para exibir o resumo dos dados -->
-            <div id="summaryData"></div>
+            <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;"></div>
             
             <!-- Container para Cartão de Crédito (com parcelamento e 3DS) -->
             <div id="card-container" style="display:none;">
@@ -628,6 +614,10 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
+      /****************************************
+       * LÓGICA DE STEPS, PAGAMENTO E BRAINTREE
+       ****************************************/
+      
       // Objeto global para armazenar os dados do checkout (Passo 1)
       let checkoutData = {};
       
@@ -723,6 +713,7 @@
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
         const clientToken = data.clientToken;
+        
         braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
           if(clientErr) {
             console.error("Erro ao criar o client Braintree:", clientErr);
@@ -748,9 +739,18 @@
                 'input.valid': { 'color': 'green' }
               },
               fields: {
-                number: { selector: '#card-number', placeholder: 'Número do Cartão' },
-                cvv: { selector: '#cvv', placeholder: 'CVV' },
-                expirationDate: { selector: '#expiration-date', placeholder: 'MM/AA' }
+                number: {
+                  selector: '#card-number',
+                  placeholder: 'Número do Cartão'
+                },
+                cvv: {
+                  selector: '#cvv',
+                  placeholder: 'CVV'
+                },
+                expirationDate: {
+                  selector: '#expiration-date',
+                  placeholder: 'MM/AA'
+                }
               }
             }, (hostedFieldsErr, hostedFieldsInstance) => {
               if(hostedFieldsErr) {
