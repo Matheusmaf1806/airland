@@ -3,29 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <title>Checkout Completo</title>
-    <!-- Braintree Scripts (para Cartão e PayPal) -->
+    <!-- Componente do header (se necessário) -->
+    <script src="/js/header-component.js" type="module"></script>
+    <!-- SDK do PayPal (para Smart Payment Buttons) -->
+    <script src="https://www.paypal.com/sdk/js?client-id=SEU_CLIENT_ID_AQUI&currency=BRL&locale=pt_BR&intent=capture"></script>
+    <!-- Braintree Scripts (para Cartão e PayPal via Braintree) -->
     <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
     <style>
-      /* RESET & FONT */
-      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap");
+      /* ==========================
+         COMMON CSS & RESET
+      ===========================*/
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Montserrat", sans-serif !important;
+        font-weight: 400;
+        color: #5d657b;
+        background: #f1f5f9;
+        overflow-x: hidden;
+      }
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-      body {
-        font-family: "Montserrat", sans-serif;
-        background: #f1f5f9;
-        color: #333;
+      a:focus,
+      input:focus,
+      textarea:focus,
+      button:focus {
+        outline: none;
+        box-shadow: none;
       }
-      a, button {
-        cursor: pointer;
+      a:hover {
+        color: #365cf5;
       }
-      
-      /* HEADER E LOGIN */
+      button,
+      a {
+        transition: all 0.3s ease-out;
+      }
+
+      /* ================= HEADER E LOGIN ================== */
       .header-container {
         width: 90%;
         max-width: 1200px;
@@ -38,9 +60,9 @@
         font-size: 1.8rem;
         color: #365cf5;
       }
-      /* Modal Login */
+      /* Modal de Login */
       .modal {
-        display: none; /* escondido por padrão */
+        display: none;
         position: fixed;
         z-index: 1000;
         left: 0;
@@ -70,28 +92,27 @@
         color: #000;
         text-decoration: none;
       }
-      
-      /* STEPS MENU */
+
+      /* ================= MENU DE STEPS ================== */
       .steps-menu {
         background-color: #365cf5;
         padding: 20px 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1.5rem;
-        margin-bottom: 30px;
+        gap: 1rem;
+        margin-bottom: 20px;
       }
       .steps-menu .step {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         color: #fff;
-        font-weight: 500;
         cursor: pointer;
       }
       .steps-menu .circle {
-        width: 34px;
-        height: 34px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         background-color: #fff;
         color: #365cf5;
@@ -105,16 +126,16 @@
         font-weight: bold;
       }
       .steps-menu .step.active .circle {
-        background-color: #fff;
-        color: #365cf5;
+        background-color: #365cf5;
+        color: #fff;
         border: 2px solid #fff;
       }
       .steps-menu .step.disabled {
-        opacity: 0.6;
+        opacity: 0.5;
         cursor: not-allowed;
       }
-      
-      /* MAIN CONTAINER */
+
+      /* ================= LAYOUT PRINCIPAL ================== */
       .main-container {
         width: 90%;
         max-width: 1200px;
@@ -129,41 +150,28 @@
         width: 400px;
         flex-shrink: 0;
       }
-      
-      /* CARD PADRÃO */
-      .card-style-1 {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      }
-      .card-style-1 h2 {
-        margin-bottom: 0.5rem;
-        font-size: 1.2rem;
-      }
-      
-      /* FORM FIELDS */
+
+      /* ================= FORMULÁRIOS E CAMPOS ================== */
       .fields-grid-2cols {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+        margin-bottom: 1rem;
       }
       .fields-grid-3cols {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
+        margin-bottom: 1rem;
       }
       .form-field {
         display: flex;
         flex-direction: column;
-        margin-bottom: 1rem;
       }
       .form-field label {
         font-size: 0.85rem;
         color: #666;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.3rem;
         font-weight: 500;
       }
       .form-field input,
@@ -182,8 +190,21 @@
         color: #888;
         margin-top: 1rem;
       }
-      
-      /* BUTTONS */
+
+      /* ================= BOTÕES ================== */
+      .btn-save-passenger {
+        background: #007aff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .btn-save-passenger:hover {
+        background: #005dbf;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      }
       .btn {
         display: inline-block;
         border: none;
@@ -212,47 +233,106 @@
         text-align: right;
       }
       
-      /* STEP CONTENTS (MULTI-STEP) */
+      /* ================= MULTI-STEP ================== */
       .step-content {
         display: none;
       }
       .step-content.active {
         display: block;
       }
+      .traveler-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       
-      /* RESUMO (CARRINHO) */
+      /* ================= CARD PADRÃO (para formulários) ================== */
+      .card-style-1 {
+        background: #fff;
+        border: 1px solid #efefef;
+        border-radius: 10px;
+        padding: 25px 30px;
+        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+        margin-bottom: 20px;
+      }
+      
+      /* ================= RESUMO DA RESERVA (COLUNA DIREITA) ================== */
       .reservation-gifts-card {
         background: #fff;
         border: 1px solid #efefef;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        padding: 25px 30px;
+        box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
       }
       .reserva-item {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+        padding: 0.75rem 0;
         border-bottom: 1px solid #eee;
-        padding: 0.5rem 0;
+        margin-bottom: 0.75rem;
+        align-items: center;
+      }
+      .reserva-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      .reserva-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #eee;
       }
       .reserva-left {
         display: flex;
         flex-direction: column;
+        gap: 0.25rem;
+      }
+      .reserva-left .categoria {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #007aff;
+      }
+      .reserva-left .nome {
+        font-size: 0.85rem;
+        color: #333;
+      }
+      .reserva-left .subinfo {
+        font-size: 0.8rem;
+        color: #888;
       }
       .reserva-preco {
-        font-weight: 600;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00c853;
+        text-align: right;
       }
       .resumo-compra {
-        margin-top: 1rem;
+        margin-top: 20px;
+        padding-top: 15px;
         border-top: 1px solid #eee;
-        padding-top: 1rem;
       }
-      .resumo-compra .row {
+      .resumo-compra .resumo-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 10px;
+      }
+      .resumo-compra .resumo-row label {
+        font-weight: 600;
+      }
+      .resumo-compra .resumo-row p {
+        font-weight: 600;
+        margin: 0;
+      }
+      .resumo-compra .cupom {
+        margin-top: 15px;
+      }
+      .resumo-compra .cupom label {
+        font-weight: 600;
       }
       
-      /* PAGAMENTO SECTION (PASSO 3) */
+      /* ================= PAGAMENTO SECTION (STEP 3) ================== */
       .payment-section h2 {
         font-size: 1.2rem;
         margin-bottom: 0.5rem;
@@ -334,7 +414,7 @@
       .inline-fields .hosted-field {
         margin-bottom: 0;
       }
-      /* Containers PayPal, Boleto e Pix */
+      /* Containers para PayPal, Boleto e Pix */
       #paypal-container,
       #boleto-container,
       #pix-container {
@@ -345,12 +425,16 @@
         display: none;
       }
       
-      /* FOOTER */
+      /* ================= RODAPÉ ================== */
       footer {
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
         text-align: center;
-        margin-top: 2rem;
         font-size: 0.85rem;
-        color: #666;
+        color: #888;
+        border-top: 1px solid #eee;
+        padding-top: 1rem;
       }
       
       @media (max-width: 768px) {
@@ -361,29 +445,27 @@
           width: 100%;
         }
       }
+      
+      .mt-10 { margin-top: 10px; }
+      .mb-10 { margin-bottom: 10px; }
     </style>
   </head>
   <body>
-    <!-- Header com botão de Login -->
-    <header>
-      <div class="header-container">
-        <h1>Checkout Exemplo</h1>
-        <button id="btnLogin" class="btn btn-primary">Login</button>
-      </div>
-    </header>
+    <!-- Header (usando o componente) -->
+    <app-header></app-header>
     
     <!-- Modal de Login -->
     <div id="loginModal" class="modal">
       <div class="modal-content">
         <span id="closeModal" class="close">&times;</span>
         <h2>Login</h2>
-        <input type="text" id="loginEmail" placeholder="E-mail" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
-        <input type="password" id="loginPassword" placeholder="Senha" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+        <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+        <input type="password" id="loginPassword" placeholder="********" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
         <button id="btnSubmitLogin" class="btn btn-primary" style="width:100%;">Entrar</button>
       </div>
     </div>
     
-    <!-- MENU DE STEPS -->
+    <!-- Menu de Steps -->
     <div class="steps-menu" id="stepsMenu">
       <div class="step active" data-step="1">
         <div class="circle">1</div>
@@ -406,92 +488,144 @@
       </div>
     </div>
     
-    <!-- CONTAINER PRINCIPAL -->
+    <!-- Main Container -->
     <div class="main-container">
-      <!-- COLUNA ESQUERDA (Conteúdo dos Steps) -->
+      <!-- Coluna Esquerda: Multi-Step -->
       <div class="left-col">
-        <!-- STEP 1: Dados Pessoais -->
+        <!-- Step 1: Passageiros / Cadastro e Login -->
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
-            <h2>Dados Pessoais</h2>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Nome</label>
-                <input type="text" id="firstName" placeholder="Nome">
-              </div>
-              <div class="form-field">
-                <label>Sobrenome</label>
-                <input type="text" id="lastName" placeholder="Sobrenome">
+            <div class="traveler-form-header">
+              <h2>Quem vai viajar?</h2>
+              <div class="actions">
+                <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
               </div>
             </div>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Celular</label>
-                <input type="text" id="celular" placeholder="(XX) 99999-9999">
+            <!-- Formulário de Registro -->
+            <div id="registrationFields">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Nome</label>
+                  <input type="text" id="firstName" placeholder="Nome" />
+                </div>
+                <div class="form-field">
+                  <label>Sobrenome</label>
+                  <input type="text" id="lastName" placeholder="Sobrenome" />
+                </div>
               </div>
-              <div class="form-field">
-                <label>E-mail</label>
-                <input type="email" id="email" placeholder="seuemail@exemplo.com">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Celular</label>
+                  <input type="text" id="celular" placeholder="(XX) 99999-9999" />
+                </div>
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" placeholder="seuemail@exemplo.com" />
+                </div>
               </div>
-            </div>
-            <div class="fields-grid-3cols">
-              <div class="form-field">
-                <label>CPF</label>
-                <input type="text" id="cpf" placeholder="123.456.789-00">
-              </div>
-              <div class="form-field">
-                <label>RG</label>
-                <input type="text" id="rg" placeholder="12.345.678-9">
-              </div>
-              <div class="form-field">
-                <label>Data de Nascimento</label>
-                <input type="date" id="birthdate">
-              </div>
-            </div>
-            <div class="fields-grid-3cols">
-              <div class="form-field">
-                <label>CEP</label>
-                <input type="text" id="cep" placeholder="12345-678">
-              </div>
-              <div class="form-field">
-                <label>Estado</label>
-                <input type="text" id="state" placeholder="Ex: SP">
-              </div>
-              <div class="form-field">
-                <label>Cidade</label>
-                <input type="text" id="city" placeholder="São Paulo">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha</label>
+                  <input type="password" placeholder="********" />
+                </div>
               </div>
             </div>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Endereço</label>
-                <input type="text" id="address" placeholder="Rua, Avenida...">
+            <!-- Formulário de Login (alternativo) -->
+            <div id="loginFields" style="display: none;">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com" />
+                </div>
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" id="loginPassword" placeholder="********" />
+                </div>
               </div>
-              <div class="form-field">
-                <label>Número</label>
-                <input type="text" id="number" placeholder="123">
+              <div class="login-actions" style="text-align: right; margin-top: 10px;">
+                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
-            <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
+            <!-- Campos adicionais (dados pessoais e endereço) -->
+            <div id="otherFields">
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CPF</label>
+                  <input type="text" id="cpf" placeholder="123.456.789-00" />
+                </div>
+                <div class="form-field">
+                  <label>RG</label>
+                  <input type="text" id="rg" placeholder="12.345.678-9" />
+                </div>
+                <div class="form-field">
+                  <label>Data de Nascimento</label>
+                  <input type="date" />
+                </div>
+              </div>
+              <div class="fields-grid-3cols">
+                <div class="form-field">
+                  <label>CEP</label>
+                  <input type="text" id="cep" placeholder="12345-678" />
+                </div>
+                <div class="form-field">
+                  <label>Estado</label>
+                  <input type="text" id="state" placeholder="Ex: SP" />
+                </div>
+                <div class="form-field">
+                  <label>Cidade</label>
+                  <input type="text" id="city" placeholder="São Paulo" />
+                </div>
+              </div>
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Endereço</label>
+                  <input type="text" id="address" placeholder="Rua, Avenida..." />
+                </div>
+                <div class="form-field">
+                  <label>Número</label>
+                  <input type="text" id="number" placeholder="123" />
+                </div>
+              </div>
+            </div>
+            <p class="form-note">
+              * Insira o nome exatamente como aparece em seus documentos para o check‑in.
+            </p>
             <div class="navigation">
-              <button class="btn btn-primary" id="toStep2">Próximo</button>
+              <button class="btn-save-passenger" id="toStep2">Próximo</button>
             </div>
           </div>
         </div>
         
-        <!-- STEP 2: Detalhes Adicionais -->
+        <!-- Step 2: Detalhes da Reserva -->
         <div class="step-content" data-step="2">
           <div class="card-style-1">
-            <h2>Detalhes Adicionais</h2>
-            <p>Selecione serviços adicionais (ex: seguro de viagem):</p>
-            <div style="margin-top:1rem;">
+            <h2>Detalhes da Reserva</h2>
+            <p>Confirme os detalhes e adicione serviços extras, se necessário.</p>
+            <!-- Exemplo de seguro viagem (2 opções) -->
+            <div class="vip-card mb-10">
               <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
-              <div>
-                <span style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
-                <div style="margin-top:0.5rem; font-weight:600;">Seguro para despesas médicas, atrasos, etc.</div>
-                <div style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
-                <div style="margin-top:0.5rem;">
-                  <button id="addInsurance1" style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Adicionar</button>
+              <div class="vip-info">
+                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
+                <div class="title" style="margin-top:0.5rem; font-weight:600;">Cobertura de até U$ 60 mil para despesas médicas, atraso de voo e mais.</div>
+                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
+                <div class="actions" style="margin-top:0.5rem;">
+                  <button class="btn btn-primary">Adicionar</button>
+                  <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
+                </div>
+              </div>
+            </div>
+            <div class="vip-card">
+              <img src="https://seguromaisbarato.com/wp-content/uploads/2024/05/Seguro-Viagem-para-os-EUA-Por-que-e-Essencial.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
+              <div class="vip-info">
+                <span class="badge" style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
+                <div class="title" style="margin-top:0.5rem; font-weight:600;">Cobertura completa para imprevistos durante a viagem.</div>
+                <div class="price" style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
+                <div class="actions" style="margin-top:0.5rem;">
+                  <button class="btn btn-primary">Adicionar</button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
                 </div>
               </div>
@@ -503,14 +637,14 @@
           </div>
         </div>
         
-        <!-- STEP 3: Pagamento -->
+        <!-- Step 3: Pagamento -->
         <div class="step-content" data-step="3">
           <div class="card-style-1 payment-section">
-            <h2>Pagamento</h2>
+            <h2>Métodos de Pagamento</h2>
             <p class="subtitle">Revise seus dados e escolha o método de pagamento.</p>
-            <!-- Resumo do Step 1 e 2 -->
+            <!-- Resumo dos dados (Preenchido no Step 3 via JS) -->
             <div id="summaryData" style="margin-bottom:1rem; font-size:0.9rem; line-height:1.4;"></div>
-            <!-- Métodos de Pagamento -->
+            <!-- Lista de métodos (Cartão, PayPal, Boleto e Pix) -->
             <ul class="payment-method-list">
               <li>
                 <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
@@ -541,10 +675,9 @@
                 </label>
               </li>
             </ul>
-            
-            <!-- Container para Cartão -->
+            <!-- Container para Cartão (com 3DS e Hosted Fields) -->
             <div id="card-container">
-              <!-- Parcelas -->
+              <!-- Select de Parcelas -->
               <select id="installments" class="installments-select">
                 <option value="1">1x</option>
                 <option value="2">2x</option>
@@ -557,8 +690,7 @@
                 <option value="9">9x</option>
                 <option value="10">10x</option>
               </select>
-              
-              <!-- Campos do Cartão (Hosted Fields) -->
+              <!-- Campos do Cartão -->
               <div class="card-fields">
                 <div id="card-number" class="hosted-field"></div>
                 <input type="text" id="cardholderName" class="hosted-field" placeholder="Nome do titular do cartão" />
@@ -567,38 +699,33 @@
                   <div id="cvv" class="hosted-field"></div>
                 </div>
               </div>
-              
-              <!-- Botão de pagar (form) -->
+              <!-- Formulário de pagamento -->
               <form id="checkout-form">
                 <button type="submit" class="btn btn-primary" style="width:100%;">Pagar</button>
               </form>
             </div>
-            
             <!-- Container PayPal -->
             <div id="paypal-container">
               <p style="margin-bottom:0.5rem;">Pagamento via PayPal:</p>
               <div id="paypal-button-container"></div>
             </div>
-            
-            <!-- Container Boleto (ilustrativo) -->
+            <!-- Container Boleto (Placeholder) -->
             <div id="boleto-container">
               <p>Gerar Boleto:</p>
               <button id="btnGerarBoleto" class="btn btn-primary">Gerar Boleto</button>
             </div>
-            
-            <!-- Container Pix (ilustrativo) -->
+            <!-- Container Pix (Placeholder) -->
             <div id="pix-container">
               <p>Gerar Pix (QR Code):</p>
               <button id="btnGerarPix" class="btn btn-primary">Gerar Pix</button>
             </div>
-            
             <div class="navigation">
               <button class="btn btn-secondary" id="backToStep2">Voltar</button>
             </div>
           </div>
         </div>
         
-        <!-- STEP 4: Confirmação -->
+        <!-- Step 4: Confirmação -->
         <div class="step-content" data-step="4">
           <div class="card-style-1">
             <h2>Pagamento Concluído</h2>
@@ -608,79 +735,121 @@
         </div>
       </div>
       
-      <!-- COLUNA DIREITA: RESUMO DO CARRINHO -->
+      <!-- Coluna Direita: Resumo da Reserva -->
       <div class="right-col">
         <div class="card-style-1 reservation-gifts-card">
-          <h2>Resumo da Compra</h2>
+          <h2>Informações da Reserva</h2>
           <div id="cartItemsList">
-            <!-- Exemplo de item; idealmente este conteúdo virá do seu backend ou localStorage -->
             <div class="reserva-item">
               <div class="reserva-left">
-                <span>Hotel Exemplo - Quarto Simples</span>
+                <span class="categoria">HOSPEDAGEM</span>
+                <span class="nome">Hotel Exemplo - Quarto Exemplo</span>
+                <div class="reserva-details">
+                  <p>Check-in: --/--/----</p>
+                  <p>Check-out: --/--/----</p>
+                  <p>Quartos: 1</p>
+                  <p>Adultos: 1 | Crianças: 0</p>
+                </div>
               </div>
-              <div class="reserva-preco">R$ 1.200,00</div>
+              <div class="reserva-preco">R$ 0,00</div>
             </div>
           </div>
           <div class="resumo-compra">
-            <div class="row">
-              <span>Subtotal</span>
-              <span id="subtotalValue">R$ 1.200,00</span>
+            <div class="form-field cupom">
+              <label>Cupom de Desconto</label>
+              <input type="text" id="couponInput" placeholder="Insira seu cupom" />
             </div>
-            <div class="row">
-              <span>Desconto</span>
-              <span id="discountValue">- R$ 200,00</span>
+            <div class="resumo-row">
+              <label>Subtotal</label>
+              <p id="subtotalValue">R$ 0,00</p>
             </div>
-            <div class="row">
-              <strong>Total</strong>
-              <strong id="totalValue">R$ 1.000,00</strong>
+            <div class="resumo-row">
+              <label>Desconto</label>
+              <p id="discountValue">- R$ 0,00</p>
+            </div>
+            <div class="resumo-row total-line">
+              <label>Total do Pedido</label>
+              <p id="totalValue">R$ 0,00</p>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <footer>
-      © 2025 - Checkout Completo
+    <footer class="mt-10 mb-10" style="text-align: center;">
+      © 2025 - Checkout Trip.com (Completo)
     </footer>
     
-    <!-- Elemento de carrinho (opcional, pode ser usado para armazenar itens) -->
+    <!-- Componente de Carrinho (opcional) -->
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
     
     <script>
-      /* =============================================
-         LÓGICA DE LOGIN (Modal)
-      ============================================= */
-      const btnLogin = document.getElementById("btnLogin");
+      /* ===============================
+         LÓGICA DE LOGIN (Modal e Alternância)
+      ================================ */
+      const btnLogin = document.getElementById("btnLogin") || document.querySelector("#toggleLogin");
       const loginModal = document.getElementById("loginModal");
       const closeModal = document.getElementById("closeModal");
       const btnSubmitLogin = document.getElementById("btnSubmitLogin");
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFields = document.getElementById("registrationFields");
+      const loginFields = document.getElementById("loginFields");
       
-      btnLogin.addEventListener("click", () => {
-        loginModal.style.display = "block";
-      });
-      closeModal.addEventListener("click", () => {
-        loginModal.style.display = "none";
-      });
-      btnSubmitLogin.addEventListener("click", () => {
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
-        if (email && password) {
-          alert("Login efetuado com sucesso!");
-          loginModal.style.display = "none";
-          // Aqui você pode salvar os dados do usuário ou redirecionar conforme necessário
-        } else {
-          alert("Preencha os campos de login.");
-        }
-      });
+      // Alterna entre registro e login
+      if (toggleLoginLink) {
+        toggleLoginLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (registrationFields.style.display !== "none") {
+            registrationFields.style.display = "none";
+            loginFields.style.display = "block";
+            toggleLoginLink.textContent = "Não tenho Login";
+          } else {
+            registrationFields.style.display = "block";
+            loginFields.style.display = "none";
+            toggleLoginLink.textContent = "Economize tempo fazendo Login";
+          }
+        });
+      }
+      
+      // Validação de login
+      if (btnSubmitLogin) {
+        btnSubmitLogin.addEventListener("click", () => {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              localStorage.setItem("agentId", data.user.id);
+              alert("Login efetuado com sucesso!");
+              registrationFields.style.display = "none";
+              loginFields.style.display = "none";
+              toggleLoginLink.style.display = "none";
+            } else {
+              alert("Erro no login: " + (data.error || "Dados inválidos."));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Erro ao realizar o login. Tente novamente.");
+          });
+        });
+      }
+      
+      // Fechar modal se clicar fora
       window.onclick = function(event) {
         if (event.target == loginModal) {
           loginModal.style.display = "none";
         }
       };
       
-      /* =============================================
+      /* ===============================
          LÓGICA DE MULTI-STEP
-      ============================================= */
+      =============================== */
       let checkoutData = {};
       const stepsMenu = document.getElementById("stepsMenu");
       const stepContents = document.querySelectorAll(".step-content");
@@ -692,16 +861,18 @@
       const backToStep2Btn = document.getElementById("backToStep2");
       
       function showStep(stepNumber) {
-        stepContents.forEach((content) => {
+        stepContents.forEach(content => {
           content.classList.toggle("active", content.dataset.step === String(stepNumber));
         });
-        stepButtons.forEach((button) => {
-          const btnStep = parseInt(button.dataset.step, 10);
-          button.classList.toggle("active", btnStep === stepNumber);
+        stepButtons.forEach(button => {
+          const btnStep = button.dataset.step;
+          button.classList.remove("active");
+          button.classList.remove("disabled");
+          if (btnStep == stepNumber) {
+            button.classList.add("active");
+          }
           if (btnStep > stepNumber) {
             button.classList.add("disabled");
-          } else {
-            button.classList.remove("disabled");
           }
         });
       }
@@ -747,7 +918,7 @@
       backToStep2Btn && backToStep2Btn.addEventListener("click", () => showStep(2));
       
       // Atualiza método de pagamento ao selecionar
-      document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
+      document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
         input.addEventListener("change", initializePaymentMethod);
       });
       
@@ -771,15 +942,15 @@
         }
       }
       
-      /* =============================================
-         INTEGRAÇÃO BRAINTRREE - CARTÃO
-      ============================================= */
+      /* ===============================
+         INTEGRAÇÃO BRAINTRREE - CARTÃO (com 3DS)
+      =============================== */
       let clientToken = null;
       let hostedFieldsInstance = null;
       let threeDSecureInstance = null;
       
       async function initBraintreeCard() {
-        if (hostedFieldsInstance) return; // Evita recriar
+        if (hostedFieldsInstance) return;
         if (!clientToken) {
           try {
             const res = await fetch("/api/braintree/get-client-token");
@@ -868,9 +1039,9 @@
         });
       }
       
-      /* =============================================
+      /* ===============================
          INTEGRAÇÃO BRAINTRREE - PAYPAL
-      ============================================= */
+      =============================== */
       function initPayPal() {
         if (!clientToken) {
           fetch("/api/braintree/get-client-token")
@@ -906,7 +1077,7 @@
                     currency: "BRL"
                   });
                 },
-                onAuthorize: (data, actions) => {
+                onApprove: (data, actions) => {
                   return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
                     processPayment(payload.nonce, "paypal");
                   });
@@ -922,16 +1093,15 @@
         });
       }
       
-      /* =============================================
-         BOLETO & PIX (ILUSTRATIVO)
-      ============================================= */
+      /* ===============================
+         BOLETO & PIX (Placeholders)
+      =============================== */
       const btnGerarBoleto = document.getElementById("btnGerarBoleto");
       if (btnGerarBoleto) {
         btnGerarBoleto.addEventListener("click", () => {
           alert("Boleto gerado (exemplo). Integre com seu backend real.");
         });
       }
-      
       const btnGerarPix = document.getElementById("btnGerarPix");
       if (btnGerarPix) {
         btnGerarPix.addEventListener("click", () => {
@@ -939,9 +1109,9 @@
         });
       }
       
-      /* =============================================
+      /* ===============================
          PROCESSAMENTO FINAL DO PAGAMENTO
-      ============================================= */
+      =============================== */
       async function processPayment(nonce, method) {
         const cardholderName = document.getElementById("cardholderName")?.value || "";
         let installments = "1";
@@ -995,44 +1165,43 @@
         return parseFloat(numeric).toFixed(2);
       }
       
-      /* =============================================
-         (Opcional) Atualiza o carrinho
-         Exemplo: carrega do localStorage ou de um objeto no shopping-cart.
-      ============================================= */
+      /* ===============================
+         INTEGRAÇÃO DO CARRINHO
+      =============================== */
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
         let html = "";
-        items.forEach((item) => {
+        items.forEach(item => {
           let price = item.basePriceAdult || 80;
           subtotal += price;
           html += `
             <div class="reserva-item">
               <div class="reserva-left">
-                <span>${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+                <span class="categoria">${item.type || "Hospedagem"}</span>
+                <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+                <div class="reserva-details">
+                  <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                  <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                  <p>Quartos: ${item.rooms || 1}</p>
+                  <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+                </div>
               </div>
               <div class="reserva-preco">
-                R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
             </div>
           `;
         });
         container.innerHTML = html;
-        document.getElementById("subtotalValue").textContent =
-          "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         const discount = 500;
-        document.getElementById("discountValue").textContent =
-          "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        document.getElementById("discountValue").textContent = "- R$ " + discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         const total = subtotal - discount;
-        document.getElementById("totalValue").textContent =
-          "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        document.getElementById("totalValue").textContent = "R$ " + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       }
       
-      /* =============================================
-         AO CARREGAR A PÁGINA
-      ============================================= */
       window.addEventListener("load", () => {
-        // Exemplo: carregar itens do carrinho
         let items = [];
         const cart = document.getElementById("shoppingCart");
         if (cart && cart.items && cart.items.length > 0) {
