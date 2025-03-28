@@ -325,6 +325,11 @@
       .mb-10 {
         margin-bottom: 10px;
       }
+
+      /* Garantir altura mínima para os containers dos Hosted Fields */
+      #card-number, #expiration-date, #cvv {
+        min-height: 45px;
+      }
     </style>
   </head>
   <body>
@@ -461,7 +466,7 @@
           <div class="card-style-1">
             <h2>Pagamento</h2>
             <p>Revise seus dados e escolha o método de pagamento.</p>
-            
+
             <!-- Área de escolha de método -->
             <div class="form-field">
               <label>Método de Pagamento</label>
@@ -474,10 +479,10 @@
                 <label for="methodGooglePay">Google Pay</label>
               </div>
             </div>
-            
+
             <!-- Container para exibir o resumo dos dados -->
             <div id="summaryData"></div>
-            
+
             <!-- Container para Cartão de Crédito (com parcelamento e 3DS) -->
             <div id="card-container" style="display:none;">
               <div class="form-field">
@@ -498,32 +503,33 @@
               <form id="checkout-form">
                 <div class="form-field">
                   <label>Número do Cartão</label>
-                  <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
+                  <!-- Container para o Hosted Field do número do cartão -->
+                  <div id="card-number" style="border: 1px solid #ccc; padding: 10px; min-height:45px;"></div>
                 </div>
                 <div class="fields-grid-2cols">
                   <div class="form-field">
                     <label>Data de Expiração (MM/AA)</label>
-                    <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
+                    <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px; min-height:45px;"></div>
                   </div>
                   <div class="form-field">
                     <label>CVV</label>
-                    <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
+                    <div id="cvv" style="border: 1px solid #ccc; padding: 10px; min-height:45px;"></div>
                   </div>
                 </div>
                 <button type="submit" class="btn-pay-pal">Pagar</button>
               </form>
             </div>
-            
+
             <!-- Container para PayPal -->
             <div id="paypal-container" style="display:none;">
               <div id="paypal-button-container"></div>
             </div>
-            
+
             <!-- Container para Google Pay -->
             <div id="google-pay-container" style="display:none;">
               <div id="google-pay-button-container"></div>
             </div>
-            
+
             <div class="navigation">
               <button class="btn-save-passenger" id="backToStep2">Voltar</button>
             </div>
@@ -588,7 +594,6 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
     <script>
-      // Objeto global para armazenar os dados do checkout (Step 1)
       let checkoutData = {};
 
       const stepsMenu = document.getElementById("stepsMenu");
@@ -620,7 +625,6 @@
         });
       }
 
-      // Navegação: Step 1 -> Step 2
       toStep2Btn.addEventListener("click", () => {
         checkoutData = {
           firstName: document.getElementById("firstName").value,
@@ -639,7 +643,6 @@
         showStep(2);
       });
 
-      // Navegação: Step 2 -> Step 3
       toStep3Btn.addEventListener("click", () => {
         const summaryDiv = document.getElementById("summaryData");
         summaryDiv.innerHTML = `
@@ -659,7 +662,6 @@
         input.addEventListener('change', initializePaymentMethod);
       });
 
-      // Função para inicializar o método de pagamento conforme escolha do usuário
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
         document.getElementById("card-container").style.display = "none";
@@ -678,7 +680,6 @@
         }
       }
 
-      // Inicialização do Braintree para Cartão de Crédito com 3D Secure
       async function initializeBraintree() {
         const res = await fetch('/api/braintree/get-client-token');
         const data = await res.json();
@@ -689,7 +690,6 @@
             alert("Erro na inicialização do pagamento. Tente novamente.");
             return;
           }
-          // Cria instância do 3D Secure (versão 2)
           braintree.threeDSecure.create({
             version: 2,
             client: clientInstance
@@ -699,7 +699,6 @@
               alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            // Cria os Hosted Fields para o cartão
             braintree.hostedFields.create({
               client: clientInstance,
               styles: {
@@ -728,7 +727,6 @@
                     return;
                   }
                   const amount = getOrderAmount();
-                  // Verifica 3D Secure antes de enviar o nonce final
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
@@ -748,7 +746,6 @@
         });
       }
 
-      // Inicialização do PayPal via Braintree
       function initializePayPal() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -795,7 +792,6 @@
           });
       }
 
-      // Inicialização do Google Pay via Braintree
       function initializeGooglePay() {
         fetch('/api/braintree/get-client-token')
           .then(res => res.json())
@@ -846,7 +842,6 @@
           });
       }
 
-      // Função para enviar o nonce e os dados para o back-end e criar a transação via Braintree
       async function processPayment(nonce, method = "card") {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -899,14 +894,12 @@
         }
       }
 
-      // Função para obter o valor total do pedido no formato "8247.20"
       function getOrderAmount() {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
         return parseFloat(amount).toFixed(2);
       }
 
-      // Função para atualizar o resumo do carrinho
       function updateCheckoutCart(items) {
         const container = document.getElementById("cartItemsList");
         let subtotal = 0;
