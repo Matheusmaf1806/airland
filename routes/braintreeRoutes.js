@@ -32,7 +32,7 @@ router.post("/create-transaction", async (req, res) => {
     const saleRequest = {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
-      merchantAccountId: "7jhfwkgqsgq2fpg", // Sua Merchant Account para BRL
+      merchantAccountId: "7jhfwkgkqsgq2fpg", // Sua Merchant Account para BRL
       ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
