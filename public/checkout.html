@@ -111,7 +111,7 @@
         margin-bottom: 20px;
       }
 
-      /* ===== FORMS & FIELDS ===== */
+      /* ===== FORMULÁRIOS E CAMPOS ===== */
       .fields-grid-2cols {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -152,7 +152,7 @@
         margin-top: 1rem;
       }
 
-      /* ===== BUTTONS ===== */
+      /* ===== BOTÕES ===== */
       .btn-save-passenger,
       .btn-pay-pal {
         background: #007aff;
@@ -357,7 +357,12 @@
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
             <h2>Dados Pessoais</h2>
-            <div id="step1-fields">
+            <!-- Link para Login -->
+            <div style="text-align: right; margin-bottom: 1rem;">
+              <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
+            </div>
+            <!-- Formulário de Registro -->
+            <div id="registrationFields">
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -415,6 +420,22 @@
                   <label>Número</label>
                   <input type="text" id="number" placeholder="123">
                 </div>
+              </div>
+            </div>
+            <!-- Formulário de Login -->
+            <div id="loginFields" style="display: none;">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
+                </div>
+                <div class="form-field">
+                  <label>Senha</label>
+                  <input type="password" id="loginPassword" placeholder="********">
+                </div>
+              </div>
+              <div style="text-align: right; margin-top: 10px;">
+                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
             <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
@@ -660,8 +681,8 @@
       });
 
       // Botões de voltar
-      backToStep1Btn.addEventListener("click", () => showStep(1));
-      backToStep2Btn.addEventListener("click", () => showStep(2));
+      backToStep1Btn?.addEventListener("click", () => showStep(1));
+      backToStep2Btn?.addEventListener("click", () => showStep(2));
 
       // Se o método de pagamento for alterado, reinicializa
       document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
@@ -979,6 +1000,67 @@
         }
         updateCheckoutCart(items);
       });
+
+      /* ===================== LOGIN/REGISTRO ===================== */
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFields = document.getElementById("registrationFields");
+      const loginFields = document.getElementById("loginFields");
+
+      function isUserLoggedIn() {
+        return !!localStorage.getItem("agentId");
+      }
+
+      window.addEventListener("load", () => {
+        if (isUserLoggedIn()) {
+          registrationFields.style.display = "none";
+          toggleLoginLink.style.display = "none";
+        }
+      });
+
+      if (toggleLoginLink) {
+        toggleLoginLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (registrationFields.style.display !== "none") {
+            registrationFields.style.display = "none";
+            loginFields.style.display = "block";
+            toggleLoginLink.textContent = "Não tenho Login";
+          } else {
+            registrationFields.style.display = "block";
+            loginFields.style.display = "none";
+            toggleLoginLink.textContent = "Economize tempo fazendo Login";
+          }
+        });
+      }
+
+      const loginValidateBtn = document.getElementById("loginValidateBtn");
+      if (loginValidateBtn) {
+        loginValidateBtn.addEventListener("click", () => {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          
+          fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.success) {
+              localStorage.setItem("agentId", data.user.id);
+              alert("Login efetuado com sucesso!");
+              registrationFields.style.display = "none";
+              loginFields.style.display = "none";
+              toggleLoginLink.style.display = "none";
+            } else {
+              alert("Erro no login: " + (data.error || "Dados inválidos."));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Erro ao realizar o login. Tente novamente.");
+          });
+        });
+      }
     </script>
   </body>
 </html>
