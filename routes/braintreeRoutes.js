@@ -1,13 +1,12 @@
 // routes/braintreeRoutes.js
 import express from "express";
-import { gateway } from "../api/braintree.js"; // ajuste o caminho conforme sua estrutura
+import { gateway } from "../api/braintree.js"; // Verifique se o caminho está correto
 
 const router = express.Router();
 
 /*
   Endpoint para gerar o client token.
-  Esse token é utilizado no front-end para inicializar as bibliotecas do Braintree,
-  seja para Cartão (com ou sem 3DS), PayPal ou Google Pay.
+  Esse token é usado no front-end para inicializar os métodos de pagamento (Cartão, PayPal, Google Pay e 3DS).
 */
 router.get("/get-client-token", async (req, res) => {
   try {
@@ -21,13 +20,10 @@ router.get("/get-client-token", async (req, res) => {
 
 /*
   Endpoint para criar a transação.
-  Esse endpoint recebe o nonce final (que pode ser originado de um cartão (com 3DS), PayPal ou Google Pay)
-  e os dados da transação, incluindo o valor, informações do cliente, de cobrança e, opcionalmente,
-  o número de parcelas (installments).
-  
-  Note que o campo installments é adicionado condicionalmente se for enviado no corpo da requisição.
-  
-  O campo merchantAccountId é fixo para sua conta BRL.
+  Recebe o nonce (que pode ser originado de cartão com 3DS, PayPal ou Google Pay),
+  o valor da transação, dados do cliente, de cobrança e, opcionalmente, o número de parcelas.
+  O campo installments é adicionado condicionalmente se for enviado.
+  O campo merchantAccountId está fixo para sua conta BRL.
 */
 router.post("/create-transaction", async (req, res) => {
   const { paymentMethodNonce, amount, customer, billing, installments } = req.body;
@@ -35,8 +31,8 @@ router.post("/create-transaction", async (req, res) => {
     const saleRequest = {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
-      merchantAccountId: "7jhfwkgqsgq2fpg", // Sua merchant account para BRL
-      // Adiciona o parcelamento se o campo installments estiver presente
+      merchantAccountId: "7jhfwkgqsgq2fpg", // Sua Merchant Account para BRL
+      // Se o campo installments for enviado, adiciona-o à requisição
       ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
@@ -44,9 +40,8 @@ router.post("/create-transaction", async (req, res) => {
         submitForSettlement: true
       }
     };
-    
+
     const result = await gateway.transaction.sale(saleRequest);
-    
     if (result.success) {
       res.json({ success: true, transactionId: result.transaction.id });
     } else {
