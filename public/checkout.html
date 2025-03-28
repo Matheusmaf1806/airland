@@ -504,7 +504,7 @@
         <div class="step-content" data-step="3">
           <div class="card-style-1">
             <h2>Pagamento</h2>
-            <p style="margin-bottom:1rem;">Revise seus dados e escolha o método de pagamento.</p>
+            <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
 
             <!-- Seletor de Método -->
             <div class="form-field">
@@ -519,8 +519,7 @@
               </div>
             </div>
 
-            <!-- Resumo do Step 1 e 2 -->
-            <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;"></div>
+            <!-- (REMOVIDO o bloco #summaryData) -->
 
             <!-- Container para Cartão de Crédito (com 3DS e Parcelas) -->
             <div id="card-container" style="display:block;">
@@ -589,6 +588,7 @@
         <div class="card-style-1 reservation-gifts-card">
           <h2>Informações da Reserva</h2>
           <div id="cartItemsList">
+            <!-- Exemplo de item inicial -->
             <div class="reserva-item">
               <div class="reserva-left">
                 <span class="categoria">HOSPEDAGEM</span>
@@ -671,7 +671,6 @@
           lastName: document.getElementById("lastName").value,
           celular: document.getElementById("celular").value,
           email: document.getElementById("email").value,
-          // Campos de senha apenas se visíveis (usuário não logado)
           password: document.getElementById("password") ? document.getElementById("password").value : "",
           confirmPassword: document.getElementById("confirmPassword") ? document.getElementById("confirmPassword").value : "",
           cpf: document.getElementById("cpf").value,
@@ -688,12 +687,6 @@
 
       // STEP 2 -> STEP 3
       toStep3Btn.addEventListener("click", () => {
-        const summaryDiv = document.getElementById("summaryData");
-        summaryDiv.innerHTML = `
-          <p><strong>Nome:</strong> ${checkoutData.firstName} ${checkoutData.lastName}</p>
-          <p><strong>E-mail:</strong> ${checkoutData.email}</p>
-          <p><strong>Endereço:</strong> ${checkoutData.address}, ${checkoutData.number} - ${checkoutData.city}/${checkoutData.state}</p>
-        `;
         showStep(3);
         initializePaymentMethod();
       });
@@ -995,13 +988,17 @@
           `;
         });
         container.innerHTML = html;
+
+        // Sem desconto fixo de R$500
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-        const discount = 500;
-        document.getElementById("discountValue").textContent =
-          "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
+        // Desconto = 0
+        document.getElementById("discountValue").textContent = "- R$ 0,00";
+
+        // Total = subtotal
         document.getElementById("totalValue").textContent =
-          "R$ " + (subtotal - discount).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+          "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
 
       // Ao carregar a página, atualiza o carrinho
@@ -1028,12 +1025,8 @@
         return !!localStorage.getItem("agentId");
       }
 
-      window.addEventListener("load", () => {
-        if (isUserLoggedIn()) {
-          registrationFields.style.display = "none";
-          toggleLoginLink.style.display = "none";
-        }
-      });
+      // Removido o código que escondia campos se o usuário estiver logado,
+      // para que os campos de dados pessoais (CPF, RG, etc.) fiquem sempre visíveis.
 
       if (toggleLoginLink) {
         toggleLoginLink.addEventListener("click", (e) => {
@@ -1066,7 +1059,8 @@
             if(data.success) {
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              registrationFields.style.display = "none";
+              // Mantém os campos de dados pessoais visíveis
+              registrationFields.style.display = "block";
               loginFields.style.display = "none";
               toggleLoginLink.style.display = "none";
             } else {
