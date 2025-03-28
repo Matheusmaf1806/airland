@@ -1,6 +1,6 @@
 // routes/braintreeRoutes.js
 import express from "express";
-import { gateway } from "../api/braintree.js"; // ajuste o caminho se necessário
+import { gateway } from "../api/braintree.js"; // ajuste o caminho conforme sua estrutura
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.post("/create-transaction", async (req, res) => {
       amount: amount,
       paymentMethodNonce: paymentMethodNonce,
       merchantAccountId: "7jhfwkgqsgq2fpg", // Sua merchant account para BRL
-      // Se o campo installments foi enviado, adiciona-o à requisição
+      // Se o número de parcelas for enviado, adiciona o campo installments
       ...(installments && { installments: { count: parseInt(installments, 10) } }),
       customer: customer,
       billing: billing,
@@ -33,9 +33,9 @@ router.post("/create-transaction", async (req, res) => {
     const result = await gateway.transaction.sale(saleRequest);
     
     if (result.success) {
-      return res.json({ success: true, transactionId: result.transaction.id });
+      res.json({ success: true, transactionId: result.transaction.id });
     } else {
-      return res.status(500).json({ success: false, message: result.message });
+      res.status(500).json({ success: false, message: result.message });
     }
   } catch (error) {
     console.error("Erro ao criar transação Braintree:", error);
