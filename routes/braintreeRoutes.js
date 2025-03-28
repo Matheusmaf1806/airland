@@ -6,7 +6,8 @@ const router = express.Router();
 
 /*
   Endpoint para gerar o client token.
-  Esse token é usado no front-end para inicializar os métodos de pagamento (Cartão, PayPal, Google Pay e 3DS).
+  Esse token é usado no front-end para inicializar os métodos de pagamento 
+  (Cartão com 3DS, PayPal e Google Pay).
 */
 router.get("/get-client-token", async (req, res) => {
   try {
@@ -20,9 +21,9 @@ router.get("/get-client-token", async (req, res) => {
 
 /*
   Endpoint para criar a transação.
-  Recebe o nonce (originado do cartão com 3DS, PayPal ou Google Pay),
-  o valor, os dados do cliente, de cobrança e, opcionalmente, o número de parcelas.
-  O campo installments é adicionado se enviado.
+  Recebe o nonce (originado do cartão com 3DS, PayPal ou Google Pay), o valor,
+  os dados do cliente, de cobrança e, opcionalmente, o número de parcelas.
+  O campo installments é adicionado condicionalmente se enviado.
   O merchantAccountId está fixo para sua conta BRL.
 */
 router.post("/create-transaction", async (req, res) => {
@@ -41,6 +42,7 @@ router.post("/create-transaction", async (req, res) => {
     };
 
     const result = await gateway.transaction.sale(saleRequest);
+
     if (result.success) {
       res.json({ success: true, transactionId: result.transaction.id });
     } else {
