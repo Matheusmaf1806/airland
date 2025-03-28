@@ -21,9 +21,6 @@
         padding: 0;
         box-sizing: border-box;
       }
-      html {
-        scroll-behavior: smooth;
-      }
       body {
         font-family: "Montserrat", sans-serif;
         font-weight: 400;
@@ -101,7 +98,7 @@
         flex-shrink: 0;
       }
 
-      /* ===== CARD STYLE ===== */
+      /* ===== CARD STYLE (BLOCOS) ===== */
       .card-style-1 {
         background: #fff;
         border: 1px solid #efefef;
@@ -276,27 +273,45 @@
         }
       }
 
-      /* ============ ESTILOS EXTRAS PARA SEÇÃO DE PAGAMENTO ============ */
-      .payment-method-wrapper {
-        background: #ffffff;
-        border: 1px solid #efefef;
+      /* ============ ESTILOS PARA SEÇÃO DE PAGAMENTO (INSPIRADO NA CAPTURA) ============ */
+
+      /* Contém todo o bloco de pagamento (título + métodos + campos) */
+      .payment-section {
+        background: #fff;
+        border: 1px solid #ddd;
         border-radius: 8px;
-        padding: 1.5rem;
+        padding: 2rem;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Título principal da seção */
+      .payment-section h2 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+      }
+      .payment-section p.subtitle {
+        font-size: 0.9rem;
+        color: #666;
         margin-bottom: 1.5rem;
       }
-      .payment-method-wrapper h3 {
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-        color: #333;
+
+      /* Container dos métodos de pagamento (cartão, PayPal, GPay) */
+      .payment-method-container {
+        margin-bottom: 1.5rem;
+      }
+      .payment-method-container label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
       }
       .payment-method-list {
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
-        margin-bottom: 1rem;
         list-style: none;
         padding: 0;
+        margin: 0;
       }
       .payment-method-list li {
         display: flex;
@@ -328,49 +343,81 @@
         background: #eef6ff;
       }
 
-      /* Campos do cartão (Hosted Fields) */
-      #card-container {
-        margin-top: 1rem;
+      /* Campos do cartão */
+      .card-box {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fafafa;
       }
-      .card-fields-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
+
+      /* Cada linha de campo */
+      .card-field-row {
+        margin-bottom: 1rem;
       }
-      .card-fields-grid .full-row {
-        grid-column: 1 / 3;
-      }
-      #card-number,
-      #expiration-date,
-      #cvv {
+
+      /* Braintree Hosted Fields + input do titular */
+      .hosted-field {
+        display: block;
+        width: 100%;
         min-height: 44px;
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        background: #fff;
         border: 1px solid #ccc;
         border-radius: 6px;
+        padding: 0 10px;
+        font-size: 0.9rem;
+        background-color: #fff;
         transition: border-color 0.3s;
       }
-      #card-number:focus-within,
-      #expiration-date:focus-within,
-      #cvv:focus-within {
+      .hosted-field:focus-within {
         border-color: #007aff;
       }
-      #installments {
+
+      /* Ajuste para colocar dois campos lado a lado (Validade e CVV) */
+      .fields-inline-2 {
+        display: flex;
+        gap: 1rem;
+      }
+      .fields-inline-2 .hosted-field {
+        flex: 1;
+      }
+
+      /* Botão de pagar */
+      .btn-pay {
+        display: inline-block;
         width: 100%;
-        max-width: 120px;
-        border: 1px solid #ccc;
+        text-align: center;
+        background: #007aff;
+        color: #fff;
+        border: none;
         border-radius: 6px;
-        padding: 0.4rem;
-        margin-top: 0.2rem;
-      }
-      #checkout-form button.btn-pay-pal {
-        margin-top: 1rem;
-        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
         font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
       }
+      .btn-pay:hover {
+        background: #005dbf;
+      }
+
+      /* Botão de voltar */
+      .btn-voltar {
+        background: #e0e0e0;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        margin-right: 0.5rem;
+      }
+      .btn-voltar:hover {
+        background: #ccc;
+      }
+
+      /* Container do PayPal e Google Pay (quando selecionados) */
       #paypal-container,
       #google-pay-container {
         margin-top: 1rem;
@@ -522,15 +569,16 @@
           </div>
         </div>
 
-        <!-- STEP 3: Pagamento (com design melhorado) -->
+        <!-- STEP 3: Pagamento (Focado no design que você quer) -->
         <div class="step-content" data-step="3">
-          <div class="card-style-1">
+          <!-- Container geral do pagamento -->
+          <div class="payment-section">
             <h2>Pagamento</h2>
-            <p style="margin-bottom:1rem;">Revise seus dados e escolha o método de pagamento.</p>
+            <p class="subtitle">Revise seus dados e escolha o método de pagamento.</p>
 
-            <!-- Container que agrupa as opções de pagamento -->
-            <div class="payment-method-wrapper">
-              <h3>Selecione um método de pagamento</h3>
+            <!-- Seleção de método de pagamento (Cartão, PayPal, Google Pay) -->
+            <div class="payment-method-container">
+              <label>Selecione um método de pagamento</label>
               <ul class="payment-method-list">
                 <li>
                   <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
@@ -569,15 +617,13 @@
               </ul>
             </div>
 
-            <!-- Resumo do Step 1 e 2 (oculta se não houver dados) -->
-            <div id="summaryData" style="margin:1rem 0; font-size:0.9rem; line-height:1.4;">
-              <!-- Preenchido via JS -->
-            </div>
+            <!-- Resumo do Step 1 e 2 (pode ficar acima ou abaixo, conforme queira) -->
+            <div id="summaryData" style="margin-bottom:1rem; font-size:0.9rem; line-height:1.4;"></div>
 
-            <!-- Container para Cartão de Crédito (com 3DS e Parcelas) -->
+            <!-- Container do Cartão (quando selecionado) -->
             <div id="card-container" style="display:block;">
-              <div class="form-field">
-                <label>Parcelas</label>
+              <!-- Pequeno select de Parcelas (opcional) -->
+              <div class="form-field" style="margin-bottom:1rem; max-width:200px;">
                 <select id="installments">
                   <option value="1">1x</option>
                   <option value="2">2x</option>
@@ -591,22 +637,32 @@
                   <option value="10">10x</option>
                 </select>
               </div>
-              <form id="checkout-form">
-                <div class="card-fields-grid">
-                  <div class="form-field full-row">
-                    <label>Número do Cartão</label>
-                    <div id="card-number"></div>
-                  </div>
-                  <div class="form-field">
-                    <label>Validade (MM/AA)</label>
-                    <div id="expiration-date"></div>
-                  </div>
-                  <div class="form-field">
-                    <label>CVV</label>
-                    <div id="cvv"></div>
-                  </div>
+
+              <!-- Box que agrupa os campos do cartão -->
+              <div class="card-box">
+                <!-- Número do Cartão -->
+                <div class="card-field-row">
+                  <div id="card-number" class="hosted-field" data-label="Número do cartão"></div>
                 </div>
-                <button type="submit" class="btn-pay-pal">Pagar</button>
+                <!-- Nome do Titular (input normal, não é hosted field) -->
+                <div class="card-field-row">
+                  <input
+                    type="text"
+                    id="cardholderName"
+                    class="hosted-field"
+                    placeholder="Nome do titular do cartão"
+                  />
+                </div>
+                <!-- Validade e CVV lado a lado -->
+                <div class="card-field-row fields-inline-2">
+                  <div id="expiration-date" class="hosted-field" data-label="Validade (MM/AA)"></div>
+                  <div id="cvv" class="hosted-field" data-label="CVV/CVC"></div>
+                </div>
+              </div>
+
+              <!-- Botão de pagar (form) -->
+              <form id="checkout-form">
+                <button type="submit" class="btn-pay">Pagar</button>
               </form>
             </div>
 
@@ -620,8 +676,9 @@
               <div id="google-pay-button-container"></div>
             </div>
 
+            <!-- Botão de voltar (caso deseje exibir ao lado do Pagar, ajuste) -->
             <div class="navigation">
-              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+              <button class="btn-voltar" id="backToStep2">Voltar</button>
             </div>
           </div>
         </div>
@@ -755,8 +812,8 @@
       });
 
       // Botões de voltar
-      backToStep1Btn.addEventListener("click", () => showStep(1));
-      backToStep2Btn.addEventListener("click", () => showStep(2));
+      if (backToStep1Btn) backToStep1Btn.addEventListener("click", () => showStep(1));
+      if (backToStep2Btn) backToStep2Btn.addEventListener("click", () => showStep(2));
 
       // Se o método de pagamento for alterado, reinicializa
       document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
@@ -806,14 +863,26 @@
                 {
                   client: clientInstance,
                   styles: {
-                    input: { "font-size": "16px", color: "#333" },
+                    input: {
+                      "font-size": "15px",
+                      color: "#333"
+                    },
                     "input.invalid": { color: "red" },
                     "input.valid": { color: "green" }
                   },
                   fields: {
-                    number: { selector: "#card-number", placeholder: "Número do Cartão" },
-                    cvv: { selector: "#cvv", placeholder: "CVV" },
-                    expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
+                    number: {
+                      selector: "#card-number",
+                      placeholder: "Número do cartão de crédito/débito"
+                    },
+                    cvv: {
+                      selector: "#cvv",
+                      placeholder: "CVV/CVC"
+                    },
+                    expirationDate: {
+                      selector: "#expiration-date",
+                      placeholder: "MM/AA"
+                    }
                   }
                 },
                 (hostedFieldsErr, hostedFieldsInstance) => {
@@ -979,6 +1048,9 @@
           }
         }
 
+        // Nome do titular digitado:
+        const cardholderName = document.getElementById("cardholderName").value || "";
+
         const body = {
           paymentMethodNonce: nonce,
           amount: amount,
@@ -996,7 +1068,8 @@
             region: checkoutData.state,
             postalCode: checkoutData.cep,
             countryCodeAlpha2: "BR"
-          }
+          },
+          cardholderName: cardholderName
         };
 
         try {
@@ -1051,13 +1124,18 @@
           `;
         });
         container.innerHTML = html;
+
+        // Exemplo: desconto fixo de 500
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
         const discount = 500;
         document.getElementById("discountValue").textContent =
           "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+
+        const total = subtotal - discount;
         document.getElementById("totalValue").textContent =
-          "R$ " + (subtotal - discount).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+          "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
 
       // Ao carregar a página, atualiza o carrinho
