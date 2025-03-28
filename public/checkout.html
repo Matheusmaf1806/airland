@@ -6,11 +6,11 @@
     <!-- Componente de header -->
     <script src="/js/header-component.js" type="module"></script>
     <!-- Bibliotecas do Braintree para os diferentes métodos -->
-    <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.94.0/js/3d-secure.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/3d-secure.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js" crossorigin="anonymous"></script>
+    <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js" crossorigin="anonymous"></script>
     <style>
       /* ===========================
           COMMON CSS
@@ -275,9 +275,13 @@
           width: 100%;
         }
       }
-      .mt-10 { margin-top: 10px; }
-      .mb-10 { margin-bottom: 10px; }
-      /* Definindo altura mínima para os containers dos Hosted Fields */
+      .mt-10 {
+        margin-top: 10px;
+      }
+      .mb-10 {
+        margin-bottom: 10px;
+      }
+      /* Altura mínima para os containers dos Hosted Fields */
       #card-number, #expiration-date, #cvv {
         min-height: 45px;
       }
@@ -538,6 +542,7 @@
     <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
     <script>
+      // Objeto global para armazenar os dados do checkout (Step 1)
       let checkoutData = {};
 
       const stepsMenu = document.getElementById("stepsMenu");
@@ -601,13 +606,14 @@
       backToStep1Btn.addEventListener("click", () => { showStep(1); });
       backToStep2Btn.addEventListener("click", () => { showStep(2); });
 
-      // Re-inicializa o método de pagamento quando o usuário muda a escolha
+      // Atualiza o método de pagamento conforme a escolha do usuário
       document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
         input.addEventListener('change', initializePaymentMethod);
       });
 
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+        // Oculta todos os containers
         document.getElementById("card-container").style.display = "none";
         document.getElementById("paypal-container").style.display = "none";
         document.getElementById("google-pay-container").style.display = "none";
@@ -644,7 +650,7 @@
               alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            // Cria os Hosted Fields para o cartão
+            // Cria os Hosted Fields para cartão
             braintree.hostedFields.create({
               client: clientInstance,
               styles: {
@@ -673,6 +679,7 @@
                     return;
                   }
                   const amount = getOrderAmount();
+                  // Verifica o 3D Secure antes de enviar o nonce final
                   threeDSecureInstance.verifyCard({
                     nonce: payload.nonce,
                     amount: amount,
