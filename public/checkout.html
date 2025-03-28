@@ -357,12 +357,12 @@
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
             <h2>Dados Pessoais</h2>
-            <!-- Link para Login -->
+            <!-- Link para Login (apenas exibido se o usuário não estiver logado) -->
             <div style="text-align: right; margin-bottom: 1rem;">
               <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
             </div>
 
-            <!-- Container de Registro (parte "geral") -->
+            <!-- Container de Registro (dados gerais: nome, sobrenome, celular, e-mail, senha) -->
             <div id="registrationFieldsGeneral">
               <!-- Grid 1: Nome e Sobrenome -->
               <div class="fields-grid-2cols">
@@ -444,7 +444,7 @@
               </div>
             </div>
 
-            <!-- Formulário de Login (alternando) -->
+            <!-- Formulário de Login (alternativo) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -480,22 +480,11 @@
                 style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
               />
               <div>
-                <span
-                  style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;"
-                  >Cobertura para U$60.000</span>
-                <div style="margin-top:0.5rem; font-weight:600;">
-                  Seguro para despesas médicas, atrasos, etc.
-                </div>
-                <div style="margin-top:0.5rem; color:#00c853; font-weight:700;">
-                  R$ 119,00 /pessoa
-                </div>
+                <span style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
+                <div style="margin-top:0.5rem; font-weight:600;">Seguro para despesas médicas, atrasos, etc.</div>
+                <div style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
                 <div style="margin-top:0.5rem;">
-                  <button
-                    id="addInsurance1"
-                    style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;"
-                  >
-                    Adicionar
-                  </button>
+                  <button id="addInsurance1" style="background:#007aff; color:#fff; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">Adicionar</button>
                   <a href="#" style="margin-left:1rem; color:#007aff;">Detalhes</a>
                 </div>
               </div>
@@ -641,7 +630,6 @@
       /* =============================================
          LÓGICA DE MULTI-STEP E INTEGRAÇÃO BRAINTREE
          ============================================= */
-
       let checkoutData = {};
 
       const stepsMenu = document.getElementById("stepsMenu");
@@ -993,8 +981,6 @@
           `;
         });
         container.innerHTML = html;
-
-        // Sem desconto
         document.getElementById("subtotalValue").textContent =
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
         document.getElementById("discountValue").textContent = "- R$ 0,00";
@@ -1002,7 +988,7 @@
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
 
-      // Ao carregar a página, atualiza o carrinho
+      // Ao carregar a página, atualiza o carrinho e verifica login
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
@@ -1017,19 +1003,16 @@
         updateCheckoutCart(items);
 
         // Verifica se o usuário está logado
+        const isLoggedIn = !!localStorage.getItem("agentId");
         const toggleLoginLink = document.getElementById("toggleLogin");
         const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
         const loginFields = document.getElementById("loginFields");
-        const isLoggedIn = !!localStorage.getItem("agentId");
-
         if (isLoggedIn) {
-          // Usuário logado -> Oculta o link de login e os campos gerais (nome, sobrenome, etc.)
+          // Usuário logado: esconde o link e os campos de registro (gerais)
           toggleLoginLink.style.display = "none";
           registrationFieldsGeneral.style.display = "none";
           loginFields.style.display = "none";
-          // Mantemos "documentFields" (CPF, RG, etc.) sempre visível
         } else {
-          // Usuário não logado -> Mostra o link de login e campos gerais
           toggleLoginLink.style.display = "block";
           registrationFieldsGeneral.style.display = "block";
         }
@@ -1044,14 +1027,12 @@
       if (toggleLogin) {
         toggleLogin.addEventListener("click", (e) => {
           e.preventDefault();
-          // Alterna exibição entre registro e login
+          // Alterna entre exibir o formulário de registro geral e o de login
           if (registrationFieldsGeneral.style.display !== "none") {
-            // Esconde registro e exibe login
             registrationFieldsGeneral.style.display = "none";
             loginFields.style.display = "block";
             toggleLogin.textContent = "Não tenho Login";
           } else {
-            // Exibe registro e esconde login
             registrationFieldsGeneral.style.display = "block";
             loginFields.style.display = "none";
             toggleLogin.textContent = "Economize tempo fazendo Login";
@@ -1075,7 +1056,7 @@
             if(data.success) {
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              // Ao logar, some link e campos de registro
+              // Ao logar, esconde os campos de registro geral e o link de login
               toggleLogin.style.display = "none";
               registrationFieldsGeneral.style.display = "none";
               loginFields.style.display = "none";
@@ -1089,6 +1070,35 @@
           });
         });
       }
+
+      /* ===================== AUTOPREENCHIMENTO DO ENDEREÇO VIA CEP ===================== */
+      function buscarCEP(cep) {
+        cep = cep.replace(/\D/g, '');
+        if (cep.length === 8) {
+          const url = `https://viacep.com.br/ws/${cep}/json/`;
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              if (data.erro) {
+                alert("CEP não encontrado!");
+                return;
+              }
+              document.getElementById("address").value = data.logradouro || "";
+              document.getElementById("city").value = data.localidade || "";
+              document.getElementById("state").value = data.uf || "";
+            })
+            .catch(error => {
+              console.error("Erro ao buscar CEP:", error);
+              alert("Não foi possível consultar o CEP.");
+            });
+        } else {
+          console.log("CEP inválido ou incompleto.");
+        }
+      }
+      
+      document.getElementById("cep").addEventListener("blur", function() {
+        buscarCEP(this.value);
+      });
     </script>
   </body>
 </html>
