@@ -43,6 +43,7 @@
     button,
     a {
       transition: all 0.3s ease-out;
+      cursor: pointer;
     }
 
     /* ===== STEPS MENU ===== */
@@ -304,20 +305,22 @@
       padding: 1rem;
     }
 
-    /* ===== BOTÃO "NOMEIE OS OUTROS PASSAGEIROS (OBRIGATÓRIO)" ===== */
+    /* ===== BOTÃO "ADICIONAR PASSAGEIROS ➕" (ESTILO RETANGULAR) ===== */
     .btn-add-passenger {
-      background: none;
-      border: none;
+      display: block;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      padding: 1rem 0;
       color: #1f2b47;
+      text-align: center;
+      margin: 1rem auto;
       font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.95rem;
-      margin: 1rem 0;
+      font-size: 1rem;
     }
     .btn-add-passenger:hover {
+      background: #f1f5f9;
       color: #365cf5;
     }
 
@@ -350,8 +353,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
-    /* ===== PASSAGEIRO EXTRA NO MODAL ===== */
     .passenger-box {
       background: #f9fafb;
       border: 1px dashed #ccc;
@@ -409,9 +410,9 @@
 
   <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA -->
+    <!-- COLUNA ESQUERDA (STEPS) -->
     <div class="left-col">
-      <!-- STEP 1: Dados Pessoais + Passageiros Extras -->
+      <!-- STEP 1: Dados Pessoais + Botão Adicionar Passageiros -->
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Dados Pessoais</h2>
@@ -420,9 +421,9 @@
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
 
-          <!-- Container Superior: Login ou Registro -->
+          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
           <div id="topFieldsContainer">
-            <!-- Formulário de Login -->
+            <!-- Formulário de Login (E-mail, Senha, Botão Entrar) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -439,8 +440,9 @@
               </div>
             </div>
 
-            <!-- Formulário de Registro -->
+            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
             <div id="registrationFieldsGeneral">
+              <!-- Grid 1: Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome</label>
@@ -451,18 +453,18 @@
                   <input type="text" id="lastName" placeholder="Sobrenome">
                 </div>
               </div>
+              <!-- Grid 2: Celular e E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular</label>
                   <input type="text" id="celular" placeholder="(XX) 99999-9999">
                 </div>
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>E-mail</label>
-                    <input type="email" id="email" placeholder="seuemail@exemplo.com">
-                  </div>
+                <div class="form-field">
+                  <label>E-mail</label>
+                  <input type="email" id="email" placeholder="seuemail@exemplo.com">
                 </div>
               </div>
+              <!-- Grid 3: Senha e Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Senha</label>
@@ -476,7 +478,7 @@
             </div>
           </div>
 
-          <!-- Campos de Documentos/Endereço -->
+          <!-- Campos de Documentos/Endereço (sempre visíveis) -->
           <div id="documentFields">
             <div class="fields-grid-3cols">
               <div class="form-field">
@@ -518,10 +520,8 @@
             </div>
           </div>
 
-          <!-- Botão para abrir modal para passageiros extras -->
-          <div style="margin-top: 1rem;">
-            <button class="btn-add-passenger" id="openPassengerModal">Nomeie os outros Passageiros (obrigatório)</button>
-          </div>
+          <!-- Botão "Adicionar passageiros ➕" para abrir modal -->
+          <button class="btn-add-passenger" id="openPassengerModal">Adicionar passageiros ➕</button>
 
           <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
           <div class="navigation">
@@ -533,7 +533,7 @@
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
-            <h3>Preencha os Passageiros Extras</h3>
+            <h3>Passageiros Extras</h3>
             <div id="modalPassengerContainer"></div>
             <div style="text-align: right; margin-top: 1rem;">
               <button class="btn-save-passenger" id="savePassengersBtn">Salvar Passageiros</button>
@@ -548,7 +548,11 @@
           <h2>Detalhes Adicionais</h2>
           <p>Selecione serviços adicionais (ex: seguro de viagem):</p>
           <div style="margin-top:1rem;">
-            <img src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg" alt="Seguro Viagem" style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;">
+            <img
+              src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg"
+              alt="Seguro Viagem"
+              style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+            />
             <div>
               <span style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
               <div style="margin-top:0.5rem; font-weight:600;">Seguro para despesas médicas, atrasos, etc.</div>
@@ -571,6 +575,8 @@
         <div class="card-style-1">
           <h2>Pagamento</h2>
           <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
+
+          <!-- Seletor de Método -->
           <div class="form-field">
             <label>Método de Pagamento</label>
             <div>
@@ -582,6 +588,8 @@
               <label for="methodGooglePay">Google Pay</label>
             </div>
           </div>
+
+          <!-- Container para Cartão de Crédito (com 3DS e Parcelas) -->
           <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
@@ -616,12 +624,17 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
+
+          <!-- Container para PayPal -->
           <div id="paypal-container" style="display:none;">
             <div id="paypal-button-container"></div>
           </div>
+
+          <!-- Container para Google Pay -->
           <div id="google-pay-container" style="display:none;">
             <div id="google-pay-button-container"></div>
           </div>
+
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
           </div>
@@ -672,27 +685,13 @@
   <!-- (Opcional) Shopping Cart oculto -->
   <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
-  <!-- MODAL PARA PASSAGEIROS EXTRAS -->
-  <div id="passengerModal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal" id="closeModal">&times;</span>
-      <h3>Nomeie os outros Passageiros (obrigatório)</h3>
-      <div id="modalPassengerContainer">
-        <!-- Aqui serão inseridos os formulários para passageiros extras -->
-      </div>
-      <div style="text-align: right; margin-top: 1rem;">
-        <button class="btn-save-passenger" id="savePassengersBtn">Salvar Passageiros</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     /* =============================================
        LÓGICA DE MULTI-STEP E INTEGRAÇÃO BRAINTREE
-       + PASSAGEIROS EXTRAS
+       + PASSAGEIROS EXTRAS (Modal)
        ============================================= */
     let checkoutData = {
-      extraPassengers: [] // Armazena os dados extras, organizados por item
+      extraPassengers: []
     };
 
     const stepsMenu = document.getElementById("stepsMenu");
@@ -719,7 +718,7 @@
       });
     }
 
-    // Exemplo de itens do carrinho
+    // Carrega itens do carrinho
     let cartItems = [];
     const cartElement = document.getElementById("shoppingCart");
     if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -729,7 +728,7 @@
       if (savedCart) {
         cartItems = JSON.parse(savedCart);
       } else {
-        // Exemplo padrão
+        // Exemplo default
         cartItems = [
           { hotelName: "Hotel Exemplo A", adults: 2, children: 1, basePriceAdult: 100 },
           { hotelName: "Hotel Exemplo B", adults: 3, children: 0, basePriceAdult: 150 }
@@ -737,8 +736,8 @@
       }
     }
 
+    /* Step Navigation */
     toStep2Btn.addEventListener("click", () => {
-      // Coleta dados do passageiro principal
       checkoutData.firstName = document.getElementById("firstName")?.value || "";
       checkoutData.lastName = document.getElementById("lastName")?.value || "";
       checkoutData.celular = document.getElementById("celular")?.value || "";
@@ -756,12 +755,10 @@
 
       showStep(2);
     });
-
     toStep3Btn.addEventListener("click", () => {
       showStep(3);
       initializePaymentMethod();
     });
-
     backToStep1Btn?.addEventListener("click", () => showStep(1));
     backToStep2Btn?.addEventListener("click", () => showStep(2));
 
@@ -867,8 +864,8 @@
 
     function initializePayPal() {
       fetch("/api/braintree/get-client-token")
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           const clientToken = data.clientToken;
           braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
             if (clientErr) {
@@ -908,15 +905,15 @@
             });
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Erro ao obter client token para PayPal:", err);
         });
     }
 
     function initializeGooglePay() {
       fetch("/api/braintree/get-client-token")
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           const clientToken = data.clientToken;
           braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
             if (clientErr) {
@@ -946,11 +943,11 @@
                 const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
                 paymentsClient
                   .loadPaymentData(paymentDataRequest)
-                  .then((paymentData) => googlePaymentInstance.parseResponse(paymentData))
-                  .then((payload) => {
+                  .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
+                  .then(payload => {
                     processPayment(payload.nonce, "googlePay");
                   })
-                  .catch((err) => {
+                  .catch(err => {
                     console.error("Erro no Google Pay:", err);
                     alert("Erro no pagamento com Google Pay.");
                   });
@@ -960,7 +957,7 @@
             );
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Erro ao obter client token para Google Pay:", err);
         });
     }
@@ -1028,7 +1025,7 @@
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
       let html = "";
-      items.forEach((item) => {
+      items.forEach(item => {
         let price = item.basePriceAdult || 80;
         subtotal += price;
         html += `
@@ -1057,30 +1054,32 @@
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
 
-    /* Modal Lógica */
+    /* ========== MODAL LÓGICA ========== */
     const passengerModal = document.getElementById("passengerModal");
     const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
+    const savePassengersBtn = document.getElementById("savePassengersBtn");
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
 
-    // Função para criar os formulários de passageiros extras dentro do modal
+    // Cria os formulários no modal
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
       checkoutData.extraPassengers = [];
+
       items.forEach((item, itemIndex) => {
         if (item.adults > 1) {
-          // Inicializa array para este item
+          // Precisamos de (adults - 1) forms
           checkoutData.extraPassengers[itemIndex] = [];
           const itemDiv = document.createElement("div");
           itemDiv.style.marginBottom = "1rem";
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"} - Passageiros Extras (Total: ${item.adults - 1})</h4>`;
-          // Cria formulários para (adults - 1) passageiros extras
+
           for (let i = 0; i < item.adults - 1; i++) {
             const passengerBox = document.createElement("div");
             passengerBox.className = "passenger-box";
             passengerBox.innerHTML = `
               <div class="form-field">
-                <label>Nome Completo do Passageiro Extra #${i+1}</label>
+                <label>Nome Completo do Passageiro #${i+1}</label>
                 <input type="text" placeholder="Nome do passageiro" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
               </div>
               <div class="form-field">
@@ -1095,8 +1094,8 @@
       });
     }
 
-    // Abre o modal ao clicar no botão
-    openPassengerModalBtn.addEventListener("click", (e) => {
+    // Abre o modal
+    openPassengerModalBtn.addEventListener("click", e => {
       e.preventDefault();
       createModalPassengerForms(cartItems);
       passengerModal.style.display = "block";
@@ -1107,15 +1106,14 @@
       passengerModal.style.display = "none";
     });
 
-    // Botão para salvar os dados do modal (fechar e manter os dados em checkoutData)
-    document.getElementById("savePassengersBtn").addEventListener("click", () => {
-      // Os eventos "input" no modal já atualizam checkoutData.extraPassengers
+    // Salva e fecha
+    savePassengersBtn.addEventListener("click", () => {
       passengerModal.style.display = "none";
       alert("Passageiros extras salvos!");
     });
 
-    // Escuta alterações nos inputs do modal para atualizar os dados
-    document.getElementById("modalPassengerContainer").addEventListener("input", (e) => {
+    // Escuta alterações nos inputs do modal
+    modalPassengerContainer.addEventListener("input", e => {
       const target = e.target;
       if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
         const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
@@ -1134,11 +1132,11 @@
       }
     });
 
-    /* ===================== Ao Carregar a Página ===================== */
+    /* ========== ON LOAD ========== */
     window.addEventListener("load", () => {
-      // Atualiza o carrinho
+      // Monta carrinho
       updateCheckoutCart(cartItems);
-      // Cria os formulários para passageiros extras (já que o modal será aberto quando solicitado)
+
       // Verifica se o usuário está logado
       const isLoggedIn = !!localStorage.getItem("agentId");
       const toggleLoginLink = document.getElementById("toggleLogin");
@@ -1156,8 +1154,11 @@
 
     /* ===================== LOGIN/REGISTRO ===================== */
     const toggleLogin = document.getElementById("toggleLogin");
+    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+    const loginFields = document.getElementById("loginFields");
+
     if (toggleLogin) {
-      toggleLogin.addEventListener("click", (e) => {
+      toggleLogin.addEventListener("click", e => {
         e.preventDefault();
         if (registrationFieldsGeneral.style.display !== "none") {
           registrationFieldsGeneral.style.display = "none";
@@ -1242,7 +1243,6 @@
       }
       e.target.value = value;
     });
-
     document.getElementById("rg").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
       if(value.length > 2) {
