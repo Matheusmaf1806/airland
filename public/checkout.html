@@ -62,6 +62,7 @@
       gap: 0.5rem;
       color: #fff;
       font-weight: 500;
+      cursor: pointer;
     }
     .steps-menu .circle {
       width: 34px;
@@ -117,7 +118,7 @@
     /* ===== FORMULÁRIOS & CAMPOS ===== */
     .fields-grid-2cols {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       margin-bottom: 1rem;
     }
@@ -176,7 +177,7 @@
       text-align: right;
     }
 
-    /* ===== RIGHT-COL: CARRINHO ===== */
+    /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
     .reservation-gifts-card {
       background: #fff;
       border: 1px solid #efefef;
@@ -210,6 +211,10 @@
     .reserva-left .nome {
       font-size: 0.85rem;
       color: #333;
+    }
+    .reserva-left .subinfo {
+      font-size: 0.8rem;
+      color: #888;
     }
     .reserva-preco {
       font-size: 1rem;
@@ -254,7 +259,7 @@
       display: block;
     }
 
-    /* ===== STEP 3: PAGAMENTO ===== */
+    /* ===== STEP 3: PAGAMENTO (mais estilizado) ===== */
     #card-container {
       margin-top: 1rem;
       background: #fafafa;
@@ -300,7 +305,7 @@
       padding: 1rem;
     }
 
-    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
+    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" (RETANGULAR) ===== */
     .btn-add-passenger {
       display: block;
       width: 100%;
@@ -319,9 +324,9 @@
       color: #365cf5;
     }
 
-    /* ===== MODAL ===== */
+    /* ===== MODAL (GENÉRICO) ===== */
     .modal {
-      display: none;
+      display: none; /* Escondido por padrão */
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -337,7 +342,7 @@
       padding: 20px 25px;
       border-radius: 12px;
       width: 90%;
-      max-width: 600px;
+      max-width: 700px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       position: relative;
     }
@@ -385,17 +390,113 @@
       margin-right: 1rem;
     }
 
-    /* ===== FOOTER ===== */
-    footer {
-      width: 90%;
-      max-width: 1200px;
-      margin: 2rem auto;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #888;
-      border-top: 1px solid #eee;
-      padding-top: 1rem;
+    /* ===== ESTILOS EXTRAS PARA AS OPÇÕES DE SEGURO (STEP 2) ===== */
+    .insurance-options-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
+    .insurance-option {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+    }
+    .insurance-option:hover {
+      background: #f9f9f9;
+    }
+    .insurance-option input[type="radio"] {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      transform: scale(1.3);
+      cursor: pointer;
+    }
+    .insurance-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2b47;
+    }
+    .insurance-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #00c853;
+    }
+    .insurance-warning {
+      color: #d32f2f;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .insurance-description {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.3;
+    }
+    .insurance-features {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+    }
+    .insurance-features span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .insurance-links {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .insurance-links a {
+      color: #365cf5;
+      margin-right: 1rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .insurance-links a:hover {
+      text-decoration: underline;
+    }
+    .insurance-dates {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #333;
+    }
+    .insurance-logo {
+      max-height: 30px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .insurance-separator {
+      border-top: 1px dashed #ccc;
+      margin: 0.5rem 0;
+    }
+
+    /* ===== TABELAS DE COBERTURAS NO MODAL ===== */
+    .coverage-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .coverage-table thead {
+      background: #f1f5f9;
+    }
+    .coverage-table th,
+    .coverage-table td {
+      padding: 0.6rem;
+      border: 1px solid #ddd;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    .coverage-table th {
+      font-weight: 600;
+      color: #333;
+    }
+
     @media (max-width: 768px) {
       .main-container {
         flex-direction: column;
@@ -405,6 +506,10 @@
       }
       .fields-grid-2cols-modal {
         grid-template-columns: 1fr;
+      }
+      .insurance-option input[type="radio"] {
+        top: 8px;
+        right: 8px;
       }
     }
   </style>
@@ -437,118 +542,120 @@
 
   <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA -->
+    <!-- COLUNA ESQUERDA (STEPS) -->
     <div class="left-col">
-      <!-- STEP 1: Passageiro Principal -->
-      <div class="step-content active" data-step="1" id="step1Content">
+      <!-- STEP 1: Passageiro Principal + Botão Adicionar Passageiros -->
+      <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
-
-          <!-- Link para Login -->
+          <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
 
-          <!-- Container Superior: ou Formulário de Login ou Formulário de Registro -->
+          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
           <div id="topFieldsContainer">
-            <!-- Form de Login (oculto por padrão) -->
-            <div id="loginFields" style="display:none;">
+            <!-- Formulário de Login -->
+            <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
-                  <label>E-mail</label>
+                  <label>E-mail *</label>
                   <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
                 </div>
                 <div class="form-field">
-                  <label>Senha</label>
+                  <label>Senha *</label>
                   <input type="password" id="loginPassword" placeholder="********">
                 </div>
               </div>
-              <div style="text-align:right; margin-top:10px;">
+              <div style="text-align: right; margin-top: 10px;">
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
 
-            <!-- Form de Registro (Nome, Sobrenome, etc.) -->
+            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
             <div id="registrationFieldsGeneral">
-              <p style="font-size:0.9rem; margin-bottom:1rem;">
-                Todos os campos são obrigatórios. Preencha conforme seus documentos.
-              </p>
+              <!-- Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome *</label>
-                  <input type="text" id="firstName" required placeholder="Nome" />
+                  <input type="text" id="firstName" placeholder="Nome">
                 </div>
                 <div class="form-field">
                   <label>Sobrenome *</label>
-                  <input type="text" id="lastName" required placeholder="Sobrenome" />
+                  <input type="text" id="lastName" placeholder="Sobrenome">
                 </div>
               </div>
+              <!-- Celular e E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular *</label>
-                  <input type="text" id="celular" required placeholder="(XX) 99999-9999" />
+                  <input type="text" id="celular" placeholder="(XX) 99999-9999">
                 </div>
                 <div class="form-field">
                   <label>E-mail *</label>
-                  <input type="email" id="email" required placeholder="seuemail@exemplo.com" />
+                  <input type="email" id="email" placeholder="seuemail@exemplo.com">
                 </div>
               </div>
+              <!-- Senha e Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Senha *</label>
-                  <input type="password" id="password" required placeholder="********" />
+                  <input type="password" id="password" placeholder="********">
                 </div>
                 <div class="form-field">
                   <label>Repetir Senha *</label>
-                  <input type="password" id="confirmPassword" required placeholder="********" />
+                  <input type="password" id="confirmPassword" placeholder="********">
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Campos de Documentos/Endereço (sempre visíveis) -->
-          <div class="fields-grid-3cols">
-            <div class="form-field">
-              <label>CPF *</label>
-              <input type="text" id="cpf" required placeholder="123.456.789-00">
+          <div id="documentFields">
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CPF *</label>
+                <input type="text" id="cpf" placeholder="123.456.789-00">
+              </div>
+              <div class="form-field">
+                <label>RG *</label>
+                <input type="text" id="rg" placeholder="12.345.678-9">
+              </div>
+              <div class="form-field">
+                <label>Data de Nascimento *</label>
+                <input type="date" id="birthdate" placeholder="dd/mm/aaaa">
+              </div>
             </div>
-            <div class="form-field">
-              <label>RG *</label>
-              <input type="text" id="rg" required placeholder="12.345.678-9">
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CEP *</label>
+                <input type="text" id="cep" placeholder="12345-678">
+              </div>
+              <div class="form-field">
+                <label>Estado *</label>
+                <input type="text" id="state" placeholder="Ex: SP">
+              </div>
+              <div class="form-field">
+                <label>Cidade *</label>
+                <input type="text" id="city" placeholder="São Paulo">
+              </div>
             </div>
-            <div class="form-field">
-              <label>Data de Nascimento *</label>
-              <input type="date" id="birthdate" required placeholder="dd/mm/aaaa">
-            </div>
-          </div>
-          <div class="fields-grid-3cols">
-            <div class="form-field">
-              <label>CEP *</label>
-              <input type="text" id="cep" required placeholder="12345-678">
-            </div>
-            <div class="form-field">
-              <label>Estado *</label>
-              <input type="text" id="state" required placeholder="Ex: SP">
-            </div>
-            <div class="form-field">
-              <label>Cidade *</label>
-              <input type="text" id="city" required placeholder="São Paulo">
-            </div>
-          </div>
-          <div class="fields-grid-2cols">
-            <div class="form-field">
-              <label>Endereço *</label>
-              <input type="text" id="address" required placeholder="Rua, Avenida..." />
-            </div>
-            <div class="form-field">
-              <label>Número *</label>
-              <input type="text" id="number" required placeholder="123" />
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Endereço *</label>
+                <input type="text" id="address" placeholder="Rua, Avenida...">
+              </div>
+              <div class="form-field">
+                <label>Número *</label>
+                <input type="text" id="number" placeholder="123">
+              </div>
             </div>
           </div>
 
-          <!-- BOTÃO PARA ABRIR O MODAL -->
+          <!-- Botão "Nomear passageiros (Obrigatório)➕" para abrir modal -->
           <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
 
+          <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
           <div class="navigation">
             <button class="btn-save-passenger" id="toStep2">Próximo</button>
           </div>
@@ -572,14 +679,94 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes Adicionais – importado via public/js/stw.js -->
-      <div class="step-content" data-step="2" id="step2Container"></div>
+      <!-- STEP 2: Detalhes Adicionais (NOVO DESIGN) -->
+      <div class="step-content" data-step="2">
+        <div class="card-style-1">
+          <h2>Detalhes Adicionais</h2>
+          <p>Selecione o seguro de viagem que deseja adicionar à sua reserva:</p>
+
+          <!-- Container com as 3 opções de seguro -->
+          <div class="insurance-options-container">
+            <!-- 1) SEM SEGURO VIAGEM -->
+            <label class="insurance-option" data-insurance="none">
+              <input type="radio" name="insuranceOption" value="none" />
+              <div class="insurance-title">Sem Seguro Viagem</div>
+              <div class="insurance-price">R$ 0</div>
+              <div class="insurance-description">
+                Vai viajar sem proteção?<br>
+                Imprevistos podem acontecer, e alguns países exigem seguro viagem na entrada. Garanta o seu antes de embarcar!
+              </div>
+              <div class="insurance-warning">Opção não recomendada</div>
+            </label>
+
+            <!-- 2) INTERMAC 30K -->
+            <label class="insurance-option" data-insurance="30k">
+              <input type="radio" name="insuranceOption" value="30k" />
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div class="insurance-title">Intermac 30K</div>
+                <img src="https://www.intermacseguros.com/bra/includes/logo-intermac-25-anos.png"
+                     alt="Logo Intermac"
+                     class="insurance-logo">
+              </div>
+              <div class="insurance-dates">
+                🗓️ 16 abr. 2025 - 18 abr. 2025
+                <!-- Substitua essas datas dinamicamente pelo check-in e check-out da maior hospedagem -->
+              </div>
+              <div class="insurance-price">+ R$ 112,81</div>
+              <div class="insurance-separator"></div>
+              <div class="insurance-features">
+                <span>✅ Cancelamento grátis</span>
+                <span>✅ Despesas hospitalares de até USD$ 30.000</span>
+                <span>✅ Despesas farmacêuticas de até USD$ 500</span>
+              </div>
+              <div class="insurance-links">
+                <a href="#" class="open30kModal">Ver mais</a>
+                <a href="#" class="open30kModal">Ver políticas</a>
+              </div>
+            </label>
+
+            <!-- 3) INTERMAC 80K -->
+            <label class="insurance-option" data-insurance="80k">
+              <input type="radio" name="insuranceOption" value="80k" />
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div class="insurance-title">Intermac 80K</div>
+                <img src="https://www.intermacseguros.com/bra/includes/logo-intermac-25-anos.png"
+                     alt="Logo Intermac"
+                     class="insurance-logo">
+              </div>
+              <div class="insurance-dates">
+                🗓️ 16 abr. 2025 - 18 abr. 2025
+                <!-- Substitua essas datas dinamicamente pelo check-in e check-out da maior hospedagem -->
+              </div>
+              <div class="insurance-price">+ R$ 212,02</div>
+              <div class="insurance-separator"></div>
+              <div class="insurance-features">
+                <span>✅ Cancelamento grátis</span>
+                <span>✅ Despesas hospitalares de até USD$ 80.000</span>
+                <span>✅ Despesas farmacêuticas de até USD$ 2.000</span>
+                <span>✅ Acesso à Sala Vip em caso de atraso do voo</span>
+              </div>
+              <div class="insurance-links">
+                <a href="#" class="open80kModal">Ver mais</a>
+                <a href="#" class="open80kModal">Ver políticas</a>
+              </div>
+            </label>
+          </div>
+
+          <!-- Botões Navegação -->
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep1">Voltar</button>
+            <button class="btn-save-passenger" id="toStep3">Próximo</button>
+          </div>
+        </div>
+      </div>
 
       <!-- STEP 3: Pagamento -->
-      <div class="step-content" data-step="3" id="step3Content">
+      <div class="step-content" data-step="3">
         <div class="card-style-1">
           <h2>Pagamento</h2>
           <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
+
           <div class="form-field">
             <label>Método de Pagamento</label>
             <div>
@@ -591,6 +778,7 @@
               <label for="methodGooglePay">Google Pay</label>
             </div>
           </div>
+
           <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
@@ -625,12 +813,14 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
+
           <div id="paypal-container" style="display:none;">
             <div id="paypal-button-container"></div>
           </div>
           <div id="google-pay-container" style="display:none;">
             <div id="google-pay-button-container"></div>
           </div>
+
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
           </div>
@@ -638,16 +828,16 @@
       </div>
 
       <!-- STEP 4: Confirmação -->
-      <div class="step-content" data-step="4" id="step4Content">
+      <div class="step-content" data-step="4">
         <div class="card-style-1">
-          <h2>Confirmação</h2>
+          <h2>Pagamento Concluído</h2>
           <p>Seu pagamento foi efetuado com sucesso!</p>
           <p>Obrigado por sua compra.</p>
         </div>
       </div>
     </div>
 
-    <!-- COLUNA DIREITA: Carrinho -->
+    <!-- COLUNA DIREITA: Resumo do Carrinho -->
     <div class="right-col">
       <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
@@ -681,17 +871,235 @@
   <!-- (Opcional) Shopping Cart oculto -->
   <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
-  <!-- IMPORT DO STEP 2: Ajuste a URL conforme sua pasta -->
-  <script src="/public/js/stw.js" type="module"></script>
+  <!-- MODAL: Coberturas Intermac 30K -->
+  <div class="modal" id="modalIntermac30K">
+    <div class="modal-content">
+      <span class="close-modal" data-close-modal="modalIntermac30K">&times;</span>
+      <h3>Intermac 30K – Coberturas</h3>
+      <table class="coverage-table">
+        <thead>
+          <tr>
+            <th>Coberturas</th>
+            <th>Valores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$30,000.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$200.00</td>
+          </tr>
+          <tr>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$150.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,000.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$350.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  <!-- SEU SCRIPT PRINCIPAL COMPLETO (LOGIN, MASCA, CEP, BRAINTREE, etc.) -->
+  <!-- MODAL: Coberturas Intermac 80K -->
+  <div class="modal" id="modalIntermac80K">
+    <div class="modal-content">
+      <span class="close-modal" data-close-modal="modalIntermac80K">&times;</span>
+      <h3>Intermac 80K – Coberturas</h3>
+      <table class="coverage-table">
+        <thead>
+          <tr>
+            <th>Coberturas</th>
+            <th>Valores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$80,000.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
+          </tr>
+          <tr>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,600.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$1,250.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <script>
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
        MÁSCARAS, CEP, E BRAINTREE
-    ============================================= */
-
-    let checkoutData = { extraPassengers: [] };
+       ============================================= */
+    let checkoutData = {
+      extraPassengers: [],
+      insuranceSelected: "none" // "none", "30k" ou "80k"
+    };
 
     const stepsMenu = document.getElementById("stepsMenu");
     const stepContents = document.querySelectorAll(".step-content");
@@ -727,15 +1135,48 @@
       if (savedCart) {
         cartItems = JSON.parse(savedCart);
       } else {
+        // Exemplo default
         cartItems = [
-          { hotelName: "Hotel Exemplo A", adults: 2, children: 1, basePriceAdult: 100 },
-          { hotelName: "Hotel Exemplo B", adults: 3, children: 0, basePriceAdult: 150 }
+          {
+            hotelName: "Hotel Exemplo A",
+            adults: 2,
+            children: 1,
+            basePriceAdult: 100,
+            checkIn: "2025-04-16",
+            checkOut: "2025-04-18"
+          },
+          {
+            hotelName: "Hotel Exemplo B",
+            adults: 3,
+            children: 0,
+            basePriceAdult: 150,
+            checkIn: "2025-04-10",
+            checkOut: "2025-04-12"
+          }
         ];
       }
     }
 
     /* Steps Navigation */
     toStep2Btn.addEventListener("click", () => {
+      // Exemplo simples de verificação obrigatória (campos do Step 1)
+      if (!document.getElementById("firstName").value ||
+          !document.getElementById("lastName").value ||
+          !document.getElementById("cpf").value ||
+          !document.getElementById("rg").value ||
+          !document.getElementById("birthdate").value ||
+          !document.getElementById("cep").value ||
+          !document.getElementById("state").value ||
+          !document.getElementById("city").value ||
+          !document.getElementById("address").value ||
+          !document.getElementById("number").value ||
+          !document.getElementById("celular").value ||
+          !document.getElementById("email").value
+      ) {
+        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+        return;
+      }
+
       // Coleta dados do "passageiro principal"
       checkoutData.firstName = document.getElementById("firstName")?.value || "";
       checkoutData.lastName = document.getElementById("lastName")?.value || "";
@@ -755,6 +1196,28 @@
       showStep(2);
     });
     toStep3Btn.addEventListener("click", () => {
+      // Captura qual seguro foi selecionado
+      const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
+      if (!selectedInsurance) {
+        // Se ninguém selecionou, por padrão "none"
+        checkoutData.insuranceSelected = "none";
+      } else {
+        checkoutData.insuranceSelected = selectedInsurance.value;
+      }
+
+      // Se quiser adicionar o valor do seguro no total, faça aqui.
+      // Exemplo (poderia ser mais elaborado, somando por pessoa etc.):
+      let insuranceCost = 0;
+      if (checkoutData.insuranceSelected === "30k") {
+        insuranceCost = 112.81;
+      } else if (checkoutData.insuranceSelected === "80k") {
+        insuranceCost = 212.02;
+      }
+      // Vamos apenas armazenar, depois somar no updateCheckoutCart:
+      checkoutData.insuranceCost = insuranceCost;
+
+      // Atualiza o total e vai para o step 3
+      updateCheckoutCart(cartItems);
       showStep(3);
       initializePaymentMethod();
     });
@@ -787,6 +1250,12 @@
           </div>
         `;
       });
+
+      // Soma o seguro, se houver
+      if (checkoutData.insuranceCost) {
+        subtotal += checkoutData.insuranceCost;
+      }
+
       container.innerHTML = html;
       document.getElementById("subtotalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
@@ -794,7 +1263,6 @@
       document.getElementById("totalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
-    updateCheckoutCart(cartItems);
 
     /* ====== MODAL PASSAGEIROS EXTRAS ====== */
     const passengerModal = document.getElementById("passengerModal");
@@ -804,9 +1272,12 @@
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const copyForAllBtn = document.getElementById("copyForAllBtn");
 
+    // Cria os formulários no modal
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
+      // Zera o array extraPassengers
       checkoutData.extraPassengers = [];
+
       let itemsWithExtras = 0;
 
       items.forEach((item, itemIndex) => {
@@ -814,10 +1285,12 @@
         if (extraCount > 0) {
           itemsWithExtras++;
           checkoutData.extraPassengers[itemIndex] = [];
+          // Cria uma box
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
 
+          // Para cada passageiro extra
           for (let i = 0; i < extraCount; i++) {
             const fieldsWrapper = document.createElement("div");
             fieldsWrapper.classList.add("fields-grid-2cols-modal");
@@ -837,24 +1310,35 @@
         }
       });
 
+      // Se mais de um item tiver extra passengers, exibe o botão "Copiar para todos"
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
+    // Abre o modal
     openPassengerModalBtn.addEventListener("click", e => {
       e.preventDefault();
       createModalPassengerForms(cartItems);
       passengerModal.style.display = "block";
     });
+
+    // Fecha o modal
     closeModalBtn.addEventListener("click", () => {
       passengerModal.style.display = "none";
     });
+
+    // Salva e fecha
     savePassengersBtn.addEventListener("click", () => {
       passengerModal.style.display = "none";
       alert("Passageiros extras salvos!");
     });
+
+    // Copiar para todos
     copyForAllBtn.addEventListener("click", () => {
+      // Acha o primeiro item com extras (fonte)
       let sourceIndex = null;
       let sourceExtraCount = 0;
+
+      // Acha o primeiro item com extras
       for (let i = 0; i < cartItems.length; i++) {
         let extraCount = (cartItems[i].adults || 1) - 1;
         if (extraCount > 0) {
@@ -865,12 +1349,15 @@
       }
       if (sourceIndex === null) return;
 
+      // Pega os dados do source
       const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+      // Copia para os demais itens que tenham a mesma quantidade de extras
       for (let i = 0; i < cartItems.length; i++) {
         if (i !== sourceIndex) {
           let extraCount = (cartItems[i].adults || 1) - 1;
           if (extraCount === sourceExtraCount && extraCount > 0) {
             checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+            // Atualiza os inputs do DOM
             for (let passIndex = 0; passIndex < extraCount; passIndex++) {
               const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
               const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
@@ -886,6 +1373,8 @@
       }
       alert("Dados copiados para todos os itens compatíveis!");
     });
+
+    // Escuta alterações nos inputs do modal
     modalPassengerContainer.addEventListener("input", e => {
       const target = e.target;
       if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
@@ -1135,7 +1624,8 @@
           postalCode: checkoutData.cep,
           countryCodeAlpha2: "BR"
         },
-        extraPassengers: checkoutData.extraPassengers
+        extraPassengers: checkoutData.extraPassengers,
+        insuranceSelected: checkoutData.insuranceSelected
       };
 
       try {
@@ -1285,6 +1775,29 @@
         value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
       }
       e.target.value = value;
+    });
+
+    /* ===== Abertura dos modais de cobertura (Intermac 30K / 80K) ===== */
+    document.querySelectorAll('.open30kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('modalIntermac30K').style.display = 'block';
+      });
+    });
+    document.querySelectorAll('.open80kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('modalIntermac80K').style.display = 'block';
+      });
+    });
+    /* Fechar modais de cobertura */
+    document.querySelectorAll('.close-modal').forEach(closeBtn => {
+      closeBtn.addEventListener('click', function() {
+        const modalId = this.getAttribute('data-close-modal');
+        if (modalId) {
+          document.getElementById(modalId).style.display = 'none';
+        }
+      });
     });
   </script>
 </body>
