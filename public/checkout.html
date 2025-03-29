@@ -567,7 +567,7 @@
             <span class="close-modal" id="closeModal">&times;</span>
             <h3>Passageiros Extras – Nomeação Obrigatória</h3>
             <p class="modal-subtitle">
-              Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos. 
+              Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos.
               Isso evita restrições e assegura uma experiência segura e tranquila.
             </p>
             <div id="modalPassengerContainer"></div>
@@ -850,11 +850,11 @@
         if (extraCount > 0) {
           itemsWithExtras++;
           checkoutData.extraPassengers[itemIndex] = [];
-          // Cria uma box
+          // Cria uma box (sem "– Passageiros Extras (Total: X)")
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `
-            <h4>${item.hotelName || "Item"} – Passageiros Extras (Total: ${extraCount})</h4>
+            <h4>${item.hotelName || "Item"}</h4>
           `;
 
           // Para cada passageiro extra
@@ -918,7 +918,7 @@
 
       // Pega os dados do source
       const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
-      // Copia para os demais itens que tenham a mesma quantidade de extra
+      // Copia para os demais itens que tenham a mesma quantidade de extras
       for (let i = 0; i < cartItems.length; i++) {
         if (i !== sourceIndex) {
           let extraCount = (cartItems[i].adults || 1) - 1;
