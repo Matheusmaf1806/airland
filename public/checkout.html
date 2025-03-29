@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Checkout Completo</title>
+  <title>Checkout</title>
+  <!-- Header (Exemplo) -->
+  <script src="/js/header-component.js" type="module"></script>
+
   <!-- Braintree Scripts -->
   <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
   <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
@@ -11,199 +14,39 @@
   <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
 
   <style>
-    /* ======== ESTILOS DOS ALERTS (FORNECIDOS) ======== */
-    body {
-      background: #000e29;
+    /* ===== FONT & RESET ===== */
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: "Montserrat", sans-serif;
+      font-weight: 400;
+      color: #5d657b;
+      background: #f1f5f9;
+    }
+    input, select, textarea {
       font-family: "Montserrat", sans-serif;
     }
-    .square_box {
-      position: absolute;
-      -webkit-transform: rotate(45deg);
-      -ms-transform: rotate(45deg);
-      transform: rotate(45deg);
-      border-top-left-radius: 45px;
-      opacity: 0.302;
+    a:focus,
+    input:focus,
+    textarea:focus,
+    button:focus {
+      outline: none;
+      box-shadow: none;
     }
-    .square_box.box_three {
-      background-image: -moz-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      background-image: -webkit-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      background-image: -ms-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      opacity: 0.059;
-      left: -80px;
-      top: -60px;
-      width: 500px;
-      height: 500px;
-      border-radius: 45px;
-    }
-    .square_box.box_four {
-      background-image: -moz-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      background-image: -webkit-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      background-image: -ms-linear-gradient(-90deg, #290a59 0%, #3d57f4 100%);
-      opacity: 0.059;
-      left: 150px;
-      top: -25px;
-      width: 550px;
-      height: 550px;
-      border-radius: 45px;
-    }
-
-    .alert {
-      position: relative;
-      padding: 15px 20px;
-      margin-bottom: 1rem;
-      border-radius: 5px;
-      font-size: 14px;
-      line-height: 20px;
-    }
-    .alert:before {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: calc(100% - 44px);
-      border-left: 1px solid;
-      border-right: 2px solid;
-      border-bottom-right-radius: 3px;
-      border-top-right-radius: 3px;
-      left: 0;
-      top: 50%;
-      transform: translate(0,-50%);
-      height: 20px;
-    }
-    .alert>.start-icon {
-      margin-right: 5px;
-      min-width: 20px;
-      text-align: center;
-    }
-    .fa-times {
-      -webkit-animation: blink-1 2s infinite both;
-      animation: blink-1 2s infinite both;
-    }
-    @-webkit-keyframes blink-1 {
-      0%,
-      50%,
-      100% {
-        opacity: 1;
-      }
-      25%,
-      75% {
-        opacity: 0;
-      }
-    }
-    @keyframes blink-1 {
-      0%,
-      50%,
-      100% {
-        opacity: 1;
-      }
-      25%,
-      75% {
-        opacity: 0;
-      }
-    }
-
-    /* ALERT SUCCESS */
-    .alert-simple.alert-success {
-      border: 1px solid rgba(36, 241, 6, 0.46);
-      background-color: rgba(7, 149, 66, 0.12);
-      box-shadow: 0px 0px 2px #259c08;
-      color: #0ad406;
-      text-shadow: 2px 1px #00040a;
-      transition: 0.5s;
+    button,
+    a {
+      transition: all 0.3s ease-out;
       cursor: pointer;
     }
-    .alert-success:hover {
-      background-color: rgba(7, 149, 66, 0.35);
-      transition: 0.5s;
-    }
-    .greencross {
-      font-size: 18px;
-      color: #25ff0b;
-      text-shadow: none;
-    }
 
-    /* ALERT INFO */
-    .alert-simple.alert-info {
-      border: 1px solid rgba(6, 44, 241, 0.46);
-      background-color: rgba(7, 73, 149, 0.12);
-      box-shadow: 0px 0px 2px #0396ff;
-      color: #0396ff;
-      text-shadow: 2px 1px #00040a;
-      transition: 0.5s;
-      cursor: pointer;
-    }
-    .alert-info:hover {
-      background-color: rgba(7, 73, 149, 0.35);
-      transition: 0.5s;
-    }
-    .blue-cross {
-      font-size: 18px;
-      color: #0bd2ff;
-      text-shadow: none;
-    }
-
-    /* ALERT WARNING */
-    .alert-simple.alert-warning {
-      border: 1px solid rgba(241, 142, 6, 0.81);
-      background-color: rgba(220, 128, 1, 0.16);
-      box-shadow: 0px 0px 2px #ffb103;
-      color: #ffb103;
-      text-shadow: 2px 1px #00040a;
-      transition: 0.5s;
-      cursor: pointer;
-    }
-    .alert-warning:hover {
-      background-color: rgba(220, 128, 1, 0.33);
-      transition: 0.5s;
-    }
-    .warning {
-      font-size: 18px;
-      color: #ffb40b;
-      text-shadow: none;
-    }
-
-    /* ALERT DANGER */
-    .alert-simple.alert-danger {
-      border: 1px solid rgba(241, 6, 6, 0.81);
-      background-color: rgba(220, 17, 1, 0.16);
-      box-shadow: 0px 0px 2px #ff0303;
-      color: #ff0303;
-      text-shadow: 2px 1px #00040a;
-      transition: 0.5s;
-      cursor: pointer;
-    }
-    .alert-danger:hover {
-      background-color: rgba(220, 17, 1, 0.33);
-      transition: 0.5s;
-    }
-    .danger {
-      font-size: 18px;
-      color: #ff0303;
-      text-shadow: none;
-    }
-
-    /* ALERT PRIMARY */
-    .alert-simple.alert-primary {
-      border: 1px solid rgba(6, 241, 226, 0.81);
-      background-color: rgba(1, 204, 220, 0.16);
-      box-shadow: 0px 0px 2px #03fff5;
-      color: #03d0ff;
-      text-shadow: 2px 1px #00040a;
-      transition: 0.5s;
-      cursor: pointer;
-    }
-    .alert-primary:hover {
-      background-color: rgba(1, 204, 220, 0.33);
-      transition: 0.5s;
-    }
-    .alertprimary {
-      font-size: 18px;
-      color: #03d0ff;
-      text-shadow: none;
-    }
-
-    /* ======== ESTILOS GERAIS DO CHECKOUT ======== */
+    /* ===== STEPS MENU ===== */
     .steps-menu {
       background-color: #365cf5;
       padding: 20px 0;
@@ -246,13 +89,13 @@
       cursor: not-allowed;
     }
 
+    /* ===== MAIN LAYOUT ===== */
     .main-container {
       width: 90%;
       max-width: 1200px;
       margin: 2rem auto;
       display: flex;
       gap: 2rem;
-      color: #fff; /* Para contrastar com o fundo escuro */
     }
     .left-col {
       flex: 1;
@@ -261,14 +104,18 @@
       width: 400px;
       flex-shrink: 0;
     }
+
+    /* ===== CARD STYLE ===== */
     .card-style-1 {
-      background: #1c1c1c;
-      border: 1px solid #333;
+      background: #fff;
+      border: 1px solid #efefef;
       border-radius: 10px;
       padding: 25px 30px;
-      margin-bottom: 20px;
       box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+      margin-bottom: 20px;
     }
+
+    /* ===== FORMULÁRIOS & CAMPOS ===== */
     .fields-grid-2cols {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -288,7 +135,7 @@
     }
     .form-field label {
       font-size: 0.85rem;
-      color: #ccc;
+      color: #666;
       margin-bottom: 0.4rem;
       font-weight: 500;
     }
@@ -296,10 +143,8 @@
     .form-field select {
       font-size: 0.85rem;
       padding: 0.6rem;
-      border: 1px solid #555;
+      border: 1px solid #eee;
       border-radius: 4px;
-      background: #2a2a2a;
-      color: #fff;
     }
     .form-field input:focus,
     .form-field select:focus {
@@ -310,6 +155,8 @@
       color: #888;
       margin-top: 1rem;
     }
+
+    /* ===== BOTÕES ===== */
     .btn-save-passenger,
     .btn-pay-pal {
       background: #007aff;
@@ -329,9 +176,11 @@
       margin-top: 1rem;
       text-align: right;
     }
+
+    /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
     .reservation-gifts-card {
-      background: #1c1c1c;
-      border: 1px solid #333;
+      background: #fff;
+      border: 1px solid #efefef;
       border-radius: 10px;
       padding: 25px 30px;
       box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
@@ -341,9 +190,13 @@
       grid-template-columns: auto 1fr auto;
       gap: 1rem;
       padding: 0.75rem 0;
-      border-bottom: 1px solid #444;
+      border-bottom: 1px solid #eee;
       margin-bottom: 0.75rem;
       align-items: center;
+    }
+    .reserva-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
     }
     .reserva-left {
       display: flex;
@@ -353,16 +206,15 @@
     .reserva-left .categoria {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #43a2ff;
+      color: #007aff;
     }
     .reserva-left .nome {
       font-size: 0.85rem;
-      color: #ddd;
+      color: #333;
     }
-    .reserva-details p {
+    .reserva-left .subinfo {
       font-size: 0.8rem;
-      margin: 2px 0;
-      color: #999;
+      color: #888;
     }
     .reserva-preco {
       font-size: 1rem;
@@ -370,10 +222,15 @@
       color: #00c853;
       text-align: right;
     }
+    .reserva-details p {
+      font-size: 0.8rem;
+      margin: 2px 0;
+      color: #555;
+    }
     .resumo-compra {
       margin-top: 20px;
       padding-top: 15px;
-      border-top: 1px solid #444;
+      border-top: 1px solid #eee;
     }
     .resumo-compra .resumo-row {
       display: flex;
@@ -382,7 +239,6 @@
     }
     .resumo-compra .resumo-row label {
       font-weight: 600;
-      color: #ccc;
     }
     .resumo-compra .resumo-row p {
       font-weight: 600;
@@ -393,25 +249,21 @@
     }
     .resumo-compra .cupom label {
       font-weight: 600;
-      color: #ccc;
     }
-    .resumo-compra .cupom input {
-      background: #2a2a2a;
-      color: #fff;
-      border: 1px solid #555;
-      border-radius: 4px;
-      padding: 0.6rem;
-    }
+
+    /* ===== STEP CONTENTS ===== */
     .step-content {
       display: none;
     }
     .step-content.active {
       display: block;
     }
+
+    /* ===== STEP 3: PAGAMENTO (mais estilizado) ===== */
     #card-container {
       margin-top: 1rem;
-      background: #2a2a2a;
-      border: 1px solid #555;
+      background: #fafafa;
+      border: 1px solid #ddd;
       border-radius: 8px;
       padding: 1.5rem;
     }
@@ -421,12 +273,11 @@
       display: flex;
       align-items: center;
       height: 44px;
-      background: #1c1c1c;
-      border: 1px solid #444;
+      background: #fff;
+      border: 1px solid #ccc;
       border-radius: 6px;
       padding: 0 8px;
       transition: border-color 0.3s;
-      color: #fff;
     }
     #card-number:focus-within,
     #expiration-date:focus-within,
@@ -435,12 +286,10 @@
     }
     #installments {
       width: 100%;
-      border: 1px solid #444;
+      border: 1px solid #ccc;
       border-radius: 6px;
       padding: 0.4rem;
       margin-top: 0.2rem;
-      background: #1c1c1c;
-      color: #fff;
     }
     #checkout-form button.btn-pay-pal {
       margin-top: 1rem;
@@ -450,28 +299,32 @@
     #paypal-container,
     #google-pay-container {
       margin-top: 1rem;
-      background: #2a2a2a;
-      border: 1px solid #555;
+      background: #fafafa;
+      border: 1px solid #ddd;
       border-radius: 8px;
       padding: 1rem;
     }
+
+    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" (RETANGULAR) ===== */
     .btn-add-passenger {
       display: block;
       width: 100%;
-      background: #2a2a2a;
-      border: 1px solid #555;
+      background: #fff;
+      border: 1px solid #dcdcdc;
       border-radius: 8px;
       padding: 1rem 0;
-      color: #fff;
+      color: #1f2b47;
       text-align: center;
       margin: 1rem auto;
       font-weight: 600;
       font-size: 1rem;
     }
     .btn-add-passenger:hover {
-      background: #1c1c1c;
-      color: #43a2ff;
+      background: #f1f5f9;
+      color: #365cf5;
     }
+
+    /* ===== MODAL (GENÉRICO) ===== */
     .modal {
       display: none; /* Escondido por padrão */
       position: fixed;
@@ -484,7 +337,7 @@
       background-color: rgba(0,0,0,0.5);
     }
     .modal-content {
-      background-color: #1c1c1c;
+      background-color: #fff;
       margin: 5% auto;
       padding: 20px 25px;
       border-radius: 12px;
@@ -492,8 +345,6 @@
       max-width: 700px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       position: relative;
-      color: #fff;
-      border: 1px solid #444;
     }
     .close-modal {
       position: absolute;
@@ -502,22 +353,21 @@
       font-size: 24px;
       font-weight: bold;
       cursor: pointer;
-      color: #fff;
     }
     .modal-content h3 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
-      color: #fff;
+      color: #333;
     }
     .modal-subtitle {
       font-size: 0.9rem;
-      color: #aaa;
+      color: #555;
       margin-bottom: 1.5rem;
       line-height: 1.4;
     }
     .passenger-box {
-      background: #2a2a2a;
-      border: 1px solid #555;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 8px;
       padding: 1rem;
       margin-bottom: 1rem;
@@ -526,7 +376,7 @@
     .passenger-box h4 {
       font-size: 1rem;
       margin-bottom: 0.5rem;
-      color: #fff;
+      color: #333;
     }
     .fields-grid-2cols-modal {
       display: grid;
@@ -538,140 +388,198 @@
       background: #365cf5;
       color: #fff;
       margin-right: 1rem;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 4px;
     }
 
-    /* ====== ESTILOS EXTRAS PARA AS OPÇÕES DE SEGURO (STEP 2) ===== */
-    .insurance-options-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-      margin-top: 1.5rem;
+    /* ===================== ALERTS (FORNECIDOS) ===================== */
+    .alert>.start-icon {
+      margin-right: 5px;
+      min-width: 20px;
+      text-align: center;
     }
-    .insurance-option {
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+    .greencross {
+      font-size:18px;
+      color: #25ff0b;
+      text-shadow: none;
+    }
+    .alert-simple.alert-success {
+      border: 1px solid rgba(36, 241, 6, 0.46);
+      background-color: rgba(7, 149, 66, 0.12);
+      box-shadow: 0px 0px 2px #259c08;
+      color: #0ad406;
+      text-shadow: 2px 1px #00040a;
+      transition:0.5s;
+      cursor:pointer;
+      display: none; /* inicia oculto */
+    }
+    .alert-success:hover {
+      background-color: rgba(7, 149, 66, 0.35);
+      transition:0.5s;
+    }
+    .alert-simple.alert-info {
+      border: 1px solid rgba(6, 44, 241, 0.46);
+      background-color: rgba(7, 73, 149, 0.12);
+      box-shadow: 0px 0px 2px #0396ff;
+      color: #0396ff;
+      text-shadow: 2px 1px #00040a;
+      transition:0.5s;
+      cursor:pointer;
+      display: none;
+    }
+    .alert-info:hover {
+      background-color: rgba(7, 73, 149, 0.35);
+      transition:0.5s;
+    }
+    .blue-cross {
+      font-size: 18px;
+      color: #0bd2ff;
+      text-shadow: none;
+    }
+    .alert-simple.alert-warning {
+      border: 1px solid rgba(241, 142, 6, 0.81);
+      background-color: rgba(220, 128, 1, 0.16);
+      box-shadow: 0px 0px 2px #ffb103;
+      color: #ffb103;
+      text-shadow: 2px 1px #00040a;
+      transition:0.5s;
+      cursor:pointer;
+      display: none;
+    }
+    .alert-warning:hover{
+      background-color: rgba(220, 128, 1, 0.33);
+      transition:0.5s;
+    }
+    .warning {
+      font-size: 18px;
+      color: #ffb40b;
+      text-shadow: none;
+    }
+    .alert-simple.alert-danger {
+      border: 1px solid rgba(241, 6, 6, 0.81);
+      background-color: rgba(220, 17, 1, 0.16);
+      box-shadow: 0px 0px 2px #ff0303;
+      color: #ff0303;
+      text-shadow: 2px 1px #00040a;
+      transition:0.5s;
+      cursor:pointer;
+      display: none;
+    }
+    .alert-danger:hover {
+      background-color: rgba(220, 17, 1, 0.33);
+      transition:0.5s;
+    }
+    .danger {
+      font-size: 18px;
+      color: #ff0303;
+      text-shadow: none;
+    }
+    .alert-simple.alert-primary {
+      border: 1px solid rgba(6, 241, 226, 0.81);
+      background-color: rgba(1, 204, 220, 0.16);
+      box-shadow: 0px 0px 2px #03fff5;
+      color: #03d0ff;
+      text-shadow: 2px 1px #00040a;
+      transition:0.5s;
+      cursor:pointer;
+      display: none;
+    }
+    .alert-primary:hover{
+      background-color: rgba(1, 204, 220, 0.33);
+      transition:0.5s;
+    }
+    .alertprimary {
+      font-size: 18px;
+      color: #03d0ff;
+      text-shadow: none;
+    }
+    .fa-times {
+      -webkit-animation: blink-1 2s infinite both;
+      animation: blink-1 2s infinite both;
+    }
+    @-webkit-keyframes blink-1 {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+    @keyframes blink-1 {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+
+    /* Ajuste do container das notificações (opcional) */
+    .alerts-container {
       position: relative;
-      background: #2a2a2a;
+      margin: 1rem 0;
     }
-    .insurance-option:hover {
-      background: #1c1c1c;
-    }
-    .insurance-option input[type="radio"] {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      transform: scale(1.3);
-      cursor: pointer;
-    }
-    .insurance-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1f2b47;
-    }
-    .insurance-price {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #00c853;
-    }
-    .insurance-warning {
-      color: #d32f2f;
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
-    .insurance-description {
-      font-size: 0.85rem;
-      color: #ccc;
-      line-height: 1.3;
-    }
-    .insurance-features {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      font-size: 0.85rem;
-      color: #fff;
-    }
-    .insurance-links {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-    }
-    .insurance-links a {
-      color: #365cf5;
-      margin-right: 1rem;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .insurance-links a:hover {
-      text-decoration: underline;
-    }
-    .insurance-dates {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #fff;
-    }
-    .insurance-logo {
-      max-height: 30px;
-      vertical-align: middle;
-      margin-left: 8px;
-    }
-    .insurance-separator {
-      border-top: 1px dashed #666;
-      margin: 0.5rem 0;
-    }
-
-    /* ===== TABELAS DE COBERTURAS NO MODAL ===== */
-    .coverage-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    .coverage-table thead {
-      background: #1f1f1f;
-    }
-    .coverage-table th,
-    .coverage-table td {
-      padding: 0.6rem;
-      border: 1px solid #444;
-      font-size: 0.85rem;
-      text-align: left;
-      color: #ccc;
-    }
-    .coverage-table th {
-      font-weight: 600;
-      color: #fff;
-    }
-
-    @media (max-width: 768px) {
-      .main-container {
-        flex-direction: column;
-      }
-      .right-col {
-        width: 100%;
-      }
-      .fields-grid-2cols-modal {
-        grid-template-columns: 1fr;
-      }
-      .insurance-option input[type="radio"] {
-        top: 8px;
-        right: 8px;
-      }
+    .alerts-container .alert {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <!-- Quadrados "decorativos" do background -->
-  <div class="square_box box_three"></div>
-  <div class="square_box box_four"></div>
+  <app-header></app-header>
 
-  <!-- Container onde exibiremos os alerts -->
-  <div id="alertsContainer" style="width:90%; max-width:1200px; margin: 1rem auto;"></div>
+  <!-- BLOCO DE ALERTAS (INICIA TODOS OCULTOS) -->
+  <div class="alerts-container" id="alertsContainer">
+    <!-- Tudo Certo! (success) -->
+    <div class="alert fade alert-simple alert-success alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light"
+         id="alertSuccessPassengers">
+      <button type="button" class="close font__size-18" data-dismiss="alert"
+              onclick="document.getElementById('alertSuccessPassengers').style.display='none'">
+        <span aria-hidden="true"><i class="fa fa-times greencross"></i></span>
+      </button>
+      <i class="start-icon far fa-check-circle faa-tada animated"></i>
+      <strong class="font__weight-semibold">Tudo Certo!</strong>
+      Passageiros nomeados e salvos com sucesso!
+    </div>
+
+    <!-- Verifique! (info) -->
+    <div class="alert fade alert-simple alert-info alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light"
+         id="alertInfoNotAllPassengers">
+      <button type="button" class="close font__size-18" data-dismiss="alert"
+              onclick="document.getElementById('alertInfoNotAllPassengers').style.display='none'">
+        <span aria-hidden="true"><i class="fa fa-times blue-cross"></i></span>
+      </button>
+      <i class="start-icon fa fa-info-circle faa-shake animated"></i>
+      <strong class="font__weight-semibold">Verifique!</strong>
+      Não foram preenchidos todos os passageiros.
+    </div>
+
+    <!-- Aviso! (warning) -->
+    <div class="alert fade alert-simple alert-warning alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light"
+         id="alertWarningNoPassengers">
+      <button type="button" class="close font__size-18" data-dismiss="alert"
+              onclick="document.getElementById('alertWarningNoPassengers').style.display='none'">
+        <span aria-hidden="true"><i class="fa fa-times warning"></i></span>
+      </button>
+      <i class="start-icon fa fa-exclamation-triangle faa-flash animated"></i>
+      <strong class="font__weight-semibold">Aviso!</strong>
+      Preencha o nome dos passageiros clicando no botão "Nomear passageiros (Obrigatório)".
+    </div>
+
+    <!-- Atenção! (danger) -->
+    <div class="alert fade alert-simple alert-danger alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light"
+         id="alertDangerMissingFields">
+      <button type="button" class="close font__size-18" data-dismiss="alert"
+              onclick="document.getElementById('alertDangerMissingFields').style.display='none'">
+        <span aria-hidden="true"><i class="fa fa-times danger"></i></span>
+      </button>
+      <i class="start-icon far fa-times-circle faa-pulse animated"></i>
+      <strong class="font__weight-semibold">Atenção!</strong>
+      Preencha todos os campos obrigatórios antes de continuar.
+    </div>
+
+    <!-- Desconto Aplicado! (primary) -->
+    <div class="alert fade alert-simple alert-primary alert-dismissible text-left font__family-montserrat font__size-16 font__weight-light"
+         id="alertPrimaryDiscountApplied">
+      <button type="button" class="close font__size-18" data-dismiss="alert"
+              onclick="document.getElementById('alertPrimaryDiscountApplied').style.display='none'">
+        <span aria-hidden="true"><i class="fa fa-times alertprimary"></i></span>
+      </button>
+      <i class="start-icon fa fa-thumbs-up faa-bounce animated"></i>
+      <strong class="font__weight-semibold">Desconto Aplicado!</strong>
+      O seu cupom de desconto foi aplicado com sucesso.
+    </div>
+  </div>
+  <!-- FIM DOS ALERTS -->
 
   <!-- MENU DE STEPS -->
   <div class="steps-menu" id="stepsMenu">
@@ -706,7 +614,7 @@
           <h2>Passageiro Principal</h2>
           <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
-            <a href="#" id="toggleLogin" style="color:#43a2ff;">Economize tempo fazendo Login</a>
+            <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
 
           <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
@@ -779,7 +687,7 @@
               </div>
               <div class="form-field">
                 <label>Data de Nascimento *</label>
-                <input type="date" id="birthdate">
+                <input type="date" id="birthdate" placeholder="dd/mm/aaaa">
               </div>
             </div>
             <div class="fields-grid-3cols">
@@ -835,76 +743,24 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes Adicionais (com 3 opções de seguro) -->
+      <!-- STEP 2: Detalhes Adicionais (Exemplo Simples) -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <h2>Detalhes Adicionais</h2>
-          <p>Selecione o seguro de viagem que deseja adicionar à sua reserva:</p>
+          <p>Aqui você pode adicionar serviços adicionais (exemplo: seguro de viagem).</p>
 
-          <!-- Container com as 3 opções de seguro -->
-          <div class="insurance-options-container">
-            <!-- 1) SEM SEGURO VIAGEM -->
-            <label class="insurance-option" data-insurance="none">
-              <input type="radio" name="insuranceOption" value="none" />
-              <div class="insurance-title" style="color:#fff;">Sem Seguro Viagem</div>
-              <div class="insurance-price">R$ 0</div>
-              <div class="insurance-description">
-                Vai viajar sem proteção?<br>
-                Imprevistos podem acontecer, e alguns países exigem seguro viagem na entrada. Garanta o seu antes de embarcar!
-              </div>
-              <div class="insurance-warning">Opção não recomendada</div>
-            </label>
-
-            <!-- 2) INTERMAC 30K -->
-            <label class="insurance-option" data-insurance="30k">
-              <input type="radio" name="insuranceOption" value="30k" />
-              <div style="display:flex; align-items:center; gap:0.5rem;">
-                <div class="insurance-title">Intermac 30K</div>
-                <img src="https://www.intermacseguros.com/bra/includes/logo-intermac-25-anos.png"
-                     alt="Logo Intermac"
-                     class="insurance-logo">
-              </div>
-              <div class="insurance-dates">
-                🗓️ 16 abr. 2025 - 18 abr. 2025
-              </div>
-              <div class="insurance-price">+ R$ 112,81</div>
-              <div class="insurance-separator"></div>
-              <div class="insurance-features">
-                <span>✅ Cancelamento grátis</span>
-                <span>✅ Despesas hospitalares de até USD$ 30.000</span>
-                <span>✅ Despesas farmacêuticas de até USD$ 500</span>
-              </div>
-              <div class="insurance-links">
-                <a href="#" class="open30kModal">Ver mais</a>
-                <a href="#" class="open30kModal">Ver políticas</a>
-              </div>
-            </label>
-
-            <!-- 3) INTERMAC 80K -->
-            <label class="insurance-option" data-insurance="80k">
-              <input type="radio" name="insuranceOption" value="80k" />
-              <div style="display:flex; align-items:center; gap:0.5rem;">
-                <div class="insurance-title">Intermac 80K</div>
-                <img src="https://www.intermacseguros.com/bra/includes/logo-intermac-25-anos.png"
-                     alt="Logo Intermac"
-                     class="insurance-logo">
-              </div>
-              <div class="insurance-dates">
-                🗓️ 16 abr. 2025 - 18 abr. 2025
-              </div>
-              <div class="insurance-price">+ R$ 212,02</div>
-              <div class="insurance-separator"></div>
-              <div class="insurance-features">
-                <span>✅ Cancelamento grátis</span>
-                <span>✅ Despesas hospitalares de até USD$ 80.000</span>
-                <span>✅ Despesas farmacêuticas de até USD$ 2.000</span>
-                <span>✅ Acesso à Sala Vip em caso de atraso do voo</span>
-              </div>
-              <div class="insurance-links">
-                <a href="#" class="open80kModal">Ver mais</a>
-                <a href="#" class="open80kModal">Ver políticas</a>
-              </div>
-            </label>
+          <!-- Exemplo simples (personalize conforme desejar) -->
+          <div style="margin-top:1rem;">
+            <img
+              src="https://www.escolhaviajar.com/wp-content/uploads/2019/11/Seguro-viagem-2.jpg"
+              alt="Seguro Viagem"
+              style="width:100%; max-width:300px; border-radius:8px; margin-bottom:1rem;"
+            />
+            <div>
+              <span style="background:#007aff; color:#fff; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.85rem;">Cobertura para U$60.000</span>
+              <div style="margin-top:0.5rem; font-weight:600;">Seguro para despesas médicas, atrasos, etc.</div>
+              <div style="margin-top:0.5rem; color:#00c853; font-weight:700;">R$ 119,00 /pessoa</div>
+            </div>
           </div>
 
           <div class="navigation">
@@ -951,16 +807,16 @@
             <form id="checkout-form">
               <div class="form-field">
                 <label>Número do Cartão</label>
-                <div id="card-number"></div>
+                <div id="card-number" style="border: 1px solid #ccc; padding: 10px;"></div>
               </div>
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Data de Expiração (MM/AA)</label>
-                  <div id="expiration-date"></div>
+                  <div id="expiration-date" style="border: 1px solid #ccc; padding: 10px;"></div>
                 </div>
                 <div class="form-field">
                   <label>CVV</label>
-                  <div id="cvv"></div>
+                  <div id="cvv" style="border: 1px solid #ccc; padding: 10px;"></div>
                 </div>
               </div>
               <button type="submit" class="btn-pay-pal">Pagar</button>
@@ -992,13 +848,14 @@
 
     <!-- COLUNA DIREITA: Resumo do Carrinho -->
     <div class="right-col">
-      <div class="reservation-gifts-card">
+      <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
         <div id="cartItemsList"></div>
         <div class="resumo-compra">
           <div class="form-field cupom">
             <label>Cupom de Desconto</label>
             <input type="text" id="couponInput" placeholder="Insira seu cupom">
+            <button class="btn-save-passenger" id="applyCouponBtn" style="margin-top:0.5rem;">Aplicar</button>
           </div>
           <div class="resumo-row">
             <label>Subtotal</label>
@@ -1017,178 +874,21 @@
     </div>
   </div>
 
-  <footer style="color:#ccc; border-top:1px solid #333; padding-top:1rem; text-align:center; margin-top:2rem;">
+  <footer>
     © 2025 - Checkout Trip.com (Completo)
   </footer>
 
-  <!-- MODAL: Coberturas Intermac 30K -->
-  <div class="modal" id="modalIntermac30K">
-    <div class="modal-content">
-      <span class="close-modal" data-close-modal="modalIntermac30K">&times;</span>
-      <h3>Intermac 30K – Coberturas</h3>
-      <table class="coverage-table">
-        <thead>
-          <tr>
-            <th>Coberturas</th>
-            <th>Valores</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td><td>$30,000.00</td></tr>
-          <tr><td>Despesas Emergenciais Odontológicas</td><td>$200.00</td></tr>
-          <tr><td>Proteção COVID-19 Integral</td><td>INCLUSO NO DMH</td></tr>
-          <tr><td>Despesas Farmacêuticas</td><td>$150.00</td></tr>
-          <tr><td>Remoção Médica</td><td>$20,000.00</td></tr>
-          <tr><td>Repatriação Médica</td><td>$20,000.00</td></tr>
-          <tr><td>Repatriação Funerária</td><td>$20,000.00</td></tr>
-          <tr><td>Prorrogação de Estadia</td><td>$375.00</td></tr>
-          <tr><td>Retorno de Menores</td><td>$1,500.00</td></tr>
-          <tr><td>Despesas Jurídicas</td><td>$1,000.00</td></tr>
-          <tr><td>Fiança e Despesas Legais</td><td>$1,500.00</td></tr>
-          <tr><td>Cancelamento de Viagem</td><td>$500.00</td></tr>
-          <tr><td>Perda ou Roubo de Bagagem</td><td>$350.00</td></tr>
-          <tr><td>Invalidez Permanente</td><td>$7,500.00</td></tr>
-          <tr><td>Morte Acidental</td><td>$7,500.00</td></tr>
-          <tr><td>Atraso de Bagagem (12h)</td><td>$100.00</td></tr>
-          <tr><td>Atraso de Vôo</td><td>$100.00</td></tr>
-          <tr><td>Gravidez até 28 semanas</td><td>INCLUSO NO DMH</td></tr>
-          <tr><td>Esporte a Lazer e Amador</td><td>INCLUSO NO DMH</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MODAL: Coberturas Intermac 80K -->
-  <div class="modal" id="modalIntermac80K">
-    <div class="modal-content">
-      <span class="close-modal" data-close-modal="modalIntermac80K">&times;</span>
-      <h3>Intermac 80K – Coberturas</h3>
-      <table class="coverage-table">
-        <thead>
-          <tr>
-            <th>Coberturas</th>
-            <th>Valores</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td><td>$80,000.00</td></tr>
-          <tr><td>Despesas Emergenciais Odontológicas</td><td>$800.00</td></tr>
-          <tr><td>Proteção COVID-19 Integral</td><td>INCLUSO NO DMH</td></tr>
-          <tr><td>Despesas Farmacêuticas</td><td>$800.00</td></tr>
-          <tr><td>Remoção Médica</td><td>$50,000.00</td></tr>
-          <tr><td>Repatriação Médica</td><td>$50,000.00</td></tr>
-          <tr><td>Repatriação Funerária</td><td>$50,000.00</td></tr>
-          <tr><td>Prorrogação de Estadia</td><td>$5,000.00</td></tr>
-          <tr><td>Retorno de Menores</td><td>$1,500.00</td></tr>
-          <tr><td>Despesas Jurídicas</td><td>$1,600.00</td></tr>
-          <tr><td>Fiança e Despesas Legais</td><td>$5,000.00</td></tr>
-          <tr><td>Cancelamento de Viagem</td><td>$1,250.00</td></tr>
-          <tr><td>Perda ou Roubo de Bagagem</td><td>$750.00</td></tr>
-          <tr><td>Invalidez Permanente</td><td>$17,500.00</td></tr>
-          <tr><td>Morte Acidental</td><td>$17,500.00</td></tr>
-          <tr><td>Interrupção de Viagem</td><td>$750.00</td></tr>
-          <tr><td>Atraso de Bagagem (12h)</td><td>$250.00</td></tr>
-          <tr><td>Atraso de Vôo</td><td>$250.00</td></tr>
-          <tr><td>Gravidez até 28 semanas</td><td>INCLUSO NO DMH</td></tr>
-          <tr><td>Esporte a Lazer e Amador</td><td>INCLUSO NO DMH</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <!-- (Opcional) Shopping Cart oculto -->
+  <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
   <script>
-    /* ==================== ALERTS ==================== */
-    function showAlert(type, customMessage = "") {
-      const container = document.getElementById("alertsContainer");
-      container.innerHTML = ""; // Limpa qualquer alert anterior
-
-      let alertHtml = "";
-      switch (type) {
-        case "success":
-          alertHtml = `
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="alert fade alert-simple alert-success alert-dismissible text-left font__size-16 show">
-                  <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true"><a><i class="fa fa-times greencross"></i></a></span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <i class="start-icon far fa-check-circle faa-tada animated"></i>
-                  <strong class="font__weight-semibold">Tudo Certo!</strong> ${customMessage}
-                </div>
-              </div>
-            </div>`;
-          break;
-        case "info":
-          alertHtml = `
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="alert fade alert-simple alert-info alert-dismissible text-left font__size-16 show">
-                  <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true"><i class="fa fa-times blue-cross"></i></span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <i class="start-icon fa fa-info-circle faa-shake animated"></i>
-                  <strong class="font__weight-semibold">Verifique!</strong> ${customMessage}
-                </div>
-              </div>
-            </div>`;
-          break;
-        case "warning":
-          alertHtml = `
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="alert fade alert-simple alert-warning alert-dismissible text-left font__size-16 show">
-                  <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true"><i class="fa fa-times warning"></i></span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <i class="start-icon fa fa-exclamation-triangle faa-flash animated"></i>
-                  <strong class="font__weight-semibold">Aviso!</strong> ${customMessage}
-                </div>
-              </div>
-            </div>`;
-          break;
-        case "danger":
-          alertHtml = `
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="alert fade alert-simple alert-danger alert-dismissible text-left font__size-16 show">
-                  <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true"><i class="fa fa-times danger"></i></span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <i class="start-icon far fa-times-circle faa-pulse animated"></i>
-                  <strong class="font__weight-semibold">Atenção!</strong> ${customMessage}
-                </div>
-              </div>
-            </div>`;
-          break;
-        case "primary":
-          alertHtml = `
-            <div class="row">
-              <div class="col-sm-12">
-                <div class="alert fade alert-simple alert-primary alert-dismissible text-left font__size-16 show">
-                  <button type="button" class="close" data-dismiss="alert">
-                    <span aria-hidden="true"><i class="fa fa-times alertprimary"></i></span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <i class="start-icon fa fa-thumbs-up faa-bounce animated"></i>
-                  <strong class="font__weight-semibold">Desconto Aplicado!</strong> ${customMessage}
-                </div>
-              </div>
-            </div>`;
-          break;
-      }
-      container.innerHTML = alertHtml;
-    }
-
-    /* ==================== CHECKOUT DATA & STEPS ==================== */
+    /* =============================================
+       LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
+       VERIFICAÇÕES E BRAINTREE
+       ============================================= */
     let checkoutData = {
       extraPassengers: [],
-      passengersNamed: false,
-      insuranceSelected: "none",
-      insuranceCost: 0
+      discountValue: 0
     };
 
     const stepsMenu = document.getElementById("stepsMenu");
@@ -1199,6 +899,67 @@
     const backToStep1Btn = document.getElementById("backToStep1");
     const toStep3Btn = document.getElementById("toStep3");
     const backToStep2Btn = document.getElementById("backToStep2");
+
+    /* ALERTS: Função simples para exibir/ocultar */
+    function showAlert(alertId) {
+      // Primeiro esconde todos
+      const allAlerts = [
+        "alertSuccessPassengers",
+        "alertInfoNotAllPassengers",
+        "alertWarningNoPassengers",
+        "alertDangerMissingFields",
+        "alertPrimaryDiscountApplied"
+      ];
+      allAlerts.forEach(id => {
+        document.getElementById(id).style.display = "none";
+      });
+      // Exibe somente o desejado
+      document.getElementById(alertId).style.display = "block";
+    }
+
+    function hideAllAlerts() {
+      const allAlerts = [
+        "alertSuccessPassengers",
+        "alertInfoNotAllPassengers",
+        "alertWarningNoPassengers",
+        "alertDangerMissingFields",
+        "alertPrimaryDiscountApplied"
+      ];
+      allAlerts.forEach(id => {
+        document.getElementById(id).style.display = "none";
+      });
+    }
+
+    /* Função que checa se TODOS os passageiros extras foram preenchidos */
+    function allPassengersFilled() {
+      // Se não houver extras, ok
+      if (!checkoutData.extraPassengers || checkoutData.extraPassengers.length === 0) {
+        return true;
+      }
+      // Verifica cada item
+      for (let itemArr of checkoutData.extraPassengers) {
+        if (!itemArr) continue;
+        for (let passObj of itemArr) {
+          if (!passObj.name || !passObj.birthdate) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    /* Função para saber quantos passageiros extras (total) existem no carrinho */
+    function totalExtraPassengersCount() {
+      let count = 0;
+      if (!cartItems) return 0;
+      cartItems.forEach(item => {
+        const extraCount = (item.adults || 1) - 1;
+        if (extraCount > 0) {
+          count += extraCount;
+        }
+      });
+      return count;
+    }
 
     function showStep(stepNumber) {
       stepContents.forEach(content => {
@@ -1215,36 +976,82 @@
       });
     }
 
-    // Função para saber se existe ao menos 1 passageiro extra
-    function hasExtraPassengers() {
-      for (let i = 0; i < cartItems.length; i++) {
-        const extraCount = (cartItems[i].adults || 1) - 1;
-        if (extraCount > 0) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    // Verifica se todos os extras estão preenchidos
-    function areAllExtraPassengersFilled() {
-      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
-        const passengersArray = checkoutData.extraPassengers[i];
-        if (passengersArray) {
-          for (let j = 0; j < passengersArray.length; j++) {
-            const pass = passengersArray[j];
-            if (!pass.name || !pass.birthdate) {
-              return false;
-            }
+    // Carrega itens do carrinho
+    let cartItems = [];
+    const cartElement = document.getElementById("shoppingCart");
+    if (cartElement && cartElement.items && cartElement.items.length > 0) {
+      cartItems = cartElement.items;
+    } else {
+      const savedCart = localStorage.getItem("cartItems");
+      if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+      } else {
+        // Exemplo default
+        cartItems = [
+          {
+            hotelName: "Hotel Exemplo A",
+            adults: 2,
+            children: 1,
+            basePriceAdult: 100,
+            checkIn: "2025-04-16",
+            checkOut: "2025-04-18"
+          },
+          {
+            hotelName: "Hotel Exemplo B",
+            adults: 3,
+            children: 0,
+            basePriceAdult: 150,
+            checkIn: "2025-04-10",
+            checkOut: "2025-04-12"
           }
-        }
+        ];
       }
-      return true;
     }
 
-    /* STEP 1 -> STEP 2 */
+    /* Montar Carrinho na Coluna Direita */
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0;
+      let html = "";
+      items.forEach(item => {
+        let price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += `
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        `;
+      });
+
+      // Aplica desconto (checkoutData.discountValue) se existir
+      let discount = checkoutData.discountValue || 0;
+      let total = subtotal - discount;
+
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent =
+        "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("totalValue").textContent =
+        "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+
+    /* Ao clicar em Próximo (Step 1 -> Step 2) */
     toStep2Btn.addEventListener("click", () => {
-      // Verifica se campos obrigatórios do passageiro principal
+      hideAllAlerts();
+      // 1) Verifica se os campos obrigatórios do passageiro principal estão preenchidos
       if (!document.getElementById("firstName").value ||
           !document.getElementById("lastName").value ||
           !document.getElementById("cpf").value ||
@@ -1258,22 +1065,17 @@
           !document.getElementById("celular").value ||
           !document.getElementById("email").value
       ) {
-        showAlert("danger", "Preencha todos os campos obrigatórios antes de continuar.");
-        return;
-      }
-      // Se tiver extras e ainda não salvou
-      if (hasExtraPassengers() && !checkoutData.passengersNamed) {
-        showAlert("warning", 'Preencha o nome dos passageiros clicando no botão "Nomear passageiros (Obrigatório)".');
+        showAlert("alertDangerMissingFields"); // "Atenção! Preencha todos os campos obrigatórios..."
         return;
       }
 
-      // Coleta dados do passageiro principal
-      checkoutData.firstName = document.getElementById("firstName").value;
-      checkoutData.lastName = document.getElementById("lastName").value;
-      checkoutData.celular = document.getElementById("celular").value;
-      checkoutData.email = document.getElementById("email").value;
-      checkoutData.password = document.getElementById("password").value;
-      checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
+      // Salva dados do "passageiro principal"
+      checkoutData.firstName = document.getElementById("firstName")?.value || "";
+      checkoutData.lastName = document.getElementById("lastName")?.value || "";
+      checkoutData.celular = document.getElementById("celular")?.value || "";
+      checkoutData.email = document.getElementById("email")?.value || "";
+      checkoutData.password = document.getElementById("password")?.value || "";
+      checkoutData.confirmPassword = document.getElementById("confirmPassword")?.value || "";
       checkoutData.cpf = document.getElementById("cpf").value;
       checkoutData.rg = document.getElementById("rg").value;
       checkoutData.birthdate = document.getElementById("birthdate").value;
@@ -1283,41 +1085,31 @@
       checkoutData.address = document.getElementById("address").value;
       checkoutData.number = document.getElementById("number").value;
 
-      showStep(2);
-    });
-
-    /* STEP 2 -> STEP 3 */
-    toStep3Btn.addEventListener("click", () => {
-      // Verifica novamente se todos os extras estão preenchidos
-      if (hasExtraPassengers()) {
-        if (!checkoutData.passengersNamed) {
-          showAlert("warning", 'Preencha o nome dos passageiros clicando no botão "Nomear passageiros (Obrigatório)".');
+      // 2) Verifica se há passageiros extras e se foram preenchidos
+      const totalExtras = totalExtraPassengersCount();
+      if (totalExtras > 0) {
+        // Se existe a necessidade de extras, mas o array extraPassengers está vazio ou não preenchido
+        if (checkoutData.extraPassengers.length === 0) {
+          // Ninguém nomeou
+          showAlert("alertWarningNoPassengers"); // "Aviso! Preencha o nome dos passageiros..."
           return;
         } else {
-          if (!areAllExtraPassengersFilled()) {
-            showAlert("info", "Não foram preenchidos todos os passageiros.");
+          // Checa se todos foram preenchidos
+          if (!allPassengersFilled()) {
+            showAlert("alertInfoNotAllPassengers"); // "Verifique! Não foram preenchidos todos os passageiros."
             return;
           }
         }
       }
-      // Captura qual seguro foi selecionado
-      const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
-      if (!selectedInsurance) {
-        checkoutData.insuranceSelected = "none";
-      } else {
-        checkoutData.insuranceSelected = selectedInsurance.value;
-      }
-      // Define valor do seguro
-      let insuranceCost = 0;
-      if (checkoutData.insuranceSelected === "30k") {
-        insuranceCost = 112.81;
-      } else if (checkoutData.insuranceSelected === "80k") {
-        insuranceCost = 212.02;
-      }
-      checkoutData.insuranceCost = insuranceCost;
-      // Atualiza total
-      updateCheckoutCart(cartItems);
 
+      // Se passou em todas as checagens, vai para Step 2
+      showStep(2);
+    });
+
+    /* Step 2 -> Step 3 */
+    toStep3Btn.addEventListener("click", () => {
+      hideAllAlerts();
+      updateCheckoutCart(cartItems); // Atualiza total se precisar
       showStep(3);
       initializePaymentMethod();
     });
@@ -1325,63 +1117,7 @@
     backToStep1Btn?.addEventListener("click", () => showStep(1));
     backToStep2Btn?.addEventListener("click", () => showStep(2));
 
-    /* ==================== CART ITEMS ==================== */
-    let cartItems = [];
-    // Exemplo: Carregar do localStorage ou um shopping-cart
-    const savedCart = localStorage.getItem("cartItems");
-    if (savedCart) {
-      cartItems = JSON.parse(savedCart);
-    } else {
-      // Exemplo default
-      cartItems = [
-        { hotelName: "Hotel Exemplo A", adults: 2, children: 1, basePriceAdult: 100 },
-        { hotelName: "Hotel Exemplo B", adults: 3, children: 0, basePriceAdult: 150 }
-      ];
-    }
-
-    function updateCheckoutCart(items) {
-      const container = document.getElementById("cartItemsList");
-      let subtotal = 0;
-      let html = "";
-      items.forEach(item => {
-        let price = item.basePriceAdult || 80;
-        subtotal += price;
-        html += `
-          <div class="reserva-item">
-            <div class="reserva-left">
-              <span class="categoria">${item.type || "Hospedagem"}</span>
-              <span class="nome">${item.hotelName || "Hotel Desconhecido"}</span>
-              <div class="reserva-details">
-                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-              </div>
-            </div>
-            <div class="reserva-preco">
-              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-        `;
-      });
-      // Soma o seguro, se houver
-      if (checkoutData.insuranceCost) {
-        subtotal += checkoutData.insuranceCost;
-      }
-      container.innerHTML = html;
-      document.getElementById("subtotalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
-      document.getElementById("totalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-    }
-
-    /* Cupom de desconto (exemplo) */
-    const couponInput = document.getElementById("couponInput");
-    couponInput.addEventListener("change", () => {
-      if (couponInput.value.trim().length > 0) {
-        showAlert("primary", "O seu cupom de desconto foi aplicado com sucesso.");
-      }
-    });
-
-    /* ==================== MODAL PASSAGEIROS EXTRAS ==================== */
+    /* Passengers MODAL */
     const passengerModal = document.getElementById("passengerModal");
     const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
@@ -1389,26 +1125,16 @@
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const copyForAllBtn = document.getElementById("copyForAllBtn");
 
-    openPassengerModalBtn.addEventListener("click", e => {
-      e.preventDefault();
-      createModalPassengerForms(cartItems);
-      passengerModal.style.display = "block";
-    });
-    closeModalBtn.addEventListener("click", () => {
-      passengerModal.style.display = "none";
-    });
-
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
       checkoutData.extraPassengers = [];
-      let itemsWithExtras = 0;
 
+      let itemsWithExtras = 0;
       items.forEach((item, itemIndex) => {
         const extraCount = (item.adults || 1) - 1;
         if (extraCount > 0) {
           itemsWithExtras++;
           checkoutData.extraPassengers[itemIndex] = [];
-          // Cria box
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
@@ -1431,38 +1157,33 @@
           modalPassengerContainer.appendChild(itemDiv);
         }
       });
+
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
-    modalPassengerContainer.addEventListener("input", e => {
-      const target = e.target;
-      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
-        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-        const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-        if (!checkoutData.extraPassengers[itemIndex]) {
-          checkoutData.extraPassengers[itemIndex] = [];
-        }
-        if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-          checkoutData.extraPassengers[itemIndex][passIndex] = {};
-        }
-        if (target.classList.contains("modalExtraNameInput")) {
-          checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
-        } else {
-          checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
-        }
-      }
+    openPassengerModalBtn.addEventListener("click", e => {
+      e.preventDefault();
+      createModalPassengerForms(cartItems);
+      passengerModal.style.display = "block";
     });
 
+    closeModalBtn.addEventListener("click", () => {
+      passengerModal.style.display = "none";
+    });
+
+    // Salvar e fechar
     savePassengersBtn.addEventListener("click", () => {
-      if (!areAllExtraPassengersFilled()) {
-        showAlert("info", "Não foram preenchidos todos os passageiros.");
-        return;
+      hideAllAlerts();
+      // Verifica se todos foram preenchidos
+      if (!allPassengersFilled()) {
+        showAlert("alertInfoNotAllPassengers");
+      } else {
+        showAlert("alertSuccessPassengers");
       }
       passengerModal.style.display = "none";
-      checkoutData.passengersNamed = true;
-      showAlert("success", "Passageiros nomeados e salvos com sucesso!");
     });
 
+    // Copiar para todos
     copyForAllBtn.addEventListener("click", () => {
       let sourceIndex = null;
       let sourceExtraCount = 0;
@@ -1495,10 +1216,46 @@
           }
         }
       }
-      showAlert("success", "Dados copiados para todos os itens compatíveis!");
+      alert("Dados copiados para todos os itens compatíveis!");
     });
 
-    /* ==================== INICIALIZAR PAGAMENTO ==================== */
+    // Escuta alterações nos inputs do modal
+    modalPassengerContainer.addEventListener("input", e => {
+      const target = e.target;
+      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+        const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
+        if (!checkoutData.extraPassengers[itemIndex]) {
+          checkoutData.extraPassengers[itemIndex] = [];
+        }
+        if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
+          checkoutData.extraPassengers[itemIndex][passIndex] = {};
+        }
+        if (target.classList.contains("modalExtraNameInput")) {
+          checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
+        } else {
+          checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
+        }
+      }
+    });
+
+    /* COUPON APPLY */
+    document.getElementById("applyCouponBtn").addEventListener("click", () => {
+      hideAllAlerts();
+      // Exemplo simples: se o cupom for "DESC10", dar 10 de desconto
+      const coupon = document.getElementById("couponInput").value.trim().toUpperCase();
+      if (coupon === "DESC10") {
+        checkoutData.discountValue = 10;
+        updateCheckoutCart(cartItems);
+        showAlert("alertPrimaryDiscountApplied");
+      } else {
+        checkoutData.discountValue = 0;
+        updateCheckoutCart(cartItems);
+        alert("Cupom inválido ou não encontrado.");
+      }
+    });
+
+    /* BRAINTREE & PAGAMENTOS */
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
@@ -1510,21 +1267,22 @@
         initializeBraintree();
       } else if (method === "paypal") {
         document.getElementById("paypal-container").style.display = "block";
-        // initializePayPal(); // Exemplo
+        initializePayPal();
       } else if (method === "googlePay") {
         document.getElementById("google-pay-container").style.display = "block";
-        // initializeGooglePay(); // Exemplo
+        initializeGooglePay();
       }
     }
 
     async function initializeBraintree() {
-      // Exemplo fictício de clientToken
-      const clientToken = "SUA_CLIENT_TOKEN_AQUI";
+      const res = await fetch("/api/braintree/get-client-token");
+      const data = await res.json();
+      const clientToken = data.clientToken;
 
       braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
         if (clientErr) {
           console.error("Erro ao criar o client Braintree:", clientErr);
-          showAlert("danger", "Erro na inicialização do pagamento.");
+          alert("Erro na inicialização do pagamento.");
           return;
         }
         braintree.threeDSecure.create(
@@ -1532,14 +1290,14 @@
           (threeDSErr, threeDSecureInstance) => {
             if (threeDSErr) {
               console.error("Erro ao criar 3D Secure:", threeDSErr);
-              showAlert("danger", "Erro na inicialização do 3D Secure.");
+              alert("Erro na inicialização do 3D Secure.");
               return;
             }
             braintree.hostedFields.create(
               {
                 client: clientInstance,
                 styles: {
-                  input: { "font-size": "16px", color: "#fff" },
+                  input: { "font-size": "16px", color: "#333" },
                   "input.invalid": { color: "red" },
                   "input.valid": { color: "green" }
                 },
@@ -1552,7 +1310,7 @@
               (hostedFieldsErr, hostedFieldsInstance) => {
                 if (hostedFieldsErr) {
                   console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
-                  showAlert("danger", "Erro ao configurar os campos de pagamento.");
+                  alert("Erro ao configurar os campos de pagamento.");
                   return;
                 }
                 const form = document.getElementById("checkout-form");
@@ -1561,12 +1319,12 @@
                   hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
                     if (tokenizeErr) {
                       console.error("Erro ao tokenizar:", tokenizeErr);
-                      showAlert("danger", "Erro ao processar dados do cartão.");
+                      alert("Erro ao processar dados do cartão.");
                       return;
                     }
                     const amount = getOrderAmount();
                     if (!payload.details || !payload.details.bin) {
-                      showAlert("danger", "Erro: BIN do cartão não disponível. Digite novamente.");
+                      alert("Erro: BIN do cartão não disponível. Digite novamente.");
                       return;
                     }
                     threeDSecureInstance.verifyCard(
@@ -1581,7 +1339,7 @@
                       (verifyErr, threeDSecurePayload) => {
                         if (verifyErr) {
                           console.error("Erro na verificação 3D Secure:", verifyErr);
-                          showAlert("danger", "Erro na verificação 3D Secure.");
+                          alert("Erro na verificação 3D Secure.");
                           return;
                         }
                         processPayment(threeDSecurePayload.nonce, "card");
@@ -1596,10 +1354,104 @@
       });
     }
 
-    function getOrderAmount() {
-      let totalText = document.getElementById("totalValue").textContent;
-      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-      return parseFloat(amount).toFixed(2);
+    function initializePayPal() {
+      fetch("/api/braintree/get-client-token")
+        .then(res => res.json())
+        .then(data => {
+          const clientToken = data.clientToken;
+          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
+            if (clientErr) {
+              console.error("Erro ao criar client PayPal:", clientErr);
+              alert("Erro na inicialização do PayPal.");
+              return;
+            }
+            braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
+              if (err) {
+                console.error("Erro ao criar PayPal Checkout:", err);
+                alert("Erro na inicialização do PayPal.");
+                return;
+              }
+              paypal.Button.render(
+                {
+                  env: "sandbox",
+                  payment: () => {
+                    const total = getOrderAmount();
+                    return paypalCheckoutInstance.createPayment({
+                      flow: "checkout",
+                      amount: total,
+                      currency: "BRL"
+                    });
+                  },
+                  onAuthorize: (data, actions) => {
+                    return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
+                      processPayment(payload.nonce, "paypal");
+                    });
+                  },
+                  onError: (err) => {
+                    console.error("Erro no PayPal:", err);
+                    alert("Erro no pagamento com PayPal.");
+                  }
+                },
+                "#paypal-button-container"
+              );
+            });
+          });
+        })
+        .catch(err => {
+          console.error("Erro ao obter client token para PayPal:", err);
+        });
+    }
+
+    function initializeGooglePay() {
+      fetch("/api/braintree/get-client-token")
+        .then(res => res.json())
+        .then(data => {
+          const clientToken = data.clientToken;
+          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
+            if (clientErr) {
+              console.error("Erro ao criar client Google Pay:", clientErr);
+              alert("Erro na inicialização do Google Pay.");
+              return;
+            }
+            braintree.googlePayment.create(
+              {
+                client: clientInstance,
+                googlePayVersion: 2,
+                googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
+              },
+              (err, googlePaymentInstance) => {
+                if (err) {
+                  console.error("Erro ao criar Google Pay:", err);
+                  alert("Erro na inicialização do Google Pay.");
+                  return;
+                }
+                const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
+                  transactionInfo: {
+                    totalPriceStatus: "FINAL",
+                    totalPrice: getOrderAmount(),
+                    currencyCode: "BRL"
+                  }
+                });
+                const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
+                paymentsClient
+                  .loadPaymentData(paymentDataRequest)
+                  .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
+                  .then(payload => {
+                    processPayment(payload.nonce, "googlePay");
+                  })
+                  .catch(err => {
+                    console.error("Erro no Google Pay:", err);
+                    alert("Erro no pagamento com Google Pay.");
+                  });
+                const button = paymentsClient.createButton({ onClick: () => {} });
+                document.getElementById("google-pay-button-container").appendChild(button);
+              }
+            );
+          });
+        })
+        .catch(err => {
+          console.error("Erro ao obter client token para Google Pay:", err);
+        });
     }
 
     async function processPayment(nonce, method = "card") {
@@ -1625,54 +1477,109 @@
           email: checkoutData.email,
           phone: checkoutData.celular
         },
-        extraPassengers: checkoutData.extraPassengers,
-        insuranceSelected: checkoutData.insuranceSelected
+        billing: {
+          streetAddress: checkoutData.address,
+          extendedAddress: checkoutData.number,
+          locality: checkoutData.city,
+          region: checkoutData.state,
+          postalCode: checkoutData.cep,
+          countryCodeAlpha2: "BR"
+        },
+        extraPassengers: checkoutData.extraPassengers
       };
 
-      // Exemplo fictício
-      console.log("Enviando para backend:", body);
-      // Se tudo OK:
-      showStep(4);
+      try {
+        const res = await fetch("/api/braintree/create-transaction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
+          showStep(4);
+        } else {
+          alert("Falha no pagamento: " + result.message);
+        }
+      } catch (error) {
+        console.error("Erro ao processar o pagamento:", error);
+        alert("Erro ao processar o pagamento. Tente novamente.");
+      }
     }
 
-    /* ==================== LOGIN/REGISTRO (EXEMPLO) ==================== */
+    function getOrderAmount() {
+      let totalText = document.getElementById("totalValue").textContent;
+      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+      return parseFloat(amount).toFixed(2);
+    }
+
+    /* ===================== LOGIN/REGISTRO ===================== */
+    window.addEventListener("load", () => {
+      updateCheckoutCart(cartItems);
+
+      // Verifica se o usuário está logado
+      const isLoggedIn = !!localStorage.getItem("agentId");
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+      const loginFields = document.getElementById("loginFields");
+      if (isLoggedIn) {
+        toggleLoginLink.style.display = "none";
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "none";
+      } else {
+        toggleLoginLink.style.display = "block";
+        registrationFieldsGeneral.style.display = "block";
+      }
+    });
+
     const toggleLogin = document.getElementById("toggleLogin");
     const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
     const loginFields = document.getElementById("loginFields");
-    toggleLogin.addEventListener("click", e => {
-      e.preventDefault();
-      if (registrationFieldsGeneral.style.display !== "none") {
-        registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "block";
-        toggleLogin.textContent = "Não tenho Login";
-      } else {
-        registrationFieldsGeneral.style.display = "block";
-        loginFields.style.display = "none";
-        toggleLogin.textContent = "Economize tempo fazendo Login";
-      }
-    });
+    if (toggleLogin) {
+      toggleLogin.addEventListener("click", e => {
+        e.preventDefault();
+        if (registrationFieldsGeneral.style.display !== "none") {
+          registrationFieldsGeneral.style.display = "none";
+          loginFields.style.display = "block";
+          toggleLogin.textContent = "Não tenho Login";
+        } else {
+          registrationFieldsGeneral.style.display = "block";
+          loginFields.style.display = "none";
+          toggleLogin.textContent = "Economize tempo fazendo Login";
+        }
+      });
+    }
 
     const loginValidateBtn = document.getElementById("loginValidateBtn");
     if (loginValidateBtn) {
       loginValidateBtn.addEventListener("click", () => {
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
-        if (email === "teste@teste.com" && password === "123") {
-          localStorage.setItem("agentId", "123");
-          showAlert("success", "Login efetuado com sucesso!");
-          toggleLogin.style.display = "none";
-          registrationFieldsGeneral.style.display = "none";
-          loginFields.style.display = "none";
-        } else {
-          showAlert("danger", "Dados de login inválidos.");
-        }
+        fetch("/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            localStorage.setItem("agentId", data.user.id);
+            alert("Login efetuado com sucesso!");
+            toggleLogin.style.display = "none";
+            registrationFieldsGeneral.style.display = "none";
+            loginFields.style.display = "none";
+          } else {
+            alert("Erro no login: " + (data.error || "Dados inválidos."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao realizar o login. Tente novamente.");
+        });
       });
     }
 
-    /* ==================== AUTOPREENCHIMENTO CEP ==================== */
-    document.getElementById("cep").addEventListener("blur", function() {
-      buscarCEP(this.value);
-    });
+    /* ===================== AUTOPREENCHIMENTO DO ENDEREÇO VIA CEP ===================== */
     function buscarCEP(cep) {
       cep = cep.replace(/\D/g, '');
       if (cep.length === 8) {
@@ -1681,7 +1588,7 @@
           .then(response => response.json())
           .then(data => {
             if (data.erro) {
-              showAlert("danger", "CEP não encontrado!");
+              alert("CEP não encontrado!");
               return;
             }
             document.getElementById("address").value = data.logradouro || "";
@@ -1690,12 +1597,15 @@
           })
           .catch(error => {
             console.error("Erro ao buscar CEP:", error);
-            showAlert("danger", "Não foi possível consultar o CEP.");
+            alert("Não foi possível consultar o CEP.");
           });
       }
     }
+    document.getElementById("cep").addEventListener("blur", function() {
+      buscarCEP(this.value);
+    });
 
-    /* ==================== MÁSCARAS CPF e RG ==================== */
+    /* ===================== MÁSCARAS PARA CPF e RG ===================== */
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
       if(value.length > 3) {
@@ -1721,37 +1631,6 @@
         value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
       }
       e.target.value = value;
-    });
-
-    /* ====== MODAIS DE COBERTURA (Intermac 30K / 80K) ===== */
-    document.querySelectorAll('.open30kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('modalIntermac30K').style.display = 'block';
-      });
-    });
-    document.querySelectorAll('.open80kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('modalIntermac80K').style.display = 'block';
-      });
-    });
-    // Fechar modais de cobertura
-    document.querySelectorAll('.close-modal').forEach(closeBtn => {
-      closeBtn.addEventListener('click', function() {
-        const modalId = this.getAttribute('data-close-modal');
-        if (modalId) {
-          document.getElementById(modalId).style.display = 'none';
-        } else {
-          // ou se for o close do passenger
-          passengerModal.style.display = 'none';
-        }
-      });
-    });
-
-    /* Ao carregar */
-    window.addEventListener("load", () => {
-      updateCheckoutCart(cartItems);
     });
   </script>
 </body>
