@@ -1109,7 +1109,7 @@
         state: "",
         cep: ""
       },
-      extraPassengers: [], // cada item pode ser um array de passageiros extras para cada item do carrinho
+      extraPassengers: [], // cada item pode ser um array de passageiros extras
       insuranceSelected: "none", // "none", "30k" ou "80k"
       insuranceCost: 0
     };
@@ -1151,7 +1151,7 @@
         // Exemplo default
         cartItems = [
           {
-            hotelName: "Hotel Exemplo A",
+            hotelName: "Courtyard By Marriott Miami Downtown",
             adults: 2,
             children: 1,
             basePriceAdult: 100,
@@ -1159,8 +1159,8 @@
             checkOut: "2025-04-18"
           },
           {
-            hotelName: "Hotel Exemplo B",
-            adults: 3,
+            hotelName: "Courtyard By Marriott Miami Downtown",
+            adults: 2,
             children: 0,
             basePriceAdult: 150,
             checkIn: "2025-04-10",
@@ -1276,7 +1276,9 @@
           </div>
         `;
       });
+      // Soma o valor do seguro
       subtotal += checkoutData.insuranceCost;
+
       container.innerHTML = html;
       document.getElementById("subtotalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
@@ -1293,37 +1295,72 @@
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const copyForAllBtn = document.getElementById("copyForAllBtn");
 
+    // Ajuste para re-popular os campos já salvos
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
-      checkoutData.extraPassengers = [];
 
       let itemsWithExtras = 0;
       items.forEach((item, itemIndex) => {
         const extraCount = (item.adults || 1) - 1;
         if (extraCount > 0) {
           itemsWithExtras++;
-          checkoutData.extraPassengers[itemIndex] = [];
+
+          // Se ainda não existir um array para este itemIndex, crie
+          if (!checkoutData.extraPassengers[itemIndex]) {
+            checkoutData.extraPassengers[itemIndex] = [];
+          }
+
+          // Cria um box
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
+
           for (let i = 0; i < extraCount; i++) {
+            // Garante que exista um objeto para esse passageiro
+            if (!checkoutData.extraPassengers[itemIndex][i]) {
+              checkoutData.extraPassengers[itemIndex][i] = {
+                name: "",
+                birthdate: ""
+              };
+            }
+
+            // Recupera os valores já salvos
+            const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
+            const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
+
             const fieldsWrapper = document.createElement("div");
             fieldsWrapper.classList.add("fields-grid-2cols-modal");
             fieldsWrapper.innerHTML = `
               <div class="form-field">
                 <label>Nome do Passageiro #${i+1}</label>
-                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
+                <input
+                  type="text"
+                  placeholder="Nome completo"
+                  data-item-index="${itemIndex}"
+                  data-passenger-index="${i}"
+                  class="modalExtraNameInput"
+                  value="${passName}"
+                />
               </div>
               <div class="form-field">
                 <label>Data de Nascimento</label>
-                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" />
+                <input
+                  type="date"
+                  data-item-index="${itemIndex}"
+                  data-passenger-index="${i}"
+                  class="modalExtraBirthdateInput"
+                  value="${passBirth}"
+                />
               </div>
             `;
             itemDiv.appendChild(fieldsWrapper);
           }
+
           modalPassengerContainer.appendChild(itemDiv);
         }
       });
+
+      // Exibe o botão "Copiar para todos" só se houver mais de um item com extras
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
@@ -1380,6 +1417,7 @@
       alert("Dados copiados para todos os itens compatíveis!");
     });
 
+    // Atualiza checkoutData ao digitar
     modalPassengerContainer.addEventListener("input", e => {
       const target = e.target;
       if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
