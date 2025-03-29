@@ -356,8 +356,14 @@
     }
     .modal-content h3 {
       font-size: 1.2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       color: #333;
+    }
+    .modal-subtitle {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
     }
     .passenger-box {
       background: #fff;
@@ -376,6 +382,12 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .copy-for-all-btn {
+      background: #365cf5;
+      color: #fff;
+      margin-right: 1rem;
     }
 
     /* ===== FOOTER ===== */
@@ -553,9 +565,14 @@
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
-            <h3>Passageiros Extras</h3>
+            <h3>Passageiros Extras – Nomeação Obrigatória</h3>
+            <p class="modal-subtitle">
+              Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos. 
+              Isso evita restrições e assegura uma experiência segura e tranquila.
+            </p>
             <div id="modalPassengerContainer"></div>
             <div style="text-align: right; margin-top: 1rem;">
+              <button class="btn-save-passenger copy-for-all-btn" id="copyForAllBtn" style="display:none;">Copiar para todos</button>
               <button class="btn-save-passenger" id="savePassengersBtn">Salvar Passageiros</button>
             </div>
           </div>
@@ -751,7 +768,7 @@
       }
     }
 
-    /* Steps */
+    /* Steps Navigation */
     toStep2Btn.addEventListener("click", () => {
       // Coleta dados do "passageiro principal"
       checkoutData.firstName = document.getElementById("firstName")?.value || "";
@@ -771,12 +788,10 @@
 
       showStep(2);
     });
-
     toStep3Btn.addEventListener("click", () => {
       showStep(3);
       initializePaymentMethod();
     });
-
     backToStep1Btn?.addEventListener("click", () => showStep(1));
     backToStep2Btn?.addEventListener("click", () => showStep(2));
 
@@ -820,6 +835,7 @@
     const closeModalBtn = document.getElementById("closeModal");
     const savePassengersBtn = document.getElementById("savePassengersBtn");
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+    const copyForAllBtn = document.getElementById("copyForAllBtn");
 
     // Cria os formulários no modal
     function createModalPassengerForms(items) {
@@ -827,19 +843,22 @@
       // Zera o array extraPassengers
       checkoutData.extraPassengers = [];
 
+      let itemsWithExtras = 0;
+
       items.forEach((item, itemIndex) => {
-        if (item.adults > 1) {
-          // Precisamos de (adults - 1) forms
+        const extraCount = (item.adults || 1) - 1;
+        if (extraCount > 0) {
+          itemsWithExtras++;
           checkoutData.extraPassengers[itemIndex] = [];
           // Cria uma box
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `
-            <h4>${item.hotelName || "Item"} - Passageiros Extras (Total: ${item.adults - 1})</h4>
+            <h4>${item.hotelName || "Item"} – Passageiros Extras (Total: ${extraCount})</h4>
           `;
 
           // Para cada passageiro extra
-          for (let i = 0; i < item.adults - 1; i++) {
+          for (let i = 0; i < extraCount; i++) {
             const fieldsWrapper = document.createElement("div");
             fieldsWrapper.classList.add("fields-grid-2cols-modal");
             fieldsWrapper.innerHTML = `
@@ -857,6 +876,9 @@
           modalPassengerContainer.appendChild(itemDiv);
         }
       });
+
+      // Se mais de um item tiver extra passengers, exibe o botão "Copiar para todos"
+      copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
     // Abre o modal
@@ -875,6 +897,49 @@
     savePassengersBtn.addEventListener("click", () => {
       passengerModal.style.display = "none";
       alert("Passageiros extras salvos!");
+    });
+
+    // Copiar para todos
+    copyForAllBtn.addEventListener("click", () => {
+      // Acha o primeiro item com extras (fonte)
+      let sourceIndex = null;
+      let sourceExtraCount = 0;
+
+      // Acha o primeiro item com extras
+      for (let i = 0; i < cartItems.length; i++) {
+        let extraCount = (cartItems[i].adults || 1) - 1;
+        if (extraCount > 0) {
+          sourceIndex = i;
+          sourceExtraCount = extraCount;
+          break;
+        }
+      }
+      if (sourceIndex === null) return;
+
+      // Pega os dados do source
+      const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+      // Copia para os demais itens que tenham a mesma quantidade de extra
+      for (let i = 0; i < cartItems.length; i++) {
+        if (i !== sourceIndex) {
+          let extraCount = (cartItems[i].adults || 1) - 1;
+          if (extraCount === sourceExtraCount && extraCount > 0) {
+            // Copia
+            checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+            // Atualiza os inputs do DOM
+            for (let passIndex = 0; passIndex < extraCount; passIndex++) {
+              const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const nameInput = document.querySelector(nameSelector);
+              const birthInput = document.querySelector(birthSelector);
+              if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
+                nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
+                birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
+              }
+            }
+          }
+        }
+      }
+      alert("Dados copiados para todos os itens compatíveis!");
     });
 
     // Escuta alterações nos inputs do modal
@@ -1155,7 +1220,7 @@
       return parseFloat(amount).toFixed(2);
     }
 
-    /* AO CARREGAR */
+    /* Ao carregar */
     window.addEventListener("load", () => {
       updateCheckoutCart(cartItems);
 
