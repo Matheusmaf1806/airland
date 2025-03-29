@@ -30,7 +30,7 @@
         color: #5d657b;
         background: #f1f5f9;
       }
-      /* Forçar os inputs a usarem Montserrat */
+      /* Força os inputs a usarem Montserrat */
       input, select, textarea {
         font-family: "Montserrat", sans-serif;
       }
@@ -361,12 +361,12 @@
         <div class="step-content active" data-step="1">
           <div class="card-style-1">
             <h2>Dados Pessoais</h2>
-            <!-- Link para Login (apenas exibido se o usuário não estiver logado) -->
+            <!-- Link para Login (exibido se não estiver logado) -->
             <div style="text-align: right; margin-bottom: 1rem;">
               <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
             </div>
 
-            <!-- Container de Registro (dados gerais: nome, sobrenome, celular, e-mail, senha) -->
+            <!-- Campos de Registro Geral (Nome, Sobrenome, Celular, E-mail, Senha e Repetir Senha) -->
             <div id="registrationFieldsGeneral">
               <!-- Grid 1: Nome e Sobrenome -->
               <div class="fields-grid-2cols">
@@ -448,7 +448,7 @@
               </div>
             </div>
 
-            <!-- Formulário de Login (alternativo) -->
+            <!-- Formulário de Login (apenas o email, senha e botão Entrar) -->
             <div id="loginFields" style="display: none;">
               <div class="fields-grid-2cols">
                 <div class="form-field">
@@ -645,7 +645,6 @@
       const toStep3Btn = document.getElementById("toStep3");
       const backToStep2Btn = document.getElementById("backToStep2");
 
-      // Exibe um step e oculta os demais
       function showStep(stepNumber) {
         stepContents.forEach((content) => {
           content.classList.toggle("active", content.dataset.step === String(stepNumber));
@@ -661,7 +660,6 @@
         });
       }
 
-      // STEP 1 -> STEP 2
       toStep2Btn.addEventListener("click", () => {
         checkoutData = {
           firstName: document.getElementById("firstName").value,
@@ -682,22 +680,18 @@
         showStep(2);
       });
 
-      // STEP 2 -> STEP 3
       toStep3Btn.addEventListener("click", () => {
         showStep(3);
         initializePaymentMethod();
       });
 
-      // Botões de voltar
       backToStep1Btn?.addEventListener("click", () => showStep(1));
       backToStep2Btn?.addEventListener("click", () => showStep(2));
 
-      // Se o método de pagamento for alterado, reinicializa
       document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
         input.addEventListener("change", initializePaymentMethod);
       });
 
-      // Exibe/oculta containers conforme o método de pagamento
       function initializePaymentMethod() {
         const method = document.querySelector('input[name="paymentMethod"]:checked').value;
         document.getElementById("card-container").style.display = "none";
@@ -716,7 +710,6 @@
         }
       }
 
-      /* ============== BRAINTREE: CARTÃO (3DS) ============== */
       async function initializeBraintree() {
         const res = await fetch("/api/braintree/get-client-token");
         const data = await res.json();
@@ -797,7 +790,6 @@
         });
       }
 
-      /* ============== BRAINTREE: PAYPAL ============== */
       function initializePayPal() {
         fetch("/api/braintree/get-client-token")
           .then((res) => res.json())
@@ -846,7 +838,6 @@
           });
       }
 
-      /* ============== BRAINTREE: GOOGLE PAY ============== */
       function initializeGooglePay() {
         fetch("/api/braintree/get-client-token")
           .then((res) => res.json())
@@ -899,7 +890,6 @@
           });
       }
 
-      /* ============== ENVIO DO PAGAMENTO AO BACKEND ============== */
       async function processPayment(nonce, method = "card") {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -952,7 +942,6 @@
         }
       }
 
-      /* ============== CALCULA E EXIBE TOTAL NO CARRINHO ============== */
       function getOrderAmount() {
         let totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -992,7 +981,6 @@
           "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       }
 
-      // Ao carregar a página, atualiza o carrinho e verifica login
       window.addEventListener("load", () => {
         let items = [];
         const cart = document.getElementById("shoppingCart");
@@ -1012,7 +1000,8 @@
         const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
         const loginFields = document.getElementById("loginFields");
         if (isLoggedIn) {
-          // Usuário logado: esconde o link e os campos de registro geral
+          // Se logado, oculta os campos gerais e o link de login,
+          // deixando visíveis somente os campos de documentos/endereço.
           toggleLoginLink.style.display = "none";
           registrationFieldsGeneral.style.display = "none";
           loginFields.style.display = "none";
@@ -1025,7 +1014,6 @@
       /* ===================== LOGIN/REGISTRO ===================== */
       const toggleLogin = document.getElementById("toggleLogin");
       const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-      const documentFields = document.getElementById("documentFields");
       const loginFields = document.getElementById("loginFields");
 
       if (toggleLogin) {
@@ -1060,7 +1048,7 @@
             if(data.success) {
               localStorage.setItem("agentId", data.user.id);
               alert("Login efetuado com sucesso!");
-              // Ao logar, esconde os campos de registro geral e o link de login
+              // Ao logar, oculta os campos gerais e o link de login, mantendo os documentos/endereço.
               toggleLogin.style.display = "none";
               registrationFieldsGeneral.style.display = "none";
               loginFields.style.display = "none";
