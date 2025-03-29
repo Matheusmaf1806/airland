@@ -618,22 +618,7 @@
     <div class="right-col">
       <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
-        <div id="cartItemsList">
-          <!-- Exemplo de item inicial -->
-          <div class="reserva-item">
-            <div class="reserva-left">
-              <span class="categoria">HOSPEDAGEM</span>
-              <span class="nome">Hotel Exemplo - Quarto Exemplo</span>
-              <div class="reserva-details">
-                <p>Check-in: --/--/----</p>
-                <p>Check-out: --/--/----</p>
-                <p>Quartos: 1</p>
-                <p>Adultos: 1 | Crianças: 0</p>
-              </div>
-            </div>
-            <div class="reserva-preco">R$ 0,00</div>
-          </div>
-        </div>
+        <div id="cartItemsList"></div>
         <div class="resumo-compra">
           <div class="form-field cupom">
             <label>Cupom de Desconto</label>
@@ -669,7 +654,6 @@
        + PASSAGEIROS EXTRAS
        ============================================= */
     let checkoutData = {
-      // Armazenaremos dados de passageiros extras aqui
       extraPassengers: []
     };
 
@@ -697,23 +681,8 @@
       });
     }
 
-    // Exemplo de "itens do carrinho" com adults
-    // Ao final, iremos gerar a parte "Adicionar passageiros" para cada item que tiver adults>1
-    let cartItems = [
-      {
-        hotelName: "Hotel Exemplo A",
-        adults: 2, // Precisamos de 1 passageiro extra
-        children: 1
-      },
-      {
-        hotelName: "Hotel Exemplo B",
-        adults: 3, // Precisamos de 2 passageiros extras
-        children: 0
-      }
-    ];
-
     toStep2Btn.addEventListener("click", () => {
-      // Coleta dados do passageiro principal e docs
+      // Coleta dados do "passageiro principal"
       checkoutData.firstName = document.getElementById("firstName")?.value || "";
       checkoutData.lastName = document.getElementById("lastName")?.value || "";
       checkoutData.celular = document.getElementById("celular")?.value || "";
@@ -728,9 +697,6 @@
       checkoutData.city = document.getElementById("city").value;
       checkoutData.address = document.getElementById("address").value;
       checkoutData.number = document.getElementById("number").value;
-
-      // Extra passengers: já estão salvos em checkoutData.extraPassengers
-      // (cada itemIndex -> forms criados no addPassengersForItem)
 
       showStep(2);
     });
@@ -976,7 +942,6 @@
           postalCode: checkoutData.cep,
           countryCodeAlpha2: "BR"
         },
-        // Exemplo de envio dos passageiros extras
         extraPassengers: checkoutData.extraPassengers
       };
 
@@ -1041,22 +1006,20 @@
     /* Cria o HTML de "Adicionar Passageiros" para cada item do carrinho que tiver adults>1 */
     function createPassengerExtraForms(items) {
       const container = document.getElementById("cartPassengersContainer");
-      container.innerHTML = ""; // limpa
+      container.innerHTML = "";
       checkoutData.extraPassengers = [];
 
       items.forEach((item, index) => {
         // Se esse item tiver mais de 1 adulto
         if (item.adults > 1) {
-          // Precisamos permitir forms para (adults - 1) passageiros extras
           const card = document.createElement("div");
           card.className = "card-style-1";
           card.innerHTML = `
-            <h3>${item.hotelName}</h3>
-            <p>Adultos: ${item.adults} | Crianças: ${item.children}</p>
+            <h3>${item.hotelName || "Item"}</h3>
+            <p>Adultos: ${item.adults} | Crianças: ${item.children || 0}</p>
             <p style="margin-top:1rem; font-weight:500;">Passageiros Extras</p>
           `;
-
-          // Armazenamos os dados extras desse item num array
+          // array de extras para este item
           checkoutData.extraPassengers[index] = [];
 
           // Botão para adicionar forms
@@ -1067,14 +1030,11 @@
           const extrasContainer = document.createElement("div");
           let extraCount = 0;
 
-          // Lógica do clique
           addButton.addEventListener("click", () => {
-            // Se já criamos todos os extras
             if (extraCount >= (item.adults - 1)) {
               alert("Já foram adicionados todos os passageiros extras necessários para este item.");
               return;
             }
-
             const passengerIndex = extraCount + 1; 
             const passengerBox = document.createElement("div");
             passengerBox.className = "passenger-box";
@@ -1122,17 +1082,24 @@
       });
     }
 
-    /* Ao carregar a página */
     window.addEventListener("load", () => {
-      // Exemplo de carrinho local (cartItems).
-      // Caso você busque do localStorage, substitua aqui:
-      // cartItems = JSON.parse(localStorage.getItem("someCart")) || [];
+      // Carrega itens do carrinho igual "antes": ou do <shopping-cart>, ou do localStorage
+      let items = [];
+      const cart = document.getElementById("shoppingCart");
+      if (cart && cart.items && cart.items.length > 0) {
+        items = cart.items;
+      } else {
+        const savedCart = localStorage.getItem("cartItems");
+        if (savedCart) {
+          items = JSON.parse(savedCart);
+        }
+      }
 
-      // Monta a lista do carrinho na direita
-      updateCheckoutCart(cartItems);
+      // Exibe o carrinho
+      updateCheckoutCart(items);
 
-      // Cria o bloco "Adicionar Passageiros" para cada item com adults>1
-      createPassengerExtraForms(cartItems);
+      // Cria a parte de "Adicionar Passageiros" para cada item com adults>1
+      createPassengerExtraForms(items);
 
       // Verifica se o usuário está logado
       const isLoggedIn = !!localStorage.getItem("agentId");
@@ -1146,7 +1113,6 @@
         registrationFieldsGeneral.style.display = "none";
         loginFields.style.display = "none";
       } else {
-        // Se não estiver logado, mostra o link e os campos gerais
         toggleLoginLink.style.display = "block";
         registrationFieldsGeneral.style.display = "block";
       }
@@ -1162,12 +1128,10 @@
         e.preventDefault();
         // Alterna entre exibir login e registro
         if (registrationFieldsGeneral.style.display !== "none") {
-          // Exibe login, oculta registro
           registrationFieldsGeneral.style.display = "none";
           loginFields.style.display = "block";
           toggleLogin.textContent = "Não tenho Login";
         } else {
-          // Exibe registro, oculta login
           registrationFieldsGeneral.style.display = "block";
           loginFields.style.display = "none";
           toggleLogin.textContent = "Economize tempo fazendo Login";
