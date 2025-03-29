@@ -326,7 +326,7 @@
 
     /* ===== MODAL (GENÉRICO) ===== */
     .modal {
-      display: none; /* Escondido por padrão */
+      display: none;
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -390,94 +390,127 @@
       margin-right: 1rem;
     }
 
-    /* ===== NOVO LAYOUT DO STEP 2 (Horizontal - Comparação de Seguros) ===== */
-    .insurance-comparison {
+    /* ===== DRÁSTICA MELHORIA NO STEP 2 (Seguro de Viagem) ===== */
+    .insurance-plans-container {
       display: flex;
-      gap: 1rem;
-      justify-content: space-between;
       flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 2rem;
     }
-    .plan-card {
+    .insurance-plan-card {
       position: relative;
       flex: 1;
-      min-width: 220px;
+      min-width: 260px;
+      max-width: 320px;
       background: #fff;
       border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       text-align: center;
-      box-sizing: border-box;
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .plan-card input[type="radio"] {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      transform: scale(1.2);
-      cursor: pointer;
+    .insurance-plan-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
     }
-    .plan-card h3 {
-      margin: 0.5rem 0;
-      font-size: 1rem;
-      color: #333;
+    .insurance-plan-card input[type="radio"] {
+      display: none;
     }
-    .plan-card .date {
-      font-size: 0.9rem;
-      color: #666;
+    .plan-inner {
+      padding: 0.5rem;
+    }
+    .plan-top-icon {
+      font-size: 2rem;
       margin-bottom: 0.5rem;
+      color: #007aff;
     }
-    .plan-card .price {
+    .insurance-plan-card h3 {
+      margin: 0.3rem 0;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 600;
+    }
+    .recommended-badge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ff9800;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-bottom-right-radius: 8px;
+    }
+    .plan-date {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 0.4rem;
+    }
+    .plan-price {
       font-size: 1.2rem;
       font-weight: 700;
       color: #00c853;
-      margin-bottom: 0.5rem;
+      margin: 0.6rem 0;
     }
-    .plan-card .features {
+    .plan-description {
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+    ul.plan-features {
       list-style: none;
       padding: 0;
-      margin: 0;
-      margin-bottom: 0.5rem;
+      margin: 0 auto 0.8rem auto;
+      max-width: 200px;
       text-align: left;
     }
-    .plan-card .features li {
+    ul.plan-features li {
       font-size: 0.85rem;
       margin: 0.2rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
-    .plan-card .links {
-      margin-top: 0.5rem;
+    .plan-links {
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
     }
-    .plan-card .links a {
+    .plan-links a {
       color: #365cf5;
-      margin-right: 1rem;
-      font-size: 0.85rem;
+      margin: 0 0.5rem;
       text-decoration: none;
+      font-weight: 500;
     }
-    .plan-card .links a:hover {
+    .plan-links a:hover {
       text-decoration: underline;
     }
-    .plan-card.recommended {
-      border: 2px solid #007aff;
-      position: relative;
-    }
-    .plan-card.recommended::after {
-      content: "Recomendado";
-      position: absolute;
-      top: 0;
-      right: 0;
+    .select-plan-btn {
       background: #007aff;
       color: #fff;
-      font-size: 0.75rem;
-      padding: 0.2rem 0.6rem;
-      border-bottom-left-radius: 8px;
+      border: none;
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .select-plan-btn:hover {
+      background: #005dbf;
     }
     @media (max-width: 768px) {
-      .insurance-comparison {
+      .insurance-plans-container {
         flex-direction: column;
+        align-items: center;
       }
-      .plan-card {
-        margin-bottom: 1rem;
+      .insurance-plan-card {
+        max-width: 100%;
       }
     }
-    /* ===== FIM NOVO LAYOUT STEP 2 ===== */
+    /* ===== FIM MELHORIA STEP 2 ===== */
   </style>
 </head>
 <body>
@@ -510,16 +543,14 @@
   <div class="main-container">
     <!-- COLUNA ESQUERDA (STEPS) -->
     <div class="left-col">
-      <!-- STEP 1: Passageiro Principal + Botão Adicionar Passageiros -->
+      <!-- STEP 1: Passageiro Principal + Passageiros Extras -->
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
-          <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
-
-          <!-- CAMPOS DE LOGIN (ocultos inicialmente) -->
+          <!-- LOGIN FIELDS (ocultos) -->
           <div id="loginFields" style="display: none;">
             <div class="fields-grid-2cols">
               <div class="form-field">
@@ -535,8 +566,7 @@
               <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
             </div>
           </div>
-
-          <!-- CAMPOS DE REGISTRO (exibidos por padrão) -->
+          <!-- REGISTRATION FIELDS (padrão) -->
           <div id="registrationFieldsGeneral">
             <div class="fields-grid-2cols">
               <div class="form-field">
@@ -569,8 +599,7 @@
               </div>
             </div>
           </div>
-
-          <!-- Campos de Documentos/Endereço -->
+          <!-- Documentos e Endereço -->
           <div id="documentFields">
             <div class="fields-grid-3cols">
               <div class="form-field">
@@ -611,17 +640,15 @@
               </div>
             </div>
           </div>
-
-          <!-- Botão para abrir modal de passageiros extras -->
+          <!-- Botão para abrir modal de Passageiros Extras -->
           <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
-
           <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
           <div class="navigation">
             <button class="btn-save-passenger" id="toStep2">Próximo</button>
           </div>
         </div>
 
-        <!-- MODAL PARA PASSAGEIROS EXTRAS -->
+        <!-- MODAL PASSAGEIROS EXTRAS -->
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
@@ -638,61 +665,79 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes Adicionais (Seguro de Viagem) - Layout Horizontal -->
+      <!-- STEP 2: Detalhes Adicionais (Seguro de Viagem) – Layout Melhorado -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <h2>Selecione seu Seguro de Viagem</h2>
-          <p style="margin-bottom:1rem;">Compare as opções abaixo e escolha a que melhor atende você:</p>
-          <div class="insurance-comparison">
-            <!-- 1) Sem Seguro Viagem -->
-            <div class="plan-card">
-              <input type="radio" name="insuranceOption" value="none" id="plan-none" />
-              <label for="plan-none">
+          <p style="margin-bottom:1rem;">
+            Compare as opções abaixo e escolha aquela que melhor atende às suas necessidades:
+          </p>
+          <div class="insurance-plans-container">
+            <!-- Plano 1: Sem Seguro Viagem -->
+            <div class="insurance-plan-card">
+              <input type="radio" name="insuranceOption" value="none" id="radioNone">
+              <div class="plan-inner">
+                <div class="plan-top-icon">❌</div>
                 <h3>Sem Seguro Viagem</h3>
-                <p class="price">R$ 0</p>
-                <p class="desc">
-                  Vai viajar sem proteção?<br>
-                  Imprevistos podem acontecer, e alguns países exigem seguro viagem na entrada.
-                </p>
-                <p class="warning">Opção não recomendada</p>
-              </label>
-            </div>
-            <!-- 2) Intermac 30K -->
-            <div class="plan-card recommended">
-              <input type="radio" name="insuranceOption" value="30k" id="plan-30k" />
-              <label for="plan-30k">
-                <h3>Intermac 30K</h3>
-                <p class="date">16 abr. 2025 - 18 abr. 2025</p>
-                <p class="price">+ R$ 112,81</p>
-                <ul class="features">
-                  <li>✅ Cancelamento grátis</li>
-                  <li>✅ Despesas hospitalares de até USD$ 30.000</li>
-                  <li>✅ Despesas farmacêuticas de até USD$ 500</li>
+                <p class="plan-price">R$ 0</p>
+                <div class="plan-description">
+                  Vai viajar sem proteção? Imprevistos podem acontecer e alguns países exigem seguro.
+                </div>
+                <ul class="plan-features">
+                  <li>Opção não recomendada</li>
                 </ul>
-                <div class="links">
+                <button class="select-plan-btn" onclick="document.getElementById('radioNone').checked = true;">
+                  Selecionar
+                </button>
+              </div>
+            </div>
+
+            <!-- Plano 2: Intermac 30K (Recomendado) -->
+            <div class="insurance-plan-card">
+              <div class="recommended-badge">Recomendado</div>
+              <input type="radio" name="insuranceOption" value="30k" id="radio30k">
+              <div class="plan-inner">
+                <div class="plan-top-icon">⭐</div>
+                <h3>Intermac 30K</h3>
+                <p class="plan-date">16 abr. 2025 - 18 abr. 2025</p>
+                <p class="plan-price">+ R$ 112,81</p>
+                <ul class="plan-features">
+                  <li>✅ Cancelamento grátis</li>
+                  <li>✅ Despesas hospitalares até USD$ 30.000</li>
+                  <li>✅ Despesas farmacêuticas até USD$ 500</li>
+                </ul>
+                <div class="plan-links">
                   <a href="#" class="open30kModal">Ver mais</a>
                   <a href="#" class="open30kModal">Ver políticas</a>
                 </div>
-              </label>
+                <button class="select-plan-btn" onclick="document.getElementById('radio30k').checked = true;">
+                  Selecionar
+                </button>
+              </div>
             </div>
-            <!-- 3) Intermac 80K -->
-            <div class="plan-card">
-              <input type="radio" name="insuranceOption" value="80k" id="plan-80k" />
-              <label for="plan-80k">
+
+            <!-- Plano 3: Intermac 80K -->
+            <div class="insurance-plan-card">
+              <input type="radio" name="insuranceOption" value="80k" id="radio80k">
+              <div class="plan-inner">
+                <div class="plan-top-icon">✅</div>
                 <h3>Intermac 80K</h3>
-                <p class="date">16 abr. 2025 - 18 abr. 2025</p>
-                <p class="price">+ R$ 212,02</p>
-                <ul class="features">
+                <p class="plan-date">16 abr. 2025 - 18 abr. 2025</p>
+                <p class="plan-price">+ R$ 212,02</p>
+                <ul class="plan-features">
                   <li>✅ Cancelamento grátis</li>
-                  <li>✅ Despesas hospitalares de até USD$ 80.000</li>
-                  <li>✅ Despesas farmacêuticas de até USD$ 2.000</li>
-                  <li>✅ Acesso à Sala Vip em caso de atraso do voo</li>
+                  <li>✅ Despesas hospitalares até USD$ 80.000</li>
+                  <li>✅ Despesas farmacêuticas até USD$ 2.000</li>
+                  <li>✅ Acesso à Sala Vip em caso de atraso</li>
                 </ul>
-                <div class="links">
+                <div class="plan-links">
                   <a href="#" class="open80kModal">Ver mais</a>
                   <a href="#" class="open80kModal">Ver políticas</a>
                 </div>
-              </label>
+                <button class="select-plan-btn" onclick="document.getElementById('radio80k').checked = true;">
+                  Selecionar
+                </button>
+              </div>
             </div>
           </div>
           <div class="navigation">
@@ -710,11 +755,11 @@
           <div class="form-field">
             <label>Método de Pagamento</label>
             <div>
-              <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
+              <input type="radio" id="methodCard" name="paymentMethod" value="card" checked>
               <label for="methodCard">Cartão de Crédito</label>
-              <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal" />
+              <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal">
               <label for="methodPayPal">PayPal</label>
-              <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay" />
+              <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay">
               <label for="methodGooglePay">Google Pay</label>
             </div>
           </div>
@@ -1031,7 +1076,7 @@
   <script>
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
-       LOGIN/REGISTRO, CEP, MÁSCARAS, E BRAINTREE
+       LOGIN/REGISTRO, CEP, MÁSCARAS, E INTEGRAÇÃO DE PAGAMENTO
        ============================================= */
 
     // Controle de login/registro
@@ -1067,7 +1112,6 @@
       const email = document.getElementById("email").value.trim();
       const pass = document.getElementById("password").value.trim();
       const confirmPass = document.getElementById("confirmPassword").value.trim();
-
       const cpf = document.getElementById("cpf").value.trim();
       const rg = document.getElementById("rg").value.trim();
       const birthdate = document.getElementById("birthdate").value.trim();
@@ -1076,7 +1120,6 @@
       const city = document.getElementById("city").value.trim();
       const address = document.getElementById("address").value.trim();
       const number = document.getElementById("number").value.trim();
-
       if (!firstName || !lastName || !celular || !email ||
           !pass || !confirmPass || !cpf || !rg || !birthdate ||
           !cep || !state || !city || !address || !number) {
@@ -1144,7 +1187,7 @@
       showStep(2);
     });
 
-    // Define a estrutura principal de dados
+    // Estrutura de dados do checkout
     let checkoutData = {
       mainPassenger: {
         firstName: "",
@@ -1192,7 +1235,6 @@
     toStep3Btn.addEventListener("click", () => {
       const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
       checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-
       if (checkoutData.insuranceSelected === "30k") {
         checkoutData.insuranceCost = 112.81;
       } else if (checkoutData.insuranceSelected === "80k") {
@@ -1307,10 +1349,7 @@
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
           for (let i = 0; i < extraCount; i++) {
             if (!checkoutData.extraPassengers[itemIndex][i]) {
-              checkoutData.extraPassengers[itemIndex][i] = {
-                name: "",
-                birthdate: ""
-              };
+              checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
             }
             const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
             const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
@@ -1319,11 +1358,11 @@
             fieldsWrapper.innerHTML = `
               <div class="form-field">
                 <label>Nome do Passageiro #${i+1}</label>
-                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}" />
+                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}">
               </div>
               <div class="form-field">
                 <label>Data de Nascimento</label>
-                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}" />
+                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}">
               </div>
             `;
             itemDiv.appendChild(fieldsWrapper);
@@ -1406,13 +1445,11 @@
       }
     });
 
-    // Inicialização do pagamento
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
       document.getElementById("paypal-container").style.display = "none";
       document.getElementById("google-pay-container").style.display = "none";
-
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
         initializeBraintree();
@@ -1429,7 +1466,6 @@
       const res = await fetch("/api/braintree/get-client-token");
       const data = await res.json();
       const clientToken = data.clientToken;
-
       braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
         if (clientErr) {
           console.error("Erro ao criar o client Braintree:", clientErr);
@@ -1609,7 +1645,6 @@
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
       amount = parseFloat(amount).toFixed(2);
-
       let installments = "1";
       if (method === "card") {
         const installmentsSelect = document.getElementById("installments");
@@ -1617,7 +1652,6 @@
           installments = installmentsSelect.value;
         }
       }
-
       const body = {
         paymentMethodNonce: nonce,
         amount: amount,
@@ -1640,7 +1674,6 @@
         extraPassengers: checkoutData.extraPassengers,
         insuranceSelected: checkoutData.insuranceSelected
       };
-
       try {
         const res = await fetch("/api/braintree/create-transaction", {
           method: "POST",
@@ -1702,26 +1735,26 @@
 
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 3) {
+      if (value.length > 3) {
         value = value.replace(/^(\d{3})(\d)/, '$1.$2');
       }
-      if(value.length > 6) {
+      if (value.length > 6) {
         value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
       }
-      if(value.length > 9) {
+      if (value.length > 9) {
         value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
       }
       e.target.value = value;
     });
     document.getElementById("rg").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 2) {
+      if (value.length > 2) {
         value = value.replace(/^(\d{2})(\d)/, '$1.$2');
       }
-      if(value.length > 5) {
+      if (value.length > 5) {
         value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
       }
-      if(value.length > 7) {
+      if (value.length > 7) {
         value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
       }
       e.target.value = value;
