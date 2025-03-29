@@ -305,7 +305,7 @@
       padding: 1rem;
     }
 
-    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
+    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" (RETANGULAR) ===== */
     .btn-add-passenger {
       display: block;
       width: 100%;
@@ -390,7 +390,7 @@
       margin-right: 1rem;
     }
 
-    /* ===== ESTILOS PARA AS OPÇÕES DE SEGURO (STEP 2) ===== */
+    /* ===== ESTILOS EXTRAS PARA AS OPÇÕES DE SEGURO (STEP 2) ===== */
     .insurance-options-container {
       display: grid;
       grid-template-columns: 1fr;
@@ -442,11 +442,6 @@
       flex-direction: column;
       gap: 0.25rem;
       font-size: 0.85rem;
-    }
-    .insurance-features span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
     }
     .insurance-links {
       margin-top: 0.5rem;
@@ -553,59 +548,56 @@
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
 
-          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
-          <div id="topFieldsContainer">
-            <!-- Formulário de Login -->
-            <div id="loginFields" style="display: none;">
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>E-mail *</label>
-                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
-                </div>
-                <div class="form-field">
-                  <label>Senha *</label>
-                  <input type="password" id="loginPassword" placeholder="********">
-                </div>
+          <!-- CAMPOS DE LOGIN (ocultos inicialmente) -->
+          <div id="loginFields" style="display: none;">
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>E-mail *</label>
+                <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
               </div>
-              <div style="text-align: right; margin-top: 10px;">
-                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
+              <div class="form-field">
+                <label>Senha *</label>
+                <input type="password" id="loginPassword" placeholder="********">
               </div>
             </div>
+            <div style="text-align: right; margin-top: 10px;">
+              <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
+            </div>
+          </div>
 
-            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
-            <div id="registrationFieldsGeneral">
-              <!-- Nome e Sobrenome -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Nome *</label>
-                  <input type="text" id="firstName" placeholder="Nome">
-                </div>
-                <div class="form-field">
-                  <label>Sobrenome *</label>
-                  <input type="text" id="lastName" placeholder="Sobrenome">
-                </div>
+          <!-- CAMPOS DE REGISTRO (exibidos por padrão) -->
+          <div id="registrationFieldsGeneral">
+            <!-- Nome e Sobrenome -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Nome *</label>
+                <input type="text" id="firstName" placeholder="Nome">
               </div>
-              <!-- Celular e E-mail -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Celular *</label>
-                  <input type="text" id="celular" placeholder="(XX) 99999-9999">
-                </div>
-                <div class="form-field">
-                  <label>E-mail *</label>
-                  <input type="email" id="email" placeholder="seuemail@exemplo.com">
-                </div>
+              <div class="form-field">
+                <label>Sobrenome *</label>
+                <input type="text" id="lastName" placeholder="Sobrenome">
               </div>
-              <!-- Senha e Repetir Senha -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Senha *</label>
-                  <input type="password" id="password" placeholder="********">
-                </div>
-                <div class="form-field">
-                  <label>Repetir Senha *</label>
-                  <input type="password" id="confirmPassword" placeholder="********">
-                </div>
+            </div>
+            <!-- Celular e E-mail -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Celular *</label>
+                <input type="text" id="celular" placeholder="(XX) 99999-9999">
+              </div>
+              <div class="form-field">
+                <label>E-mail *</label>
+                <input type="email" id="email" placeholder="seuemail@exemplo.com">
+              </div>
+            </div>
+            <!-- Senha e Repetir Senha -->
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Senha *</label>
+                <input type="password" id="password" placeholder="********">
+              </div>
+              <div class="form-field">
+                <label>Repetir Senha *</label>
+                <input type="password" id="confirmPassword" placeholder="********">
               </div>
             </div>
           </div>
@@ -1090,10 +1082,139 @@
   <script>
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
-       VALIDAÇÕES, CEP, MÁSCARAS, BRAINTREE
+       LOGIN/REGISTRO (EVITAR VALIDAÇÃO DE CAMPOS OCULTOS),
+       CEP, MÁSCARAS, E BRAINTREE
        ============================================= */
 
-    // Estrutura de dados
+    // Para controlar login/registro
+    let isLoginMode = false;       // se o usuário clica no link "Economize tempo fazendo Login"
+    let isRegistrationMode = true; // default
+    const isLoggedIn = !!localStorage.getItem("agentId"); // se já existe agentId, está logado
+
+    // Seletores para login/registro
+    const toggleLoginLink = document.getElementById("toggleLogin");
+    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+    const loginFields = document.getElementById("loginFields");
+
+    // Ao clicar no link "Economize tempo fazendo Login"
+    toggleLoginLink.addEventListener("click", e => {
+      e.preventDefault();
+      if (isRegistrationMode) {
+        // Mudar para modo LOGIN
+        isLoginMode = true;
+        isRegistrationMode = false;
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "block";
+        toggleLoginLink.textContent = "Não tenho Login";
+      } else {
+        // Mudar para modo REGISTRO
+        isLoginMode = false;
+        isRegistrationMode = true;
+        registrationFieldsGeneral.style.display = "block";
+        loginFields.style.display = "none";
+        toggleLoginLink.textContent = "Economize tempo fazendo Login";
+      }
+    });
+
+    // Funções de Validação
+    function isRegistrationComplete() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const celular = document.getElementById("celular").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      const confirmPass = document.getElementById("confirmPassword").value.trim();
+
+      const cpf = document.getElementById("cpf").value.trim();
+      const rg = document.getElementById("rg").value.trim();
+      const birthdate = document.getElementById("birthdate").value.trim();
+      const cep = document.getElementById("cep").value.trim();
+      const state = document.getElementById("state").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const number = document.getElementById("number").value.trim();
+
+      // Ajuste conforme os campos realmente obrigatórios
+      if (!firstName || !lastName || !celular || !email ||
+          !pass || !confirmPass || !cpf || !rg || !birthdate ||
+          !cep || !state || !city || !address || !number
+      ) {
+        return false;
+      }
+      if (pass !== confirmPass) {
+        alert("As senhas não coincidem!");
+        return false;
+      }
+      return true;
+    }
+
+    function isLoginComplete() {
+      const loginEmail = document.getElementById("loginEmail").value.trim();
+      const loginPassword = document.getElementById("loginPassword").value.trim();
+      if (!loginEmail || !loginPassword) {
+        return false;
+      }
+      return true;
+    }
+
+    // Exemplo de clique no botão "Entrar" do login
+    const loginValidateBtn = document.getElementById("loginValidateBtn");
+    loginValidateBtn.addEventListener("click", () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem("agentId", data.user.id);
+          alert("Login efetuado com sucesso!");
+          // Você pode esconder os campos de login, etc.
+        } else {
+          alert("Erro no login: " + (data.error || "Dados inválidos."));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Erro ao realizar o login. Tente novamente.");
+      });
+    });
+
+    // Lógica do Step 1 -> Step 2
+    const toStep2Btn = document.getElementById("toStep2");
+    toStep2Btn.addEventListener("click", () => {
+      // Se o usuário já está logado, não valida login/registro
+      if (!isLoggedIn) {
+        if (isLoginMode) {
+          // Validar apenas login
+          if (!isLoginComplete()) {
+            alert("Por favor, preencha E-mail e Senha de Login.");
+            return;
+          }
+        } else {
+          // Validar registro
+          if (!isRegistrationComplete()) {
+            alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
+            return;
+          }
+        }
+      }
+
+      // Verificar passageiros extras
+      if (!areAllExtraPassengersFilled()) {
+        alert("Por favor, preencha todos os campos dos passageiros extras.");
+        return;
+      }
+
+      // Se tudo certo, Step 2
+      showStep(2);
+    });
+
+    // A partir daqui, mantemos a lógica normal do multi-step
+
     let checkoutData = {
       mainPassenger: {
         firstName: "",
@@ -1109,19 +1230,13 @@
         state: "",
         cep: ""
       },
-      extraPassengers: [], // cada item pode ser um array de passageiros extras
-      insuranceSelected: "none", // "none", "30k" ou "80k"
+      extraPassengers: [],
+      insuranceSelected: "none",
       insuranceCost: 0
     };
 
-    const stepsMenu = document.getElementById("stepsMenu");
     const stepContents = document.querySelectorAll(".step-content");
-    const stepButtons = stepsMenu.querySelectorAll(".step");
-
-    const toStep2Btn = document.getElementById("toStep2");
-    const backToStep1Btn = document.getElementById("backToStep1");
-    const toStep3Btn = document.getElementById("toStep3");
-    const backToStep2Btn = document.getElementById("backToStep2");
+    const stepButtons = document.querySelectorAll(".steps-menu .step");
 
     function showStep(stepNumber) {
       stepContents.forEach(content => {
@@ -1137,6 +1252,32 @@
         }
       });
     }
+
+    // Botões Step 2 -> Step 3, etc.
+    const backToStep1Btn = document.getElementById("backToStep1");
+    const toStep3Btn = document.getElementById("toStep3");
+    const backToStep2Btn = document.getElementById("backToStep2");
+
+    backToStep1Btn?.addEventListener("click", () => showStep(1));
+
+    toStep3Btn.addEventListener("click", () => {
+      // Captura o seguro selecionado
+      const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
+      checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
+
+      if (checkoutData.insuranceSelected === "30k") {
+        checkoutData.insuranceCost = 112.81;
+      } else if (checkoutData.insuranceSelected === "80k") {
+        checkoutData.insuranceCost = 212.02;
+      } else {
+        checkoutData.insuranceCost = 0;
+      }
+      updateCheckoutCart(cartItems);
+      showStep(3);
+      initializePaymentMethod();
+    });
+
+    backToStep2Btn?.addEventListener("click", () => showStep(2));
 
     // Carrega itens do carrinho
     let cartItems = [];
@@ -1170,87 +1311,7 @@
       }
     }
 
-    /* Funções de Validação */
-    function isMainPassengerComplete() {
-      const mp = checkoutData.mainPassenger;
-      return (
-        mp.firstName &&
-        mp.lastName &&
-        mp.cpf &&
-        mp.rg &&
-        mp.birthdate &&
-        mp.celular &&
-        mp.email &&
-        mp.address &&
-        mp.number &&
-        mp.city &&
-        mp.state &&
-        mp.cep
-      );
-    }
-
-    function areAllExtraPassengersFilled() {
-      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
-        const item = checkoutData.extraPassengers[i];
-        if (!item) continue;
-        for (let p = 0; p < item.length; p++) {
-          const pass = item[p];
-          if (!pass.name || !pass.birthdate) {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    /* Steps Navigation */
-    toStep2Btn.addEventListener("click", () => {
-      // Armazena dados do passageiro principal
-      checkoutData.mainPassenger.firstName  = document.getElementById("firstName").value.trim();
-      checkoutData.mainPassenger.lastName   = document.getElementById("lastName").value.trim();
-      checkoutData.mainPassenger.cpf        = document.getElementById("cpf").value.trim();
-      checkoutData.mainPassenger.rg         = document.getElementById("rg").value.trim();
-      checkoutData.mainPassenger.birthdate  = document.getElementById("birthdate").value.trim();
-      checkoutData.mainPassenger.celular    = document.getElementById("celular").value.trim();
-      checkoutData.mainPassenger.email      = document.getElementById("email").value.trim();
-      checkoutData.mainPassenger.address    = document.getElementById("address").value.trim();
-      checkoutData.mainPassenger.number     = document.getElementById("number").value.trim();
-      checkoutData.mainPassenger.city       = document.getElementById("city").value.trim();
-      checkoutData.mainPassenger.state      = document.getElementById("state").value.trim();
-      checkoutData.mainPassenger.cep        = document.getElementById("cep").value.trim();
-
-      if (!isMainPassengerComplete()) {
-        alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
-        return;
-      }
-      if (!areAllExtraPassengersFilled()) {
-        alert("Por favor, preencha todos os campos dos passageiros extras.");
-        return;
-      }
-      showStep(2);
-    });
-
-    toStep3Btn.addEventListener("click", () => {
-      // Captura a opção de seguro selecionada
-      const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
-      checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-
-      if (checkoutData.insuranceSelected === "30k") {
-        checkoutData.insuranceCost = 112.81;
-      } else if (checkoutData.insuranceSelected === "80k") {
-        checkoutData.insuranceCost = 212.02;
-      } else {
-        checkoutData.insuranceCost = 0;
-      }
-      updateCheckoutCart(cartItems);
-      showStep(3);
-      initializePaymentMethod();
-    });
-
-    backToStep1Btn?.addEventListener("click", () => showStep(1));
-    backToStep2Btn?.addEventListener("click", () => showStep(2));
-
-    /* Atualiza o carrinho no lado direito */
+    // Função para atualizar carrinho no Step 1 (coluna direita)
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
@@ -1278,7 +1339,6 @@
       });
       // Soma o valor do seguro
       subtotal += checkoutData.insuranceCost;
-
       container.innerHTML = html;
       document.getElementById("subtotalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
@@ -1287,7 +1347,21 @@
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
 
-    /* MODAL PASSAGEIROS EXTRAS */
+    // Passageiros Extras
+    function areAllExtraPassengersFilled() {
+      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
+        const item = checkoutData.extraPassengers[i];
+        if (!item) continue;
+        for (let p = 0; p < item.length; p++) {
+          const pass = item[p];
+          if (!pass.name || !pass.birthdate) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
     const passengerModal = document.getElementById("passengerModal");
     const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
@@ -1295,7 +1369,6 @@
     const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const copyForAllBtn = document.getElementById("copyForAllBtn");
 
-    // Ajuste para re-popular os campos já salvos
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
 
@@ -1304,27 +1377,23 @@
         const extraCount = (item.adults || 1) - 1;
         if (extraCount > 0) {
           itemsWithExtras++;
-
           // Se ainda não existir um array para este itemIndex, crie
           if (!checkoutData.extraPassengers[itemIndex]) {
             checkoutData.extraPassengers[itemIndex] = [];
           }
-
           // Cria um box
           const itemDiv = document.createElement("div");
           itemDiv.classList.add("passenger-box");
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
 
           for (let i = 0; i < extraCount; i++) {
-            // Garante que exista um objeto para esse passageiro
+            // Garante que exista um objeto
             if (!checkoutData.extraPassengers[itemIndex][i]) {
               checkoutData.extraPassengers[itemIndex][i] = {
                 name: "",
                 birthdate: ""
               };
             }
-
-            // Recupera os valores já salvos
             const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
             const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
 
@@ -1359,8 +1428,6 @@
           modalPassengerContainer.appendChild(itemDiv);
         }
       });
-
-      // Exibe o botão "Copiar para todos" só se houver mais de um item com extras
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
@@ -1417,7 +1484,6 @@
       alert("Dados copiados para todos os itens compatíveis!");
     });
 
-    // Atualiza checkoutData ao digitar
     modalPassengerContainer.addEventListener("input", e => {
       const target = e.target;
       if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
@@ -1437,7 +1503,7 @@
       }
     });
 
-    /* Inicialização do Pagamento */
+    // Inicialização do pagamento
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
@@ -1697,73 +1763,22 @@
       return parseFloat(amount).toFixed(2);
     }
 
-    /* Ao carregar */
+    // Ao carregar a página
     window.addEventListener("load", () => {
       updateCheckoutCart(cartItems);
-      const isLoggedIn = !!localStorage.getItem("agentId");
-      const toggleLoginLink = document.getElementById("toggleLogin");
-      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-      const loginFields = document.getElementById("loginFields");
+
+      // Se o usuário estiver logado, podemos ocultar os campos de login/registro
       if (isLoggedIn) {
         toggleLoginLink.style.display = "none";
         registrationFieldsGeneral.style.display = "none";
         loginFields.style.display = "none";
-      } else {
-        toggleLoginLink.style.display = "block";
-        registrationFieldsGeneral.style.display = "block";
       }
     });
 
-    /* LOGIN/REGISTRO */
-    const toggleLogin = document.getElementById("toggleLogin");
-    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-    const loginFields = document.getElementById("loginFields");
-
-    if (toggleLogin) {
-      toggleLogin.addEventListener("click", e => {
-        e.preventDefault();
-        if (registrationFieldsGeneral.style.display !== "none") {
-          registrationFieldsGeneral.style.display = "none";
-          loginFields.style.display = "block";
-          toggleLogin.textContent = "Não tenho Login";
-        } else {
-          registrationFieldsGeneral.style.display = "block";
-          loginFields.style.display = "none";
-          toggleLogin.textContent = "Economize tempo fazendo Login";
-        }
-      });
-    }
-
-    const loginValidateBtn = document.getElementById("loginValidateBtn");
-    if (loginValidateBtn) {
-      loginValidateBtn.addEventListener("click", () => {
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
-        fetch("/api/users/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if(data.success) {
-            localStorage.setItem("agentId", data.user.id);
-            alert("Login efetuado com sucesso!");
-            toggleLogin.style.display = "none";
-            registrationFieldsGeneral.style.display = "none";
-            loginFields.style.display = "none";
-          } else {
-            alert("Erro no login: " + (data.error || "Dados inválidos."));
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Erro ao realizar o login. Tente novamente.");
-        });
-      });
-    }
-
-    /* Autopreenchimento do Endereço via CEP */
+    // Máscaras e CEP
+    document.getElementById("cep").addEventListener("blur", function() {
+      buscarCEP(this.value);
+    });
     function buscarCEP(cep) {
       cep = cep.replace(/\D/g, '');
       if (cep.length === 8) {
@@ -1783,15 +1798,9 @@
             console.error("Erro ao buscar CEP:", error);
             alert("Não foi possível consultar o CEP.");
           });
-      } else {
-        console.log("CEP inválido ou incompleto.");
       }
     }
-    document.getElementById("cep").addEventListener("blur", function() {
-      buscarCEP(this.value);
-    });
 
-    /* Máscaras para CPF e RG */
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
       if(value.length > 3) {
@@ -1819,7 +1828,7 @@
       e.target.value = value;
     });
 
-    /* Abertura dos modais de cobertura */
+    // Abertura dos modais de cobertura
     document.querySelectorAll('.open30kModal').forEach(el => {
       el.addEventListener('click', function(e) {
         e.preventDefault();
