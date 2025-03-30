@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <title>Checkout</title>
 
-  <!-- Braintree Scripts -->
+  <!-- Braintree Scripts (sem Google Pay) -->
   <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
   <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
   <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
   <script src="https://js.braintreegateway.com/web/3.94.0/js/paypal-checkout.min.js"></script>
-  <script src="https://js.braintreegateway.com/web/3.94.0/js/google-payment.min.js"></script>
 
   <style>
     /* ===== FONT & RESET ===== */
@@ -107,7 +106,7 @@
       font-size: 0.75rem; color: #888; margin-top: 1rem;
     }
 
-    /* ===== BOTÕES ===== */
+    /* ===== BOTÕES GERAIS ===== */
     .btn-save-passenger, .btn-pay-pal {
       background: #007aff; color: #fff; border: none; border-radius: 4px;
       padding: 0.75rem 1.5rem; font-size: 0.9rem; cursor: pointer;
@@ -182,9 +181,17 @@
     #checkout-form button.btn-pay-pal {
       margin-top: 1rem; width: 100%; font-weight: 600;
     }
-    #paypal-container, #google-pay-container {
+    #paypal-container {
       margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
+      border-radius: 8px; padding: 1rem; display: none;
+    }
+
+    /* ===== PIX & BOLETO CONTAINERS ===== */
+    #pix-container, #boleto-container {
+      margin-top: 1rem;
+      background: #fafafa; border: 1px solid #ddd;
       border-radius: 8px; padding: 1rem;
+      display: none;
     }
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
@@ -236,7 +243,7 @@
     .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table th,
     .comparison-table td {
-      padding: 1rem; /* Aumentamos para melhorar o espaçamento */
+      padding: 1rem;
       border-bottom: 1px solid #eee;
       font-size: 0.85rem; vertical-align: middle;
     }
@@ -247,7 +254,7 @@
       border-top: 2px solid #ddd; font-weight: 600; padding: 1rem;
     }
     .comparison-table td:first-child {
-      text-align: left; /* "Itens" fica alinhado à esquerda */
+      text-align: left;
       font-weight: 500;
     }
     .comparison-table input[type="radio"] {
@@ -283,6 +290,35 @@
     }
     .coverage-table td {
       color: #555;
+    }
+
+    /* ===== BOTÕES DE OPÇÕES DE PAGAMENTO (melhorados) ===== */
+    .payment-method-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .payment-method-options input[type="radio"] {
+      display: none;
+    }
+    .payment-method-options label {
+      display: inline-block;
+      background: #fff;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .payment-method-options label:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    .payment-method-options input[type="radio"]:checked + label {
+      background: #007aff;
+      color: #fff;
+      border-color: #007aff;
     }
 
   </style>
@@ -527,16 +563,23 @@
           <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
           <div class="form-field">
             <label>Método de Pagamento</label>
-            <div>
+            <div class="payment-method-options">
               <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
               <label for="methodCard">Cartão de Crédito</label>
+
               <input type="radio" id="methodPayPal" name="paymentMethod" value="paypal" />
               <label for="methodPayPal">PayPal</label>
-              <input type="radio" id="methodGooglePay" name="paymentMethod" value="googlePay" />
-              <label for="methodGooglePay">Google Pay</label>
+
+              <input type="radio" id="methodPix" name="paymentMethod" value="pix" />
+              <label for="methodPix">Pix</label>
+
+              <input type="radio" id="methodBoleto" name="paymentMethod" value="boleto" />
+              <label for="methodBoleto">Boleto</label>
             </div>
           </div>
-          <div id="card-container" style="display:block;">
+
+          <!-- Container Cartão -->
+          <div id="card-container">
             <div class="form-field">
               <label>Parcelas</label>
               <select id="installments">
@@ -570,12 +613,24 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
-          <div id="paypal-container" style="display:none;">
+
+          <!-- Container PayPal -->
+          <div id="paypal-container">
             <div id="paypal-button-container"></div>
           </div>
-          <div id="google-pay-container" style="display:none;">
-            <div id="google-pay-button-container"></div>
+
+          <!-- Container Pix -->
+          <div id="pix-container">
+            <p>Após finalizar, será gerado um QR Code para pagamento via Pix.</p>
+            <button class="btn-pay-pal" id="pixPaymentBtn">Gerar Pix</button>
           </div>
+
+          <!-- Container Boleto -->
+          <div id="boleto-container">
+            <p>Após finalizar, será gerado um boleto bancário.</p>
+            <button class="btn-pay-pal" id="boletoPaymentBtn">Gerar Boleto</button>
+          </div>
+
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
           </div>
@@ -623,7 +678,7 @@
     © 2025 - Airland
   </footer>
 
-    <!-- (Opcional) Shopping Cart oculto -->
+  <!-- (Opcional) Shopping Cart oculto -->
   <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
   <!-- MODAL: Detalhes do Plano Essencial -->
@@ -902,6 +957,7 @@
       if (savedCart) {
         cartItems = JSON.parse(savedCart);
       } else {
+        // Exemplo de itens de carrinho (mock)
         cartItems = [
           {
             hotelName: "Courtyard By Marriott Miami Downtown",
@@ -1092,24 +1148,39 @@
       }
     });
 
-    // Inicialização do pagamento
+    // Inicialização do método de pagamento
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+      // Esconde todos os containers
       document.getElementById("card-container").style.display = "none";
       document.getElementById("paypal-container").style.display = "none";
-      document.getElementById("google-pay-container").style.display = "none";
+      document.getElementById("pix-container").style.display = "none";
+      document.getElementById("boleto-container").style.display = "none";
 
+      // Mostra apenas o container do método selecionado
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
         initializeBraintree();
       } else if (method === "paypal") {
         document.getElementById("paypal-container").style.display = "block";
         initializePayPal();
-      } else if (method === "googlePay") {
-        document.getElementById("google-pay-container").style.display = "block";
-        initializeGooglePay();
+      } else if (method === "pix") {
+        document.getElementById("pix-container").style.display = "block";
+      } else if (method === "boleto") {
+        document.getElementById("boleto-container").style.display = "block";
       }
     }
+
+    // Simulação de clique em Pix ou Boleto
+    document.getElementById("pixPaymentBtn").addEventListener("click", () => {
+      alert("Pagamento via Pix (simulado). Obrigado pela compra!");
+      showStep(4);
+    });
+    document.getElementById("boletoPaymentBtn").addEventListener("click", () => {
+      alert("Boleto gerado (simulado). Obrigado pela compra!");
+      showStep(4);
+    });
 
     async function initializeBraintree() {
       const res = await fetch("/api/braintree/get-client-token");
@@ -1236,58 +1307,6 @@
         })
         .catch(err => {
           console.error("Erro ao obter client token para PayPal:", err);
-        });
-    }
-
-    function initializeGooglePay() {
-      fetch("/api/braintree/get-client-token")
-        .then(res => res.json())
-        .then(data => {
-          const clientToken = data.clientToken;
-          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-            if (clientErr) {
-              console.error("Erro ao criar client Google Pay:", clientErr);
-              alert("Erro na inicialização do Google Pay.");
-              return;
-            }
-            braintree.googlePayment.create(
-              {
-                client: clientInstance,
-                googlePayVersion: 2,
-                googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
-              },
-              (err, googlePaymentInstance) => {
-                if (err) {
-                  console.error("Erro ao criar Google Pay:", err);
-                  alert("Erro na inicialização do Google Pay.");
-                  return;
-                }
-                const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
-                  transactionInfo: {
-                    totalPriceStatus: "FINAL",
-                    totalPrice: getOrderAmount(),
-                    currencyCode: "BRL"
-                  }
-                });
-                const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
-                paymentsClient
-                  .loadPaymentData(paymentDataRequest)
-                  .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
-                  .then(payload => {
-                    processPayment(payload.nonce, "googlePay");
-                  })
-                  .catch(err => {
-                    console.error("Erro no Google Pay:", err);
-                    alert("Erro no pagamento com Google Pay.");
-                  });
-                const button = paymentsClient.createButton({ onClick: () => {} });
-                document.getElementById("google-pay-button-container").appendChild(button);
-              }
-            );
-          });
-        })
-        .catch(err => {
-          console.error("Erro ao obter client token para Google Pay:", err);
         });
     }
 
