@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <title>Checkout</title>
 
+  <!-- Inclusão da Header Modular -->
+  <script src="header-component.js"></script>
+
   <!-- Braintree Scripts (exceto Google Pay) -->
   <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
   <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
@@ -13,28 +16,27 @@
   <style>
     /* ===== FONT & RESET ===== */
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
-    html {
-      scroll-behavior: smooth;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: "Montserrat", sans-serif;
       font-weight: 400;
       color: #5d657b;
       background: #f1f5f9;
     }
-    input, select, textarea {
-      font-family: "Montserrat", sans-serif;
-    }
+    input, select, textarea { font-family: "Montserrat", sans-serif; }
     a:focus, input:focus, textarea:focus, button:focus {
       outline: none; box-shadow: none;
     }
-    button, a {
-      transition: all 0.3s ease-out;
-      cursor: pointer;
+    button, a { transition: all 0.3s ease-out; cursor: pointer; }
+
+    /* ===== HEADER (Modular) ===== */
+    header {
+      background: #365cf5;
+      padding: 10px 20px;
+      color: #fff;
     }
+    /* Você pode personalizar o header conforme necessário via header-component.js ou CSS adicional */
 
     /* ===== STEPS MENU ===== */
     .steps-menu {
@@ -56,15 +58,11 @@
       display: flex; align-items: center; justify-content: center;
       font-weight: 700;
     }
-    .steps-menu .separator {
-      color: #fff; font-weight: bold;
-    }
+    .steps-menu .separator { color: #fff; font-weight: bold; }
     .steps-menu .step.active .circle {
       background-color: #fff; color: #365cf5; border: 2px solid #fff;
     }
-    .steps-menu .step.disabled {
-      opacity: 0.6; cursor: not-allowed;
-    }
+    .steps-menu .step.disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ===== MAIN LAYOUT ===== */
     .main-container {
@@ -99,12 +97,8 @@
     .form-field input, .form-field select {
       font-size: 0.85rem; padding: 0.6rem; border: 1px solid #eee; border-radius: 4px;
     }
-    .form-field input:focus, .form-field select:focus {
-      border-color: #007aff;
-    }
-    .form-note {
-      font-size: 0.75rem; color: #888; margin-top: 1rem;
-    }
+    .form-field input:focus, .form-field select:focus { border-color: #007aff; }
+    .form-note { font-size: 0.75rem; color: #888; margin-top: 1rem; }
 
     /* ===== BOTÕES GERAIS ===== */
     .btn-save-passenger, .btn-pay-pal {
@@ -114,9 +108,7 @@
     .btn-save-passenger:hover, .btn-pay-pal:hover {
       background: #005dbf; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
-    .navigation {
-      margin-top: 1rem; text-align: right;
-    }
+    .navigation { margin-top: 1rem; text-align: right; }
 
     /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
     .reservation-gifts-card {
@@ -128,25 +120,15 @@
       padding: 0.75rem 0; border-bottom: 1px solid #eee; margin-bottom: 0.75rem;
       align-items: center;
     }
-    .reserva-item:last-child {
-      border-bottom: none; margin-bottom: 0;
-    }
+    .reserva-item:last-child { border-bottom: none; margin-bottom: 0; }
     .reserva-left { display: flex; flex-direction: column; gap: 0.25rem; }
-    .reserva-left .categoria {
-      font-size: 0.85rem; font-weight: 600; color: #007aff;
-    }
-    .reserva-left .nome {
-      font-size: 0.85rem; color: #333;
-    }
-    .reserva-left .subinfo {
-      font-size: 0.8rem; color: #888;
-    }
+    .reserva-left .categoria { font-size: 0.85rem; font-weight: 600; color: #007aff; }
+    .reserva-left .nome { font-size: 0.85rem; color: #333; }
+    .reserva-left .subinfo { font-size: 0.8rem; color: #888; }
     .reserva-preco {
       font-size: 1rem; font-weight: 700; color: #00c853; text-align: right;
     }
-    .reserva-details p {
-      font-size: 0.8rem; margin: 2px 0; color: #555;
-    }
+    .reserva-details p { font-size: 0.8rem; margin: 2px 0; color: #555; }
     .resumo-compra {
       margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;
     }
@@ -184,6 +166,13 @@
     #paypal-container, #pix-container, #boleto-container {
       margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
       border-radius: 8px; padding: 1rem; display: none;
+    }
+
+    /* Flag de desconto para Pix */
+    .pix-discount-flag {
+      color: #00c853;
+      font-weight: bold;
+      margin-bottom: 1rem;
     }
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
@@ -274,9 +263,7 @@
       gap: 1rem;
       margin-top: 0.5rem;
     }
-    .payment-method-options input[type="radio"] {
-      display: none;
-    }
+    .payment-method-options input[type="radio"] { display: none; }
     .payment-method-options label {
       display: inline-block;
       background: #fff;
@@ -287,9 +274,7 @@
       font-weight: 500;
       transition: all 0.3s ease;
     }
-    .payment-method-options label:hover {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
+    .payment-method-options label:hover { box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); }
     .payment-method-options input[type="radio"]:checked + label {
       background: #007aff;
       color: #fff;
@@ -298,6 +283,11 @@
   </style>
 </head>
 <body>
+  <!-- HEADER -->
+  <header>
+    <div id="headerContainer"></div>
+  </header>
+
   <!-- STEPS MENU -->
   <div class="steps-menu" id="stepsMenu">
     <div class="step active" data-step="1">
@@ -593,9 +583,10 @@
             <div id="paypal-button-container"></div>
           </div>
 
-          <!-- Container Pix -->
+          <!-- Container Pix com flag de desconto -->
           <div id="pix-container">
             <p>Após finalizar, será gerado um QR Code para pagamento via Pix.</p>
+            <p class="pix-discount-flag">Economize 5% no valor total pagando com Pix!</p>
             <button class="btn-pay-pal" id="pixPaymentBtn">Gerar Pix</button>
           </div>
 
@@ -922,37 +913,7 @@
 
     backToStep2Btn?.addEventListener("click", () => showStep(2));
 
-    let cartItems = [];
-    const cartElement = document.getElementById("shoppingCart");
-    if (cartElement && cartElement.items && cartElement.items.length > 0) {
-      cartItems = cartElement.items;
-    } else {
-      const savedCart = localStorage.getItem("cartItems");
-      if (savedCart) {
-        cartItems = JSON.parse(savedCart);
-      } else {
-        // Exemplo de itens de carrinho (mock)
-        cartItems = [
-          {
-            hotelName: "Courtyard By Marriott Miami Downtown",
-            adults: 2,
-            children: 1,
-            basePriceAdult: 100,
-            checkIn: "2025-04-16",
-            checkOut: "2025-04-18"
-          },
-          {
-            hotelName: "Courtyard By Marriott Miami Downtown",
-            adults: 2,
-            children: 0,
-            basePriceAdult: 150,
-            checkIn: "2025-04-10",
-            checkOut: "2025-04-12"
-          }
-        ];
-      }
-    }
-
+    // Atualiza o resumo do carrinho, aplicando 5% de desconto se o método for Pix
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
@@ -979,13 +940,31 @@
         `;
       });
       subtotal += checkoutData.insuranceCost;
+
+      // Verifica se o método selecionado é Pix para aplicar desconto
+      let discount = 0;
+      const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked') ? document.querySelector('input[name="paymentMethod"]:checked').value : "";
+      if(selectedMethod === "pix") {
+        discount = subtotal * 0.05;
+      }
+      const total = subtotal - discount;
+
       container.innerHTML = html;
       document.getElementById("subtotalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("discountValue").textContent =
+        "- R$ " + discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
       document.getElementById("totalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+        "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
+
+    // Atualiza o resumo do carrinho ao mudar o método de pagamento
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+      input.addEventListener("change", () => {
+        updateCheckoutCart(cartItems);
+        initializePaymentMethod();
+      });
+    });
 
     function areAllExtraPassengersFilled() {
       for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
@@ -1214,9 +1193,7 @@
                         nonce: payload.nonce,
                         amount: amount,
                         bin: payload.details.bin,
-                        onLookupComplete: (data, next) => {
-                          next();
-                        }
+                        onLookupComplete: (data, next) => { next(); }
                       },
                       (verifyErr, threeDSecurePayload) => {
                         if (verifyErr) {
@@ -1381,28 +1358,16 @@
 
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 3) {
-        value = value.replace(/^(\d{3})(\d)/, '$1.$2');
-      }
-      if(value.length > 6) {
-        value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-      }
-      if(value.length > 9) {
-        value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
-      }
+      if(value.length > 3) { value = value.replace(/^(\d{3})(\d)/, '$1.$2'); }
+      if(value.length > 6) { value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3'); }
+      if(value.length > 9) { value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4'); }
       e.target.value = value;
     });
     document.getElementById("rg").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 2) {
-        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-      }
-      if(value.length > 5) {
-        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-      }
-      if(value.length > 7) {
-        value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
-      }
+      if(value.length > 2) { value = value.replace(/^(\d{2})(\d)/, '$1.$2'); }
+      if(value.length > 5) { value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3'); }
+      if(value.length > 7) { value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4'); }
       e.target.value = value;
     });
 
