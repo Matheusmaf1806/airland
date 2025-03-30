@@ -1157,30 +1157,46 @@
 
     /* Steps Navigation */
     toStep2Btn.addEventListener("click", () => {
-      // Verifica se todos os campos obrigatórios do Step 1 foram preenchidos
-      if (!document.getElementById("firstName").value ||
+      // Verifica se o usuário já está logado
+      const isLoggedIn = !!localStorage.getItem("agentId");
+
+      // Se não estiver logado, valida os campos de registro
+      if (!isLoggedIn) {
+        if (
+          !document.getElementById("firstName").value ||
           !document.getElementById("lastName").value ||
-          !document.getElementById("cpf").value ||
-          !document.getElementById("rg").value ||
-          !document.getElementById("birthdate").value ||
-          !document.getElementById("cep").value ||
-          !document.getElementById("state").value ||
-          !document.getElementById("city").value ||
-          !document.getElementById("address").value ||
-          !document.getElementById("number").value ||
           !document.getElementById("celular").value ||
-          !document.getElementById("email").value
+          !document.getElementById("email").value ||
+          !document.getElementById("password").value ||
+          !document.getElementById("confirmPassword").value
+        ) {
+          alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+          return;
+        }
+        // Armazena os dados do registro
+        checkoutData.firstName = document.getElementById("firstName").value;
+        checkoutData.lastName = document.getElementById("lastName").value;
+        checkoutData.celular = document.getElementById("celular").value;
+        checkoutData.email = document.getElementById("email").value;
+        checkoutData.password = document.getElementById("password").value;
+        checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
+      }
+
+      // Em todos os casos, os campos de documentos e endereço devem ser preenchidos
+      if (
+        !document.getElementById("cpf").value ||
+        !document.getElementById("rg").value ||
+        !document.getElementById("birthdate").value ||
+        !document.getElementById("cep").value ||
+        !document.getElementById("state").value ||
+        !document.getElementById("city").value ||
+        !document.getElementById("address").value ||
+        !document.getElementById("number").value
       ) {
         alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
         return;
       }
-      // Coleta dados do passageiro principal
-      checkoutData.firstName = document.getElementById("firstName").value;
-      checkoutData.lastName = document.getElementById("lastName").value;
-      checkoutData.celular = document.getElementById("celular").value;
-      checkoutData.email = document.getElementById("email").value;
-      checkoutData.password = document.getElementById("password").value;
-      checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
+      
       checkoutData.cpf = document.getElementById("cpf").value;
       checkoutData.rg = document.getElementById("rg").value;
       checkoutData.birthdate = document.getElementById("birthdate").value;
@@ -1189,6 +1205,7 @@
       checkoutData.city = document.getElementById("city").value;
       checkoutData.address = document.getElementById("address").value;
       checkoutData.number = document.getElementById("number").value;
+
       showStep(2);
     });
 
