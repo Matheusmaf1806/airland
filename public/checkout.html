@@ -1172,9 +1172,27 @@
         initializeMalgaPix();
       } else if (method === "boleto") {
         document.getElementById("boleto-container").style.display = "block";
-        initializeMalgaBoleto();
+        // Se preferir gerar automaticamente o boleto, descomente a linha abaixo:
+        // initializeMalgaBoleto();
       }
     }
+
+    // Adiciona listeners para mudança do método de pagamento e para o botão de gerar boleto
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          initializePaymentMethod();
+        });
+      });
+
+      const generateBoletoBtn = document.getElementById("generate-boleto-btn");
+      if (generateBoletoBtn) {
+        generateBoletoBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          initializeMalgaBoleto();
+        });
+      }
+    });
 
     async function initializeMalgaCard() {
       const res = await fetch("/api/malga/get-client-token");
@@ -1510,190 +1528,6 @@
         }
       });
     });
-
-    /* ===================== INTEGRAÇÃO COM MALGA (Cartão, Pix, Boleto) ===================== */
-    // As funções abaixo são adaptações para usar o Malga em substituição aos métodos do PayPal/Google Pay
-
-    async function initializeMalgaCard() {
-      const res = await fetch("/api/malga/get-client-token");
-      const data = await res.json();
-      const clientToken = data.clientToken;
-
-      Malga.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-        if (clientErr) {
-          console.error("Erro ao criar o client Malga:", clientErr);
-          alert("Erro na inicialização do pagamento com Malga.");
-          return;
-        }
-        Malga.threeDSecure.create({ version: 2, client: clientInstance }, (threeDSErr, threeDSecureInstance) => {
-          if (threeDSErr) {
-            console.error("Erro ao criar 3D Secure do Malga:", threeDSErr);
-            alert("Erro na inicialização do 3D Secure Malga.");
-            return;
-          }
-          Malga.hostedFields.create({
-            client: clientInstance,
-            styles: {
-              input: { "font-size": "16px", color: "#333" },
-              "input.invalid": { color: "red" },
-              "input.valid": { color: "green" }
-            },
-            fields: {
-              number: { selector: "#card-number", placeholder: "Número do Cartão" },
-              cvv: { selector: "#cvv", placeholder: "CVV" },
-              expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
-            }
-          }, (hostedFieldsErr, hostedFieldsInstance) => {
-            if (hostedFieldsErr) {
-              console.error("Erro ao criar Hosted Fields do Malga:", hostedFieldsErr);
-              alert("Erro ao configurar os campos de pagamento.");
-              return;
-            }
-            const form = document.getElementById("checkout-form");
-            form.addEventListener("submit", (evt) => {
-              evt.preventDefault();
-              hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-                if (tokenizeErr) {
-                  console.error("Erro ao tokenizar cartão com Malga:", tokenizeErr);
-                  alert("Erro ao processar dados do cartão.");
-                  return;
-                }
-                const amount = getOrderAmount();
-                if (!payload.details || !payload.details.bin) {
-                  alert("Erro: BIN do cartão não disponível. Digite novamente.");
-                  return;
-                }
-                threeDSecureInstance.verifyCard({
-                  nonce: payload.nonce,
-                  amount: amount,
-                  bin: payload.details.bin,
-                  onLookupComplete: (data, next) => {
-                    next();
-                  }
-                }, (verifyErr, threeDSecurePayload) => {
-                  if (verifyErr) {
-                    console.error("Erro na verificação 3D Secure do Malga:", verifyErr);
-                    alert("Erro na verificação 3D Secure.");
-                    return;
-                  }
-                  processPayment(threeDSecurePayload.nonce, "card");
-                });
-              });
-            });
-          });
-        });
-      });
-    }
-
-    async function initializeMalgaPix() {
-      try {
-        const res = await fetch("/api/malga/create-pix-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: getOrderAmount(),
-            customer: {
-              firstName: checkoutData.firstName,
-              lastName: checkoutData.lastName,
-              email: checkoutData.email,
-              phone: checkoutData.celular
-            }
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("pix-qr-code").innerHTML = `<img src="${data.qrCode}" alt="QR Code Pix" />`;
-        } else {
-          alert("Erro ao gerar o QR Code do Pix: " + data.message);
-        }
-      } catch (error) {
-        console.error("Erro ao gerar Pix:", error);
-        alert("Erro ao gerar o QR Code do Pix.");
-      }
-    }
-
-    async function initializeMalgaBoleto() {
-      try {
-        const res = await fetch("/api/malga/create-boleto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: getOrderAmount(),
-            customer: {
-              firstName: checkoutData.firstName,
-              lastName: checkoutData.lastName,
-              email: checkoutData.email,
-              phone: checkoutData.celular
-            }
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("boleto-info").innerHTML = `<p>Boleto gerado com sucesso! <a href="${data.boletoUrl}" target="_blank">Clique aqui para visualizar</a></p>`;
-        } else {
-          alert("Erro ao gerar boleto: " + data.message);
-        }
-      } catch (error) {
-        console.error("Erro ao gerar boleto:", error);
-        alert("Erro ao gerar boleto.");
-      }
-    }
-
-    async function processPayment(nonce, method = "card") {
-      let totalText = document.getElementById("totalValue").textContent;
-      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-      amount = parseFloat(amount).toFixed(2);
-
-      let installments = "1";
-      if (method === "card") {
-        const installmentsSelect = document.getElementById("installments");
-        if (installmentsSelect) {
-          installments = installmentsSelect.value;
-        }
-      }
-
-      const body = {
-        paymentMethodNonce: nonce,
-        amount: amount,
-        installments: installments,
-        customer: {
-          firstName: checkoutData.firstName,
-          lastName: checkoutData.lastName,
-          email: checkoutData.email,
-          phone: checkoutData.celular
-        },
-        billing: {
-          streetAddress: checkoutData.address,
-          extendedAddress: checkoutData.number,
-          locality: checkoutData.city,
-          region: checkoutData.state,
-          postalCode: checkoutData.cep,
-          countryCodeAlpha2: "BR"
-        },
-        extraPassengers: checkoutData.extraPassengers,
-        insuranceSelected: checkoutData.insuranceSelected
-      };
-
-      try {
-        const res = await fetch("/api/malga/create-transaction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
-          showStep(4);
-        } else {
-          alert("Falha no pagamento: " + result.message);
-        }
-      } catch (error) {
-        console.error("Erro ao processar o pagamento:", error);
-        alert("Erro ao processar o pagamento. Tente novamente.");
-      }
-    }
-
-    /* ===================== FIM DA INTEGRAÇÃO COM MALGA ===================== */
   </script>
 </body>
 </html>
