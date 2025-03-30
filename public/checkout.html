@@ -36,7 +36,7 @@
       padding: 10px 20px;
       color: #fff;
     }
-    /* Você pode personalizar o header conforme necessário via header-component.js ou CSS adicional */
+    /* O header será montado pelo header-component.js */
 
     /* ===== STEPS MENU ===== */
     .steps-menu {
@@ -167,7 +167,6 @@
       margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
       border-radius: 8px; padding: 1rem; display: none;
     }
-
     /* Flag de desconto para Pix */
     .pix-discount-flag {
       color: #00c853;
@@ -738,7 +737,7 @@
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
        LOGIN/REGISTRO, CEP, MÁSCARAS, E BRAINTREE
-       ============================================= */
+    ============================================= */
 
     // Controle de login/registro
     let isLoginMode = false;
@@ -798,10 +797,7 @@
     function isLoginComplete() {
       const loginEmail = document.getElementById("loginEmail").value.trim();
       const loginPassword = document.getElementById("loginPassword").value.trim();
-      if (!loginEmail || !loginPassword) {
-        return false;
-      }
-      return true;
+      return (loginEmail && loginPassword);
     }
 
     const loginValidateBtn = document.getElementById("loginValidateBtn");
@@ -850,7 +846,7 @@
       showStep(2);
     });
 
-    // Define a estrutura principal de dados
+    // Estrutura principal de dados
     let checkoutData = {
       mainPassenger: {
         firstName: "",
@@ -893,7 +889,8 @@
     const toStep3Btn = document.getElementById("toStep3");
     const backToStep2Btn = document.getElementById("backToStep2");
 
-    backToStep1Btn?.addEventListener("click", () => showStep(1));
+    if (backToStep1Btn) backToStep1Btn.addEventListener("click", () => showStep(1));
+    if (backToStep2Btn) backToStep2Btn.addEventListener("click", () => showStep(2));
 
     toStep3Btn.addEventListener("click", () => {
       const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
@@ -911,9 +908,7 @@
       initializePaymentMethod();
     });
 
-    backToStep2Btn?.addEventListener("click", () => showStep(2));
-
-    // Atualiza o resumo do carrinho, aplicando 5% de desconto se o método for Pix
+    // Função que atualiza o resumo do carrinho (aplicando 5% de desconto se o método for Pix)
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
@@ -941,10 +936,11 @@
       });
       subtotal += checkoutData.insuranceCost;
 
-      // Verifica se o método selecionado é Pix para aplicar desconto
+      // Se o método selecionado for Pix, aplica 5% de desconto
       let discount = 0;
-      const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked') ? document.querySelector('input[name="paymentMethod"]:checked').value : "";
-      if(selectedMethod === "pix") {
+      const selectedMethodEl = document.querySelector('input[name="paymentMethod"]:checked');
+      const selectedMethod = selectedMethodEl ? selectedMethodEl.value : "";
+      if (selectedMethod === "pix") {
         discount = subtotal * 0.05;
       }
       const total = subtotal - discount;
@@ -958,7 +954,7 @@
         "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
 
-    // Atualiza o resumo do carrinho ao mudar o método de pagamento
+    // Atualiza o resumo ao alterar o método de pagamento
     document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
       input.addEventListener("change", () => {
         updateCheckoutCart(cartItems);
@@ -978,6 +974,37 @@
         }
       }
       return true;
+    }
+
+    let cartItems = [];
+    const cartElement = document.getElementById("shoppingCart");
+    if (cartElement && cartElement.items && cartElement.items.length > 0) {
+      cartItems = cartElement.items;
+    } else {
+      const savedCart = localStorage.getItem("cartItems");
+      if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+      } else {
+        // Exemplo de itens de carrinho (mock)
+        cartItems = [
+          {
+            hotelName: "Courtyard By Marriott Miami Downtown",
+            adults: 2,
+            children: 1,
+            basePriceAdult: 100,
+            checkIn: "2025-04-16",
+            checkOut: "2025-04-18"
+          },
+          {
+            hotelName: "Courtyard By Marriott Miami Downtown",
+            adults: 2,
+            children: 0,
+            basePriceAdult: 150,
+            checkIn: "2025-04-10",
+            checkOut: "2025-04-12"
+          }
+        ];
+      }
     }
 
     const passengerModal = document.getElementById("passengerModal");
@@ -1002,10 +1029,7 @@
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
           for (let i = 0; i < extraCount; i++) {
             if (!checkoutData.extraPassengers[itemIndex][i]) {
-              checkoutData.extraPassengers[itemIndex][i] = {
-                name: "",
-                birthdate: ""
-              };
+              checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
             }
             const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
             const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
@@ -1111,7 +1135,7 @@
       document.getElementById("pix-container").style.display = "none";
       document.getElementById("boleto-container").style.display = "none";
 
-      // Mostra apenas o container do método selecionado
+      // Mostra o container correspondente
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
         initializeBraintree();
