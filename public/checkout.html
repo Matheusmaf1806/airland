@@ -167,9 +167,7 @@
       padding: 0 8px;
       transition: border-color 0.3s;
     }
-    #card-number:focus-within, #expiration-date:focus-within, #cvv:focus-within {
-      border-color: #007aff;
-    }
+    #card-number:focus-within, #expiration-date:focus-within, #cvv:focus-within { border-color: #007aff; }
     #installments {
       width: 100%;
       border: 1px solid #ccc;
@@ -177,11 +175,7 @@
       padding: 0.4rem;
       margin-top: 0.2rem;
     }
-    #checkout-form button.btn-pay-pal {
-      margin-top: 1rem;
-      width: 100%;
-      font-weight: 600;
-    }
+    #checkout-form button.btn-pay-pal { margin-top: 1rem; width: 100%; font-weight: 600; }
     #paypal-container, #google-pay-container {
       margin-top: 1rem;
       background: #fafafa;
@@ -239,17 +233,8 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .modal-content h3 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-    .modal-subtitle {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
+    .modal-content h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: #333; }
+    .modal-subtitle { font-size: 0.9rem; color: #555; margin-bottom: 1.5rem; line-height: 1.4; }
     .passenger-box {
       background: #fff;
       border: 1px solid #ddd;
@@ -258,24 +243,16 @@
       margin-bottom: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .passenger-box h4 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
+    .passenger-box h4 { font-size: 1rem; margin-bottom: 0.5rem; color: #333; }
     .fields-grid-2cols-modal {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
       margin-bottom: 1rem;
     }
-    .copy-for-all-btn {
-      background: #365cf5;
-      color: #fff;
-      margin-right: 1rem;
-    }
+    .copy-for-all-btn { background: #365cf5; color: #fff; margin-right: 1rem; }
     
-    /* ===== DRÁSTICA MELHORIA NO STEP 2 (TABELA DE COMPARAÇÃO) ===== */
+    /* ===== STEP 2: TABELA DE COMPARAÇÃO (REFERÊNCIA AIRHELP PLUS) ===== */
     .comparison-header h2 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
@@ -292,9 +269,7 @@
       text-decoration: none;
       font-weight: 500;
     }
-    .comparison-header p a:hover {
-      text-decoration: underline;
-    }
+    .comparison-header p a:hover { text-decoration: underline; }
     .plans-comparison {
       width: 100%;
       overflow-x: auto;
@@ -315,9 +290,7 @@
       font-size: 0.85rem;
       vertical-align: middle;
     }
-    .comparison-table thead tr {
-      background: #fdfdfd;
-    }
+    .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table thead th {
       font-weight: 600;
       font-size: 0.9rem;
@@ -349,19 +322,10 @@
       transform: scale(1.2);
       cursor: pointer;
     }
-    .check {
-      color: #00c853;
-      font-weight: 700;
-    }
-    .x {
-      color: #d32f2f;
-      font-weight: 700;
-    }
-    .price {
-      font-size: 1rem;
-      color: #333;
-      font-weight: 700;
-    }
+    .check { color: #00c853; font-weight: 700; }
+    .x { color: #d32f2f; font-weight: 700; }
+    .price { font-size: 1rem; color: #333; font-weight: 700; }
+    
   </style>
 </head>
 <body>
@@ -392,16 +356,16 @@
   
   <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA (Steps) -->
+    <!-- COLUNA ESQUERDA: Steps -->
     <div class="left-col">
-      <!-- STEP 1: Passageiro Principal e Dados Pessoais -->
+      <!-- STEP 1: Passageiro Principal -->
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
-          <!-- LOGIN FIELDS (ocultos) -->
+          <!-- LOGIN FIELDS (ocultos por padrão) -->
           <div id="loginFields" style="display: none;">
             <div class="fields-grid-2cols">
               <div class="form-field">
@@ -417,7 +381,7 @@
               <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
             </div>
           </div>
-          <!-- REGISTRATION FIELDS (padrão) -->
+          <!-- REGISTRATION FIELDS (visíveis por padrão) -->
           <div id="registrationFieldsGeneral">
             <div class="fields-grid-2cols">
               <div class="form-field">
@@ -491,14 +455,14 @@
               </div>
             </div>
           </div>
-          <!-- BOTÃO PARA PASSAGEIROS EXTRAS -->
+          <!-- BOTÃO PARA ABRIR MODAL DE PASSAGEIROS EXTRAS -->
           <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
           <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
           <div class="navigation">
             <button class="btn-save-passenger" id="toStep2">Próximo</button>
           </div>
         </div>
-        <!-- MODAL PARA PASSAGEIROS EXTRAS -->
+        <!-- MODAL DE PASSAGEIROS EXTRAS -->
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
@@ -515,13 +479,14 @@
         </div>
       </div>
       
-      <!-- STEP 2: Detalhes Adicionais – Tabela de Comparação (Referência Anexo) -->
+      <!-- STEP 2: DETALHES ADICIONAIS – TABELA DE COMPARAÇÃO -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <div class="comparison-header">
             <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
             <p>
-              Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. Conheça os planos disponíveis e escolha o melhor para você. <a href="#">Saiba mais</a>
+              Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. Conheça os planos disponíveis e escolha o melhor para você.
+              <a href="#">Saiba mais</a>
             </p>
           </div>
           <div class="plans-comparison">
@@ -575,7 +540,7 @@
         </div>
       </div>
       
-      <!-- STEP 3: Pagamento -->
+      <!-- STEP 3: PAGAMENTO -->
       <div class="step-content" data-step="3">
         <div class="card-style-1">
           <h2>Pagamento</h2>
@@ -637,7 +602,7 @@
         </div>
       </div>
       
-      <!-- STEP 4: Confirmação -->
+      <!-- STEP 4: CONFIRMAÇÃO -->
       <div class="step-content" data-step="4">
         <div class="card-style-1">
           <h2>Pagamento Concluído</h2>
@@ -647,7 +612,7 @@
       </div>
     </div>
     
-    <!-- COLUNA DIREITA: Resumo do Carrinho -->
+    <!-- COLUNA DIREITA: RESUMO DO CARRINHO -->
     <div class="right-col">
       <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
@@ -686,7 +651,6 @@
     <div class="modal-content">
       <span class="close-modal" data-close-modal="modalIntermac30K">&times;</span>
       <h3>Plano Essencial – Detalhes</h3>
-      <!-- Exemplo de tabela de cobertura -->
       <table class="coverage-table">
         <thead>
           <tr>
@@ -746,15 +710,15 @@
     /* =============================================
        LÓGICA COMPLETA DE CHECKOUT:
        - Multi-Step
-       - Login/Registro (validação para campos visíveis)
-       - Armazenamento de dados (passageiro principal e extras)
-       - Modal de passageiros extras
-       - Layout de comparação do seguro (Step 2)
-       - Integração de pagamento (Braintree, PayPal, Google Pay)
-       - Validações, máscaras e CEP
+       - Login/Registro (Lógica de Login Atualizada)
+       - Armazenamento de Dados (Passageiro Principal e Extras)
+       - Modal de Passageiros Extras
+       - Tabela Comparativa de Seguro (Step 2)
+       - Integração de Pagamento (Braintree, PayPal, Google Pay)
+       - Validações, Máscaras e Consulta de CEP
        ============================================= */
     
-    // Controle de login/registro
+    // CONTROLE DE LOGIN/REGISTRO
     let isLoginMode = false;
     let isRegistrationMode = true;
     const isLoggedIn = !!localStorage.getItem("agentId");
@@ -780,8 +744,8 @@
       }
     });
     
+    // VALIDAÇÃO DOS CAMPOS
     function isRegistrationComplete() {
-      // Aqui, valide todos os campos visíveis no modo registro
       return (
         document.getElementById("firstName").value.trim() !== "" &&
         document.getElementById("lastName").value.trim() !== "" &&
@@ -807,10 +771,15 @@
       );
     }
     
+    // LÓGICA DE LOGIN: Se o login for bem-sucedido, atualiza os dados do passageiro principal
     const loginValidateBtn = document.getElementById("loginValidateBtn");
     loginValidateBtn.addEventListener("click", () => {
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
+      if (!email || !password) {
+        alert("Por favor, preencha os campos de login.");
+        return;
+      }
       fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -820,7 +789,14 @@
       .then(data => {
         if (data.success) {
           localStorage.setItem("agentId", data.user.id);
+          // Atualiza os dados do passageiro principal
+          checkoutData.mainPassenger.firstName = data.user.firstName || "";
+          checkoutData.mainPassenger.lastName = data.user.lastName || "";
+          checkoutData.mainPassenger.email = data.user.email || "";
+          checkoutData.mainPassenger.celular = data.user.phone || "";
           alert("Login efetuado com sucesso!");
+          registrationFieldsGeneral.style.display = "none";
+          loginFields.style.display = "none";
         } else {
           alert("Erro no login: " + (data.error || "Dados inválidos."));
         }
@@ -831,6 +807,7 @@
       });
     });
     
+    // Navegação entre steps
     const toStep2Btn = document.getElementById("toStep2");
     toStep2Btn.addEventListener("click", () => {
       if (!isLoggedIn) {
@@ -853,7 +830,7 @@
       showStep(2);
     });
     
-    // Dados de checkout
+    // DADOS DO CHECKOUT
     let checkoutData = {
       mainPassenger: {
         firstName: "",
@@ -909,15 +886,15 @@
     });
     backToStep2Btn?.addEventListener("click", () => showStep(2));
     
+    // CARRINHO – Exemplo de dados
     let cartItems = [];
     const cartElement = document.getElementById("shoppingCart");
     if (cartElement && cartElement.items && cartElement.items.length > 0) {
       cartItems = cartElement.items;
     } else {
       const savedCart = localStorage.getItem("cartItems");
-      if (savedCart) {
-        cartItems = JSON.parse(savedCart);
-      } else {
+      if (savedCart) { cartItems = JSON.parse(savedCart); }
+      else {
         cartItems = [
           {
             hotelName: "Courtyard By Marriott Miami Downtown",
@@ -979,14 +956,13 @@
         if (!item) continue;
         for (let p = 0; p < item.length; p++) {
           const pass = item[p];
-          if (!pass.name || !pass.birthdate) {
-            return false;
-          }
+          if (!pass.name || !pass.birthdate) { return false; }
         }
       }
       return true;
     }
     
+    // MODAL DE PASSAGEIROS EXTRAS
     const passengerModal = document.getElementById("passengerModal");
     const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
@@ -1408,7 +1384,6 @@
       });
     });
     
-    // Exemplo de atualização dos dados do carrinho
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
@@ -1443,439 +1418,6 @@
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
     
-    // Lógica para passageiros extras
-    function areAllExtraPassengersFilled() {
-      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
-        const item = checkoutData.extraPassengers[i];
-        if (!item) continue;
-        for (let p = 0; p < item.length; p++) {
-          const pass = item[p];
-          if (!pass.name || !pass.birthdate) { return false; }
-        }
-      }
-      return true;
-    }
-    
-    const passengerModal = document.getElementById("passengerModal");
-    const openPassengerModalBtn = document.getElementById("openPassengerModal");
-    const closeModalBtn = document.getElementById("closeModal");
-    const savePassengersBtn = document.getElementById("savePassengersBtn");
-    const modalPassengerContainer = document.getElementById("modalPassengerContainer");
-    const copyForAllBtn = document.getElementById("copyForAllBtn");
-    
-    function createModalPassengerForms(items) {
-      modalPassengerContainer.innerHTML = "";
-      let itemsWithExtras = 0;
-      items.forEach((item, itemIndex) => {
-        const extraCount = (item.adults || 1) - 1;
-        if (extraCount > 0) {
-          itemsWithExtras++;
-          if (!checkoutData.extraPassengers[itemIndex]) {
-            checkoutData.extraPassengers[itemIndex] = [];
-          }
-          const itemDiv = document.createElement("div");
-          itemDiv.classList.add("passenger-box");
-          itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
-          for (let i = 0; i < extraCount; i++) {
-            if (!checkoutData.extraPassengers[itemIndex][i]) {
-              checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
-            }
-            const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
-            const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
-            const fieldsWrapper = document.createElement("div");
-            fieldsWrapper.classList.add("fields-grid-2cols-modal");
-            fieldsWrapper.innerHTML = `
-              <div class="form-field">
-                <label>Nome do Passageiro #${i+1}</label>
-                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}">
-              </div>
-              <div class="form-field">
-                <label>Data de Nascimento</label>
-                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}">
-              </div>
-            `;
-            itemDiv.appendChild(fieldsWrapper);
-          }
-          modalPassengerContainer.appendChild(itemDiv);
-        }
-      });
-      copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
-    }
-    
-    openPassengerModalBtn.addEventListener("click", e => {
-      e.preventDefault();
-      createModalPassengerForms(cartItems);
-      passengerModal.style.display = "block";
-    });
-    
-    closeModalBtn.addEventListener("click", () => { passengerModal.style.display = "none"; });
-    
-    savePassengersBtn.addEventListener("click", () => {
-      if (!areAllExtraPassengersFilled()) {
-        alert("Preencha todos os campos de passageiros extras.");
-        return;
-      }
-      passengerModal.style.display = "none";
-      alert("Passageiros extras salvos!");
-    });
-    
-    copyForAllBtn.addEventListener("click", () => {
-      let sourceIndex = null;
-      let sourceExtraCount = 0;
-      for (let i = 0; i < cartItems.length; i++) {
-        let extraCount = (cartItems[i].adults || 1) - 1;
-        if (extraCount > 0) { sourceIndex = i; sourceExtraCount = extraCount; break; }
-      }
-      if (sourceIndex === null) return;
-      const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
-      for (let i = 0; i < cartItems.length; i++) {
-        if (i !== sourceIndex) {
-          let extraCount = (cartItems[i].adults || 1) - 1;
-          if (extraCount === sourceExtraCount && extraCount > 0) {
-            checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
-            for (let passIndex = 0; passIndex < extraCount; passIndex++) {
-              const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-              const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-              const nameInput = document.querySelector(nameSelector);
-              const birthInput = document.querySelector(birthSelector);
-              if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
-                nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
-                birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
-              }
-            }
-          }
-        }
-      }
-      alert("Dados copiados para todos os itens compatíveis!");
-    });
-    
-    modalPassengerContainer.addEventListener("input", e => {
-      const target = e.target;
-      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
-        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-        const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-        if (!checkoutData.extraPassengers[itemIndex]) {
-          checkoutData.extraPassengers[itemIndex] = [];
-        }
-        if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-          checkoutData.extraPassengers[itemIndex][passIndex] = {};
-        }
-        if (target.classList.contains("modalExtraNameInput")) {
-          checkoutData.extraPassengers[itemIndex][passIndex].name = target.value.trim();
-        } else {
-          checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value.trim();
-        }
-      }
-    });
-    
-    function initializePaymentMethod() {
-      const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-      document.getElementById("card-container").style.display = "none";
-      document.getElementById("paypal-container").style.display = "none";
-      document.getElementById("google-pay-container").style.display = "none";
-      if (method === "card") {
-        document.getElementById("card-container").style.display = "block";
-        initializeBraintree();
-      } else if (method === "paypal") {
-        document.getElementById("paypal-container").style.display = "block";
-        initializePayPal();
-      } else if (method === "googlePay") {
-        document.getElementById("google-pay-container").style.display = "block";
-        initializeGooglePay();
-      }
-    }
-    
-    async function initializeBraintree() {
-      const res = await fetch("/api/braintree/get-client-token");
-      const data = await res.json();
-      const clientToken = data.clientToken;
-      braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-        if (clientErr) {
-          console.error("Erro ao criar o client Braintree:", clientErr);
-          alert("Erro na inicialização do pagamento.");
-          return;
-        }
-        braintree.threeDSecure.create(
-          { version: 2, client: clientInstance },
-          (threeDSErr, threeDSecureInstance) => {
-            if (threeDSErr) {
-              console.error("Erro ao criar 3D Secure:", threeDSErr);
-              alert("Erro na inicialização do 3D Secure.");
-              return;
-            }
-            braintree.hostedFields.create(
-              {
-                client: clientInstance,
-                styles: {
-                  input: { "font-size": "16px", color: "#333" },
-                  "input.invalid": { color: "red" },
-                  "input.valid": { color: "green" }
-                },
-                fields: {
-                  number: { selector: "#card-number", placeholder: "Número do Cartão" },
-                  cvv: { selector: "#cvv", placeholder: "CVV" },
-                  expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
-                }
-              },
-              (hostedFieldsErr, hostedFieldsInstance) => {
-                if (hostedFieldsErr) {
-                  console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
-                  alert("Erro ao configurar os campos de pagamento.");
-                  return;
-                }
-                const form = document.getElementById("checkout-form");
-                form.addEventListener("submit", (evt) => {
-                  evt.preventDefault();
-                  hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-                    if (tokenizeErr) {
-                      console.error("Erro ao tokenizar:", tokenizeErr);
-                      alert("Erro ao processar dados do cartão.");
-                      return;
-                    }
-                    const amount = getOrderAmount();
-                    if (!payload.details || !payload.details.bin) {
-                      alert("Erro: BIN do cartão não disponível. Digite novamente.");
-                      return;
-                    }
-                    threeDSecureInstance.verifyCard(
-                      {
-                        nonce: payload.nonce,
-                        amount: amount,
-                        bin: payload.details.bin,
-                        onLookupComplete: (data, next) => { next(); }
-                      },
-                      (verifyErr, threeDSecurePayload) => {
-                        if (verifyErr) {
-                          console.error("Erro na verificação 3D Secure:", verifyErr);
-                          alert("Erro na verificação 3D Secure.");
-                          return;
-                        }
-                        processPayment(threeDSecurePayload.nonce, "card");
-                      }
-                    );
-                  });
-                });
-              }
-            );
-          }
-        );
-      });
-    }
-    
-    function initializePayPal() {
-      fetch("/api/braintree/get-client-token")
-        .then(res => res.json())
-        .then(data => {
-          const clientToken = data.clientToken;
-          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-            if (clientErr) {
-              console.error("Erro ao criar client PayPal:", clientErr);
-              alert("Erro na inicialização do PayPal.");
-              return;
-            }
-            braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
-              if (err) {
-                console.error("Erro ao criar PayPal Checkout:", err);
-                alert("Erro na inicialização do PayPal.");
-                return;
-              }
-              paypal.Button.render(
-                {
-                  env: "sandbox",
-                  payment: () => {
-                    const total = getOrderAmount();
-                    return paypalCheckoutInstance.createPayment({
-                      flow: "checkout",
-                      amount: total,
-                      currency: "BRL"
-                    });
-                  },
-                  onAuthorize: (data, actions) => {
-                    return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
-                      processPayment(payload.nonce, "paypal");
-                    });
-                  },
-                  onError: (err) => {
-                    console.error("Erro no PayPal:", err);
-                    alert("Erro no pagamento com PayPal.");
-                  }
-                },
-                "#paypal-button-container"
-              );
-            });
-          });
-        })
-        .catch(err => { console.error("Erro ao obter client token para PayPal:", err); });
-    }
-    
-    function initializeGooglePay() {
-      fetch("/api/braintree/get-client-token")
-        .then(res => res.json())
-        .then(data => {
-          const clientToken = data.clientToken;
-          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-            if (clientErr) {
-              console.error("Erro ao criar client Google Pay:", clientErr);
-              alert("Erro na inicialização do Google Pay.");
-              return;
-            }
-            braintree.googlePayment.create(
-              {
-                client: clientInstance,
-                googlePayVersion: 2,
-                googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
-              },
-              (err, googlePaymentInstance) => {
-                if (err) {
-                  console.error("Erro ao criar Google Pay:", err);
-                  alert("Erro na inicialização do Google Pay.");
-                  return;
-                }
-                const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
-                  transactionInfo: {
-                    totalPriceStatus: "FINAL",
-                    totalPrice: getOrderAmount(),
-                    currencyCode: "BRL"
-                  }
-                });
-                const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
-                paymentsClient
-                  .loadPaymentData(paymentDataRequest)
-                  .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
-                  .then(payload => { processPayment(payload.nonce, "googlePay"); })
-                  .catch(err => {
-                    console.error("Erro no Google Pay:", err);
-                    alert("Erro no pagamento com Google Pay.");
-                  });
-                const button = paymentsClient.createButton({ onClick: () => {} });
-                document.getElementById("google-pay-button-container").appendChild(button);
-              }
-            );
-          });
-        })
-        .catch(err => { console.error("Erro ao obter client token para Google Pay:", err); });
-    }
-    
-    async function processPayment(nonce, method = "card") {
-      let totalText = document.getElementById("totalValue").textContent;
-      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-      amount = parseFloat(amount).toFixed(2);
-      let installments = "1";
-      if (method === "card") {
-        const installmentsSelect = document.getElementById("installments");
-        if (installmentsSelect) { installments = installmentsSelect.value; }
-      }
-      const body = {
-        paymentMethodNonce: nonce,
-        amount: amount,
-        installments: installments,
-        customer: {
-          firstName: checkoutData.mainPassenger.firstName,
-          lastName: checkoutData.mainPassenger.lastName,
-          email: checkoutData.mainPassenger.email,
-          phone: checkoutData.mainPassenger.celular
-        },
-        billing: {
-          streetAddress: checkoutData.mainPassenger.address,
-          extendedAddress: checkoutData.mainPassenger.number,
-          locality: checkoutData.mainPassenger.city,
-          region: checkoutData.mainPassenger.state,
-          postalCode: checkoutData.mainPassenger.cep,
-          countryCodeAlpha2: "BR"
-        },
-        mainPassenger: checkoutData.mainPassenger,
-        extraPassengers: checkoutData.extraPassengers,
-        insuranceSelected: checkoutData.insuranceSelected
-      };
-      try {
-        const res = await fetch("/api/braintree/create-transaction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        const result = await res.json();
-        if (result.success) {
-          alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
-          showStep(4);
-        } else {
-          alert("Falha no pagamento: " + result.message);
-        }
-      } catch (error) {
-        console.error("Erro ao processar o pagamento:", error);
-        alert("Erro ao processar o pagamento. Tente novamente.");
-      }
-    }
-    
-    function getOrderAmount() {
-      let totalText = document.getElementById("totalValue").textContent;
-      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-      return parseFloat(amount).toFixed(2);
-    }
-    
-    window.addEventListener("load", () => {
-      updateCheckoutCart(cartItems);
-      if (isLoggedIn) {
-        toggleLoginLink.style.display = "none";
-        registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "none";
-      }
-    });
-    
-    document.getElementById("cep").addEventListener("blur", function() {
-      buscarCEP(this.value);
-    });
-    function buscarCEP(cep) {
-      cep = cep.replace(/\D/g, '');
-      if (cep.length === 8) {
-        const url = `https://viacep.com.br/ws/${cep}/json/`;
-        fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            if (data.erro) { alert("CEP não encontrado!"); return; }
-            document.getElementById("address").value = data.logradouro || "";
-            document.getElementById("city").value = data.localidade || "";
-            document.getElementById("state").value = data.uf || "";
-          })
-          .catch(error => {
-            console.error("Erro ao buscar CEP:", error);
-            alert("Não foi possível consultar o CEP.");
-          });
-      }
-    }
-    
-    document.getElementById("cpf").addEventListener("input", function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 3) { value = value.replace(/^(\d{3})(\d)/, '$1.$2'); }
-      if (value.length > 6) { value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if (value.length > 9) { value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4'); }
-      e.target.value = value;
-    });
-    document.getElementById("rg").addEventListener("input", function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 2) { value = value.replace(/^(\d{2})(\d)/, '$1.$2'); }
-      if (value.length > 5) { value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if (value.length > 7) { value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4'); }
-      e.target.value = value;
-    });
-    
-    document.querySelectorAll('.open30kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('modalIntermac30K').style.display = 'block';
-      });
-    });
-    document.querySelectorAll('.open80kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('modalIntermac80K').style.display = 'block';
-      });
-    });
-    document.querySelectorAll('.close-modal').forEach(closeBtn => {
-      closeBtn.addEventListener('click', function() {
-        const modalId = this.getAttribute('data-close-modal');
-        if (modalId) { document.getElementById(modalId).style.display = 'none'; }
-      });
-    });
   </script>
 </body>
 </html>
