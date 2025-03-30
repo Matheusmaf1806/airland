@@ -716,18 +716,121 @@
 
   <script>
     /* =============================================
-       JS COMPLETO DO CHECKOUT:
-       - Multi-step (Steps 1 a 4)
-       - Validação dos campos obrigatórios no Step 1
-       - Login/Registro (atualiza os dados do passageiro principal)
-       - Modal de Passageiros Extras (com função "copiar para todos")
-       - Tabela Comparativa do Seguro (Step 2, 4 colunas)
-       - Modais de Detalhes dos Planos (tabela completa de coberturas)
-       - Integração de Pagamento (Braintree, PayPal, Google Pay)
-       - Máscaras e Consulta de CEP
-    ============================================= */
-    
-    // 1. Dados do Checkout
+       LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
+       LOGIN/REGISTRO, CEP, MÁSCARAS, E BRAINTREE
+       ============================================= */
+
+    // Controle de login/registro
+    let isLoginMode = false;
+    let isRegistrationMode = true;
+    const isLoggedIn = !!localStorage.getItem("agentId");
+
+    const toggleLoginLink = document.getElementById("toggleLogin");
+    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+    const loginFields = document.getElementById("loginFields");
+
+    toggleLoginLink.addEventListener("click", e => {
+      e.preventDefault();
+      if (isRegistrationMode) {
+        isLoginMode = true;
+        isRegistrationMode = false;
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "block";
+        toggleLoginLink.textContent = "Não tenho Login";
+      } else {
+        isLoginMode = false;
+        isRegistrationMode = true;
+        registrationFieldsGeneral.style.display = "block";
+        loginFields.style.display = "none";
+        toggleLoginLink.textContent = "Economize tempo fazendo Login";
+      }
+    });
+
+    function isRegistrationComplete() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const celular = document.getElementById("celular").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      const confirmPass = document.getElementById("confirmPassword").value.trim();
+
+      const cpf = document.getElementById("cpf").value.trim();
+      const rg = document.getElementById("rg").value.trim();
+      const birthdate = document.getElementById("birthdate").value.trim();
+      const cep = document.getElementById("cep").value.trim();
+      const state = document.getElementById("state").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const number = document.getElementById("number").value.trim();
+
+      if (!firstName || !lastName || !celular || !email ||
+          !pass || !confirmPass || !cpf || !rg || !birthdate ||
+          !cep || !state || !city || !address || !number) {
+        return false;
+      }
+      if (pass !== confirmPass) {
+        alert("As senhas não coincidem!");
+        return false;
+      }
+      return true;
+    }
+
+    function isLoginComplete() {
+      const loginEmail = document.getElementById("loginEmail").value.trim();
+      const loginPassword = document.getElementById("loginPassword").value.trim();
+      if (!loginEmail || !loginPassword) {
+        return false;
+      }
+      return true;
+    }
+
+    const loginValidateBtn = document.getElementById("loginValidateBtn");
+    loginValidateBtn.addEventListener("click", () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          localStorage.setItem("agentId", data.user.id);
+          alert("Login efetuado com sucesso!");
+        } else {
+          alert("Erro no login: " + (data.error || "Dados inválidos."));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Erro ao realizar o login. Tente novamente.");
+      });
+    });
+
+    const toStep2Btn = document.getElementById("toStep2");
+    toStep2Btn.addEventListener("click", () => {
+      if (!isLoggedIn) {
+        if (isLoginMode) {
+          if (!isLoginComplete()) {
+            alert("Por favor, preencha E-mail e Senha de Login.");
+            return;
+          }
+        } else {
+          if (!isRegistrationComplete()) {
+            alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
+            return;
+          }
+        }
+      }
+      if (!areAllExtraPassengersFilled()) {
+        alert("Por favor, preencha todos os campos dos passageiros extras.");
+        return;
+      }
+      showStep(2);
+    });
+
+    // Define a estrutura principal de dados
     let checkoutData = {
       mainPassenger: {
         firstName: "",
@@ -747,12 +850,10 @@
       insuranceSelected: "none",
       insuranceCost: 0
     };
-    
-    // 2. Navegação entre Steps
-    const stepsMenu = document.getElementById("stepsMenu");
+
     const stepContents = document.querySelectorAll(".step-content");
-    const stepButtons = stepsMenu.querySelectorAll(".step");
-    
+    const stepButtons = document.querySelectorAll(".steps-menu .step");
+
     function showStep(stepNumber) {
       stepContents.forEach(content => {
         content.classList.toggle("active", content.dataset.step === String(stepNumber));
@@ -760,84 +861,28 @@
       stepButtons.forEach(button => {
         const btnStep = parseInt(button.dataset.step, 10);
         button.classList.toggle("active", btnStep === stepNumber);
-        if (btnStep > stepNumber) button.classList.add("disabled");
-        else button.classList.remove("disabled");
+        if (btnStep > stepNumber) {
+          button.classList.add("disabled");
+        } else {
+          button.classList.remove("disabled");
+        }
       });
     }
-    
-    // 3. Funções de Validação para o Step 1
-    function isRegistrationComplete() {
-      const firstName = document.getElementById("firstName").value.trim();
-      const lastName = document.getElementById("lastName").value.trim();
-      const celular = document.getElementById("celular").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const pass = document.getElementById("password").value.trim();
-      const confirmPass = document.getElementById("confirmPassword").value.trim();
-      const cpf = document.getElementById("cpf").value.trim();
-      const rg = document.getElementById("rg").value.trim();
-      const birthdate = document.getElementById("birthdate").value.trim();
-      const cep = document.getElementById("cep").value.trim();
-      const state = document.getElementById("state").value.trim();
-      const city = document.getElementById("city").value.trim();
-      const address = document.getElementById("address").value.trim();
-      const number = document.getElementById("number").value.trim();
-      
-      if (!firstName || !lastName || !celular || !email || !pass || !confirmPass ||
-          !cpf || !rg || !birthdate || !cep || !state || !city || !address || !number) {
-        return false;
-      }
-      if (pass !== confirmPass) {
-        alert("As senhas não coincidem!");
-        return false;
-      }
-      return true;
-    }
-    
-    function isLoginComplete() {
-      const loginEmail = document.getElementById("loginEmail").value.trim();
-      const loginPassword = document.getElementById("loginPassword").value.trim();
-      return (loginEmail && loginPassword);
-    }
-    
-    // 4. Validação do Step 1 – impede avançar se algum campo obrigatório não estiver preenchido
-    // Aqui, validamos com base na visibilidade dos campos de registro ou login
-    const toStep2Btn = document.getElementById("toStep2");
-    toStep2Btn.addEventListener("click", () => {
-      // Se os campos de registro estão visíveis, valida o registro
-      if (registrationFieldsGeneral.style.display !== "none") {
-        if (!isRegistrationComplete()) {
-          alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
-          return;
-        }
-      }
-      // Se os campos de login estão visíveis, valida o login
-      if (loginFields.style.display !== "none") {
-        if (!isLoginComplete()) {
-          alert("Por favor, preencha E-mail e Senha de Login.");
-          return;
-        }
-      }
-      // Verifica os passageiros extras, se houver
-      if (!areAllExtraPassengersFilled()) {
-        alert("Por favor, preencha todos os campos dos passageiros extras.");
-        return;
-      }
-      showStep(2);
-    });
-    
-    // Voltar do Step 2 para o Step 1
+
     const backToStep1Btn = document.getElementById("backToStep1");
-    backToStep1Btn?.addEventListener("click", () => showStep(1));
-    
-    // Avançar do Step 2 para o Step 3
     const toStep3Btn = document.getElementById("toStep3");
+    const backToStep2Btn = document.getElementById("backToStep2");
+
+    backToStep1Btn?.addEventListener("click", () => showStep(1));
+
     toStep3Btn.addEventListener("click", () => {
       const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
       checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-      if (checkoutData.insuranceSelected === "essencial") {
-        checkoutData.insuranceCost = 60.65;
-      } else if (checkoutData.insuranceSelected === "completo") {
-        checkoutData.insuranceCost = 101.09;
+
+      if (checkoutData.insuranceSelected === "30k") {
+        checkoutData.insuranceCost = 112.81;
+      } else if (checkoutData.insuranceSelected === "80k") {
+        checkoutData.insuranceCost = 212.02;
       } else {
         checkoutData.insuranceCost = 0;
       }
@@ -845,69 +890,9 @@
       showStep(3);
       initializePaymentMethod();
     });
-    
-    // Voltar do Step 3 para o Step 2
-    const backToStep2Btn = document.getElementById("backToStep2");
+
     backToStep2Btn?.addEventListener("click", () => showStep(2));
-    
-    // 5. Login/Registro – Alterna entre os modos
-    let isLoginMode = false;
-    let isRegistrationMode = true;
-    // Se o usuário estiver logado, a variável isLoggedIn será true
-    const isLoggedIn = !!localStorage.getItem("agentId");
-    
-    const toggleLoginLink = document.getElementById("toggleLogin");
-    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-    const loginFields = document.getElementById("loginFields");
-    
-    toggleLoginLink.addEventListener("click", e => {
-      e.preventDefault();
-      if (isRegistrationMode) {
-        isLoginMode = true;
-        isRegistrationMode = false;
-        registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "block";
-        toggleLoginLink.textContent = "Não tenho Login";
-      } else {
-        isLoginMode = false;
-        isRegistrationMode = true;
-        registrationFieldsGeneral.style.display = "block";
-        loginFields.style.display = "none";
-        toggleLoginLink.textContent = "Economize tempo fazendo Login";
-      }
-    });
-    
-    const loginValidateBtn = document.getElementById("loginValidateBtn");
-    loginValidateBtn.addEventListener("click", () => {
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-      fetch("/api/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          localStorage.setItem("agentId", data.user.id);
-          checkoutData.mainPassenger.firstName = data.user.firstName || "";
-          checkoutData.mainPassenger.lastName = data.user.lastName || "";
-          checkoutData.mainPassenger.email = data.user.email || "";
-          checkoutData.mainPassenger.celular = data.user.phone || "";
-          alert("Login efetuado com sucesso!");
-          registrationFieldsGeneral.style.display = "none";
-          loginFields.style.display = "none";
-        } else {
-          alert("Erro no login: " + (data.error || "Dados inválidos."));
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Erro ao realizar o login. Tente novamente.");
-      });
-    });
-    
-    // 6. Modal de Passageiros Extras
+
     let cartItems = [];
     const cartElement = document.getElementById("shoppingCart");
     if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -918,48 +903,81 @@
         cartItems = JSON.parse(savedCart);
       } else {
         cartItems = [
-          { hotelName: "Hotel A", adults: 2, children: 1, basePriceAdult: 100 },
-          { hotelName: "Hotel B", adults: 2, children: 0, basePriceAdult: 150 }
+          {
+            hotelName: "Courtyard By Marriott Miami Downtown",
+            adults: 2,
+            children: 1,
+            basePriceAdult: 100,
+            checkIn: "2025-04-16",
+            checkOut: "2025-04-18"
+          },
+          {
+            hotelName: "Courtyard By Marriott Miami Downtown",
+            adults: 2,
+            children: 0,
+            basePriceAdult: 150,
+            checkIn: "2025-04-10",
+            checkOut: "2025-04-12"
+          }
         ];
       }
     }
-    
+
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0;
+      let html = "";
+      items.forEach(item => {
+        let price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += `
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        `;
+      });
+      subtotal += checkoutData.insuranceCost;
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("totalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+
     function areAllExtraPassengersFilled() {
       for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
         const item = checkoutData.extraPassengers[i];
         if (!item) continue;
         for (let p = 0; p < item.length; p++) {
           const pass = item[p];
-          if (!pass.name || !pass.birthdate) return false;
+          if (!pass.name || !pass.birthdate) {
+            return false;
+          }
         }
       }
       return true;
     }
-    
-    const openPassengerModalBtn = document.getElementById("openPassengerModal");
+
     const passengerModal = document.getElementById("passengerModal");
+    const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
-    const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const savePassengersBtn = document.getElementById("savePassengersBtn");
+    const modalPassengerContainer = document.getElementById("modalPassengerContainer");
     const copyForAllBtn = document.getElementById("copyForAllBtn");
-    
-    openPassengerModalBtn.addEventListener("click", e => {
-      e.preventDefault();
-      createModalPassengerForms(cartItems);
-      passengerModal.style.display = "block";
-    });
-    closeModalBtn.addEventListener("click", () => {
-      passengerModal.style.display = "none";
-    });
-    savePassengersBtn.addEventListener("click", () => {
-      if (!areAllExtraPassengersFilled()) {
-        alert("Preencha todos os campos dos passageiros extras.");
-        return;
-      }
-      passengerModal.style.display = "none";
-      alert("Passageiros extras salvos!");
-    });
-    
+
     function createModalPassengerForms(items) {
       modalPassengerContainer.innerHTML = "";
       let itemsWithExtras = 0;
@@ -975,7 +993,10 @@
           itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
           for (let i = 0; i < extraCount; i++) {
             if (!checkoutData.extraPassengers[itemIndex][i]) {
-              checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
+              checkoutData.extraPassengers[itemIndex][i] = {
+                name: "",
+                birthdate: ""
+              };
             }
             const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
             const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
@@ -984,11 +1005,11 @@
             fieldsWrapper.innerHTML = `
               <div class="form-field">
                 <label>Nome do Passageiro #${i+1}</label>
-                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}">
+                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}" />
               </div>
               <div class="form-field">
                 <label>Data de Nascimento</label>
-                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}">
+                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}" />
               </div>
             `;
             itemDiv.appendChild(fieldsWrapper);
@@ -998,12 +1019,36 @@
       });
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
-    
+
+    openPassengerModalBtn.addEventListener("click", e => {
+      e.preventDefault();
+      createModalPassengerForms(cartItems);
+      passengerModal.style.display = "block";
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      passengerModal.style.display = "none";
+    });
+
+    savePassengersBtn.addEventListener("click", () => {
+      if (!areAllExtraPassengersFilled()) {
+        alert("Preencha todos os campos de passageiros extras.");
+        return;
+      }
+      passengerModal.style.display = "none";
+      alert("Passageiros extras salvos!");
+    });
+
     copyForAllBtn.addEventListener("click", () => {
-      let sourceIndex = null, sourceExtraCount = 0;
+      let sourceIndex = null;
+      let sourceExtraCount = 0;
       for (let i = 0; i < cartItems.length; i++) {
         let extraCount = (cartItems[i].adults || 1) - 1;
-        if (extraCount > 0) { sourceIndex = i; sourceExtraCount = extraCount; break; }
+        if (extraCount > 0) {
+          sourceIndex = i;
+          sourceExtraCount = extraCount;
+          break;
+        }
       }
       if (sourceIndex === null) return;
       const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
@@ -1027,7 +1072,7 @@
       }
       alert("Dados copiados para todos os itens compatíveis!");
     });
-    
+
     modalPassengerContainer.addEventListener("input", e => {
       const target = e.target;
       if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
@@ -1046,55 +1091,14 @@
         }
       }
     });
-    
-    // 7. Atualiza o Carrinho (Resumo da Reserva)
-    function updateCheckoutCart(items) {
-      const container = document.getElementById("cartItemsList");
-      let subtotal = 0, html = "";
-      items.forEach(item => {
-        let price = item.basePriceAdult || 80;
-        subtotal += price;
-        html += `
-          <div class="reserva-item">
-            <div class="reserva-left">
-              <span class="categoria">${item.type || "Hospedagem"}</span>
-              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-              <div class="reserva-details">
-                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-                <p>Quartos: ${item.rooms || 1}</p>
-                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-              </div>
-            </div>
-            <div class="reserva-preco">
-              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-        `;
-      });
-      subtotal += checkoutData.insuranceCost;
-      container.innerHTML = html;
-      document.getElementById("subtotalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
-      document.getElementById("totalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-    }
-    window.addEventListener("load", () => {
-      updateCheckoutCart(cartItems);
-      if (isLoggedIn) {
-        toggleLoginLink.style.display = "none";
-        registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "none";
-      }
-    });
-    
-    // 8. Integração de Pagamento
+
+    // Inicialização do pagamento
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
       document.getElementById("paypal-container").style.display = "none";
       document.getElementById("google-pay-container").style.display = "none";
+
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
         initializeBraintree();
@@ -1106,75 +1110,87 @@
         initializeGooglePay();
       }
     }
-    
+
     async function initializeBraintree() {
       const res = await fetch("/api/braintree/get-client-token");
       const data = await res.json();
       const clientToken = data.clientToken;
+
       braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
         if (clientErr) {
           console.error("Erro ao criar o client Braintree:", clientErr);
           alert("Erro na inicialização do pagamento.");
           return;
         }
-        braintree.threeDSecure.create({ version: 2, client: clientInstance }, (threeDSErr, threeDSecureInstance) => {
-          if (threeDSErr) {
-            console.error("Erro ao criar 3D Secure:", threeDSErr);
-            alert("Erro na inicialização do 3D Secure.");
-            return;
-          }
-          braintree.hostedFields.create({
-            client: clientInstance,
-            styles: {
-              input: { "font-size": "16px", color: "#333" },
-              "input.invalid": { color: "red" },
-              "input.valid": { color: "green" }
-            },
-            fields: {
-              number: { selector: "#card-number", placeholder: "Número do Cartão" },
-              cvv: { selector: "#cvv", placeholder: "CVV" },
-              expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
-            }
-          }, (hostedFieldsErr, hostedFieldsInstance) => {
-            if (hostedFieldsErr) {
-              console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
-              alert("Erro ao configurar os campos de pagamento.");
+        braintree.threeDSecure.create(
+          { version: 2, client: clientInstance },
+          (threeDSErr, threeDSecureInstance) => {
+            if (threeDSErr) {
+              console.error("Erro ao criar 3D Secure:", threeDSErr);
+              alert("Erro na inicialização do 3D Secure.");
               return;
             }
-            const form = document.getElementById("checkout-form");
-            form.addEventListener("submit", (evt) => {
-              evt.preventDefault();
-              hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-                if (tokenizeErr) {
-                  console.error("Erro ao tokenizar:", tokenizeErr);
-                  alert("Erro ao processar dados do cartão.");
+            braintree.hostedFields.create(
+              {
+                client: clientInstance,
+                styles: {
+                  input: { "font-size": "16px", color: "#333" },
+                  "input.invalid": { color: "red" },
+                  "input.valid": { color: "green" }
+                },
+                fields: {
+                  number: { selector: "#card-number", placeholder: "Número do Cartão" },
+                  cvv: { selector: "#cvv", placeholder: "CVV" },
+                  expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
+                }
+              },
+              (hostedFieldsErr, hostedFieldsInstance) => {
+                if (hostedFieldsErr) {
+                  console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
+                  alert("Erro ao configurar os campos de pagamento.");
                   return;
                 }
-                const amount = getOrderAmount();
-                if (!payload.details || !payload.details.bin) {
-                  alert("Erro: BIN do cartão não disponível. Digite novamente.");
-                  return;
-                }
-                threeDSecureInstance.verifyCard({
-                  nonce: payload.nonce,
-                  amount: amount,
-                  bin: payload.details.bin,
-                  onLookupComplete: (data, next) => { next(); }
-                }, (verifyErr, threeDSecurePayload) => {
-                  if (verifyErr) {
-                    console.error("Erro na verificação 3D Secure:", verifyErr);
-                    alert("Erro na verificação 3D Secure.");
-                    return;
-                  }
-                  processPayment(threeDSecurePayload.nonce, "card");
+                const form = document.getElementById("checkout-form");
+                form.addEventListener("submit", (evt) => {
+                  evt.preventDefault();
+                  hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
+                    if (tokenizeErr) {
+                      console.error("Erro ao tokenizar:", tokenizeErr);
+                      alert("Erro ao processar dados do cartão.");
+                      return;
+                    }
+                    const amount = getOrderAmount();
+                    if (!payload.details || !payload.details.bin) {
+                      alert("Erro: BIN do cartão não disponível. Digite novamente.");
+                      return;
+                    }
+                    threeDSecureInstance.verifyCard(
+                      {
+                        nonce: payload.nonce,
+                        amount: amount,
+                        bin: payload.details.bin,
+                        onLookupComplete: (data, next) => {
+                          next();
+                        }
+                      },
+                      (verifyErr, threeDSecurePayload) => {
+                        if (verifyErr) {
+                          console.error("Erro na verificação 3D Secure:", verifyErr);
+                          alert("Erro na verificação 3D Secure.");
+                          return;
+                        }
+                        processPayment(threeDSecurePayload.nonce, "card");
+                      }
+                    );
+                  });
                 });
-              });
-            });
-          });
-        });
+              }
+            );
+          }
+        );
       });
     }
-    
+
     function initializePayPal() {
       fetch("/api/braintree/get-client-token")
         .then(res => res.json())
@@ -1192,32 +1208,37 @@
                 alert("Erro na inicialização do PayPal.");
                 return;
               }
-              paypal.Button.render({
-                env: "sandbox",
-                payment: () => {
-                  const total = getOrderAmount();
-                  return paypalCheckoutInstance.createPayment({
-                    flow: "checkout",
-                    amount: total,
-                    currency: "BRL"
-                  });
+              paypal.Button.render(
+                {
+                  env: "sandbox",
+                  payment: () => {
+                    const total = getOrderAmount();
+                    return paypalCheckoutInstance.createPayment({
+                      flow: "checkout",
+                      amount: total,
+                      currency: "BRL"
+                    });
+                  },
+                  onAuthorize: (data, actions) => {
+                    return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
+                      processPayment(payload.nonce, "paypal");
+                    });
+                  },
+                  onError: (err) => {
+                    console.error("Erro no PayPal:", err);
+                    alert("Erro no pagamento com PayPal.");
+                  }
                 },
-                onAuthorize: (data, actions) => {
-                  return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
-                    processPayment(payload.nonce, "paypal");
-                  });
-                },
-                onError: (err) => {
-                  console.error("Erro no PayPal:", err);
-                  alert("Erro no pagamento com PayPal.");
-                }
-              }, "#paypal-button-container");
+                "#paypal-button-container"
+              );
             });
           });
         })
-        .catch(err => { console.error("Erro ao obter client token para PayPal:", err); });
+        .catch(err => {
+          console.error("Erro ao obter client token para PayPal:", err);
+        });
     }
-    
+
     function initializeGooglePay() {
       fetch("/api/braintree/get-client-token")
         .then(res => res.json())
@@ -1229,49 +1250,60 @@
               alert("Erro na inicialização do Google Pay.");
               return;
             }
-            braintree.googlePayment.create({
-              client: clientInstance,
-              googlePayVersion: 2,
-              googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
-            }, (err, googlePaymentInstance) => {
-              if (err) {
-                console.error("Erro ao criar Google Pay:", err);
-                alert("Erro na inicialização do Google Pay.");
-                return;
-              }
-              const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
-                transactionInfo: {
-                  totalPriceStatus: "FINAL",
-                  totalPrice: getOrderAmount(),
-                  currencyCode: "BRL"
+            braintree.googlePayment.create(
+              {
+                client: clientInstance,
+                googlePayVersion: 2,
+                googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
+              },
+              (err, googlePaymentInstance) => {
+                if (err) {
+                  console.error("Erro ao criar Google Pay:", err);
+                  alert("Erro na inicialização do Google Pay.");
+                  return;
                 }
-              });
-              const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
-              paymentsClient
-                .loadPaymentData(paymentDataRequest)
-                .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
-                .then(payload => { processPayment(payload.nonce, "googlePay"); })
-                .catch(err => {
-                  console.error("Erro no Google Pay:", err);
-                  alert("Erro no pagamento com Google Pay.");
+                const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
+                  transactionInfo: {
+                    totalPriceStatus: "FINAL",
+                    totalPrice: getOrderAmount(),
+                    currencyCode: "BRL"
+                  }
                 });
-              const button = paymentsClient.createButton({ onClick: () => {} });
-              document.getElementById("google-pay-button-container").appendChild(button);
-            });
+                const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
+                paymentsClient
+                  .loadPaymentData(paymentDataRequest)
+                  .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
+                  .then(payload => {
+                    processPayment(payload.nonce, "googlePay");
+                  })
+                  .catch(err => {
+                    console.error("Erro no Google Pay:", err);
+                    alert("Erro no pagamento com Google Pay.");
+                  });
+                const button = paymentsClient.createButton({ onClick: () => {} });
+                document.getElementById("google-pay-button-container").appendChild(button);
+              }
+            );
           });
         })
-        .catch(err => { console.error("Erro ao obter client token para Google Pay:", err); });
+        .catch(err => {
+          console.error("Erro ao obter client token para Google Pay:", err);
+        });
     }
-    
+
     async function processPayment(nonce, method = "card") {
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
       amount = parseFloat(amount).toFixed(2);
+
       let installments = "1";
       if (method === "card") {
         const installmentsSelect = document.getElementById("installments");
-        if (installmentsSelect) installments = installmentsSelect.value;
+        if (installmentsSelect) {
+          installments = installmentsSelect.value;
+        }
       }
+
       const body = {
         paymentMethodNonce: nonce,
         amount: amount,
@@ -1294,6 +1326,7 @@
         extraPassengers: checkoutData.extraPassengers,
         insuranceSelected: checkoutData.insuranceSelected
       };
+
       try {
         const res = await fetch("/api/braintree/create-transaction", {
           method: "POST",
@@ -1312,14 +1345,22 @@
         alert("Erro ao processar o pagamento. Tente novamente.");
       }
     }
-    
+
     function getOrderAmount() {
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
       return parseFloat(amount).toFixed(2);
     }
-    
-    // 10. Máscaras e Consulta de CEP
+
+    window.addEventListener("load", () => {
+      updateCheckoutCart(cartItems);
+      if (isLoggedIn) {
+        toggleLoginLink.style.display = "none";
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "none";
+      }
+    });
+
     document.getElementById("cep").addEventListener("blur", function() {
       buscarCEP(this.value);
     });
@@ -1330,7 +1371,10 @@
         fetch(url)
           .then(response => response.json())
           .then(data => {
-            if (data.erro) { alert("CEP não encontrado!"); return; }
+            if (data.erro) {
+              alert("CEP não encontrado!");
+              return;
+            }
             document.getElementById("address").value = data.logradouro || "";
             document.getElementById("city").value = data.localidade || "";
             document.getElementById("state").value = data.uf || "";
@@ -1341,82 +1385,53 @@
           });
       }
     }
-    
+
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, '$1.$2');
-      if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-      if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
+      if(value.length > 3) {
+        value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+      }
+      if(value.length > 6) {
+        value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+      }
+      if(value.length > 9) {
+        value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
+      }
       e.target.value = value;
     });
     document.getElementById("rg").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-      if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-      if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
+      if(value.length > 2) {
+        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+      }
+      if(value.length > 5) {
+        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+      }
+      if(value.length > 7) {
+        value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
+      }
       e.target.value = value;
     });
-    
-    // 11. Modais dos Planos de Seguro
-    document.querySelectorAll('.openEssencialModal').forEach(btn => {
-      btn.addEventListener("click", e => {
+
+    document.querySelectorAll('.open30kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
         e.preventDefault();
-        document.getElementById("modalIntermac30K").style.display = "block";
+        document.getElementById('modalIntermac30K').style.display = 'block';
       });
     });
-    document.querySelectorAll('.openCompletoModal').forEach(btn => {
-      btn.addEventListener("click", e => {
+    document.querySelectorAll('.open80kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
         e.preventDefault();
-        document.getElementById("modalIntermac80K").style.display = "block";
+        document.getElementById('modalIntermac80K').style.display = 'block';
       });
     });
-    document.querySelectorAll('.close-modal').forEach(btn => {
-      btn.addEventListener("click", function() {
-        const modalId = this.getAttribute("data-close-modal");
-        if (modalId) document.getElementById(modalId).style.display = "none";
+    document.querySelectorAll('.close-modal').forEach(closeBtn => {
+      closeBtn.addEventListener('click', function() {
+        const modalId = this.getAttribute('data-close-modal');
+        if (modalId) {
+          document.getElementById(modalId).style.display = 'none';
+        }
       });
-    });
-    
-    // 12. Atualiza o Resumo do Carrinho
-    function updateCheckoutCart(items) {
-      const container = document.getElementById("cartItemsList");
-      let subtotal = 0, html = "";
-      items.forEach(item => {
-        let price = item.basePriceAdult || 80;
-        subtotal += price;
-        html += `
-          <div class="reserva-item">
-            <div class="reserva-left">
-              <span class="categoria">${item.type || "Hospedagem"}</span>
-              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-              <div class="reserva-details">
-                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-                <p>Quartos: ${item.rooms || 1}</p>
-                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-              </div>
-            </div>
-            <div class="reserva-preco">
-              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </div>
-          </div>
-        `;
-      });
-      subtotal += checkoutData.insuranceCost;
-      container.innerHTML = html;
-      document.getElementById("subtotalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
-      document.getElementById("totalValue").textContent =
-        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-    }
-    window.addEventListener("load", () => {
-      updateCheckoutCart(cartItems);
-      if (isLoggedIn) {
-        toggleLoginLink.style.display = "none";
-        registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "none";
-      }
     });
   </script>
 </body>
