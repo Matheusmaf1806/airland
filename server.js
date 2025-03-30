@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Versão Final com Integração de Hotelbeds, PayPal e Braintree
+// server.js (ESM) - Versão Final com Integração de Hotelbeds, PayPal, Braintree e Malga
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -43,6 +43,9 @@ import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
 import payRouter from "./routes/pay.routes.js"; // Rota de pagamento (PayPal ou outra integração)
 
+// Novas rotas para Malga
+import malgaRoutes from "./routes/malga.routes.js";
+
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
@@ -55,9 +58,13 @@ app.get("/api/affiliateColors", getAffiliateColors);
 app.use("/api/pay", payRouter); // Rota para integração com PayPal
 
 // ------------------------------------------------------
+// Usar a rota do Malga
+app.use("/api/malga", malgaRoutes);
+
+// ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integrações das APIs Hotelbeds, PayPal e Braintree!");
+  res.send("Olá, API rodando com ESM, Express e integrações das APIs Hotelbeds, PayPal, Braintree e Malga!");
 });
 
 // ------------------------------------------------------
