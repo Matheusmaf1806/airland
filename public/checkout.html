@@ -718,7 +718,7 @@
     /* =============================================
        JS COMPLETO DO CHECKOUT:
        - Multi-step (Steps 1 a 4)
-       - Validação do Step 1 (passageiro principal) para impedir avanço se algum campo obrigatório não estiver preenchido
+       - Validação dos campos obrigatórios no Step 1
        - Login/Registro (atualiza os dados do passageiro principal)
        - Modal de Passageiros Extras (com função "copiar para todos")
        - Tabela Comparativa do Seguro (Step 2, 4 colunas)
@@ -765,7 +765,7 @@
       });
     }
     
-    // 3. Validação do Step 1 – Verifica se todos os campos obrigatórios estão preenchidos
+    // 3. Funções de Validação para o Step 1
     function isRegistrationComplete() {
       const firstName = document.getElementById("firstName").value.trim();
       const lastName = document.getElementById("lastName").value.trim();
@@ -799,24 +799,25 @@
       return (loginEmail && loginPassword);
     }
     
-    // 4. Eventos de Navegação (Step 1 → Step 2)
+    // 4. Validação do Step 1 – impede avançar se algum campo obrigatório não estiver preenchido
+    // Aqui, validamos com base na visibilidade dos campos de registro ou login
     const toStep2Btn = document.getElementById("toStep2");
     toStep2Btn.addEventListener("click", () => {
-      // Se o usuário não estiver logado, verifica se os campos foram preenchidos
-      if (!isLoggedIn) {
-        if (isLoginMode) {
-          if (!isLoginComplete()) {
-            alert("Por favor, preencha E-mail e Senha de Login.");
-            return;
-          }
-        } else {
-          if (!isRegistrationComplete()) {
-            alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
-            return;
-          }
+      // Se os campos de registro estão visíveis, valida o registro
+      if (registrationFieldsGeneral.style.display !== "none") {
+        if (!isRegistrationComplete()) {
+          alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
+          return;
         }
       }
-      // Verifica se todos os campos dos passageiros extras (se houver) foram preenchidos
+      // Se os campos de login estão visíveis, valida o login
+      if (loginFields.style.display !== "none") {
+        if (!isLoginComplete()) {
+          alert("Por favor, preencha E-mail e Senha de Login.");
+          return;
+        }
+      }
+      // Verifica os passageiros extras, se houver
       if (!areAllExtraPassengersFilled()) {
         alert("Por favor, preencha todos os campos dos passageiros extras.");
         return;
@@ -849,10 +850,10 @@
     const backToStep2Btn = document.getElementById("backToStep2");
     backToStep2Btn?.addEventListener("click", () => showStep(2));
     
-    
-    // 5. Login/Registro (Alterna entre modos)
+    // 5. Login/Registro – Alterna entre os modos
     let isLoginMode = false;
     let isRegistrationMode = true;
+    // Se o usuário estiver logado, a variável isLoggedIn será true
     const isLoggedIn = !!localStorage.getItem("agentId");
     
     const toggleLoginLink = document.getElementById("toggleLogin");
@@ -889,7 +890,6 @@
       .then(data => {
         if (data.success) {
           localStorage.setItem("agentId", data.user.id);
-          // Atualiza os dados do passageiro principal com os dados retornados
           checkoutData.mainPassenger.firstName = data.user.firstName || "";
           checkoutData.mainPassenger.lastName = data.user.lastName || "";
           checkoutData.mainPassenger.email = data.user.email || "";
@@ -1319,7 +1319,7 @@
       return parseFloat(amount).toFixed(2);
     }
     
-    // 9. Máscaras e Consulta de CEP
+    // 10. Máscaras e Consulta de CEP
     document.getElementById("cep").addEventListener("blur", function() {
       buscarCEP(this.value);
     });
@@ -1357,7 +1357,7 @@
       e.target.value = value;
     });
     
-    // 10. Modais dos Planos de Seguro
+    // 11. Modais dos Planos de Seguro
     document.querySelectorAll('.openEssencialModal').forEach(btn => {
       btn.addEventListener("click", e => {
         e.preventDefault();
@@ -1377,7 +1377,7 @@
       });
     });
     
-    // 11. Atualiza o Resumo do Carrinho
+    // 12. Atualiza o Resumo do Carrinho
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0, html = "";
