@@ -6,12 +6,8 @@
   <!-- Componente de Header -->
   <script src="/js/header-component.js" type="module"></script>
 
-  <!-- Braintree Scripts (usados apenas para a estrutura do cartão de crédito, se necessário) -->
-  <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
-  <script src="https://js.braintreegateway.com/web/3.94.0/js/hosted-fields.min.js"></script>
-  <script src="https://js.braintreegateway.com/web/3.94.0/js/three-d-secure.min.js"></script>
-  <!-- Não usamos o script externo da Malga, pois a URL não está disponível -->
-  
+  <!-- (Removidos os scripts do Braintree/PayPal, pois não serão mais utilizados) -->
+
   <style>
     /* ===== FONT & RESET ===== */
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
@@ -133,9 +129,7 @@
     .reserva-item:last-child {
       border-bottom: none; margin-bottom: 0;
     }
-    .reserva-left {
-      display: flex; flex-direction: column; gap: 0.25rem;
-    }
+    .reserva-left { display: flex; flex-direction: column; gap: 0.25rem; }
     .reserva-left .categoria {
       font-size: 0.85rem; font-weight: 600; color: #007aff;
     }
@@ -157,26 +151,14 @@
     .resumo-compra .resumo-row {
       display: flex; justify-content: space-between; margin-bottom: 10px;
     }
-    .resumo-compra .resumo-row label {
-      font-weight: 600;
-    }
-    .resumo-compra .resumo-row p {
-      font-weight: 600; margin: 0;
-    }
-    .resumo-compra .cupom {
-      margin-top: 15px;
-    }
-    .resumo-compra .cupom label {
-      font-weight: 600;
-    }
+    .resumo-compra .resumo-row label { font-weight: 600; }
+    .resumo-compra .resumo-row p { font-weight: 600; margin: 0; }
+    .resumo-compra .cupom { margin-top: 15px; }
+    .resumo-compra .cupom label { font-weight: 600; }
 
     /* ===== STEP CONTENTS ===== */
-    .step-content {
-      display: none;
-    }
-    .step-content.active {
-      display: block;
-    }
+    .step-content { display: none; }
+    .step-content.active { display: block; }
 
     /* ===== STEP 3: PAGAMENTO ===== */
     #card-container {
@@ -194,16 +176,16 @@
       width: 100%; border: 1px solid #ccc; border-radius: 6px;
       padding: 0.4rem; margin-top: 0.2rem;
     }
-    /* Container para Pix */
-    #pix-container {
-      margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
-      border-radius: 8px; padding: 1.5rem; text-align: center;
+    #checkout-form button.btn-pay-pal {
+      margin-top: 1rem; width: 100%; font-weight: 600;
     }
-    /* Container para Boleto */
-    #boleto-container {
-      margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
-      border-radius: 8px; padding: 1.5rem; text-align: center;
-    }
+    <!-- Contêineres para Pix e Boleto -->
+    <style>
+      #pix-container, #boleto-container {
+        margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
+        border-radius: 8px; padding: 1rem;
+      }
+    </style>
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
     .btn-add-passenger {
@@ -237,15 +219,11 @@
       background: #fff; border: 1px solid #ddd; border-radius: 8px;
       padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .passenger-box h4 {
-      font-size: 1rem; margin-bottom: 0.5rem; color: #333;
-    }
+    .passenger-box h4 { font-size: 1rem; margin-bottom: 0.5rem; color: #333; }
     .fields-grid-2cols-modal {
       display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;
     }
-    .copy-for-all-btn {
-      background: #365cf5; color: #fff; margin-right: 1rem;
-    }
+    .copy-for-all-btn { background: #365cf5; color: #fff; margin-right: 1rem; }
 
     /* ===== STEP 2: TABELA DE COMPARAÇÃO (4 colunas) ===== */
     .plans-comparison {
@@ -255,12 +233,12 @@
     .comparison-table {
       width: 100%; border-collapse: collapse; text-align: center;
     }
-    .comparison-table thead tr {
-      background: #fdfdfd;
-    }
+    .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table th,
     .comparison-table td {
-      padding: 1rem; border-bottom: 1px solid #eee; font-size: 0.85rem; vertical-align: middle;
+      padding: 1rem; /* Aumentamos para melhorar o espaçamento */
+      border-bottom: 1px solid #eee;
+      font-size: 0.85rem; vertical-align: middle;
     }
     .comparison-table thead th {
       font-weight: 600; font-size: 0.9rem; color: #333; border-bottom: 2px solid #ddd;
@@ -269,17 +247,15 @@
       border-top: 2px solid #ddd; font-weight: 600; padding: 1rem;
     }
     .comparison-table td:first-child {
-      text-align: left; font-weight: 500;
+      text-align: left; /* "Itens" fica alinhado à esquerda */
+      font-weight: 500;
     }
     .comparison-table input[type="radio"] {
-      transform: scale(1.2); cursor: pointer; margin-top: 15px;
+      transform: scale(1.2); cursor: pointer;
+      margin-top: 15px;
     }
-    .check {
-      color: #00c853; font-weight: 700;
-    }
-    .x {
-      color: #d32f2f; font-weight: 700;
-    }
+    .check { color: #00c853; font-weight: 700; }
+    .x { color: #d32f2f; font-weight: 700; }
     .price {
       font-size: 1rem; color: #333; font-weight: 700; margin-bottom: 0.5rem; display: block;
     }
@@ -291,6 +267,7 @@
       transform: translateX(50%); background: #007aff; color: #fff;
       font-size: 0.7rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 8px;
     }
+
     /* ===== MODAL DETALHES MELHORADO ===== */
     .coverage-table {
       width: 100%; border-collapse: collapse; margin-top: 1rem;
@@ -339,13 +316,16 @@
   <div class="main-container">
     <!-- COLUNA ESQUERDA (STEPS) -->
     <div class="left-col">
-      <!-- STEP 1: Passageiro Principal + Adição de Passageiros Extras -->
+      <!-- STEP 1: Passageiro Principal + Botão Adicionar Passageiros -->
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
+          <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
+
+          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
           <div id="topFieldsContainer">
             <!-- Formulário de Login -->
             <div id="loginFields" style="display: none;">
@@ -363,8 +343,10 @@
                 <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
               </div>
             </div>
-            <!-- Formulário de Registro -->
+
+            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
             <div id="registrationFieldsGeneral">
+              <!-- Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome *</label>
@@ -375,6 +357,7 @@
                   <input type="text" id="lastName" placeholder="Sobrenome">
                 </div>
               </div>
+              <!-- Celular e E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular *</label>
@@ -385,6 +368,7 @@
                   <input type="email" id="email" placeholder="seuemail@exemplo.com">
                 </div>
               </div>
+              <!-- Senha e Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Senha *</label>
@@ -397,7 +381,8 @@
               </div>
             </div>
           </div>
-          <!-- Campos de Documentos e Endereço -->
+
+          <!-- Campos de Documentos/Endereço (sempre visíveis) -->
           <div id="documentFields">
             <div class="fields-grid-3cols">
               <div class="form-field">
@@ -438,19 +423,25 @@
               </div>
             </div>
           </div>
-          <!-- Botão para abrir modal de Passageiros Extras -->
+
+          <!-- Botão "Nomear passageiros (Obrigatório)➕" para abrir modal -->
           <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
+
           <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
           <div class="navigation">
             <button class="btn-save-passenger" id="toStep2">Próximo</button>
           </div>
         </div>
-        <!-- Modal de Passageiros Extras -->
+
+        <!-- MODAL PARA PASSAGEIROS EXTRAS -->
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
             <h3>Passageiros Extras – Nomeação Obrigatória</h3>
-            <p class="modal-subtitle">Nomear todos os passageiros é essencial para evitar imprevistos.</p>
+            <p class="modal-subtitle">
+              Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos.
+              Isso evita restrições e assegura uma experiência segura e tranquila.
+            </p>
             <div id="modalPassengerContainer"></div>
             <div style="text-align: right; margin-top: 1rem;">
               <button class="btn-save-passenger copy-for-all-btn" id="copyForAllBtn" style="display:none;">Copiar para todos</button>
@@ -460,11 +451,14 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes (Tabela Comparativa) -->
+      <!-- STEP 2: Detalhes Adicionais (NOVO DESIGN) -->
+      <!-- STEP 2: Tabela Comparativa (4 colunas) -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
-          <p style="margin-bottom:1rem; font-size:0.9rem; color:#555;">Compare seu plano atual com o Essencial e o Completo.</p>
+          <p style="margin-bottom:1rem; font-size:0.9rem; color:#555;">
+            Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. Compare seu plano atual com o Essencial e o Completo.
+          </p>
           <div class="plans-comparison">
             <table class="comparison-table">
               <thead>
@@ -483,7 +477,7 @@
                   <td>U$80.000</td>
                 </tr>
                 <tr>
-                  <td style="text-align:left;">Pagamento feito direto ao local sem burocracia</td>
+                  <td style="text-align:left;">Pagamento é feito pelo seguro direto ao local sem burocracia</td>
                   <td><span class="x">✖</span></td>
                   <td><span class="check">✅</span></td>
                   <td><span class="check">✅</span></td>
@@ -557,8 +551,7 @@
               <label for="methodBoleto">Boleto</label>
             </div>
           </div>
-          <!-- Container para Cartão de Crédito -->
-          <div id="card-container" style="display:none;">
+          <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
               <select id="installments">
@@ -592,15 +585,11 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
-          <!-- Container para Pix -->
           <div id="pix-container" style="display:none;">
-            <div id="pix-qr-code"></div>
-            <p id="pix-instructions">Escaneie o QR Code para pagar com Pix.</p>
+            <div id="pix-button-container"></div>
           </div>
-          <!-- Container para Boleto -->
           <div id="boleto-container" style="display:none;">
-            <button id="generate-boleto-btn" class="btn-pay-pal">Gerar Boleto</button>
-            <div id="boleto-info"></div>
+            <div id="boleto-button-container"></div>
           </div>
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
@@ -872,18 +861,26 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
   <script>
-    // Variável global para armazenar dados do checkout
+    /* =============================================
+       LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
+       MÁSCARAS, CEP, E PAGAMENTO VIA MALGA
+    ============================================= */
     let checkoutData = {
       extraPassengers: [],
-      insuranceSelected: "none"
+      insuranceSelected: "none" // "none", "30k" ou "80k"
     };
 
-    // Função para mostrar o step desejado
+    const stepsMenu = document.getElementById("stepsMenu");
+    const stepContents = document.querySelectorAll(".step-content");
+    const stepButtons = stepsMenu.querySelectorAll(".step");
+
+    const toStep2Btn = document.getElementById("toStep2");
+    const backToStep1Btn = document.getElementById("backToStep1");
+    const toStep3Btn = document.getElementById("toStep3");
+    const backToStep2Btn = document.getElementById("backToStep2");
+
     function showStep(stepNumber) {
-      const stepContents = document.querySelectorAll(".step-content");
-      const stepButtons = document.querySelectorAll(".steps-menu .step");
       stepContents.forEach(content => {
         content.classList.toggle("active", content.dataset.step === String(stepNumber));
       });
@@ -898,43 +895,80 @@
       });
     }
 
-    // Exemplo dummy de atualização do carrinho
-    function updateCheckoutCart(items) {
-      const container = document.getElementById("cartItemsList");
-      let subtotal = 0;
-      let html = "";
-      items.forEach(item => {
-        let price = item.basePriceAdult || 80;
-        subtotal += price;
-        html += `
-          <div class="reserva-item">
-            <div class="reserva-left">
-              <span class="categoria">${item.type || "Hospedagem"}</span>
-              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-              <div class="reserva-details">
-                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-              </div>
-            </div>
-            <div class="reserva-preco">
-              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </div>
-          </div>`;
-      });
-      container.innerHTML = html;
-      document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-      document.getElementById("discountValue").textContent = "- R$ 0,00";
-      document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    // Carrega itens do carrinho
+    let cartItems = [];
+    const cartElement = document.getElementById("shoppingCart");
+    if (cartElement && cartElement.items && cartElement.items.length > 0) {
+      cartItems = cartElement.items;
+    } else {
+      const savedCart = localStorage.getItem("cartItems");
+      if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+      } else {
+        // Exemplo default (fictício)
+        cartItems = [
+          {
+            hotelName: "Hotel Exemplo A",
+            adults: 2,
+            children: 1,
+            basePriceAdult: 100,
+            checkIn: "2025-04-16",
+            checkOut: "2025-04-18"
+          },
+          {
+            hotelName: "Hotel Exemplo B",
+            adults: 3,
+            children: 0,
+            basePriceAdult: 150,
+            checkIn: "2025-04-10",
+            checkOut: "2025-04-12"
+          }
+        ];
+      }
     }
 
-    // Eventos de navegação dos steps
-    document.getElementById("toStep2")?.addEventListener("click", () => {
-      // Armazena dados do formulário
-      checkoutData.firstName = document.getElementById("firstName").value;
-      checkoutData.lastName = document.getElementById("lastName").value;
-      checkoutData.email = document.getElementById("email").value;
-      checkoutData.celular = document.getElementById("celular").value;
+    /* Steps Navigation */
+    toStep2Btn.addEventListener("click", () => {
+      // Verifica se o usuário já está logado
+      const isLoggedIn = !!localStorage.getItem("agentId");
+
+      // Se não estiver logado, valida os campos de registro
+      if (!isLoggedIn) {
+        if (
+          !document.getElementById("firstName").value ||
+          !document.getElementById("lastName").value ||
+          !document.getElementById("celular").value ||
+          !document.getElementById("email").value ||
+          !document.getElementById("password").value ||
+          !document.getElementById("confirmPassword").value
+        ) {
+          alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+          return;
+        }
+        // Armazena os dados do registro
+        checkoutData.firstName = document.getElementById("firstName").value;
+        checkoutData.lastName = document.getElementById("lastName").value;
+        checkoutData.celular = document.getElementById("celular").value;
+        checkoutData.email = document.getElementById("email").value;
+        checkoutData.password = document.getElementById("password").value;
+        checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
+      }
+
+      // Em todos os casos, os campos de documentos e endereço devem ser preenchidos
+      if (
+        !document.getElementById("cpf").value ||
+        !document.getElementById("rg").value ||
+        !document.getElementById("birthdate").value ||
+        !document.getElementById("cep").value ||
+        !document.getElementById("state").value ||
+        !document.getElementById("city").value ||
+        !document.getElementById("address").value ||
+        !document.getElementById("number").value
+      ) {
+        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+        return;
+      }
+      
       checkoutData.cpf = document.getElementById("cpf").value;
       checkoutData.rg = document.getElementById("rg").value;
       checkoutData.birthdate = document.getElementById("birthdate").value;
@@ -943,22 +977,69 @@
       checkoutData.city = document.getElementById("city").value;
       checkoutData.address = document.getElementById("address").value;
       checkoutData.number = document.getElementById("number").value;
+
       showStep(2);
     });
 
-    document.getElementById("toStep3")?.addEventListener("click", () => {
+    toStep3Btn.addEventListener("click", () => {
+      // Captura o seguro selecionado
       const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
       checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-      // Atualiza o carrinho com dados dummy
-      updateCheckoutCart([{ hotelName: "Hotel Exemplo", basePriceAdult: 100, adults: 2, children: 0 }]);
+      // Define o custo do seguro conforme a opção
+      let insuranceCost = 0;
+      if (checkoutData.insuranceSelected === "30k") {
+        insuranceCost = 112.81;
+      } else if (checkoutData.insuranceSelected === "80k") {
+        insuranceCost = 212.02;
+      }
+      checkoutData.insuranceCost = insuranceCost;
+      // Atualiza o carrinho e vai para o Step 3
+      updateCheckoutCart(cartItems);
       showStep(3);
       initializePaymentMethod();
     });
 
-    document.getElementById("backToStep1")?.addEventListener("click", () => showStep(1));
-    document.getElementById("backToStep2")?.addEventListener("click", () => showStep(2));
+    backToStep1Btn?.addEventListener("click", () => showStep(1));
+    backToStep2Btn?.addEventListener("click", () => showStep(2));
 
-    // Lógica para modal de passageiros extras
+    /* Montar Carrinho na Coluna Direita */
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0;
+      let html = "";
+      items.forEach(item => {
+        let price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += 
+          `<div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+          </div>`;
+      });
+      if (checkoutData.insuranceCost) {
+        subtotal += checkoutData.insuranceCost;
+      }
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("totalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+
+    /* ====== MODAL PASSAGEIROS EXTRAS ====== */
+    const passengerModal = document.getElementById("passengerModal");
     const openPassengerModalBtn = document.getElementById("openPassengerModal");
     const closeModalBtn = document.getElementById("closeModal");
     const savePassengersBtn = document.getElementById("savePassengersBtn");
@@ -980,8 +1061,8 @@
           for (let i = 0; i < extraCount; i++) {
             const fieldsWrapper = document.createElement("div");
             fieldsWrapper.classList.add("fields-grid-2cols-modal");
-            fieldsWrapper.innerHTML = `
-              <div class="form-field">
+            fieldsWrapper.innerHTML = 
+              `<div class="form-field">
                 <label>Nome do Passageiro #${i+1}</label>
                 <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
               </div>
@@ -997,137 +1078,75 @@
       copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
     }
 
-    openPassengerModalBtn?.addEventListener("click", (e) => {
+    openPassengerModalBtn.addEventListener("click", e => {
       e.preventDefault();
-      createModalPassengerForms([{ hotelName: "Hotel Exemplo", adults: 2 }]);
-      document.getElementById("passengerModal").style.display = "block";
+      createModalPassengerForms(cartItems);
+      passengerModal.style.display = "block";
     });
 
-    closeModalBtn?.addEventListener("click", () => {
-      document.getElementById("passengerModal").style.display = "none";
+    closeModalBtn.addEventListener("click", () => {
+      passengerModal.style.display = "none";
     });
 
-    savePassengersBtn?.addEventListener("click", () => {
-      document.getElementById("passengerModal").style.display = "none";
+    savePassengersBtn.addEventListener("click", () => {
+      passengerModal.style.display = "none";
       alert("Passageiros extras salvos!");
     });
 
-    copyForAllBtn?.addEventListener("click", () => {
+    copyForAllBtn.addEventListener("click", () => {
+      let sourceIndex = null;
+      let sourceExtraCount = 0;
+      for (let i = 0; i < cartItems.length; i++) {
+        let extraCount = (cartItems[i].adults || 1) - 1;
+        if (extraCount > 0) {
+          sourceIndex = i;
+          sourceExtraCount = extraCount;
+          break;
+        }
+      }
+      if (sourceIndex === null) return;
+      const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+      for (let i = 0; i < cartItems.length; i++) {
+        if (i !== sourceIndex) {
+          let extraCount = (cartItems[i].adults || 1) - 1;
+          if (extraCount === sourceExtraCount && extraCount > 0) {
+            checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+            for (let passIndex = 0; passIndex < extraCount; passIndex++) {
+              const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const nameInput = document.querySelector(nameSelector);
+              const birthInput = document.querySelector(birthSelector);
+              if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
+                nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
+                birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
+              }
+            }
+          }
+        }
+      }
       alert("Dados copiados para todos os itens compatíveis!");
     });
 
-    // Máscaras para CPF e RG
-    document.getElementById("cpf")?.addEventListener("input", function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 3) { value = value.replace(/^(\d{3})(\d)/, '$1.$2'); }
-      if(value.length > 6) { value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if(value.length > 9) { value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4'); }
-      e.target.value = value;
-    });
-    document.getElementById("rg")?.addEventListener("input", function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 2) { value = value.replace(/^(\d{2})(\d)/, '$1.$2'); }
-      if(value.length > 5) { value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if(value.length > 7) { value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4'); }
-      e.target.value = value;
-    });
-
-    // Auto-preenchimento do endereço via CEP
-    function buscarCEP(cep) {
-      cep = cep.replace(/\D/g, '');
-      if (cep.length === 8) {
-        const url = `https://viacep.com.br/ws/${cep}/json/`;
-        fetch(url)
-          .then(response => response.json())
-          .then(data => {
-            if (data.erro) { alert("CEP não encontrado!"); return; }
-            document.getElementById("address").value = data.logradouro || "";
-            document.getElementById("city").value = data.localidade || "";
-            document.getElementById("state").value = data.uf || "";
-          })
-          .catch(error => {
-            console.error("Erro ao buscar CEP:", error);
-            alert("Não foi possível consultar o CEP.");
-          });
-      } else {
-        console.log("CEP inválido ou incompleto.");
-      }
-    }
-    document.getElementById("cep")?.addEventListener("blur", function() {
-      buscarCEP(this.value);
-    });
-
-    // Integração de Pagamento
-
-    // Função dummy para tokenização do cartão (simula a integração com Malga)
-    async function initializeMalgaCard() {
-      console.log("Inicializando tokenização do cartão (dummy)...");
-      const form = document.getElementById("checkout-form");
-      form.addEventListener("submit", async (evt) => {
-        evt.preventDefault();
-        const dummyNonce = "dummy_card_nonce";
-        console.log("Dummy nonce gerado:", dummyNonce);
-        processPayment(dummyNonce, "card");
-      });
-    }
-
-    // Função para inicializar pagamento via PIX
-    async function initializeMalgaPix() {
-      try {
-        const res = await fetch("/api/malga/create-pix-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: getOrderAmount(),
-            customer: {
-              firstName: checkoutData.firstName,
-              lastName: checkoutData.lastName,
-              email: checkoutData.email,
-              phone: checkoutData.celular
-            }
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("pix-qr-code").innerHTML = `<img src="${data.qrCode}" alt="QR Code Pix" />`;
-        } else {
-          alert("Erro ao gerar o QR Code do Pix: " + data.message);
+    modalPassengerContainer.addEventListener("input", e => {
+      const target = e.target;
+      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+        const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
+        if (!checkoutData.extraPassengers[itemIndex]) {
+          checkoutData.extraPassengers[itemIndex] = [];
         }
-      } catch (error) {
-        console.error("Erro ao gerar Pix:", error);
-        alert("Erro ao gerar o QR Code do Pix.");
-      }
-    }
-
-    // Função para inicializar pagamento via Boleto
-    async function initializeMalgaBoleto() {
-      try {
-        const res = await fetch("/api/malga/create-boleto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: getOrderAmount(),
-            customer: {
-              firstName: checkoutData.firstName,
-              lastName: checkoutData.lastName,
-              email: checkoutData.email,
-              phone: checkoutData.celular
-            }
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById("boleto-info").innerHTML = `<p>Boleto gerado com sucesso! <a href="${data.boletoUrl}" target="_blank">Clique aqui para visualizar</a></p>`;
-        } else {
-          alert("Erro ao gerar boleto: " + data.message);
+        if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
+          checkoutData.extraPassengers[itemIndex][passIndex] = {};
         }
-      } catch (error) {
-        console.error("Erro ao gerar boleto:", error);
-        alert("Erro ao gerar boleto.");
+        if (target.classList.contains("modalExtraNameInput")) {
+          checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
+        } else {
+          checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
+        }
       }
-    }
+    });
 
-    // Função para exibir o container de pagamento correspondente
+    /* ====== INICIALIZAR PAGAMENTO VIA MALGA ====== */
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
@@ -1142,28 +1161,53 @@
         initializeMalgaPix();
       } else if (method === "boleto") {
         document.getElementById("boleto-container").style.display = "block";
-        // Se preferir gerar boleto automaticamente, descomente a linha abaixo:
-        // initializeMalgaBoleto();
+        initializeMalgaBoleto();
       }
     }
 
-    // Listeners para mudança do método de pagamento e para o botão Gerar Boleto
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-        radio.addEventListener("change", () => {
-          initializePaymentMethod();
-        });
+    async function initializeMalgaCard() {
+      // Lógica de integração com Malga para Cartão de Crédito com 3DS
+      // (Exemplo simplificado: ao submeter o formulário, um nonce dummy é gerado)
+      const form = document.getElementById("checkout-form");
+      form.addEventListener("submit", (evt) => {
+        evt.preventDefault();
+        // Aqui você integraria com a API do Malga para tokenizar os dados do cartão e acionar o 3DS.
+        // Para este exemplo, usamos um nonce dummy.
+        const dummyNonce = "malga-card-nonce";
+        processPayment(dummyNonce, "card");
       });
-      const generateBoletoBtn = document.getElementById("generate-boleto-btn");
-      if (generateBoletoBtn) {
-        generateBoletoBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          initializeMalgaBoleto();
-        });
-      }
-    });
+    }
 
-    // Função para processar o pagamento
+    function initializeMalgaPix() {
+      // Lógica de integração com Malga para pagamento via Pix
+      const pixButtonContainer = document.getElementById("pix-button-container");
+      pixButtonContainer.innerHTML = "";
+      const button = document.createElement("button");
+      button.textContent = "Pagar com Pix";
+      button.className = "btn-pay-pal";
+      button.addEventListener("click", () => {
+        // Integração com Malga para Pix – utilizando um nonce dummy neste exemplo.
+        const dummyNonce = "malga-pix-nonce";
+        processPayment(dummyNonce, "pix");
+      });
+      pixButtonContainer.appendChild(button);
+    }
+
+    function initializeMalgaBoleto() {
+      // Lógica de integração com Malga para Boleto
+      const boletoButtonContainer = document.getElementById("boleto-button-container");
+      boletoButtonContainer.innerHTML = "";
+      const button = document.createElement("button");
+      button.textContent = "Gerar Boleto";
+      button.className = "btn-pay-pal";
+      button.addEventListener("click", () => {
+        // Integração com Malga para Boleto – utilizando um nonce dummy neste exemplo.
+        const dummyNonce = "malga-boleto-nonce";
+        processPayment(dummyNonce, "boleto");
+      });
+      boletoButtonContainer.appendChild(button);
+    }
+
     async function processPayment(nonce, method = "card") {
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -1200,6 +1244,7 @@
       };
 
       try {
+        // Alterado o endpoint para utilizar a integração com Malga
         const res = await fetch("/api/malga/create-transaction", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1218,12 +1263,161 @@
       }
     }
 
-    // Função para obter o valor total do pedido
     function getOrderAmount() {
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
       return parseFloat(amount).toFixed(2);
     }
+
+    /* Ao carregar a página */
+    window.addEventListener("load", () => {
+      updateCheckoutCart(cartItems);
+
+      // Verifica se o usuário está logado
+      const isLoggedIn = !!localStorage.getItem("agentId");
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+      const loginFields = document.getElementById("loginFields");
+      if (isLoggedIn) {
+        // Se estiver logado, esconde campos de registro/login
+        toggleLoginLink.style.display = "none";
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "none";
+      } else {
+        // Se não estiver logado, mostra link e campos de registro
+        toggleLoginLink.style.display = "block";
+        registrationFieldsGeneral.style.display = "block";
+      }
+    });
+
+    /* ===================== LOGIN/REGISTRO ===================== */
+    const toggleLogin = document.getElementById("toggleLogin");
+    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+    const loginFields = document.getElementById("loginFields");
+
+    if (toggleLogin) {
+      toggleLogin.addEventListener("click", e => {
+        e.preventDefault();
+        // Alterna exibição entre form de registro e form de login
+        if (registrationFieldsGeneral.style.display !== "none") {
+          registrationFieldsGeneral.style.display = "none";
+          loginFields.style.display = "block";
+          toggleLogin.textContent = "Não tenho Login";
+        } else {
+          registrationFieldsGeneral.style.display = "block";
+          loginFields.style.display = "none";
+          toggleLogin.textContent = "Economize tempo fazendo Login";
+        }
+      });
+    }
+
+    const loginValidateBtn = document.getElementById("loginValidateBtn");
+    if (loginValidateBtn) {
+      loginValidateBtn.addEventListener("click", () => {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        fetch("/api/users/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if(data.success) {
+            localStorage.setItem("agentId", data.user.id);
+            alert("Login efetuado com sucesso!");
+            toggleLogin.style.display = "none";
+            registrationFieldsGeneral.style.display = "none";
+            loginFields.style.display = "none";
+          } else {
+            alert("Erro no login: " + (data.error || "Dados inválidos."));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Erro ao realizar o login. Tente novamente.");
+        });
+      });
+    }
+
+    /* ===================== AUTOPREENCHIMENTO DO ENDEREÇO VIA CEP ===================== */
+    function buscarCEP(cep) {
+      cep = cep.replace(/\D/g, '');
+      if (cep.length === 8) {
+        const url = `https://viacep.com.br/ws/${cep}/json/`;
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.erro) {
+              alert("CEP não encontrado!");
+              return;
+            }
+            document.getElementById("address").value = data.logradouro || "";
+            document.getElementById("city").value = data.localidade || "";
+            document.getElementById("state").value = data.uf || "";
+          })
+          .catch(error => {
+            console.error("Erro ao buscar CEP:", error);
+            alert("Não foi possível consultar o CEP.");
+          });
+      } else {
+        console.log("CEP inválido ou incompleto.");
+      }
+    }
+    document.getElementById("cep").addEventListener("blur", function() {
+      buscarCEP(this.value);
+    });
+
+    /* ===================== MÁSCARAS PARA CPF e RG ===================== */
+    document.getElementById("cpf").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if(value.length > 3) {
+        value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+      }
+      if(value.length > 6) {
+        value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+      }
+      if(value.length > 9) {
+        value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
+      }
+      e.target.value = value;
+    });
+    document.getElementById("rg").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if(value.length > 2) {
+        value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+      }
+      if(value.length > 5) {
+        value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+      }
+      if(value.length > 7) {
+        value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
+      }
+      e.target.value = value;
+    });
+
+    /* ===== Abertura dos modais de cobertura (Intermac 30K / 80K) ===== */
+    document.querySelectorAll('.open30kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('modalIntermac30K').style.display = 'block';
+      });
+    });
+    document.querySelectorAll('.open80kModal').forEach(el => {
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('modalIntermac80K').style.display = 'block';
+      });
+    });
+    /* Fechar modais de cobertura */
+    document.querySelectorAll('.close-modal').forEach(closeBtn => {
+      closeBtn.addEventListener('click', function() {
+        const modalId = this.getAttribute('data-close-modal');
+        if (modalId) {
+          document.getElementById(modalId).style.display = 'none';
+        }
+      });
+    });
   </script>
 </body>
 </html>
