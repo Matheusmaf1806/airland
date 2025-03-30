@@ -252,24 +252,7 @@
     }
     .copy-for-all-btn { background: #365cf5; color: #fff; margin-right: 1rem; }
     
-    /* ===== STEP 2: TABELA DE COMPARAÇÃO (REFERÊNCIA AIRHELP PLUS) ===== */
-    .comparison-header h2 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-    .comparison-header p {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 1rem;
-      line-height: 1.4;
-    }
-    .comparison-header p a {
-      color: #007aff;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .comparison-header p a:hover { text-decoration: underline; }
+    /* ===== STEP 2: TABELA DE COMPARAÇÃO (4 colunas) ===== */
     .plans-comparison {
       width: 100%;
       overflow-x: auto;
@@ -283,6 +266,7 @@
       border-collapse: collapse;
       text-align: center;
     }
+    .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table th,
     .comparison-table td {
       padding: 0.8rem;
@@ -290,29 +274,11 @@
       font-size: 0.85rem;
       vertical-align: middle;
     }
-    .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table thead th {
       font-weight: 600;
       font-size: 0.9rem;
       color: #333;
       border-bottom: 2px solid #ddd;
-    }
-    .comparison-table .recommended {
-      background: #e8f1ff;
-      position: relative;
-    }
-    .comparison-table .recommended::after {
-      content: "Recomendado";
-      position: absolute;
-      top: -10px;
-      right: 50%;
-      transform: translateX(50%);
-      background: #007aff;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
     }
     .comparison-table tfoot td {
       border-top: 2px solid #ddd;
@@ -325,7 +291,23 @@
     .check { color: #00c853; font-weight: 700; }
     .x { color: #d32f2f; font-weight: 700; }
     .price { font-size: 1rem; color: #333; font-weight: 700; }
-    
+    .recommended {
+      background: #e8f1ff;
+      position: relative;
+    }
+    .recommended::after {
+      content: "Recomendado";
+      position: absolute;
+      top: -10px;
+      right: 50%;
+      transform: translateX(50%);
+      background: #007aff;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -356,7 +338,7 @@
   
   <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA: Steps -->
+    <!-- COLUNA ESQUERDA (Steps) -->
     <div class="left-col">
       <!-- STEP 1: Passageiro Principal -->
       <div class="step-content active" data-step="1">
@@ -479,54 +461,77 @@
         </div>
       </div>
       
-      <!-- STEP 2: DETALHES ADICIONAIS – TABELA DE COMPARAÇÃO -->
+      <!-- STEP 2: Detalhes Adicionais – Tabela de Comparação -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
-          <div class="comparison-header">
-            <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
-            <p>
-              Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. Conheça os planos disponíveis e escolha o melhor para você.
-              <a href="#">Saiba mais</a>
-            </p>
-          </div>
+          <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
+          <p style="margin-bottom:1rem; font-size:0.9rem; color:#555;">
+            Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. A tabela abaixo compara o seu plano atual com o Plano Essencial e o Plano Completo.
+            <a href="#">Saiba mais</a>
+          </p>
           <div class="plans-comparison">
             <table class="comparison-table">
               <thead>
                 <tr>
-                  <th></th>
+                  <th style="text-align:left;">Itens</th>
+                  <th>Seu Plano</th>
                   <th class="recommended">Plano Essencial</th>
                   <th>Plano Completo</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="font-size:0.85rem; color:#555;">Atendimento via chat 24h</td>
-                  <td><span class="check">✔</span></td>
-                  <td><span class="check">✔</span></td>
+                  <td style="text-align:left; font-weight:600;">Cobertura</td>
+                  <td>Indefinida</td>
+                  <td>U$30.000</td>
+                  <td>U$80.000</td>
                 </tr>
                 <tr>
-                  <td style="font-size:0.85rem; color:#555; background:#fdfdfd;">Especialistas cuidam da indenização</td>
-                  <td><span class="check">✔</span></td>
-                  <td><span class="check">✔</span></td>
+                  <td style="text-align:left;">Você paga e tenta ser reembolsado</td>
+                  <td><span class="check">✅</span></td>
+                  <td></td>
+                  <td></td>
                 </tr>
                 <tr>
-                  <td style="font-size:0.85rem; color:#555;">Acesso à Sala VIP em caso de atrasos</td>
+                  <td style="text-align:left;">Pagamento feito pelo seguro direto sem burocracia</td>
                   <td><span class="x">✖</span></td>
-                  <td><span class="check">✔</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Atendimento em português</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Cobertura farmacêutica</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Você ganha brinde por comprar</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr>
                   <td>
-                    <p class="price">R$ 0,00 /pessoa</p>
+                    <p class="price">R$ 0,00</p>
                     <input type="radio" name="insuranceOption" value="none" />
                   </td>
+                  <td></td>
                   <td class="recommended">
-                    <p class="price">R$ 60,65 /pessoa</p>
+                    <p class="price">R$ 60,65</p>
+                    <a href="#" class="openEssencialModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
                     <input type="radio" name="insuranceOption" value="essencial" />
                   </td>
                   <td>
-                    <p class="price">R$ 101,09 /pessoa</p>
+                    <p class="price">R$ 101,09</p>
+                    <a href="#" class="openCompletoModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
                     <input type="radio" name="insuranceOption" value="completo" />
                   </td>
                 </tr>
@@ -540,7 +545,7 @@
         </div>
       </div>
       
-      <!-- STEP 3: PAGAMENTO -->
+      <!-- STEP 3: Pagamento -->
       <div class="step-content" data-step="3">
         <div class="card-style-1">
           <h2>Pagamento</h2>
@@ -602,7 +607,7 @@
         </div>
       </div>
       
-      <!-- STEP 4: CONFIRMAÇÃO -->
+      <!-- STEP 4: Confirmação -->
       <div class="step-content" data-step="4">
         <div class="card-style-1">
           <h2>Pagamento Concluído</h2>
@@ -612,7 +617,7 @@
       </div>
     </div>
     
-    <!-- COLUNA DIREITA: RESUMO DO CARRINHO -->
+    <!-- COLUNA DIREITA: Resumo do Carrinho -->
     <div class="right-col">
       <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
@@ -646,60 +651,220 @@
   <!-- (Opcional) Shopping Cart oculto -->
   <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
   
-  <!-- MODAL: Coberturas Plano Essencial -->
-  <div class="modal" id="modalIntermac30K">
+  <!-- MODAL: Detalhes do Plano Essencial -->
+  <div class="modal" id="modalIntermac30K" style="display:none;">
     <div class="modal-content">
       <span class="close-modal" data-close-modal="modalIntermac30K">&times;</span>
       <h3>Plano Essencial – Detalhes</h3>
-      <table class="coverage-table">
-        <thead>
+      <table class="coverage-table" style="width:100%; border-collapse: collapse; margin-top:1rem;">
+        <thead style="background:#f1f5f9;">
           <tr>
-            <th>Coberturas</th>
-            <th>Valores</th>
+            <th style="padding:8px; border:1px solid #ddd; text-align:left;">Coberturas</th>
+            <th style="padding:8px; border:1px solid #ddd; text-align:left;">Valores</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Atendimento via chat 24h</td>
-            <td>Incluso</td>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$30,000.00</td>
           </tr>
           <tr>
-            <td>Especialistas na indenização</td>
-            <td>Incluso</td>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$200.00</td>
           </tr>
           <tr>
-            <td>Acesso à Sala VIP</td>
-            <td>Não Incluso</td>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$150.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,000.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$350.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
   
-  <!-- MODAL: Coberturas Plano Completo -->
-  <div class="modal" id="modalIntermac80K">
+  <!-- MODAL: Detalhes do Plano Completo -->
+  <div class="modal" id="modalIntermac80K" style="display:none;">
     <div class="modal-content">
       <span class="close-modal" data-close-modal="modalIntermac80K">&times;</span>
       <h3>Plano Completo – Detalhes</h3>
-      <table class="coverage-table">
-        <thead>
+      <table class="coverage-table" style="width:100%; border-collapse: collapse; margin-top:1rem;">
+        <thead style="background:#f1f5f9;">
           <tr>
-            <th>Coberturas</th>
-            <th>Valores</th>
+            <th style="padding:8px; border:1px solid #ddd; text-align:left;">Coberturas</th>
+            <th style="padding:8px; border:1px solid #ddd; text-align:left;">Valores</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Atendimento via chat 24h</td>
-            <td>Incluso</td>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$80,000.00</td>
           </tr>
           <tr>
-            <td>Especialistas na indenização</td>
-            <td>Incluso</td>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
           </tr>
           <tr>
-            <td>Acesso à Sala VIP</td>
-            <td>Incluso</td>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,600.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$1,250.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
           </tr>
         </tbody>
       </table>
@@ -710,12 +875,12 @@
     /* =============================================
        LÓGICA COMPLETA DE CHECKOUT:
        - Multi-Step
-       - Login/Registro (Lógica de Login Atualizada)
-       - Armazenamento de Dados (Passageiro Principal e Extras)
+       - Login/Registro (atualiza dados do passageiro principal)
        - Modal de Passageiros Extras
-       - Tabela Comparativa de Seguro (Step 2)
+       - Tabela Comparativa do Seguro (Step 2 com 4 colunas)
+       - Modais de Detalhes dos Planos Essencial e Completo
        - Integração de Pagamento (Braintree, PayPal, Google Pay)
-       - Validações, Máscaras e Consulta de CEP
+       - Máscaras e Consulta de CEP
        ============================================= */
     
     // CONTROLE DE LOGIN/REGISTRO
@@ -789,7 +954,7 @@
       .then(data => {
         if (data.success) {
           localStorage.setItem("agentId", data.user.id);
-          // Atualiza os dados do passageiro principal
+          // Atualiza os dados do passageiro principal com os dados retornados
           checkoutData.mainPassenger.firstName = data.user.firstName || "";
           checkoutData.mainPassenger.lastName = data.user.lastName || "";
           checkoutData.mainPassenger.email = data.user.email || "";
@@ -807,7 +972,6 @@
       });
     });
     
-    // Navegação entre steps
     const toStep2Btn = document.getElementById("toStep2");
     toStep2Btn.addEventListener("click", () => {
       if (!isLoggedIn) {
@@ -886,7 +1050,7 @@
     });
     backToStep2Btn?.addEventListener("click", () => showStep(2));
     
-    // CARRINHO – Exemplo de dados
+    // EXEMPLO DE DADOS DO CARRINHO
     let cartItems = [];
     const cartElement = document.getElementById("shoppingCart");
     if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -1365,18 +1529,21 @@
       e.target.value = value;
     });
     
-    document.querySelectorAll('.open30kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
+    // Abre o modal do Plano Essencial
+    document.querySelectorAll('.openEssencialModal').forEach(btn => {
+      btn.addEventListener('click', e => {
         e.preventDefault();
         document.getElementById('modalIntermac30K').style.display = 'block';
       });
     });
-    document.querySelectorAll('.open80kModal').forEach(el => {
-      el.addEventListener('click', function(e) {
+    // Abre o modal do Plano Completo
+    document.querySelectorAll('.openCompletoModal').forEach(btn => {
+      btn.addEventListener('click', e => {
         e.preventDefault();
         document.getElementById('modalIntermac80K').style.display = 'block';
       });
     });
+    // Fecha os modais
     document.querySelectorAll('.close-modal').forEach(closeBtn => {
       closeBtn.addEventListener('click', function() {
         const modalId = this.getAttribute('data-close-modal');
@@ -1416,6 +1583,18 @@
       document.getElementById("discountValue").textContent = "- R$ 0,00";
       document.getElementById("totalValue").textContent =
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+    
+    function areAllExtraPassengersFilled() {
+      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
+        const item = checkoutData.extraPassengers[i];
+        if (!item) continue;
+        for (let p = 0; p < item.length; p++) {
+          const pass = item[p];
+          if (!pass.name || !pass.birthdate) { return false; }
+        }
+      }
+      return true;
     }
     
   </script>
