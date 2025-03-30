@@ -6,8 +6,7 @@
   <!-- Componente de Header -->
   <script src="/js/header-component.js" type="module"></script>
 
-  <!-- (Removidos os scripts do Braintree/PayPal, pois não serão mais utilizados) -->
-
+  <!-- FONT & RESET -->
   <style>
     /* ===== FONT & RESET ===== */
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
@@ -179,13 +178,11 @@
     #checkout-form button.btn-pay-pal {
       margin-top: 1rem; width: 100%; font-weight: 600;
     }
-    <!-- Contêineres para Pix e Boleto -->
-    <style>
-      #pix-container, #boleto-container {
-        margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
-        border-radius: 8px; padding: 1rem;
-      }
-    </style>
+    /* ===== NOVOS CONTAINERS MALGA ===== */
+    #pix-container, #boleto-container {
+      margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
+      border-radius: 8px; padding: 1.5rem;
+    }
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
     .btn-add-passenger {
@@ -236,7 +233,7 @@
     .comparison-table thead tr { background: #fdfdfd; }
     .comparison-table th,
     .comparison-table td {
-      padding: 1rem; /* Aumentamos para melhorar o espaçamento */
+      padding: 1rem;
       border-bottom: 1px solid #eee;
       font-size: 0.85rem; vertical-align: middle;
     }
@@ -247,7 +244,7 @@
       border-top: 2px solid #ddd; font-weight: 600; padding: 1rem;
     }
     .comparison-table td:first-child {
-      text-align: left; /* "Itens" fica alinhado à esquerda */
+      text-align: left;
       font-weight: 500;
     }
     .comparison-table input[type="radio"] {
@@ -551,6 +548,7 @@
               <label for="methodBoleto">Boleto</label>
             </div>
           </div>
+          <!-- Container para Cartão de Crédito -->
           <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
@@ -585,12 +583,10 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
-          <div id="pix-container" style="display:none;">
-            <div id="pix-button-container"></div>
-          </div>
-          <div id="boleto-container" style="display:none;">
-            <div id="boleto-button-container"></div>
-          </div>
+          <!-- Container para Pix -->
+          <div id="pix-container" style="display:none;"></div>
+          <!-- Container para Boleto -->
+          <div id="boleto-container" style="display:none;"></div>
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
           </div>
@@ -864,7 +860,7 @@
   <script>
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
-       MÁSCARAS, CEP, E PAGAMENTO VIA MALGA
+       MÁSCARAS, CEP, E INTEGRAÇÃO DE PAGAMENTO COM MALGA
     ============================================= */
     let checkoutData = {
       extraPassengers: [],
@@ -1146,7 +1142,7 @@
       }
     });
 
-    /* ====== INICIALIZAR PAGAMENTO VIA MALGA ====== */
+    /* ====== INICIALIZAR PAGAMENTO COM MALGA ====== */
     function initializePaymentMethod() {
       const method = document.querySelector('input[name="paymentMethod"]:checked').value;
       document.getElementById("card-container").style.display = "none";
@@ -1165,50 +1161,66 @@
       }
     }
 
-    async function initializeMalgaCard() {
-      // Lógica de integração com Malga para Cartão de Crédito com 3DS
-      // (Exemplo simplificado: ao submeter o formulário, um nonce dummy é gerado)
+    // Função simulada de integração de Cartão de Crédito com Malga (incluindo 3DS)
+    function initializeMalgaCard() {
       const form = document.getElementById("checkout-form");
-      form.addEventListener("submit", (evt) => {
+      form.addEventListener("submit", function(evt) {
         evt.preventDefault();
-        // Aqui você integraria com a API do Malga para tokenizar os dados do cartão e acionar o 3DS.
-        // Para este exemplo, usamos um nonce dummy.
-        const dummyNonce = "malga-card-nonce";
-        processPayment(dummyNonce, "card");
+        // Simula a coleta dos dados do cartão (os campos abaixo são placeholders, assumindo que o Malga tratará os inputs de forma similar)
+        const cardDetails = {
+           number: document.getElementById("card-number").innerText.trim(),
+           expirationDate: document.getElementById("expiration-date").innerText.trim(),
+           cvv: document.getElementById("cvv").innerText.trim()
+        };
+        const installments = document.getElementById("installments").value;
+        // Simula a criação de um token do cartão via Malga
+        Malga.createCardToken(cardDetails)
+          .then(token => {
+              // Simula a verificação 3DS via Malga
+              const amount = getOrderAmount();
+              return Malga.verify3DS(token, amount);
+          })
+          .then(tokenWith3DS => {
+              processPayment(tokenWith3DS, "card");
+          })
+          .catch(err => {
+              console.error("Erro ao processar o cartão:", err);
+              alert("Erro no processamento do cartão.");
+          });
       });
     }
 
+    // Função simulada para gerar pagamento via Pix com Malga
     function initializeMalgaPix() {
-      // Lógica de integração com Malga para pagamento via Pix
-      const pixButtonContainer = document.getElementById("pix-button-container");
-      pixButtonContainer.innerHTML = "";
-      const button = document.createElement("button");
-      button.textContent = "Pagar com Pix";
-      button.className = "btn-pay-pal";
-      button.addEventListener("click", () => {
-        // Integração com Malga para Pix – utilizando um nonce dummy neste exemplo.
-        const dummyNonce = "malga-pix-nonce";
-        processPayment(dummyNonce, "pix");
+      const pixContainer = document.getElementById("pix-container");
+      pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
+      document.getElementById("generatePixBtn").addEventListener("click", function() {
+       const amount = getOrderAmount();
+       Malga.generatePixPayment({amount: amount}).then(pixData => {
+          document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + pixData.code;
+       }).catch(err => {
+          console.error("Erro ao gerar Pix:", err);
+          alert("Erro ao gerar código Pix.");
+       });
       });
-      pixButtonContainer.appendChild(button);
     }
 
+    // Função simulada para gerar pagamento via Boleto com Malga
     function initializeMalgaBoleto() {
-      // Lógica de integração com Malga para Boleto
-      const boletoButtonContainer = document.getElementById("boleto-button-container");
-      boletoButtonContainer.innerHTML = "";
-      const button = document.createElement("button");
-      button.textContent = "Gerar Boleto";
-      button.className = "btn-pay-pal";
-      button.addEventListener("click", () => {
-        // Integração com Malga para Boleto – utilizando um nonce dummy neste exemplo.
-        const dummyNonce = "malga-boleto-nonce";
-        processPayment(dummyNonce, "boleto");
+      const boletoContainer = document.getElementById("boleto-container");
+      boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
+      document.getElementById("generateBoletoBtn").addEventListener("click", function() {
+       const amount = getOrderAmount();
+       Malga.generateBoletoPayment({amount: amount}).then(boletoData => {
+           document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + boletoData.url;
+       }).catch(err => {
+          console.error("Erro ao gerar boleto:", err);
+          alert("Erro ao gerar boleto.");
+       });
       });
-      boletoButtonContainer.appendChild(button);
     }
 
-    async function processPayment(nonce, method = "card") {
+    async function processPayment(token, method = "card") {
       let totalText = document.getElementById("totalValue").textContent;
       let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
       amount = parseFloat(amount).toFixed(2);
@@ -1222,7 +1234,7 @@
       }
 
       const body = {
-        paymentMethodNonce: nonce,
+        paymentToken: token,
         amount: amount,
         installments: installments,
         customer: {
@@ -1240,11 +1252,11 @@
           countryCodeAlpha2: "BR"
         },
         extraPassengers: checkoutData.extraPassengers,
-        insuranceSelected: checkoutData.insuranceSelected
+        insuranceSelected: checkoutData.insuranceSelected,
+        paymentMethod: method
       };
 
       try {
-        // Alterado o endpoint para utilizar a integração com Malga
         const res = await fetch("/api/malga/create-transaction", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
