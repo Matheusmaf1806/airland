@@ -716,702 +716,708 @@
 
   <script>
     /* =============================================
-     JS COMPLETO DO CHECKOUT:
-     - Multi-step (Steps 1 a 4)
-     - Login/Registro (atualiza os dados do passageiro principal)
-     - Modal de Passageiros Extras (com função "copiar para todos")
-     - Tabela Comparativa do Seguro (Step 2, 4 colunas)
-     - Modais de Detalhes dos Planos (tabela completa de coberturas)
-     - Integração de Pagamento (Braintree, PayPal, Google Pay)
-     - Máscaras e Consulta de CEP
-  ============================================= */
-  
-  // 1. Estrutura de dados para o checkout
-  let checkoutData = {
-    mainPassenger: {
-      firstName: "",
-      lastName: "",
-      cpf: "",
-      rg: "",
-      birthdate: "",
-      celular: "",
-      email: "",
-      address: "",
-      number: "",
-      city: "",
-      state: "",
-      cep: ""
-    },
-    extraPassengers: [],
-    insuranceSelected: "none",
-    insuranceCost: 0
-  };
-  
-  // 2. Navegação entre steps
-  const stepsMenu = document.getElementById("stepsMenu");
-  const stepContents = document.querySelectorAll(".step-content");
-  const stepButtons = stepsMenu.querySelectorAll(".step");
-  
-  function showStep(stepNumber) {
-    stepContents.forEach(content => {
-      content.classList.toggle("active", content.dataset.step === String(stepNumber));
-    });
-    stepButtons.forEach(button => {
-      const btnStep = parseInt(button.dataset.step, 10);
-      button.classList.toggle("active", btnStep === stepNumber);
-      if (btnStep > stepNumber) button.classList.add("disabled");
-      else button.classList.remove("disabled");
-    });
-  }
-  
-  // Eventos para transição de steps
-  const toStep2Btn = document.getElementById("toStep2");
-  toStep2Btn.addEventListener("click", () => {
-    // Verifica se o usuário está logado ou se os campos de registro foram preenchidos
-    if (!isLoggedIn) {
-      if (isLoginMode) {
-        if (!isLoginComplete()) {
-          alert("Por favor, preencha E-mail e Senha de Login.");
-          return;
-        }
-      } else {
-        if (!isRegistrationComplete()) {
-          alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
-          return;
+       JS COMPLETO DO CHECKOUT:
+       - Multi-step (Steps 1 a 4)
+       - Validação do Step 1 (passageiro principal) para impedir avanço se algum campo obrigatório não estiver preenchido
+       - Login/Registro (atualiza os dados do passageiro principal)
+       - Modal de Passageiros Extras (com função "copiar para todos")
+       - Tabela Comparativa do Seguro (Step 2, 4 colunas)
+       - Modais de Detalhes dos Planos (tabela completa de coberturas)
+       - Integração de Pagamento (Braintree, PayPal, Google Pay)
+       - Máscaras e Consulta de CEP
+    ============================================= */
+    
+    // 1. Dados do Checkout
+    let checkoutData = {
+      mainPassenger: {
+        firstName: "",
+        lastName: "",
+        cpf: "",
+        rg: "",
+        birthdate: "",
+        celular: "",
+        email: "",
+        address: "",
+        number: "",
+        city: "",
+        state: "",
+        cep: ""
+      },
+      extraPassengers: [],
+      insuranceSelected: "none",
+      insuranceCost: 0
+    };
+    
+    // 2. Navegação entre Steps
+    const stepsMenu = document.getElementById("stepsMenu");
+    const stepContents = document.querySelectorAll(".step-content");
+    const stepButtons = stepsMenu.querySelectorAll(".step");
+    
+    function showStep(stepNumber) {
+      stepContents.forEach(content => {
+        content.classList.toggle("active", content.dataset.step === String(stepNumber));
+      });
+      stepButtons.forEach(button => {
+        const btnStep = parseInt(button.dataset.step, 10);
+        button.classList.toggle("active", btnStep === stepNumber);
+        if (btnStep > stepNumber) button.classList.add("disabled");
+        else button.classList.remove("disabled");
+      });
+    }
+    
+    // 3. Validação do Step 1 – Verifica se todos os campos obrigatórios estão preenchidos
+    function isRegistrationComplete() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const celular = document.getElementById("celular").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      const confirmPass = document.getElementById("confirmPassword").value.trim();
+      const cpf = document.getElementById("cpf").value.trim();
+      const rg = document.getElementById("rg").value.trim();
+      const birthdate = document.getElementById("birthdate").value.trim();
+      const cep = document.getElementById("cep").value.trim();
+      const state = document.getElementById("state").value.trim();
+      const city = document.getElementById("city").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const number = document.getElementById("number").value.trim();
+      
+      if (!firstName || !lastName || !celular || !email || !pass || !confirmPass ||
+          !cpf || !rg || !birthdate || !cep || !state || !city || !address || !number) {
+        return false;
+      }
+      if (pass !== confirmPass) {
+        alert("As senhas não coincidem!");
+        return false;
+      }
+      return true;
+    }
+    
+    function isLoginComplete() {
+      const loginEmail = document.getElementById("loginEmail").value.trim();
+      const loginPassword = document.getElementById("loginPassword").value.trim();
+      return (loginEmail && loginPassword);
+    }
+    
+    // 4. Eventos de Navegação (Step 1 → Step 2)
+    const toStep2Btn = document.getElementById("toStep2");
+    toStep2Btn.addEventListener("click", () => {
+      // Se o usuário não estiver logado, verifica se os campos foram preenchidos
+      if (!isLoggedIn) {
+        if (isLoginMode) {
+          if (!isLoginComplete()) {
+            alert("Por favor, preencha E-mail e Senha de Login.");
+            return;
+          }
+        } else {
+          if (!isRegistrationComplete()) {
+            alert("Por favor, preencha todos os campos obrigatórios do passageiro principal.");
+            return;
+          }
         }
       }
-    }
-    // Verifica se os passageiros extras foram preenchidos (caso existam)
-    if (!areAllExtraPassengersFilled()) {
-      alert("Por favor, preencha todos os campos dos passageiros extras.");
-      return;
-    }
-    showStep(2);
-  });
-  
-  const backToStep1Btn = document.getElementById("backToStep1");
-  backToStep1Btn?.addEventListener("click", () => showStep(1));
-  
-  const toStep3Btn = document.getElementById("toStep3");
-  toStep3Btn.addEventListener("click", () => {
-    const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
-    checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-    if (checkoutData.insuranceSelected === "essencial") {
-      checkoutData.insuranceCost = 60.65;
-    } else if (checkoutData.insuranceSelected === "completo") {
-      checkoutData.insuranceCost = 101.09;
-    } else {
-      checkoutData.insuranceCost = 0;
-    }
-    updateCheckoutCart(cartItems);
-    showStep(3);
-    initializePaymentMethod();
-  });
-  
-  const backToStep2Btn = document.getElementById("backToStep2");
-  backToStep2Btn?.addEventListener("click", () => showStep(2));
-  
-  // 3. Login / Registro
-  let isLoginMode = false;
-  let isRegistrationMode = true;
-  const isLoggedIn = !!localStorage.getItem("agentId");
-  
-  const toggleLoginLink = document.getElementById("toggleLogin");
-  const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-  const loginFields = document.getElementById("loginFields");
-  
-  toggleLoginLink.addEventListener("click", e => {
-    e.preventDefault();
-    if (isRegistrationMode) {
-      isLoginMode = true;
-      isRegistrationMode = false;
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "block";
-      toggleLoginLink.textContent = "Não tenho Login";
-    } else {
-      isLoginMode = false;
-      isRegistrationMode = true;
-      registrationFieldsGeneral.style.display = "block";
-      loginFields.style.display = "none";
-      toggleLoginLink.textContent = "Economize tempo fazendo Login";
-    }
-  });
-  
-  function isRegistrationComplete() {
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName = document.getElementById("lastName").value.trim();
-    const celular = document.getElementById("celular").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value.trim();
-    const confirmPass = document.getElementById("confirmPassword").value.trim();
-    const cpf = document.getElementById("cpf").value.trim();
-    const rg = document.getElementById("rg").value.trim();
-    const birthdate = document.getElementById("birthdate").value.trim();
-    const cep = document.getElementById("cep").value.trim();
-    const state = document.getElementById("state").value.trim();
-    const city = document.getElementById("city").value.trim();
-    const address = document.getElementById("address").value.trim();
-    const number = document.getElementById("number").value.trim();
-    if (!firstName || !lastName || !celular || !email || !pass || !confirmPass ||
-        !cpf || !rg || !birthdate || !cep || !state || !city || !address || !number) {
-      return false;
-    }
-    if (pass !== confirmPass) {
-      alert("As senhas não coincidem!");
-      return false;
-    }
-    return true;
-  }
-  
-  function isLoginComplete() {
-    const loginEmail = document.getElementById("loginEmail").value.trim();
-    const loginPassword = document.getElementById("loginPassword").value.trim();
-    return (loginEmail && loginPassword);
-  }
-  
-  const loginValidateBtn = document.getElementById("loginValidateBtn");
-  loginValidateBtn.addEventListener("click", () => {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-    fetch("/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        localStorage.setItem("agentId", data.user.id);
-        // Atualiza os dados do passageiro principal com os dados retornados do back-end
-        checkoutData.mainPassenger.firstName = data.user.firstName || "";
-        checkoutData.mainPassenger.lastName = data.user.lastName || "";
-        checkoutData.mainPassenger.email = data.user.email || "";
-        checkoutData.mainPassenger.celular = data.user.phone || "";
-        alert("Login efetuado com sucesso!");
+      // Verifica se todos os campos dos passageiros extras (se houver) foram preenchidos
+      if (!areAllExtraPassengersFilled()) {
+        alert("Por favor, preencha todos os campos dos passageiros extras.");
+        return;
+      }
+      showStep(2);
+    });
+    
+    // Voltar do Step 2 para o Step 1
+    const backToStep1Btn = document.getElementById("backToStep1");
+    backToStep1Btn?.addEventListener("click", () => showStep(1));
+    
+    // Avançar do Step 2 para o Step 3
+    const toStep3Btn = document.getElementById("toStep3");
+    toStep3Btn.addEventListener("click", () => {
+      const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
+      checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
+      if (checkoutData.insuranceSelected === "essencial") {
+        checkoutData.insuranceCost = 60.65;
+      } else if (checkoutData.insuranceSelected === "completo") {
+        checkoutData.insuranceCost = 101.09;
+      } else {
+        checkoutData.insuranceCost = 0;
+      }
+      updateCheckoutCart(cartItems);
+      showStep(3);
+      initializePaymentMethod();
+    });
+    
+    // Voltar do Step 3 para o Step 2
+    const backToStep2Btn = document.getElementById("backToStep2");
+    backToStep2Btn?.addEventListener("click", () => showStep(2));
+    
+    
+    // 5. Login/Registro (Alterna entre modos)
+    let isLoginMode = false;
+    let isRegistrationMode = true;
+    const isLoggedIn = !!localStorage.getItem("agentId");
+    
+    const toggleLoginLink = document.getElementById("toggleLogin");
+    const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+    const loginFields = document.getElementById("loginFields");
+    
+    toggleLoginLink.addEventListener("click", e => {
+      e.preventDefault();
+      if (isRegistrationMode) {
+        isLoginMode = true;
+        isRegistrationMode = false;
         registrationFieldsGeneral.style.display = "none";
-        loginFields.style.display = "none";
+        loginFields.style.display = "block";
+        toggleLoginLink.textContent = "Não tenho Login";
       } else {
-        alert("Erro no login: " + (data.error || "Dados inválidos."));
+        isLoginMode = false;
+        isRegistrationMode = true;
+        registrationFieldsGeneral.style.display = "block";
+        loginFields.style.display = "none";
+        toggleLoginLink.textContent = "Economize tempo fazendo Login";
       }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Erro ao realizar o login. Tente novamente.");
     });
-  });
-  
-  // 4. Modal de Passageiros Extras
-  let cartItems = [];
-  const cartElement = document.getElementById("shoppingCart");
-  if (cartElement && cartElement.items && cartElement.items.length > 0) {
-    cartItems = cartElement.items;
-  } else {
-    const savedCart = localStorage.getItem("cartItems");
-    if (savedCart) {
-      cartItems = JSON.parse(savedCart);
+    
+    const loginValidateBtn = document.getElementById("loginValidateBtn");
+    loginValidateBtn.addEventListener("click", () => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem("agentId", data.user.id);
+          // Atualiza os dados do passageiro principal com os dados retornados
+          checkoutData.mainPassenger.firstName = data.user.firstName || "";
+          checkoutData.mainPassenger.lastName = data.user.lastName || "";
+          checkoutData.mainPassenger.email = data.user.email || "";
+          checkoutData.mainPassenger.celular = data.user.phone || "";
+          alert("Login efetuado com sucesso!");
+          registrationFieldsGeneral.style.display = "none";
+          loginFields.style.display = "none";
+        } else {
+          alert("Erro no login: " + (data.error || "Dados inválidos."));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Erro ao realizar o login. Tente novamente.");
+      });
+    });
+    
+    // 6. Modal de Passageiros Extras
+    let cartItems = [];
+    const cartElement = document.getElementById("shoppingCart");
+    if (cartElement && cartElement.items && cartElement.items.length > 0) {
+      cartItems = cartElement.items;
     } else {
-      cartItems = [
-        { hotelName: "Hotel A", adults: 2, children: 1, basePriceAdult: 100 },
-        { hotelName: "Hotel B", adults: 2, children: 0, basePriceAdult: 150 }
-      ];
-    }
-  }
-  
-  function areAllExtraPassengersFilled() {
-    for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
-      const item = checkoutData.extraPassengers[i];
-      if (!item) continue;
-      for (let p = 0; p < item.length; p++) {
-        const pass = item[p];
-        if (!pass.name || !pass.birthdate) return false;
+      const savedCart = localStorage.getItem("cartItems");
+      if (savedCart) {
+        cartItems = JSON.parse(savedCart);
+      } else {
+        cartItems = [
+          { hotelName: "Hotel A", adults: 2, children: 1, basePriceAdult: 100 },
+          { hotelName: "Hotel B", adults: 2, children: 0, basePriceAdult: 150 }
+        ];
       }
     }
-    return true;
-  }
-  
-  const openPassengerModalBtn = document.getElementById("openPassengerModal");
-  const passengerModal = document.getElementById("passengerModal");
-  const closeModalBtn = document.getElementById("closeModal");
-  const modalPassengerContainer = document.getElementById("modalPassengerContainer");
-  const savePassengersBtn = document.getElementById("savePassengersBtn");
-  const copyForAllBtn = document.getElementById("copyForAllBtn");
-  
-  openPassengerModalBtn.addEventListener("click", e => {
-    e.preventDefault();
-    createModalPassengerForms(cartItems);
-    passengerModal.style.display = "block";
-  });
-  closeModalBtn.addEventListener("click", () => {
-    passengerModal.style.display = "none";
-  });
-  savePassengersBtn.addEventListener("click", () => {
-    if (!areAllExtraPassengersFilled()) {
-      alert("Preencha todos os campos de passageiros extras.");
-      return;
+    
+    function areAllExtraPassengersFilled() {
+      for (let i = 0; i < checkoutData.extraPassengers.length; i++) {
+        const item = checkoutData.extraPassengers[i];
+        if (!item) continue;
+        for (let p = 0; p < item.length; p++) {
+          const pass = item[p];
+          if (!pass.name || !pass.birthdate) return false;
+        }
+      }
+      return true;
     }
-    passengerModal.style.display = "none";
-    alert("Passageiros extras salvos!");
-  });
-  
-  function createModalPassengerForms(items) {
-    modalPassengerContainer.innerHTML = "";
-    let itemsWithExtras = 0;
-    items.forEach((item, itemIndex) => {
-      const extraCount = (item.adults || 1) - 1;
-      if (extraCount > 0) {
-        itemsWithExtras++;
+    
+    const openPassengerModalBtn = document.getElementById("openPassengerModal");
+    const passengerModal = document.getElementById("passengerModal");
+    const closeModalBtn = document.getElementById("closeModal");
+    const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+    const savePassengersBtn = document.getElementById("savePassengersBtn");
+    const copyForAllBtn = document.getElementById("copyForAllBtn");
+    
+    openPassengerModalBtn.addEventListener("click", e => {
+      e.preventDefault();
+      createModalPassengerForms(cartItems);
+      passengerModal.style.display = "block";
+    });
+    closeModalBtn.addEventListener("click", () => {
+      passengerModal.style.display = "none";
+    });
+    savePassengersBtn.addEventListener("click", () => {
+      if (!areAllExtraPassengersFilled()) {
+        alert("Preencha todos os campos dos passageiros extras.");
+        return;
+      }
+      passengerModal.style.display = "none";
+      alert("Passageiros extras salvos!");
+    });
+    
+    function createModalPassengerForms(items) {
+      modalPassengerContainer.innerHTML = "";
+      let itemsWithExtras = 0;
+      items.forEach((item, itemIndex) => {
+        const extraCount = (item.adults || 1) - 1;
+        if (extraCount > 0) {
+          itemsWithExtras++;
+          if (!checkoutData.extraPassengers[itemIndex]) {
+            checkoutData.extraPassengers[itemIndex] = [];
+          }
+          const itemDiv = document.createElement("div");
+          itemDiv.classList.add("passenger-box");
+          itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
+          for (let i = 0; i < extraCount; i++) {
+            if (!checkoutData.extraPassengers[itemIndex][i]) {
+              checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
+            }
+            const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
+            const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
+            const fieldsWrapper = document.createElement("div");
+            fieldsWrapper.classList.add("fields-grid-2cols-modal");
+            fieldsWrapper.innerHTML = `
+              <div class="form-field">
+                <label>Nome do Passageiro #${i+1}</label>
+                <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}">
+              </div>
+              <div class="form-field">
+                <label>Data de Nascimento</label>
+                <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}">
+              </div>
+            `;
+            itemDiv.appendChild(fieldsWrapper);
+          }
+          modalPassengerContainer.appendChild(itemDiv);
+        }
+      });
+      copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
+    }
+    
+    copyForAllBtn.addEventListener("click", () => {
+      let sourceIndex = null, sourceExtraCount = 0;
+      for (let i = 0; i < cartItems.length; i++) {
+        let extraCount = (cartItems[i].adults || 1) - 1;
+        if (extraCount > 0) { sourceIndex = i; sourceExtraCount = extraCount; break; }
+      }
+      if (sourceIndex === null) return;
+      const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+      for (let i = 0; i < cartItems.length; i++) {
+        if (i !== sourceIndex) {
+          let extraCount = (cartItems[i].adults || 1) - 1;
+          if (extraCount === sourceExtraCount && extraCount > 0) {
+            checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+            for (let passIndex = 0; passIndex < extraCount; passIndex++) {
+              const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+              const nameInput = document.querySelector(nameSelector);
+              const birthInput = document.querySelector(birthSelector);
+              if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
+                nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
+                birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
+              }
+            }
+          }
+        }
+      }
+      alert("Dados copiados para todos os itens compatíveis!");
+    });
+    
+    modalPassengerContainer.addEventListener("input", e => {
+      const target = e.target;
+      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+        const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
         if (!checkoutData.extraPassengers[itemIndex]) {
           checkoutData.extraPassengers[itemIndex] = [];
         }
-        const itemDiv = document.createElement("div");
-        itemDiv.classList.add("passenger-box");
-        itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
-        for (let i = 0; i < extraCount; i++) {
-          if (!checkoutData.extraPassengers[itemIndex][i]) {
-            checkoutData.extraPassengers[itemIndex][i] = { name: "", birthdate: "" };
-          }
-          const passName = checkoutData.extraPassengers[itemIndex][i].name || "";
-          const passBirth = checkoutData.extraPassengers[itemIndex][i].birthdate || "";
-          const fieldsWrapper = document.createElement("div");
-          fieldsWrapper.classList.add("fields-grid-2cols-modal");
-          fieldsWrapper.innerHTML = `
-            <div class="form-field">
-              <label>Nome do Passageiro #${i+1}</label>
-              <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" value="${passName}">
-            </div>
-            <div class="form-field">
-              <label>Data de Nascimento</label>
-              <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" value="${passBirth}">
-            </div>
-          `;
-          itemDiv.appendChild(fieldsWrapper);
+        if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
+          checkoutData.extraPassengers[itemIndex][passIndex] = {};
         }
-        modalPassengerContainer.appendChild(itemDiv);
-      }
-    });
-    copyForAllBtn.style.display = (itemsWithExtras > 1) ? "inline-block" : "none";
-  }
-  
-  copyForAllBtn.addEventListener("click", () => {
-    let sourceIndex = null, sourceExtraCount = 0;
-    for (let i = 0; i < cartItems.length; i++) {
-      let extraCount = (cartItems[i].adults || 1) - 1;
-      if (extraCount > 0) { sourceIndex = i; sourceExtraCount = extraCount; break; }
-    }
-    if (sourceIndex === null) return;
-    const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
-    for (let i = 0; i < cartItems.length; i++) {
-      if (i !== sourceIndex) {
-        let extraCount = (cartItems[i].adults || 1) - 1;
-        if (extraCount === sourceExtraCount && extraCount > 0) {
-          checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
-          for (let passIndex = 0; passIndex < extraCount; passIndex++) {
-            const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const nameInput = document.querySelector(nameSelector);
-            const birthInput = document.querySelector(birthSelector);
-            if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
-              nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
-              birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
-            }
-          }
+        if (target.classList.contains("modalExtraNameInput")) {
+          checkoutData.extraPassengers[itemIndex][passIndex].name = target.value.trim();
+        } else {
+          checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value.trim();
         }
       }
-    }
-    alert("Dados copiados para todos os itens compatíveis!");
-  });
-  
-  modalPassengerContainer.addEventListener("input", e => {
-    const target = e.target;
-    if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
-      const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-      const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-      if (!checkoutData.extraPassengers[itemIndex]) {
-        checkoutData.extraPassengers[itemIndex] = [];
-      }
-      if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-        checkoutData.extraPassengers[itemIndex][passIndex] = {};
-      }
-      if (target.classList.contains("modalExtraNameInput")) {
-        checkoutData.extraPassengers[itemIndex][passIndex].name = target.value.trim();
-      } else {
-        checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value.trim();
-      }
-    }
-  });
-  
-  
-  // 5. Atualiza o Carrinho (Resumo)
-  function updateCheckoutCart(items) {
-    const container = document.getElementById("cartItemsList");
-    let subtotal = 0, html = "";
-    items.forEach(item => {
-      let price = item.basePriceAdult || 80;
-      subtotal += price;
-      html += `
-        <div class="reserva-item">
-          <div class="reserva-left">
-            <span class="categoria">${item.type || "Hospedagem"}</span>
-            <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-            <div class="reserva-details">
-              <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-              <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-              <p>Quartos: ${item.rooms || 1}</p>
-              <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+    });
+    
+    // 7. Atualiza o Carrinho (Resumo da Reserva)
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0, html = "";
+      items.forEach(item => {
+        let price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += `
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>
           </div>
-          <div class="reserva-preco">
-            R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-          </div>
-        </div>
-      `;
-    });
-    subtotal += checkoutData.insuranceCost;
-    container.innerHTML = html;
-    document.getElementById("subtotalValue").textContent =
-      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-    document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent =
-      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-  }
-  window.addEventListener("load", () => {
-    updateCheckoutCart(cartItems);
-    if (isLoggedIn) {
-      toggleLoginLink.style.display = "none";
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "none";
+        `;
+      });
+      subtotal += checkoutData.insuranceCost;
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("totalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
-  });
-  
-  // 6. Integração de Pagamento
-  function initializePaymentMethod() {
-    const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-    document.getElementById("card-container").style.display = "none";
-    document.getElementById("paypal-container").style.display = "none";
-    document.getElementById("google-pay-container").style.display = "none";
-    if (method === "card") {
-      document.getElementById("card-container").style.display = "block";
-      initializeBraintree();
-    } else if (method === "paypal") {
-      document.getElementById("paypal-container").style.display = "block";
-      initializePayPal();
-    } else if (method === "googlePay") {
-      document.getElementById("google-pay-container").style.display = "block";
-      initializeGooglePay();
-    }
-  }
-  
-  async function initializeBraintree() {
-    const res = await fetch("/api/braintree/get-client-token");
-    const data = await res.json();
-    const clientToken = data.clientToken;
-    braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-      if (clientErr) {
-        console.error("Erro ao criar o client Braintree:", clientErr);
-        alert("Erro na inicialização do pagamento.");
-        return;
+    window.addEventListener("load", () => {
+      updateCheckoutCart(cartItems);
+      if (isLoggedIn) {
+        toggleLoginLink.style.display = "none";
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "none";
       }
-      braintree.threeDSecure.create({ version: 2, client: clientInstance }, (threeDSErr, threeDSecureInstance) => {
-        if (threeDSErr) {
-          console.error("Erro ao criar 3D Secure:", threeDSErr);
-          alert("Erro na inicialização do 3D Secure.");
+    });
+    
+    // 8. Integração de Pagamento
+    function initializePaymentMethod() {
+      const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+      document.getElementById("card-container").style.display = "none";
+      document.getElementById("paypal-container").style.display = "none";
+      document.getElementById("google-pay-container").style.display = "none";
+      if (method === "card") {
+        document.getElementById("card-container").style.display = "block";
+        initializeBraintree();
+      } else if (method === "paypal") {
+        document.getElementById("paypal-container").style.display = "block";
+        initializePayPal();
+      } else if (method === "googlePay") {
+        document.getElementById("google-pay-container").style.display = "block";
+        initializeGooglePay();
+      }
+    }
+    
+    async function initializeBraintree() {
+      const res = await fetch("/api/braintree/get-client-token");
+      const data = await res.json();
+      const clientToken = data.clientToken;
+      braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
+        if (clientErr) {
+          console.error("Erro ao criar o client Braintree:", clientErr);
+          alert("Erro na inicialização do pagamento.");
           return;
         }
-        braintree.hostedFields.create({
-          client: clientInstance,
-          styles: {
-            input: { "font-size": "16px", color: "#333" },
-            "input.invalid": { color: "red" },
-            "input.valid": { color: "green" }
-          },
-          fields: {
-            number: { selector: "#card-number", placeholder: "Número do Cartão" },
-            cvv: { selector: "#cvv", placeholder: "CVV" },
-            expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
-          }
-        }, (hostedFieldsErr, hostedFieldsInstance) => {
-          if (hostedFieldsErr) {
-            console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
-            alert("Erro ao configurar os campos de pagamento.");
+        braintree.threeDSecure.create({ version: 2, client: clientInstance }, (threeDSErr, threeDSecureInstance) => {
+          if (threeDSErr) {
+            console.error("Erro ao criar 3D Secure:", threeDSErr);
+            alert("Erro na inicialização do 3D Secure.");
             return;
           }
-          const form = document.getElementById("checkout-form");
-          form.addEventListener("submit", (evt) => {
-            evt.preventDefault();
-            hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
-              if (tokenizeErr) {
-                console.error("Erro ao tokenizar:", tokenizeErr);
-                alert("Erro ao processar dados do cartão.");
-                return;
-              }
-              const amount = getOrderAmount();
-              if (!payload.details || !payload.details.bin) {
-                alert("Erro: BIN do cartão não disponível. Digite novamente.");
-                return;
-              }
-              threeDSecureInstance.verifyCard({
-                nonce: payload.nonce,
-                amount: amount,
-                bin: payload.details.bin,
-                onLookupComplete: (data, next) => { next(); }
-              }, (verifyErr, threeDSecurePayload) => {
-                if (verifyErr) {
-                  console.error("Erro na verificação 3D Secure:", verifyErr);
-                  alert("Erro na verificação 3D Secure.");
+          braintree.hostedFields.create({
+            client: clientInstance,
+            styles: {
+              input: { "font-size": "16px", color: "#333" },
+              "input.invalid": { color: "red" },
+              "input.valid": { color: "green" }
+            },
+            fields: {
+              number: { selector: "#card-number", placeholder: "Número do Cartão" },
+              cvv: { selector: "#cvv", placeholder: "CVV" },
+              expirationDate: { selector: "#expiration-date", placeholder: "MM/AA" }
+            }
+          }, (hostedFieldsErr, hostedFieldsInstance) => {
+            if (hostedFieldsErr) {
+              console.error("Erro ao criar Hosted Fields:", hostedFieldsErr);
+              alert("Erro ao configurar os campos de pagamento.");
+              return;
+            }
+            const form = document.getElementById("checkout-form");
+            form.addEventListener("submit", (evt) => {
+              evt.preventDefault();
+              hostedFieldsInstance.tokenize((tokenizeErr, payload) => {
+                if (tokenizeErr) {
+                  console.error("Erro ao tokenizar:", tokenizeErr);
+                  alert("Erro ao processar dados do cartão.");
                   return;
                 }
-                processPayment(threeDSecurePayload.nonce, "card");
+                const amount = getOrderAmount();
+                if (!payload.details || !payload.details.bin) {
+                  alert("Erro: BIN do cartão não disponível. Digite novamente.");
+                  return;
+                }
+                threeDSecureInstance.verifyCard({
+                  nonce: payload.nonce,
+                  amount: amount,
+                  bin: payload.details.bin,
+                  onLookupComplete: (data, next) => { next(); }
+                }, (verifyErr, threeDSecurePayload) => {
+                  if (verifyErr) {
+                    console.error("Erro na verificação 3D Secure:", verifyErr);
+                    alert("Erro na verificação 3D Secure.");
+                    return;
+                  }
+                  processPayment(threeDSecurePayload.nonce, "card");
+                });
               });
             });
           });
         });
       });
-    });
-  }
-  
-  function initializePayPal() {
-    fetch("/api/braintree/get-client-token")
-      .then(res => res.json())
-      .then(data => {
-        const clientToken = data.clientToken;
-        braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-          if (clientErr) {
-            console.error("Erro ao criar client PayPal:", clientErr);
-            alert("Erro na inicialização do PayPal.");
-            return;
-          }
-          braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
-            if (err) {
-              console.error("Erro ao criar PayPal Checkout:", err);
+    }
+    
+    function initializePayPal() {
+      fetch("/api/braintree/get-client-token")
+        .then(res => res.json())
+        .then(data => {
+          const clientToken = data.clientToken;
+          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
+            if (clientErr) {
+              console.error("Erro ao criar client PayPal:", clientErr);
               alert("Erro na inicialização do PayPal.");
               return;
             }
-            paypal.Button.render({
-              env: "sandbox",
-              payment: () => {
-                const total = getOrderAmount();
-                return paypalCheckoutInstance.createPayment({
-                  flow: "checkout",
-                  amount: total,
-                  currency: "BRL"
-                });
-              },
-              onAuthorize: (data, actions) => {
-                return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
-                  processPayment(payload.nonce, "paypal");
-                });
-              },
-              onError: (err) => {
-                console.error("Erro no PayPal:", err);
-                alert("Erro no pagamento com PayPal.");
+            braintree.paypalCheckout.create({ client: clientInstance }, (err, paypalCheckoutInstance) => {
+              if (err) {
+                console.error("Erro ao criar PayPal Checkout:", err);
+                alert("Erro na inicialização do PayPal.");
+                return;
               }
-            }, "#paypal-button-container");
+              paypal.Button.render({
+                env: "sandbox",
+                payment: () => {
+                  const total = getOrderAmount();
+                  return paypalCheckoutInstance.createPayment({
+                    flow: "checkout",
+                    amount: total,
+                    currency: "BRL"
+                  });
+                },
+                onAuthorize: (data, actions) => {
+                  return paypalCheckoutInstance.tokenizePayment(data).then((payload) => {
+                    processPayment(payload.nonce, "paypal");
+                  });
+                },
+                onError: (err) => {
+                  console.error("Erro no PayPal:", err);
+                  alert("Erro no pagamento com PayPal.");
+                }
+              }, "#paypal-button-container");
+            });
           });
-        });
-      })
-      .catch(err => { console.error("Erro ao obter client token para PayPal:", err); });
-  }
-  
-  function initializeGooglePay() {
-    fetch("/api/braintree/get-client-token")
-      .then(res => res.json())
-      .then(data => {
-        const clientToken = data.clientToken;
-        braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
-          if (clientErr) {
-            console.error("Erro ao criar client Google Pay:", clientErr);
-            alert("Erro na inicialização do Google Pay.");
-            return;
-          }
-          braintree.googlePayment.create({
-            client: clientInstance,
-            googlePayVersion: 2,
-            googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
-          }, (err, googlePaymentInstance) => {
-            if (err) {
-              console.error("Erro ao criar Google Pay:", err);
+        })
+        .catch(err => { console.error("Erro ao obter client token para PayPal:", err); });
+    }
+    
+    function initializeGooglePay() {
+      fetch("/api/braintree/get-client-token")
+        .then(res => res.json())
+        .then(data => {
+          const clientToken = data.clientToken;
+          braintree.client.create({ authorization: clientToken }, (clientErr, clientInstance) => {
+            if (clientErr) {
+              console.error("Erro ao criar client Google Pay:", clientErr);
               alert("Erro na inicialização do Google Pay.");
               return;
             }
-            const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
-              transactionInfo: {
-                totalPriceStatus: "FINAL",
-                totalPrice: getOrderAmount(),
-                currencyCode: "BRL"
+            braintree.googlePayment.create({
+              client: clientInstance,
+              googlePayVersion: 2,
+              googleMerchantId: "YOUR_GOOGLE_MERCHANT_ID"
+            }, (err, googlePaymentInstance) => {
+              if (err) {
+                console.error("Erro ao criar Google Pay:", err);
+                alert("Erro na inicialização do Google Pay.");
+                return;
               }
-            });
-            const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
-            paymentsClient
-              .loadPaymentData(paymentDataRequest)
-              .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
-              .then(payload => { processPayment(payload.nonce, "googlePay"); })
-              .catch(err => {
-                console.error("Erro no Google Pay:", err);
-                alert("Erro no pagamento com Google Pay.");
+              const paymentDataRequest = googlePaymentInstance.createPaymentDataRequest({
+                transactionInfo: {
+                  totalPriceStatus: "FINAL",
+                  totalPrice: getOrderAmount(),
+                  currencyCode: "BRL"
+                }
               });
-            const button = paymentsClient.createButton({ onClick: () => {} });
-            document.getElementById("google-pay-button-container").appendChild(button);
+              const paymentsClient = new google.payments.api.PaymentsClient({ environment: "TEST" });
+              paymentsClient
+                .loadPaymentData(paymentDataRequest)
+                .then(paymentData => googlePaymentInstance.parseResponse(paymentData))
+                .then(payload => { processPayment(payload.nonce, "googlePay"); })
+                .catch(err => {
+                  console.error("Erro no Google Pay:", err);
+                  alert("Erro no pagamento com Google Pay.");
+                });
+              const button = paymentsClient.createButton({ onClick: () => {} });
+              document.getElementById("google-pay-button-container").appendChild(button);
+            });
           });
-        });
-      })
-      .catch(err => { console.error("Erro ao obter client token para Google Pay:", err); });
-  }
-  
-  async function processPayment(nonce, method = "card") {
-    let totalText = document.getElementById("totalValue").textContent;
-    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-    amount = parseFloat(amount).toFixed(2);
-    let installments = "1";
-    if (method === "card") {
-      const installmentsSelect = document.getElementById("installments");
-      if (installmentsSelect) installments = installmentsSelect.value;
-    }
-    const body = {
-      paymentMethodNonce: nonce,
-      amount: amount,
-      installments: installments,
-      customer: {
-        firstName: checkoutData.mainPassenger.firstName,
-        lastName: checkoutData.mainPassenger.lastName,
-        email: checkoutData.mainPassenger.email,
-        phone: checkoutData.mainPassenger.celular
-      },
-      billing: {
-        streetAddress: checkoutData.mainPassenger.address,
-        extendedAddress: checkoutData.mainPassenger.number,
-        locality: checkoutData.mainPassenger.city,
-        region: checkoutData.mainPassenger.state,
-        postalCode: checkoutData.mainPassenger.cep,
-        countryCodeAlpha2: "BR"
-      },
-      mainPassenger: checkoutData.mainPassenger,
-      extraPassengers: checkoutData.extraPassengers,
-      insuranceSelected: checkoutData.insuranceSelected
-    };
-    try {
-      const res = await fetch("/api/braintree/create-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const result = await res.json();
-      if (result.success) {
-        alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
-        showStep(4);
-      } else {
-        alert("Falha no pagamento: " + result.message);
-      }
-    } catch (error) {
-      console.error("Erro ao processar o pagamento:", error);
-      alert("Erro ao processar o pagamento. Tente novamente.");
-    }
-  }
-  
-  function getOrderAmount() {
-    let totalText = document.getElementById("totalValue").textContent;
-    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-    return parseFloat(amount).toFixed(2);
-  }
-  
-  // 7. Máscaras e Consulta de CEP
-  document.getElementById("cep").addEventListener("blur", function() {
-    buscarCEP(this.value);
-  });
-  function buscarCEP(cep) {
-    cep = cep.replace(/\D/g, '');
-    if (cep.length === 8) {
-      const url = `https://viacep.com.br/ws/${cep}/json/`;
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          if (data.erro) { alert("CEP não encontrado!"); return; }
-          document.getElementById("address").value = data.logradouro || "";
-          document.getElementById("city").value = data.localidade || "";
-          document.getElementById("state").value = data.uf || "";
         })
-        .catch(error => {
-          console.error("Erro ao buscar CEP:", error);
-          alert("Não foi possível consultar o CEP.");
-        });
+        .catch(err => { console.error("Erro ao obter client token para Google Pay:", err); });
     }
-  }
-  
-  document.getElementById("cpf").addEventListener("input", function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, '$1.$2');
-    if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-    if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
-    e.target.value = value;
-  });
-  document.getElementById("rg").addEventListener("input", function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
-    if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-    if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
-    e.target.value = value;
-  });
-  
-  // 8. Modais dos Planos
-  document.querySelectorAll('.openEssencialModal').forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("modalIntermac30K").style.display = "block";
+    
+    async function processPayment(nonce, method = "card") {
+      let totalText = document.getElementById("totalValue").textContent;
+      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+      amount = parseFloat(amount).toFixed(2);
+      let installments = "1";
+      if (method === "card") {
+        const installmentsSelect = document.getElementById("installments");
+        if (installmentsSelect) installments = installmentsSelect.value;
+      }
+      const body = {
+        paymentMethodNonce: nonce,
+        amount: amount,
+        installments: installments,
+        customer: {
+          firstName: checkoutData.mainPassenger.firstName,
+          lastName: checkoutData.mainPassenger.lastName,
+          email: checkoutData.mainPassenger.email,
+          phone: checkoutData.mainPassenger.celular
+        },
+        billing: {
+          streetAddress: checkoutData.mainPassenger.address,
+          extendedAddress: checkoutData.mainPassenger.number,
+          locality: checkoutData.mainPassenger.city,
+          region: checkoutData.mainPassenger.state,
+          postalCode: checkoutData.mainPassenger.cep,
+          countryCodeAlpha2: "BR"
+        },
+        mainPassenger: checkoutData.mainPassenger,
+        extraPassengers: checkoutData.extraPassengers,
+        insuranceSelected: checkoutData.insuranceSelected
+      };
+      try {
+        const res = await fetch("/api/braintree/create-transaction", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
+          showStep(4);
+        } else {
+          alert("Falha no pagamento: " + result.message);
+        }
+      } catch (error) {
+        console.error("Erro ao processar o pagamento:", error);
+        alert("Erro ao processar o pagamento. Tente novamente.");
+      }
+    }
+    
+    function getOrderAmount() {
+      let totalText = document.getElementById("totalValue").textContent;
+      let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+      return parseFloat(amount).toFixed(2);
+    }
+    
+    // 9. Máscaras e Consulta de CEP
+    document.getElementById("cep").addEventListener("blur", function() {
+      buscarCEP(this.value);
     });
-  });
-  document.querySelectorAll('.openCompletoModal').forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("modalIntermac80K").style.display = "block";
+    function buscarCEP(cep) {
+      cep = cep.replace(/\D/g, '');
+      if (cep.length === 8) {
+        const url = `https://viacep.com.br/ws/${cep}/json/`;
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            if (data.erro) { alert("CEP não encontrado!"); return; }
+            document.getElementById("address").value = data.logradouro || "";
+            document.getElementById("city").value = data.localidade || "";
+            document.getElementById("state").value = data.uf || "";
+          })
+          .catch(error => {
+            console.error("Erro ao buscar CEP:", error);
+            alert("Não foi possível consultar o CEP.");
+          });
+      }
+    }
+    
+    document.getElementById("cpf").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+      if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+      if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4');
+      e.target.value = value;
     });
-  });
-  document.querySelectorAll('.close-modal').forEach(btn => {
-    btn.addEventListener("click", function() {
-      const modalId = this.getAttribute("data-close-modal");
-      if (modalId) document.getElementById(modalId).style.display = "none";
+    document.getElementById("rg").addEventListener("input", function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+      if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+      if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4');
+      e.target.value = value;
     });
-  });
-  
-  // 9. Atualiza o Carrinho (Resumo da Reserva)
-  function updateCheckoutCart(items) {
-    const container = document.getElementById("cartItemsList");
-    let subtotal = 0, html = "";
-    items.forEach(item => {
-      let price = item.basePriceAdult || 80;
-      subtotal += price;
-      html += `
-        <div class="reserva-item">
-          <div class="reserva-left">
-            <span class="categoria">${item.type || "Hospedagem"}</span>
-            <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-            <div class="reserva-details">
-              <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-              <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-              <p>Quartos: ${item.rooms || 1}</p>
-              <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+    
+    // 10. Modais dos Planos de Seguro
+    document.querySelectorAll('.openEssencialModal').forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        document.getElementById("modalIntermac30K").style.display = "block";
+      });
+    });
+    document.querySelectorAll('.openCompletoModal').forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        document.getElementById("modalIntermac80K").style.display = "block";
+      });
+    });
+    document.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener("click", function() {
+        const modalId = this.getAttribute("data-close-modal");
+        if (modalId) document.getElementById(modalId).style.display = "none";
+      });
+    });
+    
+    // 11. Atualiza o Resumo do Carrinho
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0, html = "";
+      items.forEach(item => {
+        let price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += `
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
             </div>
           </div>
-          <div class="reserva-preco">
-            R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-          </div>
-        </div>
-      `;
-    });
-    subtotal += checkoutData.insuranceCost;
-    container.innerHTML = html;
-    document.getElementById("subtotalValue").textContent =
-      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-    document.getElementById("discountValue").textContent = "- R$ 0,00";
-    document.getElementById("totalValue").textContent =
-      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-  }
-  window.addEventListener("load", () => {
-    updateCheckoutCart(cartItems);
-    if (isLoggedIn) {
-      toggleLoginLink.style.display = "none";
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "none";
+        `;
+      });
+      subtotal += checkoutData.insuranceCost;
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("totalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
-  });
+    window.addEventListener("load", () => {
+      updateCheckoutCart(cartItems);
+      if (isLoggedIn) {
+        toggleLoginLink.style.display = "none";
+        registrationFieldsGeneral.style.display = "none";
+        loginFields.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>
