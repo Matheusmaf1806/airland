@@ -5,7 +5,7 @@
   <title>Checkout</title>
 
   <!-- Inclusão da Header Modular -->
-  <script src="header-component.js"></script>
+  <script src="/js/header-component.js"></script>
 
   <!-- Braintree Scripts (exceto Google Pay) -->
   <script src="https://js.braintreegateway.com/web/3.94.0/js/client.min.js"></script>
@@ -36,7 +36,7 @@
       padding: 10px 20px;
       color: #fff;
     }
-    /* O header será montado pelo header-component.js */
+    /* O header será montado pelo public/js/header-component.js */
 
     /* ===== STEPS MENU ===== */
     .steps-menu {
@@ -167,11 +167,15 @@
       margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
       border-radius: 8px; padding: 1rem; display: none;
     }
-    /* Flag de desconto para Pix */
-    .pix-discount-flag {
-      color: #00c853;
+    /* Flag de desconto para Pix (estilizado dentro do botão) */
+    .pix-flag {
+      background: #00c853;
+      color: #fff;
+      font-size: 0.75rem;
       font-weight: bold;
-      margin-bottom: 1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 0.5rem;
     }
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
@@ -582,11 +586,12 @@
             <div id="paypal-button-container"></div>
           </div>
 
-          <!-- Container Pix com flag de desconto -->
+          <!-- Container Pix com flag no botão -->
           <div id="pix-container">
             <p>Após finalizar, será gerado um QR Code para pagamento via Pix.</p>
-            <p class="pix-discount-flag">Economize 5% no valor total pagando com Pix!</p>
-            <button class="btn-pay-pal" id="pixPaymentBtn">Gerar Pix</button>
+            <button class="btn-pay-pal" id="pixPaymentBtn">
+              <span class="pix-flag">5% OFF</span> Gerar Pix
+            </button>
           </div>
 
           <!-- Container Boleto -->
@@ -908,7 +913,7 @@
       initializePaymentMethod();
     });
 
-    // Função que atualiza o resumo do carrinho (aplicando 5% de desconto se o método for Pix)
+    // Atualiza o resumo do carrinho, aplicando 5% de desconto se o método for Pix
     function updateCheckoutCart(items) {
       const container = document.getElementById("cartItemsList");
       let subtotal = 0;
@@ -1382,16 +1387,16 @@
 
     document.getElementById("cpf").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 3) { value = value.replace(/^(\d{3})(\d)/, '$1.$2'); }
-      if(value.length > 6) { value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if(value.length > 9) { value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4'); }
+      if (value.length > 3) { value = value.replace(/^(\d{3})(\d)/, '$1.$2'); }
+      if (value.length > 6) { value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3'); }
+      if (value.length > 9) { value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, '$1.$2.$3-$4'); }
       e.target.value = value;
     });
     document.getElementById("rg").addEventListener("input", function(e) {
       let value = e.target.value.replace(/\D/g, '');
-      if(value.length > 2) { value = value.replace(/^(\d{2})(\d)/, '$1.$2'); }
-      if(value.length > 5) { value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3'); }
-      if(value.length > 7) { value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4'); }
+      if (value.length > 2) { value = value.replace(/^(\d{2})(\d)/, '$1.$2'); }
+      if (value.length > 5) { value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3'); }
+      if (value.length > 7) { value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, '$1.$2.$3-$4'); }
       e.target.value = value;
     });
 
