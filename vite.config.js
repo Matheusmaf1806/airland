@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -12,6 +11,8 @@ export default defineConfig({
       }
     }
   },
-  // IMPORTANTE: inclua "MALGA_" no envPrefix para o Vite expor MALGA_API_KEY
-  envPrefix: ['VITE_', 'MALGA_'],
+  define: {
+    'import.meta.env.VITE_MALGA_API_KEY': JSON.stringify(process.env.MALGA_API_KEY),
+    'import.meta.env.VITE_MALGA_CLIENT_ID': JSON.stringify(process.env.MALGA_CLIENT_ID)
+  }
 });
