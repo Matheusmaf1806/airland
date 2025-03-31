@@ -543,7 +543,7 @@
               <label for="methodBoleto">Boleto</label>
             </div>
           </div>
-          <!-- Container para Cartão de Crédito (Hosted Fields) -->
+          <!-- Container para Cartão de Crédito via Hosted Fields -->
           <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
@@ -560,15 +560,15 @@
                 <option value="10">10x</option>
               </select>
             </div>
-
-            <!-- Form: agora com divs para Hosted Fields do Tokenization SDK -->
             <form id="checkout-form">
               <div class="form-field">
                 <label>Número do Cartão</label>
+                <!-- Div do Hosted Field para número -->
                 <div id="card-number" class="form-control"></div>
               </div>
               <div class="form-field">
                 <label>Nome do Titular</label>
+                <!-- Div do Hosted Field para nome do titular -->
                 <div id="card-holder-name" class="form-control"></div>
               </div>
               <div class="fields-grid-2cols">
@@ -861,14 +861,14 @@
 
   <script type="module">
     /* =============================================
-       IMPORT E CONFIGURAÇÃO DO TOKENIZATION SDK
+       1) IMPORT E CONFIGURAÇÃO DO TOKENIZATION SDK
     ============================================= */
     import { tokenization } from '@malga/tokenization';
 
-    // Inicializa o Tokenization SDK (ajuste apiKey/clientId conforme necessário)
+    // Inicializa o Tokenization SDK para Hosted Fields
     const malgaTokenization = tokenization({
-      apiKey: 'SUA_API_KEY_PUBLIC',
-      clientId: 'SEU_CLIENT_ID',
+      apiKey: 'SUA_API_KEY_PUBLIC',  // Ajuste para sua chave
+      clientId: 'SEU_CLIENT_ID',     // Ajuste conforme necessário
       options: {
         config: {
           fields: {
@@ -915,10 +915,10 @@
       }
     });
 
-    /* ===========================================
-       PARTE DO "MALGA SIMULADO" + LÓGICA ORIGINAL
-    =========================================== */
-    // Objeto SIMULADO, para Pix e Boleto:
+    /* ==================================================
+       2) BLOCO COM "MALGA SIMULADO" (para Pix/Boleto) +
+          TODO RESTO DA LÓGICA (LOGIN, CARRINHO, ETC.)
+       ================================================== */
     const Malga = {
       createCardToken: function(cardDetails) {
         return new Promise((resolve) => {
@@ -954,21 +954,26 @@
       }
     };
 
-    // Função adaptada para Hosted Fields
+    // Substituímos apenas a parte do cartão para usar o Hosted Fields do Tokenization SDK
     function initializeMalgaCard() {
       const form = document.getElementById("checkout-form");
       form.addEventListener("submit", async (evt) => {
         evt.preventDefault();
         try {
-          // Tokenizar via SDK (@malga/tokenization)
+          // 1. Obter token via Hosted Fields:
           const { tokenId, error } = await malgaTokenization.tokenize();
           if (error) {
             console.error("Erro na tokenização:", error.message);
             alert("Erro ao processar o cartão.");
             return;
           }
-          console.log("Token gerado pelo Hosted Field:", tokenId);
-          // Aqui chamamos o processPayment, enviando o token ao back-end
+          console.log("Token gerado via Hosted Fields:", tokenId);
+
+          // 2. (Opcional) Se quiser ver fluxo 3DS "simulado", poderíamos chamar:
+          // const amount = getOrderAmount();
+          // const token3DS = await Malga.verify3DS(tokenId, amount);
+
+          // 3. Chama a mesma função processPayment de antes, só que passando tokenId
           processPayment(tokenId, "card");
         } catch (err) {
           console.error("Erro inesperado na tokenização:", err);
@@ -977,7 +982,7 @@
       });
     }
 
-    /* ======== RESTANTE DO CÓDIGO ORIGINAL (STEPS, MÁSCARAS, PASSAGEIROS ETC.) ======== */
+    /* ==== Resto do seu código original, incluindo steps, login, carrinho, etc. ==== */
     let checkoutData = {
       extraPassengers: [],
       insuranceSelected: "none" // "none", "30k" ou "80k"
@@ -1255,7 +1260,7 @@
 
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
-        initializeMalgaCard();
+        initializeMalgaCard();  // Usa Hosted Fields
       } else if (method === "pix") {
         document.getElementById("pix-container").style.display = "block";
         initializeMalgaPix();
