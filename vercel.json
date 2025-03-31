@@ -1,14 +1,25 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "functions": {
-    "server.js": {
-      "runtime": "nodejs18.x"
+
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run build",
+        "distDir": "public"
+      }
     },
-    "api/worker.js": {
-      "runtime": "nodejs18.x"
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/worker.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
+
   "routes": [
     {
       "src": "/api/worker",
