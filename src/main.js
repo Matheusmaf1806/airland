@@ -1,14 +1,17 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-// Integra integração real com Malga (sandbox)
-// - Tokeniza o cartão chamando: POST /api/malga/tokenize-card
-// - Executa 3DS chamando: POST /api/malga/verify-3ds
-// - Cria a transação chamando: POST /api/malga/create-transaction
+// Integra a tokenização real com Malga (sandbox)
+// - Chama POST /api/malga/tokenize-card para tokenizar o cartão
+// - Chama POST /api/malga/verify-3ds para executar o fluxo 3DS
+// - Chama POST /api/malga/create-transaction para criar a transação
+// Também inclui lógica de steps, carrinho e passageiros extras.
 ///////////////////////////////////////////////////////////
 
 console.log("Checkout ativo");
 
-// Função que retorna o valor total do pedido
+/**
+ * Retorna o valor total do pedido (convertido para número com duas casas decimais)
+ */
 function getOrderAmount() {
   const totalEl = document.getElementById("totalValue");
   let totalText = totalEl ? totalEl.textContent : "R$ 0,00";
@@ -18,10 +21,10 @@ function getOrderAmount() {
 
 /**
  * Inicializa o formulário de cartão.
- * Lê os inputs (cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput),
- * chama a rota /api/malga/tokenize-card para tokenizar,
- * depois chama /api/malga/verify-3ds para executar o fluxo 3DS,
- * e por fim chama processPayment com o token final.
+ * - Lê os inputs: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput
+ * - Chama a rota /api/malga/tokenize-card para tokenizar o cartão
+ * - Chama a rota /api/malga/verify-3ds para realizar o 3DS (opcional)
+ * - Em caso de sucesso, chama processPayment(tokenFinal, "card")
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -29,7 +32,7 @@ function initializeCardForm() {
     console.error("Formulário #checkout-form não encontrado.");
     return;
   }
-
+  
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
     try {
@@ -39,7 +42,7 @@ function initializeCardForm() {
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
       const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1) Chamar a rota para tokenização do cartão
+      // 1) Tokenização real: chama o endpoint do back-end
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,7 +61,7 @@ function initializeCardForm() {
       const tokenId = tokenizeData.tokenId;
       console.log("Token gerado real:", tokenId);
 
-      // 2) Chamar a rota para executar o 3DS
+      // 2) Verificação 3DS
       const amount = getOrderAmount();
       const verifyRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
@@ -70,11 +73,10 @@ function initializeCardForm() {
         alert("Falha no 3DS: " + (verifyData.message || "Erro no 3DS"));
         return;
       }
-      // Se o endpoint retornar token3DS, usamos ele; caso contrário, mantemos tokenId
       const tokenFinal = verifyData.token3DS || tokenId;
       console.log("Token pós-3DS:", tokenFinal);
 
-      // 3) Processar o pagamento com o token final
+      // 3) Processa o pagamento chamando o endpoint create-transaction
       await processPayment(tokenFinal, "card");
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
@@ -84,7 +86,7 @@ function initializeCardForm() {
 }
 
 /**
- * processPayment: chama a rota /api/malga/create-transaction para criar a transação
+ * processPayment: chama o endpoint /api/malga/create-transaction
  */
 async function processPayment(token, method = "card") {
   try {
@@ -100,7 +102,6 @@ async function processPayment(token, method = "card") {
       }
     }
 
-    // Chamada real para criar a transação
     const transRes = await fetch("/api/malga/create-transaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -108,7 +109,6 @@ async function processPayment(token, method = "card") {
         tokenId: token,
         amount,
         installments
-        // Adicione outros campos se necessário
       })
     });
     const transData = await transRes.json();
@@ -125,13 +125,16 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * Lógica de Steps e navegação do checkout
+ * Objeto para armazenar dados do checkout (incluindo extraPassengers)
  */
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none" // ou "30k" ou "80k"
+  insuranceSelected: "none"
 };
 
+/**
+ * Lógica dos steps (navegação do checkout)
+ */
 const stepsMenu = document.getElementById("stepsMenu");
 const stepContents = document.querySelectorAll(".step-content");
 const stepButtons = stepsMenu ? stepsMenu.querySelectorAll(".step") : [];
@@ -156,7 +159,9 @@ function showStep(stepNumber) {
   });
 }
 
-// Inicializa o carrinho
+/**
+ * Inicializa o carrinho (usando localStorage ou exemplo fixo)
+ */
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
 if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -188,10 +193,12 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   }
 }
 
-// Eventos para navegação entre steps
+/**
+ * Eventos para navegação entre steps
+ */
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
-    // Validação dos campos do formulário de registro e endereço
+    // Validação dos campos de registro e endereço
     if (
       !document.getElementById("firstName").value ||
       !document.getElementById("lastName").value ||
@@ -211,7 +218,6 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-
     // Salva os dados no objeto checkoutData
     checkoutData.firstName = document.getElementById("firstName").value;
     checkoutData.lastName = document.getElementById("lastName").value;
@@ -227,7 +233,6 @@ if (toStep2Btn) {
     checkoutData.city = document.getElementById("city").value;
     checkoutData.address = document.getElementById("address").value;
     checkoutData.number = document.getElementById("number").value;
-
     showStep(2);
   });
 }
@@ -252,11 +257,13 @@ if (toStep3Btn) {
   });
 }
 
-// Botões para voltar
+// Botões de voltar
 backToStep1Btn?.addEventListener("click", () => showStep(1));
 backToStep2Btn?.addEventListener("click", () => showStep(2));
 
-// Atualiza o carrinho no DOM
+/**
+ * Atualiza o carrinho no DOM
+ */
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
   if (!container) return;
@@ -287,9 +294,11 @@ function updateCheckoutCart(items) {
     subtotal += checkoutData.insuranceCost;
   }
   container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("subtotalValue").textContent =
+    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("totalValue").textContent =
+    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /**
@@ -386,7 +395,10 @@ copyForAllBtn?.addEventListener("click", () => {
 
 modalPassengerContainer?.addEventListener("input", (e) => {
   const target = e.target;
-  if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+  if (
+    target.classList.contains("modalExtraNameInput") ||
+    target.classList.contains("modalExtraBirthdateInput")
+  ) {
     const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
     const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
     if (!checkoutData.extraPassengers[itemIndex]) {
@@ -404,7 +416,10 @@ modalPassengerContainer?.addEventListener("input", (e) => {
 });
 
 /**
- * Inicializa o método de pagamento conforme a seleção: card, pix ou boleto
+ * Inicializa o método de pagamento conforme a seleção:
+ * - Se "card": exibe o container e chama initializeCardForm()
+ * - Se "pix": exibe o container e chama initializePix()
+ * - Se "boleto": exibe o container e chama initializeBoleto()
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -414,7 +429,7 @@ function initializePaymentMethod() {
 
   if (method === "card") {
     document.getElementById("card-container").style.display = "block";
-    initializeCardForm(); // Inicia o fluxo de cartão real
+    initializeCardForm();
   } else if (method === "pix") {
     document.getElementById("pix-container").style.display = "block";
     initializePix();
@@ -424,6 +439,9 @@ function initializePaymentMethod() {
   }
 }
 
+/**
+ * Inicializa o fluxo de Pix chamando o endpoint /api/malga/generate-pix
+ */
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
   pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
@@ -448,6 +466,9 @@ function initializePix() {
   });
 }
 
+/**
+ * Inicializa o fluxo de Boleto chamando o endpoint /api/malga/generate-boleto
+ */
 function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
   boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
@@ -473,12 +494,11 @@ function initializeBoleto() {
 }
 
 /**
- * Evento para selecionar método de pagamento e iniciar fluxo
+ * Evento para seleção do método de pagamento
  */
 function handlePaymentMethodSelection() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
   if (method === "card") {
-    // Para cartão, o fluxo será iniciado via form submit (initializeCardForm já é chamado)
     document.getElementById("card-container").style.display = "block";
     initializeCardForm();
   } else if (method === "pix") {
