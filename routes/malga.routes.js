@@ -1,73 +1,57 @@
 // routes/malga.routes.js
-import express from "express";
-import { createCharge } from "../api/malgaClient.js"; // ajuste o caminho conforme sua estrutura
+import express from 'express';
+import { tokenization } from '@malga/tokenization';
 
 const router = express.Router();
 
-// Rota para obter o token do Malga
-router.get("/get-client-token", async (req, res) => {
-  try {
-    const dummyToken = "dummy-malga-client-token";
-    res.json({ clientToken: dummyToken });
-  } catch (error) {
-    console.error("Erro ao obter token do Malga:", error);
-    res.status(500).json({ error: "Erro interno ao obter token" });
+// Inicializa o SDK da Malga com as credenciais secretas (somente disponíveis no back-end)
+const malgaTokenization = tokenization({
+  apiKey: process.env.MALGA_API_KEY,      // Variável de ambiente com a chave secreta
+  clientId: process.env.MALGA_CLIENT_ID,    // Variável de ambiente com o client ID
+  options: {
+    sandbox: true, // Utilize false em produção
+    // Outras configurações podem ser adicionadas conforme a documentação do SDK
   }
 });
 
-// Rota para criar transação via cartão (com 3DS, se aplicável)
-router.post("/create-transaction", async (req, res) => {
+// Rota para criar a transação de pagamento
+router.post('/create-transaction', async (req, res) => {
   try {
-    // Constrói o payload de forma explícita, garantindo a estrutura correta.
-    // Ajuste os campos conforme a documentação da API do Malga.
-    const payload = {
-      paymentMethod: { paymentType: req.body.paymentMethod }, // espera "card"
-      paymentToken: req.body.paymentToken,
-      amount: Number(req.body.amount), // converte para número, se necessário
-      currency: "BRL",                // adicionado, se exigido pela API
-      installments: Number(req.body.installments),
-      customer: req.body.customer,
-      billing: req.body.billing,
-      extraPassengers: req.body.extraPassengers,
-      insuranceSelected: req.body.insuranceSelected,
+    // Extrai os dados enviados no corpo da requisição
+    const {
+      paymentToken,
+      amount,
+      installments,
+      customer,
+      billing,
+      extraPassengers,
+      insuranceSelected,
+      paymentMethod
+    } = req.body;
+
+    // Aqui você integraria com a API da Malga para criar a transação
+    // Por exemplo:
+    // const transaction = await malgaTokenization.createTransaction({
+    //   paymentToken,
+    //   amount,
+    //   installments,
+    //   customer,
+    //   billing,
+    //   extraPassengers,
+    //   insuranceSelected,
+    //   paymentMethod
+    // });
+    
+    // Neste exemplo, simulamos uma resposta de sucesso
+    const transaction = {
+      success: true,
+      transactionId: "simulated_transaction_id_12345"
     };
 
-    const charge = await createCharge(payload);
-    // Supondo que a resposta da Malga contenha um atributo "transactionId"
-    res.status(201).json({ success: true, transactionId: charge.transactionId, charge });
+    res.json(transaction);
   } catch (error) {
-    console.error("Erro ao criar transação com cartão:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Erro ao criar transação com cartão" });
-  }
-});
-
-// Rota para criar cobrança via PIX
-router.post("/create-pix-payment", async (req, res) => {
-  try {
-    const payload = {
-      paymentMethod: { paymentType: "pix" },
-      ...req.body
-    };
-    const charge = await createCharge(payload);
-    res.status(201).json({ success: true, qrCode: charge.qrCode, charge });
-  } catch (error) {
-    console.error("Erro ao criar cobrança PIX:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Erro ao criar cobrança PIX" });
-  }
-});
-
-// Rota para criar cobrança via boleto
-router.post("/create-boleto", async (req, res) => {
-  try {
-    const payload = {
-      paymentMethod: { paymentType: "boleto" },
-      ...req.body
-    };
-    const charge = await createCharge(payload);
-    res.status(201).json({ success: true, boletoUrl: charge.boletoUrl, charge });
-  } catch (error) {
-    console.error("Erro ao criar cobrança boleto:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Erro ao criar cobrança boleto" });
+    console.error("Erro ao criar a transação:", error);
+    res.status(500).json({ success: false, message: "Erro interno no servidor" });
   }
 });
 
