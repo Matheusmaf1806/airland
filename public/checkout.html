@@ -444,7 +444,7 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes Adicionais -->
+      <!-- STEP 2: Detalhes Adicionais (NOVO DESIGN) -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
@@ -543,7 +543,7 @@
               <label for="methodBoleto">Boleto</label>
             </div>
           </div>
-          <!-- Container para Cartão de Crédito -->
+          <!-- Container para Cartão de Crédito (Hosted Fields) -->
           <div id="card-container" style="display:block;">
             <div class="form-field">
               <label>Parcelas</label>
@@ -560,16 +560,15 @@
                 <option value="10">10x</option>
               </select>
             </div>
-            <!-- IMPORTANTE: Divs para Hosted Fields -->
+
+            <!-- Form: agora com divs para Hosted Fields do Tokenization SDK -->
             <form id="checkout-form">
               <div class="form-field">
                 <label>Número do Cartão</label>
-                <!-- Div onde o Hosted Field do número será renderizado -->
                 <div id="card-number" class="form-control"></div>
               </div>
               <div class="form-field">
                 <label>Nome do Titular</label>
-                <!-- Div para o Hosted Field de nome do titular -->
                 <div id="card-holder-name" class="form-control"></div>
               </div>
               <div class="fields-grid-2cols">
@@ -585,6 +584,7 @@
               <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
           </div>
+
           <!-- Container para Pix -->
           <div id="pix-container" style="display:none;"></div>
           <!-- Container para Boleto -->
@@ -859,15 +859,13 @@
     </div>
   </div>
 
-  <!-- SCRIPTS DE LÓGICA E TOKENIZATION -->
-  <!-- Mantendo tudo que não for de cartão inalterado; apenas adaptamos a parte do cartão para Hosted Fields -->
   <script type="module">
     /* =============================================
        IMPORT E CONFIGURAÇÃO DO TOKENIZATION SDK
     ============================================= */
     import { tokenization } from '@malga/tokenization';
 
-    // Inicializa o Tokenization SDK (ajuste apiKey/clientId conforme seu ambiente)
+    // Inicializa o Tokenization SDK (ajuste apiKey/clientId conforme necessário)
     const malgaTokenization = tokenization({
       apiKey: 'SUA_API_KEY_PUBLIC',
       clientId: 'SEU_CLIENT_ID',
@@ -917,39 +915,13 @@
       }
     });
 
-    /* =============================================
-       RESTO DA LÓGICA (NÃO MEXEMOS NO QUE NÃO É DE CARTÃO)
-    ============================================= */
-    
-    // A função "initializeMalgaCard" agora usa o Hosted Fields:
-    function initializeMalgaCard() {
-      const form = document.getElementById("checkout-form");
-      form.addEventListener("submit", async (evt) => {
-        evt.preventDefault();
-        try {
-          // Chama o SDK para tokenizar
-          const { tokenId, error } = await malgaTokenization.tokenize();
-          if (error) {
-            console.error("Erro na tokenização:", error.message);
-            alert("Erro ao processar o cartão.");
-            return;
-          }
-          // Se deu certo, chamamos a função que faz a requisição ao back-end
-          processPayment(tokenId, "card");
-        } catch (err) {
-          console.error("Erro na tokenização:", err);
-          alert("Erro inesperado na tokenização.");
-        }
-      });
-    }
-
-    // Abaixo está todo o restante da lógica original, mantida conforme você forneceu.
-    // Não alteramos nada fora da parte de cartão/Hosted Fields.
-    
-    // "Objeto Malga SIMULADO" (mantido conforme original, caso Pix/Boleto use):
+    /* ===========================================
+       PARTE DO "MALGA SIMULADO" + LÓGICA ORIGINAL
+    =========================================== */
+    // Objeto SIMULADO, para Pix e Boleto:
     const Malga = {
       createCardToken: function(cardDetails) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           console.log("Malga.createCardToken chamado com:", cardDetails);
           setTimeout(() => {
             resolve("dummy_card_token");
@@ -957,7 +929,7 @@
         });
       },
       verify3DS: function(token, amount) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           console.log("Malga.verify3DS chamado com token:", token, "e amount:", amount);
           setTimeout(() => {
             resolve("dummy_card_token_with_3DS");
@@ -965,7 +937,7 @@
         });
       },
       generatePixPayment: function(options) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           console.log("Malga.generatePixPayment chamado com:", options);
           setTimeout(() => {
             resolve({ code: "1234567890PIX" });
@@ -973,7 +945,7 @@
         });
       },
       generateBoletoPayment: function(options) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           console.log("Malga.generateBoletoPayment chamado com:", options);
           setTimeout(() => {
             resolve({ url: "http://dummy-boleto.com/1234567890" });
@@ -982,9 +954,30 @@
       }
     };
 
-    // --- Abaixo segue o mesmo script principal da página (passageiros, steps etc.) ---
-    // --- Mantido inalterado, exceto pela função initializeMalgaCard adaptada acima. ---
-    
+    // Função adaptada para Hosted Fields
+    function initializeMalgaCard() {
+      const form = document.getElementById("checkout-form");
+      form.addEventListener("submit", async (evt) => {
+        evt.preventDefault();
+        try {
+          // Tokenizar via SDK (@malga/tokenization)
+          const { tokenId, error } = await malgaTokenization.tokenize();
+          if (error) {
+            console.error("Erro na tokenização:", error.message);
+            alert("Erro ao processar o cartão.");
+            return;
+          }
+          console.log("Token gerado pelo Hosted Field:", tokenId);
+          // Aqui chamamos o processPayment, enviando o token ao back-end
+          processPayment(tokenId, "card");
+        } catch (err) {
+          console.error("Erro inesperado na tokenização:", err);
+          alert("Erro inesperado na tokenização.");
+        }
+      });
+    }
+
+    /* ======== RESTANTE DO CÓDIGO ORIGINAL (STEPS, MÁSCARAS, PASSAGEIROS ETC.) ======== */
     let checkoutData = {
       extraPassengers: [],
       insuranceSelected: "none" // "none", "30k" ou "80k"
@@ -1262,7 +1255,7 @@
 
       if (method === "card") {
         document.getElementById("card-container").style.display = "block";
-        initializeMalgaCard(); // <-- Chamamos a função adaptada para Hosted Fields
+        initializeMalgaCard();
       } else if (method === "pix") {
         document.getElementById("pix-container").style.display = "block";
         initializeMalgaPix();
@@ -1272,7 +1265,6 @@
       }
     }
 
-    // Mantemos as funções Pix/Boleto baseadas no objeto "Malga SIMULADO"
     function initializeMalgaPix() {
       const pixContainer = document.getElementById("pix-container");
       pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
