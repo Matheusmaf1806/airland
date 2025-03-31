@@ -1,13 +1,17 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-// Integra a tokenização real via Malga (sandbox), 3DS real e criação de transação.
-// Inclui a lógica completa de steps, carrinho, modal de passageiros extras, máscaras e demais eventos.
+// Integra os endpoints reais do Malga em sandbox para:
+// - Tokenização do cartão (/api/malga/tokenize-card)
+// - Fluxo 3DS (/api/malga/verify-3ds)
+// - Criação de transação (/api/malga/create-transaction)
+// Inclui também a lógica completa de steps, carrinho, modal de passageiros extras,
+// login, máscaras (CPF, RG) e consulta de CEP.
 ///////////////////////////////////////////////////////////
 
 console.log("Checkout ativo");
 
 /**
- * Retorna o valor total do pedido (como número com duas casas decimais)
+ * Obtém o valor total do pedido (convertendo de string para número com 2 casas decimais)
  */
 function getOrderAmount() {
   const totalEl = document.getElementById("totalValue");
@@ -17,12 +21,11 @@ function getOrderAmount() {
 }
 
 /**
- * Inicializa o formulário de cartão.
- * Lê os inputs: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput.
- * Chama as rotas:
- *  - /api/malga/tokenize-card para tokenizar o cartão;
- *  - /api/malga/verify-3ds para realizar o 3DS.
- * Se tudo ocorrer bem, chama processPayment(tokenFinal, "card").
+ * Inicializa o formulário de cartão:
+ * - Lê os inputs (cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput)
+ * - Chama a rota /api/malga/tokenize-card para tokenizar o cartão
+ * - Chama a rota /api/malga/verify-3ds para o fluxo 3DS
+ * - Se tudo ocorrer bem, chama processPayment() com o token final
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -30,11 +33,10 @@ function initializeCardForm() {
     console.error("Formulário #checkout-form não encontrado.");
     return;
   }
-  
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
     try {
-      // Lê os valores dos inputs
+      // Lê valores dos inputs
       const cardNumber = document.getElementById("cardNumberInput")?.value || "";
       const cardHolderName = document.getElementById("cardHolderNameInput")?.value || "";
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
@@ -85,7 +87,6 @@ function initializeCardForm() {
 
 /**
  * Processa o pagamento chamando o endpoint real /api/malga/create-transaction.
- * Apenas um ponto único para processar o pagamento (não duplicado).
  */
 async function processPayment(token, method = "card") {
   try {
@@ -124,11 +125,11 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * Objeto para armazenar os dados do checkout (incluindo extraPassengers)
+ * Objeto para armazenar os dados do checkout
  */
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none"
+  insuranceSelected: "none" // Pode ser "none", "30k" ou "80k"
 };
 
 /**
@@ -159,8 +160,7 @@ function showStep(stepNumber) {
 }
 
 /**
- * Inicializa o carrinho: tenta ler do elemento (se existir) ou do localStorage,
- * ou usa um exemplo fixo.
+ * Inicializa o carrinho: lê do elemento (se existir), do localStorage ou usa exemplo fixo.
  */
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
@@ -193,11 +193,11 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
 }
 
 /**
- * Eventos para navegação entre steps e coleta dos dados do usuário.
+ * Eventos para os botões de navegação
  */
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
-    // Verifica se todos os campos de registro e endereço foram preenchidos
+    // Se não estiver logado, verifica se todos os campos de registro e endereço foram preenchidos
     if (
       !document.getElementById("firstName").value ||
       !document.getElementById("lastName").value ||
@@ -262,7 +262,7 @@ if (backToStep2Btn) {
 }
 
 /**
- * Atualiza o carrinho no DOM
+ * Atualiza o carrinho no DOM com os itens.
  */
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
@@ -414,9 +414,8 @@ modalPassengerContainer?.addEventListener("input", (e) => {
 
 /**
  * Inicializa o método de pagamento conforme a seleção:
- * - Se "card": exibe o container e chama initializeCardForm()
- * - Se "pix": exibe o container e chama initializePix()
- * - Se "boleto": exibe o container e chama initializeBoleto()
+ * Exibe o container correspondente e chama a função de inicialização
+ * (para cartão, chama initializeCardForm; para Pix, initializePix; para Boleto, initializeBoleto)
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -437,7 +436,7 @@ function initializePaymentMethod() {
 }
 
 /**
- * Inicializa o fluxo de Pix
+ * Inicializa o fluxo de Pix.
  */
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
@@ -464,7 +463,7 @@ function initializePix() {
 }
 
 /**
- * Inicializa o fluxo de Boleto
+ * Inicializa o fluxo de Boleto.
  */
 function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
@@ -491,7 +490,7 @@ function initializeBoleto() {
 }
 
 /**
- * Evento para seleção do método de pagamento (atualiza container conforme escolha)
+ * Evento para mudança de método de pagamento (atualiza o container correspondente)
  */
 function handlePaymentMethodSelection() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -508,31 +507,30 @@ function handlePaymentMethodSelection() {
 }
 
 /**
- * Evento onload: atualiza o carrinho, verifica login, etc.
+ * Evento onload: atualiza o carrinho e verifica se o usuário está logado.
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
   const isLoggedIn = !!localStorage.getItem("agentId");
   const toggleLoginLink = document.getElementById("toggleLogin");
-  const registrationFields = document.getElementById("registrationFieldsGeneral");
-  const loginFields = document.getElementById("loginFields");
+  const regFields = document.getElementById("registrationFieldsGeneral");
+  const logFields = document.getElementById("loginFields");
   if (isLoggedIn) {
     if (toggleLoginLink) toggleLoginLink.style.display = "none";
-    if (registrationFields) registrationFields.style.display = "none";
-    if (loginFields) loginFields.style.display = "none";
+    if (regFields) regFields.style.display = "none";
+    if (logFields) logFields.style.display = "none";
   } else {
     if (toggleLoginLink) toggleLoginLink.style.display = "block";
-    if (registrationFields) registrationFields.style.display = "block";
+    if (regFields) regFields.style.display = "block";
   }
 });
 
 /**
- * Toggle de exibição do formulário de login/registro
+ * Toggle para exibição dos formulários de login/registro.
  */
 const toggleLogin = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
 const logFields = document.getElementById("loginFields");
-
 if (toggleLogin) {
   toggleLogin.addEventListener("click", (e) => {
     e.preventDefault();
@@ -549,7 +547,7 @@ if (toggleLogin) {
 }
 
 /**
- * Botão de Login (simulação simples)
+ * Botão de login (simulação simples)
  */
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
@@ -569,7 +567,7 @@ if (loginValidateBtn) {
 }
 
 /**
- * Busca CEP e preenche endereço automaticamente
+ * Busca CEP e preenche endereço automaticamente.
  */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
@@ -598,7 +596,7 @@ document.getElementById("cep")?.addEventListener("blur", function () {
   buscarCEP(this.value);
 });
 
-// Máscaras para CPF e RG
+// Máscara para CPF
 document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 3) {
@@ -613,6 +611,7 @@ document.getElementById("cpf")?.addEventListener("input", function (e) {
   e.target.value = value;
 });
 
+// Máscara para RG
 document.getElementById("rg")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 2) {
@@ -628,7 +627,7 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
 });
 
 /**
- * Abre e fecha os modais de Coberturas Intermac 30K e 80K
+ * Abre e fecha os modais de Coberturas Intermac 30K e 80K.
  */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
