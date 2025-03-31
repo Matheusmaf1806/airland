@@ -698,71 +698,53 @@
       </div>
 
       <!-- STEP 3: Pagamento -->
-      <div class="step-content" data-step="3">
-        <div class="card-style-1">
-          <h2>Pagamento</h2>
-          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
-          <div class="form-field">
-            <label>Método de Pagamento</label>
-            <div>
-              <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
-              <label for="methodCard">Cartão de Crédito</label>
-              <input type="radio" id="methodPix" name="paymentMethod" value="pix" />
-              <label for="methodPix">Pix</label>
-              <input type="radio" id="methodBoleto" name="paymentMethod" value="boleto" />
-              <label for="methodBoleto">Boleto</label>
-            </div>
-          </div>
-
-          <!-- Container manual para os campos do cartão -->
-          <div id="card-container" style="display:block;">
+        <div class="step-content" data-step="3">
+          <div class="card-style-1">
+            <h2>Pagamento</h2>
+            <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
             <div class="form-field">
-              <label>Parcelas</label>
-              <select id="installments">
-                <option value="1">1x</option>
-                <option value="2">2x</option>
-                <option value="3">3x</option>
-                <option value="4">4x</option>
-                <option value="5">5x</option>
-                <option value="6">6x</option>
-                <option value="7">7x</option>
-                <option value="8">8x</option>
-                <option value="9">9x</option>
-                <option value="10">10x</option>
-              </select>
+              <label>Método de Pagamento</label>
+              <div>
+                <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
+                <label for="methodCard">Cartão de Crédito</label>
+                <input type="radio" id="methodPix" name="paymentMethod" value="pix" />
+                <label for="methodPix">Pix</label>
+                <input type="radio" id="methodBoleto" name="paymentMethod" value="boleto" />
+                <label for="methodBoleto">Boleto</label>
+              </div>
             </div>
+            <!-- Formulário para Hosted Fields do Cartão -->
             <form id="checkout-form">
-              <div class="form-field">
-                <label>Número do Cartão</label>
-                <input type="text" id="cardNumberInput" placeholder="Número do Cartão" />
-              </div>
-              <div class="form-field">
-                <label>Nome do Titular</label>
-                <input type="text" id="cardHolderNameInput" placeholder="Nome do Titular" />
-              </div>
-              <div class="fields-grid-2cols">
+              <div id="card-container">
                 <div class="form-field">
-                  <label>Data de Expiração (MM/AA)</label>
-                  <input type="text" id="cardExpirationInput" placeholder="MM/AA" />
+                  <label>Número do Cartão</label>
+                  <div id="card-number" class="form-control"></div>
                 </div>
                 <div class="form-field">
-                  <label>CVV</label>
-                  <input type="text" id="cardCvvInput" placeholder="CVV" />
+                  <label>Nome do Titular</label>
+                  <div id="card-holder-name" class="form-control"></div>
                 </div>
+                <div class="fields-grid-2cols">
+                  <div class="form-field">
+                    <label>Data de Expiração (MM/AA)</label>
+                    <div id="card-expiration-date" class="form-control"></div>
+                  </div>
+                  <div class="form-field">
+                    <label>CVV</label>
+                    <div id="card-cvv" class="form-control"></div>
+                  </div>
+                </div>
+                <button type="submit" class="btn-pay-pal">Pagar</button>
               </div>
-              <button type="submit" class="btn-pay-pal">Pagar</button>
             </form>
-          </div>
-
-          <!-- Container para Pix -->
-          <div id="pix-container" style="display:none;"></div>
-          <!-- Container para Boleto -->
-          <div id="boleto-container" style="display:none;"></div>
-          <div class="navigation">
-            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+            <!-- Containers para Pix e Boleto -->
+            <div id="pix-container" style="display:none;"></div>
+            <div id="boleto-container" style="display:none;"></div>
+            <div class="navigation">
+              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+            </div>
           </div>
         </div>
-      </div>
 
       <!-- STEP 4: Confirmação -->
       <div class="step-content" data-step="4">
