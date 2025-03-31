@@ -1,5 +1,9 @@
-// src/main.js
-// Front-end principal do Checkout com integração real via Hosted Fields do Malga
+///////////////////////////////////////////////////////////
+// src/main.js - Front-end principal do Checkout
+// Integração real via Hosted Fields do Malga (sandbox)
+// e gerenciamento completo dos steps, carrinho, login e
+// passageiros extras (com persistência via localStorage)
+///////////////////////////////////////////////////////////
 
 console.log("Checkout ativo");
 
@@ -7,7 +11,7 @@ console.log("Checkout ativo");
 // 1) Configuração dos Hosted Fields do Malga
 // ======================================================================
 
-// Para Vite, as variáveis de ambiente devem ter o prefixo VITE_
+// As variáveis de ambiente devem estar definidas com prefixo VITE_ na Vercel
 const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
 const MALGA_CLIENT_ID = import.meta.env.VITE_MALGA_CLIENT_ID;
 
@@ -20,7 +24,7 @@ const malgaTokenization = tokenization({
     config: {
       fields: {
         cardNumber: {
-          container: 'card-number',         // Elemento onde o campo será renderizado
+          container: 'card-number', // ID do elemento onde o campo será renderizado
           type: 'text',
           placeholder: 'Número do Cartão',
           needMask: true,
@@ -63,16 +67,16 @@ const malgaTokenization = tokenization({
 });
 
 // ======================================================================
-// 2) Função utilitária para obter o valor total do pedido
+// 2) Função utilitária: Obtém o valor total do pedido
 // ======================================================================
 function getOrderAmount() {
-  const totalText = document.getElementById("totalValue").textContent || "R$ 0,00";
+  const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
   const amountStr = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   return parseFloat(amountStr).toFixed(2);
 }
 
 // ======================================================================
-// 3) Função para processar o pagamento: chama o endpoint real /api/malga/create-transaction
+// 3) Processamento final do pagamento
 // ======================================================================
 async function processPayment(token, method = "card") {
   try {
@@ -89,8 +93,8 @@ async function processPayment(token, method = "card") {
     const body = {
       tokenId: token,
       amount,
-      installments,
-      // Inclua aqui os dados do cliente se necessário (ex.: checkoutData.customer)
+      installments
+      // Adicione outros dados do cliente conforme necessário
     };
     const res = await fetch("/api/malga/create-transaction", {
       method: "POST",
@@ -111,7 +115,7 @@ async function processPayment(token, method = "card") {
 }
 
 // ======================================================================
-// 4) Função para inicializar o formulário do cartão (Hosted Fields)
+// 4) Inicialização do formulário do cartão (Hosted Fields)
 // ======================================================================
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -122,7 +126,7 @@ function initializeCardForm() {
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
     try {
-      // Chama os Hosted Fields para tokenização
+      // Chama o método tokenize() dos Hosted Fields do Malga
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error("Erro na tokenização:", error.message);
@@ -131,7 +135,7 @@ function initializeCardForm() {
       }
       console.log("Token gerado real:", tokenId);
 
-      // Chama o endpoint de 3DS
+      // Chama o endpoint para verificar 3DS
       const amount = getOrderAmount();
       const verify3dsRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
@@ -146,7 +150,7 @@ function initializeCardForm() {
       const token3DS = verify3dsData.token3DS || tokenId;
       console.log("Token pós-3DS:", token3DS);
 
-      // Chama o processamento final do pagamento
+      // Processa o pagamento
       await processPayment(token3DS, "card");
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
@@ -156,7 +160,7 @@ function initializeCardForm() {
 }
 
 // ======================================================================
-// 5) Lógica de steps, carrinho, login e modais (incluindo passageiros extras)
+// 5) Lógica de steps, carrinho, login e extra passageiros
 // ======================================================================
 
 // Dados do checkout
@@ -165,7 +169,7 @@ let checkoutData = {
   insuranceSelected: "none"
 };
 
-// Função para exibir um step
+// Exibição dos steps
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll(".step-content");
   const stepButtons = document.querySelectorAll("#stepsMenu .step");
@@ -183,7 +187,7 @@ function showStep(stepNumber) {
   });
 }
 
-// Inicializar carrinho
+// Inicialização do carrinho
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
 if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -214,7 +218,7 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   }
 }
 
-// Atualizar carrinho na tela
+// Função para atualizar o carrinho na tela (única declaração)
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
   if (!container) return;
@@ -249,18 +253,20 @@ function updateCheckoutCart(items) {
 }
 
 // ======================================================================
-// 6) Lógica de passageiros extras – Modal e armazenamento persistente
+// 6) Lógica dos passageiros extras – Modal, salvamento e cópia
 // ======================================================================
 
-// Ao carregar, tenta recuperar os extras salvos no localStorage
+// Recupera dados salvos (se houver) dos passageiros extras
 if (localStorage.getItem("extraPassengers")) {
   checkoutData.extraPassengers = JSON.parse(localStorage.getItem("extraPassengers"));
 }
 
+// Cria o formulário do modal para passageiros extras e reinicializa os dados
 function createModalPassengerForms(items) {
   const modalContainer = document.getElementById("modalPassengerContainer");
   modalContainer.innerHTML = "";
-  checkoutData.extraPassengers = []; // Reinicia os extras
+  // Reinicia os extras
+  checkoutData.extraPassengers = [];
   let itemsWithExtras = 0;
   items.forEach((item, itemIndex) => {
     const extraCount = (item.adults || 1) - 1;
@@ -294,7 +300,7 @@ function createModalPassengerForms(items) {
   }
 }
 
-// Sempre que houver alteração nos campos de passageiros extras, salva no localStorage
+// Função para salvar os passageiros extras no localStorage
 function saveExtraPassengers() {
   localStorage.setItem("extraPassengers", JSON.stringify(checkoutData.extraPassengers));
 }
@@ -386,7 +392,7 @@ if (document.getElementById("modalPassengerContainer")) {
 }
 
 // ======================================================================
-// 7) Função para selecionar método de pagamento e inicializar os campos correspondentes
+// 7) Inicialização do método de pagamento conforme seleção
 // ======================================================================
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -395,7 +401,7 @@ function initializePaymentMethod() {
   document.getElementById("boleto-container").style.display = "none";
   if (method === "card") {
     document.getElementById("card-container").style.display = "block";
-    initializeCardForm(); // Inicializa o fluxo do cartão (Hosted Fields)
+    initializeCardForm();
   } else if (method === "pix") {
     document.getElementById("pix-container").style.display = "block";
     initializePix();
@@ -406,7 +412,7 @@ function initializePaymentMethod() {
 }
 
 // ======================================================================
-// 8) Inicialização de Pix
+// 8) Inicialização de Pix e Boleto usando endpoints reais
 // ======================================================================
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
@@ -432,9 +438,6 @@ function initializePix() {
   });
 }
 
-// ======================================================================
-// 9) Inicialização de Boleto
-// ======================================================================
 function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
   boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
@@ -460,7 +463,7 @@ function initializeBoleto() {
 }
 
 // ======================================================================
-// 10) Eventos de navegação entre steps e validação dos dados pessoais
+// 9) Eventos de navegação entre steps e validação dos dados pessoais
 // ======================================================================
 const toStep2Btn = document.getElementById("toStep2");
 const backToStep1Btn = document.getElementById("backToStep1");
@@ -489,7 +492,7 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-    // Armazena os dados no checkoutData
+    // Armazenar os dados no checkoutData
     checkoutData.firstName = document.getElementById("firstName").value;
     checkoutData.lastName = document.getElementById("lastName").value;
     checkoutData.celular = document.getElementById("celular").value;
@@ -534,43 +537,7 @@ if (backToStep2Btn) {
 }
 
 // ======================================================================
-// 11) Função para atualizar o carrinho na tela
-// ======================================================================
-function updateCheckoutCart(items) {
-  const container = document.getElementById("cartItemsList");
-  if (!container) return;
-  let subtotal = 0;
-  let html = "";
-  items.forEach(item => {
-    const price = item.basePriceAdult || 80;
-    subtotal += price;
-    html += `
-      <div class="reserva-item">
-        <div class="reserva-left">
-          <span class="categoria">${item.type || "Hospedagem"}</span>
-          <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-          <div class="reserva-details">
-            <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-            <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-            <p>Quartos: ${item.rooms || 1}</p>
-            <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-          </div>
-        </div>
-        <div class="reserva-preco">
-          R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-        </div>
-      </div>
-    `;
-  });
-  if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
-  container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-  document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-}
-
-// ======================================================================
-// 12) Máscaras para CEP, CPF e RG
+// 10) Máscaras e validação de CEP, CPF e RG
 // ======================================================================
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
@@ -616,163 +583,7 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
 });
 
 // ======================================================================
-// 13) Toggle de exibição do formulário de login/registro
-// ======================================================================
-const toggleLogin = document.getElementById("toggleLogin");
-const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-const loginFields = document.getElementById("loginFields");
-if (toggleLogin) {
-  toggleLogin.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (registrationFieldsGeneral.style.display !== "none") {
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "block";
-      toggleLogin.textContent = "Não tenho Login";
-    } else {
-      registrationFieldsGeneral.style.display = "block";
-      loginFields.style.display = "none";
-      toggleLogin.textContent = "Economize tempo fazendo Login";
-    }
-  });
-}
-
-// ======================================================================
-// 14) Botão de Login
-// ======================================================================
-const loginValidateBtn = document.getElementById("loginValidateBtn");
-if (loginValidateBtn) {
-  loginValidateBtn.addEventListener("click", () => {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    if (email === "teste@teste.com" && password === "1234") {
-      localStorage.setItem("agentId", "AGENT-TESTE");
-      alert("Login efetuado com sucesso!");
-      toggleLogin.style.display = "none";
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "none";
-    } else {
-      alert("Erro no login: Dados inválidos.");
-    }
-  });
-}
-
-// ======================================================================
-// 15) Abertura/fechamento dos modais para Coberturas (Intermac 30K / 80K)
-// ======================================================================
-document.querySelectorAll(".open30kModal").forEach(el => {
-  el.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("modalIntermac30K").style.display = "block";
-  });
-});
-document.querySelectorAll(".open80kModal").forEach(el => {
-  el.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("modalIntermac80K").style.display = "block";
-  });
-});
-document.querySelectorAll(".close-modal").forEach(closeBtn => {
-  closeBtn.addEventListener("click", function () {
-    const modalId = this.getAttribute("data-close-modal");
-    if (modalId) {
-      document.getElementById(modalId).style.display = "none";
-    }
-  });
-});
-
-// ======================================================================
-// 16) Inicialização do método de pagamento conforme seleção (Card/Pix/Boleto)
-// ======================================================================
-function initializePaymentMethod() {
-  const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-  document.getElementById("card-container").style.display = "none";
-  document.getElementById("pix-container").style.display = "none";
-  document.getElementById("boleto-container").style.display = "none";
-  if (method === "card") {
-    document.getElementById("card-container").style.display = "block";
-    initializeCardForm();
-  } else if (method === "pix") {
-    document.getElementById("pix-container").style.display = "block";
-    initializePix();
-  } else if (method === "boleto") {
-    document.getElementById("boleto-container").style.display = "block";
-    initializeBoleto();
-  }
-}
-
-// ======================================================================
-// 17) Inicialização de Pix e Boleto (como no exemplo real, usando endpoints)
-// ======================================================================
-function initializePix() {
-  const pixContainer = document.getElementById("pix-container");
-  pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
-  document.getElementById("generatePixBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const res = await fetch("/api/malga/generate-pix", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        alert("Falha ao gerar Pix: " + (data.message || "Erro Pix"));
-        return;
-      }
-      document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + data.pixCode;
-    } catch (err) {
-      console.error("Erro ao gerar Pix:", err);
-      alert("Erro ao gerar Pix. Ver console para detalhes.");
-    }
-  });
-}
-
-function initializeBoleto() {
-  const boletoContainer = document.getElementById("boleto-container");
-  boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
-  document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const res = await fetch("/api/malga/generate-boleto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        alert("Falha ao gerar Boleto: " + (data.message || "Erro Boleto"));
-        return;
-      }
-      document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + data.boletoUrl;
-    } catch (err) {
-      console.error("Erro ao gerar Boleto:", err);
-      alert("Erro ao gerar Boleto. Ver console para detalhes.");
-    }
-  });
-}
-
-// ======================================================================
-// 18) Inicialização geral (onload)
-// ======================================================================
-window.addEventListener("load", () => {
-  updateCheckoutCart(cartItems);
-  // Verifica se o usuário já está logado
-  const isLoggedIn = !!localStorage.getItem("agentId");
-  const toggleLoginLink = document.getElementById("toggleLogin");
-  const regFields = document.getElementById("registrationFieldsGeneral");
-  const loginFields = document.getElementById("loginFields");
-  if (isLoggedIn) {
-    if (toggleLoginLink) toggleLoginLink.style.display = "none";
-    if (regFields) regFields.style.display = "none";
-    if (loginFields) loginFields.style.display = "none";
-  } else {
-    if (toggleLoginLink) toggleLoginLink.style.display = "block";
-    if (regFields) regFields.style.display = "block";
-  }
-});
-
-// ======================================================================
-// 19) Toggle de Login
+// 11) Toggle de exibição do formulário de login/registro
 // ======================================================================
 const toggleLoginBtn = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
@@ -793,7 +604,7 @@ if (toggleLoginBtn) {
 }
 
 // ======================================================================
-// 20) Botão de Login
+// 12) Botão de Login
 // ======================================================================
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
@@ -811,55 +622,9 @@ if (loginValidateBtn) {
     }
   });
 }
-  
-// ======================================================================
-// 21) Máscaras para CEP, CPF e RG
-// ======================================================================
-function buscarCEP(cep) {
-  cep = cep.replace(/\D/g, "");
-  if (cep.length === 8) {
-    const url = `https://viacep.com.br/ws/${cep}/json/`;
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if (data.erro) {
-          alert("CEP não encontrado!");
-          return;
-        }
-        document.getElementById("address").value = data.logradouro || "";
-        document.getElementById("city").value = data.localidade || "";
-        document.getElementById("state").value = data.uf || "";
-      })
-      .catch(error => {
-        console.error("Erro ao buscar CEP:", error);
-        alert("Não foi possível consultar o CEP.");
-      });
-  } else {
-    console.log("CEP inválido ou incompleto.");
-  }
-}
-document.getElementById("cep")?.addEventListener("blur", function () {
-  buscarCEP(this.value);
-});
-
-document.getElementById("cpf")?.addEventListener("input", function (e) {
-  let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, "$1.$2");
-  if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-  e.target.value = value;
-});
-
-document.getElementById("rg")?.addEventListener("input", function (e) {
-  let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, "$1.$2");
-  if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
-  e.target.value = value;
-});
 
 // ======================================================================
-// 22) Abertura e fechamento dos modais de Cobertura (Intermac 30K / 80K)
+// 13) Abertura/fechamento dos modais para Coberturas (Intermac 30K / 80K)
 // ======================================================================
 document.querySelectorAll(".open30kModal").forEach(el => {
   el.addEventListener("click", (e) => {
