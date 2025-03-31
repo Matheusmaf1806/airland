@@ -7,7 +7,6 @@ const router = express.Router();
 // Rota para obter o token do Malga
 router.get("/get-client-token", async (req, res) => {
   try {
-    // Se você tiver uma função real para obter o token, substitua a linha abaixo
     const dummyToken = "dummy-malga-client-token";
     res.json({ clientToken: dummyToken });
   } catch (error) {
@@ -19,16 +18,23 @@ router.get("/get-client-token", async (req, res) => {
 // Rota para criar transação via cartão (com 3DS, se aplicável)
 router.post("/create-transaction", async (req, res) => {
   try {
-    // Junta os dados recebidos com o objeto que indica pagamento via cartão
+    // Constrói o payload de forma explícita, garantindo a estrutura correta
     const payload = {
-      paymentMethod: { paymentType: "card" },
-      ...req.body
+      paymentMethod: { paymentType: req.body.paymentMethod }, // Espera que req.body.paymentMethod seja "card"
+      paymentToken: req.body.paymentToken,
+      amount: req.body.amount,
+      installments: req.body.installments,
+      customer: req.body.customer,
+      billing: req.body.billing,
+      extraPassengers: req.body.extraPassengers,
+      insuranceSelected: req.body.insuranceSelected,
     };
+
     const charge = await createCharge(payload);
     // Supondo que a resposta da Malga contenha um atributo "transactionId"
     res.status(201).json({ success: true, transactionId: charge.transactionId, charge });
   } catch (error) {
-    console.error("Erro ao criar transação com cartão:", error);
+    console.error("Erro ao criar transação com cartão:", error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Erro ao criar transação com cartão" });
   }
 });
@@ -41,10 +47,9 @@ router.post("/create-pix-payment", async (req, res) => {
       ...req.body
     };
     const charge = await createCharge(payload);
-    // Supondo que a resposta da Malga contenha um atributo "qrCode"
     res.status(201).json({ success: true, qrCode: charge.qrCode, charge });
   } catch (error) {
-    console.error("Erro ao criar cobrança PIX:", error);
+    console.error("Erro ao criar cobrança PIX:", error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Erro ao criar cobrança PIX" });
   }
 });
@@ -57,10 +62,9 @@ router.post("/create-boleto", async (req, res) => {
       ...req.body
     };
     const charge = await createCharge(payload);
-    // Supondo que a resposta da Malga contenha um atributo "boletoUrl"
     res.status(201).json({ success: true, boletoUrl: charge.boletoUrl, charge });
   } catch (error) {
-    console.error("Erro ao criar cobrança boleto:", error);
+    console.error("Erro ao criar cobrança boleto:", error.response ? error.response.data : error.message);
     res.status(500).json({ error: "Erro ao criar cobrança boleto" });
   }
 });
