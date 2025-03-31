@@ -41,35 +41,56 @@ const MockMalga = {
 // =========================================================
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
-  if (!form) {
-    console.error("Não há form #checkout-form na página.");
-    return;
-  }
+  if (!form) return;
 
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
-
     try {
-      // Pegar dados do cartão (no real Hosted Fields, seria malgaTokenization.tokenize())
-      const cardNumber = document.getElementById("card-number-input")?.value || "4111111111111111";
-      const cardName = document.getElementById("card-holder-name-input")?.value || "Fulano Teste";
-      const cardExp = document.getElementById("card-expiration-input")?.value || "12/25";
-      const cardCvv = document.getElementById("card-cvv-input")?.value || "123";
+      const cardNumber = document.getElementById("cardNumberInput")?.value || "";
+      const cardName   = document.getElementById("cardHolderNameInput")?.value || "";
+      const cardExp    = document.getElementById("cardExpirationInput")?.value || "";
+      const cardCvv    = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1. Simular tokenização
-      const { tokenId } = await MockMalga.tokenizeCard({ cardNumber, cardName, cardExp, cardCvv });
-      console.log("Token gerado localmente (dummy):", tokenId);
+      // 1) Tokenização real
+      const response = await fetch("/api/malga/tokenize-card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardNumber,
+          cardHolderName: cardName,
+          cardExpirationDate: cardExp,
+          cardCvv
+        })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        alert("Falha na tokenização: " + (data.message || "Erro desconhecido"));
+        return;
+      }
+      const tokenId = data.tokenId;
+      console.log("Token gerado real:", tokenId);
 
-      // 2. Simular 3DS
+      // 2) Verificação 3DS (opcional)
       const amount = getOrderAmount();
-      const token3DS = await MockMalga.verify3DS(tokenId, amount);
-      console.log("Token após 3DS:", token3DS);
+      const response3ds = await fetch("/api/malga/verify-3ds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenId, amount })
+      });
+      const data3ds = await response3ds.json();
+      if (!data3ds.success) {
+        alert("Falha no 3DS: " + (data3ds.message || "Erro 3DS"));
+        return;
+      }
+      const token3DS = data3ds.token3DS || tokenId;
+      console.log("Token pós-3DS:", token3DS);
 
-      // 3. Chama processPayment usando token3DS
+      // 3) Chamar processPayment, final
       processPayment(token3DS, "card");
+
     } catch (err) {
-      console.error("Erro inesperado no fluxo de cartão:", err);
-      alert("Erro inesperado no fluxo de cartão.");
+      console.error("Erro inesperado no fluxo de cartão real:", err);
+      alert("Erro inesperado no fluxo de cartão real.");
     }
   });
 }
