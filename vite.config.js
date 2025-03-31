@@ -1,16 +1,21 @@
+// vite.config.js
 import { defineConfig } from 'vite';
+import commonjs from '@rollup/plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
-  // Remova "root: 'src'," para não forçar o Vite a procurar src/index.html
   build: {
-    outDir: '../public',   // ou 'public' dependendo de onde está seu vite.config.js
+    outDir: 'public',
     emptyOutDir: false,
     rollupOptions: {
-      // Define explicitamente o arquivo de entrada, em vez de "index.html"
-      input: 'src/main.js',
+      input: './src/main.js',
       output: {
         entryFileNames: 'assets/main.js'
-      }
+      },
+      plugins: [
+        nodeResolve(),  // resolve node_modules
+        commonjs()      // converte CJS -> ESM
+      ]
     }
   },
   define: {
