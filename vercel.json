@@ -1,11 +1,25 @@
 {
   "version": 2,
+
+  // 1) Diz ao Vercel para rodar "npm run build" antes de empacotar o projeto
+  "buildCommand": "npm run build",
+
+  // 2) Garante que suas funções Node continuem sendo geradas,
+  //    como você já tinha configurado
   "builds": [
-    { "src": "server.js", "use": "@vercel/node" },
-    { "src": "api/worker.js", "use": "@vercel/node" }
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/worker.js",
+      "use": "@vercel/node"
+    }
   ],
+
+  // 3) As rotas que você definiu
   "routes": [
-    { "src": "/(.*)", "dest": "server.js" },
-    { "src": "/api/worker", "dest": "api/worker.js" }
+    { "src": "/api/worker", "dest": "api/worker.js" },
+    { "src": "/(.*)", "dest": "server.js" }
   ]
 }
