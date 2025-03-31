@@ -1,83 +1,91 @@
 // routes/malga.routes.js
 import express from 'express';
-import malgaTokenization from '@malga/tokenization'; // Import DEFAULT (ajuste principal)
+// Se a Malga tiver um SDK oficial de pagamentos para Node, importe-o aqui.
+// Exemplo fictício: import * as MalgaPayments from '@malga/payment-node';
+// Se não existir SDK, você pode usar fetch/axios para chamar a API HTTP da Malga.
 
-// Cria o roteador do Express
 const router = express.Router();
-
-// Inicializa o SDK da Malga utilizando as credenciais sensíveis (disponíveis somente no back-end)
-const malga = malgaTokenization({
-  apiKey: process.env.MALGA_API_KEY,    // Chave secreta
-  clientId: process.env.MALGA_CLIENT_ID, // Client ID
-  options: {
-    sandbox: true, // Use false em produção
-    // Outras configurações, se necessário
-  }
-});
 
 /**
  * POST /api/malga/create-transaction
- * Cria a transação de pagamento conforme o método de pagamento (cartão, pix, boleto).
+ * Recebe token e dados do front-end e cria a transação no back-end.
+ * É aqui que suas credenciais privadas ficam protegidas no servidor.
  */
 router.post('/create-transaction', async (req, res) => {
   try {
-    // Extrai os dados do corpo da requisição
+    // Extrai dados do corpo da requisição enviados pelo front-end
     const {
-      paymentMethod,    // "card", "pix" ou "boleto"
-      paymentToken,     // Token do cartão (para pagamento com cartão)
-      amount,
+      paymentMethod,    // 'card', 'pix' ou 'boleto'
+      paymentToken,     // token gerado no front (via Malga Tokenization)
+      amount,           // ex.: '123.45' (ou '12345' se em centavos)
       installments,
-      customer,
-      billing,
+      customer,         // { firstName, lastName, email, phone }
+      billing,          // { streetAddress, extendedAddress, locality, region, postalCode, ... }
       extraPassengers,
       insuranceSelected
     } = req.body;
 
+    // Simulamos um objeto "transaction" para retorno.
+    // Em um cenário real, você chamaria a API/SDK para criar a transação de fato.
     let transaction;
 
-    if (paymentMethod === 'card') {
-      // Para cartão de crédito:
-      // Se necessário, chamar verificação 3DS:
-      const tokenWith3DS = await malga.verify3DS(paymentToken, amount);
+    // Se fosse um SDK, você faria algo como:
+    //   const transaction = await MalgaPayments.authorizeCard({
+    //     token: paymentToken,
+    //     amount: parseFloat(amount),
+    //     installments,
+    //     customer,
+    //     billing,
+    //     // etc...
+    //   });
+    // ou chamaria a API HTTP.
 
-      // Dependendo do fluxo, pode ser necessário criar a transação com outro método do SDK
-      // para registrar a cobrança de fato. Neste exemplo, apenas simulamos a resposta.
+    if (paymentMethod === 'card') {
+      // Supondo que já tenha verificado 3DS no front ou queira chamar algo adicional aqui
+      // Exemplo fictício:
       transaction = {
         success: true,
-        transactionId: `card_${tokenWith3DS}_transaction`,
+        transactionId: `card_${paymentToken}_transaction`,
+        message: 'Transação de cartão criada com sucesso!'
       };
 
     } else if (paymentMethod === 'pix') {
-      // Para Pix, gera os dados de pagamento via Pix:
-      const pixData = await malga.generatePixPayment({ amount });
-      // Retorna código Pix para exibição no front-end
+      // Em um fluxo real, você chamaria algo como:
+      //   const pixResponse = await MalgaPayments.generatePix({ amount, ... });
+      //   transaction = { success: true, transactionId: pixResponse.id, ...pixResponse };
       transaction = {
         success: true,
-        transactionId: `pix_${pixData.code}_transaction`,
-        pixCode: pixData.code
+        transactionId: `pix_txn_${new Date().getTime()}`,
+        pixCode: 'ABCD12345PIX',
+        message: 'Transação de PIX gerada com sucesso!'
       };
 
     } else if (paymentMethod === 'boleto') {
-      // Para boleto, gera os dados do boleto:
-      const boletoData = await malga.generateBoletoPayment({ amount });
-      // Retorna URL do boleto para exibição
+      // Em um fluxo real, algo como:
+      //   const boletoResponse = await MalgaPayments.generateBoleto({ amount, ... });
+      //   transaction = { success: true, transactionId: boletoResponse.id, boletoUrl: boletoResponse.url };
       transaction = {
         success: true,
-        transactionId: `boleto_${boletoData.url}_transaction`,
-        boletoUrl: boletoData.url
+        transactionId: `boleto_txn_${new Date().getTime()}`,
+        boletoUrl: 'https://example.com/boleto/xyz',
+        message: 'Transação de boleto gerada com sucesso!'
       };
 
     } else {
-      // Se o método de pagamento não for reconhecido, retorne 400 (bad request)
-      return res.status(400).json({ success: false, message: 'Método de pagamento inválido' });
+      // Se o método não foi reconhecido, retorna 400 (Bad Request)
+      return res.status(400).json({
+        success: false,
+        message: 'Método de pagamento inválido.'
+      });
     }
 
-    // Retorna os dados da transação para o front-end
+    // Retorna a transação simulada (ou a real) para o front-end
     return res.json(transaction);
 
   } catch (error) {
-    console.error("Erro ao criar a transação:", error);
-    return res.status(500).json({ success: false, message: "Erro interno no servidor" });
+    console.error('Erro ao criar a transação:', error);
+    // Retorna 500 se houve erro interno
+    return res.status(500).json({ success: false, message: 'Erro interno no servidor' });
   }
 });
 
