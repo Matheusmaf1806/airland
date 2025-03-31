@@ -36,7 +36,6 @@ router.post("/create-transaction", async (req, res) => {
 // Rota para criar cobrança via PIX
 router.post("/create-pix-payment", async (req, res) => {
   try {
-    // Junta os dados recebidos com o objeto que indica pagamento via PIX
     const payload = {
       paymentMethod: { paymentType: "pix" },
       ...req.body
