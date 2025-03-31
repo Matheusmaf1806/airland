@@ -1,16 +1,17 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-// Integra os endpoints reais de tokenização (/api/malga/tokenize-card),
-// verificação 3DS (/api/malga/verify-3ds) e criação de transação
-// (/api/malga/create-transaction). Também persiste os dados dos
-// passageiros extras no localStorage.
+// Integra os endpoints reais do Malga (sandbox) para:
+// - Tokenização (/api/malga/tokenize-card)
+// - Fluxo 3DS (/api/malga/verify-3ds)
+// - Criação da transação (/api/malga/create-transaction)
+// Também gerencia a navegação dos steps, carrinho e passagem
+// de dados dos passageiros extras (salvando no localStorage)
 ///////////////////////////////////////////////////////////
 
-// Debug: indica que o JS foi carregado
 console.log("Checkout ativo");
 
 /**
- * Função para obter o valor total do pedido
+ * Retorna o valor total do pedido (convertido para número com duas casas decimais)
  */
 function getOrderAmount() {
   const totalElem = document.getElementById("totalValue");
@@ -20,9 +21,8 @@ function getOrderAmount() {
 }
 
 /**
- * Função para inicializar o formulário de cartão.
- * Lê os inputs do cartão, chama os endpoints reais para tokenização e 3DS
- * e então chama processPayment com o token final.
+ * Inicializa o formulário do cartão.
+ * Lê os inputs do cartão, chama as rotas de tokenização e 3DS e, se tudo der certo, processa o pagamento.
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -30,22 +30,16 @@ function initializeCardForm() {
     console.error("Formulário #checkout-form não encontrado.");
     return;
   }
-
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
-
     try {
-      // Ler valores dos inputs do cartão
-      const cardNumber =
-        document.getElementById("cardNumberInput")?.value || "";
-      const cardHolderName =
-        document.getElementById("cardHolderNameInput")?.value || "";
-      const cardExpirationDate =
-        document.getElementById("cardExpirationInput")?.value || "";
-      const cardCvv =
-        document.getElementById("cardCvvInput")?.value || "";
+      // Ler dados dos inputs
+      const cardNumber = document.getElementById("cardNumberInput")?.value || "";
+      const cardHolderName = document.getElementById("cardHolderNameInput")?.value || "";
+      const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
+      const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1) Tokenizar o cartão: chamar a rota real /api/malga/tokenize-card
+      // 1) Tokenizar o cartão
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,16 +52,13 @@ function initializeCardForm() {
       });
       const tokenizeData = await tokenizeRes.json();
       if (!tokenizeData.success) {
-        alert(
-          "Falha na tokenização: " +
-            (tokenizeData.message || "Erro desconhecido")
-        );
+        alert("Falha na tokenização: " + (tokenizeData.message || "Erro desconhecido"));
         return;
       }
       const tokenId = tokenizeData.tokenId;
       console.log("Token gerado real:", tokenId);
 
-      // 2) Verificar 3DS: chamar a rota /api/malga/verify-3ds
+      // 2) Executar o fluxo 3DS
       const amount = getOrderAmount();
       const verify3dsRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
@@ -92,14 +83,13 @@ function initializeCardForm() {
 }
 
 /**
- * Função que processa o pagamento chamando o endpoint real /api/malga/create-transaction.
+ * Processa o pagamento chamando o endpoint real /api/malga/create-transaction.
  */
 async function processPayment(token, method = "card") {
   try {
     let totalText = document.getElementById("totalValue").textContent;
     let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
     amount = parseFloat(amount).toFixed(2);
-
     let installments = "1";
     if (method === "card") {
       const installmentsSelect = document.getElementById("installments");
@@ -107,12 +97,10 @@ async function processPayment(token, method = "card") {
         installments = installmentsSelect.value;
       }
     }
-
     const body = {
       tokenId: token,
       amount,
       installments,
-      // Adicione outros campos necessários, por exemplo, dados do cliente e billing
       customer: {
         firstName: checkoutData.firstName,
         lastName: checkoutData.lastName,
@@ -151,11 +139,11 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * Objeto que armazena os dados do checkout
+ * Objeto para armazenar os dados do checkout.
  */
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none"
+  insuranceSelected: "none" // "none", "30k" ou "80k"
 };
 
 /**
@@ -164,7 +152,6 @@ let checkoutData = {
 const stepsMenu = document.getElementById("stepsMenu");
 const stepContents = document.querySelectorAll(".step-content");
 const stepButtons = stepsMenu ? stepsMenu.querySelectorAll(".step") : [];
-
 const toStep2Btn = document.getElementById("toStep2");
 const backToStep1Btn = document.getElementById("backToStep1");
 const toStep3Btn = document.getElementById("toStep3");
@@ -186,7 +173,7 @@ function showStep(stepNumber) {
 }
 
 /**
- * Inicializa o carrinho, tentando ler de shoppingCart ou do localStorage.
+ * Inicializa o carrinho a partir do shoppingCart ou do localStorage.
  */
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
@@ -220,91 +207,13 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
 }
 
 /**
- * Eventos para avançar de step
- */
-if (toStep2Btn) {
-  toStep2Btn.addEventListener("click", () => {
-    if (!localStorage.getItem("agentId")) {
-      // Verifica campos de registro
-      if (
-        !document.getElementById("firstName").value ||
-        !document.getElementById("lastName").value ||
-        !document.getElementById("celular").value ||
-        !document.getElementById("email").value ||
-        !document.getElementById("password").value ||
-        !document.getElementById("confirmPassword").value
-      ) {
-        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-        return;
-      }
-      checkoutData.firstName = document.getElementById("firstName").value;
-      checkoutData.lastName = document.getElementById("lastName").value;
-      checkoutData.celular = document.getElementById("celular").value;
-      checkoutData.email = document.getElementById("email").value;
-      checkoutData.password = document.getElementById("password").value;
-      checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
-    }
-
-    // Verifica campos de documentos/endereço
-    if (
-      !document.getElementById("cpf").value ||
-      !document.getElementById("rg").value ||
-      !document.getElementById("birthdate").value ||
-      !document.getElementById("cep").value ||
-      !document.getElementById("state").value ||
-      !document.getElementById("city").value ||
-      !document.getElementById("address").value ||
-      !document.getElementById("number").value
-    ) {
-      alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-      return;
-    }
-    checkoutData.cpf = document.getElementById("cpf").value;
-    checkoutData.rg = document.getElementById("rg").value;
-    checkoutData.birthdate = document.getElementById("birthdate").value;
-    checkoutData.cep = document.getElementById("cep").value;
-    checkoutData.state = document.getElementById("state").value;
-    checkoutData.city = document.getElementById("city").value;
-    checkoutData.address = document.getElementById("address").value;
-    checkoutData.number = document.getElementById("number").value;
-
-    showStep(2);
-  });
-}
-
-if (toStep3Btn) {
-  toStep3Btn.addEventListener("click", () => {
-    const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
-    checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-
-    let insuranceCost = 0;
-    if (checkoutData.insuranceSelected === "30k") {
-      insuranceCost = 112.81;
-    } else if (checkoutData.insuranceSelected === "80k") {
-      insuranceCost = 212.02;
-    }
-    checkoutData.insuranceCost = insuranceCost;
-
-    updateCheckoutCart(cartItems);
-    showStep(3);
-    // Inicializa o método de pagamento (card, pix ou boleto)
-    initializePaymentMethod();
-  });
-}
-
-if (backToStep1Btn) backToStep1Btn.addEventListener("click", () => showStep(1));
-if (backToStep2Btn) backToStep2Btn.addEventListener("click", () => showStep(2));
-
-/**
  * Atualiza o carrinho no DOM
  */
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
   if (!container) return;
-
   let subtotal = 0;
   let html = "";
-
   items.forEach((item) => {
     let price = item.basePriceAdult || 80;
     subtotal += price;
@@ -326,9 +235,7 @@ function updateCheckoutCart(items) {
       </div>
     `;
   });
-  if (checkoutData.insuranceCost) {
-    subtotal += checkoutData.insuranceCost;
-  }
+  if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
   container.innerHTML = html;
   document.getElementById("subtotalValue").textContent =
     "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
@@ -343,19 +250,18 @@ function updateCheckoutCart(items) {
 function createModalPassengerForms(items) {
   const modalPassengerContainer = document.getElementById("modalPassengerContainer");
   modalPassengerContainer.innerHTML = "";
+  // Reinicia os passageiros extras
   checkoutData.extraPassengers = [];
   let itemsWithExtras = 0;
-
   items.forEach((item, itemIndex) => {
     const extraCount = (item.adults || 1) - 1;
     if (extraCount > 0) {
       itemsWithExtras++;
+      // Inicializa array para este item
       checkoutData.extraPassengers[itemIndex] = [];
-
       const itemDiv = document.createElement("div");
       itemDiv.classList.add("passenger-box");
       itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
-
       for (let i = 0; i < extraCount; i++) {
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.classList.add("fields-grid-2cols-modal");
@@ -375,12 +281,13 @@ function createModalPassengerForms(items) {
     }
   });
   const copyForAllBtn = document.getElementById("copyForAllBtn");
-  if (copyForAllBtn)
+  if (copyForAllBtn) {
     copyForAllBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
+  }
 }
 
 /**
- * Função para popular o modal com os dados salvos (se existirem)
+ * Popula o modal com os dados salvos (se existirem no localStorage)
  */
 function populatePassengerModal() {
   const savedData = localStorage.getItem("extraPassengers");
@@ -397,7 +304,35 @@ function populatePassengerModal() {
 }
 
 /**
- * Eventos para o modal de passageiros extras
+ * Configura os eventos do modal para passageiros extras
+ */
+function setupPassengerModalEvents() {
+  const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+  modalPassengerContainer?.addEventListener("input", (e) => {
+    const target = e.target;
+    if (
+      target.classList.contains("modalExtraNameInput") ||
+      target.classList.contains("modalExtraBirthdateInput")
+    ) {
+      const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+      const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
+      if (!checkoutData.extraPassengers[itemIndex]) {
+        checkoutData.extraPassengers[itemIndex] = [];
+      }
+      if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
+        checkoutData.extraPassengers[itemIndex][passIndex] = {};
+      }
+      if (target.classList.contains("modalExtraNameInput")) {
+        checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
+      } else {
+        checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
+      }
+    }
+  });
+}
+
+/**
+ * Eventos para abrir/fechar o modal de passageiros extras
  */
 const passengerModal = document.getElementById("passengerModal");
 const openPassengerModalBtn = document.getElementById("openPassengerModal");
@@ -419,7 +354,7 @@ closeModalBtn?.addEventListener("click", () => {
 
 savePassengersBtn?.addEventListener("click", () => {
   if (passengerModal) passengerModal.style.display = "none";
-  // Salvar os dados dos passageiros extras no localStorage
+  // Salva os dados dos passageiros extras no localStorage
   localStorage.setItem("extraPassengers", JSON.stringify(checkoutData.extraPassengers));
   alert("Passageiros extras salvos!");
 });
@@ -458,42 +393,16 @@ copyForAllBtn?.addEventListener("click", () => {
   alert("Dados copiados para todos os itens compatíveis!");
 });
 
-document.getElementById("modalPassengerContainer")?.addEventListener("input", (e) => {
-  const target = e.target;
-  if (
-    target.classList.contains("modalExtraNameInput") ||
-    target.classList.contains("modalExtraBirthdateInput")
-  ) {
-    const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-    const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-    if (!checkoutData.extraPassengers[itemIndex]) {
-      checkoutData.extraPassengers[itemIndex] = [];
-    }
-    if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-      checkoutData.extraPassengers[itemIndex][passIndex] = {};
-    }
-    if (target.classList.contains("modalExtraNameInput")) {
-      checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
-    } else {
-      checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
-    }
-  }
-});
-
 /**
- * Função para inicializar o método de pagamento.
- * Verifica qual opção foi selecionada (card, pix ou boleto)
- * e chama a função correspondente.
+ * Inicializa o método de pagamento (card, pix ou boleto)
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
   document.getElementById("card-container").style.display = "none";
   document.getElementById("pix-container").style.display = "none";
   document.getElementById("boleto-container").style.display = "none";
-
   if (method === "card") {
     document.getElementById("card-container").style.display = "block";
-    // Inicia o fluxo do cartão
     initializeCardForm();
   } else if (method === "pix") {
     document.getElementById("pix-container").style.display = "block";
@@ -508,7 +417,6 @@ function initializePix() {
   const pixContainer = document.getElementById("pix-container");
   pixContainer.innerHTML =
     "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
-
   document.getElementById("generatePixBtn").addEventListener("click", async () => {
     const amount = getOrderAmount();
     try {
@@ -534,7 +442,6 @@ function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
   boletoContainer.innerHTML =
     "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
-
   document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
     const amount = getOrderAmount();
     try {
@@ -557,138 +464,15 @@ function initializeBoleto() {
 }
 
 /**
- * Evento para processar o pagamento (chamada final)
+ * Eventos para processar o pagamento (chamada final)
+ * (A única declaração de processPayment é esta, sem duplicação)
  */
-async function processPayment(token, method = "card") {
-  try {
-    let totalText = document.getElementById("totalValue").textContent;
-    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-    amount = parseFloat(amount).toFixed(2);
+// (A função processPayment já foi definida acima)
 
-    let installments = "1";
-    if (method === "card") {
-      const installmentsSelect = document.getElementById("installments");
-      if (installmentsSelect) {
-        installments = installmentsSelect.value;
-      }
-    }
+//////////////////////////////////////
+// Eventos de navegação dos steps //
+//////////////////////////////////////
 
-    const body = {
-      tokenId: token,
-      amount,
-      installments,
-      customer: {
-        firstName: checkoutData.firstName,
-        lastName: checkoutData.lastName,
-        email: checkoutData.email,
-        phone: checkoutData.celular
-      },
-      billing: {
-        streetAddress: checkoutData.address,
-        extendedAddress: checkoutData.number,
-        locality: checkoutData.city,
-        region: checkoutData.state,
-        postalCode: checkoutData.cep,
-        countryCodeAlpha2: "BR"
-      },
-      extraPassengers: checkoutData.extraPassengers,
-      insuranceSelected: checkoutData.insuranceSelected,
-      paymentMethod: method
-    };
-
-    const res = await fetch("/api/malga/create-transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    const result = await res.json();
-    if (!result.success) {
-      alert("Falha na transação: " + (result.message || "Erro desconhecido"));
-      return;
-    }
-    alert("Pagamento Aprovado! Transaction ID: " + result.transactionId);
-    showStep(4);
-  } catch (err) {
-    console.error("Erro ao processar pagamento:", err);
-    alert("Erro ao processar pagamento. Ver console para detalhes.");
-  }
-}
-
-/**
- * Evento para salvar e copiar dados dos passageiros extras
- */
-function updateCheckoutCart(items) {
-  const container = document.getElementById("cartItemsList");
-  if (!container) return;
-
-  let subtotal = 0;
-  let html = "";
-
-  items.forEach((item) => {
-    let price = item.basePriceAdult || 80;
-    subtotal += price;
-    html += `
-      <div class="reserva-item">
-        <div class="reserva-left">
-          <span class="categoria">${item.type || "Hospedagem"}</span>
-          <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-          <div class="reserva-details">
-            <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-            <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-            <p>Quartos: ${item.rooms || 1}</p>
-            <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-          </div>
-        </div>
-        <div class="reserva-preco">
-          R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-        </div>
-      </div>
-    `;
-  });
-
-  if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
-
-  container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent =
-    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-  document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent =
-    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-}
-
-/**
- * Eventos para salvar dados dos passageiros extras e copiar para os demais
- */
-function setupPassengerModalEvents() {
-  const modalPassengerContainer = document.getElementById("modalPassengerContainer");
-  const copyForAllBtn = document.getElementById("copyForAllBtn");
-
-  modalPassengerContainer?.addEventListener("input", (e) => {
-    const target = e.target;
-    if (
-      target.classList.contains("modalExtraNameInput") ||
-      target.classList.contains("modalExtraBirthdateInput")
-    ) {
-      const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-      const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-      if (!checkoutData.extraPassengers[itemIndex]) {
-        checkoutData.extraPassengers[itemIndex] = [];
-      }
-      if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-        checkoutData.extraPassengers[itemIndex][passIndex] = {};
-      }
-      if (target.classList.contains("modalExtraNameInput")) {
-        checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
-      } else {
-        checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
-      }
-    }
-  });
-}
-
-/**
- * Eventos para navegação dos passos e processamento do login
- */
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
     if (!localStorage.getItem("agentId")) {
@@ -710,7 +494,6 @@ if (toStep2Btn) {
       checkoutData.password = document.getElementById("password").value;
       checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
     }
-
     if (
       !document.getElementById("cpf").value ||
       !document.getElementById("rg").value ||
@@ -724,7 +507,6 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-
     checkoutData.cpf = document.getElementById("cpf").value;
     checkoutData.rg = document.getElementById("rg").value;
     checkoutData.birthdate = document.getElementById("birthdate").value;
@@ -733,7 +515,6 @@ if (toStep2Btn) {
     checkoutData.city = document.getElementById("city").value;
     checkoutData.address = document.getElementById("address").value;
     checkoutData.number = document.getElementById("number").value;
-
     showStep(2);
   });
 }
@@ -749,9 +530,9 @@ if (toStep3Btn) {
       insuranceCost = 212.02;
     }
     checkoutData.insuranceCost = insuranceCost;
-
     updateCheckoutCart(cartItems);
     showStep(3);
+    // Inicia a seleção do método de pagamento
     initializePaymentMethod();
   });
 }
@@ -759,35 +540,16 @@ if (toStep3Btn) {
 if (backToStep1Btn) backToStep1Btn.addEventListener("click", () => showStep(1));
 if (backToStep2Btn) backToStep2Btn.addEventListener("click", () => showStep(2));
 
-/**
- * On load: Atualiza carrinho, recupera dados dos passageiros extras do localStorage
- * e ajusta exibição do login.
- */
-window.addEventListener("load", () => {
+//////////////////////////////////////
+// Evento para atualizar carrinho //
+//////////////////////////////////////
+function updateCartAndDisplay() {
   updateCheckoutCart(cartItems);
-  const savedExtraPassengers = localStorage.getItem("extraPassengers");
-  if (savedExtraPassengers) {
-    checkoutData.extraPassengers = JSON.parse(savedExtraPassengers);
-  }
-  const isLoggedIn = !!localStorage.getItem("agentId");
-  const toggleLoginLink = document.getElementById("toggleLogin");
-  const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-  const loginFields = document.getElementById("loginFields");
-  if (isLoggedIn) {
-    if (toggleLoginLink) toggleLoginLink.style.display = "none";
-    if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "none";
-    if (loginFields) loginFields.style.display = "none";
-  } else {
-    if (toggleLoginLink) toggleLoginLink.style.display = "block";
-    if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "block";
-  }
-  // Configura os eventos do modal de passageiros extras
-  setupPassengerModalEvents();
-});
+}
 
-/**
- * Toggle do Login
- */
+//////////////////////////////////////
+// Eventos para Login e Toggle Login //
+//////////////////////////////////////
 const toggleLogin = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
 const loginDiv = document.getElementById("loginFields");
@@ -807,9 +569,6 @@ if (toggleLogin) {
   });
 }
 
-/**
- * Evento para validar Login
- */
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener("click", () => {
@@ -827,9 +586,9 @@ if (loginValidateBtn) {
   });
 }
 
-/**
- * Função para buscar CEP e preencher endereço
- */
+//////////////////////////////
+// CEP e Máscaras de CPF/RG //
+//////////////////////////////
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
   if (cep.length === 8) {
@@ -857,9 +616,6 @@ document.getElementById("cep")?.addEventListener("blur", function () {
   buscarCEP(this.value);
 });
 
-/**
- * Máscaras para CPF e RG
- */
 document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 3) {
@@ -888,9 +644,9 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
   e.target.value = value;
 });
 
-/**
- * Eventos para abrir e fechar modais de Coberturas (Intermac 30K/80K)
- */
+//////////////////////////////
+// Eventos para modais de Coberturas //
+//////////////////////////////
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
