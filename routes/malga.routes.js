@@ -18,12 +18,14 @@ router.get("/get-client-token", async (req, res) => {
 // Rota para criar transação via cartão (com 3DS, se aplicável)
 router.post("/create-transaction", async (req, res) => {
   try {
-    // Constrói o payload de forma explícita, garantindo a estrutura correta
+    // Constrói o payload de forma explícita, garantindo a estrutura correta.
+    // Ajuste os campos conforme a documentação da API do Malga.
     const payload = {
-      paymentMethod: { paymentType: req.body.paymentMethod }, // Espera que req.body.paymentMethod seja "card"
+      paymentMethod: { paymentType: req.body.paymentMethod }, // espera "card"
       paymentToken: req.body.paymentToken,
-      amount: req.body.amount,
-      installments: req.body.installments,
+      amount: Number(req.body.amount), // converte para número, se necessário
+      currency: "BRL",                // adicionado, se exigido pela API
+      installments: Number(req.body.installments),
       customer: req.body.customer,
       billing: req.body.billing,
       extraPassengers: req.body.extraPassengers,
