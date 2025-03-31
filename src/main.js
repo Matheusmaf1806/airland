@@ -1,30 +1,27 @@
 /* =========================================================================
-   main.js - Exemplo completo de Checkout com Integração Malga (Card/Pix/Boleto)
+   main.js - Exemplo completo usando Malga (Card/Pix/Boleto)
+   com import * as Malga from '@malga/tokenization'
    =========================================================================
-   Observações:
-   1) Substitua "MALGA_API_KEY" e "MALGA_CLIENT_ID" pelas credenciais do seu
-      ambiente (sandbox ou produção).
-   2) Ajuste, se necessário, o caminho do import de '@malga/tokenization'
-      conforme sua instalação (por exemplo, "node_modules/@malga/tokenization").
-   3) Esse código supõe que você tem um endpoint em seu back-end chamado
-      "/api/malga/create-transaction" que recebe JSON com "paymentMethod",
-      "amount", "paymentToken" (se cartão), etc., e então faz a chamada
-      oficial à API da Malga para criar transações de cartão/pix/boleto.
-   4) Os passos e elementos de HTML devem existir no arquivo HTML (por exemplo,
-      "toStep2", "backToStep1", etc.). Certifique-se de que esse "main.js"
-      esteja sendo importado no HTML via <script type="module" src="/assets/main.js"></script>.
-   5) Para simplificar, concentramos a maior parte da lógica aqui em um único
-      arquivo. Você pode modularizar conforme preferir.
+   1) Ajuste "MALGA_API_KEY" e "MALGA_CLIENT_ID" com suas credenciais.
+   2) Certifique-se de que /api/malga/create-transaction no seu back-end
+      chama a API da Malga para criar transações de Pix/Boleto/Cartão.
+   3) Mantenha o resto do HTML com <script type="module" src="/assets/main.js">
+      ou similar, para que esse arquivo seja processado pelo Vite/Rollup.
+   4) Toda a lógica de steps, modais, máscaras, etc., está inclusa abaixo.
    ========================================================================= */
 
-import MalgaTokenization from '@malga/tokenization';
+import * as Malga from '@malga/tokenization';
 
 /* =========================================================================
-   1) Inicialização do Hosted Fields para Cartão
+   1) Criar instância de MalgaTokenization (hosted fields para cartão)
    ========================================================================= */
-const malgaTokenization = new MalgaTokenization({
-  apiKey: 'MALGA_API_KEY',    // <-- substitua aqui
-  clientId: 'MALGA_CLIENT_ID',// <-- substitua aqui
+console.log('Conteúdo do objeto Malga importado:', Malga);
+// O console.log acima ajuda a ver quais exports a lib possui
+// Provavelmente a classe se chama "MalgaTokenization".
+
+const malgaTokenization = new Malga.MalgaTokenization({
+  apiKey: 'MALGA_API_KEY',    // Trocar pela sua
+  clientId: 'MALGA_CLIENT_ID',// Trocar pela sua
   options: {
     config: {
       fields: {
@@ -72,29 +69,25 @@ const malgaTokenization = new MalgaTokenization({
 });
 
 /* =========================================================================
-   2) Lógica de obtenção do TOTAL do carrinho (convertendo R$ para número)
+   2) Função para obter valor do pedido (convertendo "R$ 1.234,56" -> "1234.56")
    ========================================================================= */
 function getOrderAmount() {
   const totalEl = document.getElementById('totalValue');
   if (!totalEl) return '0.00';
-  let raw = totalEl.textContent
-    .replace('R$', '')
-    .trim()
-    .replace(/\./g, '')
-    .replace(',', '.');
+  let raw = totalEl.textContent.replace('R$', '').trim()
+                               .replace(/\./g, '')
+                               .replace(',', '.');
   return parseFloat(raw).toFixed(2);
 }
 
 /* =========================================================================
-   3) Função: envia tokenId do cartão para o back-end e processa o pagamento
+   3) Processar pagamento (cartão) -> envia tokenId ao back-end
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
-    // Exemplo: se tiver select de parcelas (#installments), puxe aqui
-    const installments = '1'; 
     const amount = getOrderAmount();
+    const installments = '1'; // Ajuste se tiver select de parcelas
 
-    // Chama o endpoint do back-end. Ele deve falar com a API da Malga.
     const resp = await fetch('/api/malga/create-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -103,15 +96,12 @@ async function processCardPayment(tokenId) {
         paymentToken: tokenId,
         amount,
         installments
-        // ...inclua demais dados se quiser (ex: billing info, etc.)
       })
     });
     const result = await resp.json();
-
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      // Exemplo: mostrar Step 4 (Confirmação)
-      showStep(4);
+      showStep(4); // Ex. Step 4 = Confirmação
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
@@ -122,7 +112,7 @@ async function processCardPayment(tokenId) {
 }
 
 /* =========================================================================
-   4) Inicializa o formulário do Cartão (Hosted Fields)
+   4) Inicializa Hosted Fields (cartão). Chamado quando "card" está selecionado.
    ========================================================================= */
 function initializeCardForm() {
   const form = document.getElementById('checkout-form');
@@ -134,24 +124,22 @@ function initializeCardForm() {
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
     try {
-      // Tokeniza o cartão via Malga
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error('Erro na tokenização do cartão:', error.message);
         alert('Falha na tokenização do cartão.');
         return;
       }
-      // Se funcionou, chama a função que envia ao back-end
       await processCardPayment(tokenId);
     } catch (err) {
-      console.error('Erro inesperado no fluxo de cartão:', err);
+      console.error('Erro inesperado na tokenização:', err);
       alert('Erro inesperado no fluxo de cartão.');
     }
   });
 }
 
 /* =========================================================================
-   5) Fluxo Pix: gera QR/código Pix chamando o back-end, que chama a Malga
+   5) Fluxo Pix: gera QR/código Pix chamando back-end
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -188,7 +176,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   6) Fluxo Boleto: gera link/linha digitável chamando back-end -> Malga
+   6) Fluxo Boleto: gera link/linha digitável chamando back-end
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -225,7 +213,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   7) Função que troca o método de pagamento (card/pix/boleto)
+   7) Alternar método de pagamento (card/pix/boleto)
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -239,10 +227,10 @@ function switchPaymentMethod() {
   if (boletoContainer) boletoContainer.style.display = 'none';
 
   if (method === 'card') {
-    if (cardContainer)   cardContainer.style.display = 'block';
+    if (cardContainer) cardContainer.style.display = 'block';
     initializeCardForm();
   } else if (method === 'pix') {
-    if (pixContainer)    pixContainer.style.display  = 'block';
+    if (pixContainer) pixContainer.style.display = 'block';
     initializePix();
   } else if (method === 'boleto') {
     if (boletoContainer) boletoContainer.style.display = 'block';
@@ -251,7 +239,7 @@ function switchPaymentMethod() {
 }
 
 /* =========================================================================
-   8) Controle de Steps (1,2,3,4)
+   8) Função de Steps (1,2,3,4) - exibir/ocultar passo atual
    ========================================================================= */
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll('.step-content');
@@ -273,7 +261,7 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   9) Leitura de carrinho (exemplo) e variáveis de checkout
+   9) Exemplo de carrinho e checkoutData
    ========================================================================= */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
@@ -284,7 +272,6 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   if (savedCart) {
     cartItems = JSON.parse(savedCart);
   } else {
-    // Exemplo dummy
     cartItems = [
       {
         hotelName: 'Hotel Exemplo A',
@@ -306,14 +293,13 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   }
 }
 
-// Exemplo de dados do checkout
 const checkoutData = {
   extraPassengers: [],
-  insuranceSelected: 'none' // "none", "30k", "80k", etc.
+  insuranceSelected: 'none'
 };
 
 /* =========================================================================
-   10) Atualiza itens na coluna direita (Resumo do carrinho)
+   10) Atualizar coluna direita (resumo do carrinho)
    ========================================================================= */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
@@ -342,12 +328,10 @@ function updateCheckoutCart(items) {
       </div>
     `;
   });
-
   // Se adicionou seguro
   if (checkoutData.insuranceCost) {
     subtotal += checkoutData.insuranceCost;
   }
-
   container.innerHTML = html;
   document.getElementById('subtotalValue').textContent =
     'R$ ' + subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -357,14 +341,14 @@ function updateCheckoutCart(items) {
 }
 
 /* =========================================================================
-   11) Exemplo de Modal: Nomear passageiros extras
+   11) Passageiros extras (modal) - abrir, salvar e copiar
    ========================================================================= */
-const passengerModal         = document.getElementById('passengerModal');
-const openPassengerModalBtn  = document.getElementById('openPassengerModal');
-const closeModalBtn          = document.getElementById('closeModal');
-const savePassengersBtn      = document.getElementById('savePassengersBtn');
-const modalPassengerContainer= document.getElementById('modalPassengerContainer');
-const copyForAllBtn          = document.getElementById('copyForAllBtn');
+const passengerModal  = document.getElementById('passengerModal');
+const openPassengerModalBtn = document.getElementById('openPassengerModal');
+const closeModalBtn   = document.getElementById('closeModal');
+const savePassengersBtn= document.getElementById('savePassengersBtn');
+const modalPassengerContainer = document.getElementById('modalPassengerContainer');
+const copyForAllBtn   = document.getElementById('copyForAllBtn');
 
 function createModalPassengerForms(items) {
   modalPassengerContainer.innerHTML = '';
@@ -427,7 +411,6 @@ if (savePassengersBtn) {
   });
 }
 
-// Botão "Copiar para todos"
 if (copyForAllBtn) {
   copyForAllBtn.addEventListener('click', () => {
     let sourceIndex = null;
@@ -452,12 +435,11 @@ if (copyForAllBtn) {
           for (let passIndex = 0; passIndex < extraCount; passIndex++) {
             const nameSelector  = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
             const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-
             const nameInput  = document.querySelector(nameSelector);
             const birthInput = document.querySelector(birthSelector);
 
             if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
-              nameInput.value  = checkoutData.extraPassengers[i][passIndex].name      || '';
+              nameInput.value  = checkoutData.extraPassengers[i][passIndex].name || '';
               birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || '';
             }
           }
@@ -468,7 +450,6 @@ if (copyForAllBtn) {
   });
 }
 
-// "Escuta" de input dentro do modal, para ir salvando no array
 if (modalPassengerContainer) {
   modalPassengerContainer.addEventListener('input', e => {
     const target = e.target;
@@ -491,30 +472,28 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   12) Botões e lógicas de Steps / Seleção de Plano e etc.
+   12) Botões de steps: #toStep2, #backToStep1, #toStep3, #backToStep2 etc.
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
 const toStep3Btn     = document.getElementById('toStep3');
 const backToStep2Btn = document.getElementById('backToStep2');
 
-// Exemplo simplificado de validação ao ir para Step 2
 if (toStep2Btn) {
   toStep2Btn.addEventListener('click', () => {
-    // Exemplo: checar se user está logado ou se os campos de cadastro foram preenchidos
+    // Exemplo: validação "não estou logado? Então exija os campos..."
     const isLoggedIn = !!localStorage.getItem('agentId');
     if (!isLoggedIn) {
-      // Campos básicos
       if (!document.getElementById('firstName').value ||
           !document.getElementById('lastName').value  ||
           !document.getElementById('celular').value   ||
           !document.getElementById('email').value     ||
           !document.getElementById('password').value  ||
           !document.getElementById('confirmPassword').value) {
-        alert('Por favor, preencha todos os campos obrigatórios antes de continuar.');
+        alert('Preencha os campos obrigatórios antes de continuar.');
         return;
       }
-      // Salvar no objeto
+      // Salvar no checkoutData
       checkoutData.firstName = document.getElementById('firstName').value;
       checkoutData.lastName  = document.getElementById('lastName').value;
       checkoutData.celular   = document.getElementById('celular').value;
@@ -523,7 +502,6 @@ if (toStep2Btn) {
       checkoutData.confirmPassword = document.getElementById('confirmPassword').value;
     }
 
-    // Checar campos de documento e endereço
     if (!document.getElementById('cpf').value       ||
         !document.getElementById('rg').value        ||
         !document.getElementById('birthdate').value ||
@@ -532,7 +510,7 @@ if (toStep2Btn) {
         !document.getElementById('city').value      ||
         !document.getElementById('address').value   ||
         !document.getElementById('number').value) {
-      alert('Por favor, preencha todos os campos obrigatórios antes de continuar.');
+      alert('Preencha todos os campos obrigatórios antes de continuar.');
       return;
     }
 
@@ -549,10 +527,14 @@ if (toStep2Btn) {
   });
 }
 
-// Step 3
+if (backToStep1Btn) {
+  backToStep1Btn.addEventListener('click', () => {
+    showStep(1);
+  });
+}
+
 if (toStep3Btn) {
   toStep3Btn.addEventListener('click', () => {
-    // Qual plano de seguro foi escolhido?
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
     checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : 'none';
 
@@ -563,24 +545,13 @@ if (toStep3Btn) {
       insuranceCost = 212.02;
     }
     checkoutData.insuranceCost = insuranceCost;
-
-    // Atualiza a coluna da direita
     updateCheckoutCart(cartItems);
 
-    // Vai para Step 3 e inicializa a forma de pagamento
     showStep(3);
-    switchPaymentMethod();
+    switchPaymentMethod(); // Mostra form de cartão, pix ou boleto
   });
 }
 
-// Voltar do Step 2 para Step 1
-if (backToStep1Btn) {
-  backToStep1Btn.addEventListener('click', () => {
-    showStep(1);
-  });
-}
-
-// Voltar do Step 3 para Step 2
 if (backToStep2Btn) {
   backToStep2Btn.addEventListener('click', () => {
     showStep(2);
@@ -588,12 +559,13 @@ if (backToStep2Btn) {
 }
 
 /* =========================================================================
-   13) Máscaras de CPF, RG e busca de CEP
+   13) CEP / CPF / RG - máscaras e auto-complete
    ========================================================================= */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, '');
   if (cep.length === 8) {
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    const url = `https://viacep.com.br/ws/${cep}/json/`;
+    fetch(url)
       .then(resp => resp.json())
       .then(data => {
         if (data.erro) {
@@ -608,10 +580,9 @@ function buscarCEP(cep) {
         console.error('Erro ao buscar CEP:', err);
         alert('Não foi possível consultar o CEP.');
       });
-  } else {
-    console.log('CEP inválido ou incompleto.');
   }
 }
+
 const cepInput = document.getElementById('cep');
 if (cepInput) {
   cepInput.addEventListener('blur', function() {
@@ -654,7 +625,7 @@ if (rgInput) {
 }
 
 /* =========================================================================
-   14) Login / Registro simples (caso não logado)
+   14) Login / Registro simples
    ========================================================================= */
 const toggleLoginLink         = document.getElementById('toggleLogin');
 const registrationFieldsGeneral= document.getElementById('registrationFieldsGeneral');
@@ -675,12 +646,11 @@ if (toggleLoginLink) {
     }
   });
 }
+
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener('click', async () => {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-
-    // Exemplo: Chamar /api/users/login
     try {
       const res = await fetch('/api/users/login', {
         method: 'POST',
@@ -705,13 +675,10 @@ if (loginValidateBtn) {
 }
 
 /* =========================================================================
-   15) Disparar inicializações na carga da página
+   15) Ao carregar a página => Step 1 e ver se user está logado
    ========================================================================= */
 window.addEventListener('load', () => {
-  // Step inicial
   showStep(1);
-
-  // Se user já logado, esconde link login e formulário de registro
   const isLoggedIn = !!localStorage.getItem('agentId');
   if (isLoggedIn) {
     if (toggleLoginLink) toggleLoginLink.style.display = 'none';
@@ -722,6 +689,6 @@ window.addEventListener('load', () => {
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = 'block';
   }
 
-  // Renderiza o carrinho
+  // Renderizar carrinho inicial
   updateCheckoutCart(cartItems);
 });
