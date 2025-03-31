@@ -1,36 +1,34 @@
 ///////////////////////////////////////////////////////////
 // routes/malga.routes.js
-// Exemplo 100% Completo - Malga Tokenization v2 no BACK
+// Integração real (sandbox) com Malga Tokenization v2 no Back-end
 ///////////////////////////////////////////////////////////
+
 import { Router } from 'express';
 import { MalgaTokenization } from '@malga/tokenization';
 
 export const malgaRouter = Router();
 
 /**
- * 1) ROTA: POST /api/malga/tokenize-card
- *    Gera token do cartão no back-end
+ * ROTA: POST /api/malga/tokenize-card
+ * Gera o token do cartão chamando a Malga (sandbox)
  */
 malgaRouter.post('/tokenize-card', async (req, res) => {
   try {
-    // Ler dados do cartão no body (JSON enviado pelo front-end)
+    // Extrair os dados do cartão enviados pelo front-end
     const {
       cardNumber,
       cardHolderName,
       cardExpirationDate,
       cardCvv
-      // Se houver mais campos, adicione
     } = req.body;
 
-    // Inicializar Malga v2
+    // Inicializar o MalgaTokenization com as chaves de ambiente
     const malgaTokenization = new MalgaTokenization({
-      apiKey: process.env.MALGA_API_KEY,    // Suas chaves
-      clientId: process.env.MALGA_CLIENT_ID,
+      apiKey: process.env.MALGA_API_KEY,      // Definida na Vercel como MALGA_API_KEY
+      clientId: process.env.MALGA_CLIENT_ID,    // Definida na Vercel como MALGA_CLIENT_ID
       options: {
         config: {
-          // Aqui definimos sandbox: true (teste). Troque p/ false em produção
-          sandbox: true,
-          // Exemplo de fields e styles. Necessário ou não, depende da doc final
+          sandbox: true, // Sandbox para testes; altere para false em produção
           fields: {
             cardNumber: {
               placeholder: '9999 9999 9999 9999',
@@ -59,7 +57,7 @@ malgaRouter.post('/tokenize-card', async (req, res) => {
       }
     });
 
-    // Chamar malgaTokenization.tokenize() com os dados que veio do front
+    // Chamar o método tokenize passando os dados do cartão
     const { tokenId, error } = await malgaTokenization.tokenize({
       cardNumber,
       cardHolderName,
@@ -68,7 +66,6 @@ malgaRouter.post('/tokenize-card', async (req, res) => {
     });
 
     if (error) {
-      // Se houve erro de validação / algo
       return res.status(400).json({
         success: false,
         message: error.message || 'Erro ao tokenizar cartão',
@@ -76,7 +73,6 @@ malgaRouter.post('/tokenize-card', async (req, res) => {
       });
     }
 
-    // Se deu certo, retornamos tokenId
     return res.json({
       success: true,
       tokenId
@@ -92,12 +88,12 @@ malgaRouter.post('/tokenize-card', async (req, res) => {
 });
 
 /**
- * 2) ROTA: POST /api/malga/verify-3ds
- *    Fluxo 3DS no back-end (se a doc v2 permitir esse método)
+ * ROTA: POST /api/malga/verify-3ds
+ * Executa o fluxo 3DS com Malga (caso a doc v2 permita)
  */
 malgaRouter.post('/verify-3ds', async (req, res) => {
   try {
-    // Supondo que o front envie { tokenId, amount }
+    // Espera que o front envie { tokenId, amount }
     const { tokenId, amount } = req.body;
 
     const malgaTokenization = new MalgaTokenization({
@@ -110,13 +106,12 @@ malgaRouter.post('/verify-3ds', async (req, res) => {
       }
     });
 
-    // Se a doc v2 tiver verify3DS:
-    // (Você precisa confirmar se de fato existe esse método no v2)
-    const result3DS = await malgaTokenization.verify3DS(tokenId, amount);
+    // Chama o método verify3DS – confirme na documentação se este método existe
+    const token3DS = await malgaTokenization.verify3DS(tokenId, amount);
 
     return res.json({
       success: true,
-      token3DS: result3DS
+      token3DS: token3DS
     });
   } catch (err) {
     console.error('Erro no verify3DS Malga (v2):', err);
@@ -129,13 +124,12 @@ malgaRouter.post('/verify-3ds', async (req, res) => {
 });
 
 /**
- * 3) ROTA: POST /api/malga/create-transaction
- *    Exemplo para fechar a compra (pagamento)
- *    Ajuste conforme a doc real do Malga
+ * ROTA: POST /api/malga/create-transaction
+ * Finaliza a transação (pagamento) utilizando o token (possivelmente pós-3DS)
  */
 malgaRouter.post('/create-transaction', async (req, res) => {
   try {
-    // Exemplo: front manda { tokenId, amount, installments, ... }
+    // Espera que o front envie { tokenId, amount, installments, ... }
     const { tokenId, amount, installments } = req.body;
 
     const malgaTokenization = new MalgaTokenization({
@@ -148,13 +142,12 @@ malgaRouter.post('/create-transaction', async (req, res) => {
       }
     });
 
-    // Supondo que v2 tenha um createTransaction. Verifique a doc oficial
-    // As libs de gateway geralmente exigem "paymentMethod: 'credit_card'" e etc.
+    // Chama o método createTransaction (confirme na documentação o nome e os parâmetros)
     const transactionResult = await malgaTokenization.createTransaction({
       tokenId,
       amount,
       installments
-      // ... e o que mais for necessário
+      // Adicione outros parâmetros necessários conforme a doc real
     });
 
     if (transactionResult.error) {
@@ -164,7 +157,6 @@ malgaRouter.post('/create-transaction', async (req, res) => {
       });
     }
 
-    // Se deu tudo certo, retornamos ID da transação
     return res.json({
       success: true,
       transactionId: transactionResult.id
