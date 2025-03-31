@@ -1,92 +1,136 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-//
-// (1) Coleta dados do cartão e chama /api/malga/tokenize-card
-// (2) Faz verify 3DS em /api/malga/verify-3ds
-// (3) Cria transação real em /api/malga/create-transaction
-// (4) Gera Pix e Boleto chamando /api/malga/generate-pix e /api/malga/generate-boleto
-//
-// Restante do fluxo de Steps, Passageiros, máscaras etc. está intacto.
-// Sem NENHUMA simulação no front.
-//
+// Integração real em sandbox com Malga
 ///////////////////////////////////////////////////////////
 
+// Apenas para confirmar o carregamento do script
 console.log("Checkout ativo");
 
+// Função para obter o valor total do pedido (formato numérico)
+function getOrderAmount() {
+  const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
+  // Remove "R$", pontos e substitui vírgula por ponto
+  const amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+  return parseFloat(amount).toFixed(2);
+}
+
 /**
- * 1) Função para inicializar o Form de cartão
- *    - Lê inputs manuais (cardNumberInput, etc.)
- *    - POST /api/malga/tokenize-card
- *    - Se tudo ok, POST /api/malga/verify-3ds
- *    - Em seguida, processPayment => /api/malga/create-transaction
+ * 1) Função para inicializar o form de cartão.
+ *    - Lê os inputs manuais: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput.
+ *    - Chama o endpoint /api/malga/tokenize-card para tokenizar.
+ *    - Em seguida, chama /api/malga/verify-3ds para realizar o fluxo 3DS.
+ *    - Por fim, chama processPayment com o token final.
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
-  if (!form) return;
+  if (!form) {
+    console.error("Formulário #checkout-form não encontrado.");
+    return;
+  }
 
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
 
     try {
-      // Ler valores do DOM
-      const cardNumber =
-        document.getElementById("cardNumberInput")?.value || "";
-      const cardName =
-        document.getElementById("cardHolderNameInput")?.value || "";
-      const cardExp =
-        document.getElementById("cardExpirationInput")?.value || "";
-      const cardCvv =
-        document.getElementById("cardCvvInput")?.value || "";
+      // 1. Ler valores dos inputs manuais
+      const cardNumber = document.getElementById("cardNumberInput")?.value || "";
+      const cardHolderName = document.getElementById("cardHolderNameInput")?.value || "";
+      const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
+      const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1) Tokenizar
+      // 2. Chama o endpoint para tokenizar os dados do cartão
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cardNumber,
-          cardHolderName: cardName,
-          cardExpirationDate: cardExp,
+          cardHolderName,
+          cardExpirationDate,
           cardCvv
         })
       });
       const tokenizeData = await tokenizeRes.json();
       if (!tokenizeData.success) {
-        alert("Falha ao tokenizar: " + (tokenizeData.message || "Erro desconhecido"));
+        alert("Falha na tokenização: " + (tokenizeData.message || "Erro desconhecido"));
         return;
       }
       const tokenId = tokenizeData.tokenId;
-      console.log("Token gerado (sandbox):", tokenId);
+      console.log("Token gerado real:", tokenId);
 
-      // 2) Verificar 3DS
-      const amount = getOrderAmount(); // valor do carrinho
+      // 3. Chama o endpoint para realizar o fluxo 3DS
+      const amount = getOrderAmount();
       const verify3dsRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenId, amount })
+        body: JSON.stringify({
+          tokenId,
+          amount
+        })
       });
       const verify3dsData = await verify3dsRes.json();
       if (!verify3dsData.success) {
         alert("Falha no 3DS: " + (verify3dsData.message || "Erro 3DS"));
         return;
       }
+      // Se o 3DS retornar um novo token, use-o; senão, mantenha o token original.
       const token3DS = verify3dsData.token3DS || tokenId;
-      console.log("Token pós-3DS (sandbox):", token3DS);
+      console.log("Token pós-3DS:", token3DS);
 
-      // 3) Chama processPayment => /api/malga/create-transaction
-      processPayment(token3DS, "card");
+      // 4. Processa o pagamento final chamando o endpoint create-transaction
+      await processPayment(token3DS, "card");
     } catch (err) {
-      console.error("Erro inesperado no fluxo real do cartão:", err);
-      alert("Erro inesperado no fluxo real do cartão. Ver console.");
+      console.error("Erro inesperado no fluxo de cartão real:", err);
+      alert("Erro inesperado no fluxo de cartão real. Ver console para detalhes.");
     }
   });
 }
 
 /**
- * 2) checkoutData e Steps
+ * 2) Função para processar o pagamento (chama endpoint /api/malga/create-transaction)
+ */
+async function processPayment(token, method = "card") {
+  let totalText = document.getElementById("totalValue").textContent;
+  let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+  amount = parseFloat(amount).toFixed(2);
+
+  let installments = "1";
+  if (method === "card") {
+    const installmentsSelect = document.getElementById("installments");
+    if (installmentsSelect) {
+      installments = installmentsSelect.value;
+    }
+  }
+
+  try {
+    const res = await fetch("/api/malga/create-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tokenId: token,
+        amount,
+        installments
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert("Falha na transação: " + (data.message || "Erro desconhecido"));
+      return;
+    }
+    alert("Pagamento Aprovado! Transaction ID: " + data.transactionId);
+    showStep(4); // Exibe o step de confirmação
+  } catch (error) {
+    console.error("Erro ao processar pagamento:", error);
+    alert("Erro ao processar pagamento.");
+  }
+}
+
+/**
+ * 3) Lógica de steps, carrinho, login, modais, máscaras, etc.
+ * (Mantive a estrutura que você já utiliza.)
  */
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none"
+  insuranceSelected: "none" // "none", "30k" ou "80k"
 };
 
 const stepsMenu = document.getElementById("stepsMenu");
@@ -98,7 +142,6 @@ const backToStep1Btn = document.getElementById("backToStep1");
 const toStep3Btn = document.getElementById("toStep3");
 const backToStep2Btn = document.getElementById("backToStep2");
 
-// Exibir step
 function showStep(stepNumber) {
   stepContents.forEach((content) => {
     content.classList.toggle("active", content.dataset.step === String(stepNumber));
@@ -106,12 +149,14 @@ function showStep(stepNumber) {
   stepButtons.forEach((button) => {
     const btnStep = parseInt(button.dataset.step, 10);
     button.classList.toggle("active", btnStep === stepNumber);
-    if (btnStep > stepNumber) button.classList.add("disabled");
-    else button.classList.remove("disabled");
+    if (btnStep > stepNumber) {
+      button.classList.add("disabled");
+    } else {
+      button.classList.remove("disabled");
+    }
   });
 }
 
-// Inicializar carrinho
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
 if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -121,7 +166,7 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   if (savedCart) {
     cartItems = JSON.parse(savedCart);
   } else {
-    // Exemplo
+    // Exemplo de itens fictícios
     cartItems = [
       {
         hotelName: "Hotel Exemplo A",
@@ -143,7 +188,6 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   }
 }
 
-// Botão Step1 -> Step2
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
     const isLoggedIn = !!localStorage.getItem("agentId");
@@ -166,7 +210,6 @@ if (toStep2Btn) {
       checkoutData.password = document.getElementById("password").value;
       checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
     }
-
     if (
       !document.getElementById("cpf").value ||
       !document.getElementById("rg").value ||
@@ -180,7 +223,6 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-
     checkoutData.cpf = document.getElementById("cpf").value;
     checkoutData.rg = document.getElementById("rg").value;
     checkoutData.birthdate = document.getElementById("birthdate").value;
@@ -189,17 +231,14 @@ if (toStep2Btn) {
     checkoutData.city = document.getElementById("city").value;
     checkoutData.address = document.getElementById("address").value;
     checkoutData.number = document.getElementById("number").value;
-
     showStep(2);
   });
 }
 
-// Botão Step2 -> Step3
 if (toStep3Btn) {
   toStep3Btn.addEventListener("click", () => {
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
     checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-
     let insuranceCost = 0;
     if (checkoutData.insuranceSelected === "30k") {
       insuranceCost = 112.81;
@@ -207,26 +246,21 @@ if (toStep3Btn) {
       insuranceCost = 212.02;
     }
     checkoutData.insuranceCost = insuranceCost;
-
     updateCheckoutCart(cartItems);
     showStep(3);
-
-    // Inicializa PaymentMethod
+    // Inicializa o método de pagamento (que chama a função initializeCardForm)
     initializePaymentMethod();
   });
 }
 
-// Voltar steps
 backToStep1Btn?.addEventListener("click", () => showStep(1));
 backToStep2Btn?.addEventListener("click", () => showStep(2));
 
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
   if (!container) return;
-
   let subtotal = 0;
   let html = "";
-
   items.forEach((item) => {
     let price = item.basePriceAdult || 80;
     subtotal += price;
@@ -248,21 +282,15 @@ function updateCheckoutCart(items) {
       </div>
     `;
   });
-
-  if (checkoutData.insuranceCost) {
-    subtotal += checkoutData.insuranceCost;
-  }
-
+  if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
   container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent =
-    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent =
-    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /**
- * 3) Passageiros Extras (Modal)
+ * 3) Lógica para Passageiros Extras (Modal)
  */
 const passengerModal = document.getElementById("passengerModal");
 const openPassengerModalBtn = document.getElementById("openPassengerModal");
@@ -275,48 +303,32 @@ function createModalPassengerForms(items) {
   modalPassengerContainer.innerHTML = "";
   checkoutData.extraPassengers = [];
   let itemsWithExtras = 0;
-
   items.forEach((item, itemIndex) => {
     const extraCount = (item.adults || 1) - 1;
     if (extraCount > 0) {
       itemsWithExtras++;
       checkoutData.extraPassengers[itemIndex] = [];
-
       const itemDiv = document.createElement("div");
       itemDiv.classList.add("passenger-box");
       itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
-
       for (let i = 0; i < extraCount; i++) {
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.classList.add("fields-grid-2cols-modal");
         fieldsWrapper.innerHTML = `
           <div class="form-field">
             <label>Nome do Passageiro #${i + 1}</label>
-            <input 
-              type="text" 
-              placeholder="Nome completo" 
-              data-item-index="${itemIndex}" 
-              data-passenger-index="${i}"
-              class="modalExtraNameInput" 
-            />
+            <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
           </div>
           <div class="form-field">
             <label>Data de Nascimento</label>
-            <input 
-              type="date" 
-              data-item-index="${itemIndex}" 
-              data-passenger-index="${i}" 
-              class="modalExtraBirthdateInput" 
-            />
+            <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" />
           </div>
         `;
         itemDiv.appendChild(fieldsWrapper);
       }
-
       modalPassengerContainer.appendChild(itemDiv);
     }
   });
-
   copyForAllBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
 }
 
@@ -325,16 +337,13 @@ openPassengerModalBtn?.addEventListener("click", (e) => {
   createModalPassengerForms(cartItems);
   if (passengerModal) passengerModal.style.display = "block";
 });
-
 closeModalBtn?.addEventListener("click", () => {
   if (passengerModal) passengerModal.style.display = "none";
 });
-
 savePassengersBtn?.addEventListener("click", () => {
   if (passengerModal) passengerModal.style.display = "none";
   alert("Passageiros extras salvos!");
 });
-
 copyForAllBtn?.addEventListener("click", () => {
   let sourceIndex = null;
   let sourceExtraCount = 0;
@@ -347,7 +356,6 @@ copyForAllBtn?.addEventListener("click", () => {
     }
   }
   if (sourceIndex === null) return;
-
   const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
   for (let i = 0; i < cartItems.length; i++) {
     if (i !== sourceIndex) {
@@ -359,7 +367,6 @@ copyForAllBtn?.addEventListener("click", () => {
           const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
           const nameInput = document.querySelector(nameSelector);
           const birthInput = document.querySelector(birthSelector);
-
           if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
             nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
             birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
@@ -370,16 +377,11 @@ copyForAllBtn?.addEventListener("click", () => {
   }
   alert("Dados copiados para todos os itens compatíveis!");
 });
-
 modalPassengerContainer?.addEventListener("input", (e) => {
   const target = e.target;
-  if (
-    target.classList.contains("modalExtraNameInput") ||
-    target.classList.contains("modalExtraBirthdateInput")
-  ) {
+  if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
     const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
     const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-
     if (!checkoutData.extraPassengers[itemIndex]) {
       checkoutData.extraPassengers[itemIndex] = [];
     }
@@ -395,17 +397,16 @@ modalPassengerContainer?.addEventListener("input", (e) => {
 });
 
 /**
- * 4) Inicializar método de pagamento
+ * 4) Seleção do método de pagamento
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
   document.getElementById("card-container").style.display = "none";
   document.getElementById("pix-container").style.display = "none";
   document.getElementById("boleto-container").style.display = "none";
-
   if (method === "card") {
     document.getElementById("card-container").style.display = "block";
-    initializeCardForm();
+    initializeCardForm(); // Inicia o fluxo real de cartão (tokenização + 3DS)
   } else if (method === "pix") {
     document.getElementById("pix-container").style.display = "block";
     initializePix();
@@ -415,117 +416,85 @@ function initializePaymentMethod() {
   }
 }
 
-/**
- * 4.1) Pix real => /api/malga/generate-pix
- */
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
-  pixContainer.innerHTML =
-    "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
-
+  pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
   document.getElementById("generatePixBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const resp = await fetch("/api/malga/generate-pix", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await resp.json();
-      if (!data.success) {
-        alert("Falha ao gerar Pix: " + (data.message || "Erro Pix"));
-        return;
-      }
-      // Ex.: data.pixCode, data.qrCode, etc. Ajuste conforme sua rota
-      document.getElementById("pixCodeDisplay").innerText = "Pix Code: " + data.pixCode;
-    } catch (err) {
-      console.error("Erro ao gerar Pix:", err);
-      alert("Erro ao gerar Pix. Ver console.");
-    }
-  });
-}
-
-/**
- * 4.2) Boleto real => /api/malga/generate-boleto
- */
-function initializeBoleto() {
-  const boletoContainer = document.getElementById("boleto-container");
-  boletoContainer.innerHTML =
-    "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
-
-  document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const resp = await fetch("/api/malga/generate-boleto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await resp.json();
-      if (!data.success) {
-        alert("Falha ao gerar Boleto: " + (data.message || "Erro Boleto"));
-        return;
-      }
-      // Ex.: data.boletoUrl
-      document.getElementById("boletoDisplay").innerText =
-        "Boleto gerado: " + data.boletoUrl;
-    } catch (err) {
-      console.error("Erro ao gerar Boleto:", err);
-      alert("Erro ao gerar Boleto. Ver console.");
-    }
-  });
-}
-
-/**
- * 5) processPayment => /api/malga/create-transaction
- */
-async function processPayment(token, method = "card") {
-  try {
-    let totalText = document.getElementById("totalValue").textContent;
-    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-    amount = parseFloat(amount).toFixed(2);
-
-    let installments = "1";
-    if (method === "card") {
-      const installmentsSelect = document.getElementById("installments");
-      if (installmentsSelect) {
-        installments = installmentsSelect.value;
-      }
-    }
-
-    // Exemplo de body
-    const body = {
-      tokenId: token,
-      amount,
-      installments,
-      paymentMethod: method,
-      // Exemplo: Enviar dados do "checkoutData" também
-      extraPassengers: checkoutData.extraPassengers,
-      insuranceSelected: checkoutData.insuranceSelected
-    };
-
-    const resp = await fetch("/api/malga/create-transaction", {
+    const amount = getOrderAmount();
+    // Chama o endpoint real para gerar Pix
+    const res = await fetch("/api/malga/generate-pix", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ amount })
     });
-    const data = await resp.json();
+    const data = await res.json();
     if (!data.success) {
-      alert("Falha na transação: " + (data.message || "Erro Desconhecido"));
+      alert("Falha ao gerar Pix: " + (data.message || "Erro Pix"));
       return;
     }
+    document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + data.pixCode;
+  });
+}
 
-    // Deu certo
+function initializeBoleto() {
+  const boletoContainer = document.getElementById("boleto-container");
+  boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
+  document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
+    const amount = getOrderAmount();
+    // Chama o endpoint real para gerar Boleto
+    const res = await fetch("/api/malga/generate-boleto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert("Falha ao gerar Boleto: " + (data.message || "Erro Boleto"));
+      return;
+    }
+    document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + data.boletoUrl;
+  });
+}
+
+/**
+ * 5) processPayment – já integrado com o endpoint real (create-transaction)
+ */
+async function processPayment(token, method = "card") {
+  let totalText = document.getElementById("totalValue").textContent;
+  let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+  amount = parseFloat(amount).toFixed(2);
+  let installments = "1";
+  if (method === "card") {
+    const installmentsSelect = document.getElementById("installments");
+    if (installmentsSelect) {
+      installments = installmentsSelect.value;
+    }
+  }
+  try {
+    const res = await fetch("/api/malga/create-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tokenId: token,
+        amount,
+        installments
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      alert("Falha na transação: " + (data.message || "Erro desconhecido"));
+      return;
+    }
     alert("Pagamento Aprovado! Transaction ID: " + data.transactionId);
     showStep(4);
-  } catch (err) {
-    console.error("Erro ao criar transação real:", err);
-    alert("Erro ao criar transação real. Ver console.");
+  } catch (error) {
+    console.error("Erro ao processar pagamento:", error);
+    alert("Erro ao processar pagamento.");
   }
 }
 
 /**
- * 6) Pegar valor do pedido
+ * 6) Retornar valor do pedido
  */
 function getOrderAmount() {
   let totalText = document.getElementById("totalValue").textContent;
@@ -534,16 +503,14 @@ function getOrderAmount() {
 }
 
 /**
- * 7) OnLoad
+ * 7) Inicialização geral ao carregar a página
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
-
   const isLoggedIn = !!localStorage.getItem("agentId");
   const toggleLoginLink = document.getElementById("toggleLogin");
   const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
   const loginFields = document.getElementById("loginFields");
-
   if (isLoggedIn) {
     if (toggleLoginLink) toggleLoginLink.style.display = "none";
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "none";
@@ -558,40 +525,37 @@ window.addEventListener("load", () => {
  * 8) Toggle Login
  */
 const toggleLogin = document.getElementById("toggleLogin");
-const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
-const loginFields = document.getElementById("loginFields");
-
+const regFields = document.getElementById("registrationFieldsGeneral");
+const logFields = document.getElementById("loginFields");
 if (toggleLogin) {
   toggleLogin.addEventListener("click", (e) => {
     e.preventDefault();
-    if (registrationFieldsGeneral.style.display !== "none") {
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "block";
+    if (regFields.style.display !== "none") {
+      regFields.style.display = "none";
+      logFields.style.display = "block";
       toggleLogin.textContent = "Não tenho Login";
     } else {
-      registrationFieldsGeneral.style.display = "block";
-      loginFields.style.display = "none";
+      regFields.style.display = "block";
+      logFields.style.display = "none";
       toggleLogin.textContent = "Economize tempo fazendo Login";
     }
   });
 }
 
 /**
- * 9) Botão Login
+ * 9) Botão de Login
  */
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener("click", () => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
-
-    // Exemplo de login fake. Ajuste se tiver rota real /api/users/login
     if (email === "teste@teste.com" && password === "1234") {
       localStorage.setItem("agentId", "AGENT-TESTE");
       alert("Login efetuado com sucesso!");
       toggleLogin.style.display = "none";
-      registrationFieldsGeneral.style.display = "none";
-      loginFields.style.display = "none";
+      regFields.style.display = "none";
+      logFields.style.display = "none";
     } else {
       alert("Erro no login: Dados inválidos.");
     }
@@ -599,14 +563,14 @@ if (loginValidateBtn) {
 }
 
 /**
- * 10) CEP / CPF / RG
+ * 10) Máscaras e consulta de CEP
  */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
   if (cep.length === 8) {
     const url = `https://viacep.com.br/ws/${cep}/json/`;
     fetch(url)
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => {
         if (data.erro) {
           alert("CEP não encontrado!");
@@ -616,15 +580,14 @@ function buscarCEP(cep) {
         document.getElementById("city").value = data.localidade || "";
         document.getElementById("state").value = data.uf || "";
       })
-      .catch((err) => {
-        console.error("Erro ao buscar CEP:", err);
+      .catch((error) => {
+        console.error("Erro ao buscar CEP:", error);
         alert("Não foi possível consultar o CEP.");
       });
   } else {
     console.log("CEP inválido ou incompleto.");
   }
 }
-
 document.getElementById("cep")?.addEventListener("blur", function () {
   buscarCEP(this.value);
 });
@@ -632,37 +595,24 @@ document.getElementById("cep")?.addEventListener("blur", function () {
 // Máscara CPF
 document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 3) {
-    value = value.replace(/^(\d{3})(\d)/, "$1.$2");
-  }
-  if (value.length > 6) {
-    value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-  }
-  if (value.length > 9) {
-    value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-  }
+  if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, "$1.$2");
+  if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+  if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
   e.target.value = value;
 });
 
 // Máscara RG
 document.getElementById("rg")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 2) {
-    value = value.replace(/^(\d{2})(\d)/, "$1.$2");
-  }
-  if (value.length > 5) {
-    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-  }
-  if (value.length > 7) {
-    value = value.replace(
-      /(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/,
-      "$1.$2.$3-$4"
-    );
-  }
+  if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, "$1.$2");
+  if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+  if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
   e.target.value = value;
 });
 
-// Modal 30k / 80k
+/**
+ * 11) Abrir e fechar modais (Intermac 30K / 80K)
+ */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
     e.preventDefault();
@@ -675,11 +625,9 @@ document.querySelectorAll(".open80kModal").forEach((el) => {
     document.getElementById("modalIntermac80K").style.display = "block";
   });
 });
-document.querySelectorAll(".close-modal").forEach((closeBtn) => {
-  closeBtn.addEventListener("click", function () {
+document.querySelectorAll(".close-modal").forEach((btn) => {
+  btn.addEventListener("click", function () {
     const modalId = this.getAttribute("data-close-modal");
-    if (modalId) {
-      document.getElementById(modalId).style.display = "none";
-    }
+    if (modalId) document.getElementById(modalId).style.display = "none";
   });
 });
