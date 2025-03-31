@@ -1,8 +1,7 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-// Integra a tokenização real (sandbox) com Malga, verificação 3DS e criação de transação.
-// Inclui também a lógica completa de navegação (steps), atualização do carrinho e
-// a captura dos dados dos passageiros extras (modal "Nomear passageiros (Obrigatório)➕")
+// Integra a tokenização real via Malga (sandbox), 3DS real e criação de transação.
+// Inclui a lógica completa de steps, carrinho, modal de passageiros extras, máscaras e demais eventos.
 ///////////////////////////////////////////////////////////
 
 console.log("Checkout ativo");
@@ -19,10 +18,11 @@ function getOrderAmount() {
 
 /**
  * Inicializa o formulário de cartão.
- * - Lê os inputs: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput
- * - Chama a rota /api/malga/tokenize-card para tokenizar o cartão
- * - Chama a rota /api/malga/verify-3ds para realizar o 3DS
- * - Em caso de sucesso, chama processPayment(tokenFinal, "card")
+ * Lê os inputs: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput.
+ * Chama as rotas:
+ *  - /api/malga/tokenize-card para tokenizar o cartão;
+ *  - /api/malga/verify-3ds para realizar o 3DS.
+ * Se tudo ocorrer bem, chama processPayment(tokenFinal, "card").
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -34,7 +34,7 @@ function initializeCardForm() {
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
     try {
-      // Ler os valores dos inputs
+      // Lê os valores dos inputs
       const cardNumber = document.getElementById("cardNumberInput")?.value || "";
       const cardHolderName = document.getElementById("cardHolderNameInput")?.value || "";
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
@@ -84,7 +84,8 @@ function initializeCardForm() {
 }
 
 /**
- * Chama o endpoint /api/malga/create-transaction para processar o pagamento
+ * Processa o pagamento chamando o endpoint real /api/malga/create-transaction.
+ * Apenas um ponto único para processar o pagamento (não duplicado).
  */
 async function processPayment(token, method = "card") {
   try {
@@ -158,7 +159,8 @@ function showStep(stepNumber) {
 }
 
 /**
- * Inicializa o carrinho (busca do localStorage ou exemplo fixo)
+ * Inicializa o carrinho: tenta ler do elemento (se existir) ou do localStorage,
+ * ou usa um exemplo fixo.
  */
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
@@ -191,11 +193,11 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
 }
 
 /**
- * Eventos para navegação entre steps
+ * Eventos para navegação entre steps e coleta dos dados do usuário.
  */
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
-    // Validação dos campos de registro e endereço
+    // Verifica se todos os campos de registro e endereço foram preenchidos
     if (
       !document.getElementById("firstName").value ||
       !document.getElementById("lastName").value ||
@@ -252,9 +254,12 @@ if (toStep3Btn) {
   });
 }
 
-// Botões de voltar
-backToStep1Btn?.addEventListener("click", () => showStep(1));
-backToStep2Btn?.addEventListener("click", () => showStep(2));
+if (backToStep1Btn) {
+  backToStep1Btn.addEventListener("click", () => showStep(1));
+}
+if (backToStep2Btn) {
+  backToStep2Btn.addEventListener("click", () => showStep(2));
+}
 
 /**
  * Atualiza o carrinho no DOM
@@ -390,10 +395,7 @@ copyForAllBtn?.addEventListener("click", () => {
 
 modalPassengerContainer?.addEventListener("input", (e) => {
   const target = e.target;
-  if (
-    target.classList.contains("modalExtraNameInput") ||
-    target.classList.contains("modalExtraBirthdateInput")
-  ) {
+  if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
     const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
     const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
     if (!checkoutData.extraPassengers[itemIndex]) {
@@ -489,7 +491,7 @@ function initializeBoleto() {
 }
 
 /**
- * Evento para seleção do método de pagamento
+ * Evento para seleção do método de pagamento (atualiza container conforme escolha)
  */
 function handlePaymentMethodSelection() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -506,46 +508,7 @@ function handlePaymentMethodSelection() {
 }
 
 /**
- * Processa o pagamento (chama endpoint real via processPayment)
- */
-async function processPayment(token, method = "card") {
-  try {
-    let totalText = document.getElementById("totalValue").textContent;
-    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-    amount = parseFloat(amount).toFixed(2);
-
-    let installments = "1";
-    if (method === "card") {
-      const installmentsSelect = document.getElementById("installments");
-      if (installmentsSelect) {
-        installments = installmentsSelect.value;
-      }
-    }
-
-    const transRes = await fetch("/api/malga/create-transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tokenId: token,
-        amount,
-        installments
-      })
-    });
-    const transData = await transRes.json();
-    if (!transData.success) {
-      alert("Falha na transação: " + (transData.message || "Erro desconhecido"));
-      return;
-    }
-    alert("Pagamento Aprovado! Transaction ID: " + transData.transactionId);
-    showStep(4);
-  } catch (err) {
-    console.error("Erro ao processar pagamento:", err);
-    alert("Erro ao processar pagamento. Veja o console para detalhes.");
-  }
-}
-
-/**
- * Evento onload: atualiza carrinho, verifica login, etc.
+ * Evento onload: atualiza o carrinho, verifica login, etc.
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
@@ -606,7 +569,7 @@ if (loginValidateBtn) {
 }
 
 /**
- * Função para buscar CEP e preencher endereço
+ * Busca CEP e preenche endereço automaticamente
  */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
@@ -665,7 +628,7 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
 });
 
 /**
- * Abrir/fechar modais de Intermac 30K / 80K
+ * Abre e fecha os modais de Coberturas Intermac 30K e 80K
  */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
