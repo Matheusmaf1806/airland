@@ -1,16 +1,17 @@
 // vite.config.js
+import { defineConfig } from 'vite';
 
-export default {
-  root: 'src',          // A pasta "src" é onde fica seu código front-end
+export default defineConfig({
+  root: 'src',
   build: {
-    outDir: '../public', // O bundle final vai para "public/"
-    emptyOutDir: false,  // Para não apagar o que já existe em /public
+    outDir: '../public',
+    emptyOutDir: false,
     rollupOptions: {
       output: {
-        // Garante que o arquivo de saída fique com um nome fixo,
-        // facilitando seu <script src="/assets/main.js">
         entryFileNames: 'assets/main.js'
       }
     }
-  }
-};
+  },
+  // IMPORTANTE: inclua "MALGA_" no envPrefix para o Vite expor MALGA_API_KEY
+  envPrefix: ['VITE_', 'MALGA_'],
+});
