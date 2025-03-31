@@ -16,6 +16,23 @@ router.get("/get-client-token", async (req, res) => {
   }
 });
 
+// Rota para criar transação via cartão (com 3DS, se aplicável)
+router.post("/create-transaction", async (req, res) => {
+  try {
+    // Junta os dados recebidos com o objeto que indica pagamento via cartão
+    const payload = {
+      paymentMethod: { paymentType: "card" },
+      ...req.body
+    };
+    const charge = await createCharge(payload);
+    // Supondo que a resposta da Malga contenha um atributo "transactionId"
+    res.status(201).json({ success: true, transactionId: charge.transactionId, charge });
+  } catch (error) {
+    console.error("Erro ao criar transação com cartão:", error);
+    res.status(500).json({ error: "Erro ao criar transação com cartão" });
+  }
+});
+
 // Rota para criar cobrança via PIX
 router.post("/create-pix-payment", async (req, res) => {
   try {
