@@ -1,13 +1,14 @@
-// src/main.js
-import tokenization from '@malga/tokenization';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-// Aqui lemos as variáveis de ambiente definidas na Vercel (prefixo VITE_)
+// CommonJS import do Malga
+const { tokenization } = require('@malga/tokenization');
+
+// Variáveis de ambiente da Vercel
 const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
 const MALGA_CLIENT_ID = import.meta.env.VITE_MALGA_CLIENT_ID;
 
-/* =============================================
-   1) CONFIGURAÇÃO DO TOKENIZATION SDK (Malga)
-============================================= */
+// Inicializa Hosted Fields
 const malgaTokenization = tokenization({
   apiKey: MALGA_API_KEY,
   clientId: MALGA_CLIENT_ID,
@@ -43,16 +44,7 @@ const malgaTokenization = tokenization({
           defaultValidation: true
         }
       },
-      sandbox: true,
-      styles: {
-        input: {
-          color: 'black',
-          'font-size': '14px'
-        },
-        ':focus': {
-          color: 'blue'
-        }
-      }
+      sandbox: true
     }
   }
 });
