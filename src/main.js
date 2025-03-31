@@ -1,16 +1,14 @@
 ///////////////////////////////////////////////////////////
 // src/main.js - Front-end principal do Checkout
-// Integra a tokenização real com Malga (sandbox)
-// - Chama POST /api/malga/tokenize-card para tokenizar o cartão
-// - Chama POST /api/malga/verify-3ds para executar o fluxo 3DS
-// - Chama POST /api/malga/create-transaction para criar a transação
-// Também inclui lógica de steps, carrinho e passageiros extras.
+// Integra a tokenização real (sandbox) com Malga, verificação 3DS e criação de transação.
+// Inclui também a lógica completa de navegação (steps), atualização do carrinho e
+// a captura dos dados dos passageiros extras (modal "Nomear passageiros (Obrigatório)➕")
 ///////////////////////////////////////////////////////////
 
 console.log("Checkout ativo");
 
 /**
- * Retorna o valor total do pedido (convertido para número com duas casas decimais)
+ * Retorna o valor total do pedido (como número com duas casas decimais)
  */
 function getOrderAmount() {
   const totalEl = document.getElementById("totalValue");
@@ -23,7 +21,7 @@ function getOrderAmount() {
  * Inicializa o formulário de cartão.
  * - Lê os inputs: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput
  * - Chama a rota /api/malga/tokenize-card para tokenizar o cartão
- * - Chama a rota /api/malga/verify-3ds para realizar o 3DS (opcional)
+ * - Chama a rota /api/malga/verify-3ds para realizar o 3DS
  * - Em caso de sucesso, chama processPayment(tokenFinal, "card")
  */
 function initializeCardForm() {
@@ -42,7 +40,7 @@ function initializeCardForm() {
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
       const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1) Tokenização real: chama o endpoint do back-end
+      // 1) Tokenização real
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +74,7 @@ function initializeCardForm() {
       const tokenFinal = verifyData.token3DS || tokenId;
       console.log("Token pós-3DS:", tokenFinal);
 
-      // 3) Processa o pagamento chamando o endpoint create-transaction
+      // 3) Processa o pagamento
       await processPayment(tokenFinal, "card");
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
@@ -86,7 +84,7 @@ function initializeCardForm() {
 }
 
 /**
- * processPayment: chama o endpoint /api/malga/create-transaction
+ * Chama o endpoint /api/malga/create-transaction para processar o pagamento
  */
 async function processPayment(token, method = "card") {
   try {
@@ -125,7 +123,7 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * Objeto para armazenar dados do checkout (incluindo extraPassengers)
+ * Objeto para armazenar os dados do checkout (incluindo extraPassengers)
  */
 let checkoutData = {
   extraPassengers: [],
@@ -133,7 +131,7 @@ let checkoutData = {
 };
 
 /**
- * Lógica dos steps (navegação do checkout)
+ * Lógica de navegação (steps)
  */
 const stepsMenu = document.getElementById("stepsMenu");
 const stepContents = document.querySelectorAll(".step-content");
@@ -160,7 +158,7 @@ function showStep(stepNumber) {
 }
 
 /**
- * Inicializa o carrinho (usando localStorage ou exemplo fixo)
+ * Inicializa o carrinho (busca do localStorage ou exemplo fixo)
  */
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
@@ -171,7 +169,6 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   if (savedCart) {
     cartItems = JSON.parse(savedCart);
   } else {
-    // Exemplo de itens
     cartItems = [
       {
         hotelName: "Hotel Exemplo A",
@@ -241,7 +238,6 @@ if (toStep3Btn) {
   toStep3Btn.addEventListener("click", () => {
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
     checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-
     let insuranceCost = 0;
     if (checkoutData.insuranceSelected === "30k") {
       insuranceCost = 112.81;
@@ -249,7 +245,6 @@ if (toStep3Btn) {
       insuranceCost = 212.02;
     }
     checkoutData.insuranceCost = insuranceCost;
-
     updateCheckoutCart(cartItems);
     showStep(3);
     // Inicializa a seleção do método de pagamento
@@ -440,7 +435,7 @@ function initializePaymentMethod() {
 }
 
 /**
- * Inicializa o fluxo de Pix chamando o endpoint /api/malga/generate-pix
+ * Inicializa o fluxo de Pix
  */
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
@@ -467,7 +462,7 @@ function initializePix() {
 }
 
 /**
- * Inicializa o fluxo de Boleto chamando o endpoint /api/malga/generate-boleto
+ * Inicializa o fluxo de Boleto
  */
 function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
@@ -511,7 +506,46 @@ function handlePaymentMethodSelection() {
 }
 
 /**
- * Onload: Atualiza carrinho, verifica login, etc.
+ * Processa o pagamento (chama endpoint real via processPayment)
+ */
+async function processPayment(token, method = "card") {
+  try {
+    let totalText = document.getElementById("totalValue").textContent;
+    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+    amount = parseFloat(amount).toFixed(2);
+
+    let installments = "1";
+    if (method === "card") {
+      const installmentsSelect = document.getElementById("installments");
+      if (installmentsSelect) {
+        installments = installmentsSelect.value;
+      }
+    }
+
+    const transRes = await fetch("/api/malga/create-transaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tokenId: token,
+        amount,
+        installments
+      })
+    });
+    const transData = await transRes.json();
+    if (!transData.success) {
+      alert("Falha na transação: " + (transData.message || "Erro desconhecido"));
+      return;
+    }
+    alert("Pagamento Aprovado! Transaction ID: " + transData.transactionId);
+    showStep(4);
+  } catch (err) {
+    console.error("Erro ao processar pagamento:", err);
+    alert("Erro ao processar pagamento. Veja o console para detalhes.");
+  }
+}
+
+/**
+ * Evento onload: atualiza carrinho, verifica login, etc.
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
@@ -533,19 +567,19 @@ window.addEventListener("load", () => {
  * Toggle de exibição do formulário de login/registro
  */
 const toggleLogin = document.getElementById("toggleLogin");
-const registrationFields = document.getElementById("registrationFieldsGeneral");
-const loginFields = document.getElementById("loginFields");
+const regFields = document.getElementById("registrationFieldsGeneral");
+const logFields = document.getElementById("loginFields");
 
 if (toggleLogin) {
   toggleLogin.addEventListener("click", (e) => {
     e.preventDefault();
-    if (registrationFields.style.display !== "none") {
-      registrationFields.style.display = "none";
-      loginFields.style.display = "block";
+    if (regFields.style.display !== "none") {
+      regFields.style.display = "none";
+      logFields.style.display = "block";
       toggleLogin.textContent = "Não tenho Login";
     } else {
-      registrationFields.style.display = "block";
-      loginFields.style.display = "none";
+      regFields.style.display = "block";
+      logFields.style.display = "none";
       toggleLogin.textContent = "Economize tempo fazendo Login";
     }
   });
@@ -563,8 +597,8 @@ if (loginValidateBtn) {
       localStorage.setItem("agentId", "AGENT-TESTE");
       alert("Login efetuado com sucesso!");
       toggleLogin.style.display = "none";
-      registrationFields.style.display = "none";
-      loginFields.style.display = "none";
+      regFields.style.display = "none";
+      logFields.style.display = "none";
     } else {
       alert("Erro no login: Dados inválidos.");
     }
@@ -631,7 +665,7 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
 });
 
 /**
- * Abrir/fechar modais (Intermac 30K e 80K)
+ * Abrir/fechar modais de Intermac 30K / 80K
  */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
