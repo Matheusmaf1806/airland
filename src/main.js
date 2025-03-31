@@ -1,5 +1,5 @@
 // src/main.js
-import { tokenization } from '@malga/tokenization';
+import tokenization from '@malga/tokenization';
 
 // Aqui lemos as variáveis de ambiente definidas na Vercel (prefixo VITE_)
 const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
