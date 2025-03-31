@@ -58,7 +58,7 @@ app.get("/api/affiliateColors", getAffiliateColors);
 app.use("/api/pay", payRouter); // Rota para integração com PayPal
 
 // ------------------------------------------------------
-// Usar a rota do Malga
+// Usar a rota do Malga (incluindo a nova rota create-transaction)
 app.use("/api/malga", malgaRoutes);
 
 // ------------------------------------------------------
