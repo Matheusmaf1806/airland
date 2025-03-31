@@ -1,8 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-// CommonJS import do Malga
-const { tokenization } = require('@malga/tokenization');
+console.log('Checkout ativo');
 
 // Variáveis de ambiente da Vercel
 const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
