@@ -1,78 +1,114 @@
-///////////////////////////////////////////////////////////
-// src/main.js - Front-end principal do Checkout
-// Integração real via Hosted Fields do Malga (sandbox)
-// e gerenciamento completo dos steps, carrinho, login e
-// passageiros extras (com persistência via localStorage)
-///////////////////////////////////////////////////////////
+// src/main.js – Front-end principal do Checkout com Hosted Fields do Malga
 
 console.log("Checkout ativo");
 
-// ---------------------------------------------------------------------
-// 1) Configuração dos Hosted Fields do Malga
-// ---------------------------------------------------------------------
-// Use as variáveis de ambiente definidas na Vercel com prefixo VITE_
-// (ex: VITE_MALGA_API_KEY, VITE_MALGA_CLIENT_ID)
-import { MalgaTokenization } from '@malga/tokenization';
-
-const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
-const MALGA_CLIENT_ID = import.meta.env.VITE_MALGA_CLIENT_ID;
-
-const malgaTokenization = new MalgaTokenization({
-  apiKey: MALGA_API_KEY,
-  clientId: MALGA_CLIENT_ID,
-  options: {
-    config: {
-      fields: {
-        cardNumber: {
-          container: 'card-number', // Elemento HTML onde o campo será renderizado
-          type: 'text',
-          placeholder: 'Número do Cartão',
-          needMask: true,
-          defaultValidation: true
-        },
-        cardHolderName: {
-          container: 'card-holder-name',
-          type: 'text',
-          placeholder: 'Nome do Titular',
-          needMask: false,
-          defaultValidation: true
-        },
-        cardExpirationDate: {
-          container: 'card-expiration-date',
-          type: 'text',
-          placeholder: 'MM/AA',
-          needMask: true,
-          defaultValidation: true
-        },
-        cardCvv: {
-          container: 'card-cvv',
-          type: 'text',
-          placeholder: 'CVV',
-          needMask: true,
-          defaultValidation: true
-        }
-      },
-      sandbox: true,
-      styles: {
-        input: { color: 'black', 'font-size': '14px' },
-        ':focus': { color: 'blue' }
-      }
-    }
-  }
-});
-
-// ---------------------------------------------------------------------
-// 2) Função para obter o valor do pedido
-// ---------------------------------------------------------------------
+// Função para obter o valor total do pedido
 function getOrderAmount() {
-  const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
-  const amountStr = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+  const totalElem = document.getElementById("totalValue");
+  let amountStr = totalElem ? totalElem.textContent : "R$ 0,00";
+  amountStr = amountStr.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   return parseFloat(amountStr).toFixed(2);
 }
 
-// ---------------------------------------------------------------------
-// 3) Função para processar o pagamento
-// ---------------------------------------------------------------------
+// Importa o SDK da Malga (usando Hosted Fields via MalgaTokenization)
+import { MalgaTokenization } from '@malga/tokenization';
+
+// Inicializa os Hosted Fields e vincula o submit do formulário
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM carregado, inicializando Hosted Fields da Malga");
+
+  const malgaTokenization = new MalgaTokenization({
+    apiKey: import.meta.env.VITE_MALGA_API_KEY,
+    clientId: import.meta.env.VITE_MALGA_CLIENT_ID,
+    options: {
+      config: {
+        fields: {
+          cardNumber: {
+            container: 'card-number',
+            placeholder: 'Número do Cartão',
+            type: 'text',
+            needMask: true,
+            defaultValidation: true,
+          },
+          cardHolderName: {
+            container: 'card-holder-name',
+            placeholder: 'Nome do Titular',
+            type: 'text',
+            needMask: false,
+            defaultValidation: true,
+          },
+          cardExpirationDate: {
+            container: 'card-expiration-date',
+            placeholder: 'MM/AA',
+            type: 'text',
+            needMask: true,
+            defaultValidation: true,
+          },
+          cardCvv: {
+            container: 'card-cvv',
+            placeholder: 'CVV',
+            type: 'text',
+            needMask: true,
+            defaultValidation: true,
+          },
+        },
+        styles: {
+          input: { color: "black", "font-size": "14px" },
+        },
+        preventAutofill: true,
+      },
+      sandbox: true,
+    },
+  });
+
+  // Vincula o evento de submit do formulário de checkout (Hosted Fields)
+  const checkoutForm = document.getElementById("checkout-form");
+  if (checkoutForm) {
+    checkoutForm.addEventListener("submit", async (evt) => {
+      evt.preventDefault();
+      try {
+        // Chama o método tokenize() do SDK, que aciona os Hosted Fields
+        const { tokenId, error } = await malgaTokenization.tokenize();
+        if (error) {
+          console.error("Erro na tokenização:", error.message);
+          alert("Falha na tokenização: " + (error.message || "Erro desconhecido"));
+          return;
+        }
+        console.log("Token gerado:", tokenId);
+
+        // Obter o valor total do pedido
+        const amount = getOrderAmount();
+
+        // Chama o endpoint para 3DS (via backend)
+        const verifyRes = await fetch("/api/malga/verify-3ds", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tokenId, amount }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          alert("Falha no 3DS: " + (verifyData.message || "Erro no 3DS"));
+          return;
+        }
+        const token3DS = verifyData.token3DS || tokenId;
+        console.log("Token pós 3DS:", token3DS);
+
+        // Chama o processamento final do pagamento
+        await processPayment(token3DS, "card");
+      } catch (err) {
+        console.error("Erro inesperado no fluxo de pagamento:", err);
+        alert("Erro inesperado no fluxo de pagamento. Ver console para detalhes.");
+      }
+    });
+  } else {
+    console.error("Formulário #checkout-form não encontrado.");
+  }
+
+  // Inicializa a lógica dos steps e passageiros extras
+  initializeStepsAndPassengers();
+});
+
+// Função para processar o pagamento (chama o endpoint real)
 async function processPayment(token, method = "card") {
   try {
     let totalText = document.getElementById("totalValue").textContent;
@@ -80,362 +116,265 @@ async function processPayment(token, method = "card") {
     amount = parseFloat(amount).toFixed(2);
     let installments = "1";
     if (method === "card") {
-      const installmentsSelect = document.getElementById("installments");
-      if (installmentsSelect) {
-        installments = installmentsSelect.value;
+      const instElem = document.getElementById("installments");
+      if (instElem) {
+        installments = instElem.value;
       }
     }
-    const body = { tokenId: token, amount, installments };
     const res = await fetch("/api/malga/create-transaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ tokenId: token, amount, installments }),
     });
-    const result = await res.json();
-    if (result.success) {
-      alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
-      showStep(4);
-    } else {
-      alert("Falha no pagamento: " + result.message);
+    const data = await res.json();
+    if (!data.success) {
+      alert("Falha na transação: " + (data.message || "Erro desconhecido"));
+      return;
     }
+    alert("Pagamento Aprovado! Transaction ID: " + data.transactionId);
+    showStep(4);
   } catch (err) {
-    console.error("Erro ao processar o pagamento:", err);
-    alert("Erro ao processar o pagamento. Tente novamente.");
+    console.error("Erro ao processar pagamento:", err);
+    alert("Erro ao processar pagamento. Tente novamente.");
   }
 }
 
-// ---------------------------------------------------------------------
-// 4) Inicialização do formulário do cartão usando Hosted Fields
-// ---------------------------------------------------------------------
-function initializeCardForm() {
-  const form = document.getElementById("checkout-form");
-  if (!form) {
-    console.error("Formulário #checkout-form não encontrado.");
-    return;
-  }
-  form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-    try {
-      // Chama o método tokenize() dos Hosted Fields do Malga
-      const { tokenId, error } = await malgaTokenization.tokenize();
-      if (error) {
-        console.error("Erro na tokenização:", error.message);
-        alert("Falha na tokenização: " + (error.message || "Erro desconhecido"));
-        return;
-      }
-      console.log("Token gerado real:", tokenId);
-      // Verifica 3DS enviando para o back-end
-      const amount = getOrderAmount();
-      const verify3dsRes = await fetch("/api/malga/verify-3ds", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenId, amount })
-      });
-      const verify3dsData = await verify3dsRes.json();
-      if (!verify3dsData.success) {
-        alert("Falha no 3DS: " + (verify3dsData.message || "Erro no 3DS"));
-        return;
-      }
-      const token3DS = verify3dsData.token3DS || tokenId;
-      console.log("Token pós-3DS:", token3DS);
-      await processPayment(token3DS, "card");
-    } catch (err) {
-      console.error("Erro inesperado no fluxo de cartão real:", err);
-      alert("Erro inesperado no fluxo de cartão real. Ver console para detalhes.");
-    }
-  });
-}
+// Função para alternar entre steps e gerenciar passageiros extras
+function initializeStepsAndPassengers() {
+  let checkoutData = {
+    extraPassengers: [],
+    insuranceSelected: "none",
+  };
 
-// ---------------------------------------------------------------------
-// 5) Dados do checkout, steps, carrinho e navegação
-// ---------------------------------------------------------------------
-let checkoutData = { extraPassengers: [], insuranceSelected: "none" };
-
-function showStep(stepNumber) {
+  const stepsMenu = document.getElementById("stepsMenu");
   const stepContents = document.querySelectorAll(".step-content");
-  const stepButtons = document.querySelectorAll("#stepsMenu .step");
-  stepContents.forEach(content => {
-    content.classList.toggle("active", content.dataset.step === String(stepNumber));
-  });
-  stepButtons.forEach(button => {
-    const btnStep = parseInt(button.dataset.step, 10);
-    button.classList.toggle("active", btnStep === stepNumber);
-    if (btnStep > stepNumber) {
-      button.classList.add("disabled");
-    } else {
-      button.classList.remove("disabled");
-    }
-  });
-}
+  const stepButtons = stepsMenu ? stepsMenu.querySelectorAll(".step") : [];
 
-// Inicializa o carrinho
-let cartItems = [];
-const cartElement = document.getElementById("shoppingCart");
-if (cartElement && cartElement.items && cartElement.items.length > 0) {
-  cartItems = cartElement.items;
-} else {
-  const savedCart = localStorage.getItem("cartItems");
-  if (savedCart) {
-    cartItems = JSON.parse(savedCart);
+  const toStep2Btn = document.getElementById("toStep2");
+  const backToStep1Btn = document.getElementById("backToStep1");
+  const toStep3Btn = document.getElementById("toStep3");
+  const backToStep2Btn = document.getElementById("backToStep2");
+
+  function showStep(stepNumber) {
+    stepContents.forEach((content) => {
+      content.classList.toggle("active", content.dataset.step === String(stepNumber));
+    });
+    stepButtons.forEach((button) => {
+      const btnStep = parseInt(button.dataset.step, 10);
+      button.classList.toggle("active", btnStep === stepNumber);
+      if (btnStep > stepNumber) {
+        button.classList.add("disabled");
+      } else {
+        button.classList.remove("disabled");
+      }
+    });
+  }
+
+  // Carrega carrinho (do localStorage ou exemplo)
+  let cartItems = [];
+  const cartElement = document.getElementById("shoppingCart");
+  if (cartElement && cartElement.items && cartElement.items.length > 0) {
+    cartItems = cartElement.items;
   } else {
-    cartItems = [
-      { hotelName: "Hotel Exemplo A", adults: 2, children: 1, basePriceAdult: 100, checkIn: "2025-04-16", checkOut: "2025-04-18" },
-      { hotelName: "Hotel Exemplo B", adults: 3, children: 0, basePriceAdult: 150, checkIn: "2025-04-10", checkOut: "2025-04-12" }
-    ];
-  }
-}
-
-// Atualiza o carrinho na tela
-function updateCheckoutCart(items) {
-  const container = document.getElementById("cartItemsList");
-  if (!container) return;
-  let subtotal = 0;
-  let html = "";
-  items.forEach(item => {
-    const price = item.basePriceAdult || 80;
-    subtotal += price;
-    html += `
-      <div class="reserva-item">
-        <div class="reserva-left">
-          <span class="categoria">${item.type || "Hospedagem"}</span>
-          <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
-          <div class="reserva-details">
-            <p>Check-in: ${item.checkIn || "--/--/----"}</p>
-            <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-            <p>Quartos: ${item.rooms || 1}</p>
-            <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
-          </div>
-        </div>
-        <div class="reserva-preco">
-          R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-        </div>
-      </div>
-    `;
-  });
-  if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
-  container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-  document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
-}
-
-// ---------------------------------------------------------------------
-// 6) Lógica dos passageiros extras – Modal, salvamento e cópia
-// ---------------------------------------------------------------------
-// Carrega extras salvos do localStorage (se houver)
-if (localStorage.getItem("extraPassengers")) {
-  checkoutData.extraPassengers = JSON.parse(localStorage.getItem("extraPassengers"));
-}
-
-function createModalPassengerForms(items) {
-  const modalContainer = document.getElementById("modalPassengerContainer");
-  modalContainer.innerHTML = "";
-  // Reinicia os extras
-  checkoutData.extraPassengers = [];
-  let itemsWithExtras = 0;
-  items.forEach((item, itemIndex) => {
-    const extraCount = (item.adults || 1) - 1;
-    if (extraCount > 0) {
-      itemsWithExtras++;
-      checkoutData.extraPassengers[itemIndex] = [];
-      const itemDiv = document.createElement("div");
-      itemDiv.classList.add("passenger-box");
-      itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
-      for (let i = 0; i < extraCount; i++) {
-        const fieldsWrapper = document.createElement("div");
-        fieldsWrapper.classList.add("fields-grid-2cols-modal");
-        fieldsWrapper.innerHTML = `
-          <div class="form-field">
-            <label>Nome do Passageiro #${i + 1}</label>
-            <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
-          </div>
-          <div class="form-field">
-            <label>Data de Nascimento</label>
-            <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" />
-          </div>
-        `;
-        itemDiv.appendChild(fieldsWrapper);
-      }
-      modalContainer.appendChild(itemDiv);
+    const savedCart = localStorage.getItem("cartItems");
+    if (savedCart) {
+      cartItems = JSON.parse(savedCart);
+    } else {
+      cartItems = [
+        {
+          hotelName: "Hotel Exemplo A",
+          adults: 2,
+          children: 1,
+          basePriceAdult: 100,
+          checkIn: "2025-04-16",
+          checkOut: "2025-04-18",
+        },
+        {
+          hotelName: "Hotel Exemplo B",
+          adults: 3,
+          children: 0,
+          basePriceAdult: 150,
+          checkIn: "2025-04-10",
+          checkOut: "2025-04-12",
+        },
+      ];
     }
-  });
-  const copyBtn = document.getElementById("copyForAllBtn");
-  if (copyBtn) {
-    copyBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
   }
-}
 
-function saveExtraPassengers() {
-  localStorage.setItem("extraPassengers", JSON.stringify(checkoutData.extraPassengers));
-}
+  function updateCheckoutCart(items) {
+    const container = document.getElementById("cartItemsList");
+    if (!container) return;
+    let subtotal = 0;
+    let html = "";
+    items.forEach((item) => {
+      let price = item.basePriceAdult || 80;
+      subtotal += price;
+      html += `
+        <div class="reserva-item">
+          <div class="reserva-left">
+            <span class="categoria">${item.type || "Hospedagem"}</span>
+            <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+            <div class="reserva-details">
+              <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+              <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+              <p>Quartos: ${item.rooms || 1}</p>
+              <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+            </div>
+          </div>
+          <div class="reserva-preco">
+            R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          </div>
+        </div>
+      `;
+    });
+    if (checkoutData.insuranceCost) {
+      subtotal += checkoutData.insuranceCost;
+    }
+    container.innerHTML = html;
+    document.getElementById("subtotalValue").textContent =
+      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    document.getElementById("discountValue").textContent = "- R$ 0,00";
+    document.getElementById("totalValue").textContent =
+      "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  }
 
-const openPassengerModalBtn = document.getElementById("openPassengerModal");
-const closeModalBtn = document.getElementById("closeModal");
-const savePassengersBtn = document.getElementById("savePassengersBtn");
-const copyForAllBtn = document.getElementById("copyForAllBtn");
-
-if (openPassengerModalBtn) {
-  openPassengerModalBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    createModalPassengerForms(cartItems);
-    const modal = document.getElementById("passengerModal");
-    if (modal) modal.style.display = "block";
-  });
-}
-if (closeModalBtn) {
-  closeModalBtn.addEventListener("click", () => {
-    const modal = document.getElementById("passengerModal");
-    if (modal) modal.style.display = "none";
-  });
-}
-if (savePassengersBtn) {
-  savePassengersBtn.addEventListener("click", () => {
-    const modal = document.getElementById("passengerModal");
-    if (modal) modal.style.display = "none";
-    alert("Passageiros extras salvos!");
-    saveExtraPassengers();
-  });
-}
-if (copyForAllBtn) {
-  copyForAllBtn.addEventListener("click", () => {
-    let sourceIndex = null;
-    let sourceExtraCount = 0;
-    for (let i = 0; i < cartItems.length; i++) {
-      let extraCount = (cartItems[i].adults || 1) - 1;
+  // Passageiros extras – modal
+  function createModalPassengerForms(items) {
+    const modalContainer = document.getElementById("modalPassengerContainer");
+    modalContainer.innerHTML = "";
+    checkoutData.extraPassengers = [];
+    let itemsWithExtras = 0;
+    items.forEach((item, index) => {
+      const extraCount = (item.adults || 1) - 1;
       if (extraCount > 0) {
-        sourceIndex = i;
-        sourceExtraCount = extraCount;
-        break;
+        itemsWithExtras++;
+        checkoutData.extraPassengers[index] = [];
+        const itemDiv = document.createElement("div");
+        itemDiv.classList.add("passenger-box");
+        itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
+        for (let i = 0; i < extraCount; i++) {
+          const fieldsWrapper = document.createElement("div");
+          fieldsWrapper.classList.add("fields-grid-2cols-modal");
+          fieldsWrapper.innerHTML = `
+            <div class="form-field">
+              <label>Nome do Passageiro #${i + 1}</label>
+              <input type="text" placeholder="Nome completo" data-item-index="${index}" data-passenger-index="${i}" class="modalExtraNameInput" />
+            </div>
+            <div class="form-field">
+              <label>Data de Nascimento</label>
+              <input type="date" data-item-index="${index}" data-passenger-index="${i}" class="modalExtraBirthdateInput" />
+            </div>
+          `;
+          itemDiv.appendChild(fieldsWrapper);
+        }
+        modalContainer.appendChild(itemDiv);
       }
+    });
+    const copyBtn = document.getElementById("copyForAllBtn");
+    if (copyBtn) {
+      copyBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
     }
-    if (sourceIndex === null) return;
-    const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
-    for (let i = 0; i < cartItems.length; i++) {
-      if (i !== sourceIndex) {
+  }
+
+  function saveExtraPassengers() {
+    localStorage.setItem("extraPassengers", JSON.stringify(checkoutData.extraPassengers));
+  }
+
+  // Eventos de modal de passageiros extras
+  const openPassengerModalBtn = document.getElementById("openPassengerModal");
+  const closeModalBtn = document.getElementById("closeModal");
+  const savePassengersBtn = document.getElementById("savePassengersBtn");
+  const copyForAllBtn = document.getElementById("copyForAllBtn");
+  if (openPassengerModalBtn) {
+    openPassengerModalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      createModalPassengerForms(cartItems);
+      const modal = document.getElementById("passengerModal");
+      if (modal) modal.style.display = "block";
+    });
+  }
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () => {
+      const modal = document.getElementById("passengerModal");
+      if (modal) modal.style.display = "none";
+    });
+  }
+  if (savePassengersBtn) {
+    savePassengersBtn.addEventListener("click", () => {
+      const modal = document.getElementById("passengerModal");
+      if (modal) modal.style.display = "none";
+      alert("Passageiros extras salvos!");
+      saveExtraPassengers();
+    });
+  }
+  if (copyForAllBtn) {
+    copyForAllBtn.addEventListener("click", () => {
+      let sourceIndex = null;
+      let sourceExtraCount = 0;
+      for (let i = 0; i < cartItems.length; i++) {
         let extraCount = (cartItems[i].adults || 1) - 1;
-        if (extraCount === sourceExtraCount && extraCount > 0) {
-          checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
-          for (let passIndex = 0; passIndex < extraCount; passIndex++) {
-            const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const nameInput = document.querySelector(nameSelector);
-            const birthInput = document.querySelector(birthSelector);
-            if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
-              nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
-              birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
+        if (extraCount > 0) {
+          sourceIndex = i;
+          sourceExtraCount = extraCount;
+          break;
+        }
+      }
+      if (sourceIndex === null) return;
+      const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+      for (let i = 0; i < cartItems.length; i++) {
+        if (i !== sourceIndex) {
+          let extraCount = (cartItems[i].adults || 1) - 1;
+          if (extraCount === sourceExtraCount && extraCount > 0) {
+            checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+            for (let j = 0; j < extraCount; j++) {
+              const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${j}"]`;
+              const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${j}"]`;
+              const nameInput = document.querySelector(nameSelector);
+              const birthInput = document.querySelector(birthSelector);
+              if (nameInput && birthInput && checkoutData.extraPassengers[i][j]) {
+                nameInput.value = checkoutData.extraPassengers[i][j].name || "";
+                birthInput.value = checkoutData.extraPassengers[i][j].birthdate || "";
+              }
             }
           }
         }
       }
-    }
-    alert("Dados copiados para todos os itens compatíveis!");
-    saveExtraPassengers();
-  });
-}
-if (document.getElementById("modalPassengerContainer")) {
-  document.getElementById("modalPassengerContainer").addEventListener("input", (e) => {
-    const target = e.target;
-    if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
-      const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
-      const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
-      if (!checkoutData.extraPassengers[itemIndex]) {
-        checkoutData.extraPassengers[itemIndex] = [];
-      }
-      if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
-        checkoutData.extraPassengers[itemIndex][passIndex] = {};
-      }
-      if (target.classList.contains("modalExtraNameInput")) {
-        checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
-      } else {
-        checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
-      }
+      alert("Dados copiados para todos os itens compatíveis!");
       saveExtraPassengers();
-    }
-  });
-}
-
-// ---------------------------------------------------------------------
-// 7) Inicialização do método de pagamento conforme seleção
-// ---------------------------------------------------------------------
-function initializePaymentMethod() {
-  const method = document.querySelector('input[name="paymentMethod"]:checked').value;
-  document.getElementById("card-container").style.display = "none";
-  document.getElementById("pix-container").style.display = "none";
-  document.getElementById("boleto-container").style.display = "none";
-  if (method === "card") {
-    document.getElementById("card-container").style.display = "block";
-    initializeCardForm();
-  } else if (method === "pix") {
-    document.getElementById("pix-container").style.display = "block";
-    initializePix();
-  } else if (method === "boleto") {
-    document.getElementById("boleto-container").style.display = "block";
-    initializeBoleto();
+    });
   }
-}
-
-// ---------------------------------------------------------------------
-// 8) Inicialização de Pix e Boleto (usando endpoints reais do Malga)
-// ---------------------------------------------------------------------
-function initializePix() {
-  const pixContainer = document.getElementById("pix-container");
-  pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
-  document.getElementById("generatePixBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const res = await fetch("/api/malga/generate-pix", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        alert("Falha ao gerar Pix: " + (data.message || "Erro Pix"));
-        return;
+  // Salva alterações dos campos de passageiros extras
+  const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+  if (modalPassengerContainer) {
+    modalPassengerContainer.addEventListener("input", (e) => {
+      const target = e.target;
+      if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+        const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+        const passengerIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
+        if (!checkoutData.extraPassengers[itemIndex]) {
+          checkoutData.extraPassengers[itemIndex] = [];
+        }
+        if (!checkoutData.extraPassengers[itemIndex][passengerIndex]) {
+          checkoutData.extraPassengers[itemIndex][passengerIndex] = {};
+        }
+        if (target.classList.contains("modalExtraNameInput")) {
+          checkoutData.extraPassengers[itemIndex][passengerIndex].name = target.value;
+        } else {
+          checkoutData.extraPassengers[itemIndex][passengerIndex].birthdate = target.value;
+        }
+        saveExtraPassengers();
       }
-      document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + data.pixCode;
-    } catch (err) {
-      console.error("Erro ao gerar Pix:", err);
-      alert("Erro ao gerar Pix. Ver console para detalhes.");
-    }
-  });
-}
+    });
+  }
 
-function initializeBoleto() {
-  const boletoContainer = document.getElementById("boleto-container");
-  boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
-  document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
-    try {
-      const amount = getOrderAmount();
-      const res = await fetch("/api/malga/generate-boleto", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount })
-      });
-      const data = await res.json();
-      if (!data.success) {
-        alert("Falha ao gerar Boleto: " + (data.message || "Erro Boleto"));
-        return;
-      }
-      document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + data.boletoUrl;
-    } catch (err) {
-      console.error("Erro ao gerar Boleto:", err);
-      alert("Erro ao gerar Boleto. Ver console para detalhes.");
-    }
-  });
-}
+  // Eventos de navegação entre steps
+  const toStep2Btn = document.getElementById("toStep2");
+  const toStep3Btn = document.getElementById("toStep3");
+  const backToStep1Btn = document.getElementById("backToStep1");
+  const backToStep2Btn = document.getElementById("backToStep2");
 
-// ---------------------------------------------------------------------
-// 9) Navegação entre steps e validação dos dados
-// ---------------------------------------------------------------------
-const toStep2Btn = document.getElementById("toStep2");
-const backToStep1Btn = document.getElementById("backToStep1");
-const toStep3Btn = document.getElementById("toStep3");
-const backToStep2Btn = document.getElementById("backToStep2");
-
-if (toStep2Btn) {
-  toStep2Btn.addEventListener("click", () => {
-    // Validação de dados pessoais e endereço
+  toStep2Btn && toStep2Btn.addEventListener("click", () => {
+    // Validação dos campos obrigatórios do Step 1
     if (
       !document.getElementById("firstName").value ||
       !document.getElementById("lastName").value ||
@@ -455,58 +394,148 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-    checkoutData.firstName = document.getElementById("firstName").value;
-    checkoutData.lastName = document.getElementById("lastName").value;
-    checkoutData.celular = document.getElementById("celular").value;
-    checkoutData.email = document.getElementById("email").value;
-    checkoutData.password = document.getElementById("password").value;
-    checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
-    checkoutData.cpf = document.getElementById("cpf").value;
-    checkoutData.rg = document.getElementById("rg").value;
-    checkoutData.birthdate = document.getElementById("birthdate").value;
-    checkoutData.cep = document.getElementById("cep").value;
-    checkoutData.state = document.getElementById("state").value;
-    checkoutData.city = document.getElementById("city").value;
-    checkoutData.address = document.getElementById("address").value;
-    checkoutData.number = document.getElementById("number").value;
+    // Salva dados do Step 1
+    s.firstName = document.getElementById("firstName").value;
+    s.lastName = document.getElementById("lastName").value;
+    s.celular = document.getElementById("celular").value;
+    s.email = document.getElementById("email").value;
+    s.password = document.getElementById("password").value;
+    s.confirmPassword = document.getElementById("confirmPassword").value;
+    s.cpf = document.getElementById("cpf").value;
+    s.rg = document.getElementById("rg").value;
+    s.birthdate = document.getElementById("birthdate").value;
+    s.cep = document.getElementById("cep").value;
+    s.state = document.getElementById("state").value;
+    s.city = document.getElementById("city").value;
+    s.address = document.getElementById("address").value;
+    s.number = document.getElementById("number").value;
     showStep(2);
   });
-}
-
-if (toStep3Btn) {
-  toStep3Btn.addEventListener("click", () => {
-    const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
-    checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
-    let insuranceCost = 0;
-    if (checkoutData.insuranceSelected === "30k") {
-      insuranceCost = 112.81;
-    } else if (checkoutData.insuranceSelected === "80k") {
-      insuranceCost = 212.02;
+  toStep3Btn && toStep3Btn.addEventListener("click", () => {
+    const insuranceOption = document.querySelector('input[name="insuranceOption"]:checked');
+    s.insuranceSelected = insuranceOption ? insuranceOption.value : "none";
+    let cost = 0;
+    if (s.insuranceSelected === "30k") {
+      cost = 112.81;
+    } else if (s.insuranceSelected === "80k") {
+      cost = 212.02;
     }
-    checkoutData.insuranceCost = insuranceCost;
+    s.insuranceCost = cost;
     updateCheckoutCart(cartItems);
     showStep(3);
-    initializePaymentMethod();
+    se();
+  });
+  backToStep1Btn && backToStep1Btn.addEventListener("click", () => showStep(1));
+  backToStep2Btn && backToStep2Btn.addEventListener("click", () => showStep(2));
+}
+
+// Alterna método de pagamento (card, pix, boleto)
+function se() {
+  const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+  document.getElementById("card-container").style.display = "none";
+  document.getElementById("pix-container").style.display = "none";
+  document.getElementById("boleto-container").style.display = "none";
+  if (method === "card") {
+    document.getElementById("card-container").style.display = "block";
+  } else if (method === "pix") {
+    document.getElementById("pix-container").style.display = "block";
+    le();
+  } else if (method === "boleto") {
+    document.getElementById("boleto-container").style.display = "block";
+    re();
+  }
+}
+
+// Gera Pix (real)
+function le() {
+  const container = document.getElementById("pix-container");
+  container.innerHTML =
+    "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
+  document.getElementById("generatePixBtn").addEventListener("click", async () => {
+    try {
+      const amount = getOrderAmount();
+      const res = await fetch("/api/malga/generate-pix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert("Falha ao gerar Pix: " + (data.message || "Erro Pix"));
+        return;
+      }
+      document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + data.pixCode;
+    } catch (err) {
+      console.error("Erro ao gerar Pix:", err);
+      alert("Erro ao gerar Pix. Ver console para detalhes.");
+    }
   });
 }
 
-if (backToStep1Btn) {
-  backToStep1Btn.addEventListener("click", () => showStep(1));
-}
-if (backToStep2Btn) {
-  backToStep2Btn.addEventListener("click", () => showStep(2));
+// Gera Boleto (real)
+function re() {
+  const container = document.getElementById("boleto-container");
+  container.innerHTML =
+    "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
+  document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
+    try {
+      const amount = getOrderAmount();
+      const res = await fetch("/api/malga/generate-boleto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert("Falha ao gerar Boleto: " + (data.message || "Erro Boleto"));
+        return;
+      }
+      document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + data.boletoUrl;
+    } catch (err) {
+      console.error("Erro ao gerar Boleto:", err);
+      alert("Erro ao gerar Boleto. Ver console para detalhes.");
+    }
+  });
 }
 
-// ---------------------------------------------------------------------
-// 10) Máscaras e validação (CEP, CPF, RG)
-// ---------------------------------------------------------------------
-function buscarCEP(cep) {
-  cep = cep.replace(/\D/g, "");
+// Alterna entre formulário de login e registro
+document.getElementById("toggleLogin")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  const registrationFields = document.getElementById("registrationFieldsGeneral");
+  const loginFields = document.getElementById("loginFields");
+  if (registrationFields.style.display !== "none") {
+    registrationFields.style.display = "none";
+    loginFields.style.display = "block";
+    document.getElementById("toggleLogin").textContent = "Não tenho Login";
+  } else {
+    registrationFields.style.display = "block";
+    loginFields.style.display = "none";
+    document.getElementById("toggleLogin").textContent = "Economize tempo fazendo Login";
+  }
+});
+
+// Validação de login
+document.getElementById("loginValidateBtn")?.addEventListener("click", () => {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  if (email === "teste@teste.com" && password === "1234") {
+    localStorage.setItem("agentId", "AGENT-TESTE");
+    alert("Login efetuado com sucesso!");
+    document.getElementById("toggleLogin").style.display = "none";
+    document.getElementById("registrationFieldsGeneral").style.display = "none";
+    document.getElementById("loginFields").style.display = "none";
+  } else {
+    alert("Erro no login: Dados inválidos.");
+  }
+});
+
+// Máscaras para CEP, CPF e RG
+document.getElementById("cep")?.addEventListener("blur", function () {
+  const cep = this.value.replace(/\D/g, "");
   if (cep.length === 8) {
-    const url = `https://viacep.com.br/ws/${cep}/json/`;
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      .then((res) => res.json())
+      .then((data) => {
         if (data.erro) {
           alert("CEP não encontrado!");
           return;
@@ -515,97 +544,59 @@ function buscarCEP(cep) {
         document.getElementById("city").value = data.localidade || "";
         document.getElementById("state").value = data.uf || "";
       })
-      .catch(error => {
-        console.error("Erro ao buscar CEP:", error);
+      .catch((err) => {
+        console.error("Erro ao buscar CEP:", err);
         alert("Não foi possível consultar o CEP.");
       });
   } else {
     console.log("CEP inválido ou incompleto.");
   }
-}
-document.getElementById("cep")?.addEventListener("blur", function () {
-  buscarCEP(this.value);
 });
 document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, "$1.$2");
-  if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+  if (value.length > 3) {
+    value = value.replace(/^(\d{3})(\d)/, "$1.$2");
+  }
+  if (value.length > 6) {
+    value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+  }
+  if (value.length > 9) {
+    value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+  }
   e.target.value = value;
 });
 document.getElementById("rg")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
-  if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, "$1.$2");
-  if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
+  if (value.length > 2) {
+    value = value.replace(/^(\d{2})(\d)/, "$1.$2");
+  }
+  if (value.length > 5) {
+    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+  }
+  if (value.length > 7) {
+    value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
+  }
   e.target.value = value;
 });
 
-// ---------------------------------------------------------------------
-// 11) Toggle de exibição do formulário de Login/Registro
-// ---------------------------------------------------------------------
-const toggleLoginBtn = document.getElementById("toggleLogin");
-const regFields = document.getElementById("registrationFieldsGeneral");
-const loginSec = document.getElementById("loginFields");
-if (toggleLoginBtn) {
-  toggleLoginBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (regFields.style.display !== "none") {
-      regFields.style.display = "none";
-      loginSec.style.display = "block";
-      toggleLoginBtn.textContent = "Não tenho Login";
-    } else {
-      regFields.style.display = "block";
-      loginSec.style.display = "none";
-      toggleLoginBtn.textContent = "Economize tempo fazendo Login";
-    }
-  });
-}
-
-// ---------------------------------------------------------------------
-// 12) Botão de Login
-// ---------------------------------------------------------------------
-const loginValidateBtn = document.getElementById("loginValidateBtn");
-if (loginValidateBtn) {
-  loginValidateBtn.addEventListener("click", () => {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-    if (email === "teste@teste.com" && password === "1234") {
-      localStorage.setItem("agentId", "AGENT-TESTE");
-      alert("Login efetuado com sucesso!");
-      toggleLoginBtn.style.display = "none";
-      regFields.style.display = "none";
-      loginSec.style.display = "none";
-    } else {
-      alert("Erro no login: Dados inválidos.");
-    }
-  });
-}
-
-// ---------------------------------------------------------------------
-// 13) Abertura/fechamento dos modais para Coberturas (Intermac 30K / 80K)
-// ---------------------------------------------------------------------
-document.querySelectorAll(".open30kModal").forEach(el => {
+// Eventos para abrir/fechar modais de coberturas
+document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("modalIntermac30K").style.display = "block";
   });
 });
-document.querySelectorAll(".open80kModal").forEach(el => {
+document.querySelectorAll(".open80kModal").forEach((el) => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("modalIntermac80K").style.display = "block";
   });
 });
-document.querySelectorAll(".close-modal").forEach(closeBtn => {
-  closeBtn.addEventListener("click", function () {
+document.querySelectorAll(".close-modal").forEach((btn) => {
+  btn.addEventListener("click", function () {
     const modalId = this.getAttribute("data-close-modal");
     if (modalId) {
       document.getElementById(modalId).style.display = "none";
     }
   });
 });
-
-// ---------------------------------------------------------------------
-// Fim do arquivo src/main.js
-// ---------------------------------------------------------------------
