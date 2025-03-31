@@ -1,28 +1,28 @@
 /* =========================================================================
-   main.js - Exemplo completo usando Malga (Card/Pix/Boleto)
-   com import * as Malga from '@malga/tokenization'
+   main.js - Exemplo Completo
    =========================================================================
    1) Ajuste "MALGA_API_KEY" e "MALGA_CLIENT_ID" com suas credenciais.
-   2) Certifique-se de que /api/malga/create-transaction no seu back-end
-      chama a API da Malga para criar transações de Pix/Boleto/Cartão.
-   3) Mantenha o resto do HTML com <script type="module" src="/assets/main.js">
-      ou similar, para que esse arquivo seja processado pelo Vite/Rollup.
-   4) Toda a lógica de steps, modais, máscaras, etc., está inclusa abaixo.
+   2) Se o erro de cross-origin persistir, verifique se a Malga pede
+      "allowedOrigins" ou "trusted domains" no painel deles.
+   3) Esse arquivo supõe que /api/malga/create-transaction chama a Malga
+      (no back-end) e retorna Pix, Boleto ou Payment OK do Cartão.
+   4) Importe no HTML com <script type="module" src="/assets/main.js"></script>.
    ========================================================================= */
 
 import * as Malga from '@malga/tokenization';
 
-/* =========================================================================
-   1) Criar instância de MalgaTokenization (hosted fields para cartão)
-   ========================================================================= */
-console.log('Conteúdo do objeto Malga importado:', Malga);
-// O console.log acima ajuda a ver quais exports a lib possui
-// Provavelmente a classe se chama "MalgaTokenization".
+console.log('Conteúdo do objeto Malga:', Malga);
+// Provavelmente exibe { MalgaTokenization: class {...}, ... }
 
+//
+// 1) Instanciar MalgaTokenization, com (possivelmente) allowedOrigins = ['*']
+//
 const malgaTokenization = new Malga.MalgaTokenization({
-  apiKey: 'MALGA_API_KEY',    // Trocar pela sua
-  clientId: 'MALGA_CLIENT_ID',// Trocar pela sua
+  apiKey: 'MALGA_API_KEY',          // Troque aqui pela sua
+  clientId: 'MALGA_CLIENT_ID',      // Troque aqui pela sua
   options: {
+    // Possível tentativa de contornar postMessage:
+    allowedOrigins: ['*'],          // Se o SDK suportar, isso pode ajudar
     config: {
       fields: {
         cardNumber: {
@@ -69,24 +69,26 @@ const malgaTokenization = new Malga.MalgaTokenization({
 });
 
 /* =========================================================================
-   2) Função para obter valor do pedido (convertendo "R$ 1.234,56" -> "1234.56")
+   2) Capturar valor do carrinho (converte "R$ 1.234,56" -> "1234.56")
    ========================================================================= */
 function getOrderAmount() {
   const totalEl = document.getElementById('totalValue');
   if (!totalEl) return '0.00';
-  let raw = totalEl.textContent.replace('R$', '').trim()
-                               .replace(/\./g, '')
-                               .replace(',', '.');
+  let raw = totalEl.textContent
+    .replace('R$', '')
+    .trim()
+    .replace(/\./g, '')
+    .replace(',', '.');
   return parseFloat(raw).toFixed(2);
 }
 
 /* =========================================================================
-   3) Processar pagamento (cartão) -> envia tokenId ao back-end
+   3) Processar pagamento de Cartão - envia tokenId ao back-end
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
     const amount = getOrderAmount();
-    const installments = '1'; // Ajuste se tiver select de parcelas
+    const installments = '1'; // Ajustar se tiver select de parcelas
 
     const resp = await fetch('/api/malga/create-transaction', {
       method: 'POST',
@@ -101,45 +103,44 @@ async function processCardPayment(tokenId) {
     const result = await resp.json();
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      showStep(4); // Ex. Step 4 = Confirmação
+      showStep(4); // Step 4: Confirmação
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
   } catch (err) {
-    console.error('Erro ao processar pagamento:', err);
+    console.error('Erro ao processar pagamento (cartão):', err);
     alert('Erro ao processar pagamento. Tente novamente.');
   }
 }
 
 /* =========================================================================
-   4) Inicializa Hosted Fields (cartão). Chamado quando "card" está selecionado.
+   4) Inicializa Hosted Fields (cartão)
    ========================================================================= */
 function initializeCardForm() {
   const form = document.getElementById('checkout-form');
   if (!form) {
-    console.error('Formulário #checkout-form não encontrado.');
+    console.error('Formulário #checkout-form não encontrado para cartão.');
     return;
   }
-
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
     try {
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error('Erro na tokenização do cartão:', error.message);
-        alert('Falha na tokenização do cartão.');
+        alert('Falha na tokenização do cartão. Veja o console.');
         return;
       }
       await processCardPayment(tokenId);
     } catch (err) {
-      console.error('Erro inesperado na tokenização:', err);
-      alert('Erro inesperado no fluxo de cartão.');
+      console.error('Erro inesperado na tokenização do cartão:', err);
+      alert('Erro inesperado na tokenização do cartão.');
     }
   });
 }
 
 /* =========================================================================
-   5) Fluxo Pix: gera QR/código Pix chamando back-end
+   5) Fluxo Pix: gerar QR/código chamando back-end
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -176,7 +177,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   6) Fluxo Boleto: gera link/linha digitável chamando back-end
+   6) Fluxo Boleto: gerar link chamando back-end
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -213,7 +214,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   7) Alternar método de pagamento (card/pix/boleto)
+   7) switchPaymentMethod: exibe form de cartão ou container Pix/Boleto
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -239,7 +240,7 @@ function switchPaymentMethod() {
 }
 
 /* =========================================================================
-   8) Função de Steps (1,2,3,4) - exibir/ocultar passo atual
+   8) showStep: gerencia steps (1,2,3,4)
    ========================================================================= */
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll('.step-content');
@@ -261,7 +262,7 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   9) Exemplo de carrinho e checkoutData
+   9) Carregar ou simular itens de carrinho
    ========================================================================= */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
@@ -295,11 +296,11 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
 
 const checkoutData = {
   extraPassengers: [],
-  insuranceSelected: 'none'
+  insuranceSelected: 'none' // ex: "30k", "80k"
 };
 
 /* =========================================================================
-   10) Atualizar coluna direita (resumo do carrinho)
+   10) updateCheckoutCart: exibe itens na coluna da direita
    ========================================================================= */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
@@ -328,7 +329,6 @@ function updateCheckoutCart(items) {
       </div>
     `;
   });
-  // Se adicionou seguro
   if (checkoutData.insuranceCost) {
     subtotal += checkoutData.insuranceCost;
   }
@@ -341,13 +341,13 @@ function updateCheckoutCart(items) {
 }
 
 /* =========================================================================
-   11) Passageiros extras (modal) - abrir, salvar e copiar
+   11) Modal de Passageiros Extras
    ========================================================================= */
 const passengerModal  = document.getElementById('passengerModal');
 const openPassengerModalBtn = document.getElementById('openPassengerModal');
 const closeModalBtn   = document.getElementById('closeModal');
 const savePassengersBtn= document.getElementById('savePassengersBtn');
-const modalPassengerContainer = document.getElementById('modalPassengerContainer');
+const modalPassengerContainer= document.getElementById('modalPassengerContainer');
 const copyForAllBtn   = document.getElementById('copyForAllBtn');
 
 function createModalPassengerForms(items) {
@@ -415,7 +415,6 @@ if (copyForAllBtn) {
   copyForAllBtn.addEventListener('click', () => {
     let sourceIndex = null;
     let sourceExtraCount = 0;
-
     for (let i = 0; i < cartItems.length; i++) {
       let extraCount = (cartItems[i].adults || 1) - 1;
       if (extraCount > 0) {
@@ -433,11 +432,10 @@ if (copyForAllBtn) {
         if (extraCount === sourceExtraCount && extraCount > 0) {
           checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
           for (let passIndex = 0; passIndex < extraCount; passIndex++) {
-            const nameSelector  = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
-            const nameInput  = document.querySelector(nameSelector);
-            const birthInput = document.querySelector(birthSelector);
-
+            const nameSel  = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+            const birthSel = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+            const nameInput  = document.querySelector(nameSel);
+            const birthInput = document.querySelector(birthSel);
             if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
               nameInput.value  = checkoutData.extraPassengers[i][passIndex].name || '';
               birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || '';
@@ -472,7 +470,7 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   12) Botões de steps: #toStep2, #backToStep1, #toStep3, #backToStep2 etc.
+   12) Lógicas de Steps
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
@@ -481,7 +479,6 @@ const backToStep2Btn = document.getElementById('backToStep2');
 
 if (toStep2Btn) {
   toStep2Btn.addEventListener('click', () => {
-    // Exemplo: validação "não estou logado? Então exija os campos..."
     const isLoggedIn = !!localStorage.getItem('agentId');
     if (!isLoggedIn) {
       if (!document.getElementById('firstName').value ||
@@ -493,7 +490,7 @@ if (toStep2Btn) {
         alert('Preencha os campos obrigatórios antes de continuar.');
         return;
       }
-      // Salvar no checkoutData
+      // salva no checkoutData
       checkoutData.firstName = document.getElementById('firstName').value;
       checkoutData.lastName  = document.getElementById('lastName').value;
       checkoutData.celular   = document.getElementById('celular').value;
@@ -545,10 +542,11 @@ if (toStep3Btn) {
       insuranceCost = 212.02;
     }
     checkoutData.insuranceCost = insuranceCost;
+
     updateCheckoutCart(cartItems);
 
     showStep(3);
-    switchPaymentMethod(); // Mostra form de cartão, pix ou boleto
+    switchPaymentMethod(); // Exibe cartão/pix/boleto
   });
 }
 
@@ -582,7 +580,6 @@ function buscarCEP(cep) {
       });
   }
 }
-
 const cepInput = document.getElementById('cep');
 if (cepInput) {
   cepInput.addEventListener('blur', function() {
@@ -646,10 +643,9 @@ if (toggleLoginLink) {
     }
   });
 }
-
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener('click', async () => {
-    const email = document.getElementById('loginEmail').value;
+    const email    = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     try {
       const res = await fetch('/api/users/login', {
@@ -668,8 +664,8 @@ if (loginValidateBtn) {
         alert('Erro no login: ' + (data.error || 'Dados inválidos.'));
       }
     } catch (err) {
-      console.error(err);
-      alert('Erro ao realizar o login. Tente novamente.');
+      console.error('Erro ao realizar login:', err);
+      alert('Erro ao realizar login. Tente novamente.');
     }
   });
 }
@@ -688,7 +684,6 @@ window.addEventListener('load', () => {
     if (toggleLoginLink) toggleLoginLink.style.display = 'block';
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = 'block';
   }
-
-  // Renderizar carrinho inicial
+  // Renderizar carrinho
   updateCheckoutCart(cartItems);
 });
