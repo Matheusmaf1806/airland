@@ -3,23 +3,24 @@
 // Integração real em sandbox com Malga
 ///////////////////////////////////////////////////////////
 
-// Apenas para confirmar o carregamento do script
+// Apenas para indicar que o script foi carregado
 console.log("Checkout ativo");
 
-// Função para obter o valor total do pedido (formato numérico)
+/**
+ * Função para obter o valor total do pedido
+ */
 function getOrderAmount() {
   const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
-  // Remove "R$", pontos e substitui vírgula por ponto
   const amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   return parseFloat(amount).toFixed(2);
 }
 
 /**
- * 1) Função para inicializar o form de cartão.
- *    - Lê os inputs manuais: cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput.
- *    - Chama o endpoint /api/malga/tokenize-card para tokenizar.
- *    - Em seguida, chama /api/malga/verify-3ds para realizar o fluxo 3DS.
- *    - Por fim, chama processPayment com o token final.
+ * 1) Função para inicializar o form de cartão:
+ *    - Lê os inputs manuais (cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput)
+ *    - Chama o endpoint /api/malga/tokenize-card para tokenizar os dados
+ *    - Em seguida, chama o endpoint /api/malga/verify-3ds para executar o fluxo 3DS
+ *    - Por fim, chama processPayment com o token final
  */
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
@@ -30,15 +31,14 @@ function initializeCardForm() {
 
   form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
-
     try {
-      // 1. Ler valores dos inputs manuais
+      // Ler valores dos inputs
       const cardNumber = document.getElementById("cardNumberInput")?.value || "";
       const cardHolderName = document.getElementById("cardHolderNameInput")?.value || "";
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
       const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 2. Chama o endpoint para tokenizar os dados do cartão
+      // 1. Tokenização: chama o endpoint real no back‑end
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,26 +57,22 @@ function initializeCardForm() {
       const tokenId = tokenizeData.tokenId;
       console.log("Token gerado real:", tokenId);
 
-      // 3. Chama o endpoint para realizar o fluxo 3DS
+      // 2. Fluxo 3DS: chama o endpoint para verificar 3DS
       const amount = getOrderAmount();
       const verify3dsRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tokenId,
-          amount
-        })
+        body: JSON.stringify({ tokenId, amount })
       });
       const verify3dsData = await verify3dsRes.json();
       if (!verify3dsData.success) {
         alert("Falha no 3DS: " + (verify3dsData.message || "Erro 3DS"));
         return;
       }
-      // Se o 3DS retornar um novo token, use-o; senão, mantenha o token original.
       const token3DS = verify3dsData.token3DS || tokenId;
       console.log("Token pós-3DS:", token3DS);
 
-      // 4. Processa o pagamento final chamando o endpoint create-transaction
+      // 3. Processa o pagamento final
       await processPayment(token3DS, "card");
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
@@ -86,13 +82,12 @@ function initializeCardForm() {
 }
 
 /**
- * 2) Função para processar o pagamento (chama endpoint /api/malga/create-transaction)
+ * Função processPayment – envia o token final para criar a transação
  */
 async function processPayment(token, method = "card") {
   let totalText = document.getElementById("totalValue").textContent;
   let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   amount = parseFloat(amount).toFixed(2);
-
   let installments = "1";
   if (method === "card") {
     const installmentsSelect = document.getElementById("installments");
@@ -100,7 +95,6 @@ async function processPayment(token, method = "card") {
       installments = installmentsSelect.value;
     }
   }
-
   try {
     const res = await fetch("/api/malga/create-transaction", {
       method: "POST",
@@ -117,7 +111,7 @@ async function processPayment(token, method = "card") {
       return;
     }
     alert("Pagamento Aprovado! Transaction ID: " + data.transactionId);
-    showStep(4); // Exibe o step de confirmação
+    showStep(4);
   } catch (error) {
     console.error("Erro ao processar pagamento:", error);
     alert("Erro ao processar pagamento.");
@@ -125,8 +119,7 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * 3) Lógica de steps, carrinho, login, modais, máscaras, etc.
- * (Mantive a estrutura que você já utiliza.)
+ * 2) Lógica de steps, carrinho, login, modais e máscaras
  */
 let checkoutData = {
   extraPassengers: [],
@@ -192,6 +185,7 @@ if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
     const isLoggedIn = !!localStorage.getItem("agentId");
     if (!isLoggedIn) {
+      // Verifica campos de registro
       if (
         !document.getElementById("firstName").value ||
         !document.getElementById("lastName").value ||
@@ -210,6 +204,7 @@ if (toStep2Btn) {
       checkoutData.password = document.getElementById("password").value;
       checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
     }
+    // Verifica campos de documento e endereço
     if (
       !document.getElementById("cpf").value ||
       !document.getElementById("rg").value ||
@@ -248,7 +243,7 @@ if (toStep3Btn) {
     checkoutData.insuranceCost = insuranceCost;
     updateCheckoutCart(cartItems);
     showStep(3);
-    // Inicializa o método de pagamento (que chama a função initializeCardForm)
+    // Inicializa o método de pagamento; se for "card" chamará initializeCardForm
     initializePaymentMethod();
   });
 }
@@ -284,9 +279,11 @@ function updateCheckoutCart(items) {
   });
   if (checkoutData.insuranceCost) subtotal += checkoutData.insuranceCost;
   container.innerHTML = html;
-  document.getElementById("subtotalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("subtotalValue").textContent =
+    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("totalValue").textContent =
+    "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /**
@@ -397,7 +394,9 @@ modalPassengerContainer?.addEventListener("input", (e) => {
 });
 
 /**
- * 4) Seleção do método de pagamento
+ * 4) Seleção do método de pagamento:
+ *    Chama a função initializeCardForm para "card" (tokenização real + 3DS)
+ *    ou funções específicas para Pix e Boleto.
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -406,7 +405,7 @@ function initializePaymentMethod() {
   document.getElementById("boleto-container").style.display = "none";
   if (method === "card") {
     document.getElementById("card-container").style.display = "block";
-    initializeCardForm(); // Inicia o fluxo real de cartão (tokenização + 3DS)
+    initializeCardForm();
   } else if (method === "pix") {
     document.getElementById("pix-container").style.display = "block";
     initializePix();
@@ -418,10 +417,10 @@ function initializePaymentMethod() {
 
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
-  pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
+  pixContainer.innerHTML =
+    "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
   document.getElementById("generatePixBtn").addEventListener("click", async () => {
     const amount = getOrderAmount();
-    // Chama o endpoint real para gerar Pix
     const res = await fetch("/api/malga/generate-pix", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -438,10 +437,10 @@ function initializePix() {
 
 function initializeBoleto() {
   const boletoContainer = document.getElementById("boleto-container");
-  boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
+  boletoContainer.innerHTML =
+    "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
   document.getElementById("generateBoletoBtn").addEventListener("click", async () => {
     const amount = getOrderAmount();
-    // Chama o endpoint real para gerar Boleto
     const res = await fetch("/api/malga/generate-boleto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -457,7 +456,7 @@ function initializeBoleto() {
 }
 
 /**
- * 5) processPayment – já integrado com o endpoint real (create-transaction)
+ * 5) Processamento final do pagamento – já integrado com o endpoint real
  */
 async function processPayment(token, method = "card") {
   let totalText = document.getElementById("totalValue").textContent;
@@ -494,16 +493,7 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * 6) Retornar valor do pedido
- */
-function getOrderAmount() {
-  let totalText = document.getElementById("totalValue").textContent;
-  let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-  return parseFloat(amount).toFixed(2);
-}
-
-/**
- * 7) Inicialização geral ao carregar a página
+ * 6) Onload: Inicializa carrinho, verifica login, etc.
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
@@ -522,7 +512,7 @@ window.addEventListener("load", () => {
 });
 
 /**
- * 8) Toggle Login
+ * 7) Toggle Login
  */
 const toggleLogin = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
@@ -543,7 +533,7 @@ if (toggleLogin) {
 }
 
 /**
- * 9) Botão de Login
+ * 8) Botão de Login
  */
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
@@ -563,7 +553,7 @@ if (loginValidateBtn) {
 }
 
 /**
- * 10) Máscaras e consulta de CEP
+ * 9) Máscaras e consulta de CEP
  */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
@@ -611,7 +601,7 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
 });
 
 /**
- * 11) Abrir e fechar modais (Intermac 30K / 80K)
+ * 10) Abrir/fechar modais (Intermac 30K / 80K)
  */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
