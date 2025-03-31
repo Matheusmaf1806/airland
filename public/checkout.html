@@ -164,12 +164,9 @@
       margin-top: 1rem; background: #fafafa; border: 1px solid #ddd;
       border-radius: 8px; padding: 1.5rem;
     }
-    #card-number, #expiration-date, #cvv {
-      display: flex; align-items: center; height: 44px; background: #fff;
-      border: 1px solid #ccc; border-radius: 6px; padding: 0 8px; transition: border-color 0.3s;
-    }
-    #card-number:focus-within, #expiration-date:focus-within, #cvv:focus-within {
-      border-color: #007aff;
+    /* Campos de Cartão agora como inputs */
+    #card-container .form-field input {
+      height: 44px;
     }
     #installments {
       width: 100%; border: 1px solid #ccc; border-radius: 6px;
@@ -568,16 +565,16 @@
             <form id="checkout-form">
               <div class="form-field">
                 <label>Número do Cartão</label>
-                <div id="card-number" style="border:1px solid #ccc; padding:10px;"></div>
+                <input type="text" id="card-number" placeholder="Número do Cartão" style="border:1px solid #ccc; padding:10px;">
               </div>
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Data de Expiração (MM/AA)</label>
-                  <div id="expiration-date" style="border:1px solid #ccc; padding:10px;"></div>
+                  <input type="text" id="expiration-date" placeholder="MM/AA" style="border:1px solid #ccc; padding:10px;">
                 </div>
                 <div class="form-field">
                   <label>CVV</label>
-                  <div id="cvv" style="border:1px solid #ccc; padding:10px;"></div>
+                  <input type="text" id="cvv" placeholder="CVV" style="border:1px solid #ccc; padding:10px;">
                 </div>
               </div>
               <button type="submit" class="btn-pay-pal">Pagar</button>
@@ -858,6 +855,44 @@
   </div>
 
   <script>
+    // =========================
+    // Objeto Malga SIMULADO
+    // =========================
+    const Malga = {
+      createCardToken: function(cardDetails) {
+        return new Promise((resolve, reject) => {
+          console.log("Malga.createCardToken chamado com:", cardDetails);
+          setTimeout(() => {
+            resolve("dummy_card_token");
+          }, 1000);
+        });
+      },
+      verify3DS: function(token, amount) {
+        return new Promise((resolve, reject) => {
+          console.log("Malga.verify3DS chamado com token:", token, "e amount:", amount);
+          setTimeout(() => {
+            resolve("dummy_card_token_with_3DS");
+          }, 1000);
+        });
+      },
+      generatePixPayment: function(options) {
+        return new Promise((resolve, reject) => {
+          console.log("Malga.generatePixPayment chamado com:", options);
+          setTimeout(() => {
+            resolve({ code: "1234567890PIX" });
+          }, 1000);
+        });
+      },
+      generateBoletoPayment: function(options) {
+        return new Promise((resolve, reject) => {
+          console.log("Malga.generateBoletoPayment chamado com:", options);
+          setTimeout(() => {
+            resolve({ url: "http://dummy-boleto.com/1234567890" });
+          }, 1000);
+        });
+      }
+    };
+
     /* =============================================
        LÓGICA DE MULTI-STEP, PASSAGEIROS EXTRAS (MODAL),
        MÁSCARAS, CEP, E INTEGRAÇÃO DE PAGAMENTO COM MALGA
@@ -1161,62 +1196,62 @@
       }
     }
 
-    // Função simulada de integração de Cartão de Crédito com Malga (incluindo 3DS)
+    // Integração de Cartão de Crédito com Malga (incluindo 3DS)
     function initializeMalgaCard() {
       const form = document.getElementById("checkout-form");
       form.addEventListener("submit", function(evt) {
         evt.preventDefault();
-        // Simula a coleta dos dados do cartão (os campos abaixo são placeholders, assumindo que o Malga tratará os inputs de forma similar)
+        // Coleta dos dados do cartão a partir dos inputs
         const cardDetails = {
-           number: document.getElementById("card-number").innerText.trim(),
-           expirationDate: document.getElementById("expiration-date").innerText.trim(),
-           cvv: document.getElementById("cvv").innerText.trim()
+          number: document.getElementById("card-number").value.trim(),
+          expirationDate: document.getElementById("expiration-date").value.trim(),
+          cvv: document.getElementById("cvv").value.trim()
         };
         const installments = document.getElementById("installments").value;
-        // Simula a criação de um token do cartão via Malga
+        // Chama Malga para criar o token do cartão
         Malga.createCardToken(cardDetails)
           .then(token => {
-              // Simula a verificação 3DS via Malga
-              const amount = getOrderAmount();
-              return Malga.verify3DS(token, amount);
+            // Realiza verificação 3DS
+            const amount = getOrderAmount();
+            return Malga.verify3DS(token, amount);
           })
           .then(tokenWith3DS => {
-              processPayment(tokenWith3DS, "card");
+            processPayment(tokenWith3DS, "card");
           })
           .catch(err => {
-              console.error("Erro ao processar o cartão:", err);
-              alert("Erro no processamento do cartão.");
+            console.error("Erro ao processar o cartão:", err);
+            alert("Erro no processamento do cartão.");
           });
       });
     }
 
-    // Função simulada para gerar pagamento via Pix com Malga
+    // Gera pagamento via Pix com Malga
     function initializeMalgaPix() {
       const pixContainer = document.getElementById("pix-container");
       pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
       document.getElementById("generatePixBtn").addEventListener("click", function() {
-       const amount = getOrderAmount();
-       Malga.generatePixPayment({amount: amount}).then(pixData => {
+        const amount = getOrderAmount();
+        Malga.generatePixPayment({ amount: amount }).then(pixData => {
           document.getElementById("pixCodeDisplay").innerText = "Código Pix: " + pixData.code;
-       }).catch(err => {
+        }).catch(err => {
           console.error("Erro ao gerar Pix:", err);
           alert("Erro ao gerar código Pix.");
-       });
+        });
       });
     }
 
-    // Função simulada para gerar pagamento via Boleto com Malga
+    // Gera pagamento via Boleto com Malga
     function initializeMalgaBoleto() {
       const boletoContainer = document.getElementById("boleto-container");
       boletoContainer.innerHTML = "<button id='generateBoletoBtn'>Gerar Boleto</button><div id='boletoDisplay'></div>";
       document.getElementById("generateBoletoBtn").addEventListener("click", function() {
-       const amount = getOrderAmount();
-       Malga.generateBoletoPayment({amount: amount}).then(boletoData => {
-           document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + boletoData.url;
-       }).catch(err => {
+        const amount = getOrderAmount();
+        Malga.generateBoletoPayment({ amount: amount }).then(boletoData => {
+          document.getElementById("boletoDisplay").innerText = "Boleto gerado: " + boletoData.url;
+        }).catch(err => {
           console.error("Erro ao gerar boleto:", err);
           alert("Erro ao gerar boleto.");
-       });
+        });
       });
     }
 
