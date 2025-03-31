@@ -1,9 +1,8 @@
 ///////////////////////////////////////////////////////////
-// src/main.js - Front-end principal do Checkout
-// Integração real em sandbox com Malga
+// src/main.js - Front-end principal do Checkout (Sandbox Real)
+// Integra a tokenização, 3DS e criação da transação com Malga
 ///////////////////////////////////////////////////////////
 
-// Apenas para indicar que o script foi carregado
 console.log("Checkout ativo");
 
 /**
@@ -11,15 +10,15 @@ console.log("Checkout ativo");
  */
 function getOrderAmount() {
   const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
-  const amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+  let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   return parseFloat(amount).toFixed(2);
 }
 
 /**
- * 1) Função para inicializar o form de cartão:
- *    - Lê os inputs manuais (cardNumberInput, cardHolderNameInput, cardExpirationInput, cardCvvInput)
- *    - Chama o endpoint /api/malga/tokenize-card para tokenizar os dados
- *    - Em seguida, chama o endpoint /api/malga/verify-3ds para executar o fluxo 3DS
+ * 1) Inicializa o formulário do cartão:
+ *    - Lê os valores dos inputs manuais
+ *    - Chama o endpoint /api/malga/tokenize-card para tokenizar o cartão
+ *    - Em seguida, chama /api/malga/verify-3ds para executar o fluxo 3DS
  *    - Por fim, chama processPayment com o token final
  */
 function initializeCardForm() {
@@ -38,7 +37,7 @@ function initializeCardForm() {
       const cardExpirationDate = document.getElementById("cardExpirationInput")?.value || "";
       const cardCvv = document.getElementById("cardCvvInput")?.value || "";
 
-      // 1. Tokenização: chama o endpoint real no back‑end
+      // 1. Tokenização: chama o endpoint real para tokenizar
       const tokenizeRes = await fetch("/api/malga/tokenize-card", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +65,7 @@ function initializeCardForm() {
       });
       const verify3dsData = await verify3dsRes.json();
       if (!verify3dsData.success) {
-        alert("Falha no 3DS: " + (verify3dsData.message || "Erro 3DS"));
+        alert("Falha no 3DS: " + (verify3dsData.message || "Erro no 3DS"));
         return;
       }
       const token3DS = verify3dsData.token3DS || tokenId;
@@ -74,6 +73,7 @@ function initializeCardForm() {
 
       // 3. Processa o pagamento final
       await processPayment(token3DS, "card");
+
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
       alert("Erro inesperado no fluxo de cartão real. Ver console para detalhes.");
@@ -82,10 +82,11 @@ function initializeCardForm() {
 }
 
 /**
- * Função processPayment – envia o token final para criar a transação
+ * 2) Função processPayment – Envia o token final para criar a transação
+ *    (Certifique-se de que o endpoint /api/malga/create-transaction esteja implementado no back-end)
  */
 async function processPayment(token, method = "card") {
-  let totalText = document.getElementById("totalValue").textContent;
+  let totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
   let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   amount = parseFloat(amount).toFixed(2);
   let installments = "1";
@@ -99,11 +100,7 @@ async function processPayment(token, method = "card") {
     const res = await fetch("/api/malga/create-transaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tokenId: token,
-        amount,
-        installments
-      })
+      body: JSON.stringify({ tokenId: token, amount, installments })
     });
     const data = await res.json();
     if (!data.success) {
@@ -119,11 +116,11 @@ async function processPayment(token, method = "card") {
 }
 
 /**
- * 2) Lógica de steps, carrinho, login, modais e máscaras
+ * 3) Lógica de steps, carrinho, login, modais e máscaras
  */
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none" // "none", "30k" ou "80k"
+  insuranceSelected: "none" // Pode ser "none", "30k" ou "80k"
 };
 
 const stepsMenu = document.getElementById("stepsMenu");
@@ -136,10 +133,10 @@ const toStep3Btn = document.getElementById("toStep3");
 const backToStep2Btn = document.getElementById("backToStep2");
 
 function showStep(stepNumber) {
-  stepContents.forEach((content) => {
+  stepContents.forEach(content => {
     content.classList.toggle("active", content.dataset.step === String(stepNumber));
   });
-  stepButtons.forEach((button) => {
+  stepButtons.forEach(button => {
     const btnStep = parseInt(button.dataset.step, 10);
     button.classList.toggle("active", btnStep === stepNumber);
     if (btnStep > stepNumber) {
@@ -185,7 +182,6 @@ if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
     const isLoggedIn = !!localStorage.getItem("agentId");
     if (!isLoggedIn) {
-      // Verifica campos de registro
       if (
         !document.getElementById("firstName").value ||
         !document.getElementById("lastName").value ||
@@ -204,7 +200,6 @@ if (toStep2Btn) {
       checkoutData.password = document.getElementById("password").value;
       checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
     }
-    // Verifica campos de documento e endereço
     if (
       !document.getElementById("cpf").value ||
       !document.getElementById("rg").value ||
@@ -243,7 +238,7 @@ if (toStep3Btn) {
     checkoutData.insuranceCost = insuranceCost;
     updateCheckoutCart(cartItems);
     showStep(3);
-    // Inicializa o método de pagamento; se for "card" chamará initializeCardForm
+    // Inicia o método de pagamento conforme selecionado (card, pix ou boleto)
     initializePaymentMethod();
   });
 }
@@ -314,11 +309,22 @@ function createModalPassengerForms(items) {
         fieldsWrapper.innerHTML = `
           <div class="form-field">
             <label>Nome do Passageiro #${i + 1}</label>
-            <input type="text" placeholder="Nome completo" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraNameInput" />
+            <input 
+              type="text" 
+              placeholder="Nome completo" 
+              data-item-index="${itemIndex}" 
+              data-passenger-index="${i}" 
+              class="modalExtraNameInput" 
+            />
           </div>
           <div class="form-field">
             <label>Data de Nascimento</label>
-            <input type="date" data-item-index="${itemIndex}" data-passenger-index="${i}" class="modalExtraBirthdateInput" />
+            <input 
+              type="date" 
+              data-item-index="${itemIndex}" 
+              data-passenger-index="${i}" 
+              class="modalExtraBirthdateInput" 
+            />
           </div>
         `;
         itemDiv.appendChild(fieldsWrapper);
@@ -376,7 +382,10 @@ copyForAllBtn?.addEventListener("click", () => {
 });
 modalPassengerContainer?.addEventListener("input", (e) => {
   const target = e.target;
-  if (target.classList.contains("modalExtraNameInput") || target.classList.contains("modalExtraBirthdateInput")) {
+  if (
+    target.classList.contains("modalExtraNameInput") ||
+    target.classList.contains("modalExtraBirthdateInput")
+  ) {
     const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
     const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
     if (!checkoutData.extraPassengers[itemIndex]) {
@@ -394,9 +403,7 @@ modalPassengerContainer?.addEventListener("input", (e) => {
 });
 
 /**
- * 4) Seleção do método de pagamento:
- *    Chama a função initializeCardForm para "card" (tokenização real + 3DS)
- *    ou funções específicas para Pix e Boleto.
+ * 4) Seleção do método de pagamento
  */
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -456,44 +463,7 @@ function initializeBoleto() {
 }
 
 /**
- * 5) Processamento final do pagamento – já integrado com o endpoint real
- */
-async function processPayment(token, method = "card") {
-  let totalText = document.getElementById("totalValue").textContent;
-  let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
-  amount = parseFloat(amount).toFixed(2);
-  let installments = "1";
-  if (method === "card") {
-    const installmentsSelect = document.getElementById("installments");
-    if (installmentsSelect) {
-      installments = installmentsSelect.value;
-    }
-  }
-  try {
-    const res = await fetch("/api/malga/create-transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        tokenId: token,
-        amount,
-        installments
-      })
-    });
-    const data = await res.json();
-    if (!data.success) {
-      alert("Falha na transação: " + (data.message || "Erro desconhecido"));
-      return;
-    }
-    alert("Pagamento Aprovado! Transaction ID: " + data.transactionId);
-    showStep(4);
-  } catch (error) {
-    console.error("Erro ao processar pagamento:", error);
-    alert("Erro ao processar pagamento.");
-  }
-}
-
-/**
- * 6) Onload: Inicializa carrinho, verifica login, etc.
+ * 5) Onload: Inicializações gerais
  */
 window.addEventListener("load", () => {
   updateCheckoutCart(cartItems);
@@ -512,7 +482,7 @@ window.addEventListener("load", () => {
 });
 
 /**
- * 7) Toggle Login
+ * 6) Toggle Login
  */
 const toggleLogin = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
@@ -533,7 +503,7 @@ if (toggleLogin) {
 }
 
 /**
- * 8) Botão de Login
+ * 7) Botão de Login
  */
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
@@ -553,7 +523,7 @@ if (loginValidateBtn) {
 }
 
 /**
- * 9) Máscaras e consulta de CEP
+ * 8) Máscaras e consulta de CEP, CPF, RG
  */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
@@ -587,7 +557,8 @@ document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, "$1.$2");
   if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+  if (value.length > 9)
+    value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
   e.target.value = value;
 });
 
@@ -596,12 +567,13 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, "$1.$2");
   if (value.length > 5) value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-  if (value.length > 7) value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
+  if (value.length > 7)
+    value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
   e.target.value = value;
 });
 
 /**
- * 10) Abrir/fechar modais (Intermac 30K / 80K)
+ * 9) Abrir/fechar modais para Intermac 30K e 80K
  */
 document.querySelectorAll(".open30kModal").forEach((el) => {
   el.addEventListener("click", function (e) {
