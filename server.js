@@ -1,5 +1,6 @@
 ///////////////////////////////////////////////////////////
-// server.js (ESM) - Versão Final com Integração de Hotelbeds, PayPal, Braintree e Malga
+// server.js (ESM) - Versão Final Integrando Hotelbeds,
+// PayPal, Braintree e Malga (tokenização + 3DS)
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -41,39 +42,41 @@ import cartRoutes from "./routes/cart.routes.js";
 import getLatestDollar from "./routes/getLatestDollar.js";
 import userRoutes from "./routes/user.routes.js";
 import { getAffiliateColors } from "./routes/affiliateColors.js";
-import payRouter from "./routes/pay.routes.js"; // Rota de pagamento (PayPal ou outra integração)
+import payRouter from "./routes/pay.routes.js"; // Rota de pagamento (PayPal ou outra)
 
-// Novas rotas para Malga
-import malgaRoutes from "./routes/malga.routes.js";
+// ------------- Rotas da Malga: Tokenização + 3DS -----------
+import { malgaRouter } from "./routes/malga.routes.js";
 
+// E outras se já existirem (braintree, etc.)
+import { gateway } from "./api/braintree.js"; // Exemplo
+
+// ------------------------------------------------------
+// Vincular as rotas
+// ------------------------------------------------------
 app.use("/api/ticketsgenie", ticketsGenieRouter);
 app.use("/api/hbdetail", hbdetailRouter);
 app.use("/api", cartRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
 app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
+app.use("/api/pay", payRouter); // Rota PayPal
 
-// ------------------------------------------------------
-// Usar a rota do PayPal (se aplicável)
-app.use("/api/pay", payRouter); // Rota para integração com PayPal
-
-// ------------------------------------------------------
-// Usar a rota do Malga (incluindo a nova rota create-transaction)
-app.use("/api/malga", malgaRoutes);
+// Novo: rota Malga (tokenize-card e verify-3ds)
+app.use("/api/malga", malgaRouter);
 
 // ------------------------------------------------------
 // Rota principal (teste)
 app.get("/", (req, res) => {
-  res.send("Olá, API rodando com ESM, Express e integrações das APIs Hotelbeds, PayPal, Braintree e Malga!");
+  res.send("Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree e Malga!");
 });
 
 // ------------------------------------------------------
 // Função para gerar assinatura de requests (Hotelbeds)
 function generateSignature() {
-  const publicKey  = process.env.API_KEY_HH;    // ex.: "123456..."
-  const privateKey = process.env.SECRET_KEY_HH;   // ex.: "abcXYZ..."
-  const utcDate    = Math.floor(Date.now() / 1000);
-  const assemble   = `${publicKey}${privateKey}${utcDate}`;
+  const publicKey = process.env.API_KEY_HH;   // ex.: "123456..."
+  const privateKey = process.env.SECRET_KEY_HH;  // ex.: "abcXYZ..."
+  const utcDate = Math.floor(Date.now() / 1000);
+  const assemble = `${publicKey}${privateKey}${utcDate}`;
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
@@ -93,9 +96,9 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
       occupancies.push({ rooms: 1, adults: ad, children: ch });
     }
 
-    const finalCheckIn  = checkIn  || "2025-06-15";
+    const finalCheckIn = checkIn || "2025-06-15";
     const finalCheckOut = checkOut || "2025-06-16";
-    const finalDest     = destination || "MCO";
+    const finalDest = destination || "MCO";
 
     const signature = generateSignature();
     const url = "https://api.test.hotelbeds.com/hotel-api/1.0/hotels";
@@ -130,7 +133,7 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Rota GET para Conteúdo Detalhado (Hotelbeds - Content API)
+// Rota GET para Conteúdo Detalhado (Hotelbeds - Content)
 app.get("/api/hotelbeds/hotel-content", async (req, res) => {
   try {
     const { hotelCode } = req.query;
@@ -174,7 +177,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 
     const bodyData = {
       stay: {
-        checkIn:  req.body.checkIn  || "2025-06-15",
+        checkIn: req.body.checkIn || "2025-06-15",
         checkOut: req.body.checkOut || "2025-06-16"
       },
       occupancies: [{ rooms: 1, adults: 1, children: 0 }],
@@ -199,10 +202,8 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// ENDPOINTS PARA INTEGRAÇÃO COM BRAINTREE (Checkout 100% Transparente)
+// BRAINTREE EXEMPLO
 // ------------------------------------------------------
-import { gateway } from "./api/braintree.js";
-
 app.get("/api/braintree/get-client-token", async (req, res) => {
   try {
     const response = await gateway.clientToken.generate({});
@@ -217,8 +218,8 @@ app.post("/api/braintree/create-transaction", async (req, res) => {
   const { paymentMethodNonce, amount } = req.body;
   try {
     const saleRequest = {
-      amount: amount,
-      paymentMethodNonce: paymentMethodNonce,
+      amount,
+      paymentMethodNonce,
       options: {
         submitForSettlement: true
       }
