@@ -7,24 +7,24 @@
 
 console.log("Checkout ativo");
 
-// ======================================================================
+// ---------------------------------------------------------------------
 // 1) Configuração dos Hosted Fields do Malga
-// ======================================================================
+// ---------------------------------------------------------------------
+// Use as variáveis de ambiente definidas na Vercel com prefixo VITE_
+// (ex: VITE_MALGA_API_KEY, VITE_MALGA_CLIENT_ID)
+import { MalgaTokenization } from '@malga/tokenization';
 
-// As variáveis de ambiente devem estar definidas com prefixo VITE_ na Vercel
 const MALGA_API_KEY = import.meta.env.VITE_MALGA_API_KEY;
 const MALGA_CLIENT_ID = import.meta.env.VITE_MALGA_CLIENT_ID;
 
-import { tokenization } from '@malga/tokenization';
-
-const malgaTokenization = tokenization({
+const malgaTokenization = new MalgaTokenization({
   apiKey: MALGA_API_KEY,
   clientId: MALGA_CLIENT_ID,
   options: {
     config: {
       fields: {
         cardNumber: {
-          container: 'card-number', // ID do elemento onde o campo será renderizado
+          container: 'card-number', // Elemento HTML onde o campo será renderizado
           type: 'text',
           placeholder: 'Número do Cartão',
           needMask: true,
@@ -54,30 +54,25 @@ const malgaTokenization = tokenization({
       },
       sandbox: true,
       styles: {
-        input: {
-          color: 'black',
-          'font-size': '14px'
-        },
-        ':focus': {
-          color: 'blue'
-        }
+        input: { color: 'black', 'font-size': '14px' },
+        ':focus': { color: 'blue' }
       }
     }
   }
 });
 
-// ======================================================================
-// 2) Função utilitária: Obtém o valor total do pedido
-// ======================================================================
+// ---------------------------------------------------------------------
+// 2) Função para obter o valor do pedido
+// ---------------------------------------------------------------------
 function getOrderAmount() {
   const totalText = document.getElementById("totalValue")?.textContent || "R$ 0,00";
   const amountStr = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
   return parseFloat(amountStr).toFixed(2);
 }
 
-// ======================================================================
-// 3) Processamento final do pagamento
-// ======================================================================
+// ---------------------------------------------------------------------
+// 3) Função para processar o pagamento
+// ---------------------------------------------------------------------
 async function processPayment(token, method = "card") {
   try {
     let totalText = document.getElementById("totalValue").textContent;
@@ -90,12 +85,7 @@ async function processPayment(token, method = "card") {
         installments = installmentsSelect.value;
       }
     }
-    const body = {
-      tokenId: token,
-      amount,
-      installments
-      // Adicione outros dados do cliente conforme necessário
-    };
+    const body = { tokenId: token, amount, installments };
     const res = await fetch("/api/malga/create-transaction", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,9 +104,9 @@ async function processPayment(token, method = "card") {
   }
 }
 
-// ======================================================================
-// 4) Inicialização do formulário do cartão (Hosted Fields)
-// ======================================================================
+// ---------------------------------------------------------------------
+// 4) Inicialização do formulário do cartão usando Hosted Fields
+// ---------------------------------------------------------------------
 function initializeCardForm() {
   const form = document.getElementById("checkout-form");
   if (!form) {
@@ -134,8 +124,7 @@ function initializeCardForm() {
         return;
       }
       console.log("Token gerado real:", tokenId);
-
-      // Chama o endpoint para verificar 3DS
+      // Verifica 3DS enviando para o back-end
       const amount = getOrderAmount();
       const verify3dsRes = await fetch("/api/malga/verify-3ds", {
         method: "POST",
@@ -149,8 +138,6 @@ function initializeCardForm() {
       }
       const token3DS = verify3dsData.token3DS || tokenId;
       console.log("Token pós-3DS:", token3DS);
-
-      // Processa o pagamento
       await processPayment(token3DS, "card");
     } catch (err) {
       console.error("Erro inesperado no fluxo de cartão real:", err);
@@ -159,17 +146,11 @@ function initializeCardForm() {
   });
 }
 
-// ======================================================================
-// 5) Lógica de steps, carrinho, login e extra passageiros
-// ======================================================================
+// ---------------------------------------------------------------------
+// 5) Dados do checkout, steps, carrinho e navegação
+// ---------------------------------------------------------------------
+let checkoutData = { extraPassengers: [], insuranceSelected: "none" };
 
-// Dados do checkout
-let checkoutData = {
-  extraPassengers: [],
-  insuranceSelected: "none"
-};
-
-// Exibição dos steps
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll(".step-content");
   const stepButtons = document.querySelectorAll("#stepsMenu .step");
@@ -187,7 +168,7 @@ function showStep(stepNumber) {
   });
 }
 
-// Inicialização do carrinho
+// Inicializa o carrinho
 let cartItems = [];
 const cartElement = document.getElementById("shoppingCart");
 if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -198,27 +179,13 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
     cartItems = JSON.parse(savedCart);
   } else {
     cartItems = [
-      {
-        hotelName: "Hotel Exemplo A",
-        adults: 2,
-        children: 1,
-        basePriceAdult: 100,
-        checkIn: "2025-04-16",
-        checkOut: "2025-04-18"
-      },
-      {
-        hotelName: "Hotel Exemplo B",
-        adults: 3,
-        children: 0,
-        basePriceAdult: 150,
-        checkIn: "2025-04-10",
-        checkOut: "2025-04-12"
-      }
+      { hotelName: "Hotel Exemplo A", adults: 2, children: 1, basePriceAdult: 100, checkIn: "2025-04-16", checkOut: "2025-04-18" },
+      { hotelName: "Hotel Exemplo B", adults: 3, children: 0, basePriceAdult: 150, checkIn: "2025-04-10", checkOut: "2025-04-12" }
     ];
   }
 }
 
-// Função para atualizar o carrinho na tela (única declaração)
+// Atualiza o carrinho na tela
 function updateCheckoutCart(items) {
   const container = document.getElementById("cartItemsList");
   if (!container) return;
@@ -252,16 +219,14 @@ function updateCheckoutCart(items) {
   document.getElementById("totalValue").textContent = "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
-// ======================================================================
+// ---------------------------------------------------------------------
 // 6) Lógica dos passageiros extras – Modal, salvamento e cópia
-// ======================================================================
-
-// Recupera dados salvos (se houver) dos passageiros extras
+// ---------------------------------------------------------------------
+// Carrega extras salvos do localStorage (se houver)
 if (localStorage.getItem("extraPassengers")) {
   checkoutData.extraPassengers = JSON.parse(localStorage.getItem("extraPassengers"));
 }
 
-// Cria o formulário do modal para passageiros extras e reinicializa os dados
 function createModalPassengerForms(items) {
   const modalContainer = document.getElementById("modalPassengerContainer");
   modalContainer.innerHTML = "";
@@ -300,7 +265,6 @@ function createModalPassengerForms(items) {
   }
 }
 
-// Função para salvar os passageiros extras no localStorage
 function saveExtraPassengers() {
   localStorage.setItem("extraPassengers", JSON.stringify(checkoutData.extraPassengers));
 }
@@ -351,7 +315,6 @@ if (copyForAllBtn) {
         let extraCount = (cartItems[i].adults || 1) - 1;
         if (extraCount === sourceExtraCount && extraCount > 0) {
           checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
-          // Atualiza os inputs do modal
           for (let passIndex = 0; passIndex < extraCount; passIndex++) {
             const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
             const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
@@ -391,9 +354,9 @@ if (document.getElementById("modalPassengerContainer")) {
   });
 }
 
-// ======================================================================
+// ---------------------------------------------------------------------
 // 7) Inicialização do método de pagamento conforme seleção
-// ======================================================================
+// ---------------------------------------------------------------------
 function initializePaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked').value;
   document.getElementById("card-container").style.display = "none";
@@ -411,9 +374,9 @@ function initializePaymentMethod() {
   }
 }
 
-// ======================================================================
-// 8) Inicialização de Pix e Boleto usando endpoints reais
-// ======================================================================
+// ---------------------------------------------------------------------
+// 8) Inicialização de Pix e Boleto (usando endpoints reais do Malga)
+// ---------------------------------------------------------------------
 function initializePix() {
   const pixContainer = document.getElementById("pix-container");
   pixContainer.innerHTML = "<button id='generatePixBtn'>Gerar Código Pix</button><div id='pixCodeDisplay'></div>";
@@ -462,9 +425,9 @@ function initializeBoleto() {
   });
 }
 
-// ======================================================================
-// 9) Eventos de navegação entre steps e validação dos dados pessoais
-// ======================================================================
+// ---------------------------------------------------------------------
+// 9) Navegação entre steps e validação dos dados
+// ---------------------------------------------------------------------
 const toStep2Btn = document.getElementById("toStep2");
 const backToStep1Btn = document.getElementById("backToStep1");
 const toStep3Btn = document.getElementById("toStep3");
@@ -472,7 +435,7 @@ const backToStep2Btn = document.getElementById("backToStep2");
 
 if (toStep2Btn) {
   toStep2Btn.addEventListener("click", () => {
-    // Validação dos dados pessoais e de endereço
+    // Validação de dados pessoais e endereço
     if (
       !document.getElementById("firstName").value ||
       !document.getElementById("lastName").value ||
@@ -492,7 +455,6 @@ if (toStep2Btn) {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-    // Armazenar os dados no checkoutData
     checkoutData.firstName = document.getElementById("firstName").value;
     checkoutData.lastName = document.getElementById("lastName").value;
     checkoutData.celular = document.getElementById("celular").value;
@@ -524,7 +486,6 @@ if (toStep3Btn) {
     checkoutData.insuranceCost = insuranceCost;
     updateCheckoutCart(cartItems);
     showStep(3);
-    // Inicializa o método de pagamento escolhido
     initializePaymentMethod();
   });
 }
@@ -536,9 +497,9 @@ if (backToStep2Btn) {
   backToStep2Btn.addEventListener("click", () => showStep(2));
 }
 
-// ======================================================================
-// 10) Máscaras e validação de CEP, CPF e RG
-// ======================================================================
+// ---------------------------------------------------------------------
+// 10) Máscaras e validação (CEP, CPF, RG)
+// ---------------------------------------------------------------------
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, "");
   if (cep.length === 8) {
@@ -565,7 +526,6 @@ function buscarCEP(cep) {
 document.getElementById("cep")?.addEventListener("blur", function () {
   buscarCEP(this.value);
 });
-
 document.getElementById("cpf")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, "$1.$2");
@@ -573,7 +533,6 @@ document.getElementById("cpf")?.addEventListener("input", function (e) {
   if (value.length > 9) value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
   e.target.value = value;
 });
-
 document.getElementById("rg")?.addEventListener("input", function (e) {
   let value = e.target.value.replace(/\D/g, "");
   if (value.length > 2) value = value.replace(/^(\d{2})(\d)/, "$1.$2");
@@ -582,9 +541,9 @@ document.getElementById("rg")?.addEventListener("input", function (e) {
   e.target.value = value;
 });
 
-// ======================================================================
-// 11) Toggle de exibição do formulário de login/registro
-// ======================================================================
+// ---------------------------------------------------------------------
+// 11) Toggle de exibição do formulário de Login/Registro
+// ---------------------------------------------------------------------
 const toggleLoginBtn = document.getElementById("toggleLogin");
 const regFields = document.getElementById("registrationFieldsGeneral");
 const loginSec = document.getElementById("loginFields");
@@ -603,9 +562,9 @@ if (toggleLoginBtn) {
   });
 }
 
-// ======================================================================
+// ---------------------------------------------------------------------
 // 12) Botão de Login
-// ======================================================================
+// ---------------------------------------------------------------------
 const loginValidateBtn = document.getElementById("loginValidateBtn");
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener("click", () => {
@@ -623,9 +582,9 @@ if (loginValidateBtn) {
   });
 }
 
-// ======================================================================
+// ---------------------------------------------------------------------
 // 13) Abertura/fechamento dos modais para Coberturas (Intermac 30K / 80K)
-// ======================================================================
+// ---------------------------------------------------------------------
 document.querySelectorAll(".open30kModal").forEach(el => {
   el.addEventListener("click", (e) => {
     e.preventDefault();
@@ -647,6 +606,6 @@ document.querySelectorAll(".close-modal").forEach(closeBtn => {
   });
 });
 
-// ======================================================================
-// FIM DO ARQUIVO src/main.js
-// ======================================================================
+// ---------------------------------------------------------------------
+// Fim do arquivo src/main.js
+// ---------------------------------------------------------------------
