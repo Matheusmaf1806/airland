@@ -1,26 +1,33 @@
 /* =========================================================================
-   main.js - Exemplo Completo - Agora usando env do Next.js
+   main.js - Exemplo Completo usando import.meta.env e Vite
    =========================================================================
-   1) Certifique-se de que no Vercel Project Settings (ou .env.local)
-      você definiu:
-        NEXT_PUBLIC_MALGA_API_KEY=<sua chave>
-        NEXT_PUBLIC_MALGA_CLIENT_ID=<seu client ID>
-   2) No seu código, use process.env.NEXT_PUBLIC_MALGA_API_KEY
-      (sem aspas).
-   3) Esse exemplo também contém a parte de Pix, Boleto, Steps etc.
+   1) Certifique-se de que no seu vite.config.js exista:
+       define: {
+         'import.meta.env.VITE_MALGA_API_KEY': JSON.stringify(process.env.MALGA_API_KEY),
+         'import.meta.env.VITE_MALGA_CLIENT_ID': JSON.stringify(process.env.MALGA_CLIENT_ID)
+       }
+   2) Garanta que process.env.MALGA_API_KEY e process.env.MALGA_CLIENT_ID
+      existam no momento do build (por ex. definidas no Vercel).
+   3) No seu código, use import.meta.env.VITE_MALGA_API_KEY
+      sem aspas (como abaixo).
    ========================================================================= */
 
 import * as Malga from '@malga/tokenization';
 
-console.log('API KEY =>', process.env.NEXT_PUBLIC_MALGA_API_KEY);
-console.log('CLIENT ID =>', process.env.NEXT_PUBLIC_MALGA_CLIENT_ID);
-console.log('Conteúdo do objeto Malga =>', Malga);
+// Pegamos as chaves injetadas pelo Vite através do define{} no vite.config.js:
+const apiKey = import.meta.env.VITE_MALGA_API_KEY;
+const clientId = import.meta.env.VITE_MALGA_CLIENT_ID;
 
+console.log('API KEY =>', apiKey);
+console.log('CLIENT ID =>', clientId);
+console.log('Malga =>', Malga);
+
+// Instancia a tokenização da Malga
 const malgaTokenization = new Malga.MalgaTokenization({
-  apiKey: process.env.NEXT_PUBLIC_MALGA_API_KEY,
-  clientId: process.env.NEXT_PUBLIC_MALGA_CLIENT_ID,
+  apiKey,
+  clientId,
+  // Tente contornar postMessage se a Malga suportar:
   options: {
-    // Tentar contornar postMessage (se suportado):
     allowedOrigins: ['*'],
     config: {
       fields: {
@@ -68,7 +75,7 @@ const malgaTokenization = new Malga.MalgaTokenization({
 });
 
 /* =========================================================================
-   1) Função para pegar valor do carrinho (R$ -> número)
+   1) Função para obter valor do carrinho (ex: "R$ 1.234,56" -> 1234.56)
    ========================================================================= */
 function getOrderAmount() {
   const totalEl = document.getElementById('totalValue');
@@ -82,13 +89,14 @@ function getOrderAmount() {
 }
 
 /* =========================================================================
-   2) processCardPayment: envia token do cartão p/ back-end
+   2) processCardPayment - envia token do cartão p/ back-end
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
     const amount = getOrderAmount();
-    const installments = '1';
+    const installments = '1'; // Ajuste se tiver select de parcelas
 
+    // Chama seu endpoint no back-end, que fala com a Malga
     const resp = await fetch('/api/malga/create-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -103,7 +111,7 @@ async function processCardPayment(tokenId) {
     const result = await resp.json();
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      showStep(4);
+      showStep(4); // Step 4 => Confirmação
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
@@ -125,6 +133,7 @@ function initializeCardForm() {
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
     try {
+      // Dispara a tokenização
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error('Erro na tokenização do cartão:', error.message);
@@ -140,7 +149,7 @@ function initializeCardForm() {
 }
 
 /* =========================================================================
-   4) initializePix: gera QR / código Pix c/ back-end
+   4) initializePix: gera QR / código Pix (back-end -> Malga)
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -177,7 +186,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   5) initializeBoleto: gera link Boleto c/ back-end
+   5) initializeBoleto: gera link Boleto (back-end -> Malga)
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -214,7 +223,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   6) switchPaymentMethod: exibe form de cartão ou Pix/Boleto
+   6) switchPaymentMethod: exibe form cartão ou Pix/Boleto
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -262,7 +271,7 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   8) Carregar / simular items
+   8) Exemplo de carrinho e checkoutData
    ========================================================================= */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
@@ -300,7 +309,7 @@ const checkoutData = {
 };
 
 /* =========================================================================
-   9) updateCheckoutCart: renderiza carrinho na direita
+   9) updateCheckoutCart: exibe itens na coluna direita
    ========================================================================= */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
@@ -341,14 +350,14 @@ function updateCheckoutCart(items) {
 }
 
 /* =========================================================================
-   10) Passageiros extras (Modal)
+   10) Modal de passageiros extras (nomear)
    ========================================================================= */
-const passengerModal  = document.getElementById('passengerModal');
-const openPassengerModalBtn = document.getElementById('openPassengerModal');
-const closeModalBtn   = document.getElementById('closeModal');
-const savePassengersBtn= document.getElementById('savePassengersBtn');
+const passengerModal         = document.getElementById('passengerModal');
+const openPassengerModalBtn  = document.getElementById('openPassengerModal');
+const closeModalBtn          = document.getElementById('closeModal');
+const savePassengersBtn      = document.getElementById('savePassengersBtn');
 const modalPassengerContainer= document.getElementById('modalPassengerContainer');
-const copyForAllBtn   = document.getElementById('copyForAllBtn');
+const copyForAllBtn          = document.getElementById('copyForAllBtn');
 
 function createModalPassengerForms(items) {
   modalPassengerContainer.innerHTML = '';
@@ -410,6 +419,7 @@ if (savePassengersBtn) {
     alert('Passageiros extras salvos!');
   });
 }
+
 if (copyForAllBtn) {
   copyForAllBtn.addEventListener('click', () => {
     let sourceIndex = null;
@@ -468,7 +478,7 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   11) Steps (1..3..4)
+   11) Steps (botões de "Voltar" / "Próximo")
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
@@ -477,6 +487,7 @@ const backToStep2Btn = document.getElementById('backToStep2');
 
 if (toStep2Btn) {
   toStep2Btn.addEventListener('click', () => {
+    // Exemplo: validando login ou registro
     const isLoggedIn = !!localStorage.getItem('agentId');
     if (!isLoggedIn) {
       if (!document.getElementById('firstName').value ||
@@ -488,6 +499,7 @@ if (toStep2Btn) {
         alert('Preencha os campos obrigatórios antes de continuar.');
         return;
       }
+      // salva no checkoutData
       checkoutData.firstName = document.getElementById('firstName').value;
       checkoutData.lastName  = document.getElementById('lastName').value;
       checkoutData.celular   = document.getElementById('celular').value;
@@ -496,6 +508,7 @@ if (toStep2Btn) {
       checkoutData.confirmPassword = document.getElementById('confirmPassword').value;
     }
 
+    // Campos de documento/endereço
     if (!document.getElementById('cpf').value       ||
         !document.getElementById('rg').value        ||
         !document.getElementById('birthdate').value ||
@@ -550,7 +563,7 @@ if (backToStep2Btn) {
 }
 
 /* =========================================================================
-   12) CEP / CPF / RG
+   12) CEP / CPF / RG - máscaras e busca
    ========================================================================= */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, '');
@@ -613,7 +626,7 @@ if (rgInput) {
 }
 
 /* =========================================================================
-   13) Login / Registro
+   13) Login / Registro simples
    ========================================================================= */
 const toggleLoginLink         = document.getElementById('toggleLogin');
 const registrationFieldsGeneral= document.getElementById('registrationFieldsGeneral');
@@ -662,7 +675,7 @@ if (loginValidateBtn) {
 }
 
 /* =========================================================================
-   14) window load => Step 1, checa se logado, exibe carrinho
+   14) Ao carregar a página => Step 1, checa se user está logado, exibe carrinho
    ========================================================================= */
 window.addEventListener('load', () => {
   showStep(1);
