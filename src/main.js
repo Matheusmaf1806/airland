@@ -1,31 +1,28 @@
 /* =========================================================================
-   main.js - Exemplo Completo de Integração Malga (Sandbox)
+   main.js - Exemplo Completo (MALGA SANDBOX)
    =========================================================================
-   1) Hosted Fields no modo sandbox: "hosted-fields.dev.malga.io"
-   2) Usa baseUrl + sandbox: true para forçar dev
-   3) Configura API Key e Client ID de sandbox
-   4) Fluxo: Steps (1..4), Pix, Boleto, Modal Passageiros, Máscaras etc.
+   1) Hosted Fields dev: "https://hosted-fields.dev.malga.io"
+   2) Steps (1..4), Passageiros Extras, Máscaras (CPF, RG), CEP, Login
+   3) Cartão, Pix e Boleto chamando /api/malga/create-transaction
    ========================================================================= */
 
 import * as Malga from '@malga/tokenization';
 
 /* =========================================================================
-   0) Suas credenciais sandbox da Malga
+   0) Credenciais de SANDBOX - Ajuste para as suas
    ========================================================================= */
-const MALGA_API_KEY   = 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e'; // Exemplo
-const MALGA_CLIENT_ID = '4457c178-0f07-4589-ba0e-954e5816fd0f'; // Exemplo
+const MALGA_API_KEY_SANDBOX   = 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e';  // exemplo
+const MALGA_CLIENT_ID_SANDBOX = '4457c178-0f07-4589-ba0e-954e5816fd0f'; // exemplo
 
 /* =========================================================================
-   1) Criar instância do Tokenization no modo sandbox + baseUrl dev
+   1) Instancia o Tokenization no modo sandbox, com baseUrl .dev.malga.io
    ========================================================================= */
 const malgaTokenization = new Malga.MalgaTokenization({
-  apiKey: MALGA_API_KEY,
-  clientId: MALGA_CLIENT_ID,
+  apiKey: MALGA_API_KEY_SANDBOX,
+  clientId: MALGA_CLIENT_ID_SANDBOX,
   options: {
-    // permitted origins. Ajuste para o seu domínio se quiser restringir:
-    allowedOrigins: ['*'],
-    // baseUrl dev -> garante "hosted-fields.dev.malga.io"
-    baseUrl: 'https://hosted-fields.dev.malga.io',
+    allowedOrigins: ['*'], // Ajuste para o seu domínio se quiser
+    baseUrl: 'https://hosted-fields.dev.malga.io', 
     sandbox: true,
     config: {
       fields: {
@@ -58,8 +55,7 @@ const malgaTokenization = new Malga.MalgaTokenization({
           defaultValidation: true
         }
       },
-      // O "sandbox: true" também pode ficar aqui dentro, dependendo da versão do SDK:
-      sandbox: true,
+      sandbox: true, // Reforço
       styles: {
         input: {
           color: 'black',
@@ -73,12 +69,12 @@ const malgaTokenization = new Malga.MalgaTokenization({
   }
 });
 
-// (Algumas versões do SDK pedem "init()". Se for o caso, descomente):
+// Caso sua versão do SDK exija init():
 // if (typeof malgaTokenization.init === 'function') {
 //   malgaTokenization.init();
 // }
 
-// Para logar erros detalhados do SDK
+// Captura erros do SDK
 malgaTokenization.on('error', (error) => {
   console.error('Erro detalhado na tokenização:', error);
 });
@@ -98,12 +94,12 @@ function getOrderAmount() {
 }
 
 /* =========================================================================
-   3) processCardPayment - envia token do cartão ao back-end
+   3) processCardPayment -> envia tokenId do cartão ao back-end
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
     const amount = getOrderAmount();
-    // Se tiver select de parcelas, capture. Aqui é fixo "1":
+    // Ajuste se tiver parcelamento
     const installments = '1';
 
     const resp = await fetch('/api/malga/create-transaction', {
@@ -120,7 +116,7 @@ async function processCardPayment(tokenId) {
 
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      showStep(4); 
+      showStep(4);
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
@@ -131,7 +127,7 @@ async function processCardPayment(tokenId) {
 }
 
 /* =========================================================================
-   4) Inicializa Hosted Fields (cartão)
+   4) Inicializa Hosted Fields (cartão). Ao submeter, chama tokenize()
    ========================================================================= */
 function initializeCardForm() {
   const form = document.getElementById('checkout-form');
@@ -143,7 +139,6 @@ function initializeCardForm() {
   form.addEventListener('submit', async (evt) => {
     evt.preventDefault();
     try {
-      // debug
       console.log(
         'SDK chegou aqui no submit',
         document.querySelector('iframe[name=card-number]'),
@@ -165,7 +160,7 @@ function initializeCardForm() {
 }
 
 /* =========================================================================
-   5) initializePix => gera QR/Código Pix com /api/malga/create-transaction
+   5) initializePix -> gera QR/Código Pix chamando /api/malga/create-transaction
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -202,7 +197,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   6) initializeBoleto => gera link Boleto chamando /api/malga
+   6) initializeBoleto -> gera link Boleto chamando /api/malga/create-transaction
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -239,7 +234,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   7) switchPaymentMethod => exibe form cartão ou Pix/Boleto
+   7) switchPaymentMethod -> exibe form cartão / pix / boleto
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -265,7 +260,7 @@ function switchPaymentMethod() {
 }
 
 /* =========================================================================
-   8) showStep => gerencia steps (1..4)
+   8) showStep -> gerencia steps (1..4)
    ========================================================================= */
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll('.step-content');
@@ -287,7 +282,7 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   9) Exemplo de carrinho e checkoutData
+   9) Carrinho, checkoutData, etc.
    ========================================================================= */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
@@ -298,7 +293,6 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   if (savedCart) {
     cartItems = JSON.parse(savedCart);
   } else {
-    // Exemplo dummy
     cartItems = [
       {
         hotelName: 'Hotel Exemplo A',
@@ -326,7 +320,7 @@ const checkoutData = {
 };
 
 /* =========================================================================
-   10) updateCheckoutCart => exibir carrinho na direita
+   10) updateCheckoutCart -> exibe carrinho na coluna direita
    ========================================================================= */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
@@ -395,7 +389,7 @@ function createModalPassengerForms(items) {
         fieldsWrapper.classList.add('fields-grid-2cols-modal');
         fieldsWrapper.innerHTML = `
           <div class="form-field">
-            <label>Nome do Passageiro #${i + 1}</label>
+            <label>Nome do Passageiro #${i+1}</label>
             <input type="text"
                    placeholder="Nome completo"
                    data-item-index="${itemIndex}"
@@ -496,7 +490,7 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   12) Steps: (1 -> 2 -> 3 -> 4)
+   12) Steps (1 -> 2 -> 3 -> 4)
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
@@ -505,7 +499,7 @@ const backToStep2Btn = document.getElementById('backToStep2');
 
 if (toStep2Btn) {
   toStep2Btn.addEventListener('click', () => {
-    // Exemplo: validando registro ou login
+    // Exemplo: checar se user está logado ou se preencheu cadastro
     const isLoggedIn = !!localStorage.getItem('agentId');
     if (!isLoggedIn) {
       if (!document.getElementById('firstName').value ||
@@ -559,6 +553,7 @@ if (backToStep1Btn) {
 
 if (toStep3Btn) {
   toStep3Btn.addEventListener('click', () => {
+    // Exemplo: escolher seguro
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
     checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : 'none';
 
@@ -572,7 +567,7 @@ if (toStep3Btn) {
 
     updateCheckoutCart(cartItems);
     showStep(3);
-    switchPaymentMethod(); // Exibe form de cartão/pix/boleto
+    switchPaymentMethod();
   });
 }
 
@@ -583,7 +578,7 @@ if (backToStep2Btn) {
 }
 
 /* =========================================================================
-   13) CEP / CPF / RG - máscaras e auto-complete
+   13) CEP / CPF / RG (máscaras e auto-complete)
    ========================================================================= */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, '');
@@ -647,7 +642,7 @@ if (rgInput) {
 }
 
 /* =========================================================================
-   14) Login / Registro simples
+   14) Login / Registro
    ========================================================================= */
 const toggleLoginLink         = document.getElementById('toggleLogin');
 const registrationFieldsGeneral= document.getElementById('registrationFieldsGeneral');
@@ -697,9 +692,10 @@ if (loginValidateBtn) {
 }
 
 /* =========================================================================
-   15) window.load => Step 1, exibe carrinho etc.
+   15) window.load => Step 1, exibir carrinho, etc.
    ========================================================================= */
 window.addEventListener('load', () => {
+  // Step inicial
   showStep(1);
 
   const isLoggedIn = !!localStorage.getItem('agentId');
