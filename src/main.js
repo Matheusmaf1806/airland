@@ -1,28 +1,31 @@
 /* =========================================================================
-   main.js - Exemplo Completo (MALGA SANDBOX)
+   main.js - Exemplo Completo (SEM 3DS) - Modo Sandbox
    =========================================================================
-   1) Hosted Fields dev: "https://hosted-fields.dev.malga.io"
-   2) Steps (1..4), Passageiros Extras, Máscaras (CPF, RG), CEP, Login
-   3) Cartão, Pix e Boleto chamando /api/malga/create-transaction
+   - Usa baseUrl: "https://hosted-fields.dev.malga.io"
+   - sandbox: true
+   - Cartão (tokenize), Pix, Boleto, Steps (1..4), Passageiros Extras,
+     Máscaras (CPF, RG), CEP, Login/Registro, Carrinho
    ========================================================================= */
 
 import * as Malga from '@malga/tokenization';
 
 /* =========================================================================
-   0) Credenciais de SANDBOX - Ajuste para as suas
+   0) Credenciais de SANDBOX (substitua pelas suas)
    ========================================================================= */
-const MALGA_API_KEY_SANDBOX   = 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e';  // exemplo
+const MALGA_API_KEY_SANDBOX   = 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e'; // exemplo
 const MALGA_CLIENT_ID_SANDBOX = '4457c178-0f07-4589-ba0e-954e5816fd0f'; // exemplo
 
 /* =========================================================================
-   1) Instancia o Tokenization no modo sandbox, com baseUrl .dev.malga.io
+   1) Instancia MalgaTokenization para sandbox, SEM 3DS
    ========================================================================= */
 const malgaTokenization = new Malga.MalgaTokenization({
   apiKey: MALGA_API_KEY_SANDBOX,
   clientId: MALGA_CLIENT_ID_SANDBOX,
   options: {
-    allowedOrigins: ['*'], // Ajuste para o seu domínio se quiser
-    baseUrl: 'https://hosted-fields.dev.malga.io', 
+    // Se quiser restringir a origem do postMessage, troque '*' por seu domínio
+    allowedOrigins: ['*'],
+    // baseUrl dev -> hosted-fields.dev.malga.io
+    baseUrl: 'https://hosted-fields.dev.malga.io',
     sandbox: true,
     config: {
       fields: {
@@ -55,7 +58,8 @@ const malgaTokenization = new Malga.MalgaTokenization({
           defaultValidation: true
         }
       },
-      sandbox: true, // Reforço
+      // também repetimos sandbox: true
+      sandbox: true,
       styles: {
         input: {
           color: 'black',
@@ -69,18 +73,18 @@ const malgaTokenization = new Malga.MalgaTokenization({
   }
 });
 
-// Caso sua versão do SDK exija init():
+// Se a versão do SDK exigir init():
 // if (typeof malgaTokenization.init === 'function') {
 //   malgaTokenization.init();
 // }
 
-// Captura erros do SDK
+// Escutar erros do SDK
 malgaTokenization.on('error', (error) => {
   console.error('Erro detalhado na tokenização:', error);
 });
 
 /* =========================================================================
-   2) Função para pegar valor do carrinho (ex: "R$ 1.234,56" -> "1234.56")
+   2) getOrderAmount -> converte "R$ 1.234,56" -> "1234.56"
    ========================================================================= */
 function getOrderAmount() {
   const totalEl = document.getElementById('totalValue');
@@ -94,14 +98,15 @@ function getOrderAmount() {
 }
 
 /* =========================================================================
-   3) processCardPayment -> envia tokenId do cartão ao back-end
+   3) processCardPayment -> envia token do cartão p/ seu back-end (SEM 3DS)
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
     const amount = getOrderAmount();
-    // Ajuste se tiver parcelamento
+    // Se tiver parcelas, ajustar. Aqui fixo "1".
     const installments = '1';
 
+    // Chama seu endpoint
     const resp = await fetch('/api/malga/create-transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -116,7 +121,7 @@ async function processCardPayment(tokenId) {
 
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      showStep(4);
+      showStep(4); // step 4 => Confirmação
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
@@ -127,7 +132,7 @@ async function processCardPayment(tokenId) {
 }
 
 /* =========================================================================
-   4) Inicializa Hosted Fields (cartão). Ao submeter, chama tokenize()
+   4) initializeCardForm -> Configura o Hosted Fields (SEM 3DS)
    ========================================================================= */
 function initializeCardForm() {
   const form = document.getElementById('checkout-form');
@@ -144,7 +149,7 @@ function initializeCardForm() {
         document.querySelector('iframe[name=card-number]'),
         malgaTokenization.configurations
       );
-
+      // Chamamos tokenize sem 3DS
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error('Erro na tokenização do cartão:', error.message);
@@ -160,7 +165,7 @@ function initializeCardForm() {
 }
 
 /* =========================================================================
-   5) initializePix -> gera QR/Código Pix chamando /api/malga/create-transaction
+   5) initializePix -> gera QR/Código Pix -> /api/malga/create-transaction
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -197,7 +202,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   6) initializeBoleto -> gera link Boleto chamando /api/malga/create-transaction
+   6) initializeBoleto -> gera link Boleto -> /api/malga/create-transaction
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -234,7 +239,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   7) switchPaymentMethod -> exibe form cartão / pix / boleto
+   7) switchPaymentMethod -> exibe form cartão ou pix/boleto
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -282,8 +287,10 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   9) Carrinho, checkoutData, etc.
+   9) Carrinho, checkoutData, Passageiros, Máscaras, CEP, etc.
    ========================================================================= */
+
+/* Exemplo: Carregar carrinho */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
 if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -314,14 +321,13 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
   }
 }
 
+// Objeto principal do checkout
 const checkoutData = {
   extraPassengers: [],
   insuranceSelected: 'none'
 };
 
-/* =========================================================================
-   10) updateCheckoutCart -> exibe carrinho na coluna direita
-   ========================================================================= */
+/* Exemplo: updateCheckoutCart */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
   if (!container) return;
@@ -361,7 +367,7 @@ function updateCheckoutCart(items) {
 }
 
 /* =========================================================================
-   11) Modal de Passageiros Extras
+   10) Modal de Passageiros Extras (nomear)
    ========================================================================= */
 const passengerModal         = document.getElementById('passengerModal');
 const openPassengerModalBtn  = document.getElementById('openPassengerModal');
@@ -383,13 +389,12 @@ function createModalPassengerForms(items) {
       const itemDiv = document.createElement('div');
       itemDiv.classList.add('passenger-box');
       itemDiv.innerHTML = `<h4>${item.hotelName || 'Item'}</h4>`;
-
       for (let i = 0; i < extraCount; i++) {
         const fieldsWrapper = document.createElement('div');
         fieldsWrapper.classList.add('fields-grid-2cols-modal');
         fieldsWrapper.innerHTML = `
           <div class="form-field">
-            <label>Nome do Passageiro #${i+1}</label>
+            <label>Nome do Passageiro #${i + 1}</label>
             <input type="text"
                    placeholder="Nome completo"
                    data-item-index="${itemIndex}"
@@ -467,7 +472,6 @@ if (copyForAllBtn) {
     alert('Dados copiados para todos os itens compatíveis!');
   });
 }
-
 if (modalPassengerContainer) {
   modalPassengerContainer.addEventListener('input', e => {
     const target = e.target;
@@ -490,7 +494,7 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   12) Steps (1 -> 2 -> 3 -> 4)
+   11) Steps (1 -> 2 -> 3 -> 4)
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
@@ -499,9 +503,9 @@ const backToStep2Btn = document.getElementById('backToStep2');
 
 if (toStep2Btn) {
   toStep2Btn.addEventListener('click', () => {
-    // Exemplo: checar se user está logado ou se preencheu cadastro
     const isLoggedIn = !!localStorage.getItem('agentId');
     if (!isLoggedIn) {
+      // Campos de cadastro
       if (!document.getElementById('firstName').value ||
           !document.getElementById('lastName').value  ||
           !document.getElementById('celular').value   ||
@@ -519,7 +523,7 @@ if (toStep2Btn) {
       checkoutData.confirmPassword = document.getElementById('confirmPassword').value;
     }
 
-    // Checar campos de documento/endereço
+    // Campos obrigatórios de documento/endereço
     if (!document.getElementById('cpf').value       ||
         !document.getElementById('rg').value        ||
         !document.getElementById('birthdate').value ||
@@ -544,7 +548,6 @@ if (toStep2Btn) {
     showStep(2);
   });
 }
-
 if (backToStep1Btn) {
   backToStep1Btn.addEventListener('click', () => {
     showStep(1);
@@ -553,7 +556,7 @@ if (backToStep1Btn) {
 
 if (toStep3Btn) {
   toStep3Btn.addEventListener('click', () => {
-    // Exemplo: escolher seguro
+    // Qual plano de seguro?
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
     checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : 'none';
 
@@ -570,7 +573,6 @@ if (toStep3Btn) {
     switchPaymentMethod();
   });
 }
-
 if (backToStep2Btn) {
   backToStep2Btn.addEventListener('click', () => {
     showStep(2);
@@ -578,7 +580,7 @@ if (backToStep2Btn) {
 }
 
 /* =========================================================================
-   13) CEP / CPF / RG (máscaras e auto-complete)
+   12) CEP / CPF / RG (máscaras e busca)
    ========================================================================= */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, '');
@@ -642,7 +644,7 @@ if (rgInput) {
 }
 
 /* =========================================================================
-   14) Login / Registro
+   13) Login / Registro
    ========================================================================= */
 const toggleLoginLink         = document.getElementById('toggleLogin');
 const registrationFieldsGeneral= document.getElementById('registrationFieldsGeneral');
@@ -663,7 +665,6 @@ if (toggleLoginLink) {
     }
   });
 }
-
 if (loginValidateBtn) {
   loginValidateBtn.addEventListener('click', async () => {
     const email    = document.getElementById('loginEmail').value;
@@ -692,10 +693,9 @@ if (loginValidateBtn) {
 }
 
 /* =========================================================================
-   15) window.load => Step 1, exibir carrinho, etc.
+   14) Ao carregar a página => Step 1, exibe carrinho etc.
    ========================================================================= */
 window.addEventListener('load', () => {
-  // Step inicial
   showStep(1);
 
   const isLoggedIn = !!localStorage.getItem('agentId');
@@ -708,6 +708,6 @@ window.addEventListener('load', () => {
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = 'block';
   }
 
-  // Renderiza carrinho
+  // Renderizar carrinho
   updateCheckoutCart(cartItems);
 });
