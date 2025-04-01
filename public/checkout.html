@@ -6,12 +6,21 @@
   <!-- Componente de Header -->
   <script src="/js/header-component.js" type="module"></script>
 
+  <!-- 
+    SDK do Malga Checkout (core). Necessário para exibir e usar o <malga-checkout>.
+    Importante estar acima do main.js para que o componente exista quando chamamos no script.
+  -->
+  <script
+    type="module"
+    src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
+  ></script>
+
   <!-- FONT & RESET -->
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
     * {
-      margin: 0; 
-      padding: 0; 
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
     html {
@@ -27,7 +36,7 @@
       font-family: "Montserrat", sans-serif;
     }
     a:focus, input:focus, textarea:focus, button:focus {
-      outline: none; 
+      outline: none;
       box-shadow: none;
     }
     button, a {
@@ -46,341 +55,324 @@
       margin-bottom: 30px;
     }
     .steps-menu .step {
-      display: flex; 
-      align-items: center; 
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
-      color: #fff; 
-      font-weight: 500; 
+      color: #fff;
+      font-weight: 500;
       cursor: pointer;
     }
     .steps-menu .circle {
-      width: 34px; 
-      height: 34px; 
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      background-color: #fff; 
+      background-color: #fff;
       color: #365cf5;
-      display: flex; 
-      align-items: center; 
+      display: flex;
+      align-items: center;
       justify-content: center;
       font-weight: 700;
     }
     .steps-menu .separator {
-      color: #fff; 
+      color: #fff;
       font-weight: bold;
     }
     .steps-menu .step.active .circle {
-      background-color: #fff; 
-      color: #365cf5; 
+      background-color: #fff;
+      color: #365cf5;
       border: 2px solid #fff;
     }
     .steps-menu .step.disabled {
-      opacity: 0.6; 
+      opacity: 0.6;
       cursor: not-allowed;
     }
 
     /* ===== MAIN LAYOUT ===== */
     .main-container {
-      width: 90%; 
+      width: 90%;
       max-width: 1200px;
-      margin: 2rem auto; 
-      display: flex; 
+      margin: 2rem auto;
+      display: flex;
       gap: 2rem;
     }
-    .left-col { flex: 1; }
-    .right-col { width: 400px; flex-shrink: 0; }
+    .left-col {
+      flex: 1;
+    }
+    .right-col {
+      width: 400px;
+      flex-shrink: 0;
+    }
 
     /* ===== CARD STYLE ===== */
     .card-style-1 {
-      background: #fff; 
-      border: 1px solid #efefef; 
+      background: #fff;
+      border: 1px solid #efefef;
       border-radius: 10px;
-      padding: 25px 30px; 
+      padding: 25px 30px;
       box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
       margin-bottom: 20px;
     }
 
     /* ===== FORMULÁRIOS & CAMPOS ===== */
     .fields-grid-2cols {
-      display: grid; 
+      display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1rem; 
+      gap: 1rem;
       margin-bottom: 1rem;
     }
     .fields-grid-3cols {
-      display: grid; 
+      display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem; 
+      gap: 1rem;
       margin-bottom: 1rem;
     }
     .form-field {
-      display: flex; 
-      flex-direction: column; 
+      display: flex;
+      flex-direction: column;
       margin-bottom: 1rem;
     }
     .form-field label {
-      font-size: 0.85rem; 
-      color: #666; 
-      margin-bottom: 0.4rem; 
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.4rem;
       font-weight: 500;
     }
-    .form-field input, .form-field select {
-      font-size: 0.85rem; 
-      padding: 0.6rem; 
-      border: 1px solid #eee; 
+    .form-field input,
+    .form-field select {
+      font-size: 0.85rem;
+      padding: 0.6rem;
+      border: 1px solid #eee;
       border-radius: 4px;
     }
-    .form-field input:focus, 
+    .form-field input:focus,
     .form-field select:focus {
       border-color: #007aff;
     }
     .form-note {
-      font-size: 0.75rem; 
-      color: #888; 
+      font-size: 0.75rem;
+      color: #888;
       margin-top: 1rem;
     }
 
     /* ===== BOTÕES ===== */
-    .btn-save-passenger, .btn-pay-pal {
-      background: #007aff; 
-      color: #fff; 
-      border: none; 
+    .btn-save-passenger {
+      background: #007aff;
+      color: #fff;
+      border: none;
       border-radius: 4px;
-      padding: 0.75rem 1.5rem; 
-      font-size: 0.9rem; 
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
       cursor: pointer;
     }
-    .btn-save-passenger:hover, .btn-pay-pal:hover {
-      background: #005dbf; 
+    .btn-save-passenger:hover {
+      background: #005dbf;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     .navigation {
-      margin-top: 1rem; 
+      margin-top: 1rem;
       text-align: right;
     }
 
     /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
     .reservation-gifts-card {
-      background: #fff; 
-      border: 1px solid #efefef; 
+      background: #fff;
+      border: 1px solid #efefef;
       border-radius: 10px;
-      padding: 25px 30px; 
+      padding: 25px 30px;
       box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
     }
     .reserva-item {
-      display: grid; 
-      grid-template-columns: auto 1fr auto; 
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       gap: 1rem;
-      padding: 0.75rem 0; 
-      border-bottom: 1px solid #eee; 
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
       margin-bottom: 0.75rem;
       align-items: center;
     }
     .reserva-item:last-child {
-      border-bottom: none; 
+      border-bottom: none;
       margin-bottom: 0;
     }
-    .reserva-left { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 0.25rem; 
+    .reserva-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }
     .reserva-left .categoria {
-      font-size: 0.85rem; 
-      font-weight: 600; 
+      font-size: 0.85rem;
+      font-weight: 600;
       color: #007aff;
     }
     .reserva-left .nome {
-      font-size: 0.85rem; 
+      font-size: 0.85rem;
       color: #333;
     }
     .reserva-left .subinfo {
-      font-size: 0.8rem; 
+      font-size: 0.8rem;
       color: #888;
     }
     .reserva-preco {
-      font-size: 1rem; 
-      font-weight: 700; 
-      color: #00c853; 
+      font-size: 1rem;
+      font-weight: 700;
+      color: #00c853;
       text-align: right;
     }
     .reserva-details p {
-      font-size: 0.8rem; 
-      margin: 2px 0; 
+      font-size: 0.8rem;
+      margin: 2px 0;
       color: #555;
     }
     .resumo-compra {
-      margin-top: 20px; 
-      padding-top: 15px; 
+      margin-top: 20px;
+      padding-top: 15px;
       border-top: 1px solid #eee;
     }
     .resumo-compra .resumo-row {
-      display: flex; 
-      justify-content: space-between; 
+      display: flex;
+      justify-content: space-between;
       margin-bottom: 10px;
     }
-    .resumo-compra .resumo-row label { font-weight: 600; }
-    .resumo-compra .resumo-row p { font-weight: 600; margin: 0; }
-    .resumo-compra .cupom { margin-top: 15px; }
-    .resumo-compra .cupom label { font-weight: 600; }
-
-    /* ===== STEP CONTENTS ===== */
-    .step-content { 
-      display: none; 
-    }
-    .step-content.active { 
-      display: block; 
-    }
-
-    /* ===== STEP 3: PAGAMENTO (Inputs manuais) ===== */
-    #card-container {
-      margin-top: 1rem; 
-      background: #fafafa; 
-      border: 1px solid #ddd;
-      border-radius: 8px; 
-      padding: 1.5rem;
-    }
-    #card-container .form-field input {
-      height: 44px;
-    }
-    #installments {
-      width: 100%; 
-      border: 1px solid #ccc; 
-      border-radius: 6px;
-      padding: 0.4rem; 
-      margin-top: 0.2rem;
-    }
-    #checkout-form button.btn-pay-pal {
-      margin-top: 1rem; 
-      width: 100%; 
+    .resumo-compra .resumo-row label {
       font-weight: 600;
     }
-    /* ===== NOVOS CONTAINERS MALGA ===== */
-    #pix-container, #boleto-container {
-      margin-top: 1rem; 
-      background: #fafafa; 
-      border: 1px solid #ddd;
-      border-radius: 8px; 
-      padding: 1.5rem;
+    .resumo-compra .resumo-row p {
+      font-weight: 600;
+      margin: 0;
+    }
+    .resumo-compra .cupom {
+      margin-top: 15px;
+    }
+    .resumo-compra .cupom label {
+      font-weight: 600;
+    }
+
+    /* ===== STEP CONTENTS ===== */
+    .step-content {
+      display: none;
+    }
+    .step-content.active {
+      display: block;
     }
 
     /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
     .btn-add-passenger {
-      display: block; 
-      width: 100%; 
-      background: #fff; 
+      display: block;
+      width: 100%;
+      background: #fff;
       border: 1px solid #dcdcdc;
-      border-radius: 8px; 
-      padding: 1rem 0; 
-      color: #1f2b47; 
+      border-radius: 8px;
+      padding: 1rem 0;
+      color: #1f2b47;
       text-align: center;
-      margin: 1rem auto; 
-      font-weight: 600; 
+      margin: 1rem auto;
+      font-weight: 600;
       font-size: 1rem;
     }
     .btn-add-passenger:hover {
-      background: #f1f5f9; 
+      background: #f1f5f9;
       color: #365cf5;
     }
 
     /* ===== MODAL (GENÉRICO) ===== */
     .modal {
-      display: none; 
-      position: fixed; 
-      z-index: 1000; 
-      left: 0; 
-      top: 0; 
-      width: 100%; 
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
       height: 100%;
-      overflow: auto; 
+      overflow: auto;
       background-color: rgba(0,0,0,0.5);
     }
     .modal-content {
-      background-color: #fff; 
-      margin: 5% auto; 
-      padding: 20px 25px; 
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 20px 25px;
       border-radius: 12px;
-      width: 90%; 
-      max-width: 700px; 
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2); 
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       position: relative;
     }
     .close-modal {
-      position: absolute; 
-      right: 15px; 
-      top: 10px; 
-      font-size: 24px; 
-      font-weight: bold; 
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 24px;
+      font-weight: bold;
       cursor: pointer;
     }
     .modal-content h3 {
-      font-size: 1.2rem; 
-      margin-bottom: 0.5rem; 
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
       color: #333;
     }
     .modal-subtitle {
-      font-size: 0.9rem; 
-      color: #555; 
-      margin-bottom: 1.5rem; 
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 1.5rem;
       line-height: 1.4;
     }
     .passenger-box {
-      background: #fff; 
-      border: 1px solid #ddd; 
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      padding: 1rem; 
-      margin-bottom: 1rem; 
+      padding: 1rem;
+      margin-bottom: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .passenger-box h4 { 
-      font-size: 1rem; 
-      margin-bottom: 0.5rem; 
-      color: #333; 
+    .passenger-box h4 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #333;
     }
     .fields-grid-2cols-modal {
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 1rem; 
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
       margin-bottom: 1rem;
     }
-    .copy-for-all-btn { 
-      background: #365cf5; 
-      color: #fff; 
-      margin-right: 1rem; 
+    .copy-for-all-btn {
+      background: #365cf5;
+      color: #fff;
+      margin-right: 1rem;
     }
 
     /* ===== STEP 2: TABELA DE COMPARAÇÃO (4 colunas) ===== */
     .plans-comparison {
-      width: 100%; 
-      overflow-x: auto; 
-      background: #f9f9f9; 
+      width: 100%;
+      overflow-x: auto;
+      background: #f9f9f9;
       border-radius: 8px;
-      padding: 1rem; 
+      padding: 1rem;
       margin-bottom: 1rem;
     }
     .comparison-table {
-      width: 100%; 
-      border-collapse: collapse; 
+      width: 100%;
+      border-collapse: collapse;
       text-align: center;
     }
-    .comparison-table thead tr { 
-      background: #fdfdfd; 
+    .comparison-table thead tr {
+      background: #fdfdfd;
     }
     .comparison-table th,
     .comparison-table td {
       padding: 1rem;
       border-bottom: 1px solid #eee;
-      font-size: 0.85rem; 
+      font-size: 0.85rem;
       vertical-align: middle;
     }
     .comparison-table thead th {
-      font-weight: 600; 
-      font-size: 0.9rem; 
-      color: #333; 
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
       border-bottom: 2px solid #ddd;
     }
     .comparison-table tfoot td {
-      border-top: 2px solid #ddd; 
-      font-weight: 600; 
+      border-top: 2px solid #ddd;
+      font-weight: 600;
       padding: 1rem;
     }
     .comparison-table td:first-child {
@@ -388,60 +380,61 @@
       font-weight: 500;
     }
     .comparison-table input[type="radio"] {
-      transform: scale(1.2); 
+      transform: scale(1.2);
       cursor: pointer;
       margin-top: 15px;
     }
-    .check { 
-      color: #00c853; 
-      font-weight: 700; 
+    .check {
+      color: #00c853;
+      font-weight: 700;
     }
-    .x { 
-      color: #d32f2f; 
-      font-weight: 700; 
+    .x {
+      color: #d32f2f;
+      font-weight: 700;
     }
     .price {
-      font-size: 1rem; 
-      color: #333; 
-      font-weight: 700; 
-      margin-bottom: 0.5rem; 
+      font-size: 1rem;
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
       display: block;
     }
     .recommended {
-      background: #e8f1ff; 
+      background: #e8f1ff;
       position: relative;
     }
     .recommended::after {
-      content: "Recomendado"; 
-      position: absolute; 
-      top: -10px; 
+      content: "Recomendado";
+      position: absolute;
+      top: -10px;
       right: 50%;
-      transform: translateX(50%); 
-      background: #007aff; 
+      transform: translateX(50%);
+      background: #007aff;
       color: #fff;
-      font-size: 0.7rem; 
-      font-weight: 600; 
-      padding: 0.3rem 0.6rem; 
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
       border-radius: 8px;
     }
 
     /* ===== MODAL DETALHES MELHORADO ===== */
     .coverage-table {
-      width: 100%; 
-      border-collapse: collapse; 
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 1rem;
     }
     .coverage-table thead {
       background: #f1f5f9;
     }
-    .coverage-table th, .coverage-table td {
-      padding: 8px; 
-      border: 1px solid #ddd; 
-      text-align: left; 
+    .coverage-table th,
+    .coverage-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
       font-size: 0.85rem;
     }
     .coverage-table th {
-      font-weight: 600; 
+      font-weight: 600;
       color: #333;
     }
     .coverage-table td {
@@ -697,54 +690,26 @@
         </div>
       </div>
 
-      <!-- STEP 3: Pagamento -->
-        <div class="step-content" data-step="3">
-          <div class="card-style-1">
-            <h2>Pagamento</h2>
-            <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
-            <div class="form-field">
-              <label>Método de Pagamento</label>
-              <div>
-                <input type="radio" id="methodCard" name="paymentMethod" value="card" checked />
-                <label for="methodCard">Cartão de Crédito</label>
-                <input type="radio" id="methodPix" name="paymentMethod" value="pix" />
-                <label for="methodPix">Pix</label>
-                <input type="radio" id="methodBoleto" name="paymentMethod" value="boleto" />
-                <label for="methodBoleto">Boleto</label>
-              </div>
-            </div>
-            <!-- Formulário para Hosted Fields do Cartão -->
-            <form id="checkout-form">
-              <div id="card-container">
-                <div class="form-field">
-                  <label>Número do Cartão</label>
-                  <div id="card-number" class="form-control"></div>
-                </div>
-                <div class="form-field">
-                  <label>Nome do Titular</label>
-                  <div id="card-holder-name" class="form-control"></div>
-                </div>
-                <div class="fields-grid-2cols">
-                  <div class="form-field">
-                    <label>Data de Expiração (MM/AA)</label>
-                    <div id="card-expiration-date" class="form-control"></div>
-                  </div>
-                  <div class="form-field">
-                    <label>CVV</label>
-                    <div id="card-cvv" class="form-control"></div>
-                  </div>
-                </div>
-                <button type="submit" class="btn-pay-pal">Pagar</button>
-              </div>
-            </form>
-            <!-- Containers para Pix e Boleto -->
-            <div id="pix-container" style="display:none;"></div>
-            <div id="boleto-container" style="display:none;"></div>
-            <div class="navigation">
-              <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-            </div>
+      <!-- STEP 3: Pagamento (Trocado para Malga Checkout) -->
+      <div class="step-content" data-step="3">
+        <div class="card-style-1">
+          <h2>Pagamento</h2>
+          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
+          
+          <!-- Componente do Malga Checkout -->
+          <malga-checkout
+            sandbox="true" <!-- Define que será ambiente de testes -->
+            public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
+            client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
+            merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
+          >
+          </malga-checkout>
+
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
           </div>
         </div>
+      </div>
 
       <!-- STEP 4: Confirmação -->
       <div class="step-content" data-step="4">
@@ -1010,7 +975,11 @@
     </div>
   </div>
 
-  <!-- IMPORTA O ARQUIVO EMPACOTADO PELO VITE (main.js) -->
+  <!-- 
+    Script principal (empacotado pelo Vite ou outro bundler). 
+    Ele conterá a configuração do <malga-checkout> (paymentMethods, transactionConfig, etc.)
+    e a lógica para Steps 1, 2 e 4.
+  -->
   <script type="module" src="/assets/main.js"></script>
 </body>
 </html>
