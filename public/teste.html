@@ -1,31 +1,307 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exibição de Imagens</title>
-    <style>
-        /* Estilos simples para a galeria */
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .image-container {
-            width: 200px;
-            margin: 10px;
-        }
-        .image-container img {
-            width: 100%;
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Exemplo de Pagamento</title>
+  <!-- Estilos básicos -->
+  <style>
+    .hidden { display: none; }
+    .malga-hosted-field {
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      width: 300px; 
+      height: 40px; 
+      margin: 8px 0;
+      position: relative;
+    }
+    .malga-hosted-field-focused {
+      border-color: blue;
+    }
+    .malga-hosted-field-valid {
+      border-color: green;
+    }
+    .malga-hosted-field-invalid {
+      border-color: red;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Galeria de Imagens</h1>
-    <div id="image-gallery" class="gallery"></div>
+<h1>Pagamento Exemplo</h1>
 
-    <script src="js/aquele.js"></script>
+<!-- Escolha de método de pagamento -->
+<label>
+  <input type="radio" name="paymentMethod" value="card" checked />
+  Cartão
+</label>
+<label>
+  <input type="radio" name="paymentMethod" value="pix" />
+  PIX
+</label>
+<label>
+  <input type="radio" name="paymentMethod" value="boleto" />
+  Boleto
+</label>
+
+<hr />
+
+<!-- Container do CARTÃO -->
+<div id="card-container">
+  <form id="checkout-form" style="display: flex; flex-direction: column; max-width: 300px;">
+    <!-- Div onde vai o iframe do número do cartão -->
+    <label>Número do Cartão</label>
+    <div id="card-number" class="malga-hosted-field"></div>
+
+    <!-- Div onde vai o iframe do nome do titular -->
+    <label>Nome do Titular</label>
+    <div id="card-holder-name" class="malga-hosted-field"></div>
+
+    <!-- Div onde vai o iframe da data de validade -->
+    <label>Validade</label>
+    <div id="card-expiration-date" class="malga-hosted-field"></div>
+
+    <!-- Div onde vai o iframe do CVV -->
+    <label>CVV</label>
+    <div id="card-cvv" class="malga-hosted-field"></div>
+
+    <!-- Botão de submit -->
+    <button type="submit">Pagar com Cartão</button>
+  </form>
+</div>
+
+<!-- Container do PIX -->
+<div id="pix-container" class="hidden">
+  <button id="generatePixBtn">Gerar Pix</button>
+  <div id="pixCodeDisplay"></div>
+</div>
+
+<!-- Container do Boleto -->
+<div id="boleto-container" class="hidden">
+  <button id="generateBoletoBtn">Gerar Boleto</button>
+  <div id="boletoDisplay"></div>
+</div>
+
+<!-- Script do Hosted Fields da Malga (exemplo) -->
+<script>
+  // OU então você já embutiu o script "bundle" no seu HTML.
+  
+  // ==========================
+  // 2) CONFIGURAR TOKENIZAÇÃO
+  // ==========================
+  // Exemplo: instanciar a tokenização:
+  
+  const malgaApiKey    = "bfabc953-1ea0-45d0-95e4-4968cfe2a00e";
+  const malgaClientId  = "4457c178-0f07-4589-ba0e-954e5816fd0f";
+
+  // Em ambiente de sandbox, use:
+  const myMalga = new MalgaTokenization({
+    apiKey: malgaApiKey,
+    clientId: malgaClientId,
+    options: {
+      sandbox: true,
+      // Aqui vão as configurações específicas dos hosted fields
+      config: {
+        fields: {
+          cardNumber: {
+            container: "card-number",
+            type: "text",
+            placeholder: "Número do Cartão",
+            needMask: true,
+            defaultValidation: true
+          },
+          cardHolderName: {
+            container: "card-holder-name",
+            type: "text",
+            placeholder: "Nome do Titular",
+            needMask: false,
+            defaultValidation: true
+          },
+          cardExpirationDate: {
+            container: "card-expiration-date",
+            type: "text",
+            placeholder: "MM/AA",
+            needMask: true,
+            defaultValidation: true
+          },
+          cardCvv: {
+            container: "card-cvv",
+            type: "text",
+            placeholder: "CVV",
+            needMask: true,
+            defaultValidation: true
+          }
+        },
+        styles: {
+          input: {
+            color: "black",
+            "font-size": "14px"
+          },
+          ":focus": {
+            color: "blue"
+          }
+        }
+      }
+    }
+  });
+
+  // Se quiser escutar eventos de erro, foco, etc.
+  myMalga.on("error", (error) => {
+    console.error("Erro Malga:", error);
+  });
+
+  // ==========================
+  // 3) FUNÇÃO QUE PEGA O VALOR A SER PAGO
+  // ==========================
+  // Neste exemplo, retorna um valor fixo de R$10.00
+  function getPaymentAmount() {
+    return "10.00";
+  }
+
+  // ==========================
+  // 4) PAGAMENTO COM CARTÃO
+  // ==========================
+  async function handleCardSubmit(event) {
+    event.preventDefault();
+    try {
+      // Tokeniza os dados do cartão
+      const { tokenId, error } = await myMalga.tokenize();
+      
+      if (error) {
+        alert("Falha ao tokenizar o cartão: " + error.message);
+        return;
+      }
+
+      // Depois de tokenizar, envia pro seu backend (ex: /api/malga/create-transaction)
+      const amount = getPaymentAmount();
+      const body = {
+        paymentMethod: "card",
+        paymentToken: tokenId,
+        amount: amount,
+        installments: "1"
+      };
+
+      const response = await fetch("/api/malga/create-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
+      } else {
+        alert("Falha no pagamento: " + (result.message || "Erro desconhecido"));
+      }
+    } catch (e) {
+      console.error("Erro inesperado ao processar pagamento (cartão):", e);
+      alert("Erro inesperado. Veja console para mais detalhes.");
+    }
+  }
+
+  // ==========================
+  // 5) PAGAMENTO PIX
+  // ==========================
+  async function handlePix() {
+    try {
+      const amount = getPaymentAmount();
+      const body = { paymentMethod: "pix", amount: amount };
+
+      const response = await fetch("/api/malga/create-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        document.getElementById("pixCodeDisplay").innerText =
+          "QRCode Pix: " + (result.pixCode || "(retornado pelo backend)");
+      } else {
+        alert("Falha ao gerar Pix: " + (result.message || "Erro desconhecido"));
+      }
+    } catch (error) {
+      console.error("Erro ao gerar Pix:", error);
+      alert("Erro ao gerar Pix. Ver console para detalhes.");
+    }
+  }
+
+  // ==========================
+  // 6) PAGAMENTO BOLETO
+  // ==========================
+  async function handleBoleto() {
+    try {
+      const amount = getPaymentAmount();
+      const body = { paymentMethod: "boleto", amount: amount };
+
+      const response = await fetch("/api/malga/create-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        document.getElementById("boletoDisplay").innerText =
+          "Boleto URL: " + (result.boletoUrl || "(retornado pelo backend)");
+      } else {
+        alert("Falha ao gerar Boleto: " + (result.message || "Erro desconhecido"));
+      }
+    } catch (error) {
+      console.error("Erro ao gerar Boleto:", error);
+      alert("Erro ao gerar Boleto. Ver console para detalhes.");
+    }
+  }
+
+  // ==========================
+  // 7) LÓGICA DE EXIBIR/ESCONDER CAMPOS CONFORME O RADIO SELECIONADO
+  // ==========================
+  function switchPaymentMethod() {
+    const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+
+    const cardDiv   = document.getElementById("card-container");
+    const pixDiv    = document.getElementById("pix-container");
+    const boletoDiv = document.getElementById("boleto-container");
+
+    // Some todos
+    cardDiv.classList.add("hidden");
+    pixDiv.classList.add("hidden");
+    boletoDiv.classList.add("hidden");
+
+    // Mostra só o escolhido
+    if (method === "card") {
+      cardDiv.classList.remove("hidden");
+    } else if (method === "pix") {
+      pixDiv.classList.remove("hidden");
+    } else if (method === "boleto") {
+      boletoDiv.classList.remove("hidden");
+    }
+  }
+
+  // ==========================
+  // 8) INICIALIZA LISTENERS
+  // ==========================
+  window.addEventListener("load", () => {
+    // 8.1) Ao mudar o radio, alternar as seções
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+      radio.addEventListener("change", switchPaymentMethod);
+    });
+
+    // 8.2) Formulário do cartão
+    const checkoutForm = document.getElementById("checkout-form");
+    checkoutForm.addEventListener("submit", handleCardSubmit);
+
+    // 8.3) Botão Pix
+    const generatePixBtn = document.getElementById("generatePixBtn");
+    generatePixBtn.addEventListener("click", handlePix);
+
+    // 8.4) Botão Boleto
+    const generateBoletoBtn = document.getElementById("generateBoletoBtn");
+    generateBoletoBtn.addEventListener("click", handleBoleto);
+
+    // 8.5) Já fazer o switch inicial
+    switchPaymentMethod();
+  });
+</script>
+
 </body>
 </html>
