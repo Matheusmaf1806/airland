@@ -28,7 +28,7 @@ const malgaTokenization = new Malga.MalgaTokenization({
   clientId,
   // Tente contornar postMessage se a Malga suportar:
   options: {
-    allowedOrigins: ['*'],
+    allowedOrigins: ["https://business.airland.com.br"],
     config: {
       fields: {
         cardNumber: {
