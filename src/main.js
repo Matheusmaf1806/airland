@@ -21,52 +21,40 @@ const malgaTokenization = new Malga.MalgaTokenization({
   apiKey: 'process.env.NEXT_PUBLIC_MALGA_API_KEY',          // Troque aqui pela sua
   clientId: 'process.env.NEXT_PUBLIC_MALGA_CLIENT_ID',      // Troque aqui pela sua
   options: {
-    // Possível tentativa de contornar postMessage:
-    allowedOrigins: ['*'],          // Se o SDK suportar, isso pode ajudar
     config: {
       fields: {
         cardNumber: {
           container: 'card-number',
+          placeholder: '9999 9999 9999 9999',
           type: 'text',
-          placeholder: 'Número do Cartão',
-          needMask: true,
-          defaultValidation: true
         },
         cardHolderName: {
           container: 'card-holder-name',
+          placeholder: 'Its a test',
           type: 'text',
-          placeholder: 'Nome do Titular',
-          needMask: false,
-          defaultValidation: true
         },
         cardExpirationDate: {
           container: 'card-expiration-date',
+          placeholder: 'MM/YY',
           type: 'text',
-          placeholder: 'MM/AA',
-          needMask: true,
-          defaultValidation: true
         },
         cardCvv: {
           container: 'card-cvv',
+          placeholder: '999',
           type: 'text',
-          placeholder: 'CVV',
-          needMask: true,
-          defaultValidation: true
-        }
+        },
       },
-      sandbox: true,
       styles: {
         input: {
-          color: 'black',
-          'font-size': '14px'
+          color: '#000',
+          'font-size': '16px',
         },
-        ':focus': {
-          color: 'blue'
-        }
-      }
-    }
-  }
-});
+      },
+      preventAutofill: false,
+    },
+    sandbox: true,
+  },
+})
 
 /* =========================================================================
    2) Capturar valor do carrinho (converte "R$ 1.234,56" -> "1234.56")
