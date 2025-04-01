@@ -18,8 +18,8 @@ console.log('Conteúdo do objeto Malga:', Malga);
 // 1) Instanciar MalgaTokenization, com (possivelmente) allowedOrigins = ['*']
 //
 const malgaTokenization = new Malga.MalgaTokenization({
-  apiKey: 'process.env.NEXT_PUBLIC_MALGA_API_KEY',          // Troque aqui pela sua
-  clientId: 'process.env.NEXT_PUBLIC_MALGA_CLIENT_ID',      // Troque aqui pela sua
+  apiKey: process.env.NEXT_PUBLIC_MALGA_API_KEY,          // Troque aqui pela sua
+  clientId: process.env.NEXT_PUBLIC_MALGA_CLIENT_ID,      // Troque aqui pela sua
   options: {
     config: {
       fields: {
