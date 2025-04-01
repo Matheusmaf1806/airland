@@ -1,63 +1,74 @@
 /* =========================================================================
-   main.js - Exemplo Completo
+   main.js - Exemplo Completo - Agora usando env do Next.js
    =========================================================================
-   1) Ajuste "MALGA_API_KEY" e "MALGA_CLIENT_ID" com suas credenciais.
-   2) Se o erro de cross-origin persistir, verifique se a Malga pede
-      "allowedOrigins" ou "trusted domains" no painel deles.
-   3) Esse arquivo supõe que /api/malga/create-transaction chama a Malga
-      (no back-end) e retorna Pix, Boleto ou Payment OK do Cartão.
-   4) Importe no HTML com <script type="module" src="/assets/main.js"></script>.
+   1) Certifique-se de que no Vercel Project Settings (ou .env.local)
+      você definiu:
+        NEXT_PUBLIC_MALGA_API_KEY=<sua chave>
+        NEXT_PUBLIC_MALGA_CLIENT_ID=<seu client ID>
+   2) No seu código, use process.env.NEXT_PUBLIC_MALGA_API_KEY
+      (sem aspas).
+   3) Esse exemplo também contém a parte de Pix, Boleto, Steps etc.
    ========================================================================= */
 
 import * as Malga from '@malga/tokenization';
 
-console.log('Conteúdo do objeto Malga:', Malga);
-// Provavelmente exibe { MalgaTokenization: class {...}, ... }
+console.log('API KEY =>', process.env.NEXT_PUBLIC_MALGA_API_KEY);
+console.log('CLIENT ID =>', process.env.NEXT_PUBLIC_MALGA_CLIENT_ID);
+console.log('Conteúdo do objeto Malga =>', Malga);
 
-//
-// 1) Instanciar MalgaTokenization, com (possivelmente) allowedOrigins = ['*']
-//
 const malgaTokenization = new Malga.MalgaTokenization({
-  apiKey: process.env.NEXT_PUBLIC_MALGA_API_KEY,          // Troque aqui pela sua
-  clientId: process.env.NEXT_PUBLIC_MALGA_CLIENT_ID,      // Troque aqui pela sua
+  apiKey: process.env.NEXT_PUBLIC_MALGA_API_KEY,
+  clientId: process.env.NEXT_PUBLIC_MALGA_CLIENT_ID,
   options: {
+    // Tentar contornar postMessage (se suportado):
+    allowedOrigins: ['*'],
     config: {
       fields: {
         cardNumber: {
           container: 'card-number',
-          placeholder: '9999 9999 9999 9999',
           type: 'text',
+          placeholder: 'Número do Cartão',
+          needMask: true,
+          defaultValidation: true
         },
         cardHolderName: {
           container: 'card-holder-name',
-          placeholder: 'Its a test',
           type: 'text',
+          placeholder: 'Nome do Titular',
+          needMask: false,
+          defaultValidation: true
         },
         cardExpirationDate: {
           container: 'card-expiration-date',
-          placeholder: 'MM/YY',
           type: 'text',
+          placeholder: 'MM/AA',
+          needMask: true,
+          defaultValidation: true
         },
         cardCvv: {
           container: 'card-cvv',
-          placeholder: '999',
           type: 'text',
-        },
+          placeholder: 'CVV',
+          needMask: true,
+          defaultValidation: true
+        }
       },
+      sandbox: true,
       styles: {
         input: {
-          color: '#000',
-          'font-size': '16px',
+          color: 'black',
+          'font-size': '14px'
         },
-      },
-      preventAutofill: false,
-    },
-    sandbox: true,
-  },
-})
+        ':focus': {
+          color: 'blue'
+        }
+      }
+    }
+  }
+});
 
 /* =========================================================================
-   2) Capturar valor do carrinho (converte "R$ 1.234,56" -> "1234.56")
+   1) Função para pegar valor do carrinho (R$ -> número)
    ========================================================================= */
 function getOrderAmount() {
   const totalEl = document.getElementById('totalValue');
@@ -71,12 +82,12 @@ function getOrderAmount() {
 }
 
 /* =========================================================================
-   3) Processar pagamento de Cartão - envia tokenId ao back-end
+   2) processCardPayment: envia token do cartão p/ back-end
    ========================================================================= */
 async function processCardPayment(tokenId) {
   try {
     const amount = getOrderAmount();
-    const installments = '1'; // Ajustar se tiver select de parcelas
+    const installments = '1';
 
     const resp = await fetch('/api/malga/create-transaction', {
       method: 'POST',
@@ -88,26 +99,27 @@ async function processCardPayment(tokenId) {
         installments
       })
     });
+
     const result = await resp.json();
     if (result.success) {
       alert('Pagamento aprovado! Transaction ID: ' + result.transactionId);
-      showStep(4); // Step 4: Confirmação
+      showStep(4);
     } else {
       alert('Falha no pagamento: ' + result.message);
     }
   } catch (err) {
-    console.error('Erro ao processar pagamento (cartão):', err);
+    console.error('Erro ao processar pagamento:', err);
     alert('Erro ao processar pagamento. Tente novamente.');
   }
 }
 
 /* =========================================================================
-   4) Inicializa Hosted Fields (cartão)
+   3) Inicializa Hosted Fields (cartão)
    ========================================================================= */
 function initializeCardForm() {
   const form = document.getElementById('checkout-form');
   if (!form) {
-    console.error('Formulário #checkout-form não encontrado para cartão.');
+    console.error('Formulário #checkout-form não encontrado.');
     return;
   }
   form.addEventListener('submit', async (evt) => {
@@ -116,7 +128,7 @@ function initializeCardForm() {
       const { tokenId, error } = await malgaTokenization.tokenize();
       if (error) {
         console.error('Erro na tokenização do cartão:', error.message);
-        alert('Falha na tokenização do cartão. Veja o console.');
+        alert('Falha na tokenização do cartão.');
         return;
       }
       await processCardPayment(tokenId);
@@ -128,7 +140,7 @@ function initializeCardForm() {
 }
 
 /* =========================================================================
-   5) Fluxo Pix: gerar QR/código chamando back-end
+   4) initializePix: gera QR / código Pix c/ back-end
    ========================================================================= */
 function initializePix() {
   const pixContainer = document.getElementById('pix-container');
@@ -165,7 +177,7 @@ function initializePix() {
 }
 
 /* =========================================================================
-   6) Fluxo Boleto: gerar link chamando back-end
+   5) initializeBoleto: gera link Boleto c/ back-end
    ========================================================================= */
 function initializeBoleto() {
   const boletoContainer = document.getElementById('boleto-container');
@@ -202,7 +214,7 @@ function initializeBoleto() {
 }
 
 /* =========================================================================
-   7) switchPaymentMethod: exibe form de cartão ou container Pix/Boleto
+   6) switchPaymentMethod: exibe form de cartão ou Pix/Boleto
    ========================================================================= */
 function switchPaymentMethod() {
   const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
@@ -228,7 +240,7 @@ function switchPaymentMethod() {
 }
 
 /* =========================================================================
-   8) showStep: gerencia steps (1,2,3,4)
+   7) showStep: gerencia steps (1..4)
    ========================================================================= */
 function showStep(stepNumber) {
   const stepContents = document.querySelectorAll('.step-content');
@@ -250,7 +262,7 @@ function showStep(stepNumber) {
 }
 
 /* =========================================================================
-   9) Carregar ou simular itens de carrinho
+   8) Carregar / simular items
    ========================================================================= */
 let cartItems = [];
 const cartElement = document.getElementById('shoppingCart');
@@ -284,11 +296,11 @@ if (cartElement && cartElement.items && cartElement.items.length > 0) {
 
 const checkoutData = {
   extraPassengers: [],
-  insuranceSelected: 'none' // ex: "30k", "80k"
+  insuranceSelected: 'none'
 };
 
 /* =========================================================================
-   10) updateCheckoutCart: exibe itens na coluna da direita
+   9) updateCheckoutCart: renderiza carrinho na direita
    ========================================================================= */
 function updateCheckoutCart(items) {
   const container = document.getElementById('cartItemsList');
@@ -329,7 +341,7 @@ function updateCheckoutCart(items) {
 }
 
 /* =========================================================================
-   11) Modal de Passageiros Extras
+   10) Passageiros extras (Modal)
    ========================================================================= */
 const passengerModal  = document.getElementById('passengerModal');
 const openPassengerModalBtn = document.getElementById('openPassengerModal');
@@ -398,7 +410,6 @@ if (savePassengersBtn) {
     alert('Passageiros extras salvos!');
   });
 }
-
 if (copyForAllBtn) {
   copyForAllBtn.addEventListener('click', () => {
     let sourceIndex = null;
@@ -435,7 +446,6 @@ if (copyForAllBtn) {
     alert('Dados copiados para todos os itens compatíveis!');
   });
 }
-
 if (modalPassengerContainer) {
   modalPassengerContainer.addEventListener('input', e => {
     const target = e.target;
@@ -458,7 +468,7 @@ if (modalPassengerContainer) {
 }
 
 /* =========================================================================
-   12) Lógicas de Steps
+   11) Steps (1..3..4)
    ========================================================================= */
 const toStep2Btn     = document.getElementById('toStep2');
 const backToStep1Btn = document.getElementById('backToStep1');
@@ -478,7 +488,6 @@ if (toStep2Btn) {
         alert('Preencha os campos obrigatórios antes de continuar.');
         return;
       }
-      // salva no checkoutData
       checkoutData.firstName = document.getElementById('firstName').value;
       checkoutData.lastName  = document.getElementById('lastName').value;
       checkoutData.celular   = document.getElementById('celular').value;
@@ -511,13 +520,11 @@ if (toStep2Btn) {
     showStep(2);
   });
 }
-
 if (backToStep1Btn) {
   backToStep1Btn.addEventListener('click', () => {
     showStep(1);
   });
 }
-
 if (toStep3Btn) {
   toStep3Btn.addEventListener('click', () => {
     const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
@@ -532,12 +539,10 @@ if (toStep3Btn) {
     checkoutData.insuranceCost = insuranceCost;
 
     updateCheckoutCart(cartItems);
-
     showStep(3);
-    switchPaymentMethod(); // Exibe cartão/pix/boleto
+    switchPaymentMethod();
   });
 }
-
 if (backToStep2Btn) {
   backToStep2Btn.addEventListener('click', () => {
     showStep(2);
@@ -545,7 +550,7 @@ if (backToStep2Btn) {
 }
 
 /* =========================================================================
-   13) CEP / CPF / RG - máscaras e auto-complete
+   12) CEP / CPF / RG
    ========================================================================= */
 function buscarCEP(cep) {
   cep = cep.replace(/\D/g, '');
@@ -574,7 +579,6 @@ if (cepInput) {
     buscarCEP(this.value);
   });
 }
-
 const cpfInput = document.getElementById('cpf');
 if (cpfInput) {
   cpfInput.addEventListener('input', function(e) {
@@ -591,7 +595,6 @@ if (cpfInput) {
     e.target.value = value;
   });
 }
-
 const rgInput = document.getElementById('rg');
 if (rgInput) {
   rgInput.addEventListener('input', function(e) {
@@ -610,7 +613,7 @@ if (rgInput) {
 }
 
 /* =========================================================================
-   14) Login / Registro simples
+   13) Login / Registro
    ========================================================================= */
 const toggleLoginLink         = document.getElementById('toggleLogin');
 const registrationFieldsGeneral= document.getElementById('registrationFieldsGeneral');
@@ -659,7 +662,7 @@ if (loginValidateBtn) {
 }
 
 /* =========================================================================
-   15) Ao carregar a página => Step 1 e ver se user está logado
+   14) window load => Step 1, checa se logado, exibe carrinho
    ========================================================================= */
 window.addEventListener('load', () => {
   showStep(1);
@@ -672,6 +675,6 @@ window.addEventListener('load', () => {
     if (toggleLoginLink) toggleLoginLink.style.display = 'block';
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = 'block';
   }
-  // Renderizar carrinho
+
   updateCheckoutCart(cartItems);
 });
