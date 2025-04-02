@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////
 // server.js (ESM) - Versão Final Integrando Hotelbeds,
-// PayPal, Braintree e Malga (tokenização + 3DS)
+// PayPal, Braintree, Malga (tokenização + 3DS) e hbacti
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -15,7 +15,7 @@ import { createClient } from "@supabase/supabase-js";
 // 1) Carregar variáveis do .env
 dotenv.config();
 
-// 2) Resolver __dirname em modo ESM
+// 2) Resolver __filename em modo ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -47,8 +47,13 @@ import payRouter from "./routes/pay.routes.js"; // Rota de pagamento (PayPal ou 
 // ------------- Rotas da Malga: Tokenização + 3DS -----------
 import { malgaRouter } from "./routes/malga.routes.js";
 
-// E outras se já existirem (braintree, etc.)
-import { gateway } from "./api/braintree.js"; // Exemplo
+// Exemplo Braintree
+import { gateway } from "./api/braintree.js";
+
+// ------------------------------------------------------
+// IMPORTAR ROTA EXEMPLO DE HOTELBEDS ACTIVITIES (hbacti)
+// ------------------------------------------------------
+import hbactiRouter from "./routes/hbacti.js";
 
 // ------------------------------------------------------
 // Vincular as rotas
@@ -59,10 +64,9 @@ app.use("/api", cartRoutes);
 app.get("/api/getLatestDollar", getLatestDollar);
 app.use("/api/users", userRoutes);
 app.get("/api/affiliateColors", getAffiliateColors);
-app.use("/api/pay", payRouter); // Rota PayPal
-
-// Novo: rota Malga (tokenize-card e verify-3ds)
-app.use("/api/malga", malgaRouter);
+app.use("/api/pay", payRouter);        // Rota PayPal
+app.use("/api/malga", malgaRouter);    // Rota Malga (tokenização + 3DS)
+app.use("/api/hbacti", hbactiRouter);  // Rota de atividades (Hotelbeds Activities)
 
 // ------------------------------------------------------
 // Rota principal (teste)
@@ -71,17 +75,17 @@ app.get("/", (req, res) => {
 });
 
 // ------------------------------------------------------
-// Função para gerar assinatura de requests (Hotelbeds)
+// Função para gerar assinatura (Hotelbeds - Hotels API)
 function generateSignature() {
-  const publicKey = process.env.API_KEY_HH;   // ex.: "123456..."
-  const privateKey = process.env.SECRET_KEY_HH;  // ex.: "abcXYZ..."
+  const publicKey = process.env.API_KEY_HH;    // ex.: "123456..."
+  const privateKey = process.env.SECRET_KEY_HH; // ex.: "abcXYZ..."
   const utcDate = Math.floor(Date.now() / 1000);
   const assemble = `${publicKey}${privateKey}${utcDate}`;
   return crypto.createHash("sha256").update(assemble).digest("hex");
 }
 
 // ------------------------------------------------------
-// Rota GET para Preço / Disponibilidade (Hotelbeds)
+// Rota GET para Preço / Disponibilidade (Hotelbeds - Hotels)
 app.get("/api/hotelbeds/hotels", async (req, res) => {
   try {
     const { checkIn, checkOut, destination } = req.query;
@@ -106,7 +110,7 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
       "Api-key": process.env.API_KEY_HH,
       "X-Signature": signature,
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     };
 
     const bodyData = {
@@ -123,7 +127,9 @@ app.get("/api/hotelbeds/hotels", async (req, res) => {
 
     const result = await response.json();
     if (!response.ok) {
-      return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Booking)" });
+      return res
+        .status(response.status)
+        .json({ error: result.error || "Erro na API Hotelbeds (Booking)" });
     }
     return res.json(result);
   } catch (err) {
@@ -138,7 +144,9 @@ app.get("/api/hotelbeds/hotel-content", async (req, res) => {
   try {
     const { hotelCode } = req.query;
     if (!hotelCode) {
-      return res.status(400).json({ error: "O parâmetro 'hotelCode' é obrigatório." });
+      return res
+        .status(400)
+        .json({ error: "O parâmetro 'hotelCode' é obrigatório." });
     }
 
     const signature = generateSignature();
@@ -147,13 +155,15 @@ app.get("/api/hotelbeds/hotel-content", async (req, res) => {
       "Api-key": process.env.API_KEY_HH,
       "X-Signature": signature,
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     };
 
     const response = await fetch(url, { method: "GET", headers });
     const result = await response.json();
     if (!response.ok) {
-      return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds (Content)" });
+      return res
+        .status(response.status)
+        .json({ error: result.error || "Erro na API Hotelbeds (Content)" });
     }
     return res.json(result);
   } catch (err) {
@@ -172,7 +182,7 @@ app.post("/proxy-hotelbeds", async (req, res) => {
       "Api-key": process.env.API_KEY_HH,
       "X-Signature": signature,
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      Accept: "application/json"
     };
 
     const bodyData = {
@@ -192,7 +202,9 @@ app.post("/proxy-hotelbeds", async (req, res) => {
 
     const result = await response.json();
     if (!response.ok) {
-      return res.status(response.status).json({ error: result.error || "Erro na API Hotelbeds" });
+      return res
+        .status(response.status)
+        .json({ error: result.error || "Erro na API Hotelbeds" });
     }
     return res.json(result);
   } catch (err) {
@@ -237,7 +249,7 @@ app.post("/api/braintree/create-transaction", async (req, res) => {
 });
 
 // ------------------------------------------------------
-// Iniciar o servidor localmente (para ambiente não serverless)
+// Subir o servidor localmente (para ambiente não-serverless)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
