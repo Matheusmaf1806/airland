@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////
 // server.js (ESM) - Versão Final Integrando Hotelbeds,
-// PayPal, Braintree, Malga (tokenização + 3DS) e hbacti
+// PayPal, Braintree, Malga (tokenização + 3DS) e hbacti,
+// com rota /checkout para form-handling-tokenization.
 ///////////////////////////////////////////////////////////
 
 import express from "express";
@@ -27,8 +28,12 @@ const supabase = createClient(
 
 // 4) Inicializar Express
 const app = express();
-app.use(express.json());
 app.use(cors());
+
+// Caso você queira receber tanto JSON quanto dados de form-urlencoded
+// (por exemplo, se o formulário Malga estiver enviando dados via POST):
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 5) Servir arquivos estáticos a partir de /public
 app.use(express.static(path.join(__dirname, "public")));
@@ -69,15 +74,36 @@ app.use("/api/malga", malgaRouter);    // Rota Malga (tokenização + 3DS)
 app.use("/api/hbacti", hbactiRouter);  // Rota de atividades (Hotelbeds Activities)
 
 // ------------------------------------------------------
-// Rota principal (teste)
+// ROTA PRINCIPAL (teste)
 app.get("/", (req, res) => {
   res.send("Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree e Malga!");
 });
 
 // ------------------------------------------------------
+// Rota /checkout (Exemplo da form-handling-tokenization)
+app.post("/checkout", async (req, res) => {
+  try {
+    // Se o token estiver funcionando, aqui você terá algo como:
+    // {
+    //   holderName: "Nome Exemplo",
+    //   number: "tok_xxx",
+    //   expirationDate: "12/30",
+    //   cvv: "tok_yyy"
+    // }
+    console.log("Dados recebidos do formulário Malga:", req.body);
+
+    // Mande de volta só para teste/visualização
+    return res.json({ data: JSON.stringify(req.body, null, 2) });
+  } catch (error) {
+    console.error("Erro no /checkout:", error);
+    return res.json({ status: "failed", error: error.message });
+  }
+});
+
+// ------------------------------------------------------
 // Função para gerar assinatura (Hotelbeds - Hotels API)
 function generateSignature() {
-  const publicKey = process.env.API_KEY_HH;    // ex.: "123456..."
+  const publicKey = process.env.API_KEY_HH;     // ex.: "123456..."
   const privateKey = process.env.SECRET_KEY_HH; // ex.: "abcXYZ..."
   const utcDate = Math.floor(Date.now() / 1000);
   const assemble = `${publicKey}${privateKey}${utcDate}`;
@@ -255,4 +281,5 @@ app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
 
+// Export default para eventuais usos (não é obrigatório)
 export default app;
