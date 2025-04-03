@@ -1,13 +1,133 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Malga Tokenization</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"
+    />
+
+    <!-- Script do Malga Checkout SDK -->
+    <script
+      type="module"
+      src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
+    ></script>
+
+    <title>Malga Checkout Example</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <main>
+      <!-- Componente Web do Malga Checkout -->
+      <malga-checkout
+        id="malga-checkout"
+        sandbox="false"
+        public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
+        client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
+        merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
+      >
+      </malga-checkout>
+    </main>
+
+    <script>
+      // Seleciona o componente <malga-checkout> no DOM
+      const malgaCheckout = document.querySelector('malga-checkout');
+
+      // Exemplo de config de métodos de pagamento
+      malgaCheckout.paymentMethods = {
+        pix: {
+          expiresIn: 600,
+          items: [
+            {
+              id: "123",
+              title: "Produto Exemplo - PIX",
+              quantity: 1,
+              unitPrice: 100,
+            },
+          ],
+        },
+        credit: {
+          installments: {
+            quantity: 1,
+            show: true,
+          },
+          showCreditCard: true,
+        },
+        boleto: {
+          expiresDate: "2025-12-31",
+          instructions: "Instruções de pagamento do boleto",
+          interest: {
+            days: 1,
+            amount: 100,
+          },
+          fine: {
+            days: 2,
+            amount: 200,
+          },
+          items: [
+            {
+              id: "123",
+              title: "Produto Exemplo - Boleto",
+              quantity: 1,
+              unitPrice: 100,
+            },
+          ],
+        },
+        drip: {
+          items: [
+            {
+              id: "123",
+              title: "Produto Exemplo - Drip",
+              quantity: 1,
+              unitPrice: 100,
+            },
+          ],
+          browser: {
+            ipAddress: "127.0.0.1",
+            browserFingerprint: "123123123",
+          },
+          successRedirectUrl: "https://example.com",
+          cancelRedirectUrl: "https://example.com",
+        },
+        nupay: {
+          taxValue: 10,
+          delayToAutoCancel: 60,
+          orderUrl: "http://127.0.0.1",
+        },
+      };
+
+      // Configurações de transação
+      malgaCheckout.transactionConfig = {
+        statementDescriptor: "Malga Checkout Example",
+        amount: 100, // Em centavos
+        description: "Demonstração do Malga Checkout",
+        orderId: "pedido-123",
+        customerId: "",
+        currency: "BRL",
+        capture: false,
+        customer: null,
+      };
+
+      // Configurações do diálogo (modal) de status
+      malgaCheckout.dialogConfig = {
+        show: true,
+        actionButtonLabel: "Continuar",
+        errorActionButtonLabel: "Tentar novamente",
+        successActionButtonLabel: "Continuar",
+        successRedirectUrl: "https://www.malga.io/",
+        pixFilledProgressBarColor: "#2FAC9B",
+        pixEmptyProgressBarColor: "#D8DFF0",
+      };
+
+      // Listeners de eventos
+      malgaCheckout.addEventListener("paymentSuccess", (event) => {
+        console.log("Pagamento concluído com sucesso:", event.detail);
+        // Exemplo: Redirecionar ou mostrar mensagem
+      });
+
+      malgaCheckout.addEventListener("paymentFailed", (event) => {
+        console.log("Falha no pagamento:", event.detail);
+        // Exemplo: Mostrar mensagem de erro
+      });
+    </script>
   </body>
 </html>
