@@ -476,7 +476,6 @@
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
-          <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
@@ -502,7 +501,6 @@
 
             <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
             <div id="registrationFieldsGeneral">
-              <!-- Nome e Sobrenome -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Nome *</label>
@@ -513,7 +511,6 @@
                   <input type="text" id="lastName" placeholder="Sobrenome">
                 </div>
               </div>
-              <!-- Celular e E-mail -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Celular *</label>
@@ -524,7 +521,6 @@
                   <input type="email" id="email" placeholder="seuemail@exemplo.com">
                 </div>
               </div>
-              <!-- Senha e Repetir Senha -->
               <div class="fields-grid-2cols">
                 <div class="form-field">
                   <label>Senha *</label>
@@ -768,7 +764,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- [Pode repetir as linhas da tabela, sem encurtar] -->
+          <!-- [Repetir linhas se quiser, sem encurtar.] -->
         </tbody>
       </table>
     </div>
@@ -787,17 +783,17 @@
           </tr>
         </thead>
         <tbody>
-          <!-- [Pode repetir as linhas da tabela, sem encurtar] -->
+          <!-- [Repetir linhas se quiser, sem encurtar.] -->
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- SCRIPT INLINE: TODA A LÓGICA DE STEPS E PAGAMENTO -->
+  <!-- SCRIPT INLINE: Toda a Lógica de Steps e Pagamento -->
   <script type="module">
-    /*******************************************************
-     *                showStep (Muda Steps)
-     *******************************************************/
+    /* =========================
+       1. showStep
+    ==========================*/
     function showStep(stepNumber) {
       const stepContents = document.querySelectorAll(".step-content");
       const stepButtons = document.querySelectorAll(".steps-menu .step");
@@ -817,9 +813,9 @@
       });
     }
 
-    /*******************************************************
-     *                Dados Principais
-     *******************************************************/
+    /* =========================
+       2. Dados Principais
+    ==========================*/
     let checkoutData = {
       extraPassengers: [],
       insuranceSelected: "none",
@@ -841,6 +837,7 @@
     };
 
     let cartItems = [];
+
     function loadCartItems() {
       const cartElement = document.getElementById("shoppingCart");
       if (cartElement && cartElement.items && cartElement.items.length > 0) {
@@ -911,9 +908,9 @@
         "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
     }
 
-    /*******************************************************
-     *                Modal Passageiros
-     *******************************************************/
+    /* =========================
+       3. Modal Passageiros
+    ==========================*/
     function createModalPassengerForms(items) {
       const modalPassengerContainer = document.getElementById("modalPassengerContainer");
       const copyForAllBtn = document.getElementById("copyForAllBtn");
@@ -962,6 +959,7 @@
 
       copyForAllBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
     }
+
     function handlePassengerModal() {
       const passengerModal = document.getElementById("passengerModal");
       const openPassengerModalBtn = document.getElementById("openPassengerModal");
@@ -1046,9 +1044,9 @@
       });
     }
 
-    /*******************************************************
-     *                Steps 1 e 2
-     *******************************************************/
+    /* =========================
+       4. Steps 1 e 2
+    ==========================*/
     function initStepOneTwoListeners() {
       const toStep2Btn = document.getElementById("toStep2");
       const backToStep1Btn = document.getElementById("backToStep1");
@@ -1059,7 +1057,6 @@
       toStep2Btn.addEventListener("click", () => {
         const isLoggedIn = !!localStorage.getItem("agentId");
 
-        // Se não estiver logado, valida campos
         if (!isLoggedIn) {
           if (
             !document.getElementById("firstName").value ||
@@ -1080,7 +1077,6 @@
           checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
         }
 
-        // Docs e endereço
         if (
           !document.getElementById("cpf").value ||
           !document.getElementById("rg").value ||
@@ -1129,7 +1125,7 @@
           updateCheckoutCart(cartItems);
           showStep(3);
 
-          // Inicia <malga-checkout>
+          // Inicia <malga-checkout> ao entrar no Step 3
           initMalgaCheckout();
         });
       }
@@ -1140,9 +1136,9 @@
       }
     }
 
-    /*******************************************************
-     *                Máscaras e CEP + Login
-     *******************************************************/
+    /* =========================
+       5. Máscaras e CEP + login
+    ==========================*/
     function initMasksAndCep() {
       function buscarCEP(cep) {
         cep = cep.replace(/\D/g, "");
@@ -1248,14 +1244,13 @@
       }
     }
 
-    /*******************************************************
-     *                INICIALIZA O <malga-checkout> NO STEP 3
-     *******************************************************/
+    /* =========================
+       6. INICIALIZA O <malga-checkout> NO STEP 3
+    ==========================*/
     function initMalgaCheckout() {
       const malgaCheckout = document.querySelector("malga-checkout");
       if (!malgaCheckout) return;
 
-      // Exemplo de configurações
       malgaCheckout.paymentMethods = {
         pix: {
           expiresIn: 600,
@@ -1299,7 +1294,6 @@
         nupay: undefined
       };
 
-      // Pega total do carrinho
       function getOrderTotalInCents() {
         const totalText = document.getElementById("totalValue").textContent;
         let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
@@ -1336,7 +1330,6 @@
         }
       };
 
-      // Configura o dialog
       malgaCheckout.dialogConfig = {
         show: true,
         actionButtonLabel: "Continuar",
@@ -1347,7 +1340,6 @@
         pixEmptyProgressBarColor: "#D8DFF0"
       };
 
-      // Eventos
       malgaCheckout.addEventListener("paymentSuccess", (evt) => {
         console.log("Pagamento OK => ", evt.detail);
         alert("Pagamento aprovado!");
@@ -1360,9 +1352,9 @@
       });
     }
 
-    /*******************************************************
-     *                window.onload
-     *******************************************************/
+    /* =========================
+       7. window.onload
+    ==========================*/
     window.addEventListener("load", () => {
       loadCartItems();
       updateCheckoutCart(cartItems);
@@ -1370,7 +1362,6 @@
       initStepOneTwoListeners();
       handlePassengerModal();
 
-      // Se está logado
       const isLoggedIn = !!localStorage.getItem("agentId");
       const toggleLoginLink = document.getElementById("toggleLogin");
       const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
@@ -1384,7 +1375,7 @@
         if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "block";
       }
 
-      // Inicia no Step 1
+      // Inicia Step 1
       showStep(1);
     });
   </script>
