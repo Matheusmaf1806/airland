@@ -2,308 +2,1386 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Exemplo de Pagamento</title>
+  <title>Checkout</title>
+  <!-- Componente de Header -->
+  <script src="/js/header-component.js" type="module"></script>
 
-  <script src="https://assets.malga.io/sdk/v2/malga-web.js"></script>
-  <!-- Estilos básicos -->
+  <!-- 
+    SDK do Malga Checkout (core). Necessário para exibir e usar o <malga-checkout>.
+    Importante estar acima do nosso script inline, pois precisamos que o componente exista.
+  -->
+  <script
+    type="module"
+    src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
+  ></script>
+
+  <!-- FONT & RESET -->
   <style>
-    .hidden { display: none; }
-    .malga-hosted-field {
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
-      width: 300px; 
-      height: 40px; 
-      margin: 8px 0;
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: "Montserrat", sans-serif;
+      font-weight: 400;
+      color: #5d657b;
+      background: #f1f5f9;
+    }
+    input, select, textarea {
+      font-family: "Montserrat", sans-serif;
+    }
+    a:focus, input:focus, textarea:focus, button:focus {
+      outline: none;
+      box-shadow: none;
+    }
+    button, a {
+      transition: all 0.3s ease-out;
+      cursor: pointer;
+    }
+
+    /* ===== STEPS MENU ===== */
+    .steps-menu {
+      background-color: #365cf5;
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 30px;
+    }
+    .steps-menu .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .steps-menu .circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background-color: #fff;
+      color: #365cf5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .steps-menu .separator {
+      color: #fff;
+      font-weight: bold;
+    }
+    .steps-menu .step.active .circle {
+      background-color: #fff;
+      color: #365cf5;
+      border: 2px solid #fff;
+    }
+    .steps-menu .step.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .main-container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      display: flex;
+      gap: 2rem;
+    }
+    .left-col {
+      flex: 1;
+    }
+    .right-col {
+      width: 400px;
+      flex-shrink: 0;
+    }
+
+    /* ===== CARD STYLE ===== */
+    .card-style-1 {
+      background: #fff;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+      margin-bottom: 20px;
+    }
+
+    /* ===== FORMULÁRIOS & CAMPOS ===== */
+    .fields-grid-2cols {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .fields-grid-3cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1rem;
+    }
+    .form-field label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
+    .form-field input,
+    .form-field select {
+      font-size: 0.85rem;
+      padding: 0.6rem;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: #007aff;
+    }
+    .form-note {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 1rem;
+    }
+
+    /* ===== BOTÕES ===== */
+    .btn-save-passenger {
+      background: #007aff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-save-passenger:hover {
+      background: #005dbf;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .navigation {
+      margin-top: 1rem;
+      text-align: right;
+    }
+
+    /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
+    .reservation-gifts-card {
+      background: #fff;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+    }
+    .reserva-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+    .reserva-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .reserva-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .reserva-left .categoria {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #007aff;
+    }
+    .reserva-left .nome {
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .reserva-left .subinfo {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .reserva-preco {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #00c853;
+      text-align: right;
+    }
+    .reserva-details p {
+      font-size: 0.8rem;
+      margin: 2px 0;
+      color: #555;
+    }
+    .resumo-compra {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .resumo-compra .resumo-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .resumo-compra .resumo-row label {
+      font-weight: 600;
+    }
+    .resumo-compra .resumo-row p {
+      font-weight: 600;
+      margin: 0;
+    }
+    .resumo-compra .cupom {
+      margin-top: 15px;
+    }
+    .resumo-compra .cupom label {
+      font-weight: 600;
+    }
+
+    /* ===== STEP CONTENTS ===== */
+    .step-content {
+      display: none;
+    }
+    .step-content.active {
+      display: block;
+    }
+
+    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
+    .btn-add-passenger {
+      display: block;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      padding: 1rem 0;
+      color: #1f2b47;
+      text-align: center;
+      margin: 1rem auto;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .btn-add-passenger:hover {
+      background: #f1f5f9;
+      color: #365cf5;
+    }
+
+    /* ===== MODAL (GENÉRICO) ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 20px 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       position: relative;
     }
-    .malga-hosted-field-focused {
-      border-color: blue;
+    .close-modal {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .malga-hosted-field-valid {
-      border-color: green;
+    .modal-content h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #333;
     }
-    .malga-hosted-field-invalid {
-      border-color: red;
+    .modal-subtitle {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    .passenger-box {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .passenger-box h4 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .fields-grid-2cols-modal {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .copy-for-all-btn {
+      background: #365cf5;
+      color: #fff;
+      margin-right: 1rem;
+    }
+
+    /* ===== STEP 2: TABELA DE COMPARAÇÃO (4 colunas) ===== */
+    .plans-comparison {
+      width: 100%;
+      overflow-x: auto;
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+    .comparison-table thead tr {
+      background: #fdfdfd;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+    .comparison-table thead th {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
+      border-bottom: 2px solid #ddd;
+    }
+    .comparison-table tfoot td {
+      border-top: 2px solid #ddd;
+      font-weight: 600;
+      padding: 1rem;
+    }
+    .comparison-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+    .comparison-table input[type="radio"] {
+      transform: scale(1.2);
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    .check {
+      color: #00c853;
+      font-weight: 700;
+    }
+    .x {
+      color: #d32f2f;
+      font-weight: 700;
+    }
+    .price {
+      font-size: 1rem;
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .recommended {
+      background: #e8f1ff;
+      position: relative;
+    }
+    .recommended::after {
+      content: "Recomendado";
+      position: absolute;
+      top: -10px;
+      right: 50%;
+      transform: translateX(50%);
+      background: #007aff;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+    }
+
+    /* ===== MODAL DETALHES MELHORADO ===== */
+    .coverage-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .coverage-table thead {
+      background: #f1f5f9;
+    }
+    .coverage-table th,
+    .coverage-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    .coverage-table th {
+      font-weight: 600;
+      color: #333;
+    }
+    .coverage-table td {
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <app-header></app-header>
 
-<h1>Pagamento Exemplo</h1>
+  <!-- MENU DE STEPS -->
+  <div class="steps-menu" id="stepsMenu">
+    <div class="step active" data-step="1">
+      <div class="circle">1</div>
+      <span>Passageiros</span>
+    </div>
+    <div class="separator">></div>
+    <div class="step" data-step="2">
+      <div class="circle">2</div>
+      <span>Detalhes</span>
+    </div>
+    <div class="separator">></div>
+    <div class="step" data-step="3">
+      <div class="circle">3</div>
+      <span>Pagamento</span>
+    </div>
+    <div class="separator">></div>
+    <div class="step" data-step="4">
+      <div class="circle">4</div>
+      <span>Confirmação</span>
+    </div>
+  </div>
 
-<!-- Escolha de método de pagamento -->
-<label>
-  <input type="radio" name="paymentMethod" value="card" checked />
-  Cartão
-</label>
-<label>
-  <input type="radio" name="paymentMethod" value="pix" />
-  PIX
-</label>
-<label>
-  <input type="radio" name="paymentMethod" value="boleto" />
-  Boleto
-</label>
+  <!-- CONTAINER PRINCIPAL -->
+  <div class="main-container">
+    <!-- COLUNA ESQUERDA (STEPS) -->
+    <div class="left-col">
+      <!-- STEP 1: Passageiro Principal + Botão Adicionar Passageiros -->
+      <div class="step-content active" data-step="1">
+        <div class="card-style-1">
+          <h2>Passageiro Principal</h2>
+          <!-- Link para Login (exibido se não estiver logado) -->
+          <div style="text-align: right; margin-bottom: 1rem;">
+            <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
+          </div>
 
-<hr />
+          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
+          <div id="topFieldsContainer">
+            <!-- Formulário de Login -->
+            <div id="loginFields" style="display: none;">
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>E-mail *</label>
+                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
+                </div>
+                <div class="form-field">
+                  <label>Senha *</label>
+                  <input type="password" id="loginPassword" placeholder="********">
+                </div>
+              </div>
+              <div style="text-align: right; margin-top: 10px;">
+                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
+              </div>
+            </div>
 
-<!-- Container do CARTÃO -->
-<div id="card-container">
-  <form id="checkout-form" style="display: flex; flex-direction: column; max-width: 300px;">
-    <!-- Div onde vai o iframe do número do cartão -->
-    <label>Número do Cartão</label>
-    <div id="card-number" class="malga-hosted-field"></div>
+            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
+            <div id="registrationFieldsGeneral">
+              <!-- Nome e Sobrenome -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Nome *</label>
+                  <input type="text" id="firstName" placeholder="Nome">
+                </div>
+                <div class="form-field">
+                  <label>Sobrenome *</label>
+                  <input type="text" id="lastName" placeholder="Sobrenome">
+                </div>
+              </div>
+              <!-- Celular e E-mail -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Celular *</label>
+                  <input type="text" id="celular" placeholder="(XX) 99999-9999">
+                </div>
+                <div class="form-field">
+                  <label>E-mail *</label>
+                  <input type="email" id="email" placeholder="seuemail@exemplo.com">
+                </div>
+              </div>
+              <!-- Senha e Repetir Senha -->
+              <div class="fields-grid-2cols">
+                <div class="form-field">
+                  <label>Senha *</label>
+                  <input type="password" id="password" placeholder="********">
+                </div>
+                <div class="form-field">
+                  <label>Repetir Senha *</label>
+                  <input type="password" id="confirmPassword" placeholder="********">
+                </div>
+              </div>
+            </div>
+          </div>
 
-    <!-- Div onde vai o iframe do nome do titular -->
-    <label>Nome do Titular</label>
-    <div id="card-holder-name" class="malga-hosted-field"></div>
+          <!-- Campos de Documentos/Endereço (sempre visíveis) -->
+          <div id="documentFields">
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CPF *</label>
+                <input type="text" id="cpf" placeholder="123.456.789-00">
+              </div>
+              <div class="form-field">
+                <label>RG *</label>
+                <input type="text" id="rg" placeholder="12.345.678-9">
+              </div>
+              <div class="form-field">
+                <label>Data de Nascimento *</label>
+                <input type="date" id="birthdate" placeholder="dd/mm/aaaa">
+              </div>
+            </div>
+            <div class="fields-grid-3cols">
+              <div class="form-field">
+                <label>CEP *</label>
+                <input type="text" id="cep" placeholder="12345-678">
+              </div>
+              <div class="form-field">
+                <label>Estado *</label>
+                <input type="text" id="state" placeholder="Ex: SP">
+              </div>
+              <div class="form-field">
+                <label>Cidade *</label>
+                <input type="text" id="city" placeholder="São Paulo">
+              </div>
+            </div>
+            <div class="fields-grid-2cols">
+              <div class="form-field">
+                <label>Endereço *</label>
+                <input type="text" id="address" placeholder="Rua, Avenida...">
+              </div>
+              <div class="form-field">
+                <label>Número *</label>
+                <input type="text" id="number" placeholder="123">
+              </div>
+            </div>
+          </div>
 
-    <!-- Div onde vai o iframe da data de validade -->
-    <label>Validade</label>
-    <div id="card-expiration-date" class="malga-hosted-field"></div>
+          <!-- Botão "Nomear passageiros" -->
+          <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
 
-    <!-- Div onde vai o iframe do CVV -->
-    <label>CVV</label>
-    <div id="card-cvv" class="malga-hosted-field"></div>
+          <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="toStep2">Próximo</button>
+          </div>
+        </div>
 
-    <!-- Botão de submit -->
-    <button type="submit">Pagar com Cartão</button>
-  </form>
-</div>
+        <!-- MODAL PARA PASSAGEIROS EXTRAS -->
+        <div id="passengerModal" class="modal">
+          <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h3>Passageiros Extras – Nomeação Obrigatória</h3>
+            <p class="modal-subtitle">
+              Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos.
+              Isso evita restrições e assegura uma experiência segura e tranquila.
+            </p>
+            <div id="modalPassengerContainer"></div>
+            <div style="text-align: right; margin-top: 1rem;">
+              <button class="btn-save-passenger copy-for-all-btn" id="copyForAllBtn" style="display:none;">Copiar para todos</button>
+              <button class="btn-save-passenger" id="savePassengersBtn">Salvar Passageiros</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<!-- Container do PIX -->
-<div id="pix-container" class="hidden">
-  <button id="generatePixBtn">Gerar Pix</button>
-  <div id="pixCodeDisplay"></div>
-</div>
+      <!-- STEP 2: Detalhes Adicionais (NOVO DESIGN) -->
+      <div class="step-content" data-step="2">
+        <div class="card-style-1">
+          <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
+          <p style="margin-bottom:1rem; font-size:0.9rem; color:#555;">
+            Se seu voo atrasar ou for cancelado, você pode ter direito a uma compensação. Compare seu plano atual com o Essencial e o Completo.
+          </p>
+          <div class="plans-comparison">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Itens</th>
+                  <th>Seu Plano</th>
+                  <th class="recommended">Plano Essencial</th>
+                  <th>Plano Completo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align:left; font-weight:600;">Cobertura</td>
+                  <td>Indefinida</td>
+                  <td>U$30.000</td>
+                  <td>U$80.000</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Pagamento é feito pelo seguro direto ao local sem burocracia</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Você paga e tenta ser reembolsado</td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="x">✖</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Atendimento em português</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Cobertura farmacêutica</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;">Você ganha brinde por comprar</td>
+                  <td><span class="x">✖</span></td>
+                  <td><span class="check">✅</span></td>
+                  <td><span class="check">✅</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td></td>
+                  <td>
+                    <span class="price">R$ 0,00</span>
+                    <input type="radio" name="insuranceOption" value="none" />
+                  </td>
+                  <td>
+                    <span class="price">R$ 60,65</span>
+                    <a href="#" class="openEssencialModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
+                    <input type="radio" name="insuranceOption" value="essencial" />
+                  </td>
+                  <td>
+                    <span class="price">R$ 101,09</span>
+                    <a href="#" class="openCompletoModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
+                    <input type="radio" name="insuranceOption" value="completo" />
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep1">Voltar</button>
+            <button class="btn-save-passenger" id="toStep3">Próximo</button>
+          </div>
+        </div>
+      </div>
 
-<!-- Container do Boleto -->
-<div id="boleto-container" class="hidden">
-  <button id="generateBoletoBtn">Gerar Boleto</button>
-  <div id="boletoDisplay"></div>
-</div>
+      <!-- STEP 3: Pagamento (Usando <malga-checkout>) -->
+      <div class="step-content" data-step="3">
+        <div class="card-style-1">
+          <h2>Pagamento</h2>
+          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
+          
+          <!-- Componente do Malga Checkout -->
+          <malga-checkout
+            sandbox="true"
+            publicKey="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
+            clientId="4457c178-0f07-4589-ba0e-954e5816fd0f"
+            merchantId="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
+          >
+          </malga-checkout>
 
-<!-- Script do Hosted Fields da Malga (exemplo) -->
-<script>
-  // OU então você já embutiu o script "bundle" no seu HTML.
-  
-  // ==========================
-  // 2) CONFIGURAR TOKENIZAÇÃO
-  // ==========================
-  // Exemplo: instanciar a tokenização:
-  
-  const malgaApiKey    = "bfabc953-1ea0-45d0-95e4-4968cfe2a00e";
-  const malgaClientId  = "4457c178-0f07-4589-ba0e-954e5816fd0f";
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+          </div>
+        </div>
+      </div>
 
-  // Em ambiente de sandbox, use:
-  const myMalga = new MalgaTokenization({
-    apiKey: malgaApiKey,
-    clientId: malgaClientId,
-    options: {
-      sandbox: true,
-      // Aqui vão as configurações específicas dos hosted fields
-      config: {
-        fields: {
-          cardNumber: {
-            container: "card-number",
-            type: "text",
-            placeholder: "Número do Cartão",
-            needMask: true,
-            defaultValidation: true
-          },
-          cardHolderName: {
-            container: "card-holder-name",
-            type: "text",
-            placeholder: "Nome do Titular",
-            needMask: false,
-            defaultValidation: true
-          },
-          cardExpirationDate: {
-            container: "card-expiration-date",
-            type: "text",
-            placeholder: "MM/AA",
-            needMask: true,
-            defaultValidation: true
-          },
-          cardCvv: {
-            container: "card-cvv",
-            type: "text",
-            placeholder: "CVV",
-            needMask: true,
-            defaultValidation: true
-          }
-        },
-        styles: {
-          input: {
-            color: "black",
-            "font-size": "14px"
-          },
-          ":focus": {
-            color: "blue"
-          }
+      <!-- STEP 4: Confirmação -->
+      <div class="step-content" data-step="4">
+        <div class="card-style-1">
+          <h2>Pagamento Concluído</h2>
+          <p>Seu pagamento foi efetuado com sucesso!</p>
+          <p>Obrigado por sua compra.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA: Resumo do Carrinho -->
+    <div class="right-col">
+      <div class="card-style-1 reservation-gifts-card">
+        <h2>Informações da Reserva</h2>
+        <div id="cartItemsList"></div>
+        <div class="resumo-compra">
+          <div class="form-field cupom">
+            <label>Cupom de Desconto</label>
+            <input type="text" id="couponInput" placeholder="Insira seu cupom">
+          </div>
+          <div class="resumo-row">
+            <label>Subtotal</label>
+            <p id="subtotalValue">R$ 0,00</p>
+          </div>
+          <div class="resumo-row">
+            <label>Desconto</label>
+            <p id="discountValue">- R$ 0,00</p>
+          </div>
+          <div class="resumo-row total-line">
+            <label>Total do Pedido</label>
+            <p id="totalValue">R$ 0,00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 - Checkout Trip.com (Completo)
+  </footer>
+
+  <!-- (Opcional) Shopping Cart oculto -->
+  <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
+
+  <!-- MODAL: Coberturas Intermac 30K -->
+  <div class="modal" id="modalIntermac30K">
+    <div class="modal-content">
+      <span class="close-modal" data-close-modal="modalIntermac30K">&times;</span>
+      <h3>Intermac 30K – Coberturas</h3>
+      <table class="coverage-table">
+        <thead>
+          <tr>
+            <th>Coberturas</th>
+            <th>Valores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- [CONTEÚDO IGUAL AO ORIGINAL] -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODAL: Coberturas Intermac 80K -->
+  <div class="modal" id="modalIntermac80K">
+    <div class="modal-content">
+      <span class="close-modal" data-close-modal="modalIntermac80K">&times;</span>
+      <h3>Intermac 80K – Coberturas</h3>
+      <table class="coverage-table">
+        <thead>
+          <tr>
+            <th>Coberturas</th>
+            <th>Valores</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- [CONTEÚDO IGUAL AO ORIGINAL] -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SCRIPT INLINE: TODA A LÓGICA DE STEPS E PAGAMENTO -->
+  <script type="module">
+    // Função utilitária para trocar Steps
+    function showStep(stepNumber) {
+      const stepContents = document.querySelectorAll(".step-content");
+      const stepButtons = document.querySelectorAll(".steps-menu .step");
+
+      stepContents.forEach((content) => {
+        content.classList.toggle("active", content.dataset.step === String(stepNumber));
+      });
+
+      stepButtons.forEach((button) => {
+        const btnStep = parseInt(button.dataset.step, 10);
+        button.classList.toggle("active", btnStep === stepNumber);
+        if (btnStep > stepNumber) {
+          button.classList.add("disabled");
+        } else {
+          button.classList.remove("disabled");
+        }
+      });
+    }
+
+    // Dados principais do Checkout
+    let checkoutData = {
+      extraPassengers: [],
+      insuranceSelected: "none",
+      firstName: "",
+      lastName: "",
+      celular: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      cpf: "",
+      rg: "",
+      birthdate: "",
+      cep: "",
+      state: "",
+      city: "",
+      address: "",
+      number: "",
+      insuranceCost: 0
+    };
+
+    // Carrinho
+    let cartItems = [];
+    function loadCartItems() {
+      const cartElement = document.getElementById("shoppingCart");
+      if (cartElement && cartElement.items && cartElement.items.length > 0) {
+        cartItems = cartElement.items;
+      } else {
+        const savedCart = localStorage.getItem("cartItems");
+        if (savedCart) {
+          cartItems = JSON.parse(savedCart);
+        } else {
+          // Exemplo default
+          cartItems = [
+            {
+              hotelName: "Hotel Exemplo A",
+              adults: 2,
+              children: 1,
+              basePriceAdult: 100,
+              checkIn: "2025-04-16",
+              checkOut: "2025-04-18"
+            },
+            {
+              hotelName: "Hotel Exemplo B",
+              adults: 3,
+              children: 0,
+              basePriceAdult: 150,
+              checkIn: "2025-04-10",
+              checkOut: "2025-04-12"
+            }
+          ];
         }
       }
     }
-  });
 
-  // Se quiser escutar eventos de erro, foco, etc.
-  myMalga.on("error", (error) => {
-    console.error("Erro Malga:", error);
-  });
+    function updateCheckoutCart(items) {
+      const container = document.getElementById("cartItemsList");
+      let subtotal = 0;
+      let html = "";
 
-  // ==========================
-  // 3) FUNÇÃO QUE PEGA O VALOR A SER PAGO
-  // ==========================
-  // Neste exemplo, retorna um valor fixo de R$10.00
-  function getPaymentAmount() {
-    return "10.00";
-  }
+      items.forEach((item) => {
+        const price = item.basePriceAdult || 80;
+        subtotal += price;
+        html += `
+          <div class="reserva-item">
+            <div class="reserva-left">
+              <span class="categoria">${item.type || "Hospedagem"}</span>
+              <span class="nome">${item.hotelName || "Hotel Desconhecido"} - ${item.roomName || "Quarto"}</span>
+              <div class="reserva-details">
+                <p>Check-in: ${item.checkIn || "--/--/----"}</p>
+                <p>Check-out: ${item.checkOut || "--/--/----"}</p>
+                <p>Quartos: ${item.rooms || 1}</p>
+                <p>Adultos: ${item.adults || 1} | Crianças: ${item.children || 0}</p>
+              </div>
+            </div>
+            <div class="reserva-preco">
+              R$ ${price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            </div>
+          </div>
+        `;
+      });
 
-  // ==========================
-  // 4) PAGAMENTO COM CARTÃO
-  // ==========================
-  async function handleCardSubmit(event) {
-    event.preventDefault();
-    try {
-      // Tokeniza os dados do cartão
-      const { tokenId, error } = await myMalga.tokenize();
-      
-      if (error) {
-        alert("Falha ao tokenizar o cartão: " + error.message);
-        return;
+      // Se houver seguro
+      if (checkoutData.insuranceCost) {
+        subtotal += checkoutData.insuranceCost;
       }
 
-      // Depois de tokenizar, envia pro seu backend (ex: /api/malga/create-transaction)
-      const amount = getPaymentAmount();
-      const body = {
-        paymentMethod: "card",
-        paymentToken: tokenId,
-        amount: amount,
-        installments: "1"
+      container.innerHTML = html;
+      document.getElementById("subtotalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+      document.getElementById("discountValue").textContent = "- R$ 0,00";
+      document.getElementById("totalValue").textContent =
+        "R$ " + subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    }
+
+    // Modal Passageiros
+    function createModalPassengerForms(items) {
+      const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+      const copyForAllBtn = document.getElementById("copyForAllBtn");
+      modalPassengerContainer.innerHTML = "";
+      checkoutData.extraPassengers = [];
+
+      let itemsWithExtras = 0;
+      items.forEach((item, itemIndex) => {
+        const extraCount = (item.adults || 1) - 1;
+        if (extraCount > 0) {
+          itemsWithExtras++;
+          checkoutData.extraPassengers[itemIndex] = [];
+          const itemDiv = document.createElement("div");
+          itemDiv.classList.add("passenger-box");
+          itemDiv.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
+
+          for (let i = 0; i < extraCount; i++) {
+            const fieldsWrapper = document.createElement("div");
+            fieldsWrapper.classList.add("fields-grid-2cols-modal");
+            fieldsWrapper.innerHTML = `
+              <div class="form-field">
+                <label>Nome do Passageiro #${i + 1}</label>
+                <input 
+                  type="text"
+                  placeholder="Nome completo"
+                  data-item-index="${itemIndex}"
+                  data-passenger-index="${i}"
+                  class="modalExtraNameInput"
+                />
+              </div>
+              <div class="form-field">
+                <label>Data de Nascimento</label>
+                <input
+                  type="date"
+                  data-item-index="${itemIndex}"
+                  data-passenger-index="${i}"
+                  class="modalExtraBirthdateInput"
+                />
+              </div>
+            `;
+            itemDiv.appendChild(fieldsWrapper);
+          }
+          modalPassengerContainer.appendChild(itemDiv);
+        }
+      });
+
+      copyForAllBtn.style.display = itemsWithExtras > 1 ? "inline-block" : "none";
+    }
+    function handlePassengerModal() {
+      const passengerModal = document.getElementById("passengerModal");
+      const openPassengerModalBtn = document.getElementById("openPassengerModal");
+      const closeModalBtn = document.getElementById("closeModal");
+      const savePassengersBtn = document.getElementById("savePassengersBtn");
+      const copyForAllBtn = document.getElementById("copyForAllBtn");
+      const modalPassengerContainer = document.getElementById("modalPassengerContainer");
+
+      // Abre modal
+      openPassengerModalBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        createModalPassengerForms(cartItems);
+        passengerModal.style.display = "block";
+      });
+
+      // Fecha modal
+      closeModalBtn.addEventListener("click", () => {
+        passengerModal.style.display = "none";
+      });
+
+      // Salvar
+      savePassengersBtn.addEventListener("click", () => {
+        passengerModal.style.display = "none";
+        alert("Passageiros extras salvos!");
+      });
+
+      // Copiar
+      copyForAllBtn.addEventListener("click", () => {
+        let sourceIndex = null;
+        let sourceExtraCount = 0;
+
+        for (let i = 0; i < cartItems.length; i++) {
+          const extraCount = (cartItems[i].adults || 1) - 1;
+          if (extraCount > 0) {
+            sourceIndex = i;
+            sourceExtraCount = extraCount;
+            break;
+          }
+        }
+        if (sourceIndex === null) return;
+
+        const sourceData = checkoutData.extraPassengers[sourceIndex] || [];
+        for (let i = 0; i < cartItems.length; i++) {
+          if (i !== sourceIndex) {
+            const extraCount = (cartItems[i].adults || 1) - 1;
+            if (extraCount === sourceExtraCount && extraCount > 0) {
+              checkoutData.extraPassengers[i] = JSON.parse(JSON.stringify(sourceData));
+              for (let passIndex = 0; passIndex < extraCount; passIndex++) {
+                const nameSelector = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+                const birthSelector = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${passIndex}"]`;
+                const nameInput = document.querySelector(nameSelector);
+                const birthInput = document.querySelector(birthSelector);
+                if (nameInput && birthInput && checkoutData.extraPassengers[i][passIndex]) {
+                  nameInput.value = checkoutData.extraPassengers[i][passIndex].name || "";
+                  birthInput.value = checkoutData.extraPassengers[i][passIndex].birthdate || "";
+                }
+              }
+            }
+          }
+        }
+        alert("Dados copiados para todos os itens compatíveis!");
+      });
+
+      // Input
+      modalPassengerContainer.addEventListener("input", (e) => {
+        const target = e.target;
+        if (
+          target.classList.contains("modalExtraNameInput") ||
+          target.classList.contains("modalExtraBirthdateInput")
+        ) {
+          const itemIndex = parseInt(target.getAttribute("data-item-index"), 10);
+          const passIndex = parseInt(target.getAttribute("data-passenger-index"), 10);
+
+          if (!checkoutData.extraPassengers[itemIndex]) {
+            checkoutData.extraPassengers[itemIndex] = [];
+          }
+          if (!checkoutData.extraPassengers[itemIndex][passIndex]) {
+            checkoutData.extraPassengers[itemIndex][passIndex] = {};
+          }
+
+          if (target.classList.contains("modalExtraNameInput")) {
+            checkoutData.extraPassengers[itemIndex][passIndex].name = target.value;
+          } else {
+            checkoutData.extraPassengers[itemIndex][passIndex].birthdate = target.value;
+          }
+        }
+      });
+    }
+
+    // Steps 1 e 2
+    function initStepOneTwoListeners() {
+      const toStep2Btn = document.getElementById("toStep2");
+      const backToStep1Btn = document.getElementById("backToStep1");
+      const toStep3Btn = document.getElementById("toStep3");
+      const backToStep2Btn = document.getElementById("backToStep2");
+
+      // STEP 1 -> STEP 2
+      toStep2Btn.addEventListener("click", () => {
+        const isLoggedIn = !!localStorage.getItem("agentId");
+
+        // Se não estiver logado, valida campos
+        if (!isLoggedIn) {
+          if (
+            !document.getElementById("firstName").value ||
+            !document.getElementById("lastName").value ||
+            !document.getElementById("celular").value ||
+            !document.getElementById("email").value ||
+            !document.getElementById("password").value ||
+            !document.getElementById("confirmPassword").value
+          ) {
+            alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+            return;
+          }
+          checkoutData.firstName = document.getElementById("firstName").value;
+          checkoutData.lastName = document.getElementById("lastName").value;
+          checkoutData.celular = document.getElementById("celular").value;
+          checkoutData.email = document.getElementById("email").value;
+          checkoutData.password = document.getElementById("password").value;
+          checkoutData.confirmPassword = document.getElementById("confirmPassword").value;
+        }
+
+        // Docs e endereço
+        if (
+          !document.getElementById("cpf").value ||
+          !document.getElementById("rg").value ||
+          !document.getElementById("birthdate").value ||
+          !document.getElementById("cep").value ||
+          !document.getElementById("state").value ||
+          !document.getElementById("city").value ||
+          !document.getElementById("address").value ||
+          !document.getElementById("number").value
+        ) {
+          alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+          return;
+        }
+
+        checkoutData.cpf = document.getElementById("cpf").value;
+        checkoutData.rg = document.getElementById("rg").value;
+        checkoutData.birthdate = document.getElementById("birthdate").value;
+        checkoutData.cep = document.getElementById("cep").value;
+        checkoutData.state = document.getElementById("state").value;
+        checkoutData.city = document.getElementById("city").value;
+        checkoutData.address = document.getElementById("address").value;
+        checkoutData.number = document.getElementById("number").value;
+
+        showStep(2);
+      });
+
+      // STEP 2 -> STEP 1
+      if (backToStep1Btn) {
+        backToStep1Btn.addEventListener("click", () => showStep(1));
+      }
+
+      // STEP 2 -> STEP 3
+      if (toStep3Btn) {
+        toStep3Btn.addEventListener("click", () => {
+          const selectedInsurance = document.querySelector('input[name="insuranceOption"]:checked');
+          checkoutData.insuranceSelected = selectedInsurance ? selectedInsurance.value : "none";
+
+          let insuranceCost = 0;
+          if (checkoutData.insuranceSelected === "essencial") {
+            insuranceCost = 60.65;
+          } else if (checkoutData.insuranceSelected === "completo") {
+            insuranceCost = 101.09;
+          }
+          checkoutData.insuranceCost = insuranceCost;
+
+          updateCheckoutCart(cartItems);
+          showStep(3);
+
+          // Inicia <malga-checkout>
+          initMalgaCheckout();
+        });
+      }
+
+      // STEP 3 -> STEP 2
+      if (backToStep2Btn) {
+        backToStep2Btn.addEventListener("click", () => showStep(2));
+      }
+    }
+
+    // Máscaras e CEP
+    function initMasksAndCep() {
+      function buscarCEP(cep) {
+        cep = cep.replace(/\D/g, "");
+        if (cep.length === 8) {
+          fetch(`https://viacep.com.br/ws/${cep}/json/`)
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.erro) {
+                alert("CEP não encontrado!");
+                return;
+              }
+              document.getElementById("address").value = data.logradouro || "";
+              document.getElementById("city").value = data.localidade || "";
+              document.getElementById("state").value = data.uf || "";
+            })
+            .catch((error) => {
+              console.error("Erro ao buscar CEP:", error);
+              alert("Não foi possível consultar o CEP.");
+            });
+        }
+      }
+      document.getElementById("cep").addEventListener("blur", function () {
+        buscarCEP(this.value);
+      });
+
+      // CPF
+      document.getElementById("cpf").addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.length > 3) {
+          value = value.replace(/^(\d{3})(\d)/, "$1.$2");
+        }
+        if (value.length > 6) {
+          value = value.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+        }
+        if (value.length > 9) {
+          value = value.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+        }
+        e.target.value = value;
+      });
+
+      // RG
+      document.getElementById("rg").addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.length > 2) {
+          value = value.replace(/^(\d{2})(\d)/, "$1.$2");
+        }
+        if (value.length > 5) {
+          value = value.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        }
+        if (value.length > 7) {
+          value = value.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
+        }
+        e.target.value = value;
+      });
+
+      // Login vs Registro
+      const toggleLogin = document.getElementById("toggleLogin");
+      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+      const loginFields = document.getElementById("loginFields");
+
+      if (toggleLogin) {
+        toggleLogin.addEventListener("click", (e) => {
+          e.preventDefault();
+          if (registrationFieldsGeneral.style.display !== "none") {
+            registrationFieldsGeneral.style.display = "none";
+            loginFields.style.display = "block";
+            toggleLogin.textContent = "Não tenho Login";
+          } else {
+            registrationFieldsGeneral.style.display = "block";
+            loginFields.style.display = "none";
+            toggleLogin.textContent = "Economize tempo fazendo Login";
+          }
+        });
+      }
+
+      // Botão "Entrar" (login)
+      const loginValidateBtn = document.getElementById("loginValidateBtn");
+      if (loginValidateBtn) {
+        loginValidateBtn.addEventListener("click", () => {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                localStorage.setItem("agentId", data.user.id);
+                alert("Login efetuado com sucesso!");
+                toggleLogin.style.display = "none";
+                registrationFieldsGeneral.style.display = "none";
+                loginFields.style.display = "none";
+              } else {
+                alert("Erro no login: " + (data.error || "Dados inválidos."));
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+              alert("Erro ao realizar o login. Tente novamente.");
+            });
+        });
+      }
+    }
+
+    // Inicia <malga-checkout> no Step 3
+    function initMalgaCheckout() {
+      const malgaCheckout = document.querySelector("malga-checkout");
+      if (!malgaCheckout) return;
+
+      // Exemplo de configurações:
+      malgaCheckout.paymentMethods = {
+        pix: {
+          expiresIn: 600,
+          items: [
+            {
+              id: "item_pix_1",
+              title: "Reserva de Hotel",
+              quantity: 1,
+              unitPrice: 100
+            }
+          ]
+        },
+        credit: {
+          installments: {
+            quantity: 1,
+            show: true
+          },
+          showCreditCard: true
+        },
+        boleto: {
+          expiresDate: "2030-12-31",
+          instructions: "Caso não seja pago até a data de vencimento, seu pedido será cancelado.",
+          interest: {
+            days: 1,
+            amount: 100
+          },
+          fine: {
+            days: 2,
+            amount: 200
+          },
+          items: [
+            {
+              id: "item_boleto_1",
+              title: "Reserva de Hotel",
+              quantity: 1,
+              unitPrice: 100
+            }
+          ]
+        },
+        drip: undefined,
+        nupay: undefined
       };
 
-      const response = await fetch("/api/malga/create-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Pagamento aprovado! Transaction ID: " + result.transactionId);
-      } else {
-        alert("Falha no pagamento: " + (result.message || "Erro desconhecido"));
+      // Pega total do carrinho
+      function getOrderTotalInCents() {
+        const totalText = document.getElementById("totalValue").textContent;
+        let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+        return parseInt(parseFloat(amount) * 100, 10);
       }
-    } catch (e) {
-      console.error("Erro inesperado ao processar pagamento (cartão):", e);
-      alert("Erro inesperado. Veja console para mais detalhes.");
-    }
-  }
 
-  // ==========================
-  // 5) PAGAMENTO PIX
-  // ==========================
-  async function handlePix() {
-    try {
-      const amount = getPaymentAmount();
-      const body = { paymentMethod: "pix", amount: amount };
+      malgaCheckout.transactionConfig = {
+        statementDescriptor: "Checkout Trip.com",
+        amount: getOrderTotalInCents(),
+        description: "Reserva Trip.com",
+        orderId: "ORDER12345",
+        customerId: "",
+        currency: "BRL",
+        capture: false,
+        customer: {
+          name: checkoutData.firstName + " " + checkoutData.lastName,
+          email: checkoutData.email,
+          phoneNumber: checkoutData.celular,
+          document: {
+            type: "CPF",
+            number: checkoutData.cpf.replace(/\D/g, ""),
+            country: "BR"
+          },
+          address: {
+            zipCode: checkoutData.cep.replace(/\D/g, ""),
+            street: checkoutData.address,
+            number: checkoutData.number,
+            complement: "",
+            neighborhood: "",
+            city: checkoutData.city,
+            state: checkoutData.state,
+            country: "BR"
+          }
+        }
+      };
 
-      const response = await fetch("/api/malga/create-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      // Configura o dialog
+      malgaCheckout.dialogConfig = {
+        show: true,
+        actionButtonLabel: "Continuar",
+        successActionButtonLabel: "Continuar",
+        errorActionButtonLabel: "Tentar novamente",
+        successRedirectUrl: "",
+        pixFilledProgressBarColor: "#2FAC9B",
+        pixEmptyProgressBarColor: "#D8DFF0"
+      };
+
+      // Eventos
+      malgaCheckout.addEventListener("paymentSuccess", (evt) => {
+        console.log("Pagamento OK => ", evt.detail);
+        alert("Pagamento aprovado!");
+        showStep(4);
       });
-      const result = await response.json();
 
-      if (result.success) {
-        document.getElementById("pixCodeDisplay").innerText =
-          "QRCode Pix: " + (result.pixCode || "(retornado pelo backend)");
-      } else {
-        alert("Falha ao gerar Pix: " + (result.message || "Erro desconhecido"));
-      }
-    } catch (error) {
-      console.error("Erro ao gerar Pix:", error);
-      alert("Erro ao gerar Pix. Ver console para detalhes.");
-    }
-  }
-
-  // ==========================
-  // 6) PAGAMENTO BOLETO
-  // ==========================
-  async function handleBoleto() {
-    try {
-      const amount = getPaymentAmount();
-      const body = { paymentMethod: "boleto", amount: amount };
-
-      const response = await fetch("/api/malga/create-transaction", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      malgaCheckout.addEventListener("paymentFailed", (evt) => {
+        console.error("Falha no pagamento => ", evt.detail);
+        alert("Ocorreu um erro ao tentar pagar. Tente novamente.");
       });
-      const result = await response.json();
+    }
 
-      if (result.success) {
-        document.getElementById("boletoDisplay").innerText =
-          "Boleto URL: " + (result.boletoUrl || "(retornado pelo backend)");
+    // Ao carregar a página
+    window.addEventListener("load", () => {
+      loadCartItems();
+      updateCheckoutCart(cartItems);
+      initMasksAndCep();
+      initStepOneTwoListeners();
+      handlePassengerModal();
+
+      // Se está logado
+      const isLoggedIn = !!localStorage.getItem("agentId");
+      const toggleLoginLink = document.getElementById("toggleLogin");
+      const registrationFieldsGeneral = document.getElementById("registrationFieldsGeneral");
+      const loginFields = document.getElementById("loginFields");
+      if (isLoggedIn) {
+        if (toggleLoginLink) toggleLoginLink.style.display = "none";
+        if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "none";
+        if (loginFields) loginFields.style.display = "none";
       } else {
-        alert("Falha ao gerar Boleto: " + (result.message || "Erro desconhecido"));
+        if (toggleLoginLink) toggleLoginLink.style.display = "block";
+        if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "block";
       }
-    } catch (error) {
-      console.error("Erro ao gerar Boleto:", error);
-      alert("Erro ao gerar Boleto. Ver console para detalhes.");
-    }
-  }
 
-  // ==========================
-  // 7) LÓGICA DE EXIBIR/ESCONDER CAMPOS CONFORME O RADIO SELECIONADO
-  // ==========================
-  function switchPaymentMethod() {
-    const method = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-
-    const cardDiv   = document.getElementById("card-container");
-    const pixDiv    = document.getElementById("pix-container");
-    const boletoDiv = document.getElementById("boleto-container");
-
-    // Some todos
-    cardDiv.classList.add("hidden");
-    pixDiv.classList.add("hidden");
-    boletoDiv.classList.add("hidden");
-
-    // Mostra só o escolhido
-    if (method === "card") {
-      cardDiv.classList.remove("hidden");
-    } else if (method === "pix") {
-      pixDiv.classList.remove("hidden");
-    } else if (method === "boleto") {
-      boletoDiv.classList.remove("hidden");
-    }
-  }
-
-  // ==========================
-  // 8) INICIALIZA LISTENERS
-  // ==========================
-  window.addEventListener("load", () => {
-    // 8.1) Ao mudar o radio, alternar as seções
-    document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-      radio.addEventListener("change", switchPaymentMethod);
+      // Inicia no Step 1
+      showStep(1);
     });
-
-    // 8.2) Formulário do cartão
-    const checkoutForm = document.getElementById("checkout-form");
-    checkoutForm.addEventListener("submit", handleCardSubmit);
-
-    // 8.3) Botão Pix
-    const generatePixBtn = document.getElementById("generatePixBtn");
-    generatePixBtn.addEventListener("click", handlePix);
-
-    // 8.4) Botão Boleto
-    const generateBoletoBtn = document.getElementById("generateBoletoBtn");
-    generateBoletoBtn.addEventListener("click", handleBoleto);
-
-    // 8.5) Já fazer o switch inicial
-    switchPaymentMethod();
-  });
-</script>
-
+  </script>
 </body>
 </html>
