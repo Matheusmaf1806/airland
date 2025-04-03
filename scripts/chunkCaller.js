@@ -22,7 +22,7 @@ async function main() {
 
   for (let i = 0; i < steps; i++) {
     const startStr = current.format("YYYY-MM-DD");
-    console.log(Processando chunk #${i+1}: ${startStr} ~ +${chunkSize} dias);
+    console.log(`Processando chunk #${i+1}: ${startStr} ~ +${chunkSize} dias`);
     await callChunk(startStr, chunkSize);
 
     current = current.add(chunkSize, "day");
