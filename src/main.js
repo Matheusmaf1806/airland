@@ -1,10 +1,10 @@
-// Se você estiver usando um bundler (Vite, Webpack, etc.),
-// certifique-se de ter rodado "npm install @malga/tokenization"
-// e, no seu arquivo main.js, faça a importação:
-import { MalgaTokenization } from '@malga/tokenization';
+// main.js
+
+// IMPORTAMOS a MalgaTokenization via bundler:
+import { MalgaTokenization } from "@malga/tokenization";
 
 /* =========================================================
-   JS COMPLETO E AJUSTADO PARA USAR MALGA TOKENIZATION NO STEP 3
+   JS COMPLETO E AJUSTADO PARA USAR O NOVO FORMATO DE MALGA TOKENIZATION
    ========================================================= */
 
 // ----------------------------------------------------------
@@ -354,10 +354,8 @@ function initStepOneTwoListeners() {
       // Ajusta custo do seguro
       let insuranceCost = 0;
       if (checkoutData.insuranceSelected === "essencial") {
-        // Exemplo do front: "essencial" ~ "30k"
         insuranceCost = 60.65;
       } else if (checkoutData.insuranceSelected === "completo") {
-        // Exemplo do front: "completo" ~ "80k"
         insuranceCost = 101.09;
       }
       checkoutData.insuranceCost = insuranceCost;
@@ -365,7 +363,7 @@ function initStepOneTwoListeners() {
       updateCheckoutCart(cartItems);
       showStep(3);
 
-      // Aqui chamamos a inicialização da TOKENIZAÇÃO
+      // Inicia a tokenização "manual" com data attributes
       initTokenization();
     });
   }
@@ -384,7 +382,6 @@ function initMasksAndCep() {
   function buscarCEP(cep) {
     cep = cep.replace(/\D/g, "");
     if (cep.length === 8) {
-      // ViaCep => se quiser integrar, é só remover a restrição de CORS ou usar proxy
       fetch(`https://viacep.com.br/ws/${cep}/json/`)
         .then((res) => res.json())
         .then((data) => {
@@ -488,71 +485,43 @@ function initMasksAndCep() {
 }
 
 // ----------------------------------------------------------
-// INICIALIZA A TOKENIZAÇÃO (Step 3) - Substitui o <malga-checkout>
+// Inicializa a TOKENIZAÇÃO (com data-* no Step 3)
 // ----------------------------------------------------------
 function initTokenization() {
-  // Como importamos 'MalgaTokenization' do pacote '@malga/tokenization',
-  // já podemos usá-lo diretamente aqui. Certifique-se de trocar pelas suas credenciais:
+  // Substitua as credenciais pelas suas:
   const malgaTokenization = new MalgaTokenization({
-    apiKey: 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e',      // substitua pelos seus
-    clientId: '4457c178-0f07-4589-ba0e-954e5816fd0f',  // substitua pelos seus
+    apiKey: "17a64c8f-a387-4682-bdd8-d280493715e0",
+    clientId: "d1d2b51a-0446-432a-b055-034518c2660e",
     options: {
-      config: {
-        fields: {
-          cardNumber: {
-            container: 'card-number',
-            placeholder: '9999 9999 9999 9999',
-            type: 'text',
-          },
-          cardHolderName: {
-            container: 'card-holder-name',
-            placeholder: 'Nome impresso no cartão',
-            type: 'text',
-          },
-          cardExpirationDate: {
-            container: 'card-expiration-date',
-            placeholder: 'MM/YY',
-            type: 'text',
-          },
-          cardCvv: {
-            container: 'card-cvv',
-            placeholder: '999',
-            type: 'text',
-          },
-        },
-        styles: {
-          input: {
-            color: '#000',
-            'font-size': '16px',
-          },
-        },
-        preventAutofill: false,
-      },
       sandbox: true,
+      elements: {
+        form: "data-malga-tokenization-form",
+        holderName: "data-malga-tokenization-holder-name",
+        cvv: "data-malga-tokenization-cvv",
+        expirationDate: "data-malga-tokenization-expiration-date",
+        number: "data-malga-tokenization-number",
+      },
     },
   });
 
-  // Pegue o form do Step 3
-  const form = document.getElementById('cardTokenForm');
+  // Captura o form pelo atributo data-malga-tokenization-form
+  const form = document.querySelector("[data-malga-tokenization-form]");
   if (!form) return;
 
-  // Ao submeter, chamamos tokenize()
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
+  form.addEventListener("submit", async (evt) => {
+    evt.preventDefault();
 
     const { tokenId, error } = await malgaTokenization.tokenize();
     if (error) {
-      console.error('Erro ao tokenizar cartão:', error);
-      alert('Não foi possível obter o token do cartão. Verifique os dados.');
+      console.error(error);
+      alert("Não foi possível obter o token do cartão. Verifique os dados.");
       return;
     }
 
-    // Exibir o token ou prosseguir
-    document.getElementById('tokenResult').textContent = `Token gerado: ${tokenId}`;
-    alert('Cartão tokenizado com sucesso! TokenId = ' + tokenId);
+    document.getElementById("tokenResult").textContent = `Token gerado: ${tokenId}`;
+    alert("Cartão tokenizado com sucesso! TokenId = " + tokenId);
 
-    // Você pode enviar esse tokenId para o backend (junto com total e dados do pedido)
-    // e só então avançar ao Step 4
+    // Depois de obter o token, você pode enviá-lo ao backend e avançar:
     showStep(4);
   });
 }
@@ -580,8 +549,6 @@ window.addEventListener("load", () => {
     if (toggleLoginLink) toggleLoginLink.style.display = "block";
     if (registrationFieldsGeneral) registrationFieldsGeneral.style.display = "block";
   }
-
-  // (Não usamos mais initMalgaCheckout, pois substituímos pelo fluxo de tokenização manual.)
 
   // Inicia no Step 1
   showStep(1);
