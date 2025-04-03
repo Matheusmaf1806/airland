@@ -6,6 +6,15 @@
   <!-- Componente de Header -->
   <script src="/js/header-component.js" type="module"></script>
 
+  <!-- 
+    SDK do Malga Checkout (core). Necessário para exibir e usar o <malga-checkout>.
+    Importante estar acima do main.js para que o componente exista quando chamamos no script.
+  -->
+  <script
+    type="module"
+    src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
+  ></script>
+
   <!-- FONT & RESET -->
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
@@ -681,57 +690,24 @@
         </div>
       </div>
 
-      <!-- STEP 3 (TOKENIZAÇÃO MANUAL) -->
+      <!-- STEP 3: Pagamento (Usando <malga-checkout>) -->
       <div class="step-content" data-step="3">
-        <h2>Pagamento (Tokenização Manual)</h2>
+        <div class="card-style-1">
+          <h2>Pagamento</h2>
+          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
+          
+          <!-- Componente do Malga Checkout -->
+          <malga-checkout
+            sandbox="true"
+            publicKey="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
+            clientId="4457c178-0f07-4589-ba0e-954e5816fd0f"
+            merchantId="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
+          >
+          </malga-checkout>
 
-        <!-- Form usando data attributes que o SDK busca -->
-        <form data-malga-tokenization-form>
-          <section>
-            <div class="form-group">
-              <label>Card Number</label>
-              <input
-                data-malga-tokenization-number
-                type="text"
-                placeholder="9999 9999 9999 9999"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>Card Holder Name</label>
-              <input
-                data-malga-tokenization-holder-name
-                type="text"
-                placeholder="Nome impresso no cartão"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>Card CVV</label>
-              <input
-                data-malga-tokenization-cvv
-                type="text"
-                placeholder="999"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>Card Expiration Date</label>
-              <input
-                data-malga-tokenization-expiration-date
-                type="text"
-                placeholder="MM/YY"
-              />
-            </div>
-          </section>
-          <button type="submit">Tokenizar Cartão</button>
-        </form>
-
-        <!-- Exibe o token gerado -->
-        <div id="tokenResult" style="margin-top:1rem; color:blue;"></div>
-
-        <div style="margin-top:1rem;">
-          <button id="backToStep2">Voltar ao Step 2</button>
+          <div class="navigation">
+            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
+          </div>
         </div>
       </div>
 
@@ -792,7 +768,98 @@
           </tr>
         </thead>
         <tbody>
-          <!-- ... CONTEÚDO IGUAL AO ORIGINAL ... -->
+          <tr>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$30,000.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$200.00</td>
+          </tr>
+          <tr>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$150.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$20,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$375.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,000.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$350.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$7,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>N/A</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$100.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -811,13 +878,108 @@
           </tr>
         </thead>
         <tbody>
-          <!-- ... CONTEÚDO IGUAL AO ORIGINAL ... -->
+          <tr>
+            <td>Despesas Emergenciais Médicas e Hospitalares em Viagem Internacional</td>
+            <td>$80,000.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Emergenciais Odontológicas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
+          </tr>
+          <tr>
+            <td>Proteção COVID-19 Integral em todas as Coberturas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Despesas Farmacêuticas em Caso de Acidente ou Doença Súbita</td>
+            <td>$800.00</td>
+          </tr>
+          <tr>
+            <td>Remoção Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Médica</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Repatriação Funerária</td>
+            <td>$50,000.00</td>
+          </tr>
+          <tr>
+            <td>Prorrogação de Estadia</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Retorno de Menores (Passagem Ida e Volta)</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Retorno do Segurado</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Hospedagem de Acompanhante</td>
+            <td>$500.00</td>
+          </tr>
+          <tr>
+            <td>Acompanhante em Caso de Hospitalização Prolongada</td>
+            <td>$1,500.00</td>
+          </tr>
+          <tr>
+            <td>Despesas Jurídicas</td>
+            <td>$1,600.00</td>
+          </tr>
+          <tr>
+            <td>Fiança e Despesas Legais</td>
+            <td>$5,000.00</td>
+          </tr>
+          <tr>
+            <td>Cancelamento de Viagem</td>
+            <td>$1,250.00</td>
+          </tr>
+          <tr>
+            <td>Perda ou Roubo de Bagagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Invalidez Permanente Total ou Parcial por Acidente</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Morte Acidental</td>
+            <td>$17,500.00</td>
+          </tr>
+          <tr>
+            <td>Interrupção de Viagem</td>
+            <td>$750.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Bagagem (depois de 12h)</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Atraso de Vôo</td>
+            <td>$250.00</td>
+          </tr>
+          <tr>
+            <td>Gravidez até 28 semanas</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
+          <tr>
+            <td>Esporte a Lazer e Amador</td>
+            <td>INCLUSO NO DMH</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Seu main.js -->
+  <!-- 
+    Script principal (empacotado pelo Vite ou outro bundler). 
+    Ele conterá a configuração do <malga-checkout> (paymentMethods, transactionConfig, etc.)
+    e a lógica para Steps 1, 2 e 4.
+  -->
   <script type="module" src="/assets/main.js"></script>
 </body>
 </html>
