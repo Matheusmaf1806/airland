@@ -690,24 +690,38 @@
         </div>
       </div>
 
-      <!-- STEP 3: Pagamento (Usando <malga-checkout>) -->
+      <!-- Step 3 HTML -->
       <div class="step-content" data-step="3">
-        <div class="card-style-1">
-          <h2>Pagamento</h2>
-          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
-          
-          <!-- Componente do Malga Checkout -->
-          <malga-checkout
-            sandbox="true"
-            publicKey="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
-            clientId="4457c178-0f07-4589-ba0e-954e5816fd0f"
-            merchantId="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
-          >
-          </malga-checkout>
-
-          <div class="navigation">
-            <button class="btn-save-passenger" id="backToStep2">Voltar</button>
-          </div>
+        <h2>Pagamento (Tokenização Manual)</h2>
+        
+        <!-- Formulário com os campos de cartão -->
+        <form id="cardTokenForm">
+          <section>
+            <div class="form-group">
+              <label for="card-number">Card Number</label>
+              <div id="card-number" class="form-control"></div>
+            </div>
+            <div class="form-group">
+              <label for="card-holder-name">Card Holder Name</label>
+              <div id="card-holder-name" class="form-control"></div>
+            </div>
+            <div class="form-group">
+              <label for="card-cvv">Card CVV</label>
+              <div id="card-cvv" class="form-control"></div>
+            </div>
+            <div class="form-group">
+              <label for="card-expiration-date">Card Expiration Date</label>
+              <div id="card-expiration-date" class="form-control"></div>
+            </div>
+          </section>
+          <button type="submit">Tokenizar Cartão</button>
+        </form>
+      
+        <!-- Apenas para exibir o token gerado -->
+        <div id="tokenResult" style="margin-top:1rem; color:blue;"></div>
+      
+        <div style="margin-top:1rem;">
+          <button id="backToStep2">Voltar ao Step 2</button>
         </div>
       </div>
 
