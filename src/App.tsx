@@ -1,12 +1,12 @@
 import { MalgaTokenization } from '@malga/tokenization'
-import React, { useEffect, useRef, useState, FormEvent } from 'react'
+import React, { useRef, useState, FormEvent } from 'react'
 
-// Substitua por suas chaves reais
+// Credenciais substituídas
 const malgaTokenization = new MalgaTokenization({
   apiKey: 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e',
   clientId: '4457c178-0f07-4589-ba0e-954e5816fd0f',
   options: {
-    sandbox: true, // ambiente de testes
+    sandbox: true,
     config: {
       fields: {
         cardNumber: {
@@ -45,17 +45,20 @@ export default function App() {
   const [tokenId, setTokenId] = useState('')
   const alreadyInitialized = useRef(false)
 
-  useEffect(() => {
-    // Inicializa a MalgaTokenization apenas uma vez
-    if (!alreadyInitialized.current) {
-      malgaTokenization.init()
-      alreadyInitialized.current = true
-    }
-  }, [])
+  // Se realmente precisar rodar algo específico após montar campos,
+  // você pode deixar esse useEffect vazio ou removê-lo
+  // pois a lib aparentemente não tem mais "init()" para contêineres
+  // useEffect(() => {
+  //   if (!alreadyInitialized.current) {
+  //     // Nenhuma chamada 'init()' existe nesta versão
+  //     alreadyInitialized.current = true
+  //   }
+  // }, [])
 
   async function handleGetTokenId(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault() // evitar reload da página
+    event.preventDefault()
 
+    // Chamada para tokenizar
     const { tokenId, error } = await malgaTokenization.tokenize()
 
     if (error) {
@@ -63,12 +66,10 @@ export default function App() {
       return
     }
 
-    // Se deu certo, salvamos o token
     console.log('Token gerado:', tokenId)
     setTokenId(tokenId)
 
-    // Aqui você poderia chamar seu backend para enviar o token
-    // e fazer a cobrança ou armazenar, ex. via fetch/axios
+    // Aqui você poderia chamar seu backend, enviando o tokenId
   }
 
   return (
@@ -77,7 +78,6 @@ export default function App() {
         <section>
           <div className="form-group">
             <label htmlFor="card-number">Card Number</label>
-            {/* Div que receberá o iFrame do número do cartão */}
             <div id="card-number" className="form-control" />
           </div>
 
