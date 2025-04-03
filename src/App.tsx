@@ -1,7 +1,6 @@
 import { MalgaTokenization } from '@malga/tokenization'
-import React, { useRef, useState, FormEvent } from 'react'
+import React, { useState, FormEvent } from 'react'
 
-// Credenciais substituídas
 const malgaTokenization = new MalgaTokenization({
   apiKey: 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e',
   clientId: '4457c178-0f07-4589-ba0e-954e5816fd0f',
@@ -43,22 +42,10 @@ const malgaTokenization = new MalgaTokenization({
 
 export default function App() {
   const [tokenId, setTokenId] = useState('')
-  const alreadyInitialized = useRef(false)
-
-  // Se realmente precisar rodar algo específico após montar campos,
-  // você pode deixar esse useEffect vazio ou removê-lo
-  // pois a lib aparentemente não tem mais "init()" para contêineres
-  // useEffect(() => {
-  //   if (!alreadyInitialized.current) {
-  //     // Nenhuma chamada 'init()' existe nesta versão
-  //     alreadyInitialized.current = true
-  //   }
-  // }, [])
 
   async function handleGetTokenId(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    // Chamada para tokenizar
     const { tokenId, error } = await malgaTokenization.tokenize()
 
     if (error) {
@@ -68,8 +55,7 @@ export default function App() {
 
     console.log('Token gerado:', tokenId)
     setTokenId(tokenId)
-
-    // Aqui você poderia chamar seu backend, enviando o tokenId
+    // Aqui você pode enviar esse token ao seu backend (ex. via fetch/axios)
   }
 
   return (
