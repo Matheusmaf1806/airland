@@ -1,11 +1,11 @@
 // main.js
 
-// IMPORTAMOS a MalgaTokenization via bundler:
-import { MalgaTokenization } from "@malga/tokenization";
-
-/* =========================================================
-   JS COMPLETO E AJUSTADO PARA USAR O NOVO FORMATO DE MALGA TOKENIZATION
-   ========================================================= */
+/* ==========================================================================
+   MAIN.JS COMPLETO PARA USAR <malga-checkout> NO STEP 3
+   - Sem referências à antiga tokenização manual (div ou data-*).
+   - Step 3 exibe e configura o <malga-checkout>.
+   - Steps 1 e 2 coletam dados de passageiro, Step 4 é a confirmação.
+   ========================================================================== */
 
 // ----------------------------------------------------------
 // Função utilitária para navegar entre os Steps
@@ -363,8 +363,8 @@ function initStepOneTwoListeners() {
       updateCheckoutCart(cartItems);
       showStep(3);
 
-      // Inicia a tokenização "manual" com data attributes
-      initTokenization();
+      // Inicializa o <malga-checkout>
+      initMalgaCheckout();
     });
   }
 
@@ -485,44 +485,116 @@ function initMasksAndCep() {
 }
 
 // ----------------------------------------------------------
-// Inicializa a TOKENIZAÇÃO (com data-* no Step 3)
+// INICIALIZA O <malga-checkout> NO STEP 3
 // ----------------------------------------------------------
-function initTokenization() {
-  // Substitua as credenciais pelas suas:
-  const malgaTokenization = new MalgaTokenization({
-    apiKey: "17a64c8f-a387-4682-bdd8-d280493715e0",
-    clientId: "d1d2b51a-0446-432a-b055-034518c2660e",
-    options: {
-      sandbox: true,
-      elements: {
-        form: "data-malga-tokenization-form",
-        holderName: "data-malga-tokenization-holder-name",
-        cvv: "data-malga-tokenization-cvv",
-        expirationDate: "data-malga-tokenization-expiration-date",
-        number: "data-malga-tokenization-number",
-      },
+function initMalgaCheckout() {
+  const malgaCheckout = document.querySelector("malga-checkout");
+  if (!malgaCheckout) return;
+
+  // Exemplo de configurações
+  malgaCheckout.paymentMethods = {
+    pix: {
+      expiresIn: 600,
+      items: [
+        {
+          id: "item_pix_1",
+          title: "Reserva de Hotel",
+          quantity: 1,
+          unitPrice: 100
+        }
+      ]
     },
+    credit: {
+      installments: {
+        quantity: 1,
+        show: true
+      },
+      showCreditCard: true
+    },
+    boleto: {
+      expiresDate: "2030-12-31",
+      instructions: "Caso não seja pago até a data de vencimento, seu pedido será cancelado.",
+      interest: {
+        days: 1,
+        amount: 100
+      },
+      fine: {
+        days: 2,
+        amount: 200
+      },
+      items: [
+        {
+          id: "item_boleto_1",
+          title: "Reserva de Hotel",
+          quantity: 1,
+          unitPrice: 100
+        }
+      ]
+    },
+    drip: undefined,
+    nupay: undefined
+  };
+
+  // Exemplo de obter total do carrinho
+  function getOrderTotalInCents() {
+    const totalText = document.getElementById("totalValue").textContent;
+    let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
+    return parseInt(parseFloat(amount) * 100, 10);
+  }
+
+  // Exemplo de transactionConfig
+  malgaCheckout.transactionConfig = {
+    statementDescriptor: "Checkout Trip.com",
+    amount: getOrderTotalInCents(), // valor total em CENTAVOS
+    description: "Reserva Trip.com",
+    orderId: "ORDER12345",
+    customerId: "", // se tiver ID do cliente na Malga
+    currency: "BRL",
+    capture: false,
+    customer: {
+      name: checkoutData.firstName + " " + checkoutData.lastName,
+      email: checkoutData.email,
+      phoneNumber: checkoutData.celular,
+      document: {
+        type: "CPF",
+        number: checkoutData.cpf.replace(/\D/g, ""),
+        country: "BR"
+      },
+      address: {
+        zipCode: checkoutData.cep.replace(/\D/g, ""),
+        street: checkoutData.address,
+        number: checkoutData.number,
+        complement: "",
+        neighborhood: "",
+        city: checkoutData.city,
+        state: checkoutData.state,
+        country: "BR"
+      }
+    }
+    // antifraude / split etc. se desejar
+  };
+
+  // Configura o dialog do Checkout
+  malgaCheckout.dialogConfig = {
+    show: true,
+    actionButtonLabel: "Continuar",
+    successActionButtonLabel: "Continuar",
+    errorActionButtonLabel: "Tentar novamente",
+    successRedirectUrl: "", // se quiser redirecionar em caso de sucesso
+    pixFilledProgressBarColor: "#2FAC9B",
+    pixEmptyProgressBarColor: "#D8DFF0"
+  };
+
+  // Eventos de sucesso e falha
+  malgaCheckout.addEventListener("paymentSuccess", (evt) => {
+    console.log("Pagamento OK => ", evt.detail);
+    alert("Pagamento aprovado!");
+    showStep(4); // Avança para o Step 4
   });
 
-  // Captura o form pelo atributo data-malga-tokenization-form
-  const form = document.querySelector("[data-malga-tokenization-form]");
-  if (!form) return;
-
-  form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-
-    const { tokenId, error } = await malgaTokenization.tokenize();
-    if (error) {
-      console.error(error);
-      alert("Não foi possível obter o token do cartão. Verifique os dados.");
-      return;
-    }
-
-    document.getElementById("tokenResult").textContent = `Token gerado: ${tokenId}`;
-    alert("Cartão tokenizado com sucesso! TokenId = " + tokenId);
-
-    // Depois de obter o token, você pode enviá-lo ao backend e avançar:
-    showStep(4);
+  malgaCheckout.addEventListener("paymentFailed", (evt) => {
+    console.error("Falha no pagamento => ", evt.detail);
+    alert("Ocorreu um erro ao tentar pagar. Tente novamente.");
   });
 }
 
