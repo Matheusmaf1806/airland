@@ -1,10 +1,8 @@
-// main.js
-
 /* ==========================================================================
    MAIN.JS COMPLETO PARA USAR <malga-checkout> NO STEP 3
-   - Sem referências à antiga tokenização manual (div ou data-*).
-   - Step 3 exibe e configura o <malga-checkout>.
-   - Steps 1 e 2 coletam dados de passageiro, Step 4 é a confirmação.
+   - Removidas referências à tokenização manual (MalgaTokenization).
+   - Step 3 exibe o componente <malga-checkout>.
+   - Steps 1 e 2 coletam dados do passageiro, Step 4 confirma.
    ========================================================================== */
 
 // ----------------------------------------------------------
@@ -34,7 +32,7 @@ function showStep(stepNumber) {
 // ----------------------------------------------------------
 let checkoutData = {
   extraPassengers: [],
-  insuranceSelected: "none", // "none", "essencial" (30k) ou "completo" (80k)
+  insuranceSelected: "none", // "none", "essencial", "completo"
   firstName: "",
   lastName: "",
   celular: "",
@@ -363,7 +361,7 @@ function initStepOneTwoListeners() {
       updateCheckoutCart(cartItems);
       showStep(3);
 
-      // Inicializa o <malga-checkout>
+      // Agora inicializa o <malga-checkout>
       initMalgaCheckout();
     });
   }
@@ -488,6 +486,7 @@ function initMasksAndCep() {
 // INICIALIZA O <malga-checkout> NO STEP 3
 // ----------------------------------------------------------
 function initMalgaCheckout() {
+  // Captura o componente que está no HTML do Step 3
   const malgaCheckout = document.querySelector("malga-checkout");
   if (!malgaCheckout) return;
 
@@ -535,20 +534,20 @@ function initMalgaCheckout() {
     nupay: undefined
   };
 
-  // Exemplo de obter total do carrinho
+  // Captura o total em centavos
   function getOrderTotalInCents() {
     const totalText = document.getElementById("totalValue").textContent;
     let amount = totalText.replace("R$", "").trim().replace(/\./g, "").replace(",", ".");
     return parseInt(parseFloat(amount) * 100, 10);
   }
 
-  // Exemplo de transactionConfig
+  // transactionConfig (exemplo)
   malgaCheckout.transactionConfig = {
     statementDescriptor: "Checkout Trip.com",
     amount: getOrderTotalInCents(), // valor total em CENTAVOS
     description: "Reserva Trip.com",
     orderId: "ORDER12345",
-    customerId: "", // se tiver ID do cliente na Malga
+    customerId: "",
     currency: "BRL",
     capture: false,
     customer: {
@@ -571,16 +570,16 @@ function initMalgaCheckout() {
         country: "BR"
       }
     }
-    // antifraude / split etc. se desejar
+    // antifraude ou split se desejar
   };
 
-  // Configura o dialog do Checkout
+  // Config dialog do Checkout
   malgaCheckout.dialogConfig = {
     show: true,
     actionButtonLabel: "Continuar",
     successActionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
-    successRedirectUrl: "", // se quiser redirecionar em caso de sucesso
+    successRedirectUrl: "",
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
