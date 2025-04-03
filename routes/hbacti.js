@@ -167,8 +167,6 @@ async function fetchActivitiesInChunks() {
     // avançar
     currentStart = currentEnd.add(1, "day");
 
-    // 5) Pausa de 2 segundos pra evitar rate limit
-    await new Promise(r => setTimeout(r, 500));
   }
 
   console.log("Concluído. Total blocos:", chunks);
