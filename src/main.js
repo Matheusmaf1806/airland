@@ -1,3 +1,8 @@
+// Se você estiver usando um bundler (Vite, Webpack, etc.),
+// certifique-se de ter rodado "npm install @malga/tokenization"
+// e, no seu arquivo main.js, faça a importação:
+import { MalgaTokenization } from '@malga/tokenization';
+
 /* =========================================================
    JS COMPLETO E AJUSTADO PARA USAR MALGA TOKENIZATION NO STEP 3
    ========================================================= */
@@ -486,7 +491,8 @@ function initMasksAndCep() {
 // INICIALIZA A TOKENIZAÇÃO (Step 3) - Substitui o <malga-checkout>
 // ----------------------------------------------------------
 function initTokenization() {
-  // Instancie o MalgaTokenization (certifique-se de ter importado a SDK no seu bundle)
+  // Como importamos 'MalgaTokenization' do pacote '@malga/tokenization',
+  // já podemos usá-lo diretamente aqui. Certifique-se de trocar pelas suas credenciais:
   const malgaTokenization = new MalgaTokenization({
     apiKey: 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e',      // substitua pelos seus
     clientId: '4457c178-0f07-4589-ba0e-954e5816fd0f',  // substitua pelos seus
