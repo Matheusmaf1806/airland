@@ -990,6 +990,7 @@
      *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
      ***********************************************/
     
+    // Objeto para dados do usuário
     let userData = {
       name: "",
       email: "",
@@ -1007,11 +1008,11 @@
       }
     };
     
-    let orderId = "pedido-999999";
-    let finalAmount = 0;
+    let orderId = "pedido-999999"; // Exemplo
+    let finalAmount = 0; // Valor final em centavos
     
     /***********************************************
-     *         SELECIONANDO O <MALGA-CHECKOUT>     *
+     *       SELECIONANDO O <MALGA-CHECKOUT>       *
      ***********************************************/
     
     const malgaCheckout = document.querySelector("#malga-checkout");
@@ -1019,9 +1020,7 @@
     malgaCheckout.paymentMethods = {
       pix: {
         expiresIn: 600,
-        items: [
-          { id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }
-        ]
+        items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
       },
       credit: {
         installments: { quantity: 10, show: true },
@@ -1032,9 +1031,7 @@
         instructions: "Boleto Exemplo (Produção)",
         interest: { days: 1, amount: 1000 },
         fine:     { days: 2, amount: 500 },
-        items: [
-          { id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }
-        ]
+        items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
       }
     };
     
@@ -1091,26 +1088,52 @@
     /***********************************************
      *  CONVERTE "#totalValue" EM CENTAVOS          *
      ***********************************************/
-    // Ex: se #totalValue for "R$ 6.084,87", vira "608487" centavos
+    
     function getCartAmountInCents() {
       const totalText = document.getElementById("totalValue").textContent.trim();
       
-      // 1) Remove letras e espaços extras, fica algo como "6.084,87"
-      let numericStr = totalText.replace(/[^\d.,-]/g, ""); // retira "R$", etc.
+      // Ex: "R$ 6.084,87" => remove letras => "6.084,87"
+      let numericStr = totalText.replace(/[^\d.,-]/g, "");
       
-      // 2) Remove todos os pontos -> "6084,87"
+      // remove pontos de milhar => "6084,87"
       numericStr = numericStr.replace(/\./g, "");
       
-      // 3) Substitui vírgula decimal por ponto decimal -> "6084.87"
+      // troca vírgula decimal => "6084.87"
       numericStr = numericStr.replace(",", ".");
       
-      // 4) Agora parseFloat -> 6084.87
       const amount = parseFloat(numericStr);
       if (isNaN(amount)) return 0;
       
-      // 5) Converte para centavos -> 608487
-      const cents = Math.round(amount * 100);
-      return cents > 0 ? cents : 0;
+      return Math.round(amount * 100); // => 608487
+    }
+    
+    /***********************************************
+     *      VERIFICA SE LOGADO E BUSCA PERFIL       *
+     ***********************************************/
+    // Chamaremos isso no onLoad, para garantir que userEmail / userPhone
+    // sejam conhecidos antes de preencher step 1 ou prosseguir
+    async function fetchProfileIfLoggedIn() {
+      const agentId = localStorage.getItem("agentId");
+      if (!agentId) return; // não logado
+    
+      try {
+        const response = await fetch(`/api/users/profile?id=${agentId}`);
+        if (!response.ok) {
+          console.warn("Profile não encontrado ou erro:", response.status);
+          return;
+        }
+        const data = await response.json();
+        // Se a API retorna { primeiro_nome, email, telefone }, armazenamos no localStorage
+        if (data.email) {
+          localStorage.setItem("userEmail", data.email);
+        }
+        if (data.telefone) {
+          localStorage.setItem("userPhone", data.telefone);
+        }
+        // Se a API tiver mais campos, aproveite
+      } catch (err) {
+        console.error("Erro ao buscar perfil:", err);
+      }
     }
     
     /***********************************************
@@ -1118,12 +1141,12 @@
      ***********************************************/
     
     function readUserDataFromStep1() {
-      // Se o usuário estiver logado, "agentId" => busca userEmail do localStorage
+      // Se logado, prioriza localStorage para email / phone
       const userId      = localStorage.getItem("agentId") || "";
       const userEmailLS = localStorage.getItem("userEmail") || "";
       const userPhoneLS = localStorage.getItem("userPhone") || "";
     
-      // Campos do form:
+      // Campos do form
       const firstName = document.getElementById("firstName").value.trim();
       const lastName  = document.getElementById("lastName").value.trim();
       const emailForm = document.getElementById("email").value.trim();
@@ -1139,16 +1162,15 @@
       userData.cpf   = cpf;
       userData.address.zipCode = cep;
       userData.address.street  = address;
-      userData.address.number  = number; // ex.: "123"
+      userData.address.number  = number;
       userData.address.city    = city;
       userData.address.state   = state;
     
-      // Se logado, prioriza localStorage
+      // Se userId existe, priorizamos localStorage do e-mail / phone
       if (userId) {
         userData.email = userEmailLS || emailForm;
         userData.phone = userPhoneLS || celular;
       } else {
-        // Senão, pega do form
         userData.email = emailForm;
         userData.phone = celular;
       }
@@ -1169,23 +1191,21 @@
     const toStep3Btn = document.getElementById("toStep3");
     if (toStep3Btn) {
       toStep3Btn.addEventListener("click", () => {
-        // 1) Lê dados Step 1
+        // Lê dados
         readUserDataFromStep1();
-    
-        // 2) Calcula total em centavos
         finalAmount = getCartAmountInCents();
         if (finalAmount <= 0) {
           alert("Valor do pedido não pode ser 0!");
           return;
         }
     
-        // 3) Checa se o e-mail é válido (tem "@" e não vazio)
+        // Valida e-mail
         if (!userData.email || !userData.email.includes("@")) {
           alert("Por favor, informe um e-mail válido.");
           return;
         }
     
-        // 4) Atualiza Malga
+        // Configura Malga
         malgaCheckout.transactionConfig.amount = finalAmount;
         malgaCheckout.transactionConfig.customer = {
           name: userData.name,
@@ -1199,7 +1219,6 @@
           address: {
             zipCode: userData.address.zipCode,
             street: userData.address.street,
-            // Malga => "streetNumber" (string)
             streetNumber: userData.address.number ? String(userData.address.number) : "S/N",
             complement: userData.address.complement || "",
             neighborhood: userData.address.neighborhood || "",
@@ -1209,11 +1228,10 @@
           }
         };
     
-        // Ajusta Pix e Boleto (se quiser exibir valor item)
         malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
         malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
     
-        // Avança Step
+        // Step 2 -> Step 3
         document.querySelector('[data-step="2"]').classList.remove("active");
         document.querySelector('[data-step="3"]').classList.add("active");
       });
@@ -1234,6 +1252,24 @@
         document.querySelector('[data-step="2"]').classList.add("active");
       });
     }
+    
+    /***********************************************
+     *  CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR *
+     ***********************************************/
+    
+    window.addEventListener("DOMContentLoaded", async () => {
+      await fetchProfileIfLoggedIn();
+      // Se quiser, pode também tentar atualizar o form do Step 1 com userEmail / userPhone
+      // caso deseje já exibir no input #email ou #celular
+      const storedEmail = localStorage.getItem("userEmail");
+      const storedPhone = localStorage.getItem("userPhone");
+      if (storedEmail && document.getElementById("email")) {
+        document.getElementById("email").value = storedEmail;
+      }
+      if (storedPhone && document.getElementById("celular")) {
+        document.getElementById("celular").value = storedPhone;
+      }
+    });
   </script>
 </body>
 </html>
