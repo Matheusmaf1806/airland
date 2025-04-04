@@ -1089,7 +1089,11 @@
     // Montar objeto com os dados do pedido
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao = m.length > 0 ? m[0].checkIn : null;
+    
+    // Se m[0].checkIn não existir, definimos uma data padrão
+    const data_utilizacao = (m.length > 0 && m[0].checkIn)
+      ? m[0].checkIn
+      : "2025-12-31";
 
     // Exemplo de "firstName" obtido de t
     const firstName = t.firstName || "(nome)";
