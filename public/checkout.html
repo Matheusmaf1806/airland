@@ -764,6 +764,8 @@
           <h2 id="finalTitle">Pagamento Concluído</h2>
           <p id="finalMsg">Seu pagamento foi efetuado com sucesso!</p>
           <p id="finalThanks">Obrigado por sua compra.</p>
+
+          <div id="finalSummary"></div>
         </div>
       </div>
     </div>
@@ -1071,22 +1073,44 @@
 
   // Helpers para exibir alertas sem Tailwind:
   function showAlertSuccess(message) {
+    // Apaga qualquer alerta anterior
     alertContainer.innerHTML = `
-      <div
+      <div 
         style="
-          margin-top: 8px;
-          border-left: 4px solid green;
-          background-color: #f0fff0;
-          color: #1f4121;
-          padding: 8px;
-          border-radius: 4px;
+          position: fixed; 
+          top: 1rem; 
+          right: 1rem; 
+          z-index: 9999; 
+          width: 300px;
+          padding: 0.8rem 1rem;
+          background-color: #ecfdf5;
+          color: #065f46;
+          border-left: 4px solid #34d399;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
           font-family: sans-serif;
           font-size: 0.9rem;
-          display: flex;
-          align-items: center;
         "
       >
-        <strong style="margin-right: 6px;">Success:</strong> ${message}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>Sucesso</strong>
+          <button 
+            style="
+              background: transparent;
+              border: none;
+              font-weight: bold;
+              font-size: 1rem;
+              color: #065f46;
+              cursor: pointer;
+            "
+            onclick="document.getElementById('alertContainer').innerHTML='';"
+          >
+            &times;
+          </button>
+        </div>
+        <p style="margin-top: 0.5rem;">
+          ${message}
+        </p>
       </div>
     `;
   }
@@ -1174,33 +1198,32 @@
   /***********************************************
    *      EVENTO DE PAGAMENTO APROVADO           *
    ***********************************************/
+  // Ajuste seu eventListener do pagamento aprovado
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // Apaga alertas antigos (se houver)
+  
+    // Limpa quaisquer alertas anteriores
     alertContainer.innerHTML = "";
-
-    // Obter meio de pagamento e parcelas
+  
+    // 1. Identifica meio de pagamento, parcelas, bandeira etc.
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
-
-    // Bandeira do cartão, se houver
     let bandeiraCartao = null;
-    if (
-      event.detail.data.paymentSource && 
-      event.detail.data.paymentSource.cardBrand
-    ) {
+    if (event.detail.data.paymentSource?.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
-
-    // Pegando dados do carrinho
+  
+    // 2. Se quiser, extrai dados do carrinho (destino, item, etc.)
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
     const data_utilizacao = (m.length > 0 && m[0].checkIn) 
-      ? m[0].checkIn 
-      : "2025-12-31";
-
+        ? m[0].checkIn 
+        : "2025-12-31";
+  
+    // 3. Pega nome do usuário
     const firstName = t.firstName || "(nome)";
-
+  
+    // 4. Monta objeto que será salvo no banco
     const dataToInsert = {
       data_venda: new Date(),
       destino,
@@ -1230,38 +1253,59 @@
       pedido: JSON.stringify(m),
       passageiros: JSON.stringify(t.extraPassengers)
     };
-
+  
     try {
+      // 5. Envia para a rota /api/checkoutComplete
       const response = await fetch('/api/checkoutComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToInsert)
       });
       const result = await response.json();
-
+  
       if (!result.success) {
         console.error("Erro ao inserir pedido:", result.error || result.message);
         showAlertError("Error - Houve um erro ao registrar a venda no banco.");
         return;
       }
-
+  
       console.log("Inserção no banco bem-sucedida:", result.insertedData);
-      const insertedId = result.insertedData && result.insertedData.length > 0
+      // 6. ID retornado do banco
+      const insertedId = (result.insertedData && result.insertedData.length > 0)
         ? result.insertedData[0].id
-        : orderId;
-
-      // Exibe alerta de sucesso
+        : orderId; // fallback
+  
+      // 7. Pequena notificação no canto (pode ajustar o estilo em showAlertSuccess)
       showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
-
-      // Step 4
-      document.getElementById("finalTitle").textContent =
-        `Parabéns ${firstName} pela sua escolha!`;
+  
+      // 8. Ajusta Step 4:
+      document.getElementById("finalTitle").textContent  =
+          `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
-        `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
-      document.getElementById("finalThanks").textContent = "Aproveite a viagem!";
-
-      p(4);
-
+          `O seu pedido de número #${insertedId} foi concluído com sucesso...`;
+      document.getElementById("finalThanks").textContent =
+          "Aproveite a viagem!";
+  
+      // 9. Opcional: escondemos a coluna direita (carrinho)
+      const rightCol = document.querySelector(".right-col");
+      if (rightCol) {
+        rightCol.style.display = "none";
+      }
+  
+      // 10. Se quiser um "mini-resumo" no Step 4, insira no finalSummary (caso tenha)
+      const finalSummaryEl = document.getElementById("finalSummary");
+      if (finalSummaryEl) {
+        finalSummaryEl.innerHTML = `
+          <h3>Resumo Final</h3>
+          <p>Destinos/Itens: ${item}</p>
+          <p>Valor total: R$ ${(finalAmount / 100).toFixed(2)}</p>
+          <!-- etc. -->
+        `;
+      }
+  
+      // 11. Muda para Step 4
+      window.p(4);
+  
     } catch (error) {
       console.error("Exceção ao chamar /api/checkoutComplete:", error);
       showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
