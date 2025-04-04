@@ -123,7 +123,7 @@ router.get("/profile", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("users")
-      .select("primeiro_nome")
+      .select("primeiro_nome, email, telefone")
       .eq("id", id)
       .single();
 
