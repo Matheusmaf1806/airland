@@ -1028,6 +1028,61 @@
    ***********************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
 
+  // Container para exibir alerts Tailwind (precisa existir no HTML: <div id="alertContainer"></div>)
+  const alertContainer = document.getElementById("alertContainer");
+
+  // Funções helper para injetar alerts com Tailwind
+  function showAlertSuccess(message) {
+    alertContainer.innerHTML = `
+      <div
+        role="alert"
+        class="mt-2 bg-green-100 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-700 text-green-900 dark:text-green-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-green-200 dark:hover:bg-green-800 transform hover:scale-105"
+      >
+        <svg
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          fill="none"
+          class="h-5 w-5 flex-shrink-0 mr-2 text-green-600"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          ></path>
+        </svg>
+        <p class="text-xs font-semibold">${message}</p>
+      </div>
+    `;
+  }
+
+  function showAlertError(message) {
+    alertContainer.innerHTML = `
+      <div
+        role="alert"
+        class="mt-2 bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-900 dark:text-red-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-red-200 dark:hover:bg-red-800 transform hover:scale-105"
+      >
+        <svg
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          fill="none"
+          class="h-5 w-5 flex-shrink-0 mr-2 text-red-600"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          ></path>
+        </svg>
+        <p class="text-xs font-semibold">${message}</p>
+      </div>
+    `;
+  }
+
+  // Configuração do Malga
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1071,13 +1126,13 @@
     }
   };
 
-  // IMPORTANTE: Remover ou deixar vazio successRedirectUrl para não redirecionar
+  // Desativa popup do Malga
   malgaCheckout.dialogConfig = {
-    show: true,
+    show: false, // não exibe modal nativo
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
-    successRedirectUrl: "", // agora não redireciona para a Malga
+    successRedirectUrl: "", // não redireciona
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
@@ -1087,12 +1142,14 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
+    // Limpamos qualquer alerta anterior
+    alertContainer.innerHTML = "";
 
-    // Pegando meio de pagamento pelo caminho certo
-    const meioPgto = event.detail.data.paymentMethod.paymentType; // "credit", "pix", "boleto"
+    // Pegando meio de pagamento
+    const meioPgto = event.detail.data.paymentMethod.paymentType; // ex. "credit","pix","boleto"
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
-    // Se quiser brand do cartão:
+    // Pegando a suposta bandeira do cartão, se houver
     let bandeiraCartao = null;
     if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
@@ -1100,11 +1157,7 @@
 
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    // fallback se não houver checkIn
-    const data_utilizacao = (m.length > 0 && m[0].checkIn)
-      ? m[0].checkIn
-      : "2025-12-31";
-
+    const data_utilizacao = (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
     const firstName = t.firstName || "(nome)";
 
     const dataToInsert = {
@@ -1147,17 +1200,20 @@
 
       if (!result.success) {
         console.error("Erro ao inserir pedido:", result.error || result.message);
-        alert("Houve um erro ao registrar a venda no banco.");
+        // Mostrar alerta de erro
+        showAlertError("Error - Houve um erro ao registrar a venda no banco.");
         return;
       }
 
       console.log("Inserção no banco bem-sucedida:", result.insertedData);
-
       const insertedId = result.insertedData && result.insertedData.length > 0
         ? result.insertedData[0].id
-        : orderId; // fallback
+        : orderId;
 
-      // Ajustar Step 4 (não redireciona mais)
+      // Mostrar alerta de sucesso
+      showAlertSuccess(`Success - Pedido de número ${insertedId} inserido com sucesso!`);
+
+      // Ajustar Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -1169,7 +1225,8 @@
 
     } catch (error) {
       console.error("Exceção ao chamar /api/checkoutComplete:", error);
-      alert("Exceção ao chamar a rota de inserção no banco.");
+      // Mostrar alerta de erro
+      showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
     }
   });
 
@@ -1178,7 +1235,10 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentFailed", (event) => {
     console.log("Falha no pagamento:", event.detail);
-    alert("Falha no pagamento! Verifique o console para detalhes.");
+    // Limpamos qualquer alerta anterior
+    alertContainer.innerHTML = "";
+    // Mostrar alerta de erro
+    showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
   });
 
   /***********************************************
@@ -1271,11 +1331,11 @@
       readUserDataFromStep1();
       finalAmount = getCartAmountInCents();
       if (finalAmount <= 0) {
-        alert("Valor do pedido não pode ser 0!");
+        showAlertError("Error - Valor do pedido não pode ser 0!");
         return;
       }
       if (!t.email || !t.email.includes("@")) {
-        alert("Por favor, informe um e-mail válido.");
+        showAlertError("Error - Por favor, informe um e-mail válido.");
         return;
       }
 
