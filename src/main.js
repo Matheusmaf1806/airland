@@ -1,15 +1,24 @@
-function p(n) {
-  const o = document.querySelectorAll(".step-content"),
-    a = document.querySelectorAll(".steps-menu .step");
-  o.forEach((s) => {
-    s.classList.toggle("active", s.dataset.step === String(n));
+// Define a função p(r) no objeto global, para poder chamá-la de fora
+window.p = function(r) {
+  const stepContents = document.querySelectorAll(".step-content");
+  const stepsMenu = document.querySelectorAll(".steps-menu .step");
+
+  // Ativa/desativa conteúdo
+  stepContents.forEach(s => {
+    s.classList.toggle("active", s.dataset.step === String(r));
   });
-  a.forEach((s) => {
-    const d = parseInt(s.dataset.step, 10);
-    s.classList.toggle("active", d === n);
-    d > n ? s.classList.add("disabled") : s.classList.remove("disabled");
+
+  // Atualiza bolinhas do menu
+  stepsMenu.forEach(s => {
+    const stepNum = parseInt(s.dataset.step, 10);
+    s.classList.toggle("active", stepNum === r);
+    if (stepNum > r) {
+      s.classList.add("disabled");
+    } else {
+      s.classList.remove("disabled");
+    }
   });
-}
+};
 
 let t = {
     extraPassengers: [],
