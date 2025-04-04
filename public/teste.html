@@ -14,13 +14,39 @@
     ></script>
 
     <title>Malga Checkout Example</title>
+
+    <!-- Exemplo de sobrescrita de estilo/tema (opcional) -->
+    <style>
+      :root {
+        /* Exemplo de cores do tema */
+        --malga-checkout-color-page-background: #f0f2f5;
+        --malga-checkout-color-brand-normal: #39bfad;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+      }
+      main {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      h1 {
+        margin-top: 0;
+      }
+    </style>
   </head>
   <body>
     <main>
+      <h1>Malga Checkout - Produto de R$ 1.590,00</h1>
+
       <!-- Componente Web do Malga Checkout -->
       <malga-checkout
         id="malga-checkout"
-        sandbox="false"
+        sandbox="false" <!-- Se precisar homolog, mude para "true" -->
         public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
         client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
         merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
@@ -30,9 +56,9 @@
 
     <script>
       // Seleciona o componente <malga-checkout> no DOM
-      const malgaCheckout = document.querySelector('malga-checkout');
+      const malgaCheckout = document.querySelector("malga-checkout");
 
-      // Exemplo de config de métodos de pagamento
+      // Meios de pagamento: Pix, Crédito (até 10x) e Boleto
       malgaCheckout.paymentMethods = {
         pix: {
           expiresIn: 600,
@@ -41,13 +67,13 @@
               id: "123",
               title: "Produto Exemplo - PIX",
               quantity: 1,
-              unitPrice: 159000,
+              unitPrice: 159000, // R$ 1.590,00 em centavos
             },
           ],
         },
         credit: {
           installments: {
-            quantity: 10,
+            quantity: 10, // até 10 parcelas
             show: true,
           },
           showCreditCard: true,
@@ -57,33 +83,54 @@
           instructions: "Instruções de pagamento do boleto",
           interest: {
             days: 1,
-            amount: 159000,
+            amount: 159000, // Exemplo: R$ 1.590,00 de juros (verifique se é desejado!)
           },
           fine: {
             days: 2,
-            amount: 200,
+            amount: 200, // R$ 2,00 de multa
           },
           items: [
             {
               id: "123",
               title: "Produto Exemplo - Boleto",
               quantity: 1,
-              unitPrice: 159000,
+              unitPrice: 159000, // R$ 1.590,00
             },
           ],
         },
       };
 
       // Configurações de transação
+      // "amount" -> valor total da compra = 159000 (R$ 1.590,00)
+      // Incluir "customer" p/ Pix/Boleto (geralmente obrigatório)
       malgaCheckout.transactionConfig = {
         statementDescriptor: "Malga Checkout Example",
-        amount: 159000, // Em centavos
+        amount: 159000, // R$ 1.590,00
         description: "Demonstração do Malga Checkout",
         orderId: "pedido-123",
-        customerId: "",
         currency: "BRL",
         capture: false,
-        customer: null,
+        // Exemplo de dados de cliente (necessário p/ Pix/Boleto)
+        customer: {
+          name: "Fulano de Tal",
+          email: "fulano@example.com",
+          phoneNumber: "+55 11 99999-9999",
+          document: {
+            type: "CPF",
+            number: "12345678901",
+            country: "BR",
+          },
+          address: {
+            zipCode: "01001000",
+            street: "Av. Exemplo",
+            number: "123",
+            complement: "Apto 45",
+            neighborhood: "Centro",
+            city: "São Paulo",
+            state: "SP",
+            country: "BR",
+          },
+        },
       };
 
       // Configurações do diálogo (modal) de status
@@ -100,12 +147,14 @@
       // Listeners de eventos
       malgaCheckout.addEventListener("paymentSuccess", (event) => {
         console.log("Pagamento concluído com sucesso:", event.detail);
-        // Exemplo: Redirecionar ou mostrar mensagem
+        // Exemplo: redirecionar, exibir alerta, etc.
+        alert("Pagamento aprovado!");
       });
 
       malgaCheckout.addEventListener("paymentFailed", (event) => {
         console.log("Falha no pagamento:", event.detail);
-        // Exemplo: Mostrar mensagem de erro
+        // Exemplo: mostrar mensagem de erro
+        alert("Falha no pagamento. Consulte o console para detalhes.");
       });
     </script>
   </body>
