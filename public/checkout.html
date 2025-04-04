@@ -990,16 +990,16 @@
      *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
      ***********************************************/
     
-    // Variáveis para armazenar dados do usuário (Step 1 ou login)
+    // Variáveis para armazenar dados do usuário
     let userData = {
       name: "",
-      email: "",
-      phone: "", // se quiser forçar "celular" do login, setar userData.phone = userLoggedPhone
+      email: "", // se logado, puxamos localStorage; se não, campo de input
+      phone: "", 
       cpf: "",
       address: {
         zipCode: "",
         street: "",
-        number: "",    // valor digitado no <input id="number" >
+        number: "",
         complement: "",
         neighborhood: "",
         city: "",
@@ -1008,78 +1008,49 @@
       }
     };
     
-    // ID do pedido (exemplo)
-    let orderId = "pedido-999999";
-    
-    // Valor final do pedido (centavos). Será atualizado lendo #totalValue
-    let finalAmount = 0;
+    let orderId = "pedido-999999"; // exemplo
+    let finalAmount = 0; // carrinho
     
     /***********************************************
-     *         SELECIONANDO O <MALGA-CHECKOUT>     *
+     *       SELECIONANDO O <MALGA-CHECKOUT>       *
      ***********************************************/
     
-    // Seleciona componente Malga no step 3
     const malgaCheckout = document.querySelector("#malga-checkout");
     
-    // Métodos de pagamento
     malgaCheckout.paymentMethods = {
       pix: {
         expiresIn: 600,
-        items: [
-          {
-            id: "pixItemABC",
-            title: "Produto Pix",
-            quantity: 1,
-            unitPrice: 0 // será atualizado no Step 2->3
-          }
-        ]
+        items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
       },
       credit: {
-        installments: {
-          quantity: 10,
-          show: true
-        },
+        installments: { quantity: 10, show: true },
         showCreditCard: true
       },
       boleto: {
         expiresDate: "2025-12-31",
         instructions: "Boleto Exemplo (Produção)",
-        interest: {
-          days: 1,
-          amount: 1000 // Exemplo: 10 reais de juros
-        },
-        fine: {
-          days: 2,
-          amount: 500 // Exemplo: 5 reais de multa
-        },
-        items: [
-          {
-            id: "boletoItemABC",
-            title: "Produto Boleto",
-            quantity: 1,
-            unitPrice: 0 // será atualizado no Step 2->3
-          }
-        ]
+        interest: { days: 1, amount: 1000 },
+        fine:     { days: 2, amount: 500  },
+        items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
       }
     };
     
-    // transactionConfig inicial
     malgaCheckout.transactionConfig = {
       statementDescriptor: "Checkout Completo",
-      amount: 0, // Começa em 0 e será atualizado
+      amount: 0,
       description: "Pacote + Taxas + Extras",
-      orderId: orderId,
+      orderId,
       currency: "BRL",
       capture: false,
       customer: {
         name: "",
-        email: "",        // o e-mail do usuário
-        phoneNumber: "",  // o telefone do usuário
+        email: "",
+        phoneNumber: "",
         document: { type: "CPF", number: "", country: "BR" },
         address: {
           zipCode: "",
           street: "",
-          streetNumber: "",   // a Malga precisa deste campo como string e não vazio
+          streetNumber: "",
           complement: "",
           neighborhood: "",
           city: "",
@@ -1089,7 +1060,6 @@
       }
     };
     
-    // Config dialog
     malgaCheckout.dialogConfig = {
       show: true,
       actionButtonLabel: "Continuar",
@@ -1106,7 +1076,6 @@
     
     malgaCheckout.addEventListener("paymentSuccess", (event) => {
       console.log("Pagamento concluído com sucesso:", event.detail);
-      // Passa do Step 3 para Step 4
       document.querySelector('[data-step="3"]').classList.remove("active");
       document.querySelector('[data-step="4"]').classList.add("active");
     });
@@ -1117,28 +1086,31 @@
     });
     
     /***********************************************
-     *         FUNÇÃO PARA CONVERTER O VALOR       *
-     *         DE "#totalValue" EM CENTAVOS        *
+     *  CONVERTE "#totalValue" EM CENTAVOS          *
      ***********************************************/
     
     function getCartAmountInCents() {
       const totalText = document.getElementById("totalValue").textContent.trim();
-      // Remove tudo que não é dígito, vírgula ou ponto
       let numericStr = totalText.replace(/[^\d,\.]/g, "").replace(",", ".");
-      // ex.: "2.125.50" => parseFloat -> 2125.5 => *100 => 212550
       const amount = Math.round(parseFloat(numericStr) * 100);
       return amount > 0 ? amount : 0;
     }
     
     /***********************************************
-     *         LENDO DADOS DO STEP 1               *
+     *  LENDO DADOS DO STEP 1 (FORM + LOGIN)        *
      ***********************************************/
     
     function readUserDataFromStep1() {
+      // Se o usuário estiver logado, "agentId" => busca userEmail do localStorage
+      const userId = localStorage.getItem("agentId");
+      const userEmailLS = localStorage.getItem("userEmail") || "";
+      const userPhoneLS = localStorage.getItem("userPhone") || "";
+    
+      // Campos do form
       const firstName = document.getElementById("firstName").value.trim();
       const lastName  = document.getElementById("lastName").value.trim();
+      const emailForm = document.getElementById("email").value.trim();
       const celular   = document.getElementById("celular").value.trim();
-      const email     = document.getElementById("email").value.trim();
       const cpf       = document.getElementById("cpf").value.replace(/\D/g, "");
       const cep       = document.getElementById("cep").value.replace(/\D/g, "");
       const state     = document.getElementById("state").value.trim();
@@ -1146,24 +1118,28 @@
       const address   = document.getElementById("address").value.trim();
       const number    = document.getElementById("number").value.trim();
     
-      // Monta userData
       userData.name  = `${firstName} ${lastName}`;
-      userData.email = email;
-      userData.phone = celular;
       userData.cpf   = cpf;
       userData.address.zipCode = cep;
       userData.address.street  = address;
-      userData.address.number  = number; // guardamos aqui
+      userData.address.number  = number;
       userData.address.city    = city;
       userData.address.state   = state;
-      // complement, neighborhood se existirem
+    
+      // Se logado, pega localStorage. Se não, usa o valor do form
+      if (userId) {
+        userData.email = userEmailLS || emailForm; // se "userEmail" estiver vazio, fallback form
+        userData.phone = userPhoneLS || celular;
+      } else {
+        userData.email = emailForm; 
+        userData.phone = celular;
+      }
     }
     
     /***********************************************
      *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
      ***********************************************/
     
-    // Step 1 -> Step 2
     const toStep2Btn = document.getElementById("toStep2");
     if (toStep2Btn) {
       toStep2Btn.addEventListener("click", () => {
@@ -1172,17 +1148,13 @@
       });
     }
     
-    // Step 2 -> Step 3
     const toStep3Btn = document.getElementById("toStep3");
     if (toStep3Btn) {
       toStep3Btn.addEventListener("click", () => {
-        // Lê do Step 1
         readUserDataFromStep1();
-    
-        // Lê valor do carrinho
         finalAmount = getCartAmountInCents();
         if (finalAmount <= 0) {
-          alert("Valor do pedido não pode ser 0. Verifique o carrinho!");
+          alert("Valor do pedido não pode ser 0!");
           return;
         }
     
@@ -1190,8 +1162,8 @@
         malgaCheckout.transactionConfig.amount = finalAmount;
         malgaCheckout.transactionConfig.customer = {
           name: userData.name,
-          email: userData.email,           // se logado, já deve estar certo
-          phoneNumber: userData.phone,     // se logado, idem
+          email: userData.email,
+          phoneNumber: userData.phone,
           document: {
             type: "CPF",
             number: userData.cpf,
@@ -1200,8 +1172,7 @@
           address: {
             zipCode: userData.address.zipCode,
             street: userData.address.street,
-            // IMPORTANTE: streetNumber deve ser string e não vazio
-            streetNumber: String(userData.address.number || "S/N"),
+            streetNumber: userData.address.number ? String(userData.address.number) : "S/N",
             complement: userData.address.complement || "",
             neighborhood: userData.address.neighborhood || "",
             city: userData.address.city,
@@ -1210,17 +1181,14 @@
           }
         };
     
-        // Ajusta Pix/Boleto se quiser exibir valor certo
         malgaCheckout.paymentMethods.pix.items[0].unitPrice = finalAmount;
         malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
     
-        // Avança Step
         document.querySelector('[data-step="2"]').classList.remove("active");
         document.querySelector('[data-step="3"]').classList.add("active");
       });
     }
     
-    // Step 2 -> Step 1 (voltar)
     const backToStep1Btn = document.getElementById("backToStep1");
     if (backToStep1Btn) {
       backToStep1Btn.addEventListener("click", () => {
@@ -1229,7 +1197,6 @@
       });
     }
     
-    // Step 3 -> Step 2 (voltar)
     const backToStep2Btn = document.getElementById("backToStep2");
     if (backToStep2Btn) {
       backToStep2Btn.addEventListener("click", () => {
