@@ -1050,7 +1050,7 @@
     statementDescriptor: "Checkout Completo",
     amount: 0,
     description: "Pacote + Taxas + Extras",
-    orderId, // "pedido-999999"
+    orderId,
     currency: "BRL",
     capture: false,
     customer: {
@@ -1070,13 +1070,14 @@
       }
     }
   };
-  
+
+  // IMPORTANTE: Remover ou deixar vazio successRedirectUrl para não redirecionar
   malgaCheckout.dialogConfig = {
     show: true,
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
-    successRedirectUrl: "https://www.malga.io/",
+    successRedirectUrl: "", // agora não redireciona para a Malga
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
@@ -1087,29 +1088,25 @@
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
 
-    // Pegue meio de pagamento e parcelas do caminho correto:
-    const meioPgto = event.detail.data.paymentMethod.paymentType;       // "credit", "pix", "boleto" etc.
+    // Pegando meio de pagamento pelo caminho certo
+    const meioPgto = event.detail.data.paymentMethod.paymentType; // "credit", "pix", "boleto"
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
-    // Se quiser pegar a brand do cartão, verifique se existe em event.detail.data.paymentSource
-    // Exemplo:
+    // Se quiser brand do cartão:
     let bandeiraCartao = null;
     if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
-    // Montar objeto com os dados do pedido
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    
-    // Se m[0].checkIn não existir, definimos uma data padrão
+    // fallback se não houver checkIn
     const data_utilizacao = (m.length > 0 && m[0].checkIn)
       ? m[0].checkIn
       : "2025-12-31";
 
-    // Exemplo de "firstName" obtido de t
     const firstName = t.firstName || "(nome)";
-    
+
     const dataToInsert = {
       data_venda: new Date(),
       destino,
@@ -1120,10 +1117,10 @@
       data_nascimento: t.birthdate,
       uf: t.state,
       nome_comprador: `${t.firstName} ${t.lastName}`,
-      meio_pgto: meioPgto,             // Ajuste principal para não ficar null
-      bandeira_cartao: bandeiraCartao, // Se encontrado, senão null
-      parcelas: parcelas,             // De event.detail.data.paymentMethod.installments
-      valor_venda: finalAmount / 100, // conversão centavos -> real
+      meio_pgto: meioPgto,
+      bandeira_cartao: bandeiraCartao,
+      parcelas,
+      valor_venda: finalAmount / 100,
       origem_cliente: "",
       cliente_de: "",
       efetivado_por: localStorage.getItem("cartOwnerId") || "",
@@ -1136,7 +1133,7 @@
       cpf: t.cpf.replace(/\D/g, ""),
       affiliate_id: 0,
       agente_id: 0,
-      pedido: JSON.stringify(m), // carrinho
+      pedido: JSON.stringify(m),
       passageiros: JSON.stringify(t.extraPassengers)
     };
 
@@ -1156,24 +1153,17 @@
 
       console.log("Inserção no banco bem-sucedida:", result.insertedData);
 
-      // Se o backend retorna insertedData: [{ id: ... }], pegue o ID:
       const insertedId = result.insertedData && result.insertedData.length > 0
         ? result.insertedData[0].id
-        : orderId; // fallback p/ "pedido-999999"
+        : orderId; // fallback
 
-      // AJUSTAR STEP 4 DINAMICAMENTE
-      // 1) Título
+      // Ajustar Step 4 (não redireciona mais)
       document.getElementById("finalTitle").textContent =
         `Parabéns ${firstName} pela sua escolha!`;
-
-      // 2) Mensagem principal
       document.getElementById("finalMsg").textContent =
-        `O seu pedido de número ${insertedId} foi concluído com sucesso, já foi recebido pelo nosso time e iniciamos o processo de emissão dos seus vouchers.`;
-
-      // 3) Mensagem final (antes era "Obrigado por sua compra")
+        `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
       document.getElementById("finalThanks").textContent = "Aproveite a viagem!";
 
-      // Mostrar Step 4
       document.querySelector('[data-step="3"]').classList.remove("active");
       document.querySelector('[data-step="4"]').classList.add("active");
 
@@ -1196,12 +1186,12 @@
    ***********************************************/
   function getCartAmountInCents() {
     const totalText = document.getElementById("totalValue").textContent.trim();
-    let numericStr = totalText.replace(/[^\d.,-]/g, ""); // ex: "R$ 6.084,87" -> "6.084,87"
-    numericStr = numericStr.replace(/\./g, "");          // remove pontos -> "6084,87"
-    numericStr = numericStr.replace(",", ".");           // troca vírgula -> "6084.87"
+    let numericStr = totalText.replace(/[^\d.,-]/g, "");
+    numericStr = numericStr.replace(/\./g, "");
+    numericStr = numericStr.replace(",", ".");
     const amount = parseFloat(numericStr);
     if (isNaN(amount)) return 0;
-    return Math.round(amount * 100); // -> 608487
+    return Math.round(amount * 100);
   }
 
   /***********************************************
@@ -1247,14 +1237,13 @@
     const address   = document.getElementById("address").value.trim();
     const number    = document.getElementById("number").value.trim();
 
-    // Guardar no t / userData
     t.firstName = firstName;
     t.lastName  = lastName;
     t.birthdate = document.getElementById("birthdate").value.trim();
     t.state     = state;
     t.cpf       = cpf;
     t.email     = userId ? (userEmailLS || emailForm) : emailForm;
-    t.celular   = userId ? (userPhoneLS || celular)   : celular;
+    t.celular   = userId ? (userPhoneLS || celular) : celular;
 
     userData.name = `${firstName} ${lastName}`;
     userData.cpf  = cpf;
@@ -1289,7 +1278,7 @@
         alert("Por favor, informe um e-mail válido.");
         return;
       }
-      // Configura Malga com valor e dados do cliente
+
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
@@ -1311,6 +1300,7 @@
           country: "BR"
         }
       };
+
       malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
       malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
 
@@ -1340,7 +1330,6 @@
    ***********************************************/
   window.addEventListener("DOMContentLoaded", async () => {
     await fetchProfileIfLoggedIn();
-    // Se quiser preencher o form com email/phone do LS
     const storedEmail = localStorage.getItem("userEmail");
     const storedPhone = localStorage.getItem("userPhone");
     if (storedEmail && document.getElementById("email")) {
