@@ -1066,15 +1066,15 @@
     // ...
   };
 
-  // Container de alertas
+  // Container para os alertas
   const alertContainer = document.getElementById("alertContainer");
 
-  // Fecha alerta
+  // Fecha o alerta
   function closeAlert() {
     alertContainer.innerHTML = "";
   }
   
-  // ALERTA DE ERRO
+  // ALERTA DE ERRO (vermelho)
   function showAlertError(message) {
     alertContainer.innerHTML = `
       <div style="
@@ -1095,7 +1095,15 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong style="font-size: 1rem;">Erro</strong>
           <button
-            style="background: transparent; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; color: #b91c1c; margin-left: 8px;"
+            style="
+              background: transparent; 
+              border: none; 
+              font-weight: bold; 
+              font-size: 1.2rem; 
+              cursor: pointer; 
+              color: #b91c1c; 
+              margin-left: 8px;
+            "
             onclick="closeAlert()"
           >
             &times;
@@ -1120,7 +1128,7 @@
     `;
   }
   
-  // ALERTA DE SUCESSO
+  // ALERTA DE SUCESSO (verde)
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
       <div style="
@@ -1142,13 +1150,14 @@
           <strong style="font-size: 1rem;">Sucesso</strong>
           <button
             style="
-              background: transparent;
-              border: none;
-              font-weight: bold;
-              font-size: 1.2rem;
+              background: transparent; 
+              border: none; 
+              font-weight: bold; 
+              font-size: 1.2rem; 
               cursor: pointer; 
               color: #15803d; 
-              margin-left: 8px;"
+              margin-left: 8px;
+            "
             onclick="closeAlert()"
           >
             &times;
@@ -1174,10 +1183,11 @@
   }
 
   /***********************************************
-   *  SELECIONANDO O <MALGA-CHECKOUT>
+   *   SELECIONANDO O <MALGA-CHECKOUT>
    ***********************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
 
+  // Configuração de métodos de pagamento
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1196,11 +1206,12 @@
     }
   };
   
+  // Configuração principal da transação
   malgaCheckout.transactionConfig = {
     statementDescriptor: "Checkout Completo",
     amount: 0,
     description: "Pacote + Taxas + Extras",
-    orderId,
+    orderId, // "pedido-999999"
     currency: "BRL",
     capture: false,
     customer: {
@@ -1221,7 +1232,7 @@
     }
   };
 
-  // Desativa popup nativo do Malga
+  // Desativa popup do Malga
   malgaCheckout.dialogConfig = {
     show: false,
     actionButtonLabel: "Continuar",
@@ -1233,14 +1244,14 @@
   };
 
   /***********************************************
-   *   EVENTO DE PAGAMENTO APROVADO (paymentSuccess)
+   * EVENTO DE PAGAMENTO APROVADO (paymentSuccess)
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // apaga alertas antigos
+    // Apaga qualquer alerta pendente
     alertContainer.innerHTML = "";
 
-    // Pega meio de pagamento e parcelas
+    // Identifica tipo de pagamento e parcelas
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
@@ -1250,12 +1261,13 @@
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
-    // Pega carrinho
-    const destino = m.length > 0 ? m[0].city || "" : "";
-    const item = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao = (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
-    const firstName = t.firstName || "(nome)";
+    // Dados do carrinho / fallback se não houver checkIn
+    const destino        = m.length > 0 ? (m[0].city || "") : "";
+    const item           = m.map(i => i.hotelName).join(" + ");
+    const data_utilizacao= (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
+    const firstName      = t.firstName || "(nome)";
 
+    // Monta objeto a inserir no banco
     const dataToInsert = {
       data_venda: new Date(),
       destino,
@@ -1287,7 +1299,7 @@
     };
 
     try {
-      // Salva no banco
+      // Faz POST para /api/checkoutComplete
       const response = await fetch('/api/checkoutComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1308,27 +1320,29 @@
       showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
 
       // Ajusta Step 4
-      document.getElementById("finalTitle").textContent =
-        `Parabéns ${firstName} pela sua escolha!`;
-      document.getElementById("finalMsg").textContent =
-        `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
-      document.getElementById("finalThanks").textContent = "Aproveite a viagem!";
+      const finalTitle = document.getElementById("finalTitle");
+      const finalMsg   = document.getElementById("finalMsg");
+      const finalThanks= document.getElementById("finalThanks");
+
+      finalTitle.textContent  = `Parabéns ${firstName} pela sua escolha!`;
+      finalMsg.textContent    = `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
+      finalThanks.textContent = "Aproveite a viagem!";
 
       // Remove Step 3 e exibe Step 4
       document.querySelector('[data-step="3"]').classList.remove("active");
       document.querySelector('[data-step="4"]').classList.add("active");
 
-      // No menu, remove Step 3 e marca Step 4
+      // No menu, remove Step 3 e ativa Step 4
       document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
       document.querySelector('.steps-menu .step[data-step="4"]')?.classList.remove('disabled');
       document.querySelector('.steps-menu .step[data-step="4"]')?.classList.add('active');
 
-      // (Opcional) Ocultar malga-checkout e overlay residual
+      // Esconde <malga-checkout> e overlay, caso queira sumir completamente
       document.querySelector("#malga-checkout").style.display = "none";
       const malgaOverlay = document.querySelector(".m-checkout__dialog");
       if (malgaOverlay) malgaOverlay.style.display = "none";
 
-      // (Opcional) scroll para topo
+      // Scroll para topo
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
@@ -1338,7 +1352,7 @@
   });
 
   /***********************************************
-   *   EVENTO DE PAGAMENTO FALHOU (paymentFailed)
+   * EVENTO DE PAGAMENTO FALHOU (paymentFailed)
    ***********************************************/
   malgaCheckout.addEventListener("paymentFailed", (event) => {
     console.log("Falha no pagamento:", event.detail);
@@ -1347,20 +1361,20 @@
   });
 
   /***********************************************
-   *  FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS
+   * FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS
    ***********************************************/
   function getCartAmountInCents() {
     const totalText = document.getElementById("totalValue").textContent.trim();
-    let numericStr = totalText.replace(/[^\d.,-]/g, "");
-    numericStr = numericStr.replace(/\./g, "");
-    numericStr = numericStr.replace(",", ".");
-    const amount = parseFloat(numericStr);
+    let numericStr  = totalText.replace(/[^\d.,-]/g, "");
+    numericStr      = numericStr.replace(/\./g, "");
+    numericStr      = numericStr.replace(",", ".");
+    const amount    = parseFloat(numericStr);
     if (isNaN(amount)) return 0;
     return Math.round(amount * 100);
   }
 
   /***********************************************
-   *  EXEMPLO: fetchProfileIfLoggedIn()
+   * EXEMPLO: fetchProfileIfLoggedIn()
    ***********************************************/
   async function fetchProfileIfLoggedIn() {
     const agentId = localStorage.getItem("agentId");
@@ -1402,7 +1416,7 @@
     const address   = document.getElementById("address").value.trim();
     const number    = document.getElementById("number").value.trim();
 
-    // Salva em t e userData
+    // Salva em t (usado para mandar ao servidor) e userData (caso queira)
     t.firstName   = firstName;
     t.lastName    = lastName;
     t.birthdate   = document.getElementById("birthdate").value.trim();
@@ -1411,18 +1425,19 @@
     t.email       = userId ? (userEmailLS || emailForm) : emailForm;
     t.celular     = userId ? (userPhoneLS || celular)   : celular;
 
-    userData.name = `${firstName} ${lastName}`;
-    userData.cpf  = cpf;
-    userData.address.zipCode = cep;
-    userData.address.street  = address;
-    userData.address.number  = number;
-    userData.address.city    = city;
-    userData.address.state   = state;
+    userData.name               = `${firstName} ${lastName}`;
+    userData.cpf                = cpf;
+    userData.address.zipCode    = cep;
+    userData.address.street     = address;
+    userData.address.number     = number;
+    userData.address.city       = city;
+    userData.address.state      = state;
   }
 
   /***********************************************
-   *   NAVEGAÇÃO DOS STEPS (BOTÕES)
+   * NAVEGAÇÃO DOS STEPS (BOTÕES)
    ***********************************************/
+  // Step 1 -> Step 2
   const toStep2Btn = document.getElementById("toStep2");
   if (toStep2Btn) {
     toStep2Btn.addEventListener("click", () => {
@@ -1431,10 +1446,14 @@
     });
   }
 
+  // Step 2 -> Step 3
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", () => {
+      // Lê dados do Step 1
       readUserDataFromStep1();
+
+      // Converte total do carrinho em centavos
       finalAmount = getCartAmountInCents();
       if (finalAmount <= 0) {
         showAlertError("Error - Valor do pedido não pode ser 0!");
@@ -1476,6 +1495,7 @@
     });
   }
 
+  // Step 2 -> Step 1
   const backToStep1Btn = document.getElementById("backToStep1");
   if (backToStep1Btn) {
     backToStep1Btn.addEventListener("click", () => {
@@ -1484,6 +1504,7 @@
     });
   }
 
+  // Step 3 -> Step 2
   const backToStep2Btn = document.getElementById("backToStep2");
   if (backToStep2Btn) {
     backToStep2Btn.addEventListener("click", () => {
@@ -1493,12 +1514,13 @@
   }
 
   /***********************************************
-   *   CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
+   * CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
    ***********************************************/
   window.addEventListener("DOMContentLoaded", async () => {
     await fetchProfileIfLoggedIn();
     const storedEmail = localStorage.getItem("userEmail");
     const storedPhone = localStorage.getItem("userPhone");
+    // Pré-preenche e-mail e celular do Step 1, se existirem
     if (storedEmail && document.getElementById("email")) {
       document.getElementById("email").value = storedEmail;
     }
