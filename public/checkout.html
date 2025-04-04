@@ -1029,7 +1029,6 @@
   -->
   <script type="module" src="/assets/main.js"></script>
   <script type="module">
-  <script type="module">
 /***********************************************
  *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
  ***********************************************/
@@ -1054,7 +1053,7 @@ let orderId = "pedido-999999"; // Exemplo de ID do pedido
 let finalAmount = 0; // Valor final em centavos
 
 // Carrinho, passageiros etc.
-let m = []; 
+let m = [];
 let t = {
   firstName: "",
   lastName: "",
@@ -1067,14 +1066,16 @@ let t = {
   // ...
 };
 
-// Container para os alertas
+// Container para alertas
 const alertContainer = document.getElementById("alertContainer");
 
 /***********************************************
- * Função para fechar alerta
+ * Fechar alerta
  ***********************************************/
 function closeAlert() {
-  alertContainer.innerHTML = "";
+  if (alertContainer) {
+    alertContainer.innerHTML = "";
+  }
 }
 
 /***********************************************
@@ -1082,6 +1083,8 @@ function closeAlert() {
  ***********************************************/
 function showAlertError(message) {
   console.log("showAlertError:", message);
+  if (!alertContainer) return;
+
   alertContainer.innerHTML = `
     <div style="
       position: fixed;
@@ -1139,6 +1142,8 @@ function showAlertError(message) {
  ***********************************************/
 function showAlertSuccess(message) {
   console.log("showAlertSuccess:", message);
+  if (!alertContainer) return;
+
   alertContainer.innerHTML = `
     <div style="
       position: fixed;
@@ -1192,11 +1197,11 @@ function showAlertSuccess(message) {
 }
 
 /***********************************************
- *  SELECIONANDO O <MALGA-CHECKOUT>
+ * SELECIONAR O <MALGA-CHECKOUT>
  ***********************************************/
 const malgaCheckout = document.querySelector("#malga-checkout");
 
-// Configuração de métodos
+// Configurar métodos de pagamento
 malgaCheckout.paymentMethods = {
   pix: {
     expiresIn: 600,
@@ -1215,7 +1220,7 @@ malgaCheckout.paymentMethods = {
   }
 };
 
-// Configuração principal da transação
+// Config. principal
 malgaCheckout.transactionConfig = {
   statementDescriptor: "Checkout Completo",
   amount: 0,
@@ -1241,7 +1246,7 @@ malgaCheckout.transactionConfig = {
   }
 };
 
-// Desativa popup do Malga
+// Desativar popup
 malgaCheckout.dialogConfig = {
   show: false,
   actionButtonLabel: "Continuar",
@@ -1253,27 +1258,30 @@ malgaCheckout.dialogConfig = {
 };
 
 /***********************************************
- * EVENTO: PAGAMENTO APROVADO (paymentSuccess)
+ * PAGAMENTO APROVADO => paymentSuccess
  ***********************************************/
 malgaCheckout.addEventListener("paymentSuccess", async (event) => {
-  console.log("paymentSuccess disparado =>", event.detail);
-  alertContainer.innerHTML = ""; // limpa alertas
+  console.log("Pagamento APROVADO =>", event.detail);
+  if (alertContainer) alertContainer.innerHTML = "";
+
   try {
-    // Identifica tipo de pagamento e parcelas
-    const meioPgto   = event.detail.data.paymentMethod.paymentType || "desconhecido";
-    const parcelas   = event.detail.data.paymentMethod.installments || 1;
+    // Identifica pagamento (ex.: "credit", "pix")
+    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
+    const parcelas = event.detail.data.paymentMethod.installments || 1;
+
+    // Bandeira do cartão
     let bandeiraCartao = null;
     if (event.detail.data.paymentSource?.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
-    // Destino, item, data_utilizacao
+    // Informações do carrinho
     const destino         = (m.length>0) ? (m[0].city || "") : "";
     const item            = m.map(i=>i.hotelName).join(" + ");
     const data_utilizacao = (m.length>0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
     const firstName       = t.firstName || "(nome)";
 
-    // Prepara dataToInsert
+    // Monta dataToInsert
     const dataToInsert = {
       data_venda: new Date(),
       destino,
@@ -1306,7 +1314,7 @@ malgaCheckout.addEventListener("paymentSuccess", async (event) => {
 
     console.log("dataToInsert =>", dataToInsert);
 
-    // Chama API /checkoutComplete
+    // Faz POST para /api/checkoutComplete
     const resp = await fetch('/api/checkoutComplete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1314,16 +1322,16 @@ malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     });
     const resData = await resp.json();
 
-    if(!resData.success) {
+    if (!resData.success) {
       console.error("Erro ao inserir pedido:", resData.error || resData.message);
       showAlertError("Error - Houve um erro ao registrar a venda no banco.");
       return;
     }
 
-    console.log("Inserção no banco bem-sucedida =>", resData.insertedData);
+    console.log("Inserção no banco =>", resData.insertedData);
     const insertedId = resData.insertedData?.[0]?.id || orderId;
 
-    // Alerta de sucesso
+    // Exibe alerta de sucesso
     showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
 
     // Ajusta Step 4
@@ -1331,111 +1339,109 @@ malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     const finalMsg    = document.getElementById("finalMsg");
     const finalThanks = document.getElementById("finalThanks");
 
-    finalTitle.textContent  = `Parabéns ${firstName} pela sua escolha!`;
-    finalMsg.textContent    = `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
-    finalThanks.textContent = "Aproveite a viagem!";
+    if (finalTitle)  finalTitle.textContent  = `Parabéns ${firstName} pela sua escolha!`;
+    if (finalMsg)    finalMsg.textContent    = `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
+    if (finalThanks) finalThanks.textContent = "Aproveite a viagem!";
 
-    // Desativa Step 3 e ativa Step 4
+    // Ativa step 4 e desativa 3
     document.querySelector('[data-step="3"]')?.classList.remove("active");
     document.querySelector('[data-step="4"]')?.classList.add("active");
 
-    // No menu
+    // Menu
     document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
     document.querySelector('.steps-menu .step[data-step="4"]')?.classList.remove('disabled');
     document.querySelector('.steps-menu .step[data-step="4"]')?.classList.add('active');
 
-    // Esconde malga-checkout e overlay
-    document.querySelector("#malga-checkout").style.display = "none";
+    // Esconde malga-checkout
+    const malgaEl = document.querySelector("#malga-checkout");
+    if (malgaEl) malgaEl.style.display = "none";
+
     const overlay = document.querySelector(".m-checkout__dialog");
-    if(overlay) overlay.style.display = "none";
+    if (overlay) overlay.style.display = "none";
 
     // Scroll topo
-    window.scrollTo({top: 0, behavior:"smooth"});
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
-  } catch(err) {
-    console.error("Exceção no paymentSuccess =>", err);
+  } catch (err) {
+    console.error("Exceção paymentSuccess =>", err);
     showAlertError(`Error - Exceção: ${err.message}`);
   }
 });
 
 /***********************************************
- * EVENTO: PAGAMENTO FALHOU (paymentFailed)
+ * PAGAMENTO FALHOU => paymentFailed
  ***********************************************/
-malgaCheckout.addEventListener("paymentFailed", (event) => {
-  console.log("paymentFailed disparado =>", event.detail);
-  alertContainer.innerHTML = "";
-  showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
+malgaCheckout.addEventListener("paymentFailed", (event)=>{
+  console.log("Pagamento FALHOU =>", event.detail);
+  if (alertContainer) alertContainer.innerHTML = "";
+  showAlertError("Error - Pagamento falhou! Verifique console para detalhes.");
 });
 
 /***********************************************
- * FUNÇÃO getCartAmountInCents()
+ * getCartAmountInCents()
  ***********************************************/
 function getCartAmountInCents() {
   const totalElem = document.getElementById("totalValue");
-  if(!totalElem) {
-    console.warn("Não achou #totalValue no DOM. Retornando 0.");
+  if (!totalElem) {
+    console.warn("Não achou #totalValue no DOM => retorna 0");
     return 0;
   }
-  const totalText = totalElem.textContent.trim();
-  let numericStr  = totalText.replace(/[^\d.,-]/g, "");
-  numericStr      = numericStr.replace(/\./g, "");
-  numericStr      = numericStr.replace(",", ".");
-  const amount    = parseFloat(numericStr);
-  if(isNaN(amount)) return 0;
-  return Math.round(amount * 100);
+  const txt = totalElem.textContent.trim();
+  let numericStr = txt.replace(/[^\d.,-]/g, "");
+  numericStr     = numericStr.replace(/\./g, "");
+  numericStr     = numericStr.replace(",", ".");
+  const amount   = parseFloat(numericStr);
+  return isNaN(amount) ? 0 : Math.round(amount*100);
 }
 
 /***********************************************
- * fetchProfileIfLoggedIn() - puxa dados do user
+ * fetchProfileIfLoggedIn()
  ***********************************************/
 async function fetchProfileIfLoggedIn() {
   const agentId = localStorage.getItem("agentId");
-  if(!agentId) return;
+  if (!agentId) return;
   try {
     const resp = await fetch(`/api/users/profile?id=${agentId}`);
-    if(!resp.ok) {
+    if (!resp.ok) {
       console.warn("Profile não encontrado =>", resp.status);
       return;
     }
     const data = await resp.json();
-    if(data.email)    localStorage.setItem("userEmail", data.email);
-    if(data.telefone) localStorage.setItem("userPhone", data.telefone);
-  } catch(err) {
+    if (data.email)    localStorage.setItem("userEmail", data.email);
+    if (data.telefone) localStorage.setItem("userPhone", data.telefone);
+  } catch (err) {
     console.error("Erro ao buscar perfil =>", err);
   }
 }
 
 /***********************************************
- * LENDO DADOS DO STEP 1 (FORM + LOGIN)
+ * LENDO DADOS STEP 1 => readUserDataFromStep1
  ***********************************************/
 function readUserDataFromStep1() {
   const userId      = localStorage.getItem("agentId") || "";
   const userEmailLS = localStorage.getItem("userEmail") || "";
   const userPhoneLS = localStorage.getItem("userPhone") || "";
 
-  const firstName  = document.getElementById("firstName")?.value.trim()  || "";
-  const lastName   = document.getElementById("lastName")?.value.trim()   || "";
-  const emailForm  = document.getElementById("email")?.value.trim()      || "";
-  const celular    = document.getElementById("celular")?.value.trim()    || "";
-  const cpf        = (document.getElementById("cpf")?.value || "").replace(/\D/g, "");
-  const cep        = (document.getElementById("cep")?.value || "").replace(/\D/g, "");
-  const state      = document.getElementById("state")?.value.trim()      || "";
-  const city       = document.getElementById("city")?.value.trim()       || "";
-  const address    = document.getElementById("address")?.value.trim()    || "";
-  const number     = document.getElementById("number")?.value.trim()     || "";
-  const birthdate  = document.getElementById("birthdate")?.value.trim()  || "";
+  const firstName = document.getElementById("firstName")?.value.trim() || "";
+  const lastName  = document.getElementById("lastName")?.value.trim()  || "";
+  const emailForm = document.getElementById("email")?.value.trim()     || "";
+  const celular   = document.getElementById("celular")?.value.trim()   || "";
+  const cpf       = (document.getElementById("cpf")?.value||"").replace(/\D/g,"");
+  const cep       = (document.getElementById("cep")?.value||"").replace(/\D/g,"");
+  const state     = document.getElementById("state")?.value.trim()     || "";
+  const city      = document.getElementById("city")?.value.trim()      || "";
+  const address   = document.getElementById("address")?.value.trim()   || "";
+  const number    = document.getElementById("number")?.value.trim()    || "";
+  const birthdate = document.getElementById("birthdate")?.value.trim() || "";
 
-  // Salva em t (usado no backend)
   t.firstName  = firstName;
   t.lastName   = lastName;
   t.birthdate  = birthdate;
   t.state      = state;
   t.cpf        = cpf;
-  // Se tiver userId => prioriza localStorage
   t.email      = userId ? (userEmailLS || emailForm) : emailForm;
   t.celular    = userId ? (userPhoneLS || celular)   : celular;
 
-  // Salva em userData (opcional, se precisar)
   userData.name = `${firstName} ${lastName}`;
   userData.cpf  = cpf;
   userData.address.zipCode = cep;
@@ -1444,22 +1450,21 @@ function readUserDataFromStep1() {
   userData.address.city    = city;
   userData.address.state   = state;
 
-  console.log("Step 1 => readUserDataFromStep1 =>", t);
+  console.log("readUserDataFromStep1 =>", t);
 }
 
 /***********************************************
- * CONTROLA OS BOTÕES (STEP 1→2, 2→3, etc.)
+ * CONTROLA BOTÕES (STEPS)
  ***********************************************/
-
 // Step 1 -> Step 2
 const toStep2Btn = document.getElementById("toStep2");
-if(toStep2Btn){
-  toStep2Btn.addEventListener("click", ()=>{
-    console.log("Clique step 1 -> step 2");
+if (toStep2Btn) {
+  toStep2Btn.addEventListener("click", () => {
+    console.log("Clique: Step1 -> Step2");
     document.querySelector('[data-step="1"]')?.classList.remove("active");
     document.querySelector('[data-step="2"]')?.classList.add("active");
 
-    // Atualiza menu: remove active do step 1, add no step 2
+    // Menu
     document.querySelector('.steps-menu .step[data-step="1"]')?.classList.remove('active');
     document.querySelector('.steps-menu .step[data-step="2"]')?.classList.remove('disabled');
     document.querySelector('.steps-menu .step[data-step="2"]')?.classList.add('active');
@@ -1468,9 +1473,9 @@ if(toStep2Btn){
 
 // Step 2 -> Step 1
 const backToStep1Btn = document.getElementById("backToStep1");
-if(backToStep1Btn){
-  backToStep1Btn.addEventListener("click", ()=>{
-    console.log("Clique step 2 -> step 1");
+if (backToStep1Btn) {
+  backToStep1Btn.addEventListener("click", () => {
+    console.log("Clique: Step2 -> Step1");
     document.querySelector('[data-step="2"]')?.classList.remove("active");
     document.querySelector('[data-step="1"]')?.classList.add("active");
 
@@ -1483,17 +1488,16 @@ if(backToStep1Btn){
 
 // Step 2 -> Step 3
 const toStep3Btn = document.getElementById("toStep3");
-if(toStep3Btn){
-  toStep3Btn.addEventListener("click", ()=>{
-    console.log("Clique step 2 -> step 3");
-    // Lê dados
+if (toStep3Btn) {
+  toStep3Btn.addEventListener("click", () => {
+    console.log("Clique: Step2 -> Step3");
     readUserDataFromStep1();
     finalAmount = getCartAmountInCents();
-    if(finalAmount<=0){
+    if (finalAmount <= 0) {
       showAlertError("Error - Valor do pedido não pode ser 0!");
       return;
     }
-    if(!t.email || !t.email.includes("@")){
+    if (!t.email || !t.email.includes("@")) {
       showAlertError("Error - Por favor, informe um e-mail válido.");
       return;
     }
@@ -1520,8 +1524,6 @@ if(toStep3Btn){
         country: "BR"
       }
     };
-
-    // Ajusta valores nos items
     malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
     malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
 
@@ -1538,9 +1540,9 @@ if(toStep3Btn){
 
 // Step 3 -> Step 2
 const backToStep2Btn = document.getElementById("backToStep2");
-if(backToStep2Btn){
-  backToStep2Btn.addEventListener("click", ()=>{
-    console.log("Clique step 3 -> step 2");
+if (backToStep2Btn) {
+  backToStep2Btn.addEventListener("click", () => {
+    console.log("Clique: Step3 -> Step2");
     document.querySelector('[data-step="3"]')?.classList.remove("active");
     document.querySelector('[data-step="2"]')?.classList.add("active");
 
@@ -1552,18 +1554,17 @@ if(backToStep2Btn){
 }
 
 /***********************************************
- * CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
+ * DOMContentLoaded => fetchProfileIfLoggedIn
  ***********************************************/
-window.addEventListener("DOMContentLoaded", async ()=>{
-  console.log("DOMContentLoaded => Chamando fetchProfileIfLoggedIn");
+window.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOMContentLoaded => chamando fetchProfileIfLoggedIn");
   await fetchProfileIfLoggedIn();
-
   const storedEmail = localStorage.getItem("userEmail");
   const storedPhone = localStorage.getItem("userPhone");
-  if(storedEmail && document.getElementById("email")){
+  if (storedEmail && document.getElementById("email")) {
     document.getElementById("email").value = storedEmail;
   }
-  if(storedPhone && document.getElementById("celular")){
+  if (storedPhone && document.getElementById("celular")) {
     document.getElementById("celular").value = storedPhone;
   }
 });
