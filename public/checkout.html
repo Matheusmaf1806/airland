@@ -1398,12 +1398,14 @@
    *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
    ***********************************************/
   const toStep2Btn = document.getElementById("toStep2");
-  if (toStep2Btn) {
-    toStep2Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="1"]').classList.remove("active");
-      document.querySelector('[data-step="2"]').classList.add("active");
-    });
-  }
+  toStep2Btn.addEventListener("click", () => {
+    readUserDataFromStep1(); // Preenche t.firstName, t.lastName, etc.
+    console.log("t =>", t); // Confira se firstName está preenchido
+  
+    // se tudo ok, avança step
+    document.querySelector('[data-step="1"]').classList.remove("active");
+    document.querySelector('[data-step="2"]').classList.add("active");
+  });
 
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
