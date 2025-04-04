@@ -2,20 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Checkout</title>
-  <!-- Componente de Header -->
+  <title>Checkout Completo - 4 Passos</title>
+
+  <!-- Componente de Header (referenciado no seu código) -->
   <script src="/js/header-component.js" type="module"></script>
 
-  <!-- 
-    SDK do Malga Checkout (core). Necessário para exibir e usar o <malga-checkout>.
-    Importante estar acima do main.js para que o componente exista quando chamamos no script.
-  -->
+  <!-- SDK do Malga Checkout (necessário para exibir <malga-checkout>) -->
   <script
     type="module"
     src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
   ></script>
 
-  <!-- FONT & RESET -->
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
     * {
@@ -44,7 +41,7 @@
       cursor: pointer;
     }
 
-    /* ===== STEPS MENU ===== */
+    /* STEPS MENU */
     .steps-menu {
       background-color: #365cf5;
       padding: 20px 0;
@@ -87,7 +84,7 @@
       cursor: not-allowed;
     }
 
-    /* ===== MAIN LAYOUT ===== */
+    /* MAIN LAYOUT */
     .main-container {
       width: 90%;
       max-width: 1200px;
@@ -103,7 +100,7 @@
       flex-shrink: 0;
     }
 
-    /* ===== CARD STYLE ===== */
+    /* CARD STYLE */
     .card-style-1 {
       background: #fff;
       border: 1px solid #efefef;
@@ -113,7 +110,7 @@
       margin-bottom: 20px;
     }
 
-    /* ===== FORMULÁRIOS & CAMPOS ===== */
+    /* FORMULÁRIOS & CAMPOS */
     .fields-grid-2cols {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -154,7 +151,7 @@
       margin-top: 1rem;
     }
 
-    /* ===== BOTÕES ===== */
+    /* BOTÕES */
     .btn-save-passenger {
       background: #007aff;
       color: #fff;
@@ -173,81 +170,7 @@
       text-align: right;
     }
 
-    /* ===== RESERVATION / CART (RIGHT COLUMN) ===== */
-    .reservation-gifts-card {
-      background: #fff;
-      border: 1px solid #efefef;
-      border-radius: 10px;
-      padding: 25px 30px;
-      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
-    }
-    .reserva-item {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 1rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 0.75rem;
-      align-items: center;
-    }
-    .reserva-item:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-    .reserva-left {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .reserva-left .categoria {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #007aff;
-    }
-    .reserva-left .nome {
-      font-size: 0.85rem;
-      color: #333;
-    }
-    .reserva-left .subinfo {
-      font-size: 0.8rem;
-      color: #888;
-    }
-    .reserva-preco {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #00c853;
-      text-align: right;
-    }
-    .reserva-details p {
-      font-size: 0.8rem;
-      margin: 2px 0;
-      color: #555;
-    }
-    .resumo-compra {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #eee;
-    }
-    .resumo-compra .resumo-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .resumo-compra .resumo-row label {
-      font-weight: 600;
-    }
-    .resumo-compra .resumo-row p {
-      font-weight: 600;
-      margin: 0;
-    }
-    .resumo-compra .cupom {
-      margin-top: 15px;
-    }
-    .resumo-compra .cupom label {
-      font-weight: 600;
-    }
-
-    /* ===== STEP CONTENTS ===== */
+    /* STEP CONTENTS */
     .step-content {
       display: none;
     }
@@ -255,7 +178,7 @@
       display: block;
     }
 
-    /* ===== BOTÃO "Nomear passageiros (Obrigatório)➕" ===== */
+    /* BOTÃO "Nomear passageiros (Obrigatório)➕" */
     .btn-add-passenger {
       display: block;
       width: 100%;
@@ -274,7 +197,7 @@
       color: #365cf5;
     }
 
-    /* ===== MODAL (GENÉRICO) ===== */
+    /* MODAL (GENÉRICO) */
     .modal {
       display: none;
       position: fixed;
@@ -304,43 +227,8 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .modal-content h3 {
-      font-size: 1.2rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-    .modal-subtitle {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-    .passenger-box {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .passenger-box h4 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-    }
-    .fields-grid-2cols-modal {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    .copy-for-all-btn {
-      background: #365cf5;
-      color: #fff;
-      margin-right: 1rem;
-    }
 
-    /* ===== STEP 2: TABELA DE COMPARAÇÃO (4 colunas) ===== */
+    /* STEP 2: TABELA DE COMPARAÇÃO */
     .plans-comparison {
       width: 100%;
       overflow-x: auto;
@@ -379,11 +267,6 @@
       text-align: left;
       font-weight: 500;
     }
-    .comparison-table input[type="radio"] {
-      transform: scale(1.2);
-      cursor: pointer;
-      margin-top: 15px;
-    }
     .check {
       color: #00c853;
       font-weight: 700;
@@ -417,14 +300,11 @@
       border-radius: 8px;
     }
 
-    /* ===== MODAL DETALHES MELHORADO ===== */
+    /* MODAL DETALHES */
     .coverage-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
-    }
-    .coverage-table thead {
-      background: #f1f5f9;
     }
     .coverage-table th,
     .coverage-table td {
@@ -433,6 +313,9 @@
       text-align: left;
       font-size: 0.85rem;
     }
+    .coverage-table thead {
+      background: #f1f5f9;
+    }
     .coverage-table th {
       font-weight: 600;
       color: #333;
@@ -440,9 +323,29 @@
     .coverage-table td {
       color: #555;
     }
+
+    /* RIGHT COL (RESERVA) */
+    .reservation-gifts-card {
+      background: #fff;
+      border: 1px solid #efefef;
+      border-radius: 10px;
+      padding: 25px 30px;
+      box-shadow: 0px 12px 24px -4px rgba(145,158,171,0.12);
+    }
+    .resumo-compra {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+    .resumo-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
+  <!-- HEADER COMPONENT -->
   <app-header></app-header>
 
   <!-- MENU DE STEPS -->
@@ -468,135 +371,101 @@
     </div>
   </div>
 
-  <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA (STEPS) -->
+    <!-- COLUNA ESQUERDA -->
     <div class="left-col">
-      <!-- STEP 1: Passageiro Principal + Botão Adicionar Passageiros -->
+      <!-- STEP 1 -->
       <div class="step-content active" data-step="1">
         <div class="card-style-1">
           <h2>Passageiro Principal</h2>
-          <!-- Link para Login (exibido se não estiver logado) -->
           <div style="text-align: right; margin-bottom: 1rem;">
             <a href="#" id="toggleLogin">Economize tempo fazendo Login</a>
           </div>
 
-          <!-- CONTAINER SUPERIOR: E-mail/Senha ou Nome/Sobrenome/E-mail/Senha -->
-          <div id="topFieldsContainer">
-            <!-- Formulário de Login -->
-            <div id="loginFields" style="display: none;">
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>E-mail *</label>
-                  <input type="email" id="loginEmail" placeholder="seuemail@exemplo.com">
-                </div>
-                <div class="form-field">
-                  <label>Senha *</label>
-                  <input type="password" id="loginPassword" placeholder="********">
-                </div>
-              </div>
-              <div style="text-align: right; margin-top: 10px;">
-                <button class="btn-save-passenger" id="loginValidateBtn">Entrar</button>
-              </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Nome *</label>
+              <input type="text" placeholder="Seu nome" id="firstName">
             </div>
-
-            <!-- Formulário de Registro (Nome, Sobrenome, Celular, E-mail, Senha, Repetir Senha) -->
-            <div id="registrationFieldsGeneral">
-              <!-- Nome e Sobrenome -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Nome *</label>
-                  <input type="text" id="firstName" placeholder="Nome">
-                </div>
-                <div class="form-field">
-                  <label>Sobrenome *</label>
-                  <input type="text" id="lastName" placeholder="Sobrenome">
-                </div>
-              </div>
-              <!-- Celular e E-mail -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Celular *</label>
-                  <input type="text" id="celular" placeholder="(XX) 99999-9999">
-                </div>
-                <div class="form-field">
-                  <label>E-mail *</label>
-                  <input type="email" id="email" placeholder="seuemail@exemplo.com">
-                </div>
-              </div>
-              <!-- Senha e Repetir Senha -->
-              <div class="fields-grid-2cols">
-                <div class="form-field">
-                  <label>Senha *</label>
-                  <input type="password" id="password" placeholder="********">
-                </div>
-                <div class="form-field">
-                  <label>Repetir Senha *</label>
-                  <input type="password" id="confirmPassword" placeholder="********">
-                </div>
-              </div>
+            <div class="form-field">
+              <label>Sobrenome *</label>
+              <input type="text" placeholder="Seu sobrenome" id="lastName">
+            </div>
+          </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Celular *</label>
+              <input type="text" placeholder="(XX) 99999-9999" id="celular">
+            </div>
+            <div class="form-field">
+              <label>E-mail *</label>
+              <input type="email" placeholder="seuemail@exemplo.com" id="email">
+            </div>
+          </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Senha *</label>
+              <input type="password" placeholder="********" id="password">
+            </div>
+            <div class="form-field">
+              <label>Repetir Senha *</label>
+              <input type="password" placeholder="********" id="confirmPassword">
+            </div>
+          </div>
+          <div class="fields-grid-3cols">
+            <div class="form-field">
+              <label>CPF *</label>
+              <input type="text" placeholder="12345678901" id="cpf">
+            </div>
+            <div class="form-field">
+              <label>RG *</label>
+              <input type="text" placeholder="12.345.678-9" id="rg">
+            </div>
+            <div class="form-field">
+              <label>Data de Nascimento *</label>
+              <input type="date" id="birthdate">
+            </div>
+          </div>
+          <div class="fields-grid-3cols">
+            <div class="form-field">
+              <label>CEP *</label>
+              <input type="text" placeholder="12345-678" id="cep">
+            </div>
+            <div class="form-field">
+              <label>Estado *</label>
+              <input type="text" placeholder="Ex: SP" id="state">
+            </div>
+            <div class="form-field">
+              <label>Cidade *</label>
+              <input type="text" placeholder="São Paulo" id="city">
+            </div>
+          </div>
+          <div class="fields-grid-2cols">
+            <div class="form-field">
+              <label>Endereço *</label>
+              <input type="text" placeholder="Rua, Avenida..." id="address">
+            </div>
+            <div class="form-field">
+              <label>Número *</label>
+              <input type="text" placeholder="123" id="number">
             </div>
           </div>
 
-          <!-- Campos de Documentos/Endereço (sempre visíveis) -->
-          <div id="documentFields">
-            <div class="fields-grid-3cols">
-              <div class="form-field">
-                <label>CPF *</label>
-                <input type="text" id="cpf" placeholder="123.456.789-00">
-              </div>
-              <div class="form-field">
-                <label>RG *</label>
-                <input type="text" id="rg" placeholder="12.345.678-9">
-              </div>
-              <div class="form-field">
-                <label>Data de Nascimento *</label>
-                <input type="date" id="birthdate" placeholder="dd/mm/aaaa">
-              </div>
-            </div>
-            <div class="fields-grid-3cols">
-              <div class="form-field">
-                <label>CEP *</label>
-                <input type="text" id="cep" placeholder="12345-678">
-              </div>
-              <div class="form-field">
-                <label>Estado *</label>
-                <input type="text" id="state" placeholder="Ex: SP">
-              </div>
-              <div class="form-field">
-                <label>Cidade *</label>
-                <input type="text" id="city" placeholder="São Paulo">
-              </div>
-            </div>
-            <div class="fields-grid-2cols">
-              <div class="form-field">
-                <label>Endereço *</label>
-                <input type="text" id="address" placeholder="Rua, Avenida...">
-              </div>
-              <div class="form-field">
-                <label>Número *</label>
-                <input type="text" id="number" placeholder="123">
-              </div>
-            </div>
-          </div>
-
-          <!-- Botão "Nomear passageiros (Obrigatório)➕" para abrir modal -->
           <button class="btn-add-passenger" id="openPassengerModal">Nomear passageiros (Obrigatório)➕</button>
-
           <p class="form-note">* Insira o nome exatamente como aparece em seus documentos.</p>
+
           <div class="navigation">
             <button class="btn-save-passenger" id="toStep2">Próximo</button>
           </div>
         </div>
 
-        <!-- MODAL PARA PASSAGEIROS EXTRAS -->
+        <!-- MODAL PASSAGEIROS EXTRAS -->
         <div id="passengerModal" class="modal">
           <div class="modal-content">
             <span class="close-modal" id="closeModal">&times;</span>
             <h3>Passageiros Extras – Nomeação Obrigatória</h3>
             <p class="modal-subtitle">
               Nomear todos os passageiros é essencial para garantir acesso sem imprevistos aos serviços e produtos adquiridos.
-              Isso evita restrições e assegura uma experiência segura e tranquila.
             </p>
             <div id="modalPassengerContainer"></div>
             <div style="text-align: right; margin-top: 1rem;">
@@ -607,7 +476,7 @@
         </div>
       </div>
 
-      <!-- STEP 2: Detalhes Adicionais (NOVO DESIGN) -->
+      <!-- STEP 2 -->
       <div class="step-content" data-step="2">
         <div class="card-style-1">
           <h2>Voo atrasado? Receba sua indenização com AirHelp Plus</h2>
@@ -649,18 +518,6 @@
                   <td><span class="check">✅</span></td>
                   <td><span class="check">✅</span></td>
                 </tr>
-                <tr>
-                  <td style="text-align:left;">Cobertura farmacêutica</td>
-                  <td><span class="x">✖</span></td>
-                  <td><span class="check">✅</span></td>
-                  <td><span class="check">✅</span></td>
-                </tr>
-                <tr>
-                  <td style="text-align:left;">Você ganha brinde por comprar</td>
-                  <td><span class="x">✖</span></td>
-                  <td><span class="check">✅</span></td>
-                  <td><span class="check">✅</span></td>
-                </tr>
               </tbody>
               <tfoot>
                 <tr>
@@ -669,14 +526,14 @@
                     <span class="price">R$ 0,00</span>
                     <input type="radio" name="insuranceOption" value="none" />
                   </td>
-                  <td>
+                  <td class="recommended">
                     <span class="price">R$ 60,65</span>
-                    <a href="#" class="openEssencialModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
+                    <a href="#" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
                     <input type="radio" name="insuranceOption" value="essencial" />
                   </td>
                   <td>
                     <span class="price">R$ 101,09</span>
-                    <a href="#" class="openCompletoModal" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
+                    <a href="#" style="font-size:0.8rem; color:#007aff; margin-right:8px;">Ver Detalhes</a>
                     <input type="radio" name="insuranceOption" value="completo" />
                   </td>
                 </tr>
@@ -690,20 +547,19 @@
         </div>
       </div>
 
-      <!-- STEP 3: Pagamento (Usando <malga-checkout>) -->
+      <!-- STEP 3: PAGAMENTO (Malga Checkout) -->
       <div class="step-content" data-step="3">
         <div class="card-style-1">
           <h2>Pagamento</h2>
-          <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
-          
-          <!-- Componente do Malga Checkout -->
+          <p>Escolha o método de pagamento abaixo.</p>
+
           <malga-checkout
-            sandbox="true"
-            publicKey="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
-            clientId="4457c178-0f07-4589-ba0e-954e5816fd0f"
-            merchantId="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
-          >
-          </malga-checkout>
+            id="malga-checkout"
+            sandbox="false"
+            public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
+            client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
+            merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
+          ></malga-checkout>
 
           <div class="navigation">
             <button class="btn-save-passenger" id="backToStep2">Voltar</button>
@@ -711,7 +567,7 @@
         </div>
       </div>
 
-      <!-- STEP 4: Confirmação -->
+      <!-- STEP 4: CONFIRMAÇÃO -->
       <div class="step-content" data-step="4">
         <div class="card-style-1">
           <h2>Pagamento Concluído</h2>
@@ -721,7 +577,7 @@
       </div>
     </div>
 
-    <!-- COLUNA DIREITA: Resumo do Carrinho -->
+    <!-- COLUNA DIREITA: RESUMO -->
     <div class="right-col">
       <div class="card-style-1 reservation-gifts-card">
         <h2>Informações da Reserva</h2>
@@ -729,7 +585,7 @@
         <div class="resumo-compra">
           <div class="form-field cupom">
             <label>Cupom de Desconto</label>
-            <input type="text" id="couponInput" placeholder="Insira seu cupom">
+            <input type="text" id="couponInput" placeholder="EXEMPLOCUPOM10">
           </div>
           <div class="resumo-row">
             <label>Subtotal</label>
@@ -752,7 +608,7 @@
     © 2025 - Checkout Trip.com (Completo)
   </footer>
 
-  <!-- (Opcional) Shopping Cart oculto -->
+  <!-- SHOPPING CART (OCULTO) -->
   <shopping-cart id="shoppingCart" style="display:none;"></shopping-cart>
 
   <!-- MODAL: Coberturas Intermac 30K -->
@@ -975,11 +831,257 @@
     </div>
   </div>
 
-  <!-- 
-    Script principal (empacotado pelo Vite ou outro bundler). 
-    Ele conterá a configuração do <malga-checkout> (paymentMethods, transactionConfig, etc.)
-    e a lógica para Steps 1, 2 e 4.
-  -->
+  <!-- SCRIPT PRINCIPAL -->
+  <script type="module">
+    /***********************************************
+     *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
+     ***********************************************/
+    
+    // Variáveis para armazenar dados do usuário (Step 1)
+    let userData = {
+      name: "",
+      email: "",
+      phone: "",
+      cpf: "",
+      address: {
+        zipCode: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+        country: "BR"
+      }
+    };
+    
+    // Variável para ID do pedido
+    let orderId = "pedido-999999"; // Exemplo, pode ser dinâmico
+    
+    // Valor final do pedido (em centavos) – será atualizado a partir do DOM (#totalValue)
+    let finalAmount = 0;
+    
+    /***********************************************
+     *         SELECIONANDO O <MALGA-CHECKOUT>     *
+     ***********************************************/
+    
+    // Seleciona o componente do Malga (no step 3 do HTML)
+    const malgaCheckout = document.querySelector("#malga-checkout");
+    
+    // Configura os métodos de pagamento
+    malgaCheckout.paymentMethods = {
+      pix: {
+        expiresIn: 600,
+        items: [
+          {
+            id: "pixItemABC",
+            title: "Produto Pix",
+            quantity: 1,
+            unitPrice: 0 // Será atualizado depois
+          }
+        ]
+      },
+      credit: {
+        installments: {
+          quantity: 10,
+          show: true
+        },
+        showCreditCard: true
+      },
+      boleto: {
+        expiresDate: "2025-12-31",
+        instructions: "Boleto Exemplo (Produção)",
+        interest: {
+          days: 1,
+          amount: 1000 // R$10 de juros, só pra exemplo
+        },
+        fine: {
+          days: 2,
+          amount: 500 // R$5 de multa
+        },
+        items: [
+          {
+            id: "boletoItemABC",
+            title: "Produto Boleto",
+            quantity: 1,
+            unitPrice: 0 // Será atualizado depois
+          }
+        ]
+      }
+    };
+    
+    // transactionConfig inicial (será atualizado depois)
+    malgaCheckout.transactionConfig = {
+      statementDescriptor: "Checkout Completo",
+      amount: 0, // Valor inicial zero, ajustado depois
+      description: "Pacote + Taxas + Extras",
+      orderId: orderId,
+      currency: "BRL",
+      capture: false,
+      customer: {
+        name: "",
+        email: "",
+        phoneNumber: "",
+        document: { type: "CPF", number: "", country: "BR" },
+        address: {
+          zipCode: "",
+          street: "",
+          number: "",
+          complement: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+          country: "BR"
+        }
+      }
+    };
+    
+    // Configura o diálogo (modal)
+    malgaCheckout.dialogConfig = {
+      show: true,
+      actionButtonLabel: "Continuar",
+      errorActionButtonLabel: "Tentar novamente",
+      successActionButtonLabel: "Continuar",
+      successRedirectUrl: "https://www.malga.io/",
+      pixFilledProgressBarColor: "#2FAC9B",
+      pixEmptyProgressBarColor: "#D8DFF0"
+    };
+    
+    /***********************************************
+     *         EVENTOS DE PAGAMENTO (CHECKOUT)      *
+     ***********************************************/
+    
+    malgaCheckout.addEventListener("paymentSuccess", (event) => {
+      console.log("Pagamento concluído com sucesso:", event.detail);
+      // Passa do Step 3 para Step 4
+      document.querySelector('[data-step="3"]').classList.remove("active");
+      document.querySelector('[data-step="4"]').classList.add("active");
+    });
+    
+    malgaCheckout.addEventListener("paymentFailed", (event) => {
+      console.log("Falha no pagamento:", event.detail);
+      alert("Falha no pagamento! Verifique o console para detalhes.");
+    });
+    
+    /***********************************************
+     *         FUNÇÃO PARA CONVERTER O VALOR       *
+     *         DE "#totalValue" EM CENTAVOS        *
+     ***********************************************/
+    
+    function getCartAmountInCents() {
+      // Exemplo: se #totalValue contiver algo como "R$ 2.125,50"
+      const totalText = document.getElementById("totalValue").textContent.trim();
+      // Remove caracteres não numéricos exceto vírgula/ponto
+      let numericStr = totalText.replace(/[^\d,\.]/g, "").replace(",", ".");
+    
+      // Ex: "2125.50" => parseFloat -> 2125.5 => *100 -> 212550
+      const amount = Math.round(parseFloat(numericStr) * 100);
+      return amount > 0 ? amount : 0;
+    }
+    
+    /***********************************************
+     *         LENDO DADOS DO STEP 1               *
+     ***********************************************/
+    
+    function readUserDataFromStep1() {
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName  = document.getElementById("lastName").value.trim();
+      const celular   = document.getElementById("celular").value.trim();
+      const email     = document.getElementById("email").value.trim();
+      const cpf       = document.getElementById("cpf").value.replace(/\D/g, "");
+      const cep       = document.getElementById("cep").value.replace(/\D/g, "");
+      const state     = document.getElementById("state").value.trim();
+      const city      = document.getElementById("city").value.trim();
+      const address   = document.getElementById("address").value.trim();
+      const number    = document.getElementById("number").value.trim();
+    
+      // Monta userData
+      userData.name  = `${firstName} ${lastName}`;
+      userData.email = email;
+      userData.phone = celular;
+      userData.cpf   = cpf;
+      userData.address.zipCode = cep;
+      userData.address.street  = address;
+      userData.address.number  = number;
+      userData.address.city    = city;
+      userData.address.state   = state;
+      // complement e neighborhood se existirem
+    }
+    
+    /***********************************************
+     *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
+     ***********************************************/
+    
+    // Step 1 -> Step 2
+    const toStep2Btn = document.getElementById("toStep2");
+    if (toStep2Btn) {
+      toStep2Btn.addEventListener("click", () => {
+        document.querySelector('[data-step="1"]').classList.remove("active");
+        document.querySelector('[data-step="2"]').classList.add("active");
+      });
+    }
+    
+    // Step 2 -> Step 3
+    const toStep3Btn = document.getElementById("toStep3");
+    if (toStep3Btn) {
+      toStep3Btn.addEventListener("click", () => {
+        // 1) Lê userData do Step 1
+        readUserDataFromStep1();
+    
+        // 2) Lê valor total do carrinho
+        finalAmount = getCartAmountInCents();
+    
+        // 3) Atualiza no Malga Checkout
+        malgaCheckout.transactionConfig.amount = finalAmount;
+        malgaCheckout.transactionConfig.customer = {
+          name: userData.name,
+          email: userData.email,
+          phoneNumber: userData.phone,
+          document: {
+            type: "CPF",
+            number: userData.cpf,
+            country: "BR"
+          },
+          address: {
+            zipCode: userData.address.zipCode,
+            street: userData.address.street,
+            number: userData.address.number,
+            complement: userData.address.complement,
+            neighborhood: userData.address.neighborhood,
+            city: userData.address.city,
+            state: userData.address.state,
+            country: userData.address.country
+          }
+        };
+    
+        // Atualiza as items do Pix/Boleto, se quiser
+        malgaCheckout.paymentMethods.pix.items[0].unitPrice = finalAmount;
+        malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+    
+        // Passa Step 2 -> Step 3
+        document.querySelector('[data-step="2"]').classList.remove("active");
+        document.querySelector('[data-step="3"]').classList.add("active");
+      });
+    }
+    
+    // Step 2 -> Step 1 (voltar)
+    const backToStep1Btn = document.getElementById("backToStep1");
+    if (backToStep1Btn) {
+      backToStep1Btn.addEventListener("click", () => {
+        document.querySelector('[data-step="2"]').classList.remove("active");
+        document.querySelector('[data-step="1"]').classList.add("active");
+      });
+    }
+    
+    // Step 3 -> Step 2 (voltar)
+    const backToStep2Btn = document.getElementById("backToStep2");
+    if (backToStep2Btn) {
+      backToStep2Btn.addEventListener("click", () => {
+        document.querySelector('[data-step="3"]').classList.remove("active");
+        document.querySelector('[data-step="2"]').classList.add("active");
+      });
+    }
+  </script>
   <script type="module" src="/assets/main.js"></script>
 </body>
 </html>
