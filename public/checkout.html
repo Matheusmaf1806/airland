@@ -1072,42 +1072,44 @@
   // Helpers para exibir alertas sem Tailwind:
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
-      <div
-        style="
-          margin-top: 8px;
-          border-left: 4px solid green;
-          background-color: #f0fff0;
-          color: #1f4121;
-          padding: 8px;
-          border-radius: 4px;
-          font-family: sans-serif;
-          font-size: 0.9rem;
-          display: flex;
-          align-items: center;
-        "
-      >
-        <strong style="margin-right: 6px;">Success:</strong> ${message}
+      <div style="
+        position: fixed; top: 20px; right: 20px; z-index: 9999; width: 300px;
+        padding: 12px; background-color: #d4edda; color: #155724;
+        border-left: 6px solid #28a745; border-radius: 4px; font-family: sans-serif;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      ">
+        <div style="display: flex; justify-content: space-between;">
+          <strong style="font-size: 0.95rem;">Sucesso:</strong>
+          <button
+            style="background:transparent; border:none; font-weight:bold; font-size:1rem; cursor:pointer;"
+            onclick="closeAlert()"
+          >
+            X
+          </button>
+        </div>
+        <p style="margin-top: 6px; font-size: 0.9rem;">${message}</p>
       </div>
     `;
   }
 
   function showAlertError(message) {
     alertContainer.innerHTML = `
-      <div
-        style="
-          margin-top: 8px;
-          border-left: 4px solid red;
-          background-color: #fff5f5;
-          color: #7a1f1f;
-          padding: 8px;
-          border-radius: 4px;
-          font-family: sans-serif;
-          font-size: 0.9rem;
-          display: flex;
-          align-items: center;
-        "
-      >
-        <strong style="margin-right: 6px;">Error:</strong> ${message}
+      <div style="
+        position: fixed; top: 20px; right: 20px; z-index: 9999; width: 300px;
+        padding: 12px; background-color: #f8d7da; color: #721c24;
+        border-left: 6px solid #dc3545; border-radius: 4px; font-family: sans-serif;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      ">
+        <div style="display: flex; justify-content: space-between;">
+          <strong style="font-size: 0.95rem;">Erro:</strong>
+          <button
+            style="background:transparent; border:none; font-weight:bold; font-size:1rem; cursor:pointer;"
+            onclick="closeAlert()"
+          >
+            X
+          </button>
+        </div>
+        <p style="margin-top: 6px; font-size: 0.9rem;">${message}</p>
       </div>
     `;
   }
