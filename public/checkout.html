@@ -441,6 +441,49 @@
     .coverage-table td {
       color: #555;
     }
+
+    /* ALERTAS GERAIS */
+    .my-alert {
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      cursor: default;
+      /* Se quiser, adicione box-shadow, etc. */
+    }
+    .my-alert:hover {
+      transform: scale(1.02);
+    }
+  
+    /* ALERTA DE SUCESSO (verde) */
+    .my-alert-success {
+      background-color: #ecfdf5;       /* tom verde claro */
+      border-left: 4px solid #34d399; /* faixa verde */
+      color: #065f46;                 /* texto verde escuro */
+    }
+  
+    /* ALERTA DE ERRO (vermelho) */
+    .my-alert-error {
+      background-color: #fef2f2;       /* tom vermelho claro */
+      border-left: 4px solid #ef4444; /* faixa vermelha */
+      color: #991b1b;                 /* texto vermelho escuro */
+    }
+  
+    .my-alert-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      flex-shrink: 0;
+      fill: currentColor; /* herda cor do container (verde ou vermelho) */
+    }
+  
+    .my-alert-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
   </style>
 </head>
 <body>
@@ -1009,8 +1052,8 @@
   let orderId = "pedido-999999"; // Exemplo de ID do pedido
   let finalAmount = 0; // Valor final em centavos
 
-  // Carrinho, passageiros etc.
-  let m = []; 
+  // Se quiser armazenar array do carrinho, passageiros, etc.
+  let m = []; // seu carrinho
   let t = {
     firstName: "",
     lastName: "",
@@ -1023,56 +1066,53 @@
     // ...
   };
 
-  // Seleciona container para injetar alerts
+  // =============================================
+  // ALERTS: substituindo Tailwind por CSS custom
+  // =============================================
   const alertContainer = document.getElementById("alertContainer");
 
-  // Helpers para exibir alertas Tailwind (Success / Error)
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
-      <div
-        role="alert"
-        class="mt-2 bg-green-100 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-700 text-green-900 dark:text-green-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-green-200 dark:hover:bg-green-800 transform hover:scale-105"
-      >
+      <div class="my-alert my-alert-success">
         <svg
-          stroke="currentColor"
+          class="my-alert-icon"
           viewBox="0 0 24 24"
-          fill="none"
-          class="h-5 w-5 flex-shrink-0 mr-2 text-green-600"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            d="M13 16h-1v-4h1m0-4h.01M21 12a9 
+              9 0 11-18 0 9 9 0 0118 0z"
+            stroke="currentColor"
             stroke-width="2"
-            stroke-linejoin="round"
             stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
           ></path>
         </svg>
-        <p class="text-xs font-semibold">${message}</p>
+        <p class="my-alert-text">${message}</p>
       </div>
     `;
   }
 
   function showAlertError(message) {
     alertContainer.innerHTML = `
-      <div
-        role="alert"
-        class="mt-2 bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-900 dark:text-red-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-red-200 dark:hover:bg-red-800 transform hover:scale-105"
-      >
+      <div class="my-alert my-alert-error">
         <svg
-          stroke="currentColor"
+          class="my-alert-icon"
           viewBox="0 0 24 24"
-          fill="none"
-          class="h-5 w-5 flex-shrink-0 mr-2 text-red-600"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            d="M13 16h-1v-4h1m0-4h.01M21 12a9 
+              9 0 11-18 0 9 9 0 0118 0z"
+            stroke="currentColor"
             stroke-width="2"
-            stroke-linejoin="round"
             stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
           ></path>
         </svg>
-        <p class="text-xs font-semibold">${message}</p>
+        <p class="my-alert-text">${message}</p>
       </div>
     `;
   }
@@ -1150,10 +1190,7 @@
 
     // Bandeira do cartão, se existir
     let bandeiraCartao = null;
-    if (
-      event.detail.data.paymentSource && 
-      event.detail.data.paymentSource.cardBrand
-    ) {
+    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
@@ -1329,7 +1366,6 @@
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", () => {
-      // Antes de ir ao Step 3, validamos
       readUserDataFromStep1();
       finalAmount = getCartAmountInCents();
       if (finalAmount <= 0) {
@@ -1341,7 +1377,6 @@
         return;
       }
 
-      // Configura Malga
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
