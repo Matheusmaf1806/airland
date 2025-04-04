@@ -1009,8 +1009,8 @@
   let orderId = "pedido-999999"; // Exemplo de ID do pedido
   let finalAmount = 0; // Valor final em centavos
 
-  // Se quiser armazenar array do carrinho, passageiros, etc.
-  let m = []; // seu carrinho
+  // Carrinho, passageiros etc.
+  let m = []; 
   let t = {
     firstName: "",
     lastName: "",
@@ -1023,15 +1023,10 @@
     // ...
   };
 
-  /***********************************************
-   *       SELECIONANDO O <MALGA-CHECKOUT>       *
-   ***********************************************/
-  const malgaCheckout = document.querySelector("#malga-checkout");
-
-  // Container para exibir alerts Tailwind (precisa existir no HTML: <div id="alertContainer"></div>)
+  // Seleciona container para injetar alerts
   const alertContainer = document.getElementById("alertContainer");
 
-  // Funções helper para injetar alerts com Tailwind
+  // Helpers para exibir alertas Tailwind (Success / Error)
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
       <div
@@ -1082,7 +1077,11 @@
     `;
   }
 
-  // Configuração do Malga
+  /***********************************************
+   *       SELECIONANDO O <MALGA-CHECKOUT>       *
+   ***********************************************/
+  const malgaCheckout = document.querySelector("#malga-checkout");
+
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1132,7 +1131,7 @@
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
-    successRedirectUrl: "", // não redireciona
+    successRedirectUrl: "",
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
@@ -1142,22 +1141,28 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // Limpamos qualquer alerta anterior
+    // Apaga alertas antigos
     alertContainer.innerHTML = "";
 
-    // Pegando meio de pagamento
-    const meioPgto = event.detail.data.paymentMethod.paymentType; // ex. "credit","pix","boleto"
+    // Obter meio de pagamento e parcelas
+    const meioPgto = event.detail.data.paymentMethod.paymentType; 
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
-    // Pegando a suposta bandeira do cartão, se houver
+    // Bandeira do cartão, se existir
     let bandeiraCartao = null;
-    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
+    if (
+      event.detail.data.paymentSource && 
+      event.detail.data.paymentSource.cardBrand
+    ) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao = (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
+    const data_utilizacao = (m.length > 0 && m[0].checkIn) 
+      ? m[0].checkIn 
+      : "2025-12-31";
+
     const firstName = t.firstName || "(nome)";
 
     const dataToInsert = {
@@ -1200,7 +1205,6 @@
 
       if (!result.success) {
         console.error("Erro ao inserir pedido:", result.error || result.message);
-        // Mostrar alerta de erro
         showAlertError("Error - Houve um erro ao registrar a venda no banco.");
         return;
       }
@@ -1210,10 +1214,10 @@
         ? result.insertedData[0].id
         : orderId;
 
-      // Mostrar alerta de sucesso
-      showAlertSuccess(`Success - Pedido de número ${insertedId} inserido com sucesso!`);
+      // Exibe alerta de sucesso
+      showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
 
-      // Ajustar Step 4
+      // Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -1225,7 +1229,6 @@
 
     } catch (error) {
       console.error("Exceção ao chamar /api/checkoutComplete:", error);
-      // Mostrar alerta de erro
       showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
     }
   });
@@ -1235,9 +1238,7 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentFailed", (event) => {
     console.log("Falha no pagamento:", event.detail);
-    // Limpamos qualquer alerta anterior
     alertContainer.innerHTML = "";
-    // Mostrar alerta de erro
     showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
   });
 
@@ -1328,6 +1329,7 @@
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", () => {
+      // Antes de ir ao Step 3, validamos
       readUserDataFromStep1();
       finalAmount = getCartAmountInCents();
       if (finalAmount <= 0) {
@@ -1339,6 +1341,7 @@
         return;
       }
 
+      // Configura Malga
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
