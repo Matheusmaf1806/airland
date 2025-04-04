@@ -1066,17 +1066,16 @@
     // ...
   };
 
-  // Seleciona container para injetar alerts (crie <div id="alertContainer"></div> no HTML)
+  // Container de alertas
   const alertContainer = document.getElementById("alertContainer");
 
-  // Antes, crie uma função global para fechar o alerta (esvaziar o container):
+  // Fecha alerta
   function closeAlert() {
-    document.getElementById("alertContainer").innerHTML = "";
+    alertContainer.innerHTML = "";
   }
   
-  // Agora, a função para o ALERTA DE ERRO (vermelho suave):
+  // ALERTA DE ERRO
   function showAlertError(message) {
-    const alertContainer = document.getElementById("alertContainer");
     alertContainer.innerHTML = `
       <div style="
         position: fixed;
@@ -1085,9 +1084,9 @@
         z-index: 9999;
         width: 320px;
         padding: 1rem 1.5rem;
-        background-color: #fde8e8; /* vermelho bem claro (pastel) */
-        color: #b91c1c;           /* vermelho escuro */
-        border-left: 5px solid #f87171; /* borda pastel */
+        background-color: #fde8e8;
+        color: #b91c1c;
+        border-left: 5px solid #f87171;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -1096,15 +1095,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong style="font-size: 1rem;">Erro</strong>
           <button
-            style="
-              background: transparent;
-              border: none;
-              font-weight: bold;
-              font-size: 1.2rem;
-              cursor: pointer;
-              color: #b91c1c;
-              margin-left: 8px;
-            "
+            style="background: transparent; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; color: #b91c1c; margin-left: 8px;"
             onclick="closeAlert()"
           >
             &times;
@@ -1129,9 +1120,8 @@
     `;
   }
   
-  // ALERTA DE SUCESSO (verde suave):
+  // ALERTA DE SUCESSO
   function showAlertSuccess(message) {
-    const alertContainer = document.getElementById("alertContainer");
     alertContainer.innerHTML = `
       <div style="
         position: fixed;
@@ -1140,9 +1130,9 @@
         z-index: 9999;
         width: 320px;
         padding: 1rem 1.5rem;
-        background-color: #dcfce7; /* verde bem claro (pastel) */
-        color: #15803d;           /* verde escuro */
-        border-left: 5px solid #4ade80; 
+        background-color: #dcfce7;
+        color: #15803d;
+        border-left: 5px solid #4ade80;
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -1151,15 +1141,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong style="font-size: 1rem;">Sucesso</strong>
           <button
-            style="
-              background: transparent;
-              border: none;
-              font-weight: bold;
-              font-size: 1.2rem;
-              cursor: pointer;
-              color: #15803d;
-              margin-left: 8px;
-            "
+            style="background: transparent; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; color: #15803d; margin-left: 8px;"
             onclick="closeAlert()"
           >
             &times;
@@ -1185,7 +1167,7 @@
   }
 
   /***********************************************
-   *       SELECIONANDO O <MALGA-CHECKOUT>       *
+   *  SELECIONANDO O <MALGA-CHECKOUT>
    ***********************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
 
@@ -1232,9 +1214,9 @@
     }
   };
 
-  // Desativa popup do Malga
+  // Desativa popup nativo do Malga
   malgaCheckout.dialogConfig = {
-    show: false, 
+    show: false,
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
@@ -1244,33 +1226,27 @@
   };
 
   /***********************************************
-   *      EVENTO DE PAGAMENTO APROVADO           *
+   *   EVENTO DE PAGAMENTO APROVADO (paymentSuccess)
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // Apaga alertas antigos (se houver)
+    // apaga alertas antigos
     alertContainer.innerHTML = "";
 
-    // Obter meio de pagamento e parcelas
+    // Pega meio de pagamento e parcelas
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
     // Bandeira do cartão, se houver
     let bandeiraCartao = null;
-    if (
-      event.detail.data.paymentSource && 
-      event.detail.data.paymentSource.cardBrand
-    ) {
+    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
-    // Pegando dados do carrinho
+    // Pega carrinho
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao = (m.length > 0 && m[0].checkIn) 
-      ? m[0].checkIn 
-      : "2025-12-31";
-
+    const data_utilizacao = (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
     const firstName = t.firstName || "(nome)";
 
     const dataToInsert = {
@@ -1304,6 +1280,7 @@
     };
 
     try {
+      // Salva no banco
       const response = await fetch('/api/checkoutComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1318,28 +1295,34 @@
       }
 
       console.log("Inserção no banco bem-sucedida:", result.insertedData);
-      const insertedId = result.insertedData && result.insertedData.length > 0
-        ? result.insertedData[0].id
-        : orderId;
+      const insertedId = result.insertedData?.[0]?.id || orderId;
 
-      // Exibe alerta de sucesso
+      // Alerta de sucesso
       showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
 
-      // Step 4
+      // Ajusta Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
         `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
       document.getElementById("finalThanks").textContent = "Aproveite a viagem!";
 
-      // 1. No conteúdo principal
+      // Remove Step 3 e exibe Step 4
       document.querySelector('[data-step="3"]').classList.remove("active");
       document.querySelector('[data-step="4"]').classList.add("active");
-    
-      // 2. No menu de steps
-      document.querySelector('.steps-menu .step[data-step="3"]').classList.remove('active');
-      document.querySelector('.steps-menu .step[data-step="4"]').classList.remove('disabled');
-      document.querySelector('.steps-menu .step[data-step="4"]').classList.add('active');
+
+      // No menu, remove Step 3 e marca Step 4
+      document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
+      document.querySelector('.steps-menu .step[data-step="4"]')?.classList.remove('disabled');
+      document.querySelector('.steps-menu .step[data-step="4"]')?.classList.add('active');
+
+      // (Opcional) Ocultar malga-checkout e overlay residual
+      document.querySelector("#malga-checkout").style.display = "none";
+      const malgaOverlay = document.querySelector(".m-checkout__dialog");
+      if (malgaOverlay) malgaOverlay.style.display = "none";
+
+      // (Opcional) scroll para topo
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
       console.error("Exceção ao chamar /api/checkoutComplete:", error);
@@ -1348,7 +1331,7 @@
   });
 
   /***********************************************
-   *      EVENTO DE PAGAMENTO FALHOU             *
+   *   EVENTO DE PAGAMENTO FALHOU (paymentFailed)
    ***********************************************/
   malgaCheckout.addEventListener("paymentFailed", (event) => {
     console.log("Falha no pagamento:", event.detail);
@@ -1357,7 +1340,7 @@
   });
 
   /***********************************************
-   *  FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS    *
+   *  FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS
    ***********************************************/
   function getCartAmountInCents() {
     const totalText = document.getElementById("totalValue").textContent.trim();
@@ -1370,7 +1353,7 @@
   }
 
   /***********************************************
-   *  EXEMPLO: fetchProfileIfLoggedIn()          *
+   *  EXEMPLO: fetchProfileIfLoggedIn()
    ***********************************************/
   async function fetchProfileIfLoggedIn() {
     const agentId = localStorage.getItem("agentId");
@@ -1394,7 +1377,7 @@
   }
 
   /***********************************************
-   *  LENDO DADOS DO STEP 1 (FORM + LOGIN)       *
+   * LENDO DADOS DO STEP 1 (FORM + LOGIN)
    ***********************************************/
   function readUserDataFromStep1() {
     const userId      = localStorage.getItem("agentId") || "";
@@ -1412,13 +1395,14 @@
     const address   = document.getElementById("address").value.trim();
     const number    = document.getElementById("number").value.trim();
 
-    t.firstName = firstName;
-    t.lastName  = lastName;
-    t.birthdate = document.getElementById("birthdate").value.trim();
-    t.state     = state;
-    t.cpf       = cpf;
-    t.email     = userId ? (userEmailLS || emailForm) : emailForm;
-    t.celular   = userId ? (userPhoneLS || celular) : celular;
+    // Salva em t e userData
+    t.firstName   = firstName;
+    t.lastName    = lastName;
+    t.birthdate   = document.getElementById("birthdate").value.trim();
+    t.state       = state;
+    t.cpf         = cpf;
+    t.email       = userId ? (userEmailLS || emailForm) : emailForm;
+    t.celular     = userId ? (userPhoneLS || celular)   : celular;
 
     userData.name = `${firstName} ${lastName}`;
     userData.cpf  = cpf;
@@ -1430,7 +1414,7 @@
   }
 
   /***********************************************
-   *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
+   *   NAVEGAÇÃO DOS STEPS (BOTÕES)
    ***********************************************/
   const toStep2Btn = document.getElementById("toStep2");
   if (toStep2Btn) {
@@ -1454,6 +1438,7 @@
         return;
       }
 
+      // Configura Malga
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
@@ -1501,7 +1486,7 @@
   }
 
   /***********************************************
-   *  CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR *
+   *   CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
    ***********************************************/
   window.addEventListener("DOMContentLoaded", async () => {
     await fetchProfileIfLoggedIn();
