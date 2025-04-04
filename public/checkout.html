@@ -8,8 +8,8 @@
   <script src="/js/header-component.js" type="module"></script>
 
   <!-- 
-    SDK do Malga Checkout (core). Necessário para exibir e usar o <malga-checkout>.
-    Importante estar acima do main.js para que o componente exista quando chamamos no script.
+    SDK do Malga Checkout (core). Necessário para exibir <malga-checkout>.
+    Mantemos, pois o snippet "está funcionando" também utiliza esse script.
   -->
   <script
     type="module"
@@ -691,14 +691,17 @@
         </div>
       </div>
 
-      <!-- STEP 3: Pagamento (Usando <malga-checkout>) -->
+      <!-- STEP 3: Pagamento -->
       <div class="step-content" data-step="3">
         <div class="card-style-1">
           <h2>Pagamento</h2>
           <p style="margin-bottom:1rem;">Escolha o método de pagamento abaixo.</p>
-          
-          <!-- Componente do Malga Checkout -->
+
+          <!-- COMENTEI/REMOVI O CÓDIGO ANTIGO DE MALGA E INSERI O "CODIGO QUE ESTÁ FUNCIONANDO" ABAIXO -->
+
+          <!-- Componente Web do Malga Checkout -->
           <malga-checkout
+            id="malga-checkout"
             sandbox="false"
             public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
             client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
@@ -978,9 +981,8 @@
 
   <!-- 
     Script principal (empacotado pelo Vite ou outro bundler). 
-    Ele conterá a configuração do <malga-checkout> (paymentMethods, transactionConfig, etc.)
-    e a lógica para Steps 1, 2 e 4.
-    *Não mexemos nele, conforme pedido*
+    Ele conterá a lógica dos Steps 1, 2, 4, etc.
+    *Sem referências ao Malga, pois agora Step 3 tem o snippet "que funciona"*
   -->
   <script type="module" src="/assets/main.js"></script>
   <script type="module">
