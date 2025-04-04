@@ -1,69 +1,58 @@
-// main.js (continuando com type="module")
-
-// Passo 1: Substituímos a função "p(r)" por "window.p = function(r){ ... }"
-window.p = function(r) {
-  const stepContents = document.querySelectorAll(".step-content");
-  const stepsMenu    = document.querySelectorAll(".steps-menu .step");
-
-  // Ativa o step correspondente e desativa os outros
-  stepContents.forEach(s => {
-    s.classList.toggle("active", s.dataset.step === String(r));
+function p(n) {
+  const o = document.querySelectorAll(".step-content"),
+    a = document.querySelectorAll(".steps-menu .step");
+  o.forEach((s) => {
+    s.classList.toggle("active", s.dataset.step === String(n));
   });
-
-  // Atualiza o menu (bolinhas e desabilitados)
-  stepsMenu.forEach(s => {
-    const stepNum = parseInt(s.dataset.step, 10);
-    s.classList.toggle("active", stepNum === r);
-    if (stepNum > r) {
-      s.classList.add("disabled");
-    } else {
-      s.classList.remove("disabled");
-    }
+  a.forEach((s) => {
+    const d = parseInt(s.dataset.step, 10);
+    s.classList.toggle("active", d === n);
+    d > n ? s.classList.add("disabled") : s.classList.remove("disabled");
   });
-};
+}
 
-// Variáveis e objetos (sem alterações)
 let t = {
-  extraPassengers: [],
-  insuranceSelected: "none",
-  firstName: "",
-  lastName: "",
-  celular: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  cpf: "",
-  rg: "",
-  birthdate: "",
-  cep: "",
-  state: "",
-  city: "",
-  address: "",
-  number: "",
-  insuranceCost: 0
-};
+    extraPassengers: [],
+    insuranceSelected: "none",
+    firstName: "",
+    lastName: "",
+    celular: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    cpf: "",
+    rg: "",
+    birthdate: "",
+    cep: "",
+    state: "",
+    city: "",
+    address: "",
+    number: "",
+    insuranceCost: 0,
+  },
+  u = [];
 
-let m = [];
-
-// Função B() (sem alterações)
+/** 
+ * Carrega itens do carrinho ou do localStorage.
+ */
 function B() {
-  const r = document.getElementById("shoppingCart");
-  if (r && r.items && r.items.length > 0) {
-    m = r.items;
+  const n = document.getElementById("shoppingCart");
+  if (n && n.items && n.items.length > 0) {
+    u = n.items;
   } else {
-    const a = localStorage.getItem("cartItems");
-    if (a) {
-      m = JSON.parse(a);
+    const o = localStorage.getItem("cartItems");
+    if (o) {
+      u = JSON.parse(o);
     } else {
-      // Exemplo de carrinho "falso"
-      m = [
+      // Exemplo de itens caso nada esteja salvo
+      u = [
         {
           hotelName: "Hotel Exemplo A",
           adults: 2,
           children: 1,
           basePriceAdult: 100,
           checkIn: "2025-04-16",
-          checkOut: "2025-04-18"
+          checkOut: "2025-04-18",
         },
         {
           hotelName: "Hotel Exemplo B",
@@ -71,75 +60,89 @@ function B() {
           children: 0,
           basePriceAdult: 150,
           checkIn: "2025-04-10",
-          checkOut: "2025-04-12"
-        }
+          checkOut: "2025-04-12",
+        },
       ];
     }
   }
 }
 
-// Função v(r) (sem alterações): Atualiza o HTML de resumo do carrinho
-function v(r) {
-  const a = document.getElementById("cartItemsList");
-  let o = 0;
-  let s = "";
-  r.forEach(d => {
-    const n = d.basePriceAdult || 80;
-    o += n;
+/**
+ * Atualiza o resumo do carrinho (direita) com base no array de items `u` e no `insuranceCost`.
+ */
+function v(n) {
+  const o = document.getElementById("cartItemsList");
+  let a = 0,
+    s = "";
+  n.forEach((d) => {
+    const l = d.basePriceAdult || 80;
+    a += l;
     s += `
       <div class="reserva-item">
         <div class="reserva-left">
           <span class="categoria">${d.type || "Hospedagem"}</span>
-          <span class="nome">${d.hotelName || "Hotel Desconhecido"} - ${d.roomName || "Quarto"}</span>
+          <span class="nome">${d.hotelName || "Hotel Desconhecido"} - ${
+      d.roomName || "Quarto"
+    }</span>
           <div class="reserva-details">
             <p>Check-in: ${d.checkIn || "--/--/----"}</p>
             <p>Check-out: ${d.checkOut || "--/--/----"}</p>
             <p>Quartos: ${d.rooms || 1}</p>
-            <p>Adultos: ${d.adults || 1} | Crianças: ${d.children || 0}</p>
+            <p>Adultos: ${d.adults || 1} | Crianças: ${
+      d.children || 0
+    }</p>
           </div>
         </div>
         <div class="reserva-preco">
-          R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          R$ ${l.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
         </div>
       </div>
     `;
   });
-  // Soma também o valor do seguro, se houver
-  if (t.insuranceCost) o += t.insuranceCost;
 
-  a.innerHTML = s;
-  document.getElementById("subtotalValue").textContent = "R$ " + o.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  // Se tiver custo de seguro
+  if (t.insuranceCost) {
+    a += t.insuranceCost;
+  }
+
+  o.innerHTML = s;
+  document.getElementById("subtotalValue").textContent =
+    "R$ " + a.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
-  document.getElementById("totalValue").textContent = "R$ " + o.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  document.getElementById("totalValue").textContent =
+    "R$ " + a.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
-// Função h(r) (sem alterações): Prepara/passengers extras
-function h(r) {
-  const a = document.getElementById("modalPassengerContainer");
-  const o = document.getElementById("copyForAllBtn");
-  a.innerHTML = "";
+/**
+ * Configura a listagem de passageiros extras no modal (caso haja).
+ */
+function h(n) {
+  const o = document.getElementById("modalPassengerContainer"),
+    a = document.getElementById("copyForAllBtn");
+  o.innerHTML = "";
   t.extraPassengers = [];
   let s = 0;
 
-  r.forEach((d, n) => {
-    const e = (d.adults || 1) - 1;
+  n.forEach((d, l) => {
+    const e = (d.adults || 1) - 1; 
     if (e > 0) {
       s++;
-      t.extraPassengers[n] = [];
-      const c = document.createElement("div");
-      c.classList.add("passenger-box");
-      c.innerHTML = `<h4>${d.hotelName || "Item"}</h4>`;
-      for (let i = 0; i < e; i++) {
-        const l = document.createElement("div");
-        l.classList.add("fields-grid-2cols-modal");
-        l.innerHTML = `
+      t.extraPassengers[l] = [];
+      const i = document.createElement("div");
+      i.classList.add("passenger-box");
+      i.innerHTML = `<h4>${d.hotelName || "Item"}</h4>`;
+
+      for (let c = 0; c < e; c++) {
+        const r = document.createElement("div");
+        r.classList.add("fields-grid-2cols-modal");
+        r.innerHTML = `
           <div class="form-field">
-            <label>Nome do Passageiro #${i+1}</label>
+            <label>Nome do Passageiro #${c + 1}</label>
             <input 
               type="text" 
               placeholder="Nome completo" 
-              data-item-index="${n}" 
-              data-passenger-index="${i}" 
+              data-item-index="${l}" 
+              data-passenger-index="${c}" 
               class="modalExtraNameInput" 
             />
           </div>
@@ -147,67 +150,74 @@ function h(r) {
             <label>Data de Nascimento</label>
             <input 
               type="date" 
-              data-item-index="${n}" 
-              data-passenger-index="${i}" 
+              data-item-index="${l}" 
+              data-passenger-index="${c}" 
               class="modalExtraBirthdateInput" 
             />
           </div>
         `;
-        c.appendChild(l);
+        i.appendChild(r);
       }
-      a.appendChild(c);
+      o.appendChild(i);
     }
   });
 
-  o.style.display = s > 1 ? "inline-block" : "none";
+  a.style.display = s > 1 ? "inline-block" : "none";
 }
 
-// Função x() (sem alterações): Lida com o modal de passageiros extras
+/**
+ * Controla a abertura/fechamento do modal de passageiros extras.
+ */
 function x() {
-  const r = document.getElementById("passengerModal"),
-        a = document.getElementById("openPassengerModal"),
-        o = document.getElementById("closeModal"),
-        s = document.getElementById("savePassengersBtn"),
-        d = document.getElementById("copyForAllBtn"),
-        n = document.getElementById("modalPassengerContainer");
+  const n = document.getElementById("passengerModal"),
+    o = document.getElementById("openPassengerModal"),
+    a = document.getElementById("closeModal"),
+    s = document.getElementById("savePassengersBtn"),
+    d = document.getElementById("copyForAllBtn"),
+    l = document.getElementById("modalPassengerContainer");
 
-  a.addEventListener("click", e => {
+  o.addEventListener("click", (e) => {
     e.preventDefault();
-    h(m);
-    r.style.display = "block";
+    h(u);
+    n.style.display = "block";
   });
-  o.addEventListener("click", () => {
-    r.style.display = "none";
+
+  a.addEventListener("click", () => {
+    n.style.display = "none";
   });
+
   s.addEventListener("click", () => {
-    r.style.display = "none";
+    n.style.display = "none";
     alert("Passageiros extras salvos!");
   });
+
   d.addEventListener("click", () => {
-    let e = null, c = 0;
-    for (let l = 0; l < m.length; l++) {
-      const g = (m[l].adults || 1) - 1;
+    let e = null,
+      i = 0;
+    for (let r = 0; r < u.length; r++) {
+      const g = (u[r].adults || 1) - 1;
       if (g > 0) {
-        e = l;
-        c = g;
+        e = r;
+        i = g;
         break;
       }
     }
     if (e === null) return;
-    const i = t.extraPassengers[e] || [];
-    for (let l = 0; l < m.length; l++) {
-      if (l !== e) {
-        const g = (m[l].adults || 1) - 1;
-        if (g === c && g > 0) {
-          t.extraPassengers[l] = JSON.parse(JSON.stringify(i));
-          for (let u = 0; u < g; u++) {
-            const I = `.modalExtraNameInput[data-item-index="${l}"][data-passenger-index="${u}"]`,
-                  f = `.modalExtraBirthdateInput[data-item-index="${l}"][data-passenger-index="${u}"]`,
-                  y = document.querySelector(I),
-                  E = document.querySelector(f);
-            if (y && E && t.extraPassengers[l][u]) {
-              y.value = t.extraPassengers[l][u].name || "";
-              E.value = t.extraPassengers[l][u].birthdate || "";
+
+    const c = t.extraPassengers[e] || [];
+    for (let r = 0; r < u.length; r++) {
+      if (r !== e) {
+        const g = (u[r].adults || 1) - 1;
+        if (g === i && g > 0) {
+          t.extraPassengers[r] = JSON.parse(JSON.stringify(c));
+          for (let m = 0; m < g; m++) {
+            const f = `.modalExtraNameInput[data-item-index="${r}"][data-passenger-index="${m}"]`,
+              I = `.modalExtraBirthdateInput[data-item-index="${r}"][data-passenger-index="${m}"]`,
+              y = document.querySelector(f),
+              E = document.querySelector(I);
+            if (y && E && t.extraPassengers[r][m]) {
+              y.value = t.extraPassengers[r][m].name || "";
+              E.value = t.extraPassengers[r][m].birthdate || "";
             }
           }
         }
@@ -216,35 +226,37 @@ function x() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
-  n.addEventListener("input", e => {
-    const c = e.target;
-    if (c.classList.contains("modalExtraNameInput") || c.classList.contains("modalExtraBirthdateInput")) {
-      const i = parseInt(c.getAttribute("data-item-index"), 10),
-            l = parseInt(c.getAttribute("data-passenger-index"), 10);
-      if (!t.extraPassengers[i]) {
-        t.extraPassengers[i] = [];
-      }
-      if (!t.extraPassengers[i][l]) {
-        t.extraPassengers[i][l] = {};
-      }
-      if (c.classList.contains("modalExtraNameInput")) {
-        t.extraPassengers[i][l].name = c.value;
+  l.addEventListener("input", (e) => {
+    const i = e.target;
+    if (
+      i.classList.contains("modalExtraNameInput") ||
+      i.classList.contains("modalExtraBirthdateInput")
+    ) {
+      const c = parseInt(i.getAttribute("data-item-index"), 10),
+        r = parseInt(i.getAttribute("data-passenger-index"), 10);
+      t.extraPassengers[c] || (t.extraPassengers[c] = []);
+      t.extraPassengers[c][r] || (t.extraPassengers[c][r] = {});
+
+      if (i.classList.contains("modalExtraNameInput")) {
+        t.extraPassengers[c][r].name = i.value;
       } else {
-        t.extraPassengers[i][l].birthdate = c.value;
+        t.extraPassengers[c][r].birthdate = i.value;
       }
     }
   });
 }
 
-// Função $() (sem alterações) – controla avanços do step 1 -> 2 -> 3
-function $() {
-  const r = document.getElementById("toStep2"),
-        a = document.getElementById("backToStep1"),
-        o = document.getElementById("toStep3"),
-        s = document.getElementById("backToStep2");
+/**
+ * Navegação entre steps (1,2,3,4).
+ */
+function C() {
+  const n = document.getElementById("toStep2"),
+    o = document.getElementById("backToStep1"),
+    a = document.getElementById("toStep3"),
+    s = document.getElementById("backToStep2");
 
-  r.addEventListener("click", () => {
-    // Se não tiver login salvo, valida campos do Step 1
+  // Step 1 -> Step 2
+  n.addEventListener("click", () => {
     if (!localStorage.getItem("agentId")) {
       if (
         !document.getElementById("firstName").value ||
@@ -257,15 +269,14 @@ function $() {
         alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
         return;
       }
-      t.firstName       = document.getElementById("firstName").value;
-      t.lastName        = document.getElementById("lastName").value;
-      t.celular         = document.getElementById("celular").value;
-      t.email           = document.getElementById("email").value;
-      t.password        = document.getElementById("password").value;
+      t.firstName = document.getElementById("firstName").value;
+      t.lastName = document.getElementById("lastName").value;
+      t.celular = document.getElementById("celular").value;
+      t.email = document.getElementById("email").value;
+      t.password = document.getElementById("password").value;
       t.confirmPassword = document.getElementById("confirmPassword").value;
     }
 
-    // Valida campos de documentos/endereço
     if (
       !document.getElementById("cpf").value ||
       !document.getElementById("rg").value ||
@@ -279,167 +290,167 @@ function $() {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-
-    // Se passou, guarda
-    t.cpf       = document.getElementById("cpf").value;
-    t.rg        = document.getElementById("rg").value;
+    t.cpf = document.getElementById("cpf").value;
+    t.rg = document.getElementById("rg").value;
     t.birthdate = document.getElementById("birthdate").value;
-    t.cep       = document.getElementById("cep").value;
-    t.state     = document.getElementById("state").value;
-    t.city      = document.getElementById("city").value;
-    t.address   = document.getElementById("address").value;
-    t.number    = document.getElementById("number").value;
+    t.cep = document.getElementById("cep").value;
+    t.state = document.getElementById("state").value;
+    t.city = document.getElementById("city").value;
+    t.address = document.getElementById("address").value;
+    t.number = document.getElementById("number").value;
 
-    // Step 1 -> Step 2
-    window.p(2);
+    p(2);
   });
 
-  // Botão Voltar (Step 2 -> 1)
-  a && a.addEventListener("click", () => window.p(1));
+  // Step 2 -> Step 1 (voltar)
+  o && o.addEventListener("click", () => p(1));
 
-  // Botão Próximo (Step 2 -> 3)
-  o && o.addEventListener("click", () => {
+  // Step 2 -> Step 3
+  a && a.addEventListener("click", () => {
     const d = document.querySelector('input[name="insuranceOption"]:checked');
     t.insuranceSelected = d ? d.value : "none";
-    let n = 0;
-    if (t.insuranceSelected === "essencial") {
-      n = 60.65;
-    } else if (t.insuranceSelected === "completo") {
-      n = 101.09;
-    }
-    t.insuranceCost = n;
-    v(m);
+    let l = 0;
+    if (t.insuranceSelected === "essencial") l = 60.65;
+    else if (t.insuranceSelected === "completo") l = 101.09;
+    t.insuranceCost = l;
 
-    window.p(3);
+    // Recalcular total
+    v(u);
+
+    // Antigamente chamava L() aqui. Removemos para não configurar Malga.
+    // p(3), L();
+    // Agora apenas:
+    p(3);
   });
 
-  // Botão Voltar (Step 3 -> 2)
-  s && s.addEventListener("click", () => window.p(2));
+  // Step 3 -> Step 2 (voltar)
+  s && s.addEventListener("click", () => p(2));
 }
 
-// Função b() (sem alterações) – Máscaras, CEP etc.
+/**
+ * Máscaras de CEP, CPF, RG, etc., e lógica de login.
+ */
 function b() {
-  function r(n) {
-    n = n.replace(/\D/g, "");
-    if (n.length === 8) {
-      fetch(`https://viacep.com.br/ws/${n}/json/`)
-        .then(e => e.json())
-        .then(e => {
+  function n(l) {
+    l = l.replace(/\D/g, "");
+    if (l.length === 8) {
+      fetch(`https://viacep.com.br/ws/${l}/json/`)
+        .then((e) => e.json())
+        .then((e) => {
           if (e.erro) {
             alert("CEP não encontrado!");
             return;
           }
           document.getElementById("address").value = e.logradouro || "";
-          document.getElementById("city").value    = e.localidade || "";
-          document.getElementById("state").value   = e.uf || "";
+          document.getElementById("city").value = e.localidade || "";
+          document.getElementById("state").value = e.uf || "";
         })
-        .catch(e => {
-          console.error("Erro ao buscar CEP:", e);
+        .catch((i) => {
+          console.error("Erro ao buscar CEP:", i);
           alert("Não foi possível consultar o CEP.");
         });
     }
   }
 
-  document.getElementById("cep").addEventListener("blur", function() {
-    r(this.value);
+  // CEP
+  document.getElementById("cep").addEventListener("blur", function () {
+    n(this.value);
   });
 
-  document.getElementById("cpf").addEventListener("input", function(n) {
-    let e = n.target.value.replace(/\D/g, "");
-    if (e.length > 3) {
-      e = e.replace(/^(\d{3})(\d)/, "$1.$2");
-    }
-    if (e.length > 6) {
-      e = e.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-    }
-    if (e.length > 9) {
+  // CPF
+  document.getElementById("cpf").addEventListener("input", function (l) {
+    let e = l.target.value.replace(/\D/g, "");
+    if (e.length > 3) e = e.replace(/^(\d{3})(\d)/, "$1.$2");
+    if (e.length > 6) e = e.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (e.length > 9)
       e = e.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-    }
-    n.target.value = e;
+    l.target.value = e;
   });
 
-  document.getElementById("rg").addEventListener("input", function(n) {
-    let e = n.target.value.replace(/\D/g, "");
-    if (e.length > 2) {
-      e = e.replace(/^(\d{2})(\d)/, "$1.$2");
-    }
-    if (e.length > 5) {
-      e = e.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    }
-    if (e.length > 7) {
+  // RG
+  document.getElementById("rg").addEventListener("input", function (l) {
+    let e = l.target.value.replace(/\D/g, "");
+    if (e.length > 2) e = e.replace(/^(\d{2})(\d)/, "$1.$2");
+    if (e.length > 5) e = e.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (e.length > 7)
       e = e.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
-    }
-    n.target.value = e;
+    l.target.value = e;
   });
 
-  const a = document.getElementById("toggleLogin"),
-        o = document.getElementById("registrationFieldsGeneral"),
-        s = document.getElementById("loginFields");
+  // Toggle entre Form de Login vs. Registro
+  const o = document.getElementById("toggleLogin"),
+    a = document.getElementById("registrationFieldsGeneral"),
+    s = document.getElementById("loginFields");
+  o &&
+    o.addEventListener("click", (l) => {
+      l.preventDefault();
+      if (a.style.display !== "none") {
+        a.style.display = "none";
+        s.style.display = "block";
+        o.textContent = "Não tenho Login";
+      } else {
+        a.style.display = "block";
+        s.style.display = "none";
+        o.textContent = "Economize tempo fazendo Login";
+      }
+    });
 
-  // Alternar entre formulário de registro e login
-  a && a.addEventListener("click", n => {
-    n.preventDefault();
-    if (o.style.display !== "none") {
-      o.style.display = "none";
-      s.style.display = "block";
-      a.textContent = "Não tenho Login";
-    } else {
-      o.style.display = "block";
-      s.style.display = "none";
-      a.textContent = "Economize tempo fazendo Login";
-    }
-  });
-
+  // Botão de Login
   const d = document.getElementById("loginValidateBtn");
-  d && d.addEventListener("click", () => {
-    const n = document.getElementById("loginEmail").value;
-    const e = document.getElementById("loginPassword").value;
-    fetch("/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: n, password: e })
-    })
-      .then(c => c.json())
-      .then(c => {
-        if (c.success) {
-          localStorage.setItem("agentId", c.user.id);
-          alert("Login efetuado com sucesso!");
-          a.style.display = "none";
-          o.style.display = "none";
-          s.style.display = "none";
-        } else {
-          alert("Erro no login: " + (c.error || "Dados inválidos."));
-        }
+  d &&
+    d.addEventListener("click", () => {
+      const l = document.getElementById("loginEmail").value,
+        e = document.getElementById("loginPassword").value;
+      fetch("/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: l, password: e }),
       })
-      .catch(c => {
-        console.error(c);
-        alert("Erro ao realizar o login. Tente novamente.");
-      });
-  });
+        .then((i) => i.json())
+        .then((i) => {
+          if (i.success) {
+            localStorage.setItem("agentId", i.user.id);
+            alert("Login efetuado com sucesso!");
+            o.style.display = "none";
+            a.style.display = "none";
+            s.style.display = "none";
+          } else {
+            alert("Erro no login: " + (i.error || "Dados inválidos."));
+          }
+        })
+        .catch((i) => {
+          console.error(i);
+          alert("Erro ao realizar o login. Tente novamente.");
+        });
+    });
 }
 
-// Ao carregar a janela, executa as funções de inicialização
+// REMOVIDO: function L() {...}
+
+/**
+ * Evento principal ao carregar página
+ */
 window.addEventListener("load", () => {
-  B();
-  v(m);
-  b();
-  $();
-  x();
+  B();      // Carrega itens do carrinho
+  v(u);     // Atualiza resumo do carrinho
+  b();      // Máscaras e login
+  C();      // Navegação steps
+  x();      // Modal de passageiros extras
 
-  const r = !!localStorage.getItem("agentId"),
-        a = document.getElementById("toggleLogin"),
-        o = document.getElementById("registrationFieldsGeneral"),
-        s = document.getElementById("loginFields");
+  // Se houver agentId, oculta campos de registro e login
+  const n = !!localStorage.getItem("agentId"),
+    o = document.getElementById("toggleLogin"),
+    a = document.getElementById("registrationFieldsGeneral"),
+    s = document.getElementById("loginFields");
 
-  if (r) {
-    if (a) a.style.display = "none";
-    if (o) o.style.display = "none";
-    if (s) s.style.display = "none";
+  if (n) {
+    o && (o.style.display = "none");
+    a && (a.style.display = "none");
+    s && (s.style.display = "none");
   } else {
-    if (a) a.style.display = "block";
-    if (o) o.style.display = "block";
+    o && (o.style.display = "block");
+    a && (a.style.display = "block");
   }
 
-  // Inicia sempre no Step 1:
-  window.p(1);
+  p(1); // Inicia no step 1
 });
