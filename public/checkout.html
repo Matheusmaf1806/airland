@@ -1052,8 +1052,8 @@
   let orderId = "pedido-999999"; // Exemplo de ID do pedido
   let finalAmount = 0; // Valor final em centavos
 
-  // Se quiser armazenar array do carrinho, passageiros, etc.
-  let m = []; // seu carrinho
+  // Carrinho, passageiros etc.
+  let m = []; 
   let t = {
     firstName: "",
     lastName: "",
@@ -1066,53 +1066,48 @@
     // ...
   };
 
-  // =============================================
-  // ALERTS: substituindo Tailwind por CSS custom
-  // =============================================
+  // Seleciona container para injetar alerts (crie <div id="alertContainer"></div> no HTML)
   const alertContainer = document.getElementById("alertContainer");
 
+  // Helpers para exibir alertas sem Tailwind:
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
-      <div class="my-alert my-alert-success">
-        <svg
-          class="my-alert-icon"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 
-              9 0 11-18 0 9 9 0 0118 0z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            fill="none"
-          ></path>
-        </svg>
-        <p class="my-alert-text">${message}</p>
+      <div
+        style="
+          margin-top: 8px;
+          border-left: 4px solid green;
+          background-color: #f0fff0;
+          color: #1f4121;
+          padding: 8px;
+          border-radius: 4px;
+          font-family: sans-serif;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <strong style="margin-right: 6px;">Success:</strong> ${message}
       </div>
     `;
   }
 
   function showAlertError(message) {
     alertContainer.innerHTML = `
-      <div class="my-alert my-alert-error">
-        <svg
-          class="my-alert-icon"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 
-              9 0 11-18 0 9 9 0 0118 0z"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            fill="none"
-          ></path>
-        </svg>
-        <p class="my-alert-text">${message}</p>
+      <div
+        style="
+          margin-top: 8px;
+          border-left: 4px solid red;
+          background-color: #fff5f5;
+          color: #7a1f1f;
+          padding: 8px;
+          border-radius: 4px;
+          font-family: sans-serif;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <strong style="margin-right: 6px;">Error:</strong> ${message}
       </div>
     `;
   }
@@ -1167,7 +1162,7 @@
 
   // Desativa popup do Malga
   malgaCheckout.dialogConfig = {
-    show: false, // não exibe modal nativo
+    show: false, 
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
@@ -1181,19 +1176,23 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // Apaga alertas antigos
+    // Apaga alertas antigos (se houver)
     alertContainer.innerHTML = "";
 
     // Obter meio de pagamento e parcelas
-    const meioPgto = event.detail.data.paymentMethod.paymentType; 
+    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
-    // Bandeira do cartão, se existir
+    // Bandeira do cartão, se houver
     let bandeiraCartao = null;
-    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
+    if (
+      event.detail.data.paymentSource && 
+      event.detail.data.paymentSource.cardBrand
+    ) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
+    // Pegando dados do carrinho
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
     const data_utilizacao = (m.length > 0 && m[0].checkIn) 
