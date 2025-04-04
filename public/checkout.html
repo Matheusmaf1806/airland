@@ -1027,6 +1027,7 @@
    *       SELECIONANDO O <MALGA-CHECKOUT>       *
    ***********************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
+
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1040,7 +1041,7 @@
       expiresDate: "2025-12-31",
       instructions: "Boleto Exemplo (Produção)",
       interest: { days: 1, amount: 1000 },
-      fine:     { days: 2, amount: 500 },
+      fine: { days: 2, amount: 500 },
       items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
     }
   };
@@ -1086,6 +1087,17 @@
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
 
+    // Pegue meio de pagamento e parcelas do caminho correto:
+    const meioPgto = event.detail.data.paymentMethod.paymentType;       // "credit", "pix", "boleto" etc.
+    const parcelas = event.detail.data.paymentMethod.installments || 1;
+
+    // Se quiser pegar a brand do cartão, verifique se existe em event.detail.data.paymentSource
+    // Exemplo:
+    let bandeiraCartao = null;
+    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
+      bandeiraCartao = event.detail.data.paymentSource.cardBrand;
+    }
+
     // Montar objeto com os dados do pedido
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
@@ -1108,9 +1120,9 @@
       data_nascimento: t.birthdate,
       uf: t.state,
       nome_comprador: `${t.firstName} ${t.lastName}`,
-      meio_pgto: event.detail.paymentMethod, // "credit", "pix", "boleto"
-      bandeira_cartao: event.detail.cardBrand || null,
-      parcelas: event.detail.installments || 1,
+      meio_pgto: meioPgto,             // Ajuste principal para não ficar null
+      bandeira_cartao: bandeiraCartao, // Se encontrado, senão null
+      parcelas: parcelas,             // De event.detail.data.paymentMethod.installments
       valor_venda: finalAmount / 100, // conversão centavos -> real
       origem_cliente: "",
       cliente_de: "",
