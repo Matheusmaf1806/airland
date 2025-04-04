@@ -1066,7 +1066,7 @@
     // transactionConfig inicial (será atualizado depois)
     malgaCheckout.transactionConfig = {
       statementDescriptor: "Checkout Completo",
-      amount: 0, // Valor inicial zero, ajustado depois
+      amount: 0, // Valor inicial zero, ajustado depois (quando for para Step 3)
       description: "Pacote + Taxas + Extras",
       orderId: orderId,
       currency: "BRL",
@@ -1183,6 +1183,10 @@
     
         // 2) Lê valor total do carrinho
         finalAmount = getCartAmountInCents();
+        if (finalAmount <= 0) {
+          alert("Valor do pedido não pode ser 0. Verifique o carrinho!");
+          return;
+        }
     
         // 3) Atualiza no Malga Checkout
         malgaCheckout.transactionConfig.amount = finalAmount;
@@ -1207,7 +1211,7 @@
           }
         };
     
-        // Atualiza as items do Pix/Boleto, se quiser
+        // Ajusta Pix/Boleto se quiser exibir o valor certo
         malgaCheckout.paymentMethods.pix.items[0].unitPrice = finalAmount;
         malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
     
