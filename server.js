@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////
 // server.js (ESM) - Versão Final Integrando Hotelbeds,
 // PayPal, Braintree, Malga (tokenização + 3DS) e hbacti,
-// com rota /checkout para form-handling-tokenization.
+// + Rota /api/checkoutComplete (via checkoutRoutes).
 ///////////////////////////////////////////////////////////
 
 import express from 'express'
@@ -21,6 +21,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // 3) Criar cliente do Supabase (exemplo)
+// ATENÇÃO: para inserir no banco sem restrições, use a Service Role Key.
+// Por simplicidade, deixo 'process.env.SUPABASE_ANON_KEY'.
+// Mas o ideal é 'process.env.SUPABASE_SERVICE_ROLE_KEY' no .env da Vercel.
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -51,6 +54,10 @@ import { malgaRouter } from './routes/malga.routes.js' // Rota Malga
 import hbactiRouter from './routes/hbacti.js' // Rota Hotelbeds Activities
 
 // ------------------------------------------------------
+// (NOVO) IMPORTAR A ROTA DE CHECKOUT (inserção no banco)
+import checkoutRouter from './routes/checkoutRoutes.js'
+
+// ------------------------------------------------------
 // Vincular as rotas
 // ------------------------------------------------------
 app.use('/api/ticketsgenie', ticketsGenieRouter)
@@ -63,6 +70,10 @@ app.use('/api/pay', payRouter)       // Rota PayPal
 app.use('/api/malga', malgaRouter)   // Rota Malga (tokenização + 3DS)
 app.use('/api/hbacti', hbactiRouter) // Rota Hotelbeds Activities
 
+// (NOVO) Agora, qualquer rota definida em checkoutRoutes.js
+// ficará disponível em /api/checkoutComplete (ou conforme definido lá).
+app.use('/api', checkoutRouter)
+
 // ------------------------------------------------------
 // ROTA PRINCIPAL (teste)
 app.get('/', (req, res) => {
@@ -71,11 +82,10 @@ app.get('/', (req, res) => {
 
 // ------------------------------------------------------
 // Rota /checkout (Exemplo form-handling-tokenization)
+// => Você já tem, mas se for substituir pela do checkoutRoutes, pode remover.
 app.post('/checkout', async (req, res) => {
   try {
-    // Exemplo: requisição do form da Malga
     console.log('Dados recebidos do formulário Malga:', req.body)
-    // Exemplo de retorno
     return res.json({ data: JSON.stringify(req.body, null, 2) })
   } catch (error) {
     console.error('Erro no /checkout:', error)
