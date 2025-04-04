@@ -990,16 +990,16 @@
      *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
      ***********************************************/
     
-    // Variáveis para armazenar dados do usuário (Step 1)
+    // Variáveis para armazenar dados do usuário (Step 1 ou login)
     let userData = {
       name: "",
       email: "",
-      phone: "",
+      phone: "", // se quiser forçar "celular" do login, setar userData.phone = userLoggedPhone
       cpf: "",
       address: {
         zipCode: "",
         street: "",
-        number: "",
+        number: "",    // valor digitado no <input id="number" >
         complement: "",
         neighborhood: "",
         city: "",
@@ -1008,20 +1008,20 @@
       }
     };
     
-    // Variável para ID do pedido
-    let orderId = "pedido-999999"; // Exemplo, pode ser dinâmico
+    // ID do pedido (exemplo)
+    let orderId = "pedido-999999";
     
-    // Valor final do pedido (em centavos) – será atualizado a partir do DOM (#totalValue)
+    // Valor final do pedido (centavos). Será atualizado lendo #totalValue
     let finalAmount = 0;
     
     /***********************************************
      *         SELECIONANDO O <MALGA-CHECKOUT>     *
      ***********************************************/
     
-    // Seleciona o componente do Malga (no step 3 do HTML)
+    // Seleciona componente Malga no step 3
     const malgaCheckout = document.querySelector("#malga-checkout");
     
-    // Configura os métodos de pagamento
+    // Métodos de pagamento
     malgaCheckout.paymentMethods = {
       pix: {
         expiresIn: 600,
@@ -1030,7 +1030,7 @@
             id: "pixItemABC",
             title: "Produto Pix",
             quantity: 1,
-            unitPrice: 0 // Será atualizado depois
+            unitPrice: 0 // será atualizado no Step 2->3
           }
         ]
       },
@@ -1046,40 +1046,40 @@
         instructions: "Boleto Exemplo (Produção)",
         interest: {
           days: 1,
-          amount: 1000 // R$10 de juros, só pra exemplo
+          amount: 1000 // Exemplo: 10 reais de juros
         },
         fine: {
           days: 2,
-          amount: 500 // R$5 de multa
+          amount: 500 // Exemplo: 5 reais de multa
         },
         items: [
           {
             id: "boletoItemABC",
             title: "Produto Boleto",
             quantity: 1,
-            unitPrice: 0 // Será atualizado depois
+            unitPrice: 0 // será atualizado no Step 2->3
           }
         ]
       }
     };
     
-    // transactionConfig inicial (será atualizado depois)
+    // transactionConfig inicial
     malgaCheckout.transactionConfig = {
       statementDescriptor: "Checkout Completo",
-      amount: 0, // Valor inicial zero, ajustado depois (quando for para Step 3)
+      amount: 0, // Começa em 0 e será atualizado
       description: "Pacote + Taxas + Extras",
       orderId: orderId,
       currency: "BRL",
       capture: false,
       customer: {
         name: "",
-        email: "",
-        phoneNumber: "",
+        email: "",        // o e-mail do usuário
+        phoneNumber: "",  // o telefone do usuário
         document: { type: "CPF", number: "", country: "BR" },
         address: {
           zipCode: "",
           street: "",
-          number: "",
+          streetNumber: "",   // a Malga precisa deste campo como string e não vazio
           complement: "",
           neighborhood: "",
           city: "",
@@ -1089,7 +1089,7 @@
       }
     };
     
-    // Configura o diálogo (modal)
+    // Config dialog
     malgaCheckout.dialogConfig = {
       show: true,
       actionButtonLabel: "Continuar",
@@ -1122,12 +1122,10 @@
      ***********************************************/
     
     function getCartAmountInCents() {
-      // Exemplo: se #totalValue contiver algo como "R$ 2.125,50"
       const totalText = document.getElementById("totalValue").textContent.trim();
-      // Remove caracteres não numéricos exceto vírgula/ponto
+      // Remove tudo que não é dígito, vírgula ou ponto
       let numericStr = totalText.replace(/[^\d,\.]/g, "").replace(",", ".");
-    
-      // Ex: "2125.50" => parseFloat -> 2125.5 => *100 -> 212550
+      // ex.: "2.125.50" => parseFloat -> 2125.5 => *100 => 212550
       const amount = Math.round(parseFloat(numericStr) * 100);
       return amount > 0 ? amount : 0;
     }
@@ -1155,10 +1153,10 @@
       userData.cpf   = cpf;
       userData.address.zipCode = cep;
       userData.address.street  = address;
-      userData.address.number  = number;
+      userData.address.number  = number; // guardamos aqui
       userData.address.city    = city;
       userData.address.state   = state;
-      // complement e neighborhood se existirem
+      // complement, neighborhood se existirem
     }
     
     /***********************************************
@@ -1178,22 +1176,22 @@
     const toStep3Btn = document.getElementById("toStep3");
     if (toStep3Btn) {
       toStep3Btn.addEventListener("click", () => {
-        // 1) Lê userData do Step 1
+        // Lê do Step 1
         readUserDataFromStep1();
     
-        // 2) Lê valor total do carrinho
+        // Lê valor do carrinho
         finalAmount = getCartAmountInCents();
         if (finalAmount <= 0) {
           alert("Valor do pedido não pode ser 0. Verifique o carrinho!");
           return;
         }
     
-        // 3) Atualiza no Malga Checkout
+        // Atualiza Malga
         malgaCheckout.transactionConfig.amount = finalAmount;
         malgaCheckout.transactionConfig.customer = {
           name: userData.name,
-          email: userData.email,
-          phoneNumber: userData.phone,
+          email: userData.email,           // se logado, já deve estar certo
+          phoneNumber: userData.phone,     // se logado, idem
           document: {
             type: "CPF",
             number: userData.cpf,
@@ -1202,20 +1200,21 @@
           address: {
             zipCode: userData.address.zipCode,
             street: userData.address.street,
-            number: userData.address.number,
-            complement: userData.address.complement,
-            neighborhood: userData.address.neighborhood,
+            // IMPORTANTE: streetNumber deve ser string e não vazio
+            streetNumber: String(userData.address.number || "S/N"),
+            complement: userData.address.complement || "",
+            neighborhood: userData.address.neighborhood || "",
             city: userData.address.city,
             state: userData.address.state,
             country: userData.address.country
           }
         };
     
-        // Ajusta Pix/Boleto se quiser exibir o valor certo
+        // Ajusta Pix/Boleto se quiser exibir valor certo
         malgaCheckout.paymentMethods.pix.items[0].unitPrice = finalAmount;
         malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
     
-        // Passa Step 2 -> Step 3
+        // Avança Step
         document.querySelector('[data-step="2"]').classList.remove("active");
         document.querySelector('[data-step="3"]').classList.add("active");
       });
