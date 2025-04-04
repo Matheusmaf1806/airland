@@ -14,13 +14,35 @@
     ></script>
 
     <title>Malga Checkout Example (Sandbox)</title>
+
+    <!-- Exemplo de estilo (opcional) -->
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+      }
+      main {
+        max-width: 600px;
+        margin: 50px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      h1 {
+        margin-top: 0;
+      }
+    </style>
   </head>
+
   <body>
     <main>
+      <h1>Malga Checkout - R$ 1.590,00 (sandbox)</h1>
+
       <!-- Componente Web do Malga Checkout -->
       <malga-checkout
         id="malga-checkout"
-        sandbox="true"  <!-- Ativa ambiente de homologação -->
+        sandbox="true"  <!-- Modo sandbox/homologação -->
         public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
         client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
         merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
@@ -29,10 +51,10 @@
     </main>
 
     <script>
-      // Seleciona o componente <malga-checkout> no DOM
-      const malgaCheckout = document.querySelector('malga-checkout');
+      // Seleciona o componente <malga-checkout>
+      const malgaCheckout = document.querySelector("malga-checkout");
 
-      // Configuração dos métodos de pagamento
+      // Métodos de pagamento: Pix, Crédito (até 10x) e Boleto - SEM juros/fine
       malgaCheckout.paymentMethods = {
         pix: {
           expiresIn: 600,
@@ -41,50 +63,41 @@
               id: "123",
               title: "Produto Exemplo - PIX",
               quantity: 1,
-              unitPrice: 159000, // R$ 1.590,00 em centavos
-            },
-          ],
+              unitPrice: 159000 // R$ 1.590,00
+            }
+          ]
         },
         credit: {
           installments: {
-            quantity: 10, // até 10 parcelas
-            show: true,
+            quantity: 10, // Até 10 parcelas
+            show: true
           },
-          showCreditCard: true,
+          showCreditCard: true
         },
         boleto: {
           expiresDate: "2025-12-31",
-          instructions: "Exemplo de Boleto no Sandbox",
-          interest: {
-            days: 1,
-            amount: 159000, // R$ 1.590,00 de juros (verifique se realmente deseja esse valor)
-          },
-          fine: {
-            days: 2,
-            amount: 200, // R$ 2,00 de multa
-          },
+          instructions: "Boleto Sandbox sem juros/fine",
+          // Sem 'interest' nem 'fine' para não ter juros/multa
           items: [
             {
               id: "123",
               title: "Produto Exemplo - Boleto",
               quantity: 1,
-              unitPrice: 159000, // R$ 1.590,00
-            },
-          ],
-        },
+              unitPrice: 159000 // R$ 1.590,00
+            }
+          ]
+        }
       };
 
-      // Configurações de transação
-      // Necessário incluir "customer" para Pix e Boleto
+      // Configurações de transação (inclui customer para Pix/Boleto)
       malgaCheckout.transactionConfig = {
-        statementDescriptor: "Malga Checkout Example",
+        statementDescriptor: "Exemplo Sandbox",
         amount: 159000, // R$ 1.590,00
-        description: "Demonstração do Malga Checkout - Sandbox",
+        description: "Demonstração Malga Checkout (sandbox)",
         orderId: "pedido-123",
         currency: "BRL",
         capture: false,
-
-        // Exemplo de dados de cliente
+        // Customer é importante para Pix/Boleto
         customer: {
           name: "Fulano de Tal",
           email: "fulano@example.com",
@@ -92,7 +105,7 @@
           document: {
             type: "CPF",
             number: "12345678901",
-            country: "BR",
+            country: "BR"
           },
           address: {
             zipCode: "01001000",
@@ -102,12 +115,12 @@
             neighborhood: "Centro",
             city: "São Paulo",
             state: "SP",
-            country: "BR",
-          },
-        },
+            country: "BR"
+          }
+        }
       };
 
-      // Configurações do diálogo (modal) de status
+      // Configurações do diálogo (modal)
       malgaCheckout.dialogConfig = {
         show: true,
         actionButtonLabel: "Continuar",
@@ -115,12 +128,12 @@
         successActionButtonLabel: "Continuar",
         successRedirectUrl: "https://www.malga.io/",
         pixFilledProgressBarColor: "#2FAC9B",
-        pixEmptyProgressBarColor: "#D8DFF0",
+        pixEmptyProgressBarColor: "#D8DFF0"
       };
 
-      // Listeners de eventos
+      // Eventos de sucesso/falha
       malgaCheckout.addEventListener("paymentSuccess", (event) => {
-        console.log("Pagamento concluído com sucesso:", event.detail);
+        console.log("Pagamento aprovado:", event.detail);
         alert("Pagamento aprovado!");
       });
 
