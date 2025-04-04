@@ -441,11 +441,54 @@
     .coverage-table td {
       color: #555;
     }
+
+    /* ALERTAS GERAIS */
+    .my-alert {
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      cursor: default;
+      /* Se quiser, adicione box-shadow, etc. */
+    }
+    .my-alert:hover {
+      transform: scale(1.02);
+    }
+  
+    /* ALERTA DE SUCESSO (verde) */
+    .my-alert-success {
+      background-color: #ecfdf5;       /* tom verde claro */
+      border-left: 4px solid #34d399; /* faixa verde */
+      color: #065f46;                 /* texto verde escuro */
+    }
+  
+    /* ALERTA DE ERRO (vermelho) */
+    .my-alert-error {
+      background-color: #fef2f2;       /* tom vermelho claro */
+      border-left: 4px solid #ef4444; /* faixa vermelha */
+      color: #991b1b;                 /* texto vermelho escuro */
+    }
+  
+    .my-alert-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      flex-shrink: 0;
+      fill: currentColor; /* herda cor do container (verde ou vermelho) */
+    }
+  
+    .my-alert-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
   </style>
 </head>
 <body>
   <app-header></app-header>
-
+  
   <!-- MENU DE STEPS -->
   <div class="steps-menu" id="stepsMenu">
     <div class="step active" data-step="1">
@@ -468,7 +511,7 @@
       <span>Confirmação</span>
     </div>
   </div>
-
+  <div id="alertContainer"></div>
   <!-- CONTAINER PRINCIPAL -->
   <div class="main-container">
     <!-- COLUNA ESQUERDA (STEPS) -->
@@ -1009,8 +1052,8 @@
   let orderId = "pedido-999999"; // Exemplo de ID do pedido
   let finalAmount = 0; // Valor final em centavos
 
-  // Se quiser armazenar array do carrinho, passageiros, etc.
-  let m = []; // seu carrinho
+  // Carrinho, passageiros etc.
+  let m = []; 
   let t = {
     firstName: "",
     lastName: "",
@@ -1023,36 +1066,27 @@
     // ...
   };
 
-  /***********************************************
-   *       SELECIONANDO O <MALGA-CHECKOUT>       *
-   ***********************************************/
-  const malgaCheckout = document.querySelector("#malga-checkout");
-
-  // Container para exibir alerts Tailwind (precisa existir no HTML: <div id="alertContainer"></div>)
+  // Seleciona container para injetar alerts (crie <div id="alertContainer"></div> no HTML)
   const alertContainer = document.getElementById("alertContainer");
 
-  // Funções helper para injetar alerts com Tailwind
+  // Helpers para exibir alertas sem Tailwind:
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
       <div
-        role="alert"
-        class="mt-2 bg-green-100 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-700 text-green-900 dark:text-green-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-green-200 dark:hover:bg-green-800 transform hover:scale-105"
+        style="
+          margin-top: 8px;
+          border-left: 4px solid green;
+          background-color: #f0fff0;
+          color: #1f4121;
+          padding: 8px;
+          border-radius: 4px;
+          font-family: sans-serif;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+        "
       >
-        <svg
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          fill="none"
-          class="h-5 w-5 flex-shrink-0 mr-2 text-green-600"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            stroke-width="2"
-            stroke-linejoin="round"
-            stroke-linecap="round"
-          ></path>
-        </svg>
-        <p class="text-xs font-semibold">${message}</p>
+        <strong style="margin-right: 6px;">Success:</strong> ${message}
       </div>
     `;
   }
@@ -1060,29 +1094,29 @@
   function showAlertError(message) {
     alertContainer.innerHTML = `
       <div
-        role="alert"
-        class="mt-2 bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-900 dark:text-red-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-red-200 dark:hover:bg-red-800 transform hover:scale-105"
+        style="
+          margin-top: 8px;
+          border-left: 4px solid red;
+          background-color: #fff5f5;
+          color: #7a1f1f;
+          padding: 8px;
+          border-radius: 4px;
+          font-family: sans-serif;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+        "
       >
-        <svg
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          fill="none"
-          class="h-5 w-5 flex-shrink-0 mr-2 text-red-600"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            stroke-width="2"
-            stroke-linejoin="round"
-            stroke-linecap="round"
-          ></path>
-        </svg>
-        <p class="text-xs font-semibold">${message}</p>
+        <strong style="margin-right: 6px;">Error:</strong> ${message}
       </div>
     `;
   }
 
-  // Configuração do Malga
+  /***********************************************
+   *       SELECIONANDO O <MALGA-CHECKOUT>       *
+   ***********************************************/
+  const malgaCheckout = document.querySelector("#malga-checkout");
+
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1128,11 +1162,11 @@
 
   // Desativa popup do Malga
   malgaCheckout.dialogConfig = {
-    show: false, // não exibe modal nativo
+    show: false, 
     actionButtonLabel: "Continuar",
     errorActionButtonLabel: "Tentar novamente",
     successActionButtonLabel: "Continuar",
-    successRedirectUrl: "", // não redireciona
+    successRedirectUrl: "",
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
@@ -1142,22 +1176,29 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-    // Limpamos qualquer alerta anterior
+    // Apaga alertas antigos (se houver)
     alertContainer.innerHTML = "";
 
-    // Pegando meio de pagamento
-    const meioPgto = event.detail.data.paymentMethod.paymentType; // ex. "credit","pix","boleto"
+    // Obter meio de pagamento e parcelas
+    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
 
-    // Pegando a suposta bandeira do cartão, se houver
+    // Bandeira do cartão, se houver
     let bandeiraCartao = null;
-    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
+    if (
+      event.detail.data.paymentSource && 
+      event.detail.data.paymentSource.cardBrand
+    ) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
+    // Pegando dados do carrinho
     const destino = m.length > 0 ? m[0].city || "" : "";
     const item = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao = (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
+    const data_utilizacao = (m.length > 0 && m[0].checkIn) 
+      ? m[0].checkIn 
+      : "2025-12-31";
+
     const firstName = t.firstName || "(nome)";
 
     const dataToInsert = {
@@ -1200,7 +1241,6 @@
 
       if (!result.success) {
         console.error("Erro ao inserir pedido:", result.error || result.message);
-        // Mostrar alerta de erro
         showAlertError("Error - Houve um erro ao registrar a venda no banco.");
         return;
       }
@@ -1210,10 +1250,10 @@
         ? result.insertedData[0].id
         : orderId;
 
-      // Mostrar alerta de sucesso
-      showAlertSuccess(`Success - Pedido de número ${insertedId} inserido com sucesso!`);
+      // Exibe alerta de sucesso
+      showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
 
-      // Ajustar Step 4
+      // Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -1225,7 +1265,6 @@
 
     } catch (error) {
       console.error("Exceção ao chamar /api/checkoutComplete:", error);
-      // Mostrar alerta de erro
       showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
     }
   });
@@ -1235,9 +1274,7 @@
    ***********************************************/
   malgaCheckout.addEventListener("paymentFailed", (event) => {
     console.log("Falha no pagamento:", event.detail);
-    // Limpamos qualquer alerta anterior
     alertContainer.innerHTML = "";
-    // Mostrar alerta de erro
     showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
   });
 
