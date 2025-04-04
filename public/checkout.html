@@ -1074,11 +1074,74 @@
      *         EVENTOS DE PAGAMENTO (CHECKOUT)      *
      ***********************************************/
     
-    malgaCheckout.addEventListener("paymentSuccess", (event) => {
+     malgaCheckout.addEventListener("paymentSuccess", async (event) => {
       console.log("Pagamento concluído com sucesso:", event.detail);
-      document.querySelector('[data-step="3"]').classList.remove("active");
-      document.querySelector('[data-step="4"]').classList.add("active");
-    });
+    
+      // Monte os dados que deseja enviar
+      // Ex.: Pegue "nome" do t.firstName + t.lastName, "valor" do finalAmount, etc.
+      // Se você quiser gravar "bandeira_cartao" ou "parcelas", pode usar event.detail
+      // (ex.: event.detail.cardBrand, event.detail.installments).
+      
+      // Se você tiver o array m[] com carrinho, pode pegar .city, etc.
+      const destino = m.length > 0 ? m[0].city || "" : "";
+      const item = m.map(i => i.hotelName).join(" + ");  // Join dos nomes
+      const data_utilizacao = m.length > 0 ? m[0].checkIn : null;
+    
+      const dataToInsert = {
+        data_venda: new Date(),
+        destino,
+        item,
+        data_utilizacao,
+        status: "pago",
+        nome: `${t.firstName} ${t.lastName}`,
+        data_nascimento: t.birthdate,
+        uf: t.state,
+        nome_comprador: `${t.firstName} ${t.lastName}`,
+        meio_pgto: event.detail.paymentMethod,  // "credit", "pix", ou "boleto"
+        bandeira_cartao: event.detail.cardBrand || null,
+        parcelas: event.detail.installments || 1,
+        valor_venda: finalAmount / 100, // pois finalAmount é em centavos
+        origem_cliente: "",
+        cliente_de: "",
+        efetivado_por: localStorage.getItem("cartOwnerId") || "",
+        observacoes_operacionais: "",
+        observacoes_financeiras: "",
+        gateway: "Malga",
+        data_pgto: new Date(),
+        email: t.email,
+        telefone: t.celular,
+        cpf: t.cpf.replace(/\D/g, ""),
+        affiliate_id: 0,
+        agente_id: 0,
+        pedido: JSON.stringify(m),               // seu carrinho
+        passageiros: JSON.stringify(t.extraPassengers) // se tiver
+      };
+    
+      // Agora fazemos o fetch para o backend (o /api/checkoutComplete).
+      try {
+        const response = await fetch('/api/checkoutComplete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToInsert)
+        });
+        const result = await response.json();
+    
+        if (!result.success) {
+          console.error("Erro ao inserir pedido:", result.error || result.message);
+          alert("Houve um erro ao registrar a venda no banco.");
+          return;
+        }
+    
+        console.log("Inserção no banco bem-sucedida:", result.insertedData);
+        // Se deu certo, só então avançamos para Step 4:
+        document.querySelector('[data-step="3"]').classList.remove("active");
+        document.querySelector('[data-step="4"]').classList.add("active");
+    
+      } catch (error) {
+        console.error("Exceção ao chamar /api/checkoutComplete:", error);
+        alert("Exceção ao chamar a rota de inserção no banco.");
+      }
+    });    
     
     malgaCheckout.addEventListener("paymentFailed", (event) => {
       console.log("Falha no pagamento:", event.detail);
