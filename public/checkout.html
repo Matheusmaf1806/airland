@@ -1029,245 +1029,251 @@
   -->
   <script type="module" src="/assets/main.js"></script>
   <script type="module">
-  /***********************************************
-   *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
-   ***********************************************/
-  let userData = {
+  <script type="module">
+/***********************************************
+ *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
+ ***********************************************/
+let userData = {
+  name: "",
+  email: "",
+  phone: "",
+  cpf: "",
+  address: {
+    zipCode: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    country: "BR"
+  }
+};
+
+let orderId = "pedido-999999"; // Exemplo de ID do pedido
+let finalAmount = 0; // Valor final em centavos
+
+// Carrinho, passageiros etc.
+let m = []; 
+let t = {
+  firstName: "",
+  lastName: "",
+  birthdate: "",
+  state: "",
+  email: "",
+  celular: "",
+  cpf: "",
+  extraPassengers: []
+  // ...
+};
+
+// Container para os alertas
+const alertContainer = document.getElementById("alertContainer");
+
+/***********************************************
+ * Função para fechar alerta
+ ***********************************************/
+function closeAlert() {
+  alertContainer.innerHTML = "";
+}
+
+/***********************************************
+ * ALERTA DE ERRO (vermelho)
+ ***********************************************/
+function showAlertError(message) {
+  console.log("showAlertError:", message);
+  alertContainer.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      width: 320px;
+      padding: 1rem 1.5rem;
+      background-color: #fde8e8;
+      color: #b91c1c;
+      border-left: 5px solid #f87171;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      animation: fadeIn 0.3s ease-out;
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="font-size: 1rem;">Erro</strong>
+        <button
+          style="
+            background: transparent; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            color: #b91c1c; 
+            margin-left: 8px;
+          "
+          onclick="closeAlert()"
+        >
+          &times;
+        </button>
+      </div>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+        ${message}
+      </p>
+    </div>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  `;
+}
+
+/***********************************************
+ * ALERTA DE SUCESSO (verde)
+ ***********************************************/
+function showAlertSuccess(message) {
+  console.log("showAlertSuccess:", message);
+  alertContainer.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      width: 320px;
+      padding: 1rem 1.5rem;
+      background-color: #dcfce7;
+      color: #15803d;
+      border-left: 5px solid #4ade80;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      animation: fadeIn 0.3s ease-out;
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="font-size: 1rem;">Sucesso</strong>
+        <button
+          style="
+            background: transparent; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            color: #15803d; 
+            margin-left: 8px;
+          "
+          onclick="closeAlert()"
+        >
+          &times;
+        </button>
+      </div>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+        ${message}
+      </p>
+    </div>
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  `;
+}
+
+/***********************************************
+ *  SELECIONANDO O <MALGA-CHECKOUT>
+ ***********************************************/
+const malgaCheckout = document.querySelector("#malga-checkout");
+
+// Configuração de métodos
+malgaCheckout.paymentMethods = {
+  pix: {
+    expiresIn: 600,
+    items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
+  },
+  credit: {
+    installments: { quantity: 10, show: true },
+    showCreditCard: true
+  },
+  boleto: {
+    expiresDate: "2025-12-31",
+    instructions: "Boleto Exemplo (Produção)",
+    interest: { days: 1, amount: 1000 },
+    fine: { days: 2, amount: 500 },
+    items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
+  }
+};
+
+// Configuração principal da transação
+malgaCheckout.transactionConfig = {
+  statementDescriptor: "Checkout Completo",
+  amount: 0,
+  description: "Pacote + Taxas + Extras",
+  orderId,
+  currency: "BRL",
+  capture: false,
+  customer: {
     name: "",
     email: "",
-    phone: "",
-    cpf: "",
+    phoneNumber: "",
+    document: { type: "CPF", number: "", country: "BR" },
     address: {
       zipCode: "",
       street: "",
-      number: "",
+      streetNumber: "",
       complement: "",
       neighborhood: "",
       city: "",
       state: "",
       country: "BR"
     }
-  };
-  
-  let orderId = "pedido-999999"; // Exemplo de ID do pedido
-  let finalAmount = 0; // Valor final em centavos
-
-  // Carrinho, passageiros etc.
-  let m = []; 
-  let t = {
-    firstName: "",
-    lastName: "",
-    birthdate: "",
-    state: "",
-    email: "",
-    celular: "",
-    cpf: "",
-    extraPassengers: []
-    // ...
-  };
-
-  // Container para os alertas
-  const alertContainer = document.getElementById("alertContainer");
-
-  // Fecha o alerta
-  function closeAlert() {
-    alertContainer.innerHTML = "";
   }
-  
-  // ALERTA DE ERRO (vermelho)
-  function showAlertError(message) {
-    alertContainer.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 9999;
-        width: 320px;
-        padding: 1rem 1.5rem;
-        background-color: #fde8e8;
-        color: #b91c1c;
-        border-left: 5px solid #f87171;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        animation: fadeIn 0.3s ease-out;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 1rem;">Erro</strong>
-          <button
-            style="
-              background: transparent; 
-              border: none; 
-              font-weight: bold; 
-              font-size: 1.2rem; 
-              cursor: pointer; 
-              color: #b91c1c; 
-              margin-left: 8px;
-            "
-            onclick="closeAlert()"
-          >
-            &times;
-          </button>
-        </div>
-        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-          ${message}
-        </p>
-      </div>
-      <style>
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      </style>
-    `;
-  }
-  
-  // ALERTA DE SUCESSO (verde)
-  function showAlertSuccess(message) {
-    alertContainer.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        z-index: 9999;
-        width: 320px;
-        padding: 1rem 1.5rem;
-        background-color: #dcfce7;
-        color: #15803d;
-        border-left: 5px solid #4ade80;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        animation: fadeIn 0.3s ease-out;
-      ">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 1rem;">Sucesso</strong>
-          <button
-            style="
-              background: transparent; 
-              border: none; 
-              font-weight: bold; 
-              font-size: 1.2rem; 
-              cursor: pointer; 
-              color: #15803d; 
-              margin-left: 8px;
-            "
-            onclick="closeAlert()"
-          >
-            &times;
-          </button>
-        </div>
-        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
-          ${message}
-        </p>
-      </div>
-      <style>
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      </style>
-    `;
-  }
+};
 
-  /***********************************************
-   *   SELECIONANDO O <MALGA-CHECKOUT>
-   ***********************************************/
-  const malgaCheckout = document.querySelector("#malga-checkout");
+// Desativa popup do Malga
+malgaCheckout.dialogConfig = {
+  show: false,
+  actionButtonLabel: "Continuar",
+  errorActionButtonLabel: "Tentar novamente",
+  successActionButtonLabel: "Continuar",
+  successRedirectUrl: "",
+  pixFilledProgressBarColor: "#2FAC9B",
+  pixEmptyProgressBarColor: "#D8DFF0"
+};
 
-  // Configuração de métodos de pagamento
-  malgaCheckout.paymentMethods = {
-    pix: {
-      expiresIn: 600,
-      items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
-    },
-    credit: {
-      installments: { quantity: 10, show: true },
-      showCreditCard: true
-    },
-    boleto: {
-      expiresDate: "2025-12-31",
-      instructions: "Boleto Exemplo (Produção)",
-      interest: { days: 1, amount: 1000 },
-      fine: { days: 2, amount: 500 },
-      items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
-    }
-  };
-  
-  // Configuração principal da transação
-  malgaCheckout.transactionConfig = {
-    statementDescriptor: "Checkout Completo",
-    amount: 0,
-    description: "Pacote + Taxas + Extras",
-    orderId, // "pedido-999999"
-    currency: "BRL",
-    capture: false,
-    customer: {
-      name: "",
-      email: "",
-      phoneNumber: "",
-      document: { type: "CPF", number: "", country: "BR" },
-      address: {
-        zipCode: "",
-        street: "",
-        streetNumber: "",
-        complement: "",
-        neighborhood: "",
-        city: "",
-        state: "",
-        country: "BR"
-      }
-    }
-  };
-
-  // Desativa popup do Malga
-  malgaCheckout.dialogConfig = {
-    show: false,
-    actionButtonLabel: "Continuar",
-    errorActionButtonLabel: "Tentar novamente",
-    successActionButtonLabel: "Continuar",
-    successRedirectUrl: "",
-    pixFilledProgressBarColor: "#2FAC9B",
-    pixEmptyProgressBarColor: "#D8DFF0"
-  };
-
-  /***********************************************
-   * EVENTO DE PAGAMENTO APROVADO (paymentSuccess)
-   ***********************************************/
-  malgaCheckout.addEventListener("paymentSuccess", async (event) => {
-    console.log("Pagamento concluído com sucesso:", event.detail);
-    // Apaga qualquer alerta pendente
-    alertContainer.innerHTML = "";
-
+/***********************************************
+ * EVENTO: PAGAMENTO APROVADO (paymentSuccess)
+ ***********************************************/
+malgaCheckout.addEventListener("paymentSuccess", async (event) => {
+  console.log("paymentSuccess disparado =>", event.detail);
+  alertContainer.innerHTML = ""; // limpa alertas
+  try {
     // Identifica tipo de pagamento e parcelas
-    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
-    const parcelas = event.detail.data.paymentMethod.installments || 1;
-
-    // Bandeira do cartão, se houver
+    const meioPgto   = event.detail.data.paymentMethod.paymentType || "desconhecido";
+    const parcelas   = event.detail.data.paymentMethod.installments || 1;
     let bandeiraCartao = null;
-    if (event.detail.data.paymentSource && event.detail.data.paymentSource.cardBrand) {
+    if (event.detail.data.paymentSource?.cardBrand) {
       bandeiraCartao = event.detail.data.paymentSource.cardBrand;
     }
 
-    // Dados do carrinho / fallback se não houver checkIn
-    const destino        = m.length > 0 ? (m[0].city || "") : "";
-    const item           = m.map(i => i.hotelName).join(" + ");
-    const data_utilizacao= (m.length > 0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
-    const firstName      = t.firstName || "(nome)";
+    // Destino, item, data_utilizacao
+    const destino         = (m.length>0) ? (m[0].city || "") : "";
+    const item            = m.map(i=>i.hotelName).join(" + ");
+    const data_utilizacao = (m.length>0 && m[0].checkIn) ? m[0].checkIn : "2025-12-31";
+    const firstName       = t.firstName || "(nome)";
 
-    // Monta objeto a inserir no banco
+    // Prepara dataToInsert
     const dataToInsert = {
       data_venda: new Date(),
       destino,
@@ -1298,236 +1304,269 @@
       passageiros: JSON.stringify(t.extraPassengers)
     };
 
-    try {
-      // Faz POST para /api/checkoutComplete
-      const response = await fetch('/api/checkoutComplete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToInsert)
-      });
-      const result = await response.json();
+    console.log("dataToInsert =>", dataToInsert);
 
-      if (!result.success) {
-        console.error("Erro ao inserir pedido:", result.error || result.message);
-        showAlertError("Error - Houve um erro ao registrar a venda no banco.");
-        return;
-      }
+    // Chama API /checkoutComplete
+    const resp = await fetch('/api/checkoutComplete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToInsert)
+    });
+    const resData = await resp.json();
 
-      console.log("Inserção no banco bem-sucedida:", result.insertedData);
-      const insertedId = result.insertedData?.[0]?.id || orderId;
-
-      // Alerta de sucesso
-      showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
-
-      // Ajusta Step 4
-      const finalTitle = document.getElementById("finalTitle");
-      const finalMsg   = document.getElementById("finalMsg");
-      const finalThanks= document.getElementById("finalThanks");
-
-      finalTitle.textContent  = `Parabéns ${firstName} pela sua escolha!`;
-      finalMsg.textContent    = `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
-      finalThanks.textContent = "Aproveite a viagem!";
-
-      // Remove Step 3 e exibe Step 4
-      document.querySelector('[data-step="3"]').classList.remove("active");
-      document.querySelector('[data-step="4"]').classList.add("active");
-
-      // No menu, remove Step 3 e ativa Step 4
-      document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
-      document.querySelector('.steps-menu .step[data-step="4"]')?.classList.remove('disabled');
-      document.querySelector('.steps-menu .step[data-step="4"]')?.classList.add('active');
-
-      // Esconde <malga-checkout> e overlay, caso queira sumir completamente
-      document.querySelector("#malga-checkout").style.display = "none";
-      const malgaOverlay = document.querySelector(".m-checkout__dialog");
-      if (malgaOverlay) malgaOverlay.style.display = "none";
-
-      // Scroll para topo
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    } catch (error) {
-      console.error("Exceção ao chamar /api/checkoutComplete:", error);
-      showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
+    if(!resData.success) {
+      console.error("Erro ao inserir pedido:", resData.error || resData.message);
+      showAlertError("Error - Houve um erro ao registrar a venda no banco.");
+      return;
     }
+
+    console.log("Inserção no banco bem-sucedida =>", resData.insertedData);
+    const insertedId = resData.insertedData?.[0]?.id || orderId;
+
+    // Alerta de sucesso
+    showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
+
+    // Ajusta Step 4
+    const finalTitle  = document.getElementById("finalTitle");
+    const finalMsg    = document.getElementById("finalMsg");
+    const finalThanks = document.getElementById("finalThanks");
+
+    finalTitle.textContent  = `Parabéns ${firstName} pela sua escolha!`;
+    finalMsg.textContent    = `O seu pedido de número ${insertedId} foi concluído com sucesso...`;
+    finalThanks.textContent = "Aproveite a viagem!";
+
+    // Desativa Step 3 e ativa Step 4
+    document.querySelector('[data-step="3"]')?.classList.remove("active");
+    document.querySelector('[data-step="4"]')?.classList.add("active");
+
+    // No menu
+    document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
+    document.querySelector('.steps-menu .step[data-step="4"]')?.classList.remove('disabled');
+    document.querySelector('.steps-menu .step[data-step="4"]')?.classList.add('active');
+
+    // Esconde malga-checkout e overlay
+    document.querySelector("#malga-checkout").style.display = "none";
+    const overlay = document.querySelector(".m-checkout__dialog");
+    if(overlay) overlay.style.display = "none";
+
+    // Scroll topo
+    window.scrollTo({top: 0, behavior:"smooth"});
+
+  } catch(err) {
+    console.error("Exceção no paymentSuccess =>", err);
+    showAlertError(`Error - Exceção: ${err.message}`);
+  }
+});
+
+/***********************************************
+ * EVENTO: PAGAMENTO FALHOU (paymentFailed)
+ ***********************************************/
+malgaCheckout.addEventListener("paymentFailed", (event) => {
+  console.log("paymentFailed disparado =>", event.detail);
+  alertContainer.innerHTML = "";
+  showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
+});
+
+/***********************************************
+ * FUNÇÃO getCartAmountInCents()
+ ***********************************************/
+function getCartAmountInCents() {
+  const totalElem = document.getElementById("totalValue");
+  if(!totalElem) {
+    console.warn("Não achou #totalValue no DOM. Retornando 0.");
+    return 0;
+  }
+  const totalText = totalElem.textContent.trim();
+  let numericStr  = totalText.replace(/[^\d.,-]/g, "");
+  numericStr      = numericStr.replace(/\./g, "");
+  numericStr      = numericStr.replace(",", ".");
+  const amount    = parseFloat(numericStr);
+  if(isNaN(amount)) return 0;
+  return Math.round(amount * 100);
+}
+
+/***********************************************
+ * fetchProfileIfLoggedIn() - puxa dados do user
+ ***********************************************/
+async function fetchProfileIfLoggedIn() {
+  const agentId = localStorage.getItem("agentId");
+  if(!agentId) return;
+  try {
+    const resp = await fetch(`/api/users/profile?id=${agentId}`);
+    if(!resp.ok) {
+      console.warn("Profile não encontrado =>", resp.status);
+      return;
+    }
+    const data = await resp.json();
+    if(data.email)    localStorage.setItem("userEmail", data.email);
+    if(data.telefone) localStorage.setItem("userPhone", data.telefone);
+  } catch(err) {
+    console.error("Erro ao buscar perfil =>", err);
+  }
+}
+
+/***********************************************
+ * LENDO DADOS DO STEP 1 (FORM + LOGIN)
+ ***********************************************/
+function readUserDataFromStep1() {
+  const userId      = localStorage.getItem("agentId") || "";
+  const userEmailLS = localStorage.getItem("userEmail") || "";
+  const userPhoneLS = localStorage.getItem("userPhone") || "";
+
+  const firstName  = document.getElementById("firstName")?.value.trim()  || "";
+  const lastName   = document.getElementById("lastName")?.value.trim()   || "";
+  const emailForm  = document.getElementById("email")?.value.trim()      || "";
+  const celular    = document.getElementById("celular")?.value.trim()    || "";
+  const cpf        = (document.getElementById("cpf")?.value || "").replace(/\D/g, "");
+  const cep        = (document.getElementById("cep")?.value || "").replace(/\D/g, "");
+  const state      = document.getElementById("state")?.value.trim()      || "";
+  const city       = document.getElementById("city")?.value.trim()       || "";
+  const address    = document.getElementById("address")?.value.trim()    || "";
+  const number     = document.getElementById("number")?.value.trim()     || "";
+  const birthdate  = document.getElementById("birthdate")?.value.trim()  || "";
+
+  // Salva em t (usado no backend)
+  t.firstName  = firstName;
+  t.lastName   = lastName;
+  t.birthdate  = birthdate;
+  t.state      = state;
+  t.cpf        = cpf;
+  // Se tiver userId => prioriza localStorage
+  t.email      = userId ? (userEmailLS || emailForm) : emailForm;
+  t.celular    = userId ? (userPhoneLS || celular)   : celular;
+
+  // Salva em userData (opcional, se precisar)
+  userData.name = `${firstName} ${lastName}`;
+  userData.cpf  = cpf;
+  userData.address.zipCode = cep;
+  userData.address.street  = address;
+  userData.address.number  = number;
+  userData.address.city    = city;
+  userData.address.state   = state;
+
+  console.log("Step 1 => readUserDataFromStep1 =>", t);
+}
+
+/***********************************************
+ * CONTROLA OS BOTÕES (STEP 1→2, 2→3, etc.)
+ ***********************************************/
+
+// Step 1 -> Step 2
+const toStep2Btn = document.getElementById("toStep2");
+if(toStep2Btn){
+  toStep2Btn.addEventListener("click", ()=>{
+    console.log("Clique step 1 -> step 2");
+    document.querySelector('[data-step="1"]')?.classList.remove("active");
+    document.querySelector('[data-step="2"]')?.classList.add("active");
+
+    // Atualiza menu: remove active do step 1, add no step 2
+    document.querySelector('.steps-menu .step[data-step="1"]')?.classList.remove('active');
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.remove('disabled');
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.add('active');
   });
+}
 
-  /***********************************************
-   * EVENTO DE PAGAMENTO FALHOU (paymentFailed)
-   ***********************************************/
-  malgaCheckout.addEventListener("paymentFailed", (event) => {
-    console.log("Falha no pagamento:", event.detail);
-    alertContainer.innerHTML = "";
-    showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
+// Step 2 -> Step 1
+const backToStep1Btn = document.getElementById("backToStep1");
+if(backToStep1Btn){
+  backToStep1Btn.addEventListener("click", ()=>{
+    console.log("Clique step 2 -> step 1");
+    document.querySelector('[data-step="2"]')?.classList.remove("active");
+    document.querySelector('[data-step="1"]')?.classList.add("active");
+
+    // Menu
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.remove('active');
+    document.querySelector('.steps-menu .step[data-step="1"]')?.classList.remove('disabled');
+    document.querySelector('.steps-menu .step[data-step="1"]')?.classList.add('active');
   });
+}
 
-  /***********************************************
-   * FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS
-   ***********************************************/
-  function getCartAmountInCents() {
-    const totalText = document.getElementById("totalValue").textContent.trim();
-    let numericStr  = totalText.replace(/[^\d.,-]/g, "");
-    numericStr      = numericStr.replace(/\./g, "");
-    numericStr      = numericStr.replace(",", ".");
-    const amount    = parseFloat(numericStr);
-    if (isNaN(amount)) return 0;
-    return Math.round(amount * 100);
-  }
-
-  /***********************************************
-   * EXEMPLO: fetchProfileIfLoggedIn()
-   ***********************************************/
-  async function fetchProfileIfLoggedIn() {
-    const agentId = localStorage.getItem("agentId");
-    if (!agentId) return;
-    try {
-      const response = await fetch(`/api/users/profile?id=${agentId}`);
-      if (!response.ok) {
-        console.warn("Profile não encontrado:", response.status);
-        return;
-      }
-      const data = await response.json();
-      if (data.email) {
-        localStorage.setItem("userEmail", data.email);
-      }
-      if (data.telefone) {
-        localStorage.setItem("userPhone", data.telefone);
-      }
-    } catch (err) {
-      console.error("Erro ao buscar perfil:", err);
+// Step 2 -> Step 3
+const toStep3Btn = document.getElementById("toStep3");
+if(toStep3Btn){
+  toStep3Btn.addEventListener("click", ()=>{
+    console.log("Clique step 2 -> step 3");
+    // Lê dados
+    readUserDataFromStep1();
+    finalAmount = getCartAmountInCents();
+    if(finalAmount<=0){
+      showAlertError("Error - Valor do pedido não pode ser 0!");
+      return;
     }
-  }
-
-  /***********************************************
-   * LENDO DADOS DO STEP 1 (FORM + LOGIN)
-   ***********************************************/
-  function readUserDataFromStep1() {
-    const userId      = localStorage.getItem("agentId") || "";
-    const userEmailLS = localStorage.getItem("userEmail") || "";
-    const userPhoneLS = localStorage.getItem("userPhone") || "";
-
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName  = document.getElementById("lastName").value.trim();
-    const emailForm = document.getElementById("email").value.trim();
-    const celular   = document.getElementById("celular").value.trim();
-    const cpf       = document.getElementById("cpf").value.replace(/\D/g, "");
-    const cep       = document.getElementById("cep").value.replace(/\D/g, "");
-    const state     = document.getElementById("state").value.trim();
-    const city      = document.getElementById("city").value.trim();
-    const address   = document.getElementById("address").value.trim();
-    const number    = document.getElementById("number").value.trim();
-
-    // Salva em t (usado para mandar ao servidor) e userData (caso queira)
-    t.firstName   = firstName;
-    t.lastName    = lastName;
-    t.birthdate   = document.getElementById("birthdate").value.trim();
-    t.state       = state;
-    t.cpf         = cpf;
-    t.email       = userId ? (userEmailLS || emailForm) : emailForm;
-    t.celular     = userId ? (userPhoneLS || celular)   : celular;
-
-    userData.name               = `${firstName} ${lastName}`;
-    userData.cpf                = cpf;
-    userData.address.zipCode    = cep;
-    userData.address.street     = address;
-    userData.address.number     = number;
-    userData.address.city       = city;
-    userData.address.state      = state;
-  }
-
-  /***********************************************
-   * NAVEGAÇÃO DOS STEPS (BOTÕES)
-   ***********************************************/
-  // Step 1 -> Step 2
-  const toStep2Btn = document.getElementById("toStep2");
-  if (toStep2Btn) {
-    toStep2Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="1"]').classList.remove("active");
-      document.querySelector('[data-step="2"]').classList.add("active");
-    });
-  }
-
-  // Step 2 -> Step 3
-  const toStep3Btn = document.getElementById("toStep3");
-  if (toStep3Btn) {
-    toStep3Btn.addEventListener("click", () => {
-      // Lê dados do Step 1
-      readUserDataFromStep1();
-
-      // Converte total do carrinho em centavos
-      finalAmount = getCartAmountInCents();
-      if (finalAmount <= 0) {
-        showAlertError("Error - Valor do pedido não pode ser 0!");
-        return;
-      }
-      if (!t.email || !t.email.includes("@")) {
-        showAlertError("Error - Por favor, informe um e-mail válido.");
-        return;
-      }
-
-      // Configura Malga
-      malgaCheckout.transactionConfig.amount = finalAmount;
-      malgaCheckout.transactionConfig.customer = {
-        name: `${t.firstName} ${t.lastName}`,
-        email: t.email,
-        phoneNumber: t.celular,
-        document: {
-          type: "CPF",
-          number: t.cpf,
-          country: "BR"
-        },
-        address: {
-          zipCode: userData.address.zipCode,
-          street: userData.address.street,
-          streetNumber: userData.address.number || "S/N",
-          complement: userData.address.complement || "",
-          neighborhood: userData.address.neighborhood || "",
-          city: userData.address.city,
-          state: userData.address.state,
-          country: "BR"
-        }
-      };
-
-      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
-      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-
-      document.querySelector('[data-step="2"]').classList.remove("active");
-      document.querySelector('[data-step="3"]').classList.add("active");
-    });
-  }
-
-  // Step 2 -> Step 1
-  const backToStep1Btn = document.getElementById("backToStep1");
-  if (backToStep1Btn) {
-    backToStep1Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="2"]').classList.remove("active");
-      document.querySelector('[data-step="1"]').classList.add("active");
-    });
-  }
-
-  // Step 3 -> Step 2
-  const backToStep2Btn = document.getElementById("backToStep2");
-  if (backToStep2Btn) {
-    backToStep2Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="3"]').classList.remove("active");
-      document.querySelector('[data-step="2"]').classList.add("active");
-    });
-  }
-
-  /***********************************************
-   * CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
-   ***********************************************/
-  window.addEventListener("DOMContentLoaded", async () => {
-    await fetchProfileIfLoggedIn();
-    const storedEmail = localStorage.getItem("userEmail");
-    const storedPhone = localStorage.getItem("userPhone");
-    // Pré-preenche e-mail e celular do Step 1, se existirem
-    if (storedEmail && document.getElementById("email")) {
-      document.getElementById("email").value = storedEmail;
+    if(!t.email || !t.email.includes("@")){
+      showAlertError("Error - Por favor, informe um e-mail válido.");
+      return;
     }
-    if (storedPhone && document.getElementById("celular")) {
-      document.getElementById("celular").value = storedPhone;
-    }
+
+    // Configura Malga
+    malgaCheckout.transactionConfig.amount = finalAmount;
+    malgaCheckout.transactionConfig.customer = {
+      name: `${t.firstName} ${t.lastName}`,
+      email: t.email,
+      phoneNumber: t.celular,
+      document: {
+        type: "CPF",
+        number: t.cpf,
+        country: "BR"
+      },
+      address: {
+        zipCode: userData.address.zipCode,
+        street: userData.address.street,
+        streetNumber: userData.address.number || "S/N",
+        complement: userData.address.complement || "",
+        neighborhood: userData.address.neighborhood || "",
+        city: userData.address.city,
+        state: userData.address.state,
+        country: "BR"
+      }
+    };
+
+    // Ajusta valores nos items
+    malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+    malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+
+    // Step 2 -> Step 3
+    document.querySelector('[data-step="2"]')?.classList.remove("active");
+    document.querySelector('[data-step="3"]')?.classList.add("active");
+
+    // Menu
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.remove('active');
+    document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('disabled');
+    document.querySelector('.steps-menu .step[data-step="3"]')?.classList.add('active');
   });
+}
+
+// Step 3 -> Step 2
+const backToStep2Btn = document.getElementById("backToStep2");
+if(backToStep2Btn){
+  backToStep2Btn.addEventListener("click", ()=>{
+    console.log("Clique step 3 -> step 2");
+    document.querySelector('[data-step="3"]')?.classList.remove("active");
+    document.querySelector('[data-step="2"]')?.classList.add("active");
+
+    // Menu
+    document.querySelector('.steps-menu .step[data-step="3"]')?.classList.remove('active');
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.remove('disabled');
+    document.querySelector('.steps-menu .step[data-step="2"]')?.classList.add('active');
+  });
+}
+
+/***********************************************
+ * CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR
+ ***********************************************/
+window.addEventListener("DOMContentLoaded", async ()=>{
+  console.log("DOMContentLoaded => Chamando fetchProfileIfLoggedIn");
+  await fetchProfileIfLoggedIn();
+
+  const storedEmail = localStorage.getItem("userEmail");
+  const storedPhone = localStorage.getItem("userPhone");
+  if(storedEmail && document.getElementById("email")){
+    document.getElementById("email").value = storedEmail;
+  }
+  if(storedPhone && document.getElementById("celular")){
+    document.getElementById("celular").value = storedPhone;
+  }
+});
 </script>
 </body>
 </html>
