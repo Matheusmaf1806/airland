@@ -1,50 +1,49 @@
-// orderComplete.js
+// routes/orderComplete.js
 import express from 'express'
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 
-// Carregar variáveis do .env
+// Carrega variáveis de ambiente do .env
 dotenv.config()
 
-// Criar cliente do Supabase (caso não queira duplicar código, você pode
-// exportar o 'supabase' de outro arquivo e importar aqui.)
+// Inicia o cliente do Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_ANON_KEY // Se precisar de permissões totais, use SERVICE_ROLE_KEY
 )
 
 const router = express.Router()
 
-// POST /api/orderComplete
+// Rota POST /api/orderComplete
 router.post('/', async (req, res) => {
   try {
-    // Lemos o ID do pedido e o objeto de atualização
     const { orderId, dataToUpdate } = req.body
-
     if (!orderId) {
       return res.json({
         success: false,
-        message: 'É necessário fornecer um orderId'
+        message: 'É necessário fornecer o campo orderId'
       })
     }
 
-    // Faz o UPDATE na tabela "supplier_pedidos"
+    // dataToUpdate deve conter as chaves que você deseja atualizar na tabela,
+    // por ex.: { status: 'pago', valor_venda: 100.00, bandeira_cartao: 'visa', ... }
+
+    // Faz o UPDATE na tabela supplier_pedidos
     const { data, error } = await supabase
       .from('supplier_pedidos')
-      .update(dataToUpdate)    // ex: { status: 'pago', meio_pgto: 'credit', etc. }
-      .eq('id', orderId)       // filtra pelo ID
-      .select()                // se quiser obter as linhas atualizadas
+      .update(dataToUpdate)   // por exemplo: {status: 'pago', meio_pgto: 'credit'}
+      .eq('id', orderId)      // atualiza o registro cujo id = orderId
+      .select()               // retorna as linhas atualizadas para conferência
 
     if (error) {
       throw new Error(error.message)
     }
 
-    // Retornamos os registros atualizados (caso queira ver no front)
+    // Se quiser conferir se data retornou algo, poderia checar data.length
     return res.json({
       success: true,
-      updatedData: data
+      updatedData: data // envia de volta as linhas atualizadas (pode ser útil no front)
     })
-
   } catch (err) {
     console.error('Erro em /api/orderComplete:', err)
     return res.json({
