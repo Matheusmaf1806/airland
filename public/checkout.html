@@ -1053,7 +1053,7 @@
   
   let orderId = "pedido-999999"; // Exemplo de ID do pedido
   let finalAmount = 0; // Valor final em centavos
-
+  
   // Carrinho, passageiros etc.
   let m = []; 
   let t = {
@@ -1067,10 +1067,10 @@
     extraPassengers: []
     // ...
   };
-
+  
   // Seleciona container para injetar alerts (crie <div id="alertContainer"></div> no HTML)
   const alertContainer = document.getElementById("alertContainer");
-
+  
   // Helpers para exibir alertas sem Tailwind:
   function showAlertSuccess(message) {
     // Apaga qualquer alerta anterior
@@ -1114,7 +1114,7 @@
       </div>
     `;
   }
-
+  
   function showAlertError(message) {
     alertContainer.innerHTML = `
       <div
@@ -1135,12 +1135,12 @@
       </div>
     `;
   }
-
+  
   /***********************************************
    *       SELECIONANDO O <MALGA-CHECKOUT>       *
    ***********************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
-
+  
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1183,7 +1183,7 @@
       }
     }
   };
-
+  
   // Desativa popup do Malga
   malgaCheckout.dialogConfig = {
     show: false, 
@@ -1194,11 +1194,10 @@
     pixFilledProgressBarColor: "#2FAC9B",
     pixEmptyProgressBarColor: "#D8DFF0"
   };
-
+  
   /***********************************************
    *      EVENTO DE PAGAMENTO APROVADO           *
    ***********************************************/
-  // Ajuste seu eventListener do pagamento aprovado
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
   
@@ -1279,7 +1278,7 @@
       showAlertSuccess(`Success - Seu pedido #${insertedId} foi inserido com sucesso!`);
   
       // 8. Ajusta Step 4:
-      document.getElementById("finalTitle").textContent  =
+      document.getElementById("finalTitle").textContent =
           `Parabéns ${firstName} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
           `O seu pedido de número #${insertedId} foi concluído com sucesso...`;
@@ -1311,7 +1310,7 @@
       showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
     }
   });
-
+  
   /***********************************************
    *      EVENTO DE PAGAMENTO FALHOU             *
    ***********************************************/
@@ -1320,7 +1319,7 @@
     alertContainer.innerHTML = "";
     showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
   });
-
+  
   /***********************************************
    *  FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS    *
    ***********************************************/
@@ -1333,14 +1332,15 @@
     if (isNaN(amount)) return 0;
     return Math.round(amount * 100);
   }
-
+  
   /***********************************************
    *  EXEMPLO: fetchProfileIfLoggedIn()          *
    ***********************************************/
-  // Exemplo de fetchProfileIfLoggedIn
   async function fetchProfileIfLoggedIn() {
+    // Precisa garantir que agentId está setado no localStorage
     const agentId = localStorage.getItem("agentId");
     if (!agentId) return;
+  
     try {
       const response = await fetch(`/api/users/profile?id=${agentId}`);
       if (!response.ok) {
@@ -1348,18 +1348,26 @@
         return;
       }
       const data = await response.json();
-      if (data && data.success) {
-        // supondo que data.profile tenha firstName, lastName
-        localStorage.setItem("userFirstName", data.profile.firstName || "");
-        localStorage.setItem("userLastName", data.profile.lastName  || "");
-        localStorage.setItem("userEmail", data.profile.email        || "");
-        localStorage.setItem("userPhone", data.profile.telefone     || "");
+      if (data && data.success && data.profile) {
+        // Se a API retornar firstName/lastName, use diretamente
+        const apiFirst = data.profile.firstName || "";
+        const apiLast  = data.profile.lastName  || "";
+        
+        // Se a API retornar "name" como campo único, podemos quebrar:
+        // const [f, ...rest] = (data.profile.name || "").split(" ");
+        // const apiFirst = f;
+        // const apiLast  = rest.join(" ");
+  
+        localStorage.setItem("userFirstName", apiFirst);
+        localStorage.setItem("userLastName",  apiLast);
+        localStorage.setItem("userEmail",    data.profile.email     || "");
+        localStorage.setItem("userPhone",    data.profile.telefone  || "");
       }
     } catch (err) {
       console.error("Erro ao buscar perfil:", err);
     }
   }
-
+  
   /***********************************************
    *  LENDO DADOS DO STEP 1 (FORM + LOGIN)       *
    ***********************************************/
@@ -1382,7 +1390,7 @@
     const formCity         = document.getElementById("city").value.trim();
     const formAddress      = document.getElementById("address").value.trim();
     const formNumber       = document.getElementById("number").value.trim();
-    const formCep        = document.getElementById("cep").value.trim();
+    const formCep          = document.getElementById("cep").value.trim();
   
     // Se está logado, damos prioridade ao que foi digitado;
     // mas se ficou vazio, usamos o valor guardado no localStorage
@@ -1403,23 +1411,21 @@
     t.cpf       = formCpf;
     t.birthdate = formBirthdate;
     t.state     = formState;
-    // Você pode adicionar quantos outros campos precisar
   
     // Se quiser guardar algo no userData também, faça:
-    userData.name         = `${t.firstName} ${t.lastName}`;
-    userData.email        = t.email;
-    userData.phone        = t.celular;
-    userData.cpf          = t.cpf;
-    userData.address.city = formCity;
-    userData.address.state  = formState;
-    userData.address.street = formAddress;
-    userData.address.number = formNumber;
-    userData.address.zipCode = formCep; // AQUI: inclui o CEP
-    // etc.
+    userData.name            = `${t.firstName} ${t.lastName}`;
+    userData.email           = t.email;
+    userData.phone           = t.celular;
+    userData.cpf             = t.cpf;
+    userData.address.city    = formCity;
+    userData.address.state   = formState;
+    userData.address.street  = formAddress;
+    userData.address.number  = formNumber;
+    userData.address.zipCode = formCep; // CEP
   
     console.log("readUserDataFromStep1 => t:", t);
   }
-
+  
   /***********************************************
    *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
    ***********************************************/
@@ -1432,7 +1438,7 @@
     document.querySelector('[data-step="1"]').classList.remove("active");
     document.querySelector('[data-step="2"]').classList.add("active");
   });
-
+  
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", () => {
@@ -1446,7 +1452,7 @@
         showAlertError("Error - Por favor, informe um e-mail válido.");
         return;
       }
-
+  
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
@@ -1468,15 +1474,15 @@
           country: "BR"
         }
       };
-
+  
       malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
       malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-
+  
       document.querySelector('[data-step="2"]').classList.remove("active");
       document.querySelector('[data-step="3"]').classList.add("active");
     });
   }
-
+  
   const backToStep1Btn = document.getElementById("backToStep1");
   if (backToStep1Btn) {
     backToStep1Btn.addEventListener("click", () => {
@@ -1484,7 +1490,7 @@
       document.querySelector('[data-step="1"]').classList.add("active");
     });
   }
-
+  
   const backToStep2Btn = document.getElementById("backToStep2");
   if (backToStep2Btn) {
     backToStep2Btn.addEventListener("click", () => {
@@ -1492,14 +1498,26 @@
       document.querySelector('[data-step="2"]').classList.add("active");
     });
   }
-
+  
   /***********************************************
    *  CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR *
    ***********************************************/
   window.addEventListener("DOMContentLoaded", async () => {
+    // Supondo que você setou agentId no localStorage após login
     await fetchProfileIfLoggedIn();
-    const storedEmail = localStorage.getItem("userEmail");
-    const storedPhone = localStorage.getItem("userPhone");
+  
+    // Popular Step 1 caso localStorage já tenha valores
+    const storedFirstName  = localStorage.getItem("userFirstName");
+    const storedLastName   = localStorage.getItem("userLastName");
+    const storedEmail      = localStorage.getItem("userEmail");
+    const storedPhone      = localStorage.getItem("userPhone");
+  
+    if (storedFirstName && document.getElementById("firstName")) {
+      document.getElementById("firstName").value = storedFirstName;
+    }
+    if (storedLastName && document.getElementById("lastName")) {
+      document.getElementById("lastName").value = storedLastName;
+    }
     if (storedEmail && document.getElementById("email")) {
       document.getElementById("email").value = storedEmail;
     }
