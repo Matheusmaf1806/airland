@@ -1031,498 +1031,552 @@
   -->
   <script type="module" src="/assets/main.js"></script>
   <script type="module">
-/***********************************************
- *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
- ***********************************************/
-let userData = {
-  name: "",
-  email: "",
-  phone: "",
-  cpf: "",
-  address: {
-    zipCode: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    country: "BR"
-  }
-};
-
-let orderId = "pedido-999999"; // Temporário até criarmos no banco
-let finalAmount = 0; // Valor final em centavos
-
-// Carrinho, passageiros etc.
-let m = [];
-let t = {
-  firstName: "",
-  lastName: "",
-  birthdate: "",
-  state: "",
-  email: "",
-  celular: "",
-  cpf: "",
-  extraPassengers: []
-};
-
-// Seleciona container para alerts
-const alertContainer = document.getElementById("alertContainer");
-
-/***********************************************
- * Helpers de alertas
- ***********************************************/
-function showAlertSuccess(message) {
-  alertContainer.innerHTML = `
-    <div 
-      style="
-        position: fixed; 
-        top: 1rem; 
-        right: 1rem; 
-        z-index: 9999; 
-        width: 300px;
-        padding: 0.8rem 1rem;
-        background-color: #ecfdf5;
-        color: #065f46;
-        border-left: 4px solid #34d399;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        font-family: sans-serif;
-        font-size: 0.9rem;
-      "
-    >
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong>Sucesso</strong>
-        <button 
-          style="
-            background: transparent;
-            border: none;
-            font-weight: bold;
-            font-size: 1rem;
-            color: #065f46;
-            cursor: pointer;
-          "
-          onclick="document.getElementById('alertContainer').innerHTML='';"
-        >
-          &times;
-        </button>
-      </div>
-      <p style="margin-top: 0.5rem;">
-        ${message}
-      </p>
-    </div>
-  `;
-}
-
-function showAlertError(message) {
-  alertContainer.innerHTML = `
-    <div
-      style="
-        margin-top: 8px;
-        border-left: 4px solid red;
-        background-color: #fff5f5;
-        color: #7a1f1f;
-        padding: 8px;
-        border-radius: 4px;
-        font-family: sans-serif;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-      "
-    >
-      <strong style="margin-right: 6px;">Error:</strong> ${message}
-    </div>
-  `;
-}
-
-/***********************************************
- *  FUNÇÃO P/ CRIAR PEDIDO NO BANCO (status=pending)
- ***********************************************/
-async function initOrderInDb(cartItems, userObj) {
-  try {
-    const response = await fetch('/api/orderInit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart: cartItems, user: userObj })
-    });
-    const data = await response.json();
-
-    if (data.success) {
-      return data.orderId; // ID real do banco
-    } else {
-      throw new Error(data.message || 'Falha ao criar pedido');
-    }
-  } catch (error) {
-    console.error('Erro em initOrderInDb:', error);
-    throw error;
-  }
-}
-
-/***********************************************
- *  SELECIONA O <MALGA-CHECKOUT> E CONFIG       *
- ***********************************************/
-const malgaCheckout = document.querySelector("#malga-checkout");
-
-malgaCheckout.paymentMethods = {
-  pix: {
-    expiresIn: 600,
-    items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
-  },
-  credit: {
-    installments: { quantity: 10, show: true },
-    showCreditCard: true
-  },
-  boleto: {
-    expiresDate: "2025-12-31",
-    instructions: "Boleto Exemplo (Produção)",
-    interest: { days: 1, amount: 1000 },
-    fine: { days: 2, amount: 500 },
-    items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
-  }
-};
-
-malgaCheckout.transactionConfig = {
-  statementDescriptor: "Checkout Completo",
-  amount: 0,
-  description: "Pacote + Taxas + Extras",
-  orderId, // Temporário
-  currency: "BRL",
-  capture: false,
-  customer: {
+  /*****************************************************************
+   *           DEFINIÇÃO DE VARIÁVEIS DE USUÁRIO E CARRINHO        *
+   *****************************************************************/
+  
+  // userData é um objeto auxiliar se quiser armazenar
+  let userData = {
     name: "",
     email: "",
-    phoneNumber: "",
-    document: { type: "CPF", number: "", country: "BR" },
+    phone: "",
+    cpf: "",
     address: {
       zipCode: "",
       street: "",
-      streetNumber: "",
+      number: "",
       complement: "",
       neighborhood: "",
       city: "",
       state: "",
       country: "BR"
     }
-  }
-};
-
-// Desativa popup do Malga
-malgaCheckout.dialogConfig = {
-  show: false,
-  actionButtonLabel: "Continuar",
-  errorActionButtonLabel: "Tentar novamente",
-  successActionButtonLabel: "Continuar",
-  successRedirectUrl: "",
-  pixFilledProgressBarColor: "#2FAC9B",
-  pixEmptyProgressBarColor: "#D8DFF0"
-};
-
-/***********************************************
- * EVENTO "paymentSuccess" → status='pago'
- ***********************************************/
-malgaCheckout.addEventListener("paymentSuccess", async (event) => {
-  console.log("Pagamento concluído com sucesso:", event.detail);
-
-  alertContainer.innerHTML = ""; // limpa alertas
-
-  // 1) Extra info
-  const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
-  const parcelas = event.detail.data.paymentMethod.installments || 1;
-  const bandeiraCartao = event.detail.data.paymentSource?.cardBrand || null;
-
-  // 2) Pegamos ID do localStorage
-  const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
-
-  // 3) Monta dataToUpdate p/ status "pago"
-  const dataToUpdate = {
-    status: "pago",
-    nome_comprador: `${t.firstName} ${t.lastName}`,
-    meio_pgto: meioPgto,
-    bandeira_cartao: bandeiraCartao,
-    parcelas,
-    valor_venda: finalAmount / 100,
-    data_venda: new Date(),
-    cpf: t.cpf.replace(/\D/g, ""),
-    telefone: t.celular
   };
-
-  try {
-    const response = await fetch('/api/orderComplete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: realOrderId, dataToUpdate })
-    });
-    const result = await response.json();
-
-    if (!result.success) {
-      console.error("Erro ao atualizar pedido:", result.message);
-      showAlertError("Error - Houve um erro ao atualizar o pedido no banco.");
-      return;
-    }
-
-    showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
-    console.log("Pedido atualizado com sucesso:", result.updatedData);
-
-    // Step 4
-    const firstName = t.firstName || "(nome)";
-    document.getElementById("finalTitle").textContent =
-      `Parabéns ${firstName} pela sua escolha!`;
-    document.getElementById("finalMsg").textContent =
-      `O seu pedido de número #${realOrderId} foi concluído com sucesso.`;
-    document.getElementById("finalThanks").textContent =
-      "Aproveite a viagem!";
-
-    // Ocultar right-col, se quiser
-    const rightCol = document.querySelector(".right-col");
-    if (rightCol) {
-      rightCol.style.display = "none";
-    }
-
-    window.p(4);
-
-  } catch (error) {
-    console.error("Exceção ao chamar /api/orderComplete:", error);
-    showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
+  
+  // "orderId" começa fictício, mas será sobrescrito pelo real do banco
+  let orderId = "pedido-999999";
+  let finalAmount = 0;
+  
+  // m = array representando o carrinho
+  // Você deve popular isso antes do Step 2->3, ex.:
+  // m = [{tipo:'hospedagem', nomeItem:'Hotel Florida', dataUso:'2025-08-20', agenteId:101, geradoPor:'UserXYZ'}, ...];
+  let m = [];
+  
+  // t = objeto do usuário principal (passageiro), populado no Step 1
+  let t = {
+    firstName: "",
+    lastName: "",
+    birthdate: "",
+    state: "",
+    email: "",
+    celular: "",
+    cpf: "",
+    extraPassengers: []
+  };
+  
+  // Container para alertas
+  const alertContainer = document.getElementById("alertContainer");
+  
+  /*****************************************************************
+   *                 FUNÇÕES AUXILIARES DE ALERTA                  *
+   *****************************************************************/
+  function showAlertSuccess(message) {
+    alertContainer.innerHTML = `
+      <div 
+        style="
+          position: fixed; 
+          top: 1rem; 
+          right: 1rem; 
+          z-index: 9999; 
+          width: 300px;
+          padding: 0.8rem 1rem;
+          background-color: #ecfdf5;
+          color: #065f46;
+          border-left: 4px solid #34d399;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          font-family: sans-serif;
+          font-size: 0.9rem;
+        "
+      >
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>Sucesso</strong>
+          <button 
+            style="
+              background: transparent;
+              border: none;
+              font-weight: bold;
+              font-size: 1rem;
+              color: #065f46;
+              cursor: pointer;
+            "
+            onclick="document.getElementById('alertContainer').innerHTML='';"
+          >
+            &times;
+          </button>
+        </div>
+        <p style="margin-top: 0.5rem;">
+          ${message}
+        </p>
+      </div>
+    `;
   }
-});
-
-/***********************************************
- * EVENTO "paymentFailed" → status='recusado'
- ***********************************************/
-malgaCheckout.addEventListener("paymentFailed", async (event) => {
-  console.log("Falha no pagamento:", event.detail);
-  alertContainer.innerHTML = "";
-
-  // Se você quiser marcar o pedido como "recusado":
-  const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
-  try {
-    await fetch('/api/orderComplete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId: realOrderId,
-        dataToUpdate: { status: "recusado" }
-      })
-    });
-  } catch (err) {
-    console.error("Erro ao marcar pedido recusado:", err);
+  
+  function showAlertError(message) {
+    alertContainer.innerHTML = `
+      <div
+        style="
+          margin-top: 8px;
+          border-left: 4px solid red;
+          background-color: #fff5f5;
+          color: #7a1f1f;
+          padding: 8px;
+          border-radius: 4px;
+          font-family: sans-serif;
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+        "
+      >
+        <strong style="margin-right: 6px;">Error:</strong> ${message}
+      </div>
+    `;
   }
-
-  showAlertError("Error - Pagamento falhou! Verifique o console.");
-});
-
-/***********************************************
- * FUNÇÃO p/ converter total em centavos
- ***********************************************/
-function getCartAmountInCents() {
-  const totalText = document.getElementById("totalValue").textContent.trim();
-  let numericStr = totalText.replace(/[^\d.,-]/g, "");
-  numericStr = numericStr.replace(/\./g, "");
-  numericStr = numericStr.replace(",", ".");
-  const amount = parseFloat(numericStr);
-  if (isNaN(amount)) return 0;
-  return Math.round(amount * 100);
-}
-
-/***********************************************
- * fetchProfileIfLoggedIn() etc. (sem mudança)
- ***********************************************/
-async function fetchProfileIfLoggedIn() {
-  const agentId = localStorage.getItem("agentId");
-  if (!agentId) return;
-
-  try {
-    const response = await fetch(`/api/users/profile?id=${agentId}`);
-    if (!response.ok) {
-      console.warn("Profile não encontrado:", response.status);
-      return;
-    }
-    const data = await response.json();
-    if (!data.primeiro_nome) {
-      console.warn("API não retornou 'primeiro_nome'");
-      return;
-    }
-    localStorage.setItem("userFirstName", data.primeiro_nome);
-    localStorage.setItem("userLastName",  "");
-    localStorage.setItem("userEmail",     data.email    || "");
-    localStorage.setItem("userPhone",     data.telefone || "");
-  } catch (err) {
-    console.error("Erro ao buscar perfil:", err);
-  }
-}
-
-/***********************************************
- * LENDO DADOS DO STEP 1
- ***********************************************/
-function readUserDataFromStep1() {
-  const agentId         = localStorage.getItem("agentId") || "";
-  const storedFirstName = localStorage.getItem("userFirstName") || "";
-  const storedLastName  = localStorage.getItem("userLastName")  || "";
-  const storedEmail     = localStorage.getItem("userEmail")      || "";
-  const storedPhone     = localStorage.getItem("userPhone")      || "";
-
-  const formFirstName = document.getElementById("firstName").value.trim();
-  const formLastName  = document.getElementById("lastName").value.trim();
-  const formCelular   = document.getElementById("celular").value.trim();
-  const formEmail     = document.getElementById("email").value.trim();
-  const formCpf       = document.getElementById("cpf").value.replace(/\D/g, "");
-  const formBirthdate = document.getElementById("birthdate").value.trim();
-  const formState     = document.getElementById("state").value.trim();
-  const formCity      = document.getElementById("city").value.trim();
-  const formAddress   = document.getElementById("address").value.trim();
-  const formNumber    = document.getElementById("number").value.trim();
-  const formCep       = document.getElementById("cep").value.trim();
-
-  if (agentId) {
-    t.firstName = formFirstName || storedFirstName;
-    t.lastName  = formLastName  || storedLastName;
-    t.email     = formEmail     || storedEmail;
-    t.celular   = formCelular   || storedPhone;
-  } else {
-    t.firstName = formFirstName;
-    t.lastName  = formLastName;
-    t.email     = formEmail;
-    t.celular   = formCelular;
-  }
-
-  t.cpf       = formCpf;
-  t.birthdate = formBirthdate;
-  t.state     = formState;
-
-  userData.name            = `${t.firstName} ${t.lastName}`;
-  userData.email           = t.email;
-  userData.phone           = t.celular;
-  userData.cpf             = t.cpf;
-  userData.address.city    = formCity;
-  userData.address.state   = formState;
-  userData.address.street  = formAddress;
-  userData.address.number  = formNumber;
-  userData.address.zipCode = formCep;
-
-  console.log("readUserDataFromStep1 => t:", t);
-}
-
-/***********************************************
- *  NAVEGAÇÃO: STEP 1 -> STEP 2
- ***********************************************/
-const toStep2Btn = document.getElementById("toStep2");
-if (toStep2Btn) {
-  toStep2Btn.addEventListener("click", () => {
-    readUserDataFromStep1();
-    document.querySelector('[data-step="1"]').classList.remove("active");
-    document.querySelector('[data-step="2"]').classList.add("active");
-  });
-}
-
-/***********************************************
- * STEP 2 -> STEP 3: CRIAR "pending"
- ***********************************************/
-const toStep3Btn = document.getElementById("toStep3");
-if (toStep3Btn) {
-  toStep3Btn.addEventListener("click", async () => {
-    readUserDataFromStep1();
-    finalAmount = getCartAmountInCents();
-    if (finalAmount <= 0) {
-      showAlertError("Error - Valor do pedido não pode ser 0!");
-      return;
-    }
-    if (!t.email || !t.email.includes("@")) {
-      showAlertError("Error - E-mail inválido.");
-      return;
-    }
-
-    // 1) Cria "pending" no DB
-    let realOrderId;
+  
+  /*****************************************************************
+   *     FUNÇÃO PARA CRIAR O PEDIDO NO BANCO (STATUS="PENDING")    *
+   *****************************************************************/
+  async function initOrderInDb(cartItems, userObj) {
     try {
-      realOrderId = await initOrderInDb(m, t);
-      localStorage.setItem('myRealOrderId', realOrderId);
-      console.log("Pedido criado com status=pending. ID=", realOrderId);
-    } catch (err) {
-      showAlertError("Falha ao criar pedido no banco: " + err.message);
-      return;
+      // Chama sua rota /api/orderInit
+      // O back-end (orderInit.js) deve inserir supplier_pedidos com status='pending'
+      const response = await fetch('/api/orderInit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cart: cartItems, 
+          user: userObj
+        })
+      });
+      const data = await response.json();
+  
+      if (!data.success) {
+        throw new Error(data.message || 'Falha ao criar pedido');
+      }
+  
+      // Retorna o ID (ex.: 123)
+      return data.orderId;
+    } catch (error) {
+      console.error("Erro em initOrderInDb:", error);
+      throw error;
     }
-
-    // 2) Config Malga
-    malgaCheckout.transactionConfig.orderId = String(realOrderId);
-    malgaCheckout.transactionConfig.amount  = finalAmount;
-
-    // "customer"
-    malgaCheckout.transactionConfig.customer = {
-      name: `${t.firstName} ${t.lastName}`,
-      email: t.email,
-      phoneNumber: t.celular,
-      document: {
-        type: "CPF",
-        number: t.cpf,
-        country: "BR"
-      },
+  }
+  
+  /*****************************************************************
+   *                      MALGA CHECKOUT                           *
+   *****************************************************************/
+  const malgaCheckout = document.querySelector("#malga-checkout");
+  
+  malgaCheckout.paymentMethods = {
+    pix: {
+      expiresIn: 600,
+      items: [
+        {
+          id: "pixItemABC",
+          title: "Produto Pix",
+          quantity: 1,
+          unitPrice: 0
+        }
+      ]
+    },
+    credit: {
+      installments: { quantity: 10, show: true },
+      showCreditCard: true
+    },
+    boleto: {
+      expiresDate: "2025-12-31",
+      instructions: "Boleto Exemplo (Produção)",
+      interest: { days: 1, amount: 1000 },
+      fine: { days: 2, amount: 500 },
+      items: [
+        {
+          id: "boletoItemABC",
+          title: "Produto Boleto",
+          quantity: 1,
+          unitPrice: 0
+        }
+      ]
+    }
+  };
+  
+  malgaCheckout.transactionConfig = {
+    statementDescriptor: "Checkout Completo",
+    amount: 0,
+    description: "Pacote + Taxas + Extras",
+    orderId: orderId, // substituído depois
+    currency: "BRL",
+    capture: false,
+    customer: {
+      name: "",
+      email: "",
+      phoneNumber: "",
+      document: { type: "CPF", number: "", country: "BR" },
       address: {
-        zipCode: userData.address.zipCode,
-        street: userData.address.street,
-        streetNumber: userData.address.number || "S/N",
-        complement: userData.address.complement || "",
-        neighborhood: userData.address.neighborhood || "",
-        city: userData.address.city,
-        state: userData.address.state,
+        zipCode: "",
+        street: "",
+        streetNumber: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
         country: "BR"
       }
+    }
+  };
+  
+  // Desativa popup do Malga
+  malgaCheckout.dialogConfig = {
+    show: false,
+    actionButtonLabel: "Continuar",
+    errorActionButtonLabel: "Tentar novamente",
+    successActionButtonLabel: "Continuar",
+    successRedirectUrl: "",
+    pixFilledProgressBarColor: "#2FAC9B",
+    pixEmptyProgressBarColor: "#D8DFF0"
+  };
+  
+  /*****************************************************************
+   *        EVENTO paymentSuccess → ATUALIZAR status="pago"       *
+   *****************************************************************/
+  malgaCheckout.addEventListener("paymentSuccess", async (event) => {
+    console.log("Pagamento concluído com sucesso:", event.detail);
+  
+    // limpa alertas antigos
+    alertContainer.innerHTML = "";
+  
+    // Extra info do pagamento
+    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
+    const parcelas = event.detail.data.paymentMethod.installments || 1;
+    const bandeira = event.detail.data.paymentSource?.cardBrand     || null;
+    // se a Malga retornar o nome no cartão:
+    const nomeNoCartao = event.detail.data.paymentSource?.cardHolderName || "(Nome do Cartão)";
+  
+    // Pegamos ID real do pedido
+    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+  
+    // Se quiser data_pgto = hoje +1 dia:
+    const hoje = new Date();
+    const dataPgtoDate = new Date(hoje.getTime() + 24*60*60*1000); 
+    const dataPgtoStr  = dataPgtoDate.toISOString().slice(0,10);
+  
+    const dataToUpdate = {
+      status: "pago",
+      nome_comprador: nomeNoCartao, 
+      meio_pgto: meioPgto,
+      bandeira_cartao: bandeira,
+      parcelas,
+      valor_venda: finalAmount / 100,
+      data_pgto: dataPgtoStr, 
+      // se quiser gateway="Malga"
+      gateway: "Malga"
     };
-
-    // Pix/Boleto items
-    malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
-    malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-
-    // Step 3
-    document.querySelector('[data-step="2"]').classList.remove("active");
-    document.querySelector('[data-step="3"]').classList.add("active");
+  
+    try {
+      const response = await fetch('/api/orderComplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: realOrderId,
+          dataToUpdate
+        })
+      });
+      const result = await response.json();
+  
+      if (!result.success) {
+        console.error("Erro ao atualizar pedido (pago):", result.message);
+        showAlertError("Falha ao atualizar o pedido no banco.");
+        return;
+      }
+  
+      showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
+      console.log("Pedido atualizado (pago):", result.updatedData);
+  
+      // Ajusta Step 4
+      document.getElementById("finalTitle").textContent =
+        `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
+      document.getElementById("finalMsg").textContent =
+        `Seu pedido de número #${realOrderId} foi concluído com sucesso...`;
+      document.getElementById("finalThanks").textContent =
+        "Aproveite a viagem!";
+  
+      // se quiser ocultar col. direita
+      const rightCol = document.querySelector(".right-col");
+      if (rightCol) {
+        rightCol.style.display = "none";
+      }
+      window.p(4);
+  
+    } catch (error) {
+      console.error("Exceção ao chamar /api/orderComplete:", error);
+      showAlertError(`Exceção ao chamar /api/orderComplete: ${error.message}`);
+    }
   });
-}
-
-/***********************************************
- *  BOTÕES DE VOLTA
- ***********************************************/
-const backToStep1Btn = document.getElementById("backToStep1");
-if (backToStep1Btn) {
-  backToStep1Btn.addEventListener("click", () => {
-    document.querySelector('[data-step="2"]').classList.remove("active");
-    document.querySelector('[data-step="1"]').classList.add("active");
+  
+  /*****************************************************************
+   *        EVENTO paymentFailed → ATUALIZAR status="recusado"     *
+   *****************************************************************/
+  malgaCheckout.addEventListener("paymentFailed", async (event) => {
+    console.log("Falha no pagamento:", event.detail);
+    alertContainer.innerHTML = "";
+  
+    // Podemos marcar o pedido como 'recusado'
+    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+  
+    try {
+      await fetch('/api/orderComplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: realOrderId,
+          dataToUpdate: { status: "recusado" }
+        })
+      });
+    } catch (err) {
+      console.error("Erro ao marcar pedido como recusado:", err);
+    }
+  
+    showAlertError("Error - Pagamento falhou! Verifique o console.");
   });
-}
-
-const backToStep2Btn = document.getElementById("backToStep2");
-if (backToStep2Btn) {
-  backToStep2Btn.addEventListener("click", () => {
-    document.querySelector('[data-step="3"]').classList.remove("active");
-    document.querySelector('[data-step="2"]').classList.add("active");
+  
+  /*****************************************************************
+   *              FUNÇÃO p/ OBTER TOTAL DO CARRINHO               *
+   *****************************************************************/
+  function getCartAmountInCents() {
+    const totalText = document.getElementById("totalValue").textContent.trim();
+    let numericStr = totalText.replace(/[^\d.,-]/g, "");
+    numericStr = numericStr.replace(/\./g, "");
+    numericStr = numericStr.replace(",", ".");
+    const amount = parseFloat(numericStr);
+    if (isNaN(amount)) return 0;
+    return Math.round(amount * 100);
+  }
+  
+  /*****************************************************************
+   *   fetchProfileIfLoggedIn() → se tiver login no localStorage   *
+   *****************************************************************/
+  async function fetchProfileIfLoggedIn() {
+    const agentId = localStorage.getItem("agentId");
+    if (!agentId) return;
+  
+    try {
+      const response = await fetch(`/api/users/profile?id=${agentId}`);
+      if (!response.ok) {
+        console.warn("Profile não encontrado:", response.status);
+        return;
+      }
+      const data = await response.json();
+      if (!data.primeiro_nome) {
+        console.warn("API não retornou 'primeiro_nome'");
+        return;
+      }
+      localStorage.setItem("userFirstName", data.primeiro_nome);
+      localStorage.setItem("userLastName",  "");
+      localStorage.setItem("userEmail",     data.email    || "");
+      localStorage.setItem("userPhone",     data.telefone || "");
+    } catch (err) {
+      console.error("Erro ao buscar perfil:", err);
+    }
+  }
+  
+  /*****************************************************************
+   *   LENDO DADOS DO STEP 1 (FORM => t)                           *
+   *****************************************************************/
+  function readUserDataFromStep1() {
+    const agentId         = localStorage.getItem("agentId") || "";
+    const storedFirstName = localStorage.getItem("userFirstName") || "";
+    const storedLastName  = localStorage.getItem("userLastName")  || "";
+    const storedEmail     = localStorage.getItem("userEmail")     || "";
+    const storedPhone     = localStorage.getItem("userPhone")     || "";
+  
+    const formFirstName = document.getElementById("firstName").value.trim();
+    const formLastName  = document.getElementById("lastName").value.trim();
+    const formCelular   = document.getElementById("celular").value.trim();
+    const formEmail     = document.getElementById("email").value.trim();
+    const formCpf       = document.getElementById("cpf").value.replace(/\D/g, "");
+    const formBirthdate = document.getElementById("birthdate").value.trim();
+    const formState     = document.getElementById("state").value.trim();
+    const formCity      = document.getElementById("city").value.trim();
+    const formAddress   = document.getElementById("address").value.trim();
+    const formNumber    = document.getElementById("number").value.trim();
+    const formCep       = document.getElementById("cep").value.trim();
+  
+    if (agentId) {
+      t.firstName = formFirstName || storedFirstName;
+      t.lastName  = formLastName  || storedLastName;
+      t.email     = formEmail     || storedEmail;
+      t.celular   = formCelular   || storedPhone;
+    } else {
+      t.firstName = formFirstName;
+      t.lastName  = formLastName;
+      t.email     = formEmail;
+      t.celular   = formCelular;
+    }
+  
+    t.cpf       = formCpf;
+    t.birthdate = formBirthdate;
+    t.state     = formState;
+  
+    userData.name            = `${t.firstName} ${t.lastName}`;
+    userData.email           = t.email;
+    userData.phone           = t.celular;
+    userData.cpf             = t.cpf;
+    userData.address.city    = formCity;
+    userData.address.state   = formState;
+    userData.address.street  = formAddress;
+    userData.address.number  = formNumber;
+    userData.address.zipCode = formCep;
+  
+    console.log("readUserDataFromStep1 => t:", t);
+  }
+  
+  /*****************************************************************
+   * STEP 1 -> STEP 2 (botão "Próximo" do Step 1)
+   *****************************************************************/
+  const toStep2Btn = document.getElementById("toStep2");
+  if (toStep2Btn) {
+    toStep2Btn.addEventListener("click", () => {
+      readUserDataFromStep1();
+      // Avança Step
+      document.querySelector('[data-step="1"]').classList.remove("active");
+      document.querySelector('[data-step="2"]').classList.add("active");
+    });
+  }
+  
+  /*****************************************************************
+   * STEP 2 -> STEP 3: CRIA PEDIDO "PENDING" NO BANCO
+   *****************************************************************/
+  const toStep3Btn = document.getElementById("toStep3");
+  if (toStep3Btn) {
+    toStep3Btn.addEventListener("click", async () => {
+      readUserDataFromStep1();
+      finalAmount = getCartAmountInCents();
+      if (finalAmount <= 0) {
+        showAlertError("Error - Valor do pedido não pode ser 0!");
+        return;
+      }
+      if (!t.email || !t.email.includes("@")) {
+        showAlertError("Error - E-mail inválido.");
+        return;
+      }
+  
+      // Exemplo: set affiliate_id, agente_id, etc. no carrinho
+      m.forEach(item => {
+        item.affiliateId = 101;
+        item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
+        // item.agenteId  = 10; ...
+      });
+  
+      let realOrderId;
+      try {
+        realOrderId = await initOrderInDb(m, t);
+        localStorage.setItem('myRealOrderId', realOrderId);
+        console.log("Pedido pendente criado. ID=", realOrderId);
+      } catch (err) {
+        showAlertError("Falha ao criar pedido no banco: " + err.message);
+        return;
+      }
+  
+      // Configuramos Malga
+      malgaCheckout.transactionConfig.orderId = String(realOrderId);
+      malgaCheckout.transactionConfig.amount  = finalAmount;
+  
+      // "customer" com dados do user
+      malgaCheckout.transactionConfig.customer = {
+        name: `${t.firstName} ${t.lastName}`,
+        email: t.email,
+        phoneNumber: t.celular,
+        document: {
+          type: "CPF",
+          number: t.cpf,
+          country: "BR"
+        },
+        address: {
+          zipCode: userData.address.zipCode,
+          street: userData.address.street,
+          streetNumber: userData.address.number || "S/N",
+          complement: userData.address.complement || "",
+          neighborhood: userData.address.neighborhood || "",
+          city: userData.address.city,
+          state: userData.address.state,
+          country: "BR"
+        }
+      };
+  
+      // Ajusta Pix e Boleto
+      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+  
+      // Avança Step 3
+      document.querySelector('[data-step="2"]').classList.remove("active");
+      document.querySelector('[data-step="3"]').classList.add("active");
+    });
+  }
+  
+  /*****************************************************************
+   * BACK BUTTONS
+   *****************************************************************/
+  const backToStep1Btn = document.getElementById("backToStep1");
+  if (backToStep1Btn) {
+    backToStep1Btn.addEventListener("click", () => {
+      document.querySelector('[data-step="2"]').classList.remove("active");
+      document.querySelector('[data-step="1"]').classList.add("active");
+    });
+  }
+  
+  const backToStep2Btn = document.getElementById("backToStep2");
+  if (backToStep2Btn) {
+    backToStep2Btn.addEventListener("click", () => {
+      document.querySelector('[data-step="3"]').classList.remove("active");
+      document.querySelector('[data-step="2"]').classList.add("active");
+    });
+  }
+  
+  /*****************************************************************
+   * DOMContentLoaded → fetchProfileIfLoggedIn
+   *****************************************************************/
+  window.addEventListener("DOMContentLoaded", async () => {
+    await fetchProfileIfLoggedIn();
+  
+    // Se localStorage tiver userFirstName etc., setar nos <input> do Step 1
+    const storedFirstName = localStorage.getItem("userFirstName") || "";
+    const storedLastName  = localStorage.getItem("userLastName")  || "";
+    const storedEmail     = localStorage.getItem("userEmail")     || "";
+    const storedPhone     = localStorage.getItem("userPhone")     || "";
+  
+    if (document.getElementById("firstName")) {
+      document.getElementById("firstName").value = storedFirstName;
+    }
+    if (document.getElementById("lastName")) {
+      document.getElementById("lastName").value = storedLastName;
+    }
+    if (document.getElementById("email")) {
+      document.getElementById("email").value = storedEmail;
+    }
+    if (document.getElementById("celular")) {
+      document.getElementById("celular").value = storedPhone;
+    }
+  
+    // Exemplo: se quiser popular 'm' para teste
+    // m = [
+    //   {
+    //     tipo:'hospedagem',
+    //     nomeItem:'Hotel XPTO',
+    //     dataUso:'2025-08-20',
+    //     agenteId:10,
+    //     geradoPor:'UserABC'
+    //   }
+    // ];
   });
-}
-
-/***********************************************
- * fetchProfileIfLoggedIn AO CARREGAR
- ***********************************************/
-window.addEventListener("DOMContentLoaded", async () => {
-  await fetchProfileIfLoggedIn();
-
-  // Se localStorage tiver userFirstName etc., setar nos campos Step 1
-  const storedFirstName = localStorage.getItem("userFirstName") || "";
-  const storedLastName  = localStorage.getItem("userLastName")  || "";
-  const storedEmail     = localStorage.getItem("userEmail")     || "";
-  const storedPhone     = localStorage.getItem("userPhone")     || "";
-
-  if (document.getElementById("firstName")) {
-    document.getElementById("firstName").value = storedFirstName;
-  }
-  if (document.getElementById("lastName")) {
-    document.getElementById("lastName").value = storedLastName;
-  }
-  if (document.getElementById("email")) {
-    document.getElementById("email").value = storedEmail;
-  }
-  if (document.getElementById("celular")) {
-    document.getElementById("celular").value = storedPhone;
-  }
-});
-</script>
+  </script>
 </body>
 </html>
