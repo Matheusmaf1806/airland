@@ -1337,7 +1337,6 @@
    *  EXEMPLO: fetchProfileIfLoggedIn()          *
    ***********************************************/
   async function fetchProfileIfLoggedIn() {
-    // Precisa garantir que agentId está setado no localStorage
     const agentId = localStorage.getItem("agentId");
     if (!agentId) return;
   
@@ -1347,22 +1346,22 @@
         console.warn("Profile não encontrado:", response.status);
         return;
       }
-      const data = await response.json();
-      if (data && data.success && data.profile) {
-        // Se a API retornar firstName/lastName, use diretamente
-        const apiFirst = data.profile.firstName || "";
-        const apiLast  = data.profile.lastName  || "";
-        
-        // Se a API retornar "name" como campo único, podemos quebrar:
-        // const [f, ...rest] = (data.profile.name || "").split(" ");
-        // const apiFirst = f;
-        // const apiLast  = rest.join(" ");
   
-        localStorage.setItem("userFirstName", apiFirst);
-        localStorage.setItem("userLastName",  apiLast);
-        localStorage.setItem("userEmail",    data.profile.email     || "");
-        localStorage.setItem("userPhone",    data.profile.telefone  || "");
+      // Aqui "data" já é o objeto contendo {primeiro_nome, email, telefone}
+      const data = await response.json();
+  
+      // Valida se realmente existe "primeiro_nome"
+      if (!data.primeiro_nome) {
+        console.warn("API não retornou 'primeiro_nome'");
+        return;
       }
+  
+      // Ajuste conforme a API retorna (não tem 'lastName', então ficaria vazio)
+      localStorage.setItem("userFirstName", data.primeiro_nome);
+      localStorage.setItem("userLastName",  ""); // Se não tem sobrenome, fica em branco
+      localStorage.setItem("userEmail",     data.email    || "");
+      localStorage.setItem("userPhone",     data.telefone || "");
+  
     } catch (err) {
       console.error("Erro ao buscar perfil:", err);
     }
@@ -1503,25 +1502,24 @@
    *  CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR *
    ***********************************************/
   window.addEventListener("DOMContentLoaded", async () => {
-    // Supondo que você setou agentId no localStorage após login
     await fetchProfileIfLoggedIn();
   
-    // Popular Step 1 caso localStorage já tenha valores
-    const storedFirstName  = localStorage.getItem("userFirstName");
-    const storedLastName   = localStorage.getItem("userLastName");
-    const storedEmail      = localStorage.getItem("userEmail");
-    const storedPhone      = localStorage.getItem("userPhone");
+    // Se o localStorage tiver esses valores, jogamos nos <input>
+    const storedFirstName  = localStorage.getItem("userFirstName") || "";
+    const storedLastName   = localStorage.getItem("userLastName")  || "";
+    const storedEmail      = localStorage.getItem("userEmail")     || "";
+    const storedPhone      = localStorage.getItem("userPhone")     || "";
   
-    if (storedFirstName && document.getElementById("firstName")) {
+    if (document.getElementById("firstName")) {
       document.getElementById("firstName").value = storedFirstName;
     }
-    if (storedLastName && document.getElementById("lastName")) {
+    if (document.getElementById("lastName")) {
       document.getElementById("lastName").value = storedLastName;
     }
-    if (storedEmail && document.getElementById("email")) {
+    if (document.getElementById("email")) {
       document.getElementById("email").value = storedEmail;
     }
-    if (storedPhone && document.getElementById("celular")) {
+    if (document.getElementById("celular")) {
       document.getElementById("celular").value = storedPhone;
     }
   });
