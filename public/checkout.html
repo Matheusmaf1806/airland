@@ -1031,228 +1031,423 @@
   -->
   <script type="module" src="/assets/main.js"></script>
   <script type="module">
-  /***********************************************
-   *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
-   ***********************************************/
-  let userData = {
+/***********************************************
+ *   ARMAZENAR DADOS DO USUÁRIO E DO PEDIDO    *
+ ***********************************************/
+let userData = {
+  name: "",
+  email: "",
+  phone: "",
+  cpf: "",
+  address: {
+    zipCode: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    country: "BR"
+  }
+};
+
+let orderId = "pedido-999999"; // Temporário até criarmos no banco
+let finalAmount = 0; // Valor final em centavos
+
+// Carrinho, passageiros etc.
+let m = [];
+let t = {
+  firstName: "",
+  lastName: "",
+  birthdate: "",
+  state: "",
+  email: "",
+  celular: "",
+  cpf: "",
+  extraPassengers: []
+};
+
+// Seleciona container para alerts
+const alertContainer = document.getElementById("alertContainer");
+
+/***********************************************
+ * Helpers de alertas
+ ***********************************************/
+function showAlertSuccess(message) {
+  alertContainer.innerHTML = `
+    <div 
+      style="
+        position: fixed; 
+        top: 1rem; 
+        right: 1rem; 
+        z-index: 9999; 
+        width: 300px;
+        padding: 0.8rem 1rem;
+        background-color: #ecfdf5;
+        color: #065f46;
+        border-left: 4px solid #34d399;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        font-family: sans-serif;
+        font-size: 0.9rem;
+      "
+    >
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong>Sucesso</strong>
+        <button 
+          style="
+            background: transparent;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #065f46;
+            cursor: pointer;
+          "
+          onclick="document.getElementById('alertContainer').innerHTML='';"
+        >
+          &times;
+        </button>
+      </div>
+      <p style="margin-top: 0.5rem;">
+        ${message}
+      </p>
+    </div>
+  `;
+}
+
+function showAlertError(message) {
+  alertContainer.innerHTML = `
+    <div
+      style="
+        margin-top: 8px;
+        border-left: 4px solid red;
+        background-color: #fff5f5;
+        color: #7a1f1f;
+        padding: 8px;
+        border-radius: 4px;
+        font-family: sans-serif;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+      "
+    >
+      <strong style="margin-right: 6px;">Error:</strong> ${message}
+    </div>
+  `;
+}
+
+/***********************************************
+ *  FUNÇÃO P/ CRIAR PEDIDO NO BANCO (status=pending)
+ ***********************************************/
+async function initOrderInDb(cartItems, userObj) {
+  try {
+    const response = await fetch('/api/orderInit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart: cartItems, user: userObj })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      return data.orderId; // ID real do banco
+    } else {
+      throw new Error(data.message || 'Falha ao criar pedido');
+    }
+  } catch (error) {
+    console.error('Erro em initOrderInDb:', error);
+    throw error;
+  }
+}
+
+/***********************************************
+ *  SELECIONA O <MALGA-CHECKOUT> E CONFIG       *
+ ***********************************************/
+const malgaCheckout = document.querySelector("#malga-checkout");
+
+malgaCheckout.paymentMethods = {
+  pix: {
+    expiresIn: 600,
+    items: [{ id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }]
+  },
+  credit: {
+    installments: { quantity: 10, show: true },
+    showCreditCard: true
+  },
+  boleto: {
+    expiresDate: "2025-12-31",
+    instructions: "Boleto Exemplo (Produção)",
+    interest: { days: 1, amount: 1000 },
+    fine: { days: 2, amount: 500 },
+    items: [{ id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }]
+  }
+};
+
+malgaCheckout.transactionConfig = {
+  statementDescriptor: "Checkout Completo",
+  amount: 0,
+  description: "Pacote + Taxas + Extras",
+  orderId, // Temporário
+  currency: "BRL",
+  capture: false,
+  customer: {
     name: "",
     email: "",
-    phone: "",
-    cpf: "",
+    phoneNumber: "",
+    document: { type: "CPF", number: "", country: "BR" },
     address: {
       zipCode: "",
       street: "",
-      number: "",
+      streetNumber: "",
       complement: "",
       neighborhood: "",
       city: "",
       state: "",
       country: "BR"
     }
-  };
-  
-  let orderId = "pedido-999999"; // Ficará temporário, mas será sobrescrito
-  let finalAmount = 0; // Valor final em centavos
-  
-  // Carrinho, passageiros etc.
-  let m = []; 
-  let t = {
-    firstName: "",
-    lastName: "",
-    birthdate: "",
-    state: "",
-    email: "",
-    celular: "",
-    cpf: "",
-    extraPassengers: []
-    // ...
-  };
-  
-  // Seleciona container para injetar alerts (crie <div id="alertContainer"></div> no HTML)
-  const alertContainer = document.getElementById("alertContainer");
-  
-  // Helpers para exibir alertas sem Tailwind:
-  function showAlertSuccess(message) {
-    alertContainer.innerHTML = `
-      <div 
-        style="
-          position: fixed; 
-          top: 1rem; 
-          right: 1rem; 
-          z-index: 9999; 
-          width: 300px;
-          padding: 0.8rem 1rem;
-          background-color: #ecfdf5;
-          color: #065f46;
-          border-left: 4px solid #34d399;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          font-family: sans-serif;
-          font-size: 0.9rem;
-        "
-      >
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <strong>Sucesso</strong>
-          <button 
-            style="
-              background: transparent;
-              border: none;
-              font-weight: bold;
-              font-size: 1rem;
-              color: #065f46;
-              cursor: pointer;
-            "
-            onclick="document.getElementById('alertContainer').innerHTML='';"
-          >
-            &times;
-          </button>
-        </div>
-        <p style="margin-top: 0.5rem;">
-          ${message}
-        </p>
-      </div>
-    `;
   }
-  
-  function showAlertError(message) {
-    alertContainer.innerHTML = `
-      <div
-        style="
-          margin-top: 8px;
-          border-left: 4px solid red;
-          background-color: #fff5f5;
-          color: #7a1f1f;
-          padding: 8px;
-          border-radius: 4px;
-          font-family: sans-serif;
-          font-size: 0.9rem;
-          display: flex;
-          align-items: center;
-        "
-      >
-        <strong style="margin-right: 6px;">Error:</strong> ${message}
-      </div>
-    `;
-  }
-  
-  /***********************************************
-   *   FUNÇÃO PARA CRIAR O PEDIDO NO BANCO       *
-   ***********************************************/
-  async function initOrderInDb(cartItems, userObj) {
-    try {
-      const response = await fetch('/api/orderInit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart: cartItems, user: userObj })
-      });
-      const data = await response.json();
-  
-      if (data.success) {
-        // Retornamos o ID real do banco
-        return data.orderId;
-      } else {
-        throw new Error(data.message || 'Falha ao criar pedido');
-      }
-    } catch (error) {
-      console.error('Erro em initOrderInDb:', error);
-      throw error;
-    }
-  }
-  
-  /***********************************************
-   *       SELECIONANDO O <MALGA-CHECKOUT>       *
-   ***********************************************/
-  const malgaCheckout = document.querySelector("#malga-checkout");
-  
-  // Mantemos os itens (Pix, Boleto, etc.) com unitPrice = 0 inicialmente
-  malgaCheckout.paymentMethods = {
-    pix: {
-      expiresIn: 600,
-      items: [
-        {
-          id: "pixItemABC",
-          title: "Produto Pix",
-          quantity: 1,
-          unitPrice: 0 // Ajustaremos mais tarde
-        }
-      ]
-    },
-    credit: {
-      installments: { quantity: 10, show: true },
-      showCreditCard: true
-    },
-    boleto: {
-      expiresDate: "2025-12-31",
-      instructions: "Boleto Exemplo (Produção)",
-      interest: { days: 1, amount: 1000 },
-      fine: { days: 2, amount: 500 },
-      items: [
-        {
-          id: "boletoItemABC",
-          title: "Produto Boleto",
-          quantity: 1,
-          unitPrice: 0 // Ajustaremos mais tarde
-        }
-      ]
-    }
-  };
-  
-  malgaCheckout.transactionConfig = {
-    statementDescriptor: "Checkout Completo",
-    amount: 0,
-    description: "Pacote + Taxas + Extras",
-    orderId,
-    currency: "BRL",
-    capture: false,
-    customer: {
-      name: "",
-      email: "",
-      phoneNumber: "",
-      document: { type: "CPF", number: "", country: "BR" },
-      address: {
-        zipCode: "",
-        street: "",
-        streetNumber: "",
-        complement: "",
-        neighborhood: "",
-        city: "",
-        state: "",
-        country: "BR"
-      }
-    }
-  };
-  
-  // Desativa popup do Malga
-  malgaCheckout.dialogConfig = {
-    show: false, 
-    actionButtonLabel: "Continuar",
-    errorActionButtonLabel: "Tentar novamente",
-    successActionButtonLabel: "Continuar",
-    successRedirectUrl: "",
-    pixFilledProgressBarColor: "#2FAC9B",
-    pixEmptyProgressBarColor: "#D8DFF0"
-  };
-  
-  /***********************************************
-  * FUNÇÃO: setar finalAmount e atualizar Malga *
-  ***********************************************/
-  function setupMalgaAmount() {
-    // Lê o valor do carrinho (usando #totalValue)
-    finalAmount = getCartAmountInCents();
+};
 
+// Desativa popup do Malga
+malgaCheckout.dialogConfig = {
+  show: false,
+  actionButtonLabel: "Continuar",
+  errorActionButtonLabel: "Tentar novamente",
+  successActionButtonLabel: "Continuar",
+  successRedirectUrl: "",
+  pixFilledProgressBarColor: "#2FAC9B",
+  pixEmptyProgressBarColor: "#D8DFF0"
+};
+
+/***********************************************
+ * EVENTO "paymentSuccess" → status='pago'
+ ***********************************************/
+malgaCheckout.addEventListener("paymentSuccess", async (event) => {
+  console.log("Pagamento concluído com sucesso:", event.detail);
+
+  alertContainer.innerHTML = ""; // limpa alertas
+
+  // 1) Extra info
+  const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
+  const parcelas = event.detail.data.paymentMethod.installments || 1;
+  const bandeiraCartao = event.detail.data.paymentSource?.cardBrand || null;
+
+  // 2) Pegamos ID do localStorage
+  const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+
+  // 3) Monta dataToUpdate p/ status "pago"
+  const dataToUpdate = {
+    status: "pago",
+    nome_comprador: `${t.firstName} ${t.lastName}`,
+    meio_pgto: meioPgto,
+    bandeira_cartao: bandeiraCartao,
+    parcelas,
+    valor_venda: finalAmount / 100,
+    data_venda: new Date(),
+    cpf: t.cpf.replace(/\D/g, ""),
+    telefone: t.celular
+  };
+
+  try {
+    const response = await fetch('/api/orderComplete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: realOrderId, dataToUpdate })
+    });
+    const result = await response.json();
+
+    if (!result.success) {
+      console.error("Erro ao atualizar pedido:", result.message);
+      showAlertError("Error - Houve um erro ao atualizar o pedido no banco.");
+      return;
+    }
+
+    showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
+    console.log("Pedido atualizado com sucesso:", result.updatedData);
+
+    // Step 4
+    const firstName = t.firstName || "(nome)";
+    document.getElementById("finalTitle").textContent =
+      `Parabéns ${firstName} pela sua escolha!`;
+    document.getElementById("finalMsg").textContent =
+      `O seu pedido de número #${realOrderId} foi concluído com sucesso.`;
+    document.getElementById("finalThanks").textContent =
+      "Aproveite a viagem!";
+
+    // Ocultar right-col, se quiser
+    const rightCol = document.querySelector(".right-col");
+    if (rightCol) {
+      rightCol.style.display = "none";
+    }
+
+    window.p(4);
+
+  } catch (error) {
+    console.error("Exceção ao chamar /api/orderComplete:", error);
+    showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
+  }
+});
+
+/***********************************************
+ * EVENTO "paymentFailed" → status='recusado'
+ ***********************************************/
+malgaCheckout.addEventListener("paymentFailed", async (event) => {
+  console.log("Falha no pagamento:", event.detail);
+  alertContainer.innerHTML = "";
+
+  // Se você quiser marcar o pedido como "recusado":
+  const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+  try {
+    await fetch('/api/orderComplete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: realOrderId,
+        dataToUpdate: { status: "recusado" }
+      })
+    });
+  } catch (err) {
+    console.error("Erro ao marcar pedido recusado:", err);
+  }
+
+  showAlertError("Error - Pagamento falhou! Verifique o console.");
+});
+
+/***********************************************
+ * FUNÇÃO p/ converter total em centavos
+ ***********************************************/
+function getCartAmountInCents() {
+  const totalText = document.getElementById("totalValue").textContent.trim();
+  let numericStr = totalText.replace(/[^\d.,-]/g, "");
+  numericStr = numericStr.replace(/\./g, "");
+  numericStr = numericStr.replace(",", ".");
+  const amount = parseFloat(numericStr);
+  if (isNaN(amount)) return 0;
+  return Math.round(amount * 100);
+}
+
+/***********************************************
+ * fetchProfileIfLoggedIn() etc. (sem mudança)
+ ***********************************************/
+async function fetchProfileIfLoggedIn() {
+  const agentId = localStorage.getItem("agentId");
+  if (!agentId) return;
+
+  try {
+    const response = await fetch(`/api/users/profile?id=${agentId}`);
+    if (!response.ok) {
+      console.warn("Profile não encontrado:", response.status);
+      return;
+    }
+    const data = await response.json();
+    if (!data.primeiro_nome) {
+      console.warn("API não retornou 'primeiro_nome'");
+      return;
+    }
+    localStorage.setItem("userFirstName", data.primeiro_nome);
+    localStorage.setItem("userLastName",  "");
+    localStorage.setItem("userEmail",     data.email    || "");
+    localStorage.setItem("userPhone",     data.telefone || "");
+  } catch (err) {
+    console.error("Erro ao buscar perfil:", err);
+  }
+}
+
+/***********************************************
+ * LENDO DADOS DO STEP 1
+ ***********************************************/
+function readUserDataFromStep1() {
+  const agentId         = localStorage.getItem("agentId") || "";
+  const storedFirstName = localStorage.getItem("userFirstName") || "";
+  const storedLastName  = localStorage.getItem("userLastName")  || "";
+  const storedEmail     = localStorage.getItem("userEmail")      || "";
+  const storedPhone     = localStorage.getItem("userPhone")      || "";
+
+  const formFirstName = document.getElementById("firstName").value.trim();
+  const formLastName  = document.getElementById("lastName").value.trim();
+  const formCelular   = document.getElementById("celular").value.trim();
+  const formEmail     = document.getElementById("email").value.trim();
+  const formCpf       = document.getElementById("cpf").value.replace(/\D/g, "");
+  const formBirthdate = document.getElementById("birthdate").value.trim();
+  const formState     = document.getElementById("state").value.trim();
+  const formCity      = document.getElementById("city").value.trim();
+  const formAddress   = document.getElementById("address").value.trim();
+  const formNumber    = document.getElementById("number").value.trim();
+  const formCep       = document.getElementById("cep").value.trim();
+
+  if (agentId) {
+    t.firstName = formFirstName || storedFirstName;
+    t.lastName  = formLastName  || storedLastName;
+    t.email     = formEmail     || storedEmail;
+    t.celular   = formCelular   || storedPhone;
+  } else {
+    t.firstName = formFirstName;
+    t.lastName  = formLastName;
+    t.email     = formEmail;
+    t.celular   = formCelular;
+  }
+
+  t.cpf       = formCpf;
+  t.birthdate = formBirthdate;
+  t.state     = formState;
+
+  userData.name            = `${t.firstName} ${t.lastName}`;
+  userData.email           = t.email;
+  userData.phone           = t.celular;
+  userData.cpf             = t.cpf;
+  userData.address.city    = formCity;
+  userData.address.state   = formState;
+  userData.address.street  = formAddress;
+  userData.address.number  = formNumber;
+  userData.address.zipCode = formCep;
+
+  console.log("readUserDataFromStep1 => t:", t);
+}
+
+/***********************************************
+ *  NAVEGAÇÃO: STEP 1 -> STEP 2
+ ***********************************************/
+const toStep2Btn = document.getElementById("toStep2");
+if (toStep2Btn) {
+  toStep2Btn.addEventListener("click", () => {
+    readUserDataFromStep1();
+    document.querySelector('[data-step="1"]').classList.remove("active");
+    document.querySelector('[data-step="2"]').classList.add("active");
+  });
+}
+
+/***********************************************
+ * STEP 2 -> STEP 3: CRIAR "pending"
+ ***********************************************/
+const toStep3Btn = document.getElementById("toStep3");
+if (toStep3Btn) {
+  toStep3Btn.addEventListener("click", async () => {
+    readUserDataFromStep1();
+    finalAmount = getCartAmountInCents();
     if (finalAmount <= 0) {
       showAlertError("Error - Valor do pedido não pode ser 0!");
-      return; 
-      // (ou retorne; se não quiser travar a navegação, retire)
+      return;
+    }
+    if (!t.email || !t.email.includes("@")) {
+      showAlertError("Error - E-mail inválido.");
+      return;
     }
 
-    // Pega do localStorage o ID real gerado anteriormente (se existir)
-    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+    // 1) Cria "pending" no DB
+    let realOrderId;
+    try {
+      realOrderId = await initOrderInDb(m, t);
+      localStorage.setItem('myRealOrderId', realOrderId);
+      console.log("Pedido criado com status=pending. ID=", realOrderId);
+    } catch (err) {
+      showAlertError("Falha ao criar pedido no banco: " + err.message);
+      return;
+    }
 
-    // Configuramos o Malga
+    // 2) Config Malga
     malgaCheckout.transactionConfig.orderId = String(realOrderId);
-    malgaCheckout.transactionConfig.amount = finalAmount;
-    // Montamos "customer" com base em t (ou userData), se já estiverem preenchidos
+    malgaCheckout.transactionConfig.amount  = finalAmount;
+
+    // "customer"
     malgaCheckout.transactionConfig.customer = {
       name: `${t.firstName} ${t.lastName}`,
       email: t.email,
@@ -1274,326 +1469,60 @@
       }
     };
 
-    // Ajusta os itens do PIX e BOLETO
+    // Pix/Boleto items
     malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
     malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-  }
 
-  /***********************************************
-   *      EVENTO DE PAGAMENTO APROVADO           *
-   ***********************************************/
-  malgaCheckout.addEventListener("paymentSuccess", async (event) => {
-    console.log("Pagamento concluído com sucesso:", event.detail);
-  
-    // Limpa quaisquer alertas anteriores
-    alertContainer.innerHTML = "";
-  
-    // 1. Identifica meio de pagamento, parcelas, bandeira etc.
-    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
-    const parcelas = event.detail.data.paymentMethod.installments || 1;
-    let bandeiraCartao = null;
-    if (event.detail.data.paymentSource?.cardBrand) {
-      bandeiraCartao = event.detail.data.paymentSource.cardBrand;
-    }
-  
-    // 2. Pega ID real que criamos antes (no toStep3Btn)
-    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
-  
-    // 3. Monta o objeto de UPDATE (status "pago", etc.)
-    const dataToUpdate = {
-      status: "pago",
-      nome_comprador: `${t.firstName} ${t.lastName}`,
-      meio_pgto: meioPgto,
-      bandeira_cartao: bandeiraCartao,
-      parcelas,
-      valor_venda: finalAmount / 100,
-      // Outras infos se quiser
-      data_venda: new Date(),
-      cpf: t.cpf.replace(/\D/g, ""),
-      telefone: t.celular
-      // ...
-    };
-  
-    try {
-      // Chamamos /api/orderComplete para dar UPDATE no pedido
-      const response = await fetch('/api/orderComplete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: realOrderId,
-          dataToUpdate
-        })
-      });
-      const result = await response.json();
-  
-      if (!result.success) {
-        console.error("Erro ao atualizar pedido:", result.message);
-        showAlertError("Error - Houve um erro ao atualizar o pedido no banco.");
-        return;
-      }
-  
-      console.log("Pedido atualizado com sucesso:", result.updatedData);
-      // Exibir mensagem final
-      showAlertSuccess(`Success - Seu pedido #${realOrderId} foi marcado como pago!`);
-  
-      // Ajusta Step 4:
-      const firstName = t.firstName || "(nome)";
-      document.getElementById("finalTitle").textContent =
-          `Parabéns ${firstName} pela sua escolha!`;
-      document.getElementById("finalMsg").textContent =
-          `O seu pedido de número #${realOrderId} foi concluído com sucesso...`;
-      document.getElementById("finalThanks").textContent =
-          "Aproveite a viagem!";
-  
-      // Se quiser um resumo:
-      const finalSummaryEl = document.getElementById("finalSummary");
-      if (finalSummaryEl) {
-        finalSummaryEl.innerHTML = `
-          <h3>Resumo Final</h3>
-          <p>Pedido: #${realOrderId}</p>
-          <p>Valor total: R$ ${(finalAmount / 100).toFixed(2)}</p>
-          <!-- etc. -->
-        `;
-      }
-  
-      // Opcional: esconder a coluna direita
-      const rightCol = document.querySelector(".right-col");
-      if (rightCol) {
-        rightCol.style.display = "none";
-      }
-  
-      // Muda para Step 4
-      window.p(4);
-  
-    } catch (error) {
-      console.error("Exceção ao chamar /api/orderComplete:", error);
-      showAlertError(`Error - Exceção ao chamar a rota: ${error.message}`);
-    }
+    // Step 3
+    document.querySelector('[data-step="2"]').classList.remove("active");
+    document.querySelector('[data-step="3"]').classList.add("active");
   });
-  
-  /***********************************************
-   *      EVENTO DE PAGAMENTO FALHOU             *
-   ***********************************************/
-  malgaCheckout.addEventListener("paymentFailed", (event) => {
-    console.log("Falha no pagamento:", event.detail);
-    alertContainer.innerHTML = "";
-    showAlertError("Error - Pagamento falhou! Verifique o console para detalhes.");
+}
+
+/***********************************************
+ *  BOTÕES DE VOLTA
+ ***********************************************/
+const backToStep1Btn = document.getElementById("backToStep1");
+if (backToStep1Btn) {
+  backToStep1Btn.addEventListener("click", () => {
+    document.querySelector('[data-step="2"]').classList.remove("active");
+    document.querySelector('[data-step="1"]').classList.add("active");
   });
-  
-  /***********************************************
-   *  FUNÇÃO PARA CONVERTER TOTAL EM CENTAVOS    *
-   ***********************************************/
-  function getCartAmountInCents() {
-    const totalText = document.getElementById("totalValue").textContent.trim();
-    let numericStr = totalText.replace(/[^\d.,-]/g, "");
-    numericStr = numericStr.replace(/\./g, "");
-    numericStr = numericStr.replace(",", ".");
-    const amount = parseFloat(numericStr);
-    if (isNaN(amount)) return 0;
-    return Math.round(amount * 100);
-  }
-  
-  /***********************************************
-   *  EXEMPLO: fetchProfileIfLoggedIn()          *
-   ***********************************************/
-  async function fetchProfileIfLoggedIn() {
-    const agentId = localStorage.getItem("agentId");
-    if (!agentId) return;
-  
-    try {
-      const response = await fetch(`/api/users/profile?id=${agentId}`);
-      if (!response.ok) {
-        console.warn("Profile não encontrado:", response.status);
-        return;
-      }
-  
-      const data = await response.json();
-  
-      if (!data.primeiro_nome) {
-        console.warn("API não retornou 'primeiro_nome'");
-        return;
-      }
-  
-      // Ajuste conforme a API retorna (não tem 'lastName', então fica em branco)
-      localStorage.setItem("userFirstName", data.primeiro_nome);
-      localStorage.setItem("userLastName",  "");
-      localStorage.setItem("userEmail",     data.email    || "");
-      localStorage.setItem("userPhone",     data.telefone || "");
-  
-    } catch (err) {
-      console.error("Erro ao buscar perfil:", err);
-    }
-  }
-  
-  /***********************************************
-   *  LENDO DADOS DO STEP 1 (FORM + LOGIN)       *
-   ***********************************************/
-  function readUserDataFromStep1() {
-    // Verifica se há alguém logado e pega dados do localStorage
-    const agentId          = localStorage.getItem("agentId") || "";
-    const storedFirstName  = localStorage.getItem("userFirstName") || "";
-    const storedLastName   = localStorage.getItem("userLastName")  || "";
-    const storedEmail      = localStorage.getItem("userEmail")      || "";
-    const storedPhone      = localStorage.getItem("userPhone")      || "";
-  
-    // Lê os campos do formulário Step 1
-    const formFirstName    = document.getElementById("firstName").value.trim();
-    const formLastName     = document.getElementById("lastName").value.trim();
-    const formCelular      = document.getElementById("celular").value.trim();
-    const formEmail        = document.getElementById("email").value.trim();
-    const formCpf          = document.getElementById("cpf").value.replace(/\D/g, "");
-    const formBirthdate    = document.getElementById("birthdate").value.trim();
-    const formState        = document.getElementById("state").value.trim();
-    const formCity         = document.getElementById("city").value.trim();
-    const formAddress      = document.getElementById("address").value.trim();
-    const formNumber       = document.getElementById("number").value.trim();
-    const formCep          = document.getElementById("cep").value.trim();
-  
-    if (agentId) {
-      t.firstName = formFirstName || storedFirstName;
-      t.lastName  = formLastName  || storedLastName;
-      t.email     = formEmail     || storedEmail;
-      t.celular   = formCelular   || storedPhone;
-    } else {
-      t.firstName = formFirstName;
-      t.lastName  = formLastName;
-      t.email     = formEmail;
-      t.celular   = formCelular;
-    }
-  
-    // Demais campos, sempre vem do form
-    t.cpf       = formCpf;
-    t.birthdate = formBirthdate;
-    t.state     = formState;
-  
-    // Se quiser guardar no userData também
-    userData.name            = `${t.firstName} ${t.lastName}`;
-    userData.email           = t.email;
-    userData.phone           = t.celular;
-    userData.cpf             = t.cpf;
-    userData.address.city    = formCity;
-    userData.address.state   = formState;
-    userData.address.street  = formAddress;
-    userData.address.number  = formNumber;
-    userData.address.zipCode = formCep;
-  
-    console.log("readUserDataFromStep1 => t:", t);
-  }
-  
-  /***********************************************
-   *     NAVEGAÇÃO DOS STEPS (BOTÕES)            *
-   ***********************************************/
-  const toStep2Btn = document.getElementById("toStep2");
-  toStep2Btn.addEventListener("click", () => {
-    readUserDataFromStep1();
-    console.log("t =>", t); 
-    document.querySelector('[data-step="1"]').classList.remove("active");
+}
+
+const backToStep2Btn = document.getElementById("backToStep2");
+if (backToStep2Btn) {
+  backToStep2Btn.addEventListener("click", () => {
+    document.querySelector('[data-step="3"]').classList.remove("active");
     document.querySelector('[data-step="2"]').classList.add("active");
   });
-  
-  /***********************************************
-   *   STEP 2 -> STEP 3: CRIAR PEDIDO NO BANCO   *
-   ***********************************************/
-  const toStep3Btn = document.getElementById("toStep3");
-  if (toStep3Btn) {
-    toStep3Btn.addEventListener("click", async () => {
-      readUserDataFromStep1();
-      finalAmount = getCartAmountInCents();
-      if (finalAmount <= 0) {
-        showAlertError("Error - Valor do pedido não pode ser 0!");
-        return;
-      }
-      if (!t.email || !t.email.includes("@")) {
-        showAlertError("Error - Por favor, informe um e-mail válido.");
-        return;
-      }
-  
-      // 1. Criamos o pedido no DB (status "pending"), recebemos ID real
-      let realOrderId;
-      try {
-        realOrderId = await initOrderInDb(m, t); // m => carrinho, t => dados user
-        localStorage.setItem('myRealOrderId', realOrderId);
-        console.log("Pedido criado, ID=", realOrderId);
-      } catch (err) {
-        showAlertError("Falha ao criar pedido no banco: " + err.message);
-        return;
-      }
-  
-      // 2. Configuramos o Malga com esse ID real
-      malgaCheckout.transactionConfig.orderId = String(realOrderId);
-      malgaCheckout.transactionConfig.amount = finalAmount;
-      malgaCheckout.transactionConfig.customer = {
-        name: `${t.firstName} ${t.lastName}`,
-        email: t.email,
-        phoneNumber: t.celular,
-        document: {
-          type: "CPF",
-          number: t.cpf,
-          country: "BR"
-        },
-        address: {
-          zipCode: userData.address.zipCode,
-          street: userData.address.street,
-          streetNumber: userData.address.number || "S/N",
-          complement: userData.address.complement || "",
-          neighborhood: userData.address.neighborhood || "",
-          city: userData.address.city,
-          state: userData.address.state,
-          country: "BR"
-        }
-      };
-  
-      // Ajusta os itens do PIX e BOLETO
-      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
-      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-  
-      // 3. Avançamos para Step 3
-      document.querySelector('[data-step="2"]').classList.remove("active");
-      document.querySelector('[data-step="3"]').classList.add("active");
-    });
+}
+
+/***********************************************
+ * fetchProfileIfLoggedIn AO CARREGAR
+ ***********************************************/
+window.addEventListener("DOMContentLoaded", async () => {
+  await fetchProfileIfLoggedIn();
+
+  // Se localStorage tiver userFirstName etc., setar nos campos Step 1
+  const storedFirstName = localStorage.getItem("userFirstName") || "";
+  const storedLastName  = localStorage.getItem("userLastName")  || "";
+  const storedEmail     = localStorage.getItem("userEmail")     || "";
+  const storedPhone     = localStorage.getItem("userPhone")     || "";
+
+  if (document.getElementById("firstName")) {
+    document.getElementById("firstName").value = storedFirstName;
   }
-  
-  const backToStep1Btn = document.getElementById("backToStep1");
-  if (backToStep1Btn) {
-    backToStep1Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="2"]').classList.remove("active");
-      document.querySelector('[data-step="1"]').classList.add("active");
-    });
+  if (document.getElementById("lastName")) {
+    document.getElementById("lastName").value = storedLastName;
   }
-  
-  const backToStep2Btn = document.getElementById("backToStep2");
-  if (backToStep2Btn) {
-    backToStep2Btn.addEventListener("click", () => {
-      document.querySelector('[data-step="3"]').classList.remove("active");
-      document.querySelector('[data-step="2"]').classList.add("active");
-    });
+  if (document.getElementById("email")) {
+    document.getElementById("email").value = storedEmail;
   }
-  
-  /***********************************************
-   *  CHAMAMOS fetchProfileIfLoggedIn AO CARREGAR *
-   ***********************************************/
-  window.addEventListener("DOMContentLoaded", async () => {
-    await fetchProfileIfLoggedIn();
-  
-    // Se o localStorage tiver esses valores, jogamos nos <input>
-    const storedFirstName  = localStorage.getItem("userFirstName") || "";
-    const storedLastName   = localStorage.getItem("userLastName")  || "";
-    const storedEmail      = localStorage.getItem("userEmail")     || "";
-    const storedPhone      = localStorage.getItem("userPhone")     || "";
-  
-    if (document.getElementById("firstName")) {
-      document.getElementById("firstName").value = storedFirstName;
-    }
-    if (document.getElementById("lastName")) {
-      document.getElementById("lastName").value = storedLastName;
-    }
-    if (document.getElementById("email")) {
-      document.getElementById("email").value = storedEmail;
-    }
-    if (document.getElementById("celular")) {
-      document.getElementById("celular").value = storedPhone;
-    }
-  });
+  if (document.getElementById("celular")) {
+    document.getElementById("celular").value = storedPhone;
+  }
+});
 </script>
 </body>
 </html>
