@@ -1250,7 +1250,7 @@
     const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
 
     // Configuramos o Malga
-    malgaCheckout.transactionConfig.orderId = realOrderId;
+    malgaCheckout.transactionConfig.orderId = String(realOrderId);
     malgaCheckout.transactionConfig.amount = finalAmount;
     // Montamos "customer" com base em t (ou userData), se já estiverem preenchidos
     malgaCheckout.transactionConfig.customer = {
@@ -1520,7 +1520,7 @@
       }
   
       // 2. Configuramos o Malga com esse ID real
-      malgaCheckout.transactionConfig.orderId = realOrderId;
+      malgaCheckout.transactionConfig.orderId = String(realOrderId);
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
