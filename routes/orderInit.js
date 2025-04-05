@@ -3,63 +3,113 @@ import express from 'express'
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 
-// Carregar variáveis do .env
 dotenv.config()
 
-// Inicializa cliente do Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY // Se precisar de permissões mais amplas, use a Service Role Key
+  process.env.SUPABASE_ANON_KEY
 )
 
 const router = express.Router()
 
-// POST /api/orderInit
 router.post('/', async (req, res) => {
   try {
-    // cart e user vêm do body do front-end
-    const { cart, user } = req.body
+    const { cart, user } = req.body 
+    // Exemplo: cart = m[], user = t{}
 
-    // Ajuste conforme seus campos no `user` (por ex. user.cpf, user.email, etc.)
-    const userName   = user?.name        || "Usuário Desconhecido"
-    const userEmail  = user?.email       || "sememail@exemplo.com"
-    const userPhone  = user?.phone       || "(00)0000-0000"
-    const userCpf    = user?.cpf         || "00000000000"
+    // 1) Preparar alguns valores:
+    // data_venda => data atual, em formato "YYYY-MM-DD"
+    const now = new Date()
+    const data_venda_str = now.toISOString().slice(0,10) // "2025-04-05"
 
-    // Exemplo: criamos registro em supplier_pedidos com status "pending"
-    // e valores mínimos em todas as colunas NOT NULL da sua tabela.
+    // destino => se "m" tiver .destino ou .city ou algo assim. Se não, "desconhecido".
+    // item => se tiver 1 item, use cart[0].nomeItem. Se tiver vários, junte nomes.
+    let destino = "Não definido"
+    let item = "Sem item"
+    let data_utilizacao_str = data_venda_str // se quiser a mesma data, ou a 1ª do carrinho
+
+    if (cart && cart.length > 0) {
+      // Exemplo: se cart[0] tiver .city
+      destino = cart[0].city || "Não definido"
+      item    = cart.map(it => it.categoria || "Item").join(" + ") 
+      // data_utilizacao => a 1ª data de uso do carrinho
+      // Se cart[0].dataUso existe, formate:
+      if (cart[0].dataUso) {
+        data_utilizacao_str = cart[0].dataUso.slice(0,10) 
+      }
+    }
+
+    // nome => "Nome Sobrenome" do passageiro principal
+    let nomeCompleto = "Usuário Desconhecido"
+    if (user.firstName && user.lastName) {
+      nomeCompleto = `${user.firstName} ${user.lastName}`
+    }
+
+    // data_nascimento => do t.birthdate, formate "YYYY-MM-DD" se vier em outro formato
+    let data_nascimento_str = data_venda_str
+    if (user.birthdate) {
+      const bd = new Date(user.birthdate)
+      data_nascimento_str = bd.toISOString().slice(0,10)
+    }
+
+    // UF => do DDD do telefone? A princípio, se user.state for "SP" etc., use user.state
+    // Se quiser extrair do DDD, teria que parsear user.celular
+    let uf = user.state || "SP"
+
+    // affiliate_id => se for 101 no site business.airland.com.br
+    // ou se for pego da URL (req.headers.host?), etc.:
+    const affiliate_id = 101
+
+    // agente_id => se vier no carrinho, ex cart.ownerId ou algo similar:
+    let agente_id = 0
+    if (cart && cart.length>0 && cart[0].agenteId) {
+      agente_id = cart[0].agenteId
+    }
+
+    // Efetivado_por => idem, se no cart tiver o id de quem gerou
+    let efetivadoPor = "System"
+    if (cart && cart.length>0 && cart[0].geradoPor) {
+      efetivadoPor = cart[0].geradoPor
+    }
+
+    // data_pgto => "data_venda + 1 dia"? (Você comentou isso, mas normalmente só setamos data_pgto ao pagar)
+    // Porém, se quer mesmo fixo, faça:
+    const data_pgto_date = new Date(now.getTime() + 24*60*60*1000) // +1 dia
+    const data_pgto_str = data_pgto_date.toISOString().slice(0,10)
+
     const { data, error } = await supabase
       .from('supplier_pedidos')
       .insert({
-        // Campos do "supplier_pedidos"
-        data_venda: new Date().toISOString(),  // date not null
-        destino: "Indefinido",                 // not null
-        item: "Carrinho inicial",              // not null
-        data_utilizacao: new Date().toISOString(), // not null
-        status: "pending",                     // ok
-        nome: userName,                        // not null
-        data_nascimento: new Date().toISOString(), // not null
-        uf: "SP",                              // char(2) not null
-        nome_comprador: userName,              // not null
-        meio_pgto: "pending",                  // not null
-        bandeira_cartao: null,                 // pode ser null
-        parcelas: 0,                           // default 0
-        valor_venda: 0.00,                     // not null
-        origem_cliente: "FrontSite",           // not null (ajuste se quiser)
-        cliente_de: "Integração",              // not null
-        efetivado_por: "System",               // not null
-        observacoes_operacionais: null,        // text null
-        observacoes_financeiras: null,         // text null
-        gateway: null,                         // pode ser null
-        data_pgto: new Date().toISOString(),   // date not null
-        email: userEmail,                      // not null
-        telefone: userPhone,                   // null é permitido mas você pode pôr ""
-        cpf: userCpf,                          // char(11) not null
-        affiliate_id: 0,                       // not null
-        agente_id: 0,                          // not null
-        // Campos JSON
-        pedido: cart ? JSON.stringify(cart) : null,
-        passageiros: null
+        // CAMPOS:
+        data_venda: data_venda_str,
+        destino,
+        item,
+        data_utilizacao: data_utilizacao_str,
+        status: 'pending', // "pending" antes do pagamento
+        nome: nomeCompleto,
+        data_nascimento: data_nascimento_str,
+        uf,
+        nome_comprador: "", // Normalmente definimos no paymentSuccess quando sabemos o nome do cartão
+        meio_pgto: "pending",  
+        bandeira_cartao: null,
+        parcelas: 0,
+        valor_venda: 0, // Se quiser zero aqui, e depois no paymentSuccess a gente faz update
+        origem_cliente: "0", // ou "FrontSite"
+        cliente_de: "",
+        efetivado_por: efetivadoPor,
+        observacoes_operacionais: null,
+        observacoes_financeiras: null,
+        gateway: null,
+        data_pgto: data_pgto_str,  // se quer +1 dia
+        email: user.email || "",
+        telefone: user.celular || "",
+        cpf: (user.cpf || "").replace(/\D/g, ""),
+        affiliate_id,
+        agente_id,
+        pedido: cart ? JSON.stringify(cart) : "[]",
+        passageiros: user.extraPassengers 
+          ? JSON.stringify(user.extraPassengers) 
+          : null
       })
       .select()
 
@@ -67,14 +117,12 @@ router.post('/', async (req, res) => {
       throw new Error(error.message)
     }
     if (!data || data.length === 0) {
-      return res.json({ success: false, message: 'Erro ao criar pedido (data vazio)' })
+      return res.json({ success: false, message: 'Nenhum registro inserido' })
     }
 
-    // PK da tabela
     const insertedId = data[0].id
-
-    // Retorna o ID real do pedido
     return res.json({ success: true, orderId: insertedId })
+
   } catch (err) {
     console.error('Erro em /api/orderInit:', err)
     return res.json({ success: false, message: err.message })
