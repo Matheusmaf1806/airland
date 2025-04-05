@@ -3,7 +3,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 
-// Carregar variáveis do .env (caso este arquivo rode isolado, assim como server.js)
+// Carregar variáveis do .env
 dotenv.config()
 
 // Criar cliente do Supabase (caso não queira duplicar código, você pode
@@ -15,7 +15,7 @@ const supabase = createClient(
 
 const router = express.Router()
 
-// Rota POST /api/orderComplete
+// POST /api/orderComplete
 router.post('/', async (req, res) => {
   try {
     // Lemos o ID do pedido e o objeto de atualização
@@ -28,11 +28,12 @@ router.post('/', async (req, res) => {
       })
     }
 
-    // Faz o UPDATE na tabela "orders" (ajuste conforme seu schema)
+    // Faz o UPDATE na tabela "supplier_pedidos"
     const { data, error } = await supabase
-      .from('orders')
-      .update(dataToUpdate)    // ex: { status: 'pago', meio_pgto: 'credit', ... }
+      .from('supplier_pedidos')
+      .update(dataToUpdate)    // ex: { status: 'pago', meio_pgto: 'credit', etc. }
       .eq('id', orderId)       // filtra pelo ID
+      .select()                // se quiser obter as linhas atualizadas
 
     if (error) {
       throw new Error(error.message)
