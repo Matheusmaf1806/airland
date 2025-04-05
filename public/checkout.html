@@ -1337,6 +1337,7 @@
   /***********************************************
    *  EXEMPLO: fetchProfileIfLoggedIn()          *
    ***********************************************/
+  // Exemplo de fetchProfileIfLoggedIn
   async function fetchProfileIfLoggedIn() {
     const agentId = localStorage.getItem("agentId");
     if (!agentId) return;
@@ -1347,11 +1348,12 @@
         return;
       }
       const data = await response.json();
-      if (data.email) {
-        localStorage.setItem("userEmail", data.email);
-      }
-      if (data.telefone) {
-        localStorage.setItem("userPhone", data.telefone);
+      if (data && data.success) {
+        // supondo que data.profile tenha firstName, lastName
+        localStorage.setItem("userFirstName", data.profile.firstName || "");
+        localStorage.setItem("userLastName", data.profile.lastName  || "");
+        localStorage.setItem("userEmail", data.profile.email        || "");
+        localStorage.setItem("userPhone", data.profile.telefone     || "");
       }
     } catch (err) {
       console.error("Erro ao buscar perfil:", err);
@@ -1362,36 +1364,58 @@
    *  LENDO DADOS DO STEP 1 (FORM + LOGIN)       *
    ***********************************************/
   function readUserDataFromStep1() {
-    const userId      = localStorage.getItem("agentId") || "";
-    const userEmailLS = localStorage.getItem("userEmail") || "";
-    const userPhoneLS = localStorage.getItem("userPhone") || "";
-
-    const firstName = document.getElementById("firstName").value.trim();
-    const lastName  = document.getElementById("lastName").value.trim();
-    const emailForm = document.getElementById("email").value.trim();
-    const celular   = document.getElementById("celular").value.trim();
-    const cpf       = document.getElementById("cpf").value.replace(/\D/g, "");
-    const cep       = document.getElementById("cep").value.replace(/\D/g, "");
-    const state     = document.getElementById("state").value.trim();
-    const city      = document.getElementById("city").value.trim();
-    const address   = document.getElementById("address").value.trim();
-    const number    = document.getElementById("number").value.trim();
-
-    t.firstName = firstName;
-    t.lastName  = lastName;
-    t.birthdate = document.getElementById("birthdate").value.trim();
-    t.state     = state;
-    t.cpf       = cpf;
-    t.email     = userId ? (userEmailLS || emailForm) : emailForm;
-    t.celular   = userId ? (userPhoneLS || celular) : celular;
-
-    userData.name = `${firstName} ${lastName}`;
-    userData.cpf  = cpf;
-    userData.address.zipCode = cep;
-    userData.address.street  = address;
-    userData.address.number  = number;
-    userData.address.city    = city;
-    userData.address.state   = state;
+    // Verifica se há alguém logado e pega dados do localStorage
+    const agentId          = localStorage.getItem("agentId") || "";
+    const storedFirstName  = localStorage.getItem("userFirstName") || "";
+    const storedLastName   = localStorage.getItem("userLastName")  || "";
+    const storedEmail      = localStorage.getItem("userEmail")      || "";
+    const storedPhone      = localStorage.getItem("userPhone")      || "";
+  
+    // Lê os campos do formulário Step 1
+    const formFirstName    = document.getElementById("firstName").value.trim();
+    const formLastName     = document.getElementById("lastName").value.trim();
+    const formCelular      = document.getElementById("celular").value.trim();
+    const formEmail        = document.getElementById("email").value.trim();
+    const formCpf          = document.getElementById("cpf").value.replace(/\D/g, "");
+    const formBirthdate    = document.getElementById("birthdate").value.trim();
+    const formState        = document.getElementById("state").value.trim();
+    const formCity         = document.getElementById("city").value.trim();
+    const formAddress      = document.getElementById("address").value.trim();
+    const formNumber       = document.getElementById("number").value.trim();
+  
+    // Se está logado, damos prioridade ao que foi digitado;
+    // mas se ficou vazio, usamos o valor guardado no localStorage
+    if (agentId) {
+      t.firstName = formFirstName || storedFirstName;
+      t.lastName  = formLastName  || storedLastName;
+      t.email     = formEmail     || storedEmail;
+      t.celular   = formCelular   || storedPhone;
+    } else {
+      // se não está logado, pegamos só o que foi digitado
+      t.firstName = formFirstName;
+      t.lastName  = formLastName;
+      t.email     = formEmail;
+      t.celular   = formCelular;
+    }
+  
+    // Demais campos, sempre vem do form
+    t.cpf       = formCpf;
+    t.birthdate = formBirthdate;
+    t.state     = formState;
+    // Você pode adicionar quantos outros campos precisar
+  
+    // Se quiser guardar algo no userData também, faça:
+    userData.name         = `${t.firstName} ${t.lastName}`;
+    userData.email        = t.email;
+    userData.phone        = t.celular;
+    userData.cpf          = t.cpf;
+    userData.address.city = formCity;
+    userData.address.state  = formState;
+    userData.address.street = formAddress;
+    userData.address.number = formNumber;
+    // etc.
+  
+    console.log("readUserDataFromStep1 => t:", t);
   }
 
   /***********************************************
