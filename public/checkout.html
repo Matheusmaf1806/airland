@@ -1234,6 +1234,52 @@
   };
   
   /***********************************************
+  * FUNÇÃO: setar finalAmount e atualizar Malga *
+  ***********************************************/
+  function setupMalgaAmount() {
+    // Lê o valor do carrinho (usando #totalValue)
+    finalAmount = getCartAmountInCents();
+
+    if (finalAmount <= 0) {
+      showAlertError("Error - Valor do pedido não pode ser 0!");
+      return; 
+      // (ou retorne; se não quiser travar a navegação, retire)
+    }
+
+    // Pega do localStorage o ID real gerado anteriormente (se existir)
+    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+
+    // Configuramos o Malga
+    malgaCheckout.transactionConfig.orderId = realOrderId;
+    malgaCheckout.transactionConfig.amount = finalAmount;
+    // Montamos "customer" com base em t (ou userData), se já estiverem preenchidos
+    malgaCheckout.transactionConfig.customer = {
+      name: `${t.firstName} ${t.lastName}`,
+      email: t.email,
+      phoneNumber: t.celular,
+      document: {
+        type: "CPF",
+        number: t.cpf,
+        country: "BR"
+      },
+      address: {
+        zipCode: userData.address.zipCode,
+        street: userData.address.street,
+        streetNumber: userData.address.number || "S/N",
+        complement: userData.address.complement || "",
+        neighborhood: userData.address.neighborhood || "",
+        city: userData.address.city,
+        state: userData.address.state,
+        country: "BR"
+      }
+    };
+
+    // Ajusta os itens do PIX e BOLETO
+    malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+    malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+  }
+
+  /***********************************************
    *      EVENTO DE PAGAMENTO APROVADO           *
    ***********************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
