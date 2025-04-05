@@ -53,9 +53,12 @@ import payRouter from './routes/pay.routes.js' // Rota PayPal
 import { malgaRouter } from './routes/malga.routes.js' // Rota Malga
 import hbactiRouter from './routes/hbacti.js' // Rota Hotelbeds Activities
 
-// ------------------------------------------------------
 // (NOVO) IMPORTAR A ROTA DE CHECKOUT (inserção no banco)
 import checkoutRouter from './routes/checkoutRoutes.js'
+
+// (NOVO) IMPORTAR AS ROTAS orderInit e orderComplete
+import orderInitRoutes from './routes/orderInit.js'
+import orderCompleteRoutes from './routes/orderComplete.js'
 
 // ------------------------------------------------------
 // Vincular as rotas
@@ -73,6 +76,10 @@ app.use('/api/hbacti', hbactiRouter) // Rota Hotelbeds Activities
 // (NOVO) Agora, qualquer rota definida em checkoutRoutes.js
 // ficará disponível em /api/checkoutComplete (ou conforme definido lá).
 app.use('/api', checkoutRouter)
+
+// (NOVO) Registrando as novas rotas /api/orderInit e /api/orderComplete
+app.use('/api/orderInit', orderInitRoutes)
+app.use('/api/orderComplete', orderCompleteRoutes)
 
 // ------------------------------------------------------
 // ROTA PRINCIPAL (teste)
