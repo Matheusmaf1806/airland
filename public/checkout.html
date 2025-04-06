@@ -1251,37 +1251,37 @@
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
   
-    // limpa alertas antigos
+    // Apaga alertas prévios
     alertContainer.innerHTML = "";
   
-    // Extra info do pagamento
+    // 1) Identifica meio de pagamento, parcelas, bandeira etc.
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
-    const bandeira = event.detail.data.paymentSource?.cardBrand     || null;
-    // se a Malga retornar o nome no cartão:
-    const nomeNoCartao = event.detail.data.paymentSource?.cardHolderName || "(Nome do Cartão)";
   
-    // Pegamos ID real do pedido
+    // AQUI: puxamos do 'cards' que você viu no preview, 
+    // mas Malga expõe no event.detail.data.paymentSource:
+    const bandeiraCartao   = event.detail.data.paymentSource?.brand || "desconhecido";
+    const nomeCartao       = event.detail.data.paymentSource?.cardHolderName || "Nome do Cartão";
+  
+    // 2) Pega o ID real do pedido (store no localStorage no Step 2->3)
     const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
   
-    // Se quiser data_pgto = hoje +1 dia:
-    const hoje = new Date();
-    const dataPgtoDate = new Date(hoje.getTime() + 24*60*60*1000); 
-    const dataPgtoStr  = dataPgtoDate.toISOString().slice(0,10);
-  
+    // 3) Monta objeto p/ atualizar no banco
     const dataToUpdate = {
       status: "pago",
-      nome_comprador: nomeNoCartao, 
+      nome_comprador: nomeCartao,        // do cardHolderName
+      bandeira_cartao: bandeiraCartao,   // do brand
       meio_pgto: meioPgto,
-      bandeira_cartao: bandeira,
       parcelas,
       valor_venda: finalAmount / 100,
-      data_pgto: dataPgtoStr, 
-      // se quiser gateway="Malga"
+      // se quiser data_pgto = hoje:
+      data_pgto: new Date().toISOString().slice(0,10), 
+      // gateway = "Malga", etc.
       gateway: "Malga"
     };
   
     try {
+      // 4) Faz update
       const response = await fetch('/api/orderComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1301,7 +1301,7 @@
       showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
       console.log("Pedido atualizado (pago):", result.updatedData);
   
-      // Ajusta Step 4
+      // Ajusta Step 4, exibindo msg final
       document.getElementById("finalTitle").textContent =
         `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -1309,16 +1309,18 @@
       document.getElementById("finalThanks").textContent =
         "Aproveite a viagem!";
   
-      // se quiser ocultar col. direita
+      // Se quiser esconder a coluna direita
       const rightCol = document.querySelector(".right-col");
       if (rightCol) {
         rightCol.style.display = "none";
       }
+  
+      // Avança Step 4
       window.p(4);
   
     } catch (error) {
       console.error("Exceção ao chamar /api/orderComplete:", error);
-      showAlertError(`Exceção ao chamar /api/orderComplete: ${error.message}`);
+      showAlertError(`Exceção ao chamar orderComplete: ${error.message}`);
     }
   });
   
