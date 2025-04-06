@@ -1275,27 +1275,43 @@
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
   
-    // Limpa alertas
     alertContainer.innerHTML = "";
   
-    // Forma de pagamento e parcelas
+    // 1) Pega cardId
+    const cardId = event.detail.data.paymentSource?.cardId;
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
   
-    // Tenta puxar brand e holderName do paymentSource
-    // Se a Malga não retornar brand/cardHolderName aqui,
-    // substitua por localStorage.getItem('malga_brand') etc. se usar monkey patch
-    const bandeiraCartao = event.detail.data.paymentSource?.brand || "desconhecido";
-    const nomeCartao     = event.detail.data.paymentSource?.cardHolderName || "Nome do Cartão";
+    // 2) Faz GET para /v1/cards/{cardId}
+    let brandVal = "desconhecido";
+    let holderVal = "Nome do Cartão";
+    if (cardId) {
+      try {
+        const cardResp = await fetch(`https://api.malga.io/v1/cards/${cardId}`, {
+          method: 'GET',
+          headers: {
+            'X-Client-Id': '4457c178-0f07-4589-ba0e-954e5816fd0f',
+            'X-Api-Key': 'bfabc953-1ea0-45d0-95e4-4968cfe2a00e'
+          }
+        });
+        if (cardResp.ok) {
+          const cardData = await cardResp.json();
+          brandVal = cardData?.brand || brandVal;
+          holderVal = cardData?.cardHolderName || holderVal;
+        } else {
+          console.warn("Falha ao obter brand do /v1/cards", cardResp.status);
+        }
+      } catch (err) {
+        console.error("Erro ao chamar /v1/cards:", err);
+      }
+    }
   
-    // ID do pedido
+    // 3) Monta objeto de update
     const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
-  
-    // Monta dataToUpdate
     const dataToUpdate = {
       status: "pago",
-      nome_comprador: nomeCartao,
-      bandeira_cartao: bandeiraCartao,
+      nome_comprador: holderVal,
+      bandeira_cartao: brandVal,
       meio_pgto: meioPgto,
       parcelas,
       valor_venda: finalAmount / 100,
@@ -1303,14 +1319,12 @@
       gateway: "Malga"
     };
   
+    // 4) Chama /api/orderComplete
     try {
       const response = await fetch('/api/orderComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: realOrderId,
-          dataToUpdate
-        })
+        body: JSON.stringify({ orderId: realOrderId, dataToUpdate })
       });
       const result = await response.json();
   
@@ -1327,17 +1341,12 @@
       document.getElementById("finalTitle").textContent =
         `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
-        `Seu pedido de número #${realOrderId} foi concluído com sucesso...`;
+        `Seu pedido #${realOrderId} foi concluído com sucesso.`;
       document.getElementById("finalThanks").textContent =
         "Aproveite a viagem!";
   
-      // Esconde col. direita (opcional)
       const rightCol = document.querySelector(".right-col");
-      if (rightCol) {
-        rightCol.style.display = "none";
-      }
-  
-      // Step 4
+      if (rightCol) rightCol.style.display = "none";
       window.p(4);
   
     } catch (error) {
