@@ -1,14 +1,16 @@
+// main.js
+
 // Define a função p(r) no objeto global, para poder chamá-la de fora:
 window.p = function(r) {
   const stepContents = document.querySelectorAll(".step-content");
-  const stepsMenu = document.querySelectorAll(".steps-menu .step");
+  const stepsMenu    = document.querySelectorAll(".steps-menu .step");
 
-  // Ativa/desativa conteúdo por step
+  // Mostra/esconde cada step
   stepContents.forEach(s => {
     s.classList.toggle("active", s.dataset.step === String(r));
   });
 
-  // Atualiza bolinhas do menu de steps
+  // Ativa/desativa o "bolinha" do menu de steps
   stepsMenu.forEach(s => {
     const stepNum = parseInt(s.dataset.step, 10);
     s.classList.toggle("active", stepNum === r);
@@ -21,7 +23,7 @@ window.p = function(r) {
   });
 };
 
-// Objeto de dados do "Passageiro Principal" (exemplo)
+// Objeto de dados do "Passageiro Principal"
 let t = {
   extraPassengers: [],
   insuranceSelected: "none",
@@ -46,18 +48,17 @@ let t = {
 let m = [];
 
 /**
- * Carrega itens do carrinho:
- * - Primeiro verifica se existe <shopping-cart id="shoppingCart"> com items,
- * - Senão, tenta localStorage.getItem("cartItems").
- * - Se nada encontrado, fica vazio e mostra console.log("Carrinho vazio").
+ * Carrega itens do carrinho e expõe em window.u
  */
 function B() {
   const shoppingEl = document.getElementById("shoppingCart");
 
   if (shoppingEl && shoppingEl.items && shoppingEl.items.length > 0) {
+    // Se <shopping-cart> tiver items
     m = shoppingEl.items;
     console.log("DEBUG - <shopping-cart> com items =>", m);
   } else {
+    // Senão, tenta localStorage
     const stored = localStorage.getItem("cartItems");
     if (stored) {
       try {
@@ -73,12 +74,12 @@ function B() {
     }
   }
 
-  // Expondo o carrinho globalmente para o checkout.html
+  // Expondo globalmente para uso no checkout
   window.u = m;
 }
 
 /**
- * Atualiza o resumo do carrinho (na coluna da direita) com base em `m` e em `t.insuranceCost`.
+ * Atualiza o resumo do carrinho na coluna da direita.
  */
 function v(arr) {
   const cartItemsList = document.getElementById("cartItemsList");
@@ -116,7 +117,7 @@ function v(arr) {
 
   cartItemsList.innerHTML = htmlStr;
 
-  // Atualiza os valores de Subtotal / Desconto / Total
+  // Subtotal / Desconto / Total
   document.getElementById("subtotalValue").textContent =
     "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
@@ -129,7 +130,7 @@ function v(arr) {
  */
 function h(arr) {
   const passengerContainer = document.getElementById("modalPassengerContainer");
-  const copyForAllBtn = document.getElementById("copyForAllBtn");
+  const copyForAllBtn      = document.getElementById("copyForAllBtn");
 
   passengerContainer.innerHTML = "";
   t.extraPassengers = [];
@@ -137,7 +138,6 @@ function h(arr) {
   let countOfMulti = 0;
 
   arr.forEach((item, idx) => {
-    // Exemplo: se "adults" significa 1 ou 2
     const extraCount = (item.adults || 1) - 1;
     if (extraCount > 0) {
       countOfMulti++;
@@ -186,12 +186,12 @@ function h(arr) {
  * Controla a abertura/fechamento do modal de passageiros extras.
  */
 function x() {
-  const passengerModal = document.getElementById("passengerModal"),
-        openModalBtn   = document.getElementById("openPassengerModal"),
-        closeModalBtn  = document.getElementById("closeModal"),
+  const passengerModal    = document.getElementById("passengerModal"),
+        openModalBtn      = document.getElementById("openPassengerModal"),
+        closeModalBtn     = document.getElementById("closeModal"),
         savePassengersBtn = document.getElementById("savePassengersBtn"),
-        copyForAllBtn  = document.getElementById("copyForAllBtn"),
-        modalContainer = document.getElementById("modalPassengerContainer");
+        copyForAllBtn     = document.getElementById("copyForAllBtn"),
+        modalContainer    = document.getElementById("modalPassengerContainer");
 
   openModalBtn.addEventListener("click", (evt) => {
     evt.preventDefault();
@@ -223,15 +223,13 @@ function x() {
     }
     if (firstIndex === null) return;
 
-    // Copia
+    // Copia a lista do primeiro
     const firstArr = t.extraPassengers[firstIndex] || [];
     for (let i = 0; i < m.length; i++) {
       if (i !== firstIndex) {
         const needed = (m[i].adults || 1) - 1;
         if (needed === extraCount && needed > 0) {
-          // Copia array
           t.extraPassengers[i] = JSON.parse(JSON.stringify(firstArr));
-          // Atualiza inputs do modal
           for (let p = 0; p < needed; p++) {
             const selName = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${p}"]`,
                   selBD   = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${p}"]`,
@@ -249,7 +247,7 @@ function x() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
-  // Quando digita no modal, salvamos em t.extraPassengers
+  // Ao digitar no modal, salvamos em t.extraPassengers
   modalContainer.addEventListener("input", (e) => {
     const el = e.target;
     if (
@@ -276,17 +274,16 @@ function x() {
 }
 
 /**
- * Navegação entre steps (1,2,3,4).
+ * Lida com a navegação entre steps (1,2,3,4).
  */
 function $() {
-  const toStep2Btn   = document.getElementById("toStep2"),
-        backToStep1  = document.getElementById("backToStep1"),
-        toStep3Btn   = document.getElementById("toStep3"),
-        backToStep2  = document.getElementById("backToStep2");
+  const toStep2Btn  = document.getElementById("toStep2"),
+        backToStep1 = document.getElementById("backToStep1"),
+        toStep3Btn  = document.getElementById("toStep3"),
+        backToStep2 = document.getElementById("backToStep2");
 
   // Step 1 -> Step 2
   toStep2Btn.addEventListener("click", () => {
-    // Se não tiver agentId, forçamos preencher todos os campos de registro
     if (!localStorage.getItem("agentId")) {
       if (
         !document.getElementById("firstName").value ||
@@ -299,7 +296,7 @@ function $() {
         alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
         return;
       }
-      // Guarda no objeto t
+      // Atualiza t com os campos
       t.firstName       = document.getElementById("firstName").value;
       t.lastName        = document.getElementById("lastName").value;
       t.celular         = document.getElementById("celular").value;
@@ -368,7 +365,7 @@ function $() {
 }
 
 /**
- * Máscaras de CEP, CPF, RG, e lógica de login.
+ * Máscaras de CEP, CPF, RG, e lógica de login (toggleLogin).
  */
 function b() {
   function buscaCep(cepVal) {
@@ -376,14 +373,14 @@ function b() {
     if (cepVal.length === 8) {
       fetch(`https://viacep.com.br/ws/${cepVal}/json/`)
         .then(r => r.json())
-        .then(d => {
-          if (d.erro) {
+        .then(data => {
+          if (data.erro) {
             alert("CEP não encontrado!");
             return;
           }
-          document.getElementById("address").value = d.logradouro || "";
-          document.getElementById("city").value    = d.localidade || "";
-          document.getElementById("state").value   = d.uf || "";
+          document.getElementById("address").value = data.logradouro || "";
+          document.getElementById("city").value    = data.localidade || "";
+          document.getElementById("state").value   = data.uf || "";
         })
         .catch(err => {
           console.error("Erro ao buscar CEP:", err);
@@ -428,9 +425,9 @@ function b() {
   });
 
   // Toggle Login vs Registro
-  const toggleLoginLink  = document.getElementById("toggleLogin"),
-        registrationDiv  = document.getElementById("registrationFieldsGeneral"),
-        loginDiv         = document.getElementById("loginFields");
+  const toggleLoginLink = document.getElementById("toggleLogin"),
+        registrationDiv = document.getElementById("registrationFieldsGeneral"),
+        loginDiv        = document.getElementById("loginFields");
 
   if (toggleLoginLink) {
     toggleLoginLink.addEventListener("click", (evt) => {
@@ -451,8 +448,8 @@ function b() {
   const loginValidateBtn = document.getElementById("loginValidateBtn");
   if (loginValidateBtn) {
     loginValidateBtn.addEventListener("click", () => {
-      const emailVal = document.getElementById("loginEmail").value,
-            passVal  = document.getElementById("loginPassword").value;
+      const emailVal = document.getElementById("loginEmail").value;
+      const passVal  = document.getElementById("loginPassword").value;
 
       fetch("/api/users/login", {
         method: "POST",
@@ -465,9 +462,9 @@ function b() {
             localStorage.setItem("agentId", resData.user.id);
             alert("Login efetuado com sucesso!");
 
-            toggleLoginLink.style.display = "none";
-            registrationDiv.style.display = "none";
-            loginDiv.style.display        = "none";
+            if (toggleLoginLink) toggleLoginLink.style.display = "none";
+            if (registrationDiv) registrationDiv.style.display = "none";
+            if (loginDiv)        loginDiv.style.display        = "none";
           } else {
             alert("Erro no login: " + (resData.error || "Dados inválidos."));
           }
@@ -480,17 +477,15 @@ function b() {
   }
 }
 
-/**
- * Evento principal ao carregar a página.
- */
+// Quando a página carrega:
 window.addEventListener("load", () => {
-  // 1) Carrega o carrinho (m) do localStorage ou <shopping-cart>
+  // 1) Carrega o carrinho (m) do <shopping-cart> ou localStorage
   B();
 
-  // 2) Atualiza resumo do carrinho (direita)
+  // 2) Atualiza resumo do carrinho
   v(m);
 
-  // 3) Configura máscaras e login
+  // 3) Máscaras, login, CEP
   b();
 
   // 4) Navegação steps
@@ -499,21 +494,21 @@ window.addEventListener("load", () => {
   // 5) Modal de passageiros extras
   x();
 
-  // Se houver agentId no localStorage, esconde o form de registro/login
-  const hasAgent = !!localStorage.getItem("agentId"),
-        toggleLoginLink = document.getElementById("toggleLogin"),
-        regFields       = document.getElementById("registrationFieldsGeneral"),
-        loginFields     = document.getElementById("loginFields");
+  // Se já existir agentId, esconde forms
+  const hasAgent       = !!localStorage.getItem("agentId");
+  const toggleLogin    = document.getElementById("toggleLogin");
+  const regFields      = document.getElementById("registrationFieldsGeneral");
+  const loginFields    = document.getElementById("loginFields");
 
   if (hasAgent) {
-    if (toggleLoginLink) toggleLoginLink.style.display = "none";
-    if (regFields)       regFields.style.display       = "none";
-    if (loginFields)     loginFields.style.display     = "none";
+    if (toggleLogin) toggleLogin.style.display      = "none";
+    if (regFields)   regFields.style.display        = "none";
+    if (loginFields) loginFields.style.display      = "none";
   } else {
-    if (toggleLoginLink) toggleLoginLink.style.display = "block";
-    if (regFields)       regFields.style.display       = "block";
+    if (toggleLogin) toggleLogin.style.display      = "block";
+    if (regFields)   regFields.style.display        = "block";
   }
 
-  // Começa no step 1
+  // Inicia no step 1
   p(1);
 });
