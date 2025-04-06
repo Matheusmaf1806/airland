@@ -46,6 +46,7 @@ let t = {
  */
 function B() {
   const n = document.getElementById("shoppingCart");
+
   if (n && n.items && n.items.length > 0) {
     u = n.items;
   } else {
@@ -74,6 +75,9 @@ function B() {
       ];
     }
   }
+
+  // Ao final da função:
+  window.u = u;
 }
 
 /**
