@@ -1060,35 +1060,11 @@
   </script>
   
   <script type="module">
+  // Guarda o carrinho principal que vem do main.js
+  // (lá no main.js já existe "window.u = [...]" ou algo do tipo)
+  const cart = window.u || [];
   
-  /*****************************************************************
-   *           DEFINIÇÃO DE VARIÁVEIS DE USUÁRIO E CARRINHO        *
-   *****************************************************************/
-  
-  let userData = {
-    name: "",
-    email: "",
-    phone: "",
-    cpf: "",
-    address: {
-      zipCode: "",
-      street: "",
-      number: "",
-      complement: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-      country: "BR"
-    }
-  };
-  
-  let orderId = "pedido-999999"; // será sobrescrito depois
-  let finalAmount = 0;
-  
-  // "m" = carrinho
-  let m = [];
-  
-  // "t" = objeto de usuário principal
+  // Objeto de usuário principal
   let t = {
     firstName: "",
     lastName: "",
@@ -1104,7 +1080,7 @@
   const alertContainer = document.getElementById("alertContainer");
   
   /*****************************************************************
-   *                 FUNÇÕES AUXILIARES DE ALERTA                  *
+   *                  FUNÇÕES AUXILIARES DE ALERTA
    *****************************************************************/
   function showAlertSuccess(message) {
     alertContainer.innerHTML = `
@@ -1170,7 +1146,7 @@
   }
   
   /*****************************************************************
-   *     FUNÇÃO PARA CRIAR O PEDIDO NO BANCO (STATUS="PENDING")    *
+   *     FUNÇÃO PARA CRIAR O PEDIDO NO BANCO (STATUS="PENDING")
    *****************************************************************/
   async function initOrderInDb(cartItems, userObj) {
     try {
@@ -1197,10 +1173,11 @@
   }
   
   /*****************************************************************
-   *                      MALGA CHECKOUT                           *
+   *                  CONFIGURANDO MALGA CHECKOUT
    *****************************************************************/
   const malgaCheckout = document.querySelector("#malga-checkout");
   
+  // Ajuste métodos de pagamento e configs, se precisar
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -1237,7 +1214,7 @@
     statementDescriptor: "Checkout Completo",
     amount: 0,
     description: "Pacote + Taxas + Extras",
-    orderId,
+    orderId: "pedido-999999",
     currency: "BRL",
     capture: false,
     customer: {
@@ -1258,7 +1235,7 @@
     }
   };
   
-  // Desativa popup do Malga
+  // Desativando popup do Malga
   malgaCheckout.dialogConfig = {
     show: false,
     actionButtonLabel: "Continuar",
@@ -1270,11 +1247,10 @@
   };
   
   /*****************************************************************
-   *        EVENTO paymentSuccess → ATUALIZAR status="pago"       *
+   *  EVENTO: paymentSuccess → ATUALIZAR pedido com status="pago"
    *****************************************************************/
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
-  
     alertContainer.innerHTML = "";
   
     // 1) Pega cardId
@@ -1282,7 +1258,7 @@
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
   
-    // 2) Faz GET para /v1/cards/{cardId}
+    // 2) Tenta obter brand e cardHolder via GET /v1/cards/{cardId}
     let brandVal = "desconhecido";
     let holderVal = "Nome do Cartão";
     if (cardId) {
@@ -1306,8 +1282,8 @@
       }
     }
   
-    // 3) Monta objeto de update
-    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+    // 3) Monta objeto de update (status pago, nome do comprador, etc.)
+    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
     const dataToUpdate = {
       status: "pago",
       nome_comprador: holderVal,
@@ -1356,14 +1332,14 @@
   });
   
   /*****************************************************************
-   *        EVENTO paymentFailed → ATUALIZAR status="recusado"     *
+   *  EVENTO: paymentFailed → ATUALIZAR pedido com status="recusado"
    *****************************************************************/
   malgaCheckout.addEventListener("paymentFailed", async (event) => {
     console.log("Falha no pagamento:", event.detail);
     alertContainer.innerHTML = "";
   
     // Marcar pedido como 'recusado'
-    const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
+    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
   
     try {
       await fetch('/api/orderComplete', {
@@ -1382,7 +1358,7 @@
   });
   
   /*****************************************************************
-   *              FUNÇÃO p/ OBTER TOTAL DO CARRINHO               *
+   *    FUNÇÃO p/ OBTER TOTAL DO CARRINHO (pega #totalValue)
    *****************************************************************/
   function getCartAmountInCents() {
     const totalText = document.getElementById("totalValue").textContent.trim();
@@ -1394,8 +1370,10 @@
     return Math.round(amount * 100);
   }
   
+  let finalAmount = 0;
+  
   /*****************************************************************
-   *   fetchProfileIfLoggedIn() → se tiver login no localStorage   *
+   * fetchProfileIfLoggedIn() → se tiver login no localStorage
    *****************************************************************/
   async function fetchProfileIfLoggedIn() {
     const agentId = localStorage.getItem("agentId");
@@ -1422,7 +1400,7 @@
   }
   
   /*****************************************************************
-   *   LENDO DADOS DO STEP 1 (FORM => t)                           *
+   * STEP 1: Ler dados do formulário e preencher t
    *****************************************************************/
   function readUserDataFromStep1() {
     const agentId         = localStorage.getItem("agentId") || "";
@@ -1458,22 +1436,10 @@
     t.cpf       = formCpf;
     t.birthdate = formBirthdate;
     t.state     = formState;
-  
-    userData.name            = `${t.firstName} ${t.lastName}`;
-    userData.email           = t.email;
-    userData.phone           = t.celular;
-    userData.cpf             = t.cpf;
-    userData.address.city    = formCity;
-    userData.address.state   = formState;
-    userData.address.street  = formAddress;
-    userData.address.number  = formNumber;
-    userData.address.zipCode = formCep;
-  
-    console.log("readUserDataFromStep1 => t:", t);
   }
   
   /*****************************************************************
-   * STEP 1 -> STEP 2 (botão "Próximo" do Step 1)
+   * STEP 1 -> STEP 2 (botão "Próximo")
    *****************************************************************/
   const toStep2Btn = document.getElementById("toStep2");
   if (toStep2Btn) {
@@ -1489,78 +1455,78 @@
    * STEP 2 -> STEP 3: CRIA PEDIDO "PENDING" NO BANCO
    *****************************************************************/
   const toStep3Btn = document.getElementById("toStep3");
-    if (toStep3Btn) {
-      toStep3Btn.addEventListener("click", async () => {
-    
-        // 1) Ler dados do Step 1 (usuário)
-        readUserDataFromStep1();
-    
-        // 2) Calcular valor final do carrinho
-        finalAmount = getCartAmountInCents();
-        if (finalAmount <= 0) {
-          showAlertError("Error - Valor do pedido não pode ser 0!");
-          return;
-        }
-        if (!t.email || !t.email.includes("@")) {
-          showAlertError("Error - E-mail inválido.");
-          return;
-        }
-    
-        // 3) Se quiser inserir affiliateId etc. dentro do carrinho
-        m.forEach(item => {
-          item.affiliateId = 101;
-          item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
-        });
-    
-        // 4) Criar pedido no banco (status = "pending")
-        let realOrderId;
-        try {
-          realOrderId = await initOrderInDb(m, t);  // <--- chama sua rota /api/orderInit
-          localStorage.setItem('myRealOrderId', realOrderId);
-          console.log("Pedido pendente criado. ID=", realOrderId);
-        } catch (err) {
-          showAlertError("Falha ao criar pedido no banco: " + err.message);
-          return;
-        }
-    
-        // 5) Configurar Malga Checkout
-        malgaCheckout.transactionConfig.orderId = String(realOrderId);
-        malgaCheckout.transactionConfig.amount  = finalAmount;
-    
-        // Montar "customer"
-        malgaCheckout.transactionConfig.customer = {
-          name: `${t.firstName} ${t.lastName}`,
-          email: t.email,
-          phoneNumber: t.celular,
-          document: {
-            type: "CPF",
-            number: t.cpf,
-            country: "BR"
-          },
-          address: {
-            zipCode: userData.address.zipCode,
-            street: userData.address.street,
-            streetNumber: userData.address.number || "S/N",
-            complement: userData.address.complement || "",
-            neighborhood: userData.address.neighborhood || "",
-            city: userData.address.city,
-            state: userData.address.state,
-            country: "BR"
-          }
-        };
-    
-        // Ajustar itens do PIX e BOLETO
-        malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
-        malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
-    
-        // 6) Ir para Step 3
-        document.querySelector('[data-step="2"]').classList.remove("active");
-        document.querySelector('[data-step="3"]').classList.add("active");
+  if (toStep3Btn) {
+    toStep3Btn.addEventListener("click", async () => {
+  
+      // 1) Ler dados do Step 1 (usuário)
+      readUserDataFromStep1();
+  
+      // 2) Calcular valor final do carrinho
+      finalAmount = getCartAmountInCents();
+      if (finalAmount <= 0) {
+        showAlertError("Error - Valor do pedido não pode ser 0!");
+        return;
+      }
+      if (!t.email || !t.email.includes("@")) {
+        showAlertError("Error - E-mail inválido.");
+        return;
+      }
+  
+      // 3) Exemplo: Se quiser inserir affiliateId etc. em cada item do carrinho
+      cart.forEach(item => {
+        item.affiliateId = 101;
+        item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
       });
-    }
+  
+      // 4) Criar pedido no banco (status = "pending")
+      let realOrderId;
+      try {
+        realOrderId = await initOrderInDb(cart, t);  // <--- agora usamos 'cart' do window.u
+        localStorage.setItem('myRealOrderId', realOrderId);
+        console.log("Pedido pendente criado. ID=", realOrderId);
+      } catch (err) {
+        showAlertError("Falha ao criar pedido no banco: " + err.message);
+        return;
+      }
+  
+      // 5) Configurar Malga Checkout
+      malgaCheckout.transactionConfig.orderId = String(realOrderId);
+      malgaCheckout.transactionConfig.amount  = finalAmount;
+  
+      // Montar "customer"
+      malgaCheckout.transactionConfig.customer = {
+        name: `${t.firstName} ${t.lastName}`,
+        email: t.email,
+        phoneNumber: t.celular,
+        document: {
+          type: "CPF",
+          number: t.cpf,
+          country: "BR"
+        },
+        address: {
+          zipCode: document.getElementById("cep")?.value || "",
+          street: document.getElementById("address")?.value || "",
+          streetNumber: document.getElementById("number")?.value || "S/N",
+          complement: "", // ou document.getElementById("complement") se tiver
+          neighborhood: "", // idem
+          city: document.getElementById("city")?.value || "",
+          state: document.getElementById("state")?.value || "",
+          country: "BR"
+        }
+      };
+  
+      // Ajustar itens do PIX e BOLETO
+      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+  
+      // 6) Ir para Step 3
+      document.querySelector('[data-step="2"]').classList.remove("active");
+      document.querySelector('[data-step="3"]').classList.add("active");
+    });
+  }
   
   /*****************************************************************
-   * BACK BUTTONS
+   *  BOTÕES "VOLTAR"
    *****************************************************************/
   const backToStep1Btn = document.getElementById("backToStep1");
   if (backToStep1Btn) {
@@ -1579,7 +1545,7 @@
   }
   
   /*****************************************************************
-   * DOMContentLoaded → fetchProfileIfLoggedIn
+   * DOMContentLoaded → buscar perfil se logado e popular form
    *****************************************************************/
   window.addEventListener("DOMContentLoaded", async () => {
     await fetchProfileIfLoggedIn();
@@ -1603,9 +1569,8 @@
       document.getElementById("celular").value = storedPhone;
     }
   
-    // Se quiser popular m para teste, faça aqui
-    // m = [ { ... } ];
+    // Aqui não precisamos mais popular "m" para teste, pois usamos "cart = window.u".
   });
-  </script>
+</script>
 </body>
 </html>
