@@ -1030,12 +1030,41 @@
     *Sem referências ao Malga, pois agora Step 3 tem o snippet "que funciona"*
   -->
   <script type="module" src="/assets/main.js"></script>
+  <script>
+  // Guarda fetch original
+  const originalFetch = window.fetch;
+  
+  window.fetch = async (...args) => {
+    const [url, options] = args;
+    const response = await originalFetch(...args);
+  
+    // Se for a rota Malga /v1/cards e a resposta for OK
+    if (url.includes('https://api.malga.io/v1/cards') && response.ok) {
+      try {
+        const cloneResp = response.clone();
+        const data = await cloneResp.json();
+        // data ex.: { brand: "Visa", cardHolderName: "NOME NO CARTÃO", ... }
+        const brandVal = data?.brand || "desconhecido";
+        const holderVal = data?.cardHolderName || "Nome do Cartão";
+  
+        localStorage.setItem("malga_brand", brandVal);
+        localStorage.setItem("malga_cardHolderName", holderVal);
+        console.log("[Malga /v1/cards] brand:", brandVal, " | holder:", holderVal);
+      } catch (err) {
+        console.warn("Erro ao ler /v1/cards:", err);
+      }
+    }
+  
+    return response;
+  };
+  </script>
+  
   <script type="module">
+  
   /*****************************************************************
    *           DEFINIÇÃO DE VARIÁVEIS DE USUÁRIO E CARRINHO        *
    *****************************************************************/
   
-  // userData é um objeto auxiliar se quiser armazenar
   let userData = {
     name: "",
     email: "",
@@ -1053,16 +1082,13 @@
     }
   };
   
-  // "orderId" começa fictício, mas será sobrescrito pelo real do banco
-  let orderId = "pedido-999999";
+  let orderId = "pedido-999999"; // será sobrescrito depois
   let finalAmount = 0;
   
-  // m = array representando o carrinho
-  // Você deve popular isso antes do Step 2->3, ex.:
-  // m = [{tipo:'hospedagem', nomeItem:'Hotel Florida', dataUso:'2025-08-20', agenteId:101, geradoPor:'UserXYZ'}, ...];
+  // "m" = carrinho
   let m = [];
   
-  // t = objeto do usuário principal (passageiro), populado no Step 1
+  // "t" = objeto de usuário principal
   let t = {
     firstName: "",
     lastName: "",
@@ -1074,7 +1100,7 @@
     extraPassengers: []
   };
   
-  // Container para alertas
+  // Container para alerts
   const alertContainer = document.getElementById("alertContainer");
   
   /*****************************************************************
@@ -1148,13 +1174,11 @@
    *****************************************************************/
   async function initOrderInDb(cartItems, userObj) {
     try {
-      // Chama sua rota /api/orderInit
-      // O back-end (orderInit.js) deve inserir supplier_pedidos com status='pending'
       const response = await fetch('/api/orderInit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cart: cartItems, 
+          cart: cartItems,
           user: userObj
         })
       });
@@ -1164,7 +1188,7 @@
         throw new Error(data.message || 'Falha ao criar pedido');
       }
   
-      // Retorna o ID (ex.: 123)
+      // Retorna o ID real do pedido
       return data.orderId;
     } catch (error) {
       console.error("Erro em initOrderInDb:", error);
@@ -1213,7 +1237,7 @@
     statementDescriptor: "Checkout Completo",
     amount: 0,
     description: "Pacote + Taxas + Extras",
-    orderId: orderId, // substituído depois
+    orderId,
     currency: "BRL",
     capture: false,
     customer: {
@@ -1251,37 +1275,35 @@
   malgaCheckout.addEventListener("paymentSuccess", async (event) => {
     console.log("Pagamento concluído com sucesso:", event.detail);
   
-    // Apaga alertas prévios
+    // Limpa alertas
     alertContainer.innerHTML = "";
   
-    // 1) Identifica meio de pagamento, parcelas, bandeira etc.
+    // Forma de pagamento e parcelas
     const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = event.detail.data.paymentMethod.installments || 1;
   
-    // AQUI: puxamos do 'cards' que você viu no preview, 
-    // mas Malga expõe no event.detail.data.paymentSource:
-    const bandeiraCartao   = event.detail.data.paymentSource?.brand || "desconhecido";
-    const nomeCartao       = event.detail.data.paymentSource?.cardHolderName || "Nome do Cartão";
+    // Tenta puxar brand e holderName do paymentSource
+    // Se a Malga não retornar brand/cardHolderName aqui,
+    // substitua por localStorage.getItem('malga_brand') etc. se usar monkey patch
+    const bandeiraCartao = event.detail.data.paymentSource?.brand || "desconhecido";
+    const nomeCartao     = event.detail.data.paymentSource?.cardHolderName || "Nome do Cartão";
   
-    // 2) Pega o ID real do pedido (store no localStorage no Step 2->3)
+    // ID do pedido
     const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
   
-    // 3) Monta objeto p/ atualizar no banco
+    // Monta dataToUpdate
     const dataToUpdate = {
       status: "pago",
-      nome_comprador: nomeCartao,        // do cardHolderName
-      bandeira_cartao: bandeiraCartao,   // do brand
+      nome_comprador: nomeCartao,
+      bandeira_cartao: bandeiraCartao,
       meio_pgto: meioPgto,
       parcelas,
       valor_venda: finalAmount / 100,
-      // se quiser data_pgto = hoje:
       data_pgto: new Date().toISOString().slice(0,10), 
-      // gateway = "Malga", etc.
       gateway: "Malga"
     };
   
     try {
-      // 4) Faz update
       const response = await fetch('/api/orderComplete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1301,7 +1323,7 @@
       showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
       console.log("Pedido atualizado (pago):", result.updatedData);
   
-      // Ajusta Step 4, exibindo msg final
+      // Ajusta Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -1309,13 +1331,13 @@
       document.getElementById("finalThanks").textContent =
         "Aproveite a viagem!";
   
-      // Se quiser esconder a coluna direita
+      // Esconde col. direita (opcional)
       const rightCol = document.querySelector(".right-col");
       if (rightCol) {
         rightCol.style.display = "none";
       }
   
-      // Avança Step 4
+      // Step 4
       window.p(4);
   
     } catch (error) {
@@ -1331,7 +1353,7 @@
     console.log("Falha no pagamento:", event.detail);
     alertContainer.innerHTML = "";
   
-    // Podemos marcar o pedido como 'recusado'
+    // Marcar pedido como 'recusado'
     const realOrderId = localStorage.getItem('myRealOrderId') || orderId;
   
     try {
@@ -1471,11 +1493,10 @@
         return;
       }
   
-      // Exemplo: set affiliate_id, agente_id, etc. no carrinho
+      // Se quiser setar affiliate_id, etc. no carrinho
       m.forEach(item => {
         item.affiliateId = 101;
         item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
-        // item.agenteId  = 10; ...
       });
   
       let realOrderId;
@@ -1488,11 +1509,10 @@
         return;
       }
   
-      // Configuramos Malga
+      // Configura Malga
       malgaCheckout.transactionConfig.orderId = String(realOrderId);
       malgaCheckout.transactionConfig.amount  = finalAmount;
   
-      // "customer" com dados do user
       malgaCheckout.transactionConfig.customer = {
         name: `${t.firstName} ${t.lastName}`,
         email: t.email,
@@ -1514,11 +1534,10 @@
         }
       };
   
-      // Ajusta Pix e Boleto
+      // Ajusta Pix/Boleto
       malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
       malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
   
-      // Avança Step 3
       document.querySelector('[data-step="2"]').classList.remove("active");
       document.querySelector('[data-step="3"]').classList.add("active");
     });
@@ -1549,7 +1568,7 @@
   window.addEventListener("DOMContentLoaded", async () => {
     await fetchProfileIfLoggedIn();
   
-    // Se localStorage tiver userFirstName etc., setar nos <input> do Step 1
+    // Se localStorage tiver userFirstName etc.
     const storedFirstName = localStorage.getItem("userFirstName") || "";
     const storedLastName  = localStorage.getItem("userLastName")  || "";
     const storedEmail     = localStorage.getItem("userEmail")     || "";
@@ -1568,16 +1587,8 @@
       document.getElementById("celular").value = storedPhone;
     }
   
-    // Exemplo: se quiser popular 'm' para teste
-    // m = [
-    //   {
-    //     tipo:'hospedagem',
-    //     nomeItem:'Hotel XPTO',
-    //     dataUso:'2025-08-20',
-    //     agenteId:10,
-    //     geradoPor:'UserABC'
-    //   }
-    // ];
+    // Se quiser popular m para teste, faça aqui
+    // m = [ { ... } ];
   });
   </script>
 </body>
