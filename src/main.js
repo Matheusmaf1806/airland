@@ -20,94 +20,81 @@ window.p = function(r) {
   });
 };
 
+// Objeto de dados do usuário principal
 let t = {
-    extraPassengers: [],
-    insuranceSelected: "none",
-    firstName: "",
-    lastName: "",
-    celular: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    cpf: "",
-    rg: "",
-    birthdate: "",
-    cep: "",
-    state: "",
-    city: "",
-    address: "",
-    number: "",
-    insuranceCost: 0,
-  },
-  u = [];
+  extraPassengers: [],
+  insuranceSelected: "none",
+  firstName: "",
+  lastName: "",
+  celular: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  cpf: "",
+  rg: "",
+  birthdate: "",
+  cep: "",
+  state: "",
+  city: "",
+  address: "",
+  number: "",
+  insuranceCost: 0,
+};
+
+// Aqui é onde ficará o array do carrinho
+let m = [];
 
 /** 
  * Carrega itens do carrinho ou do localStorage.
  */
 function B() {
-  const n = document.getElementById("shoppingCart");
+  const r = document.getElementById("shoppingCart");
 
-  if (n && n.items && n.items.length > 0) {
-    u = n.items;
+  // Se o <shopping-cart> tiver items
+  if (r && r.items && r.items.length > 0) {
+    m = r.items;
   } else {
-    const o = localStorage.getItem("cartItems");
-    if (o) {
-      u = JSON.parse(o);
+    // Senão, tenta localStorage
+    const a = localStorage.getItem("cartItems");
+    if (a) {
+      m = JSON.parse(a);
     } else {
-      // Exemplo de itens caso nada esteja salvo
-      u = [
-        {
-          hotelName: "Hotel Exemplo A",
-          adults: 2,
-          children: 1,
-          basePriceAdult: 100,
-          checkIn: "2025-04-16",
-          checkOut: "2025-04-18",
-        },
-        {
-          hotelName: "Hotel Exemplo B",
-          adults: 3,
-          children: 0,
-          basePriceAdult: 150,
-          checkIn: "2025-04-10",
-          checkOut: "2025-04-12",
-        },
-      ];
+      // Remove itens de exemplo e deixa vazio
+      m = [];
+      console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
 
-  // Ao final da função:
-  window.u = u;
+  // Expondo o carrinho globalmente
+  window.u = m;
 }
 
 /**
- * Atualiza o resumo do carrinho (direita) com base no array de items `u` e no `insuranceCost`.
+ * Atualiza o resumo do carrinho (direita) com base no array de items `m` e no `t.insuranceCost`.
  */
-function v(n) {
+function v(r) {
   const o = document.getElementById("cartItemsList");
-  let a = 0,
-    s = "";
-  n.forEach((d) => {
-    const l = d.basePriceAdult || 80;
-    a += l;
-    s += `
+  let total = 0,
+      htmlStr = "";
+
+  r.forEach(d => {
+    const precoBase = d.basePriceAdult || 80;
+    total += precoBase;
+
+    htmlStr += `
       <div class="reserva-item">
         <div class="reserva-left">
           <span class="categoria">${d.type || "Hospedagem"}</span>
-          <span class="nome">${d.hotelName || "Hotel Desconhecido"} - ${
-      d.roomName || "Quarto"
-    }</span>
+          <span class="nome">${d.hotelName || "Hotel Desconhecido"} - ${d.roomName || "Quarto"}</span>
           <div class="reserva-details">
             <p>Check-in: ${d.checkIn || "--/--/----"}</p>
             <p>Check-out: ${d.checkOut || "--/--/----"}</p>
             <p>Quartos: ${d.rooms || 1}</p>
-            <p>Adultos: ${d.adults || 1} | Crianças: ${
-      d.children || 0
-    }</p>
+            <p>Adultos: ${d.adults || 1} | Crianças: ${d.children || 0}</p>
           </div>
         </div>
         <div class="reserva-preco">
-          R$ ${l.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          R$ ${precoBase.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
         </div>
       </div>
     `;
@@ -115,47 +102,49 @@ function v(n) {
 
   // Se tiver custo de seguro
   if (t.insuranceCost) {
-    a += t.insuranceCost;
+    total += t.insuranceCost;
   }
 
-  o.innerHTML = s;
+  o.innerHTML = htmlStr;
   document.getElementById("subtotalValue").textContent =
-    "R$ " + a.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   document.getElementById("discountValue").textContent = "- R$ 0,00";
   document.getElementById("totalValue").textContent =
-    "R$ " + a.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /**
  * Configura a listagem de passageiros extras no modal (caso haja).
  */
-function h(n) {
-  const o = document.getElementById("modalPassengerContainer"),
-    a = document.getElementById("copyForAllBtn");
-  o.innerHTML = "";
+function h(r) {
+  const container = document.getElementById("modalPassengerContainer"),
+        copyBtn = document.getElementById("copyForAllBtn");
+
+  container.innerHTML = "";
   t.extraPassengers = [];
-  let s = 0;
+  let countOfMulti = 0;
 
-  n.forEach((d, l) => {
-    const e = (d.adults || 1) - 1; 
-    if (e > 0) {
-      s++;
-      t.extraPassengers[l] = [];
-      const i = document.createElement("div");
-      i.classList.add("passenger-box");
-      i.innerHTML = `<h4>${d.hotelName || "Item"}</h4>`;
+  r.forEach((item, idx) => {
+    const extraCount = (item.adults || 1) - 1; 
+    if (extraCount > 0) {
+      countOfMulti++;
+      t.extraPassengers[idx] = [];
 
-      for (let c = 0; c < e; c++) {
-        const r = document.createElement("div");
-        r.classList.add("fields-grid-2cols-modal");
-        r.innerHTML = `
+      const passengerBox = document.createElement("div");
+      passengerBox.classList.add("passenger-box");
+      passengerBox.innerHTML = `<h4>${item.hotelName || "Item"}</h4>`;
+
+      for (let pIndex = 0; pIndex < extraCount; pIndex++) {
+        const divGrid = document.createElement("div");
+        divGrid.classList.add("fields-grid-2cols-modal");
+        divGrid.innerHTML = `
           <div class="form-field">
-            <label>Nome do Passageiro #${c + 1}</label>
+            <label>Nome do Passageiro #${pIndex + 1}</label>
             <input 
               type="text" 
               placeholder="Nome completo" 
-              data-item-index="${l}" 
-              data-passenger-index="${c}" 
+              data-item-index="${idx}" 
+              data-passenger-index="${pIndex}" 
               class="modalExtraNameInput" 
             />
           </div>
@@ -163,74 +152,75 @@ function h(n) {
             <label>Data de Nascimento</label>
             <input 
               type="date" 
-              data-item-index="${l}" 
-              data-passenger-index="${c}" 
+              data-item-index="${idx}" 
+              data-passenger-index="${pIndex}" 
               class="modalExtraBirthdateInput" 
             />
           </div>
         `;
-        i.appendChild(r);
+        passengerBox.appendChild(divGrid);
       }
-      o.appendChild(i);
+
+      container.appendChild(passengerBox);
     }
   });
 
-  a.style.display = s > 1 ? "inline-block" : "none";
+  copyBtn.style.display = countOfMulti > 1 ? "inline-block" : "none";
 }
 
 /**
  * Controla a abertura/fechamento do modal de passageiros extras.
  */
 function x() {
-  const n = document.getElementById("passengerModal"),
-    o = document.getElementById("openPassengerModal"),
-    a = document.getElementById("closeModal"),
-    s = document.getElementById("savePassengersBtn"),
-    d = document.getElementById("copyForAllBtn"),
-    l = document.getElementById("modalPassengerContainer");
+  const modal = document.getElementById("passengerModal"),
+        openBtn = document.getElementById("openPassengerModal"),
+        closeBtn = document.getElementById("closeModal"),
+        saveBtn = document.getElementById("savePassengersBtn"),
+        copyBtn = document.getElementById("copyForAllBtn"),
+        container = document.getElementById("modalPassengerContainer");
 
-  o.addEventListener("click", (e) => {
+  openBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    h(u);
-    n.style.display = "block";
+    h(m);
+    modal.style.display = "block";
   });
 
-  a.addEventListener("click", () => {
-    n.style.display = "none";
+  closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
   });
 
-  s.addEventListener("click", () => {
-    n.style.display = "none";
+  saveBtn.addEventListener("click", () => {
+    modal.style.display = "none";
     alert("Passageiros extras salvos!");
   });
 
-  d.addEventListener("click", () => {
-    let e = null,
-      i = 0;
-    for (let r = 0; r < u.length; r++) {
-      const g = (u[r].adults || 1) - 1;
-      if (g > 0) {
-        e = r;
-        i = g;
+  copyBtn.addEventListener("click", () => {
+    let firstIndex = null,
+        extraCount = 0;
+    for (let i = 0; i < m.length; i++) {
+      const needed = (m[i].adults || 1) - 1;
+      if (needed > 0) {
+        firstIndex = i;
+        extraCount = needed;
         break;
       }
     }
-    if (e === null) return;
+    if (firstIndex === null) return;
 
-    const c = t.extraPassengers[e] || [];
-    for (let r = 0; r < u.length; r++) {
-      if (r !== e) {
-        const g = (u[r].adults || 1) - 1;
-        if (g === i && g > 0) {
-          t.extraPassengers[r] = JSON.parse(JSON.stringify(c));
-          for (let m = 0; m < g; m++) {
-            const f = `.modalExtraNameInput[data-item-index="${r}"][data-passenger-index="${m}"]`,
-              I = `.modalExtraBirthdateInput[data-item-index="${r}"][data-passenger-index="${m}"]`,
-              y = document.querySelector(f),
-              E = document.querySelector(I);
-            if (y && E && t.extraPassengers[r][m]) {
-              y.value = t.extraPassengers[r][m].name || "";
-              E.value = t.extraPassengers[r][m].birthdate || "";
+    const firstArray = t.extraPassengers[firstIndex] || [];
+    for (let i = 0; i < m.length; i++) {
+      if (i !== firstIndex) {
+        const needed = (m[i].adults || 1) - 1;
+        if (needed === extraCount && needed > 0) {
+          t.extraPassengers[i] = JSON.parse(JSON.stringify(firstArray));
+          for (let p = 0; p < needed; p++) {
+            const nameSel = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${p}"]`,
+                  bdSel   = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${p}"]`,
+                  nameEl  = document.querySelector(nameSel),
+                  bdEl    = document.querySelector(bdSel);
+            if (nameEl && bdEl && t.extraPassengers[i][p]) {
+              nameEl.value = t.extraPassengers[i][p].name || "";
+              bdEl.value   = t.extraPassengers[i][p].birthdate || "";
             }
           }
         }
@@ -239,21 +229,26 @@ function x() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
-  l.addEventListener("input", (e) => {
-    const i = e.target;
+  container.addEventListener("input", (e) => {
+    const el = e.target;
     if (
-      i.classList.contains("modalExtraNameInput") ||
-      i.classList.contains("modalExtraBirthdateInput")
+      el.classList.contains("modalExtraNameInput") ||
+      el.classList.contains("modalExtraBirthdateInput")
     ) {
-      const c = parseInt(i.getAttribute("data-item-index"), 10),
-        r = parseInt(i.getAttribute("data-passenger-index"), 10);
-      t.extraPassengers[c] || (t.extraPassengers[c] = []);
-      t.extraPassengers[c][r] || (t.extraPassengers[c][r] = {});
+      const itemIndex = parseInt(el.getAttribute("data-item-index"), 10),
+            passengerIndex = parseInt(el.getAttribute("data-passenger-index"), 10);
 
-      if (i.classList.contains("modalExtraNameInput")) {
-        t.extraPassengers[c][r].name = i.value;
+      if (!t.extraPassengers[itemIndex]) {
+        t.extraPassengers[itemIndex] = [];
+      }
+      if (!t.extraPassengers[itemIndex][passengerIndex]) {
+        t.extraPassengers[itemIndex][passengerIndex] = {};
+      }
+
+      if (el.classList.contains("modalExtraNameInput")) {
+        t.extraPassengers[itemIndex][passengerIndex].name = el.value;
       } else {
-        t.extraPassengers[c][r].birthdate = i.value;
+        t.extraPassengers[itemIndex][passengerIndex].birthdate = el.value;
       }
     }
   });
@@ -262,14 +257,14 @@ function x() {
 /**
  * Navegação entre steps (1,2,3,4).
  */
-function C() {
-  const n = document.getElementById("toStep2"),
-    o = document.getElementById("backToStep1"),
-    a = document.getElementById("toStep3"),
-    s = document.getElementById("backToStep2");
+function $() {
+  const toStep2Btn = document.getElementById("toStep2"),
+        backToStep1Btn = document.getElementById("backToStep1"),
+        toStep3Btn = document.getElementById("toStep3"),
+        backToStep2Btn = document.getElementById("backToStep2");
 
   // Step 1 -> Step 2
-  n.addEventListener("click", () => {
+  toStep2Btn.addEventListener("click", () => {
     if (!localStorage.getItem("agentId")) {
       if (
         !document.getElementById("firstName").value ||
@@ -283,10 +278,10 @@ function C() {
         return;
       }
       t.firstName = document.getElementById("firstName").value;
-      t.lastName = document.getElementById("lastName").value;
-      t.celular = document.getElementById("celular").value;
-      t.email = document.getElementById("email").value;
-      t.password = document.getElementById("password").value;
+      t.lastName  = document.getElementById("lastName").value;
+      t.celular   = document.getElementById("celular").value;
+      t.email     = document.getElementById("email").value;
+      t.password  = document.getElementById("password").value;
       t.confirmPassword = document.getElementById("confirmPassword").value;
     }
 
@@ -303,63 +298,62 @@ function C() {
       alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
       return;
     }
-    t.cpf = document.getElementById("cpf").value;
-    t.rg = document.getElementById("rg").value;
+
+    t.cpf       = document.getElementById("cpf").value;
+    t.rg        = document.getElementById("rg").value;
     t.birthdate = document.getElementById("birthdate").value;
-    t.cep = document.getElementById("cep").value;
-    t.state = document.getElementById("state").value;
-    t.city = document.getElementById("city").value;
-    t.address = document.getElementById("address").value;
-    t.number = document.getElementById("number").value;
+    t.cep       = document.getElementById("cep").value;
+    t.state     = document.getElementById("state").value;
+    t.city      = document.getElementById("city").value;
+    t.address   = document.getElementById("address").value;
+    t.number    = document.getElementById("number").value;
 
     p(2);
   });
 
   // Step 2 -> Step 1 (voltar)
-  o && o.addEventListener("click", () => p(1));
+  backToStep1Btn && backToStep1Btn.addEventListener("click", () => p(1));
 
   // Step 2 -> Step 3
-  a && a.addEventListener("click", () => {
-    const d = document.querySelector('input[name="insuranceOption"]:checked');
-    t.insuranceSelected = d ? d.value : "none";
-    let l = 0;
-    if (t.insuranceSelected === "essencial") l = 60.65;
-    else if (t.insuranceSelected === "completo") l = 101.09;
-    t.insuranceCost = l;
+  toStep3Btn && toStep3Btn.addEventListener("click", () => {
+    const selected = document.querySelector('input[name="insuranceOption"]:checked');
+    t.insuranceSelected = selected ? selected.value : "none";
 
-    // Recalcular total
-    v(u);
+    let cost = 0;
+    if (t.insuranceSelected === "essencial") cost = 60.65;
+    else if (t.insuranceSelected === "completo") cost = 101.09;
 
-    // Antigamente chamava L() aqui. Removemos para não configurar Malga.
-    // p(3), L();
-    // Agora apenas:
+    t.insuranceCost = cost;
+    v(m);
+
+    // Avança ao step 3
     p(3);
   });
 
   // Step 3 -> Step 2 (voltar)
-  s && s.addEventListener("click", () => p(2));
+  backToStep2Btn && backToStep2Btn.addEventListener("click", () => p(2));
 }
 
 /**
  * Máscaras de CEP, CPF, RG, etc., e lógica de login.
  */
 function b() {
-  function n(l) {
-    l = l.replace(/\D/g, "");
-    if (l.length === 8) {
-      fetch(`https://viacep.com.br/ws/${l}/json/`)
-        .then((e) => e.json())
-        .then((e) => {
-          if (e.erro) {
+  function buscaCep(cep) {
+    cep = cep.replace(/\D/g, "");
+    if (cep.length === 8) {
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
             alert("CEP não encontrado!");
             return;
           }
-          document.getElementById("address").value = e.logradouro || "";
-          document.getElementById("city").value = e.localidade || "";
-          document.getElementById("state").value = e.uf || "";
+          document.getElementById("address").value = data.logradouro || "";
+          document.getElementById("city").value    = data.localidade || "";
+          document.getElementById("state").value   = data.uf || "";
         })
-        .catch((i) => {
-          console.error("Erro ao buscar CEP:", i);
+        .catch(err => {
+          console.error("Erro ao buscar CEP:", err);
           alert("Não foi possível consultar o CEP.");
         });
     }
@@ -367,103 +361,111 @@ function b() {
 
   // CEP
   document.getElementById("cep").addEventListener("blur", function () {
-    n(this.value);
+    buscaCep(this.value);
   });
 
   // CPF
-  document.getElementById("cpf").addEventListener("input", function (l) {
-    let e = l.target.value.replace(/\D/g, "");
-    if (e.length > 3) e = e.replace(/^(\d{3})(\d)/, "$1.$2");
-    if (e.length > 6) e = e.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-    if (e.length > 9)
-      e = e.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-    l.target.value = e;
+  document.getElementById("cpf").addEventListener("input", function (e) {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 3) {
+      val = val.replace(/^(\d{3})(\d)/, "$1.$2");
+    }
+    if (val.length > 6) {
+      val = val.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    }
+    if (val.length > 9) {
+      val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+    }
+    e.target.value = val;
   });
 
   // RG
-  document.getElementById("rg").addEventListener("input", function (l) {
-    let e = l.target.value.replace(/\D/g, "");
-    if (e.length > 2) e = e.replace(/^(\d{2})(\d)/, "$1.$2");
-    if (e.length > 5) e = e.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    if (e.length > 7)
-      e = e.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
-    l.target.value = e;
+  document.getElementById("rg").addEventListener("input", function (e) {
+    let val = e.target.value.replace(/\D/g, "");
+    if (val.length > 2) {
+      val = val.replace(/^(\d{2})(\d)/, "$1.$2");
+    }
+    if (val.length > 5) {
+      val = val.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+    }
+    if (val.length > 7) {
+      val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
+    }
+    e.target.value = val;
   });
 
   // Toggle entre Form de Login vs. Registro
-  const o = document.getElementById("toggleLogin"),
-    a = document.getElementById("registrationFieldsGeneral"),
-    s = document.getElementById("loginFields");
-  o &&
-    o.addEventListener("click", (l) => {
-      l.preventDefault();
-      if (a.style.display !== "none") {
-        a.style.display = "none";
-        s.style.display = "block";
-        o.textContent = "Não tenho Login";
+  const toggleLogin = document.getElementById("toggleLogin"),
+        regFields   = document.getElementById("registrationFieldsGeneral"),
+        loginFields = document.getElementById("loginFields");
+
+  toggleLogin &&
+    toggleLogin.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      if (regFields.style.display !== "none") {
+        regFields.style.display = "none";
+        loginFields.style.display = "block";
+        toggleLogin.textContent = "Não tenho Login";
       } else {
-        a.style.display = "block";
-        s.style.display = "none";
-        o.textContent = "Economize tempo fazendo Login";
+        regFields.style.display = "block";
+        loginFields.style.display = "none";
+        toggleLogin.textContent = "Economize tempo fazendo Login";
       }
     });
 
   // Botão de Login
-  const d = document.getElementById("loginValidateBtn");
-  d &&
-    d.addEventListener("click", () => {
-      const l = document.getElementById("loginEmail").value,
-        e = document.getElementById("loginPassword").value;
+  const loginValidateBtn = document.getElementById("loginValidateBtn");
+  loginValidateBtn &&
+    loginValidateBtn.addEventListener("click", () => {
+      const emailVal = document.getElementById("loginEmail").value,
+            passVal  = document.getElementById("loginPassword").value;
       fetch("/api/users/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: l, password: e }),
+        body: JSON.stringify({ email: emailVal, password: passVal }),
       })
-        .then((i) => i.json())
-        .then((i) => {
-          if (i.success) {
-            localStorage.setItem("agentId", i.user.id);
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.setItem("agentId", data.user.id);
             alert("Login efetuado com sucesso!");
-            o.style.display = "none";
-            a.style.display = "none";
-            s.style.display = "none";
+            toggleLogin.style.display = "none";
+            regFields.style.display    = "none";
+            loginFields.style.display  = "none";
           } else {
-            alert("Erro no login: " + (i.error || "Dados inválidos."));
+            alert("Erro no login: " + (data.error || "Dados inválidos."));
           }
         })
-        .catch((i) => {
-          console.error(i);
+        .catch(err => {
+          console.error(err);
           alert("Erro ao realizar o login. Tente novamente.");
         });
     });
 }
 
-// REMOVIDO: function L() {...}
-
-/**
- * Evento principal ao carregar página
- */
+// Ao carregar a página (load), executamos as funções
 window.addEventListener("load", () => {
-  B();      // Carrega itens do carrinho
-  v(u);     // Atualiza resumo do carrinho
-  b();      // Máscaras e login
-  C();      // Navegação steps
+  B();      // Carrega itens do carrinho (m) ou deixa vazio
+  v(m);     // Atualiza resumo
+  b();      // Máscaras, login, etc.
+  $();      // Navegação steps
   x();      // Modal de passageiros extras
 
   // Se houver agentId, oculta campos de registro e login
-  const n = !!localStorage.getItem("agentId"),
-    o = document.getElementById("toggleLogin"),
-    a = document.getElementById("registrationFieldsGeneral"),
-    s = document.getElementById("loginFields");
+  const hasAgent = !!localStorage.getItem("agentId"),
+        toggleLogin = document.getElementById("toggleLogin"),
+        regFields   = document.getElementById("registrationFieldsGeneral"),
+        loginFields = document.getElementById("loginFields");
 
-  if (n) {
-    o && (o.style.display = "none");
-    a && (a.style.display = "none");
-    s && (s.style.display = "none");
+  if (hasAgent) {
+    if (toggleLogin) toggleLogin.style.display = "none";
+    if (regFields)   regFields.style.display   = "none";
+    if (loginFields) loginFields.style.display = "none";
   } else {
-    o && (o.style.display = "block");
-    a && (a.style.display = "block");
+    if (toggleLogin) toggleLogin.style.display = "block";
+    if (regFields)   regFields.style.display   = "block";
   }
 
-  p(1); // Inicia no step 1
+  // Inicia no step 1
+  p(1);
 });
