@@ -424,21 +424,88 @@ function $() {
   // Step 2 -> Step 3
   const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
-    toStep3Btn.addEventListener("click", () => {
-      // Lê input radio (insuranceOption)
+    toStep3Btn.addEventListener("click", async () => {
+      // 1) Lê qual seguro foi selecionado
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
 
+      // 2) Define insuranceCost
       let cost = 0;
       if (t.insuranceSelected === "essencial") cost = 60.65;
       else if (t.insuranceSelected === "completo") cost = 101.09;
-
       t.insuranceCost = cost;
 
-      // Recalcula total do carrinho
+      // 3) Recalcula total do carrinho
       f(m);
 
-      // Avança Step 3
+      // 4) Lê valor final do #totalValue
+      finalAmount = getCartAmountInCents();  // ex: 600847 (cents)
+      console.log("DEBUG - finalAmount =>", finalAmount);
+
+      if (finalAmount <= 0) {
+        showAlertError("Valor do pedido não pode ser 0!");
+        return;
+      }
+
+      // 5) Se e-mail for inválido
+      if (!t.email || !t.email.includes("@")) {
+        showAlertError("E-mail inválido (ou não preenchido).");
+        return;
+      }
+
+      // 6) Se quiser inserir affiliateId etc. em cada item
+      m.forEach(item => {
+        item.affiliateId = 101;
+        item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
+      });
+
+      // 7) Cria pedido no banco
+      let realOrderId;
+      try {
+        realOrderId = await initOrderInDb(m, t);
+        localStorage.setItem("myRealOrderId", realOrderId);
+        console.log("Pedido pendente criado. ID=", realOrderId);
+      } catch (err) {
+        showAlertError("Falha ao criar pedido no banco: " + err.message);
+        return;
+      }
+
+      // 8) Ajusta Malga Checkout
+      if (malgaCheckout) {
+        malgaCheckout.transactionConfig.orderId = String(realOrderId);
+        malgaCheckout.transactionConfig.amount  = finalAmount;
+
+        // Preenche "customer" 
+        malgaCheckout.transactionConfig.customer = {
+          name:  `${t.firstName} ${t.lastName}`,
+          email: t.email,
+          phoneNumber: t.celular,
+          document: {
+            type: "CPF",
+            number: t.cpf,
+            country: "BR"
+          },
+          address: {
+            zipCode:      document.getElementById("cep")?.value    || "",
+            street:       document.getElementById("address")?.value|| "",
+            streetNumber: document.getElementById("number")?.value || "S/N",
+            complement:   "",
+            neighborhood: "",
+            city:         document.getElementById("city")?.value   || "",
+            state:        document.getElementById("state")?.value  || "",
+            country:      "BR"
+          }
+        };
+
+        // Ajusta itens do PIX/BOLETO
+        malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+        malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+
+        // (Opcional) Forçar re-render se ainda mostrar 0
+        // malgaCheckout.requestUpdate?.();
+      }
+
+      // 9) Avança Step 3
       p(3);
     });
   }
@@ -788,21 +855,7 @@ function getCartAmountInCents() {
 
 
 /*********************************************************
- * 12) LEITURA DOS CAMPOS DO STEP 1 (Caso precise forçar)
- *********************************************************/
-function readUserDataFromStep1() {
-  const agentId   = localStorage.getItem("agentId") || "";
-  const formEmail = document.getElementById("email")?.value.trim() || "";
-
-  // Se já tiver agentId, pode ser que a pessoa esteja logada
-  // mas se preferir, force a substituição do e-mail do form
-  // ...
-  t.email = formEmail;
-}
-
-
-/*********************************************************
- * 13) ONLOAD GERAL 
+ * 12) ONLOAD GERAL 
  *********************************************************/
 window.addEventListener("load", () => {
   // (1) Carrega carrinho
