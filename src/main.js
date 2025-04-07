@@ -351,9 +351,9 @@ function navigationEvents() {
       m.forEach((item, idx) => {
         item.affiliateId = 101;
         item.geradoPor = localStorage.getItem("cartOwnerId") || "System";
-        // Garante que o tipo seja "Hospedagem"
+        // Força o tipo a ser "Hospedagem"
         item.type = "Hospedagem";
-        // Se não houver passageiro extra, envia o passageiro principal
+        // Se não houver passageiro extra cadastrado, envia o passageiro principal
         if (!t.extraPassengers[idx] || t.extraPassengers[idx].length === 0) {
           item.passageiros = [{
             nome: `${t.firstName} ${t.lastName}`,
@@ -675,7 +675,6 @@ if (malgaCheckout) {
   // Evento Payment Success
   malgaCheckout.addEventListener("paymentSuccess", async (evt) => {
     console.log("Pagamento concluído com sucesso:", evt.detail);
-    // Limpa alert anterior (pode também setar innerHTML = "" se preferir)
     showAlertSuccess("");
     const cardId = evt.detail.data.paymentSource?.cardId;
     const meioPgto = evt.detail.data.paymentMethod.paymentType || "desconhecido";
@@ -707,9 +706,9 @@ if (malgaCheckout) {
       status: "pago",
       nome_comprador: holderVal,
       bandeira_cartao: brandVal,
-      meio_pgto: meioPgto, // Use "meio_pgto" para bater com a coluna do banco
+      meio_pgto: meioPgto,
       parcelas: parcelas,
-      valor_venda: finalAmount / 100, // finalAmount em cents, se for o caso
+      valor_venda: finalAmount / 100,
       data_pgto: new Date().toISOString().slice(0, 10),
       gateway: "Malga"
     };
