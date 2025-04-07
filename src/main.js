@@ -1,16 +1,14 @@
 /***********************************************************
- *              1) CONTROLE DE STEPS – window.p
+ *  1) CONTROLE DE STEPS – window.p
  ***********************************************************/
 window.p = function (stepNumber) {
   const stepContents = document.querySelectorAll(".step-content");
   const stepsMenu    = document.querySelectorAll(".steps-menu .step");
 
-  // Mostra/esconde cada step via data-step
   stepContents.forEach((content) => {
     content.classList.toggle("active", content.dataset.step === String(stepNumber));
   });
 
-  // Atualiza bolinhas do menu
   stepsMenu.forEach((el) => {
     const sNum = parseInt(el.dataset.step, 10);
     el.classList.toggle("active", sNum === stepNumber);
@@ -24,8 +22,7 @@ window.p = function (stepNumber) {
 };
 
 /***********************************************************
- *         2) OBJETOS GLOBAIS: Passageiro Principal (t)
- *                         e Carrinho (m)
+ *  2) OBJETOS GLOBAIS (t e m)
  ***********************************************************/
 let t = {
   extraPassengers:   [],
@@ -47,10 +44,10 @@ let t = {
   insuranceCost:     0,
 };
 
-let m = []; // Array de itens do carrinho
+let m = []; // array de itens
 
 /***********************************************************
- *   3) FUNÇÕES DE ALERTA: showAlertSuccess / showAlertError
+ *  3) ALERTAS (Sucesso e Erro)
  ***********************************************************/
 function showAlertSuccess(message) {
   const alertContainer = document.getElementById("alertContainer");
@@ -71,8 +68,7 @@ function showAlertSuccess(message) {
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         font-family: sans-serif;
-        font-size: 0.9rem;
-      "
+        font-size: 0.9rem;"
     >
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <strong>Sucesso</strong>
@@ -83,8 +79,7 @@ function showAlertSuccess(message) {
             font-weight: bold;
             font-size: 1rem;
             color: #065f46;
-            cursor: pointer;
-          "
+            cursor: pointer;"
           onclick="document.getElementById('alertContainer').innerHTML='';"
         >
           &times;
@@ -104,6 +99,11 @@ function showAlertError(message) {
   alertContainer.innerHTML = `
     <div
       style="
+        position: fixed; 
+        top: 1rem; 
+        right: 1rem; 
+        z-index: 9999; 
+        width: 300px;
         margin-top: 8px;
         border-left: 4px solid red;
         background-color: #fff5f5;
@@ -113,18 +113,17 @@ function showAlertError(message) {
         font-family: sans-serif;
         font-size: 0.9rem;
         display: flex;
-        align-items: center;
-      "
+        align-items: center;"
     >
-      <strong style="margin-right: 6px;">Error:</strong> ${message}
+      <strong style="margin-right: 6px;">Erro:</strong> ${message}
     </div>
   `;
 }
 
 /***********************************************************
- *     4) CARREGA CARRINHO (LOCALSTORAGE OU <shopping-cart>)
+ *  4) CARREGAR CARRINHO (LOCALSTORAGE OU <shopping-cart>)
  ***********************************************************/
-function B() {
+function loadCart() {
   const shoppingEl = document.getElementById("shoppingCart");
 
   if (shoppingEl && shoppingEl.items && shoppingEl.items.length > 0) {
@@ -136,8 +135,8 @@ function B() {
       try {
         m = JSON.parse(stored);
         console.log("DEBUG - Carregando do localStorage =>", m);
-      } catch (e) {
-        console.warn("Erro ao fazer JSON.parse em cartItems:", e);
+      } catch (err) {
+        console.warn("Erro ao fazer JSON.parse em cartItems:", err);
         m = [];
       }
     } else {
@@ -145,15 +144,14 @@ function B() {
       console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
-
-  // Expõe globalmente p/ checkout
+  // Expor p/ checkout
   window.u = m;
 }
 
 /***********************************************************
- *   5) ATUALIZA RESUMO DO CARRINHO NA COLUNA DIREITA
+ *  5) ATUALIZAR RESUMO DO CARRINHO (coluna direita)
  ***********************************************************/
-function f(arr) {
+function updateCartSummary(arr) {
   const cartItemsList = document.getElementById("cartItemsList");
   if (!cartItemsList) return;
 
@@ -185,7 +183,6 @@ function f(arr) {
     `;
   });
 
-  // Se tiver custo do seguro, soma
   if (t.insuranceCost) {
     total += t.insuranceCost;
   }
@@ -200,14 +197,14 @@ function f(arr) {
   if (elSubtotal) elSubtotal.textContent =
     "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   if (elDiscount) elDiscount.textContent = "- R$ 0,00";
-  if (elTotal)    elTotal.textContent =
+  if (elTotal)    elTotal.textContent    =
     "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /***********************************************************
- *   6) MODAL DE PASSAGEIROS EXTRAS
+ *  6) MODAL DE PASSAGEIROS EXTRAS
  ***********************************************************/
-function h(arr) {
+function fillPassengers(arr) {
   const passengerContainer = document.getElementById("modalPassengerContainer");
   const copyForAllBtn      = document.getElementById("copyForAllBtn");
   if (!passengerContainer || !copyForAllBtn) return;
@@ -257,14 +254,10 @@ function h(arr) {
     }
   });
 
-  // Se tiver mais de 1 item com multipleAdults, exibe "Copiar para todos"
   copyForAllBtn.style.display = countOfMulti > 1 ? "inline-block" : "none";
 }
 
-/***********************************************************
- *   7) ABRIR/FECHAR MODAL E EVENTOS
- ***********************************************************/
-function x() {
+function configurePassengerModal() {
   const passengerModal    = document.getElementById("passengerModal");
   const openModalBtn      = document.getElementById("openPassengerModal");
   const closeModalBtn     = document.getElementById("closeModal");
@@ -276,7 +269,7 @@ function x() {
 
   openModalBtn.addEventListener("click", (evt) => {
     evt.preventDefault();
-    h(m);
+    fillPassengers(m);
     passengerModal.style.display = "block";
   });
 
@@ -290,7 +283,6 @@ function x() {
   });
 
   copyForAllBtn.addEventListener("click", () => {
-    // Copia do primeiro item c/ multipleAdults
     let firstIndex = null;
     let extraCount = 0;
     for (let i = 0; i < m.length; i++) {
@@ -309,7 +301,6 @@ function x() {
         const needed = (m[i].adults || 1) - 1;
         if (needed === extraCount && needed > 0) {
           t.extraPassengers[i] = JSON.parse(JSON.stringify(firstArr));
-          // Preenche inputs
           for (let p = 0; p < needed; p++) {
             const selName = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
             const selBD   = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
@@ -317,7 +308,7 @@ function x() {
             const elBD    = document.querySelector(selBD);
 
             if (elName && elBD && t.extraPassengers[i][p]) {
-              elName.value = t.extraPassengers[i][p].name      || "";
+              elName.value = t.extraPassengers[i][p].name || "";
               elBD.value   = t.extraPassengers[i][p].birthdate || "";
             }
           }
@@ -327,7 +318,6 @@ function x() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
-  // Preenche t.extraPassengers ao digitar no modal
   modalContainer.addEventListener("input", (evt) => {
     const el = evt.target;
     if (
@@ -354,103 +344,9 @@ function x() {
 }
 
 /***********************************************************
- *   8) STEP 1 -> 2 -> 3 (BOTÕES DE NAVEGAÇÃO)
+ *  7) MÁSCARAS E TOGGLE LOGIN
  ***********************************************************/
-function $() {
-  const toStep2Btn   = document.getElementById("toStep2");
-  const backToStep1  = document.getElementById("backToStep1");
-  const toStep3Btn   = document.getElementById("toStep3");
-  const backToStep2  = document.getElementById("backToStep2");
-
-  // Step 1 -> Step 2
-  if (toStep2Btn) {
-    toStep2Btn.addEventListener("click", () => {
-      // Se user não logado, checa campos
-      if (!localStorage.getItem("agentId")) {
-        if (
-          !document.getElementById("firstName").value      ||
-          !document.getElementById("lastName").value       ||
-          !document.getElementById("celular").value        ||
-          !document.getElementById("email").value          ||
-          !document.getElementById("password").value       ||
-          !document.getElementById("confirmPassword").value
-        ) {
-          alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-          return;
-        }
-        t.firstName       = document.getElementById("firstName").value;
-        t.lastName        = document.getElementById("lastName").value;
-        t.celular         = document.getElementById("celular").value;
-        t.email           = document.getElementById("email").value;
-        t.password        = document.getElementById("password").value;
-        t.confirmPassword = document.getElementById("confirmPassword").value;
-      }
-
-      // Documentos/endereço
-      if (
-        !document.getElementById("cpf").value       ||
-        !document.getElementById("rg").value        ||
-        !document.getElementById("birthdate").value ||
-        !document.getElementById("cep").value       ||
-        !document.getElementById("state").value     ||
-        !document.getElementById("city").value      ||
-        !document.getElementById("address").value   ||
-        !document.getElementById("number").value
-      ) {
-        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-        return;
-      }
-
-      t.cpf       = document.getElementById("cpf").value;
-      t.rg        = document.getElementById("rg").value;
-      t.birthdate = document.getElementById("birthdate").value;
-      t.cep       = document.getElementById("cep").value;
-      t.state     = document.getElementById("state").value;
-      t.city      = document.getElementById("city").value;
-      t.address   = document.getElementById("address").value;
-      t.number    = document.getElementById("number").value;
-
-      p(2);
-    });
-  }
-
-  // Step 2 -> Step 1 (Voltar)
-  if (backToStep1) {
-    backToStep1.addEventListener("click", () => p(1));
-  }
-
-  // Step 2 -> Step 3
-  if (toStep3Btn) {
-    toStep3Btn.addEventListener("click", () => {
-      // Lê o insuranceOption
-      const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
-      t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
-
-      let cost = 0;
-      if (t.insuranceSelected === "essencial") cost = 60.65;
-      else if (t.insuranceSelected === "completo") cost = 101.09;
-
-      t.insuranceCost = cost;
-
-      // Recalcula total
-      f(m);
-
-      // Avança step 3
-      p(3);
-    });
-  }
-
-  // Step 3 -> Step 2 (Voltar)
-  if (backToStep2) {
-    backToStep2.addEventListener("click", () => p(2));
-  }
-}
-
-/***********************************************************
- *   9) MÁSCARAS (CEP/CPF/RG) + TOGGLE LOGIN
- ***********************************************************/
-function b() {
-  // Função que busca CEP no viacep
+function configureMasksAndLogin() {
   function buscaCep(cepVal) {
     cepVal = cepVal.replace(/\D/g, "");
     if (cepVal.length === 8) {
@@ -536,7 +432,7 @@ function b() {
     });
   }
 
-  // Botão "Entrar" do login
+  // Botão Login
   const loginValidateBtn = document.getElementById("loginValidateBtn");
   if (loginValidateBtn) {
     loginValidateBtn.addEventListener("click", () => {
@@ -570,33 +466,52 @@ function b() {
 }
 
 /***********************************************************
- *   10) initOrderInDb → CRIA PEDIDO NO BANCO (status=PENDING)
+ *  8) FUNÇÃO getCartAmountInCents (lê #totalValue)
+ ***********************************************************/
+function getCartAmountInCents() {
+  const elTotal = document.getElementById("totalValue");
+  if (!elTotal) return 0;
+
+  const totalText = elTotal.textContent.trim(); // ex: "R$ 120,00"
+  let numericStr  = totalText.replace(/[^\d.,-]/g, ""); // "120,00"
+  numericStr      = numericStr.replace(/\./g, "");      // "120,00"
+  numericStr      = numericStr.replace(",", ".");       // "120.00"
+  const amount    = parseFloat(numericStr);
+
+  if (isNaN(amount)) return 0;
+  return Math.round(amount * 100); // converte p/ centavos
+}
+
+/***********************************************************
+ *  9) CRIAR PEDIDO NO BANCO (/api/orderInit)
  ***********************************************************/
 async function initOrderInDb(cartItems, userObj) {
   try {
-    const resp = await fetch("/api/orderInit", {
+    const response = await fetch("/api/orderInit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ cart: cartItems, user: userObj }),
     });
-    const data = await resp.json();
+    const data = await response.json();
+
     if (!data.success) {
       throw new Error(data.message || "Falha ao criar pedido");
     }
-    return data.orderId; // ID real do pedido
-  } catch (err) {
-    console.error("Erro em initOrderInDb:", err);
-    throw err;
+    return data.orderId; // retorna ID real
+  } catch (error) {
+    console.error("Erro em initOrderInDb:", error);
+    throw error;
   }
 }
 
 /***********************************************************
- *   11) CONFIG MALGA CHECKOUT E EVENTOS
+ * 10) MALGA CHECKOUT: CONFIG E EVENTOS
  ***********************************************************/
 const malgaCheckout = document.querySelector("#malga-checkout");
+let finalAmount = 0; // valor em centavos p/ step 3
 
 if (malgaCheckout) {
-  // Ajusta meios de pagamento
+  // Meios de pagamento
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -637,24 +552,24 @@ if (malgaCheckout) {
     currency: "BRL",
     capture: false,
     customer: {
-      name: "",
+      name:  "",
       email: "",
       phoneNumber: "",
       document: { type: "CPF", number: "", country: "BR" },
       address: {
-        zipCode: "",
-        street: "",
+        zipCode:      "",
+        street:       "",
         streetNumber: "",
-        complement: "",
+        complement:   "",
         neighborhood: "",
-        city: "",
-        state: "",
-        country: "BR",
+        city:         "",
+        state:        "",
+        country:      "BR",
       },
     },
   };
 
-  // Desativa popup
+  // Desativar popup
   malgaCheckout.dialogConfig = {
     show: false,
     actionButtonLabel: "Continuar",
@@ -668,16 +583,13 @@ if (malgaCheckout) {
   // PaymentSuccess
   malgaCheckout.addEventListener("paymentSuccess", async (evt) => {
     console.log("Pagamento concluído com sucesso:", evt.detail);
+    showAlertSuccess(""); // limpa alert anterior
 
-    // Apaga alert anterior
-    showAlertSuccess(""); // ou alertContainer.innerHTML = "";
-
-    // Pega cardId, se existir
     const cardId   = evt.detail.data.paymentSource?.cardId;
     const meioPgto = evt.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = evt.detail.data.paymentMethod.installments || 1;
 
-    // Tenta obter brand e nome do cartão
+    // Tentar brand do /v1/cards
     let brandVal  = "desconhecido";
     let holderVal = "Nome do Cartão";
 
@@ -692,8 +604,8 @@ if (malgaCheckout) {
         });
         if (cardResp.ok) {
           const cardData = await cardResp.json();
-          brandVal  = cardData?.brand           || brandVal;
-          holderVal = cardData?.cardHolderName  || holderVal;
+          brandVal  = cardData?.brand          || brandVal;
+          holderVal = cardData?.cardHolderName || holderVal;
         } else {
           console.warn("Falha ao obter brand /v1/cards", cardResp.status);
         }
@@ -702,7 +614,6 @@ if (malgaCheckout) {
       }
     }
 
-    // Monta data p/ update
     const realOrderId = localStorage.getItem("myRealOrderId") || malgaCheckout.transactionConfig.orderId;
     const dataToUpdate = {
       status:          "pago",
@@ -710,7 +621,7 @@ if (malgaCheckout) {
       bandeira_cartao: brandVal,
       meio_pgto:       meioPgto,
       parcelas,
-      valor_venda:     finalAmount / 100, // se finalAmount for em cents
+      valor_venda:     finalAmount / 100, // se finalAmount for em centavos
       data_pgto:       new Date().toISOString().slice(0, 10),
       gateway:         "Malga",
     };
@@ -722,7 +633,6 @@ if (malgaCheckout) {
         body: JSON.stringify({ orderId: realOrderId, dataToUpdate }),
       });
       const result = await resp.json();
-
       if (!result.success) {
         console.error("Erro ao atualizar pedido (pago):", result.message);
         showAlertError("Falha ao atualizar o pedido no banco.");
@@ -732,7 +642,7 @@ if (malgaCheckout) {
       showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
       console.log("Pedido atualizado (pago):", result.updatedData);
 
-      // Ajusta step 4
+      // Step 4
       document.getElementById("finalTitle").textContent =
         `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
       document.getElementById("finalMsg").textContent =
@@ -740,7 +650,6 @@ if (malgaCheckout) {
       document.getElementById("finalThanks").textContent =
         "Aproveite a viagem!";
 
-      // Esconde col. direita
       const rightCol = document.querySelector(".right-col");
       if (rightCol) rightCol.style.display = "none";
 
@@ -754,10 +663,9 @@ if (malgaCheckout) {
   // PaymentFailed
   malgaCheckout.addEventListener("paymentFailed", async (evt) => {
     console.log("Falha no pagamento:", evt.detail);
+    showAlertError("Pagamento falhou! Verifique o console.");
 
-    showAlertError("");
-
-    // Marca pedido como "recusado"
+    // Marca pedido como 'recusado'
     const realOrderId = localStorage.getItem("myRealOrderId") || malgaCheckout.transactionConfig.orderId;
     try {
       await fetch("/api/orderComplete", {
@@ -771,48 +679,124 @@ if (malgaCheckout) {
     } catch (err) {
       console.error("Erro ao marcar pedido como recusado:", err);
     }
-
-    showAlertError("Error - Pagamento falhou! Verifique o console.");
   });
 }
 
 /***********************************************************
- *   12) FUNÇÃO AUX: getCartAmountInCents (step3)
+ *  11) NAVEGAÇÃO STEPS (BOTÕES E LÓGICA)
  ***********************************************************/
-function getCartAmountInCents() {
-  const elTotal = document.getElementById("totalValue");
-  if (!elTotal) return 0;
+function configureStepButtons() {
+  const toStep2Btn   = document.getElementById("toStep2");
+  const backToStep1  = document.getElementById("backToStep1");
+  const toStep3Btn   = document.getElementById("toStep3");
+  const backToStep2  = document.getElementById("backToStep2");
 
-  const totalText = elTotal.textContent.trim(); // ex: "R$ 300,00"
-  let numericStr  = totalText.replace(/[^\d.,-]/g, ""); // "300,00"
-  numericStr      = numericStr.replace(/\./g, "");      // "300,00"
-  numericStr      = numericStr.replace(",", ".");       // "300.00"
-  const amount    = parseFloat(numericStr);
+  // Step 1 -> Step 2
+  if (toStep2Btn) {
+    toStep2Btn.addEventListener("click", () => {
+      // Se user não logado, checa campos
+      if (!localStorage.getItem("agentId")) {
+        if (
+          !document.getElementById("firstName").value      ||
+          !document.getElementById("lastName").value       ||
+          !document.getElementById("celular").value        ||
+          !document.getElementById("email").value          ||
+          !document.getElementById("password").value       ||
+          !document.getElementById("confirmPassword").value
+        ) {
+          alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+          return;
+        }
+        t.firstName       = document.getElementById("firstName").value;
+        t.lastName        = document.getElementById("lastName").value;
+        t.celular         = document.getElementById("celular").value;
+        t.email           = document.getElementById("email").value;
+        t.password        = document.getElementById("password").value;
+        t.confirmPassword = document.getElementById("confirmPassword").value;
+      }
 
-  if (isNaN(amount)) return 0;
-  return Math.round(amount * 100); // converte para cents
+      // Docs e endereço
+      if (
+        !document.getElementById("cpf").value       ||
+        !document.getElementById("rg").value        ||
+        !document.getElementById("birthdate").value ||
+        !document.getElementById("cep").value       ||
+        !document.getElementById("state").value     ||
+        !document.getElementById("city").value      ||
+        !document.getElementById("address").value   ||
+        !document.getElementById("number").value
+      ) {
+        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+        return;
+      }
+
+      t.cpf       = document.getElementById("cpf").value;
+      t.rg        = document.getElementById("rg").value;
+      t.birthdate = document.getElementById("birthdate").value;
+      t.cep       = document.getElementById("cep").value;
+      t.state     = document.getElementById("state").value;
+      t.city      = document.getElementById("city").value;
+      t.address   = document.getElementById("address").value;
+      t.number    = document.getElementById("number").value;
+
+      p(2);
+    });
+  }
+
+  // Step 2 -> Step 1
+  if (backToStep1) {
+    backToStep1.addEventListener("click", () => p(1));
+  }
+
+  // Step 2 -> Step 3
+  if (toStep3Btn) {
+    toStep3Btn.addEventListener("click", async () => {
+      // Lê de Step1
+      // (Opcional: readUserDataFromStep1(); se quiser puxar novamente)
+
+      // Marca insuranceSelected
+      const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
+      t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
+
+      let cost = 0;
+      if (t.insuranceSelected === "essencial") cost = 60.65;
+      else if (t.insuranceSelected === "completo") cost = 101.09;
+      t.insuranceCost = cost;
+
+      // Recalcula total e atualiza UI
+      updateCartSummary(m);
+
+      // Avança Step 3
+      p(3);
+    });
+  }
+
+  // Step 3 -> Step 2
+  if (backToStep2) {
+    backToStep2.addEventListener("click", () => p(2));
+  }
 }
 
 /***********************************************************
- *   13) DOMContentLoaded E ONLOAD FINAL
+ * 12) EVENTO PRINCIPAL window.load
  ***********************************************************/
 window.addEventListener("load", () => {
-  // Carrega carrinho
-  B();
+  // 1) Carrega carrinho
+  loadCart();
 
-  // Exibe resumo do carrinho
-  f(m);
+  // 2) Atualiza resumo
+  updateCartSummary(m);
 
-  // Máscaras e login
-  b();
+  // 3) Configura máscaras e login
+  configureMasksAndLogin();
 
-  // Navegação steps
-  $();
+  // 4) Configura botões de steps
+  configureStepButtons();
 
-  // Modal de passageiros extras
-  x();
+  // 5) Modal de passageiros extras
+  configurePassengerModal();
 
-  // Oculta form se user logado
+  // Se user logado, esconde forms
   const hasAgent  = !!localStorage.getItem("agentId");
   const toggleL   = document.getElementById("toggleLogin");
   const regFields = document.getElementById("registrationFieldsGeneral");
@@ -827,6 +811,6 @@ window.addEventListener("load", () => {
     if (regFields) regFields.style.display = "block";
   }
 
-  // Inicia no step 1
+  // p(1) → inicia no Step 1
   p(1);
 });
