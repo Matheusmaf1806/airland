@@ -348,9 +348,21 @@ function navigationEvents() {
         return;
       }
       // Define dados extras em cada item do carrinho
-      m.forEach(item => {
+      m.forEach((item, idx) => {
         item.affiliateId = 101;
         item.geradoPor = localStorage.getItem("cartOwnerId") || "System";
+        // Garante que o tipo seja "Hospedagem"
+        item.type = "Hospedagem";
+        // Se não houver passageiro extra, envia o passageiro principal
+        if (!t.extraPassengers[idx] || t.extraPassengers[idx].length === 0) {
+          item.passageiros = [{
+            nome: `${t.firstName} ${t.lastName}`,
+            cpf: t.cpf,
+            birthdate: t.birthdate
+          }];
+        } else {
+          item.passageiros = t.extraPassengers[idx];
+        }
       });
       console.log("DEBUG - cart =>", window.u);
       let realOrderId;
