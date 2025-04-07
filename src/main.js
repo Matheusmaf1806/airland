@@ -116,7 +116,8 @@ function B() {
 function f(arr) {
   const cartItemsList = document.getElementById("cartItemsList");
   if (!cartItemsList) return;
-  let total = 0, htmlStr = "";
+  let total = 0;
+  let htmlStr = "";
   arr.forEach(item => {
     const basePrice = item.basePriceAdult || 80;
     total += basePrice;
@@ -322,16 +323,13 @@ function navigationEvents() {
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", async () => {
       readUserDataFromStep1();
-      // Lê seguro selecionado e define custo
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
       let cost = 0;
       if (t.insuranceSelected === "essencial") cost = 60.65;
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
-      // Atualiza o resumo do carrinho
-      f(m);
-      // Lê o total atualizado (em centavos)
+      f(m); // Atualiza o resumo do carrinho na UI
       finalAmount = getCartAmountInCents();
       console.log("DEBUG - finalAmount =>", finalAmount);
       if (finalAmount <= 0) {
@@ -342,7 +340,6 @@ function navigationEvents() {
         showAlertError("E-mail inválido.");
         return;
       }
-      // Atualiza cada item com affiliateId e geradoPor
       m.forEach(item => {
         item.affiliateId = 101;
         item.geradoPor = localStorage.getItem("cartOwnerId") || "System";
@@ -363,11 +360,7 @@ function navigationEvents() {
         name: `${t.firstName} ${t.lastName}`,
         email: t.email,
         phoneNumber: t.celular,
-        document: {
-          type: "CPF",
-          number: t.cpf,
-          country: "BR"
-        },
+        document: { type: "CPF", number: t.cpf, country: "BR" },
         address: {
           zipCode: document.getElementById("cep").value || "",
           street: document.getElementById("address").value || "",
@@ -392,7 +385,7 @@ function navigationEvents() {
 }
 
 /***********************************************************
- * 9) MÁSCARAS (CEP, CPF, RG) E TOGGLE LOGIN
+ * 9) EVENTOS DE MÁSCARAS E TOGGLE LOGIN
  ***********************************************************/
 function b() {
   function buscaCep(cepVal) {
@@ -417,23 +410,15 @@ function b() {
   }
   const cepInput = document.getElementById("cep");
   if (cepInput) {
-    cepInput.addEventListener("blur", () => {
-      buscaCep(cepInput.value);
-    });
+    cepInput.addEventListener("blur", () => { buscaCep(cepInput.value); });
   }
   const cpfInput = document.getElementById("cpf");
   if (cpfInput) {
     cpfInput.addEventListener("input", (evt) => {
       let val = evt.target.value.replace(/\D/g, "");
-      if (val.length > 3) {
-        val = val.replace(/^(\d{3})(\d)/, "$1.$2");
-      }
-      if (val.length > 6) {
-        val = val.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-      }
-      if (val.length > 9) {
-        val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-      }
+      if (val.length > 3) { val = val.replace(/^(\d{3})(\d)/, "$1.$2"); }
+      if (val.length > 6) { val = val.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3"); }
+      if (val.length > 9) { val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4"); }
       evt.target.value = val;
     });
   }
@@ -441,15 +426,9 @@ function b() {
   if (rgInput) {
     rgInput.addEventListener("input", (evt) => {
       let val = evt.target.value.replace(/\D/g, "");
-      if (val.length > 2) {
-        val = val.replace(/^(\d{2})(\d)/, "$1.$2");
-      }
-      if (val.length > 5) {
-        val = val.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-      }
-      if (val.length > 7) {
-        val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
-      }
+      if (val.length > 2) { val = val.replace(/^(\d{2})(\d)/, "$1.$2"); }
+      if (val.length > 5) { val = val.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3"); }
+      if (val.length > 7) { val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4"); }
       evt.target.value = val;
     });
   }
@@ -506,13 +485,13 @@ function b() {
 function getCartAmountInCents() {
   const elTotal = document.getElementById("totalValue");
   if (!elTotal) return 0;
-  const totalText = elTotal.textContent.trim(); // ex: "R$ 300,00"
+  const totalText = elTotal.textContent.trim();
   let numericStr = totalText.replace(/[^\d.,-]/g, "");
   numericStr = numericStr.replace(/\./g, "");
   numericStr = numericStr.replace(",", ".");
   const amount = parseFloat(numericStr);
   if (isNaN(amount)) return 0;
-  return Math.round(amount * 100); // converte para centavos
+  return Math.round(amount * 100);
 }
 
 let finalAmount = 0;
@@ -559,7 +538,6 @@ function readUserDataFromStep1() {
   const formCpf = document.getElementById("cpf").value.replace(/\D/g, "");
   const formBirthdate = document.getElementById("birthdate").value.trim();
   const formState = document.getElementById("state").value.trim();
-  // Se o usuário já estiver logado, usa os dados armazenados, senão pega do form
   if (agentId) {
     t.firstName = formFirstName || storedFirstName;
     t.lastName = formLastName || storedLastName;
@@ -647,7 +625,7 @@ function navigationEvents() {
       if (t.insuranceSelected === "essencial") cost = 60.65;
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
-      f(m); // Atualiza UI do carrinho
+      f(m); // Atualiza o resumo do carrinho (UI)
       finalAmount = getCartAmountInCents();
       console.log("DEBUG - finalAmount =>", finalAmount);
       if (finalAmount <= 0) {
@@ -739,7 +717,7 @@ if (document.querySelector("#malga-checkout")) {
       status: "pago",
       nome_comprador: holderVal,
       bandeira_cartao: brandVal,
-      meio_pgto: meioPgto,
+      meioPgto: meioPgto,
       parcelas: parcelas,
       valor_venda: finalAmount / 100,
       data_pgto: new Date().toISOString().slice(0, 10),
@@ -799,7 +777,6 @@ if (document.querySelector("#malga-checkout")) {
  ***********************************************************/
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchProfileIfLoggedIn();
-  // Preenche campos do form com dados salvos
   const storedFirstName = localStorage.getItem("userFirstName") || "";
   const storedLastName = localStorage.getItem("userLastName") || "";
   const storedEmail = localStorage.getItem("userEmail") || "";
