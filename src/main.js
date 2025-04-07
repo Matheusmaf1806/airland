@@ -211,7 +211,8 @@ function x() {
     alert("Passageiros extras salvos!");
   });
   copyForAllBtn.addEventListener("click", () => {
-    let firstIndex = null, extraCount = 0;
+    let firstIndex = null;
+    let extraCount = 0;
     for (let i = 0; i < m.length; i++) {
       const needed = (m[i].adults || 1) - 1;
       if (needed > 0) {
@@ -322,14 +323,18 @@ function navigationEvents() {
   // Step 2 -> Step 3
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", async () => {
+      // Atualiza dados do Step 1
       readUserDataFromStep1();
+      // Checa qual seguro foi selecionado
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
       let cost = 0;
       if (t.insuranceSelected === "essencial") cost = 60.65;
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
-      f(m); // Atualiza o resumo do carrinho na UI
+      // Atualiza UI do carrinho
+      f(m);
+      // Lê o valor final do carrinho (deve estar em "totalValue")
       finalAmount = getCartAmountInCents();
       console.log("DEBUG - finalAmount =>", finalAmount);
       if (finalAmount <= 0) {
@@ -340,6 +345,7 @@ function navigationEvents() {
         showAlertError("E-mail inválido.");
         return;
       }
+      // Ajusta dados de cada item do carrinho
       m.forEach(item => {
         item.affiliateId = 101;
         item.geradoPor = localStorage.getItem("cartOwnerId") || "System";
@@ -354,6 +360,7 @@ function navigationEvents() {
         showAlertError("Falha ao criar pedido no banco: " + err.message);
         return;
       }
+      // Configura o Malga Checkout
       malgaCheckout.transactionConfig.orderId = String(realOrderId);
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
@@ -410,7 +417,9 @@ function b() {
   }
   const cepInput = document.getElementById("cep");
   if (cepInput) {
-    cepInput.addEventListener("blur", () => { buscaCep(cepInput.value); });
+    cepInput.addEventListener("blur", () => {
+      buscaCep(cepInput.value);
+    });
   }
   const cpfInput = document.getElementById("cpf");
   if (cpfInput) {
@@ -618,14 +627,18 @@ function navigationEvents() {
   // Step 2 -> Step 3
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", async () => {
+      // Atualiza os dados do usuário (Step 1)
       readUserDataFromStep1();
+      // Lê o seguro selecionado e define o custo
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
       let cost = 0;
       if (t.insuranceSelected === "essencial") cost = 60.65;
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
-      f(m); // Atualiza o resumo do carrinho (UI)
+      // Atualiza o resumo do carrinho na UI
+      f(m);
+      // Lê o valor final do carrinho (convertido para cents)
       finalAmount = getCartAmountInCents();
       console.log("DEBUG - finalAmount =>", finalAmount);
       if (finalAmount <= 0) {
@@ -636,6 +649,7 @@ function navigationEvents() {
         showAlertError("E-mail inválido.");
         return;
       }
+      // Define dados extras para cada item do carrinho
       m.forEach(item => {
         item.affiliateId = 101;
         item.geradoPor = localStorage.getItem("cartOwnerId") || "System";
@@ -650,6 +664,7 @@ function navigationEvents() {
         showAlertError("Falha ao criar pedido no banco: " + err.message);
         return;
       }
+      // Configura o Malga Checkout
       malgaCheckout.transactionConfig.orderId = String(realOrderId);
       malgaCheckout.transactionConfig.amount = finalAmount;
       malgaCheckout.transactionConfig.customer = {
@@ -773,7 +788,7 @@ if (document.querySelector("#malga-checkout")) {
 }
 
 /***********************************************************
- * 15) EVENTOS DE DOMContentLoaded E LOAD
+ * 15) EVENTOS DE DOMContentLoaded E LOAD FINAL
  ***********************************************************/
 window.addEventListener("DOMContentLoaded", async () => {
   await fetchProfileIfLoggedIn();
