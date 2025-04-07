@@ -695,9 +695,9 @@ if (malgaCheckout) {
       status: "pago",
       nome_comprador: holderVal,
       bandeira_cartao: brandVal,
-      meioPgto: meioPgto,
+      meio_pgto: meioPgto, // Use "meio_pgto" para bater com a coluna do banco
       parcelas: parcelas,
-      valor_venda: finalAmount / 100,
+      valor_venda: finalAmount / 100, // finalAmount em cents, se for o caso
       data_pgto: new Date().toISOString().slice(0, 10),
       gateway: "Malga"
     };
