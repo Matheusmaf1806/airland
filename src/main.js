@@ -42,8 +42,8 @@ let t = {
   insuranceCost:     0,
 };
 
-let m = []; // Itens do carrinho
-let finalAmount = 0; // Valor em centavos p/ Malga
+let m = [];      // Itens do carrinho
+let finalAmount = 0;  // Valor total em centavos (para Malga)
 
 /*************************************************************
  * 3) FUNÇÕES DE ALERTA: showAlertSuccess / showAlertError
@@ -88,7 +88,7 @@ function showAlertError(message) {
 }
 
 /*************************************************************
- * 4) CARREGA CARRINHO: B() – DO LOCALSTORAGE OU <shopping-cart>
+ * 4) CARREGA CARRINHO (LOCALSTORAGE OU <shopping-cart>)
  *************************************************************/
 function B() {
   const shoppingEl = document.getElementById("shoppingCart");
@@ -111,7 +111,8 @@ function B() {
       console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
-  window.u = m; // Expondo no window p/ outro script, se precisar
+  // Expondo no window p/ outro script (se precisar)
+  window.u = m;
 }
 
 /*************************************************************
@@ -169,7 +170,7 @@ function f(arr) {
 }
 
 /*************************************************************
- * 6) MODAL PASSAGEIROS EXTRAS: h(m) E x() → ABRIR/FECHAR
+ * 6) MODAL PASSAGEIROS EXTRAS: h(m) E x() (abrir/fechar)
  *************************************************************/
 function h(arr) {
   const passengerContainer = document.getElementById("modalPassengerContainer");
@@ -378,8 +379,8 @@ function $() {
 
   // Step 2 → Step 3
   if (toStep3Btn) {
-    toStep3Btn.addEventListener("click", () => {
-      // Lê o radio de insuranceOption
+    toStep3Btn.addEventListener("click", async () => {
+      // 1) Lê qual seguro foi selecionado
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
 
@@ -388,10 +389,74 @@ function $() {
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
 
-      // Recalcula total (cart + seguro)
+      // 2) Recalcula total (itens do carrinho + seguro)
       f(m);
 
-      // Avança step 3
+      // 3) Agora extrai finalAmount em centavos
+      finalAmount = getCartAmountInCents();
+      console.log("DEBUG - finalAmount =>", finalAmount);
+      if (finalAmount <= 0) {
+        showAlertError("Valor do pedido não pode ser 0!");
+        return;
+      }
+
+      // 4) Se user não logado, verificar e-mail
+      if (!localStorage.getItem("agentId")) {
+        // se t.email for vazio ou sem "@"
+        if (!t.email || t.email.indexOf("@") < 0) {
+          showAlertError("E-mail inválido. Preencha corretamente.");
+          return;
+        }
+      }
+
+      // 5) Exemplo: insere affiliateId
+      m.forEach(item => {
+        item.affiliateId = 101;
+        item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
+      });
+
+      // 6) Cria pedido no banco (status = "pending")
+      let realOrderId;
+      try {
+        realOrderId = await initOrderInDb(m, t);
+        localStorage.setItem("myRealOrderId", realOrderId);
+        console.log("Pedido pendente criado. ID=", realOrderId);
+      } catch (err) {
+        showAlertError("Falha ao criar pedido no banco: " + err.message);
+        return;
+      }
+
+      // 7) Configura Malga (orderId e amount)
+      malgaCheckout.transactionConfig.orderId = String(realOrderId);
+      malgaCheckout.transactionConfig.amount  = finalAmount;
+
+      // Monta "customer"
+      malgaCheckout.transactionConfig.customer = {
+        name:  `${t.firstName} ${t.lastName}`,
+        email: t.email,
+        phoneNumber: t.celular,
+        document: {
+          type: "CPF",
+          number: t.cpf,
+          country: "BR",
+        },
+        address: {
+          zipCode:      document.getElementById("cep")?.value    || "",
+          street:       document.getElementById("address")?.value|| "",
+          streetNumber: document.getElementById("number")?.value || "S/N",
+          complement:   "",
+          neighborhood: "",
+          city:         document.getElementById("city")?.value   || "",
+          state:        document.getElementById("state")?.value  || "",
+          country:      "BR",
+        },
+      };
+
+      // Ajusta itens do PIX e BOLETO
+      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+
+      // 8) Avança step 3
       p(3);
     });
   }
@@ -405,7 +470,7 @@ function $() {
 }
 
 /*************************************************************
- * 8) MÁSCARAS CEP, CPF, RG, TOGGLE LOGIN
+ * 8) MÁSCARAS CEP/CPF/RG + TOGGLE LOGIN
  *************************************************************/
 function b() {
   function buscaCep(cepVal) {
@@ -528,6 +593,7 @@ function b() {
 
 /*************************************************************
  * 9) FUNÇÃO initOrderInDb (CRIA O PEDIDO PENDING)
+ *    - já utilizada no Step 2 → Step 3
  *************************************************************/
 async function initOrderInDb(cartItems, userObj) {
   try {
@@ -551,7 +617,6 @@ async function initOrderInDb(cartItems, userObj) {
  * 10) MALGA CHECKOUT – CONFIG E EVENTOS
  *************************************************************/
 const malgaCheckout = document.querySelector("#malga-checkout");
-
 if (malgaCheckout) {
   // Ajusta meios de pagamento
   malgaCheckout.paymentMethods = {
@@ -707,7 +772,7 @@ if (malgaCheckout) {
     console.log("Falha no pagamento:", evt.detail);
     showAlertError("");
 
-    // Marca pedido recusado
+    // Marca pedido como "recusado"
     const realOrderId = localStorage.getItem("myRealOrderId") || malgaCheckout.transactionConfig.orderId;
     try {
       await fetch("/api/orderComplete", {
@@ -761,7 +826,7 @@ window.addEventListener("load", () => {
   // 5) Modal de passageiros extras
   x();
 
-  // Se user já logado => oculta forms
+  // Se user logado => oculta forms
   const hasAgent  = !!localStorage.getItem("agentId");
   const toggleL   = document.getElementById("toggleLogin");
   const regFields = document.getElementById("registrationFieldsGeneral");
