@@ -1,14 +1,22 @@
 /***********************************************************
- *  1) CONTROLE DE STEPS – window.p
+ *                 SCRIPT ÚNICO (COMPLETO)
+ *     Combina lógica de Steps + Carrinho + Malga Checkout
+ ***********************************************************/
+
+/***********************************************************
+ *   1) CONTROLE DE STEPS (window.p) 
+ *      - Para avançar/retroceder steps (1..4)
  ***********************************************************/
 window.p = function (stepNumber) {
   const stepContents = document.querySelectorAll(".step-content");
   const stepsMenu    = document.querySelectorAll(".steps-menu .step");
 
+  // Mostra/esconde cada step via data-step
   stepContents.forEach((content) => {
     content.classList.toggle("active", content.dataset.step === String(stepNumber));
   });
 
+  // Atualiza "bolinhas" do menu
   stepsMenu.forEach((el) => {
     const sNum = parseInt(el.dataset.step, 10);
     el.classList.toggle("active", sNum === stepNumber);
@@ -22,7 +30,8 @@ window.p = function (stepNumber) {
 };
 
 /***********************************************************
- *  2) OBJETOS GLOBAIS (t e m)
+ *   2) OBJETOS GLOBAIS: Passageiro Principal (t)
+ *                       e Carrinho (m)
  ***********************************************************/
 let t = {
   extraPassengers:   [],
@@ -43,11 +52,10 @@ let t = {
   number:            "",
   insuranceCost:     0,
 };
-
-let m = []; // array de itens
+let m = []; // Array de itens do carrinho
 
 /***********************************************************
- *  3) ALERTAS (Sucesso e Erro)
+ *   3) FUNÇÕES DE ALERTA: showAlertSuccess / showAlertError
  ***********************************************************/
 function showAlertSuccess(message) {
   const alertContainer = document.getElementById("alertContainer");
@@ -68,7 +76,8 @@ function showAlertSuccess(message) {
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         font-family: sans-serif;
-        font-size: 0.9rem;"
+        font-size: 0.9rem;
+      "
     >
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <strong>Sucesso</strong>
@@ -79,7 +88,8 @@ function showAlertSuccess(message) {
             font-weight: bold;
             font-size: 1rem;
             color: #065f46;
-            cursor: pointer;"
+            cursor: pointer;
+          "
           onclick="document.getElementById('alertContainer').innerHTML='';"
         >
           &times;
@@ -99,11 +109,6 @@ function showAlertError(message) {
   alertContainer.innerHTML = `
     <div
       style="
-        position: fixed; 
-        top: 1rem; 
-        right: 1rem; 
-        z-index: 9999; 
-        width: 300px;
         margin-top: 8px;
         border-left: 4px solid red;
         background-color: #fff5f5;
@@ -113,17 +118,18 @@ function showAlertError(message) {
         font-family: sans-serif;
         font-size: 0.9rem;
         display: flex;
-        align-items: center;"
+        align-items: center;
+      "
     >
-      <strong style="margin-right: 6px;">Erro:</strong> ${message}
+      <strong style="margin-right: 6px;">Error:</strong> ${message}
     </div>
   `;
 }
 
 /***********************************************************
- *  4) CARREGAR CARRINHO (LOCALSTORAGE OU <shopping-cart>)
+ *   4) CARREGA CARRINHO (LOCALSTORAGE OU <shopping-cart>)
  ***********************************************************/
-function loadCart() {
+function B() {
   const shoppingEl = document.getElementById("shoppingCart");
 
   if (shoppingEl && shoppingEl.items && shoppingEl.items.length > 0) {
@@ -135,8 +141,8 @@ function loadCart() {
       try {
         m = JSON.parse(stored);
         console.log("DEBUG - Carregando do localStorage =>", m);
-      } catch (err) {
-        console.warn("Erro ao fazer JSON.parse em cartItems:", err);
+      } catch (e) {
+        console.warn("Erro ao fazer JSON.parse em cartItems:", e);
         m = [];
       }
     } else {
@@ -144,14 +150,15 @@ function loadCart() {
       console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
-  // Expor p/ checkout
+
+  // Expondo globalmente
   window.u = m;
 }
 
 /***********************************************************
- *  5) ATUALIZAR RESUMO DO CARRINHO (coluna direita)
+ *   5) ATUALIZA RESUMO DO CARRINHO (UI COLUNA DIREITA)
  ***********************************************************/
-function updateCartSummary(arr) {
+function f(arr) {
   const cartItemsList = document.getElementById("cartItemsList");
   if (!cartItemsList) return;
 
@@ -183,13 +190,11 @@ function updateCartSummary(arr) {
     `;
   });
 
-  if (t.insuranceCost) {
-    total += t.insuranceCost;
-  }
+  // Soma seguro
+  if (t.insuranceCost) total += t.insuranceCost;
 
   cartItemsList.innerHTML = htmlStr;
 
-  // Subtotal / desconto / total
   const elSubtotal = document.getElementById("subtotalValue");
   const elDiscount = document.getElementById("discountValue");
   const elTotal    = document.getElementById("totalValue");
@@ -197,14 +202,14 @@ function updateCartSummary(arr) {
   if (elSubtotal) elSubtotal.textContent =
     "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   if (elDiscount) elDiscount.textContent = "- R$ 0,00";
-  if (elTotal)    elTotal.textContent    =
+  if (elTotal)    elTotal.textContent =
     "R$ " + total.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 }
 
 /***********************************************************
- *  6) MODAL DE PASSAGEIROS EXTRAS
+ *   6) MODAL DE PASSAGEIROS EXTRAS – MONTAR LISTA
  ***********************************************************/
-function fillPassengers(arr) {
+function h(arr) {
   const passengerContainer = document.getElementById("modalPassengerContainer");
   const copyForAllBtn      = document.getElementById("copyForAllBtn");
   if (!passengerContainer || !copyForAllBtn) return;
@@ -254,10 +259,14 @@ function fillPassengers(arr) {
     }
   });
 
+  // Se há mais de 1 item com multipleAdults => exibe “Copiar para todos”
   copyForAllBtn.style.display = countOfMulti > 1 ? "inline-block" : "none";
 }
 
-function configurePassengerModal() {
+/***********************************************************
+ *   7) ABRIR/FECHAR MODAL (Eventos)
+ ***********************************************************/
+function x() {
   const passengerModal    = document.getElementById("passengerModal");
   const openModalBtn      = document.getElementById("openPassengerModal");
   const closeModalBtn     = document.getElementById("closeModal");
@@ -269,7 +278,7 @@ function configurePassengerModal() {
 
   openModalBtn.addEventListener("click", (evt) => {
     evt.preventDefault();
-    fillPassengers(m);
+    h(m);
     passengerModal.style.display = "block";
   });
 
@@ -301,6 +310,7 @@ function configurePassengerModal() {
         const needed = (m[i].adults || 1) - 1;
         if (needed === extraCount && needed > 0) {
           t.extraPassengers[i] = JSON.parse(JSON.stringify(firstArr));
+          // Preenche inputs
           for (let p = 0; p < needed; p++) {
             const selName = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
             const selBD   = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
@@ -308,7 +318,7 @@ function configurePassengerModal() {
             const elBD    = document.querySelector(selBD);
 
             if (elName && elBD && t.extraPassengers[i][p]) {
-              elName.value = t.extraPassengers[i][p].name || "";
+              elName.value = t.extraPassengers[i][p].name      || "";
               elBD.value   = t.extraPassengers[i][p].birthdate || "";
             }
           }
@@ -318,6 +328,7 @@ function configurePassengerModal() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
+  // Preenche t.extraPassengers ao digitar no modal
   modalContainer.addEventListener("input", (evt) => {
     const el = evt.target;
     if (
@@ -344,9 +355,48 @@ function configurePassengerModal() {
 }
 
 /***********************************************************
- *  7) MÁSCARAS E TOGGLE LOGIN
+ *   8) FUNÇÃO getCartAmountInCents (pega #totalValue)
  ***********************************************************/
-function configureMasksAndLogin() {
+function getCartAmountInCents() {
+  const elTotal = document.getElementById("totalValue");
+  if (!elTotal) return 0;
+
+  const totalText = elTotal.textContent.trim(); // ex: "R$ 300,00"
+  let numericStr  = totalText.replace(/[^\d.,-]/g, ""); // "300,00"
+  numericStr      = numericStr.replace(/\./g, "");      // "300,00" -> "30000" se tivesse milhar
+  numericStr      = numericStr.replace(",", ".");       // "300.00"
+  const amount    = parseFloat(numericStr);
+
+  if (isNaN(amount)) return 0;
+  return Math.round(amount * 100); // converte p/ centavos
+}
+
+/***********************************************************
+ *   9) initOrderInDb → CRIA PEDIDO NO BANCO (status=PENDING)
+ ***********************************************************/
+async function initOrderInDb(cartItems, userObj) {
+  try {
+    const resp = await fetch("/api/orderInit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cart: cartItems, user: userObj }),
+    });
+    const data = await resp.json();
+    if (!data.success) {
+      throw new Error(data.message || "Falha ao criar pedido");
+    }
+    return data.orderId; // ID real do pedido
+  } catch (err) {
+    console.error("Erro em initOrderInDb:", err);
+    throw err;
+  }
+}
+
+/***********************************************************
+ *   10) MÁSCARAS, LOGIN E EVENTOS DE “IR PARA STEP2/3”
+ ***********************************************************/
+function b() {
+  // Função que busca CEP
   function buscaCep(cepVal) {
     cepVal = cepVal.replace(/\D/g, "");
     if (cepVal.length === 8) {
@@ -432,7 +482,7 @@ function configureMasksAndLogin() {
     });
   }
 
-  // Botão Login
+  // Botão "Entrar" do login
   const loginValidateBtn = document.getElementById("loginValidateBtn");
   if (loginValidateBtn) {
     loginValidateBtn.addEventListener("click", () => {
@@ -450,9 +500,9 @@ function configureMasksAndLogin() {
             localStorage.setItem("agentId", json.user.id);
             alert("Login efetuado com sucesso!");
 
-            if (toggleLoginLink) toggleLoginLink.style.display = "none";
-            if (registrationDiv) registrationDiv.style.display = "none";
-            if (loginDiv)        loginDiv.style.display        = "none";
+            toggleLoginLink.style.display = "none";
+            registrationDiv.style.display = "none";
+            loginDiv.style.display        = "none";
           } else {
             alert("Erro no login: " + (json.error || "Dados inválidos."));
           }
@@ -466,52 +516,13 @@ function configureMasksAndLogin() {
 }
 
 /***********************************************************
- *  8) FUNÇÃO getCartAmountInCents (lê #totalValue)
- ***********************************************************/
-function getCartAmountInCents() {
-  const elTotal = document.getElementById("totalValue");
-  if (!elTotal) return 0;
-
-  const totalText = elTotal.textContent.trim(); // ex: "R$ 120,00"
-  let numericStr  = totalText.replace(/[^\d.,-]/g, ""); // "120,00"
-  numericStr      = numericStr.replace(/\./g, "");      // "120,00"
-  numericStr      = numericStr.replace(",", ".");       // "120.00"
-  const amount    = parseFloat(numericStr);
-
-  if (isNaN(amount)) return 0;
-  return Math.round(amount * 100); // converte p/ centavos
-}
-
-/***********************************************************
- *  9) CRIAR PEDIDO NO BANCO (/api/orderInit)
- ***********************************************************/
-async function initOrderInDb(cartItems, userObj) {
-  try {
-    const response = await fetch("/api/orderInit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cart: cartItems, user: userObj }),
-    });
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message || "Falha ao criar pedido");
-    }
-    return data.orderId; // retorna ID real
-  } catch (error) {
-    console.error("Erro em initOrderInDb:", error);
-    throw error;
-  }
-}
-
-/***********************************************************
- * 10) MALGA CHECKOUT: CONFIG E EVENTOS
+ *   11) CONFIG MALGA CHECKOUT (com paymentSuccess/Fail)
  ***********************************************************/
 const malgaCheckout = document.querySelector("#malga-checkout");
-let finalAmount = 0; // valor em centavos p/ step 3
+let finalAmount = 0; // valor final em centavos
 
 if (malgaCheckout) {
-  // Meios de pagamento
+  // Ajusta meios de pagamento
   malgaCheckout.paymentMethods = {
     pix: {
       expiresIn: 600,
@@ -552,19 +563,19 @@ if (malgaCheckout) {
     currency: "BRL",
     capture: false,
     customer: {
-      name:  "",
+      name: "",
       email: "",
       phoneNumber: "",
       document: { type: "CPF", number: "", country: "BR" },
       address: {
-        zipCode:      "",
-        street:       "",
+        zipCode: "",
+        street: "",
         streetNumber: "",
-        complement:   "",
+        complement: "",
         neighborhood: "",
-        city:         "",
-        state:        "",
-        country:      "BR",
+        city: "",
+        state: "",
+        country: "BR",
       },
     },
   };
@@ -580,16 +591,19 @@ if (malgaCheckout) {
     pixEmptyProgressBarColor: "#D8DFF0",
   };
 
-  // PaymentSuccess
+  // paymentSuccess
   malgaCheckout.addEventListener("paymentSuccess", async (evt) => {
     console.log("Pagamento concluído com sucesso:", evt.detail);
-    showAlertSuccess(""); // limpa alert anterior
 
+    // Apaga alerts anteriores
+    showAlertSuccess(""); // ou alertContainer.innerHTML = "";
+
+    // Extrai cardId, se houver
     const cardId   = evt.detail.data.paymentSource?.cardId;
     const meioPgto = evt.detail.data.paymentMethod.paymentType || "desconhecido";
     const parcelas = evt.detail.data.paymentMethod.installments || 1;
 
-    // Tentar brand do /v1/cards
+    // Tenta obter brand
     let brandVal  = "desconhecido";
     let holderVal = "Nome do Cartão";
 
@@ -607,13 +621,14 @@ if (malgaCheckout) {
           brandVal  = cardData?.brand          || brandVal;
           holderVal = cardData?.cardHolderName || holderVal;
         } else {
-          console.warn("Falha ao obter brand /v1/cards", cardResp.status);
+          console.warn("Falha ao obter brand do /v1/cards", cardResp.status);
         }
       } catch (err) {
         console.error("Erro ao chamar /v1/cards:", err);
       }
     }
 
+    // Monta data p/ update
     const realOrderId = localStorage.getItem("myRealOrderId") || malgaCheckout.transactionConfig.orderId;
     const dataToUpdate = {
       status:          "pago",
@@ -621,8 +636,8 @@ if (malgaCheckout) {
       bandeira_cartao: brandVal,
       meio_pgto:       meioPgto,
       parcelas,
-      valor_venda:     finalAmount / 100, // se finalAmount for em centavos
-      data_pgto:       new Date().toISOString().slice(0, 10),
+      valor_venda:     finalAmount / 100, // se finalAmount está em centavos
+      data_pgto:       new Date().toISOString().slice(0,10),
       gateway:         "Malga",
     };
 
@@ -633,6 +648,7 @@ if (malgaCheckout) {
         body: JSON.stringify({ orderId: realOrderId, dataToUpdate }),
       });
       const result = await resp.json();
+
       if (!result.success) {
         console.error("Erro ao atualizar pedido (pago):", result.message);
         showAlertError("Falha ao atualizar o pedido no banco.");
@@ -642,14 +658,15 @@ if (malgaCheckout) {
       showAlertSuccess(`Success - Pedido #${realOrderId} marcado como pago!`);
       console.log("Pedido atualizado (pago):", result.updatedData);
 
-      // Step 4
-      document.getElementById("finalTitle").textContent =
-        `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
-      document.getElementById("finalMsg").textContent =
-        `Seu pedido #${realOrderId} foi concluído com sucesso.`;
-      document.getElementById("finalThanks").textContent =
-        "Aproveite a viagem!";
+      // Ajusta step 4
+      const finalTitle = document.getElementById("finalTitle");
+      const finalMsg   = document.getElementById("finalMsg");
+      const finalThanks= document.getElementById("finalThanks");
+      if (finalTitle)  finalTitle.textContent  = `Parabéns ${t.firstName || "(nome)"}!`;
+      if (finalMsg)    finalMsg.textContent    = `Seu pedido #${realOrderId} foi concluído com sucesso.`;
+      if (finalThanks) finalThanks.textContent = "Aproveite a viagem!";
 
+      // Esconde col. direita
       const rightCol = document.querySelector(".right-col");
       if (rightCol) rightCol.style.display = "none";
 
@@ -660,12 +677,13 @@ if (malgaCheckout) {
     }
   });
 
-  // PaymentFailed
+  // paymentFailed
   malgaCheckout.addEventListener("paymentFailed", async (evt) => {
     console.log("Falha no pagamento:", evt.detail);
-    showAlertError("Pagamento falhou! Verifique o console.");
 
-    // Marca pedido como 'recusado'
+    showAlertError("");
+
+    // Marca pedido como “recusado”
     const realOrderId = localStorage.getItem("myRealOrderId") || malgaCheckout.transactionConfig.orderId;
     try {
       await fetch("/api/orderComplete", {
@@ -679,22 +697,20 @@ if (malgaCheckout) {
     } catch (err) {
       console.error("Erro ao marcar pedido como recusado:", err);
     }
+
+    showAlertError("Error - Pagamento falhou! Verifique o console.");
   });
 }
 
 /***********************************************************
- *  11) NAVEGAÇÃO STEPS (BOTÕES E LÓGICA)
+ *   12) BOTÕES Step1/Step2/Step3 + TOT VISUAL + CRIA PEDIDO
  ***********************************************************/
-function configureStepButtons() {
-  const toStep2Btn   = document.getElementById("toStep2");
-  const backToStep1  = document.getElementById("backToStep1");
-  const toStep3Btn   = document.getElementById("toStep3");
-  const backToStep2  = document.getElementById("backToStep2");
-
+function $() {
   // Step 1 -> Step 2
+  const toStep2Btn  = document.getElementById("toStep2");
   if (toStep2Btn) {
     toStep2Btn.addEventListener("click", () => {
-      // Se user não logado, checa campos
+      // Se sem login, checa campos
       if (!localStorage.getItem("agentId")) {
         if (
           !document.getElementById("firstName").value      ||
@@ -715,7 +731,7 @@ function configureStepButtons() {
         t.confirmPassword = document.getElementById("confirmPassword").value;
       }
 
-      // Docs e endereço
+      // Documentos/endereço
       if (
         !document.getElementById("cpf").value       ||
         !document.getElementById("rg").value        ||
@@ -743,18 +759,19 @@ function configureStepButtons() {
     });
   }
 
-  // Step 2 -> Step 1
-  if (backToStep1) {
-    backToStep1.addEventListener("click", () => p(1));
+  // Botão de “Voltar Step2 -> Step1”
+  const backToStep1Btn = document.getElementById("backToStep1");
+  if (backToStep1Btn) {
+    backToStep1Btn.addEventListener("click", () => {
+      p(1);
+    });
   }
 
-  // Step 2 -> Step 3
+  // Step 2 -> Step 3 (Cria pedido / Ajusta amount Malga)
+  const toStep3Btn = document.getElementById("toStep3");
   if (toStep3Btn) {
     toStep3Btn.addEventListener("click", async () => {
-      // Lê de Step1
-      // (Opcional: readUserDataFromStep1(); se quiser puxar novamente)
-
-      // Marca insuranceSelected
+      // 1) Lê insuranceOption
       const selectedRadio = document.querySelector('input[name="insuranceOption"]:checked');
       t.insuranceSelected = selectedRadio ? selectedRadio.value : "none";
 
@@ -763,40 +780,104 @@ function configureStepButtons() {
       else if (t.insuranceSelected === "completo") cost = 101.09;
       t.insuranceCost = cost;
 
-      // Recalcula total e atualiza UI
-      updateCartSummary(m);
+      // 2) Recalcula total do carrinho (UI)
+      f(m);
 
-      // Avança Step 3
+      // 3) Pega #totalValue => finalAmount em centavos
+      finalAmount = getCartAmountInCents();
+      console.log("DEBUG - finalAmount =>", finalAmount);
+      if (finalAmount <= 0) {
+        showAlertError("Erro - Valor do pedido não pode ser 0!");
+        return;
+      }
+
+      // 4) Exemplo: se user sem e-mail ou e-mail inválido
+      if (!t.email || !t.email.includes("@")) {
+        showAlertError("Por favor, informe um e-mail válido.");
+        return;
+      }
+
+      // 5) Marca affiliateId
+      m.forEach((item) => {
+        item.affiliateId = 101;
+        item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
+      });
+
+      // 6) Cria pedido no banco (status=“pending”)
+      let realOrderId;
+      try {
+        realOrderId = await initOrderInDb(m, t);
+        localStorage.setItem("myRealOrderId", realOrderId);
+        console.log("Pedido pendente criado. ID =", realOrderId);
+      } catch (err) {
+        showAlertError("Falha ao criar pedido no banco: " + err.message);
+        return;
+      }
+
+      // 7) Configura Malga
+      malgaCheckout.transactionConfig.orderId = String(realOrderId);
+      malgaCheckout.transactionConfig.amount  = finalAmount;
+
+      // Monta “customer”
+      malgaCheckout.transactionConfig.customer = {
+        name:        `${t.firstName} ${t.lastName}`,
+        email:       t.email,
+        phoneNumber: t.celular,
+        document: {
+          type: "CPF",
+          number: t.cpf,
+          country:"BR"
+        },
+        address: {
+          zipCode:      document.getElementById("cep")?.value    || "",
+          street:       document.getElementById("address")?.value|| "",
+          streetNumber: document.getElementById("number")?.value || "S/N",
+          complement:   "",
+          neighborhood: "",
+          city:         document.getElementById("city")?.value   || "",
+          state:        document.getElementById("state")?.value  || "",
+          country:      "BR"
+        }
+      };
+
+      // Ajusta items do PIX e BOLETO
+      malgaCheckout.paymentMethods.pix.items[0].unitPrice    = finalAmount;
+      malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmount;
+
+      // 8) Avança Step 3
       p(3);
     });
   }
 
-  // Step 3 -> Step 2
-  if (backToStep2) {
-    backToStep2.addEventListener("click", () => p(2));
+  // Step 3 -> Step 2 (Voltar)
+  const backToStep2Btn = document.getElementById("backToStep2");
+  if (backToStep2Btn) {
+    backToStep2Btn.addEventListener("click", () => {
+      p(2);
+    });
   }
 }
 
 /***********************************************************
- * 12) EVENTO PRINCIPAL window.load
+ *   13) window.onload → CHAMA TUDO
  ***********************************************************/
 window.addEventListener("load", () => {
   // 1) Carrega carrinho
-  loadCart();
+  B();
 
-  // 2) Atualiza resumo
-  updateCartSummary(m);
+  // 2) Exibe resumo do carrinho
+  f(m);
 
-  // 3) Configura máscaras e login
-  configureMasksAndLogin();
+  // 3) Máscaras e login
+  b();
 
-  // 4) Configura botões de steps
-  configureStepButtons();
+  // 4) Navegação Steps
+  $();
 
   // 5) Modal de passageiros extras
-  configurePassengerModal();
+  x();
 
-  // Se user logado, esconde forms
+  // 6) Se user logado, esconde form
   const hasAgent  = !!localStorage.getItem("agentId");
   const toggleL   = document.getElementById("toggleLogin");
   const regFields = document.getElementById("registrationFieldsGeneral");
@@ -811,6 +892,6 @@ window.addEventListener("load", () => {
     if (regFields) regFields.style.display = "block";
   }
 
-  // p(1) → inicia no Step 1
+  // 7) Inicia no step 1
   p(1);
 });
