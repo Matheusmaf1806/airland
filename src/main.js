@@ -23,7 +23,7 @@ window.p = function(stepNum) {
 /******************************************************
  *  2) Objetos Globais e Variáveis
  ******************************************************/
-// Objeto "t" contendo dados do passageiro principal (e info de seguro, etc.)
+// Objeto "t" contendo dados do passageiro principal + insurance + etc.
 let t = {
   extraPassengers: [],
   insuranceSelected: "none",
@@ -55,11 +55,9 @@ let m = [];
 function loadCart() {
   const cartEl = document.getElementById("shoppingCart");
   if (cartEl && cartEl.items && cartEl.items.length > 0) {
-    // Se <shopping-cart> tiver .items
     m = cartEl.items;
     console.log("DEBUG - <shopping-cart> com items =>", m);
   } else {
-    // Caso contrário, tenta localStorage
     const stored = localStorage.getItem("cartItems");
     if (stored) {
       try {
@@ -74,7 +72,7 @@ function loadCart() {
       console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
-  // Expondo globalmente, caso alguma lógica externa precise
+  // Expondo globalmente
   window.u = m;
 }
 
@@ -138,7 +136,6 @@ function showPassengersModal(arr) {
   let multiItemsCount = 0;
 
   arr.forEach((item, idx) => {
-    // Ex.: se item.adults=2 => 1 extra. Se 3 => 2 extras
     const extras = (item.adults || 1) - 1;
     if (extras > 0) {
       multiItemsCount++;
@@ -191,8 +188,6 @@ function setupPassengersModal() {
   const copyBtn       = document.getElementById("copyForAllBtn");
   const container     = document.getElementById("modalPassengerContainer");
 
-  if (!modal) return;
-
   openModalBtn?.addEventListener("click", (evt) => {
     evt.preventDefault();
     showPassengersModal(m);
@@ -212,7 +207,6 @@ function setupPassengersModal() {
     let firstIndex = null;
     let extraCount = 0;
 
-    // Acha primeiro item c/ multiple adults
     for (let i = 0; i < m.length; i++) {
       const needed = (m[i].adults || 1) - 1;
       if (needed > 0) {
@@ -229,7 +223,6 @@ function setupPassengersModal() {
         const needed = (m[j].adults || 1) - 1;
         if (needed === extraCount && needed > 0) {
           t.extraPassengers[j] = JSON.parse(JSON.stringify(firstArr));
-          // Atualiza inputs
           for (let p = 0; p < needed; p++) {
             const selName = `.modalExtraNameInput[data-item-index="${j}"][data-passenger-index="${p}"]`;
             const selBD   = `.modalExtraBirthdateInput[data-item-index="${j}"][data-passenger-index="${p}"]`;
@@ -273,96 +266,7 @@ function setupPassengersModal() {
 }
 
 /******************************************************
- *  5) Navegação Steps (1->2->3->4) + Insurance
- ******************************************************/
-function setupStepsNavigation() {
-  const btnToStep2  = document.getElementById("toStep2");
-  const btnBack1    = document.getElementById("backToStep1");
-  const btnToStep3  = document.getElementById("toStep3");
-  const btnBack2    = document.getElementById("backToStep2");
-
-  // Step 1 -> Step 2
-  btnToStep2?.addEventListener("click", () => {
-    // Se não tiver agentId, exige campos
-    if (!localStorage.getItem("agentId")) {
-      if (
-        !document.getElementById("firstName").value ||
-        !document.getElementById("lastName").value  ||
-        !document.getElementById("celular").value   ||
-        !document.getElementById("email").value     ||
-        !document.getElementById("password").value  ||
-        !document.getElementById("confirmPassword").value
-      ) {
-        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-        return;
-      }
-      // Copia para t
-      t.firstName       = document.getElementById("firstName").value;
-      t.lastName        = document.getElementById("lastName").value;
-      t.celular         = document.getElementById("celular").value;
-      t.email           = document.getElementById("email").value;
-      t.password        = document.getElementById("password").value;
-      t.confirmPassword = document.getElementById("confirmPassword").value;
-    }
-
-    // Documentos/Endereço
-    if (
-      !document.getElementById("cpf").value       ||
-      !document.getElementById("rg").value        ||
-      !document.getElementById("birthdate").value ||
-      !document.getElementById("cep").value       ||
-      !document.getElementById("state").value     ||
-      !document.getElementById("city").value      ||
-      !document.getElementById("address").value   ||
-      !document.getElementById("number").value
-    ) {
-      alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
-      return;
-    }
-
-    // Salva docs/endereço
-    t.cpf       = document.getElementById("cpf").value;
-    t.rg        = document.getElementById("rg").value;
-    t.birthdate = document.getElementById("birthdate").value;
-    t.cep       = document.getElementById("cep").value;
-    t.state     = document.getElementById("state").value;
-    t.city      = document.getElementById("city").value;
-    t.address   = document.getElementById("address").value;
-    t.number    = document.getElementById("number").value;
-
-    // Avança Step
-    p(2);
-  });
-
-  // Step 2 -> Step 1
-  btnBack1?.addEventListener("click", () => p(1));
-
-  // Step 2 -> Step 3
-  btnToStep3?.addEventListener("click", () => {
-    const sel = document.querySelector('input[name="insuranceOption"]:checked');
-    t.insuranceSelected = sel ? sel.value : "none";
-
-    let cost = 0;
-    if (t.insuranceSelected === "essencial") {
-      cost = 60.65;
-    } else if (t.insuranceSelected === "completo") {
-      cost = 101.09;
-    }
-    t.insuranceCost = cost;
-
-    // Recalcular total
-    updateCartSummary(m);
-
-    // Avança p/ Step 3
-    p(3);
-  });
-
-  // Step 3 -> Step 2
-  btnBack2?.addEventListener("click", () => p(2));
-}
-
-/******************************************************
- *  6) Máscaras CEP, CPF, RG + Lógica de Login
+ *  5) Máscaras CEP, CPF, RG + Lógica de Login
  ******************************************************/
 function setupMasksAndLogin() {
   // CEP
@@ -387,58 +291,43 @@ function setupMasksAndLogin() {
     }
   }
 
-  const cepEl = document.getElementById("cep");
-  cepEl?.addEventListener("blur", function() {
+  document.getElementById("cep")?.addEventListener("blur", function() {
     fetchCep(this.value);
   });
 
   // CPF
-  const cpfEl = document.getElementById("cpf");
-  cpfEl?.addEventListener("input", (evt) => {
+  document.getElementById("cpf")?.addEventListener("input", (evt) => {
     let val = evt.target.value.replace(/\D/g, "");
-    if (val.length > 3) {
-      val = val.replace(/^(\d{3})(\d)/, "$1.$2");
-    }
-    if (val.length > 6) {
-      val = val.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
-    }
-    if (val.length > 9) {
-      val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
-    }
+    if (val.length > 3)  val = val.replace(/^(\d{3})(\d)/, "$1.$2");
+    if (val.length > 6)  val = val.replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (val.length > 9)  val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
     evt.target.value = val;
   });
 
   // RG
-  const rgEl = document.getElementById("rg");
-  rgEl?.addEventListener("input", (evt) => {
+  document.getElementById("rg")?.addEventListener("input", (evt) => {
     let val = evt.target.value.replace(/\D/g, "");
-    if (val.length > 2) {
-      val = val.replace(/^(\d{2})(\d)/, "$1.$2");
-    }
-    if (val.length > 5) {
-      val = val.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    }
-    if (val.length > 7) {
-      val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
-    }
+    if (val.length > 2)  val = val.replace(/^(\d{2})(\d)/, "$1.$2");
+    if (val.length > 5)  val = val.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+    if (val.length > 7)  val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
     evt.target.value = val;
   });
 
-  // Toggle login
-  const toggleLoginLink = document.getElementById("toggleLogin");
-  const regDiv          = document.getElementById("registrationFieldsGeneral");
-  const loginDiv        = document.getElementById("loginFields");
+  // Toggle Login
+  const toggleLink = document.getElementById("toggleLogin");
+  const regDiv     = document.getElementById("registrationFieldsGeneral");
+  const loginDiv   = document.getElementById("loginFields");
 
-  toggleLoginLink?.addEventListener("click", (evt) => {
+  toggleLink?.addEventListener("click", (evt) => {
     evt.preventDefault();
-    if (regDiv.style.display !== "none") {
-      regDiv.style.display = "none";
-      loginDiv.style.display = "block";
-      toggleLoginLink.textContent = "Não tenho Login";
+    if (regDiv?.style.display !== "none") {
+      regDiv.style.display  = "none";
+      loginDiv.style.display= "block";
+      toggleLink.textContent = "Não tenho Login";
     } else {
-      regDiv.style.display = "block";
-      loginDiv.style.display = "none";
-      toggleLoginLink.textContent = "Economize tempo fazendo Login";
+      regDiv.style.display  = "block";
+      loginDiv.style.display= "none";
+      toggleLink.textContent = "Economize tempo fazendo Login";
     }
   });
 
@@ -459,9 +348,9 @@ function setupMasksAndLogin() {
           localStorage.setItem("agentId", resp.user.id);
           alert("Login efetuado com sucesso!");
 
-          if (toggleLoginLink) toggleLoginLink.style.display = "none";
-          if (regDiv)          regDiv.style.display          = "none";
-          if (loginDiv)        loginDiv.style.display        = "none";
+          if (toggleLink) toggleLink.style.display = "none";
+          if (regDiv)     regDiv.style.display     = "none";
+          if (loginDiv)   loginDiv.style.display   = "none";
         } else {
           alert("Erro no login: " + (resp.error || "Dados inválidos."));
         }
@@ -474,238 +363,228 @@ function setupMasksAndLogin() {
 }
 
 /******************************************************
- *  7) Funções p/ Criar Pedido e Configurar Malga
+ *  6) Lendo dados do Step 1 e calculando total
  ******************************************************/
-// ALERTAS:
-function showAlertSuccess(msg) {
-  // Você pode usar a mesma função feita acima, se preferir
-  console.log("showAlertSuccess:", msg);
-  alert(msg);
-}
-function showAlertError(msg) {
-  console.error("showAlertError:", msg);
-  alert("Erro: " + msg);
-}
+function readUserDataFromStep1() {
+  const agentId         = localStorage.getItem("agentId")      || "";
+  const storedFirstName = localStorage.getItem("userFirstName")|| "";
+  const storedLastName  = localStorage.getItem("userLastName") || "";
+  const storedEmail     = localStorage.getItem("userEmail")    || "";
+  const storedPhone     = localStorage.getItem("userPhone")    || "";
 
-// Cria pedido no banco (status = "pending")
-async function initOrderInDb(cartItems, userObj) {
-  try {
-    const response = await fetch('/api/orderInit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart: cartItems, user: userObj })
-    });
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.message || 'Falha ao criar pedido');
-    }
-    return data.orderId; // Retorna ID real do pedido
-  } catch (error) {
-    console.error("Erro em initOrderInDb:", error);
-    throw error;
+  const formFirstName   = document.getElementById("firstName").value.trim();
+  const formLastName    = document.getElementById("lastName") .value.trim();
+  const formCelular     = document.getElementById("celular")  .value.trim();
+  const formEmail       = document.getElementById("email")    .value.trim();
+  const formCpf         = document.getElementById("cpf")      .value.replace(/\D/g, "");
+  const formBirthdate   = document.getElementById("birthdate").value.trim();
+  const formState       = document.getElementById("state")    .value.trim();
+  const formCity        = document.getElementById("city")     .value.trim();
+  const formAddress     = document.getElementById("address")  .value.trim();
+  const formNumber      = document.getElementById("number")   .value.trim();
+
+  if (agentId) {
+    // Se o usuário já estiver logado, só sobrescrevemos caso os campos do form não estejam preenchidos
+    t.firstName = formFirstName || storedFirstName;
+    t.lastName  = formLastName  || storedLastName;
+    t.email     = formEmail     || storedEmail;
+    t.celular   = formCelular   || storedPhone;
+  } else {
+    t.firstName = formFirstName;
+    t.lastName  = formLastName;
+    t.email     = formEmail;
+    t.celular   = formCelular;
   }
-}
 
-// Configura Malga
-const malgaCheckout = document.querySelector("#malga-checkout");
-let finalAmount = 0;
-
-if (malgaCheckout) {
-  malgaCheckout.paymentMethods = {
-    pix: {
-      expiresIn: 600,
-      items: [
-        { id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }
-      ]
-    },
-    credit: {
-      installments: { quantity: 10, show: true },
-      showCreditCard: true
-    },
-    boleto: {
-      expiresDate: "2025-12-31",
-      instructions: "Boleto Exemplo (Produção)",
-      interest: { days: 1, amount: 1000 },
-      fine: { days: 2, amount: 500 },
-      items: [
-        { id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }
-      ]
-    }
-  };
-
-  malgaCheckout.transactionConfig = {
-    statementDescriptor: "Checkout Completo",
-    amount: 0,
-    description: "Pacote + Taxas + Extras",
-    orderId: "pedido-999999",
-    currency: "BRL",
-    capture: false,
-    customer: {
-      name: "",
-      email: "",
-      phoneNumber: "",
-      document: { type: "CPF", number: "", country: "BR" },
-      address: {
-        zipCode: "",
-        street: "",
-        streetNumber: "",
-        complement: "",
-        neighborhood: "",
-        city: "",
-        state: "",
-        country: "BR"
-      }
-    }
-  };
-
-  // Desativa popup do Malga
-  malgaCheckout.dialogConfig = {
-    show: false,
-    actionButtonLabel: "Continuar",
-    errorActionButtonLabel: "Tentar novamente",
-    successActionButtonLabel: "Continuar",
-    successRedirectUrl: "",
-    pixFilledProgressBarColor: "#2FAC9B",
-    pixEmptyProgressBarColor: "#D8DFF0"
-  };
-
-  // EVENTO: paymentSuccess
-  malgaCheckout.addEventListener("paymentSuccess", async (event) => {
-    console.log("Pagamento concluído com sucesso:", event.detail);
-
-    const cardId   = event.detail.data.paymentSource?.cardId;
-    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
-    const parcelas = event.detail.data.paymentMethod.installments || 1;
-
-    // Pega brand e holderName
-    let brandVal  = "desconhecido";
-    let holderVal = "Nome do Cartão";
-    if (cardId) {
-      try {
-        const cardResp = await fetch(`https://api.malga.io/v1/cards/${cardId}`, {
-          method: 'GET',
-          headers: {
-            'X-Client-Id': '4457c178-0f07-4589-ba0e-954e5816fd0f',
-            'X-Api-Key':   'bfabc953-1ea0-45d0-95e4-4968cfe2a00e'
-          }
-        });
-        if (cardResp.ok) {
-          const cardData = await cardResp.json();
-          brandVal  = cardData?.brand || brandVal;
-          holderVal = cardData?.cardHolderName || holderVal;
-        } else {
-          console.warn("Falha ao obter brand do /v1/cards", cardResp.status);
-        }
-      } catch (err) {
-        console.error("Erro ao chamar /v1/cards:", err);
-      }
-    }
-
-    // Monta objeto de update
-    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
-    const dataToUpdate = {
-      status: "pago",
-      nome_comprador:  holderVal,
-      bandeira_cartao: brandVal,
-      meio_pgto: meioPgto,
-      parcelas,
-      valor_venda: finalAmount / 100,  // se finalAmount for em cents
-      data_pgto: new Date().toISOString().slice(0,10),
-      gateway: "Malga"
-    };
-
-    // POST /api/orderComplete
-    try {
-      const response = await fetch('/api/orderComplete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: realOrderId, dataToUpdate })
-      });
-      const result = await response.json();
-      if (!result.success) {
-        console.error("Erro ao atualizar pedido (pago):", result.message);
-        showAlertError("Falha ao atualizar o pedido no banco.");
-        return;
-      }
-
-      showAlertSuccess(`Pedido #${realOrderId} marcado como pago!`);
-      console.log("Pedido atualizado (pago):", result.updatedData);
-
-      // Step 4 - Mensagem final
-      document.getElementById("finalTitle").textContent =
-        `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
-      document.getElementById("finalMsg").textContent =
-        `Seu pedido #${realOrderId} foi concluído com sucesso.`;
-      document.getElementById("finalThanks").textContent =
-        "Aproveite a viagem!";
-
-      const rightCol = document.querySelector(".right-col");
-      if (rightCol) rightCol.style.display = "none";
-      window.p(4);
-
-    } catch (error) {
-      console.error("Exceção ao chamar /api/orderComplete:", error);
-      showAlertError(`Exceção ao chamar orderComplete: ${error.message}`);
-    }
-  });
-
-  // EVENTO: paymentFailed
-  malgaCheckout.addEventListener("paymentFailed", async (event) => {
-    console.log("Falha no pagamento:", event.detail);
-
-    // Marca pedido como 'recusado'
-    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
-    try {
-      await fetch('/api/orderComplete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: realOrderId,
-          dataToUpdate: { status: "recusado" }
-        })
-      });
-    } catch (err) {
-      console.error("Erro ao marcar pedido como recusado:", err);
-    }
-
-    showAlertError("Pagamento falhou! Verifique o console.");
-  });
+  t.cpf       = formCpf;
+  t.birthdate = formBirthdate;
+  t.state     = formState;
+  t.city      = formCity;
+  t.address   = formAddress;
+  t.number    = formNumber;
 }
 
 /******************************************************
- *  8) Ao Carregar (window.load) => Disparar tudo
+ *  7) Criar Pedido e Configurar Malga p/ Step 3
  ******************************************************/
-window.addEventListener("load", () => {
-  // 1) Carregar carrinho (m)
-  loadCart();
+async function doStep2toStep3() {
+  // 1) Lê dados do step1
+  readUserDataFromStep1();
 
-  // 2) Atualiza resumo do carrinho
+  // 2) Descobre qual seguro foi escolhido
+  const sel = document.querySelector('input[name="insuranceOption"]:checked');
+  t.insuranceSelected = sel ? sel.value : "none";
+
+  let cost = 0;
+  if (t.insuranceSelected === "essencial") {
+    cost = 60.65;
+  } else if (t.insuranceSelected === "completo") {
+    cost = 101.09;
+  }
+  t.insuranceCost = cost;
+
+  // 3) Recalcula total do carrinho (para refletir cost)
   updateCartSummary(m);
 
-  // 3) Configura máscaras e login
-  setupMasksAndLogin();
-
-  // 4) Navegação steps
-  setupStepsNavigation();
-
-  // 5) Modal de passageiros extras
-  setupPassengersModal();
-
-  // Se já houver agentId, esconde forms
-  const hasAgent = !!localStorage.getItem("agentId");
-  const togLink  = document.getElementById("toggleLogin");
-  const regF     = document.getElementById("registrationFieldsGeneral");
-  const logF     = document.getElementById("loginFields");
-
-  if (hasAgent) {
-    if (togLink) togLink.style.display   = "none";
-    if (regF)    regF.style.display     = "none";
-    if (logF)    logF.style.display     = "none";
-  } else {
-    if (togLink) togLink.style.display  = "block";
-    if (regF)    regF.style.display     = "block";
+  // 4) Pega valor do #totalValue
+  const finalAmountInCents = getCartAmountInCents();
+  if (finalAmountInCents <= 0) {
+    alert("Valor do pedido não pode ser 0!");
+    return;
+  }
+  if (!t.email || !t.email.includes("@")) {
+    alert("E-mail inválido.");
+    return;
   }
 
-  // Começa no step 1
+  // 5) Marcamos affiliate etc. (caso queira)
+  m.forEach(item => {
+    item.affiliateId = 101;
+    item.geradoPor   = localStorage.getItem("cartOwnerId") || "System";
+  });
+
+  console.log("DEBUG - cart =>", m);
+
+  // 6) Criar pedido no banco
+  let realOrderId;
+  try {
+    realOrderId = await initOrderInDb(m, t);
+    localStorage.setItem("myRealOrderId", realOrderId);
+    console.log("Pedido pendente criado. ID=", realOrderId);
+  } catch (err) {
+    alert("Falha ao criar pedido no banco: " + err.message);
+    return;
+  }
+
+  // 7) Configura Malga Checkout
+  malgaCheckout.transactionConfig.orderId = String(realOrderId);
+  malgaCheckout.transactionConfig.amount  = finalAmountInCents;
+
+  // Montar "customer"
+  malgaCheckout.transactionConfig.customer = {
+    name:  `${t.firstName} ${t.lastName}`,
+    email: t.email,
+    phoneNumber: t.celular,
+    document: {
+      type: "CPF",
+      number: t.cpf,
+      country: "BR"
+    },
+    address: {
+      zipCode:      document.getElementById("cep").value    || "",
+      street:       document.getElementById("address").value|| "",
+      streetNumber: document.getElementById("number").value || "S/N",
+      complement:   "",
+      neighborhood: "",
+      city:         document.getElementById("city").value   || "",
+      state:        document.getElementById("state").value  || "",
+      country: "BR"
+    }
+  };
+
+  // Ajustar itens do PIX e BOLETO
+  malgaCheckout.paymentMethods.pix .items[0].unitPrice    = finalAmountInCents;
+  malgaCheckout.paymentMethods.boleto.items[0].unitPrice = finalAmountInCents;
+
+  // 8) Agora sim avança p/ Step 3
+  p(3);
+}
+
+/******************************************************
+ *  8) onload => Setup
+ ******************************************************/
+window.addEventListener("load", () => {
+  // 1) Carrega carrinho (m) e exibe na direita
+  loadCart();
+  updateCartSummary(m);
+
+  // 2) Máscaras + Login
+  setupMasksAndLogin();
+
+  // 3) Modal de passageiros extras
+  setupPassengersModal();
+
+  // 4) Step 1 -> Step 2
+  const btnToStep2 = document.getElementById("toStep2");
+  btnToStep2?.addEventListener("click", () => {
+    // Se não tiver agentId, confere campos...
+    if (!localStorage.getItem("agentId")) {
+      if (
+        !document.getElementById("firstName").value ||
+        !document.getElementById("lastName").value  ||
+        !document.getElementById("celular").value   ||
+        !document.getElementById("email").value     ||
+        !document.getElementById("password").value  ||
+        !document.getElementById("confirmPassword").value
+      ) {
+        alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+        return;
+      }
+      // Guarda no objeto t
+      t.firstName       = document.getElementById("firstName").value;
+      t.lastName        = document.getElementById("lastName").value;
+      t.celular         = document.getElementById("celular").value;
+      t.email           = document.getElementById("email").value;
+      t.password        = document.getElementById("password").value;
+      t.confirmPassword = document.getElementById("confirmPassword").value;
+    }
+
+    // Campos doc/endereço
+    if (
+      !document.getElementById("cpf").value       ||
+      !document.getElementById("rg").value        ||
+      !document.getElementById("birthdate").value ||
+      !document.getElementById("cep").value       ||
+      !document.getElementById("state").value     ||
+      !document.getElementById("city").value      ||
+      !document.getElementById("address").value   ||
+      !document.getElementById("number").value
+    ) {
+      alert("Por favor, preencha todos os campos obrigatórios antes de continuar.");
+      return;
+    }
+    // Armazena doc/endereço
+    t.cpf       = document.getElementById("cpf").value;
+    t.rg        = document.getElementById("rg").value;
+    t.birthdate = document.getElementById("birthdate").value;
+    t.cep       = document.getElementById("cep").value;
+    t.state     = document.getElementById("state").value;
+    t.city      = document.getElementById("city").value;
+    t.address   = document.getElementById("address").value;
+    t.number    = document.getElementById("number").value;
+
+    p(2);
+  });
+
+  // 5) Step 2 -> Step 3 (UNIFICADO)
+  const btnToStep3 = document.getElementById("toStep3");
+  btnToStep3?.addEventListener("click", () => {
+    doStep2toStep3();  // <-- chama a lógica unificada
+  });
+
+  // 6) Step 2 -> Step 1 (Voltar)
+  const btnBack1 = document.getElementById("backToStep1");
+  btnBack1?.addEventListener("click", () => p(1));
+
+  // 7) Step 3 -> Step 2 (Voltar)
+  const btnBack2 = document.getElementById("backToStep2");
+  btnBack2?.addEventListener("click", () => p(2));
+
+  // 8) Se já houver agentId, esconde forms
+  const hasAgent = !!localStorage.getItem("agentId");
+  const toggleLoginLink = document.getElementById("toggleLogin");
+  const regFields       = document.getElementById("registrationFieldsGeneral");
+  const loginFields     = document.getElementById("loginFields");
+
+  if (hasAgent) {
+    if (toggleLoginLink) toggleLoginLink.style.display = "none";
+    if (regFields)       regFields.style.display       = "none";
+    if (loginFields)     loginFields.style.display     = "none";
+  } else {
+    if (toggleLoginLink) toggleLoginLink.style.display = "block";
+    if (regFields)       regFields.style.display       = "block";
+  }
+
+  // Inicia no Step 1
   p(1);
 });
