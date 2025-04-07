@@ -1,5 +1,5 @@
 /******************************************************
- *  1) STEP CONTROL (window.p) + OBJETOS GLOBAIS
+ *  1) Função de Navegação de Steps (window.p)
  ******************************************************/
 window.p = function(stepNum) {
   const stepContents = document.querySelectorAll(".step-content");
@@ -20,7 +20,10 @@ window.p = function(stepNum) {
   });
 };
 
-// Objeto global do "Passageiro Principal" e configurações
+/******************************************************
+ *  2) Objetos Globais e Variáveis
+ ******************************************************/
+// Objeto "t" contendo dados do passageiro principal (e info de seguro, etc.)
 let t = {
   extraPassengers: [],
   insuranceSelected: "none",
@@ -47,15 +50,16 @@ let t = {
 let m = [];
 
 /******************************************************
- *  2) CARREGAR CARRINHO E EXIBIR NO RESUMO (COLUNA DIREITA)
+ *  3) Carrega Carrinho + Exibir Resumo (coluna direita)
  ******************************************************/
 function loadCart() {
-  // Tenta pegar itens de <shopping-cart> ou do localStorage
-  const scEl = document.getElementById("shoppingCart");
-  if (scEl && scEl.items && scEl.items.length > 0) {
-    m = scEl.items;
+  const cartEl = document.getElementById("shoppingCart");
+  if (cartEl && cartEl.items && cartEl.items.length > 0) {
+    // Se <shopping-cart> tiver .items
+    m = cartEl.items;
     console.log("DEBUG - <shopping-cart> com items =>", m);
   } else {
+    // Caso contrário, tenta localStorage
     const stored = localStorage.getItem("cartItems");
     if (stored) {
       try {
@@ -70,11 +74,10 @@ function loadCart() {
       console.log("Carrinho vazio - sem itens de exemplo");
     }
   }
-  // Expondo globalmente
+  // Expondo globalmente, caso alguma lógica externa precise
   window.u = m;
 }
 
-// Atualizar resumo do carrinho (right-col)
 function updateCartSummary(arr) {
   const cartItemsList = document.getElementById("cartItemsList");
   if (!cartItemsList) return;
@@ -83,7 +86,6 @@ function updateCartSummary(arr) {
   let htmlStr = "";
 
   arr.forEach(item => {
-    // Exemplo de preço por adulto
     const basePrice = item.basePriceAdult || 80;
     total += basePrice;
 
@@ -92,14 +94,14 @@ function updateCartSummary(arr) {
         <div class="reserva-left">
           <span class="categoria">${item.type || "Hospedagem"}</span>
           <span class="nome">
-            ${item.hotelName || "Hotel Desconhecido"} - 
+            ${item.hotelName || "Hotel Desconhecido"} -
             ${item.roomName  || "Quarto"}
           </span>
           <div class="reserva-details">
             <p>Check-in:  ${item.checkIn  || "--/--/----"}</p>
             <p>Check-out: ${item.checkOut || "--/--/----"}</p>
-            <p>Quartos:   ${item.rooms   || 1}</p>
-            <p>Adultos:   ${item.adults  || 1} | Crianças: ${item.children || 0}</p>
+            <p>Quartos:   ${item.rooms    || 1}</p>
+            <p>Adultos:   ${item.adults   || 1} | Crianças: ${item.children || 0}</p>
           </div>
         </div>
         <div class="reserva-preco">
@@ -109,12 +111,12 @@ function updateCartSummary(arr) {
     `;
   });
 
-  // Se tiver custo de seguro, soma também
-  if (t.insuranceCost) total += t.insuranceCost;
+  if (t.insuranceCost) {
+    total += t.insuranceCost;
+  }
 
   cartItemsList.innerHTML = htmlStr;
 
-  // Atualiza Subtotal / Desconto / Total
   const subtEl = document.getElementById("subtotalValue");
   const discEl = document.getElementById("discountValue");
   const totlEl = document.getElementById("totalValue");
@@ -124,7 +126,7 @@ function updateCartSummary(arr) {
 }
 
 /******************************************************
- *  3) MODAL DE PASSAGEIROS EXTRAS
+ *  4) Modal de Passageiros Extras
  ******************************************************/
 function showPassengersModal(arr) {
   const container = document.getElementById("modalPassengerContainer");
@@ -133,13 +135,13 @@ function showPassengersModal(arr) {
 
   container.innerHTML = "";
   t.extraPassengers   = [];
-  let multipleItems   = 0;
+  let multiItemsCount = 0;
 
   arr.forEach((item, idx) => {
-    // Ex.: se item.adults = 2 => 1 extra
+    // Ex.: se item.adults=2 => 1 extra. Se 3 => 2 extras
     const extras = (item.adults || 1) - 1;
     if (extras > 0) {
-      multipleItems++;
+      multiItemsCount++;
       t.extraPassengers[idx] = [];
 
       const passBox = document.createElement("div");
@@ -176,8 +178,9 @@ function showPassengersModal(arr) {
     }
   });
 
-  // Se há mais de 1 item com multipleAdults => exibe "copiar para todos"
-  if (copyBtn) copyBtn.style.display = (multipleItems > 1) ? "inline-block" : "none";
+  if (copyBtn) {
+    copyBtn.style.display = (multiItemsCount > 1) ? "inline-block" : "none";
+  }
 }
 
 function setupPassengersModal() {
@@ -186,7 +189,7 @@ function setupPassengersModal() {
   const closeModalBtn = document.getElementById("closeModal");
   const saveBtn       = document.getElementById("savePassengersBtn");
   const copyBtn       = document.getElementById("copyForAllBtn");
-  const modalBox      = document.getElementById("modalPassengerContainer");
+  const container     = document.getElementById("modalPassengerContainer");
 
   if (!modal) return;
 
@@ -220,24 +223,21 @@ function setupPassengersModal() {
     }
     if (firstIndex === null) return;
 
-    // Copia array
     const firstArr = t.extraPassengers[firstIndex] || [];
-    for (let i = 0; i < m.length; i++) {
-      if (i !== firstIndex) {
-        const needed = (m[i].adults || 1) - 1;
+    for (let j = 0; j < m.length; j++) {
+      if (j !== firstIndex) {
+        const needed = (m[j].adults || 1) - 1;
         if (needed === extraCount && needed > 0) {
-          t.extraPassengers[i] = JSON.parse(JSON.stringify(firstArr));
-
+          t.extraPassengers[j] = JSON.parse(JSON.stringify(firstArr));
           // Atualiza inputs
           for (let p = 0; p < needed; p++) {
-            const selName = `.modalExtraNameInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
-            const selBD   = `.modalExtraBirthdateInput[data-item-index="${i}"][data-passenger-index="${p}"]`;
+            const selName = `.modalExtraNameInput[data-item-index="${j}"][data-passenger-index="${p}"]`;
+            const selBD   = `.modalExtraBirthdateInput[data-item-index="${j}"][data-passenger-index="${p}"]`;
             const elName  = document.querySelector(selName);
             const elBD    = document.querySelector(selBD);
-
-            if (elName && elBD && t.extraPassengers[i][p]) {
-              elName.value = t.extraPassengers[i][p].name      || "";
-              elBD.value   = t.extraPassengers[i][p].birthdate || "";
+            if (elName && elBD && t.extraPassengers[j][p]) {
+              elName.value = t.extraPassengers[j][p].name      || "";
+              elBD.value   = t.extraPassengers[j][p].birthdate || "";
             }
           }
         }
@@ -246,11 +246,13 @@ function setupPassengersModal() {
     alert("Dados copiados para todos os itens compatíveis!");
   });
 
-  // Captura inputs no modal
-  modalBox?.addEventListener("input", (evt) => {
+  // Quando usuário digitar no modal
+  container?.addEventListener("input", (evt) => {
     const el = evt.target;
-    if (el.classList.contains("modalExtraNameInput") ||
-        el.classList.contains("modalExtraBirthdateInput")) {
+    if (
+      el.classList.contains("modalExtraNameInput") ||
+      el.classList.contains("modalExtraBirthdateInput")
+    ) {
       const itemIdx = parseInt(el.getAttribute("data-item-index"), 10);
       const passIdx = parseInt(el.getAttribute("data-passenger-index"), 10);
 
@@ -271,7 +273,7 @@ function setupPassengersModal() {
 }
 
 /******************************************************
- *  4) STEP NAVIGATION (1->2->3->4) + INSURANCE
+ *  5) Navegação Steps (1->2->3->4) + Insurance
  ******************************************************/
 function setupStepsNavigation() {
   const btnToStep2  = document.getElementById("toStep2");
@@ -281,7 +283,7 @@ function setupStepsNavigation() {
 
   // Step 1 -> Step 2
   btnToStep2?.addEventListener("click", () => {
-    // Se não estiver logado, exige campos de registro
+    // Se não tiver agentId, exige campos
     if (!localStorage.getItem("agentId")) {
       if (
         !document.getElementById("firstName").value ||
@@ -318,7 +320,7 @@ function setupStepsNavigation() {
       return;
     }
 
-    // Copia docs/endereço
+    // Salva docs/endereço
     t.cpf       = document.getElementById("cpf").value;
     t.rg        = document.getElementById("rg").value;
     t.birthdate = document.getElementById("birthdate").value;
@@ -328,18 +330,15 @@ function setupStepsNavigation() {
     t.address   = document.getElementById("address").value;
     t.number    = document.getElementById("number").value;
 
-    // Avança
+    // Avança Step
     p(2);
   });
 
   // Step 2 -> Step 1
-  btnBack1?.addEventListener("click", () => {
-    p(1);
-  });
+  btnBack1?.addEventListener("click", () => p(1));
 
   // Step 2 -> Step 3
   btnToStep3?.addEventListener("click", () => {
-    // Lê qual "insuranceOption" foi escolhido
     const sel = document.querySelector('input[name="insuranceOption"]:checked');
     t.insuranceSelected = sel ? sel.value : "none";
 
@@ -351,28 +350,26 @@ function setupStepsNavigation() {
     }
     t.insuranceCost = cost;
 
-    // Recalcula total c/ insurance
+    // Recalcular total
     updateCartSummary(m);
 
-    // Avança p/ step 3
+    // Avança p/ Step 3
     p(3);
   });
 
   // Step 3 -> Step 2
-  btnBack2?.addEventListener("click", () => {
-    p(2);
-  });
+  btnBack2?.addEventListener("click", () => p(2));
 }
 
 /******************************************************
- *  5) MÁSCARAS (CEP, CPF, RG) + LOGIN
+ *  6) Máscaras CEP, CPF, RG + Lógica de Login
  ******************************************************/
 function setupMasksAndLogin() {
-  // Buscar CEP
-  function fetchCep(cepVal) {
-    cepVal = cepVal.replace(/\D/g, "");
-    if (cepVal.length === 8) {
-      fetch(`https://viacep.com.br/ws/${cepVal}/json/`)
+  // CEP
+  function fetchCep(val) {
+    val = val.replace(/\D/g, "");
+    if (val.length === 8) {
+      fetch(`https://viacep.com.br/ws/${val}/json/`)
         .then(r => r.json())
         .then(data => {
           if (data.erro) {
@@ -390,16 +387,15 @@ function setupMasksAndLogin() {
     }
   }
 
-  // CEP blur
   const cepEl = document.getElementById("cep");
   cepEl?.addEventListener("blur", function() {
     fetchCep(this.value);
   });
 
-  // CPF input
+  // CPF
   const cpfEl = document.getElementById("cpf");
-  cpfEl?.addEventListener("input", (ev) => {
-    let val = ev.target.value.replace(/\D/g, "");
+  cpfEl?.addEventListener("input", (evt) => {
+    let val = evt.target.value.replace(/\D/g, "");
     if (val.length > 3) {
       val = val.replace(/^(\d{3})(\d)/, "$1.$2");
     }
@@ -409,13 +405,13 @@ function setupMasksAndLogin() {
     if (val.length > 9) {
       val = val.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
     }
-    ev.target.value = val;
+    evt.target.value = val;
   });
 
-  // RG input
+  // RG
   const rgEl = document.getElementById("rg");
-  rgEl?.addEventListener("input", (ev) => {
-    let val = ev.target.value.replace(/\D/g, "");
+  rgEl?.addEventListener("input", (evt) => {
+    let val = evt.target.value.replace(/\D/g, "");
     if (val.length > 2) {
       val = val.replace(/^(\d{2})(\d)/, "$1.$2");
     }
@@ -425,10 +421,10 @@ function setupMasksAndLogin() {
     if (val.length > 7) {
       val = val.replace(/(\d{2})\.(\d{3})\.(\d{3})(\d{1}).*/, "$1.$2.$3-$4");
     }
-    ev.target.value = val;
+    evt.target.value = val;
   });
 
-  // Toggle login vs registro
+  // Toggle login
   const toggleLoginLink = document.getElementById("toggleLogin");
   const regDiv          = document.getElementById("registrationFieldsGeneral");
   const loginDiv        = document.getElementById("loginFields");
@@ -436,11 +432,11 @@ function setupMasksAndLogin() {
   toggleLoginLink?.addEventListener("click", (evt) => {
     evt.preventDefault();
     if (regDiv.style.display !== "none") {
-      regDiv.style.display   = "none";
+      regDiv.style.display = "none";
       loginDiv.style.display = "block";
       toggleLoginLink.textContent = "Não tenho Login";
     } else {
-      regDiv.style.display   = "block";
+      regDiv.style.display = "block";
       loginDiv.style.display = "none";
       toggleLoginLink.textContent = "Economize tempo fazendo Login";
     }
@@ -463,7 +459,6 @@ function setupMasksAndLogin() {
           localStorage.setItem("agentId", resp.user.id);
           alert("Login efetuado com sucesso!");
 
-          // Esconde links
           if (toggleLoginLink) toggleLoginLink.style.display = "none";
           if (regDiv)          regDiv.style.display          = "none";
           if (loginDiv)        loginDiv.style.display        = "none";
@@ -472,50 +467,245 @@ function setupMasksAndLogin() {
         }
       })
       .catch(err => {
-        console.error(err);
+        console.error("Erro ao realizar o login:", err);
         alert("Erro ao realizar o login. Tente novamente.");
       });
   });
 }
 
 /******************************************************
- *  6) FUNÇÕES DE CRIAR PEDIDO (initOrderInDb) + MALGA
+ *  7) Funções p/ Criar Pedido e Configurar Malga
  ******************************************************/
-//  >> Já foi definido no script acima <<
+// ALERTAS:
+function showAlertSuccess(msg) {
+  // Você pode usar a mesma função feita acima, se preferir
+  console.log("showAlertSuccess:", msg);
+  alert(msg);
+}
+function showAlertError(msg) {
+  console.error("showAlertError:", msg);
+  alert("Erro: " + msg);
+}
+
+// Cria pedido no banco (status = "pending")
+async function initOrderInDb(cartItems, userObj) {
+  try {
+    const response = await fetch('/api/orderInit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart: cartItems, user: userObj })
+    });
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Falha ao criar pedido');
+    }
+    return data.orderId; // Retorna ID real do pedido
+  } catch (error) {
+    console.error("Erro em initOrderInDb:", error);
+    throw error;
+  }
+}
+
+// Configura Malga
+const malgaCheckout = document.querySelector("#malga-checkout");
+let finalAmount = 0;
+
+if (malgaCheckout) {
+  malgaCheckout.paymentMethods = {
+    pix: {
+      expiresIn: 600,
+      items: [
+        { id: "pixItemABC", title: "Produto Pix", quantity: 1, unitPrice: 0 }
+      ]
+    },
+    credit: {
+      installments: { quantity: 10, show: true },
+      showCreditCard: true
+    },
+    boleto: {
+      expiresDate: "2025-12-31",
+      instructions: "Boleto Exemplo (Produção)",
+      interest: { days: 1, amount: 1000 },
+      fine: { days: 2, amount: 500 },
+      items: [
+        { id: "boletoItemABC", title: "Produto Boleto", quantity: 1, unitPrice: 0 }
+      ]
+    }
+  };
+
+  malgaCheckout.transactionConfig = {
+    statementDescriptor: "Checkout Completo",
+    amount: 0,
+    description: "Pacote + Taxas + Extras",
+    orderId: "pedido-999999",
+    currency: "BRL",
+    capture: false,
+    customer: {
+      name: "",
+      email: "",
+      phoneNumber: "",
+      document: { type: "CPF", number: "", country: "BR" },
+      address: {
+        zipCode: "",
+        street: "",
+        streetNumber: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+        country: "BR"
+      }
+    }
+  };
+
+  // Desativa popup do Malga
+  malgaCheckout.dialogConfig = {
+    show: false,
+    actionButtonLabel: "Continuar",
+    errorActionButtonLabel: "Tentar novamente",
+    successActionButtonLabel: "Continuar",
+    successRedirectUrl: "",
+    pixFilledProgressBarColor: "#2FAC9B",
+    pixEmptyProgressBarColor: "#D8DFF0"
+  };
+
+  // EVENTO: paymentSuccess
+  malgaCheckout.addEventListener("paymentSuccess", async (event) => {
+    console.log("Pagamento concluído com sucesso:", event.detail);
+
+    const cardId   = event.detail.data.paymentSource?.cardId;
+    const meioPgto = event.detail.data.paymentMethod.paymentType || "desconhecido";
+    const parcelas = event.detail.data.paymentMethod.installments || 1;
+
+    // Pega brand e holderName
+    let brandVal  = "desconhecido";
+    let holderVal = "Nome do Cartão";
+    if (cardId) {
+      try {
+        const cardResp = await fetch(`https://api.malga.io/v1/cards/${cardId}`, {
+          method: 'GET',
+          headers: {
+            'X-Client-Id': '4457c178-0f07-4589-ba0e-954e5816fd0f',
+            'X-Api-Key':   'bfabc953-1ea0-45d0-95e4-4968cfe2a00e'
+          }
+        });
+        if (cardResp.ok) {
+          const cardData = await cardResp.json();
+          brandVal  = cardData?.brand || brandVal;
+          holderVal = cardData?.cardHolderName || holderVal;
+        } else {
+          console.warn("Falha ao obter brand do /v1/cards", cardResp.status);
+        }
+      } catch (err) {
+        console.error("Erro ao chamar /v1/cards:", err);
+      }
+    }
+
+    // Monta objeto de update
+    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
+    const dataToUpdate = {
+      status: "pago",
+      nome_comprador:  holderVal,
+      bandeira_cartao: brandVal,
+      meio_pgto: meioPgto,
+      parcelas,
+      valor_venda: finalAmount / 100,  // se finalAmount for em cents
+      data_pgto: new Date().toISOString().slice(0,10),
+      gateway: "Malga"
+    };
+
+    // POST /api/orderComplete
+    try {
+      const response = await fetch('/api/orderComplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: realOrderId, dataToUpdate })
+      });
+      const result = await response.json();
+      if (!result.success) {
+        console.error("Erro ao atualizar pedido (pago):", result.message);
+        showAlertError("Falha ao atualizar o pedido no banco.");
+        return;
+      }
+
+      showAlertSuccess(`Pedido #${realOrderId} marcado como pago!`);
+      console.log("Pedido atualizado (pago):", result.updatedData);
+
+      // Step 4 - Mensagem final
+      document.getElementById("finalTitle").textContent =
+        `Parabéns ${t.firstName || "(nome)"} pela sua escolha!`;
+      document.getElementById("finalMsg").textContent =
+        `Seu pedido #${realOrderId} foi concluído com sucesso.`;
+      document.getElementById("finalThanks").textContent =
+        "Aproveite a viagem!";
+
+      const rightCol = document.querySelector(".right-col");
+      if (rightCol) rightCol.style.display = "none";
+      window.p(4);
+
+    } catch (error) {
+      console.error("Exceção ao chamar /api/orderComplete:", error);
+      showAlertError(`Exceção ao chamar orderComplete: ${error.message}`);
+    }
+  });
+
+  // EVENTO: paymentFailed
+  malgaCheckout.addEventListener("paymentFailed", async (event) => {
+    console.log("Falha no pagamento:", event.detail);
+
+    // Marca pedido como 'recusado'
+    const realOrderId = localStorage.getItem('myRealOrderId') || malgaCheckout.transactionConfig.orderId;
+    try {
+      await fetch('/api/orderComplete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: realOrderId,
+          dataToUpdate: { status: "recusado" }
+        })
+      });
+    } catch (err) {
+      console.error("Erro ao marcar pedido como recusado:", err);
+    }
+
+    showAlertError("Pagamento falhou! Verifique o console.");
+  });
+}
 
 /******************************************************
- *  7) EVENTO ONLOAD → INICIAR TUDO
+ *  8) Ao Carregar (window.load) => Disparar tudo
  ******************************************************/
 window.addEventListener("load", () => {
-  // Carregar carrinho
+  // 1) Carregar carrinho (m)
   loadCart();
-  // Exibir resumo do carrinho
+
+  // 2) Atualiza resumo do carrinho
   updateCartSummary(m);
 
-  // Configurar máscaras, login, CEP
+  // 3) Configura máscaras e login
   setupMasksAndLogin();
 
-  // Navegação entre steps
+  // 4) Navegação steps
   setupStepsNavigation();
 
-  // Passengers modal
+  // 5) Modal de passageiros extras
   setupPassengersModal();
 
-  // Se já houver agentId, esconde forms de registro/login
+  // Se já houver agentId, esconde forms
   const hasAgent = !!localStorage.getItem("agentId");
-  const toggleL  = document.getElementById("toggleLogin");
+  const togLink  = document.getElementById("toggleLogin");
   const regF     = document.getElementById("registrationFieldsGeneral");
   const logF     = document.getElementById("loginFields");
 
   if (hasAgent) {
-    if (toggleL) toggleL.style.display = "none";
-    if (regF)    regF.style.display    = "none";
-    if (logF)    logF.style.display    = "none";
+    if (togLink) togLink.style.display   = "none";
+    if (regF)    regF.style.display     = "none";
+    if (logF)    logF.style.display     = "none";
   } else {
-    if (toggleL) toggleL.style.display = "block";
-    if (regF)    regF.style.display    = "block";
+    if (togLink) togLink.style.display  = "block";
+    if (regF)    regF.style.display     = "block";
   }
 
-  // Inicia no step 1
+  // Começa no step 1
   p(1);
 });
