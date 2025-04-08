@@ -40,8 +40,10 @@ app.use(express.urlencoded({ extended: true }))
 // 5) Servir arquivos estáticos a partir de /public
 app.use(express.static(path.join(__dirname, 'public')))
 
-// Middleware para evitar erro de favicon (caso o arquivo não exista)
+// Middleware para evitar erro ao buscar favicon (exemplo para favicon.png)
 app.get('/favicon.png', (req, res) => res.sendStatus(204))
+// Middleware para favicon.ico também, se necessário
+app.get('/favicon.ico', (req, res) => res.sendStatus(204))
 
 // ------------------------------------------------------
 // IMPORTAR ROTAS EXISTENTES
@@ -63,7 +65,7 @@ import checkoutRouter from './routes/checkoutRoutes.js'
 import orderInitRoutes from './routes/orderInit.js'
 import orderCompleteRoutes from './routes/orderComplete.js'
 
-// (NOVO) IMPORTAR A ROTA DE AUTOCOMPLETE
+// (NOVO) IMPORTAR A ROTA DE AUTOCOMPLETE – Certifique-se que o arquivo exporta default!
 import autocompleteRouter from './routes/autocomplete.js'
 
 // ------------------------------------------------------
