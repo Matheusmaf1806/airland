@@ -1,0 +1,28 @@
+name: Update Locations Once
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-locations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Instalar Dependências
+        run: npm install
+
+      - name: Executar Script de Atualização
+        run: npm run update
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          API_KEY_HA: ${{ secrets.API_KEY_HA }}
+          SECRET_KEY_HA: ${{ secrets.SECRET_KEY_HA }}
