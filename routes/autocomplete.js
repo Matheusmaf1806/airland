@@ -1,32 +1,37 @@
 // routes/autocomplete.js
-import express from 'express'
-import { createClient } from '@supabase/supabase-js'
+import express from 'express';
+import { createClient } from '@supabase/supabase-js';
 
-const router = express.Router()
+const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const term = req.query.term
+  const term = req.query.term;
   if (!term) {
-    return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' })
+    return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' });
   }
 
   try {
-    const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_KEY
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY; // Certifique-se de usar a chave correta
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Variáveis de ambiente SUPABASE_URL ou SUPABASE_KEY não definidas');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase
       .from('locations')
       .select('country_name, country_code, destination_name, destination_code')
       .ilike('destination_name', `%${term}%`)
-      .limit(10)
+      .limit(10);
 
-    if (error) throw error
-    return res.json(data)
+    if (error) throw error;
+    // data deve ser um array com os registros
+    return res.json(data);
   } catch (err) {
-    console.error(err)
-    return res.status(500).json({ error: err.message })
+    console.error('Erro no autocomplete:', err);
+    return res.status(500).json({ error: err.message });
   }
-})
+});
 
-export default router
+export default router;
