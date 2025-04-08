@@ -1,14 +1,17 @@
-// Dependências
-const fetch = require('node-fetch'); // Certifique-se de instalar o node-fetch (v2 ou v3 conforme sua versão)
-const crypto = require('crypto');
-const { createClient } = require('@supabase/supabase-js');
+import fetch from 'node-fetch'; // Para node-fetch v3, que é ESM
+import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
-// Suas credenciais do Supabase (configuradas via variáveis de ambiente)
+// Carrega as variáveis de ambiente (certifique-se de ter o .env configurado)
+dotenv.config();
+
+// Credenciais do Supabase obtidas das variáveis de ambiente
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Dados da API, agora usando as variáveis API_KEY_HA e SECRET_KEY_HA
+// Dados da API usando as variáveis de ambiente API_KEY_HA e SECRET_KEY_HA
 const PUBLIC_KEY = process.env.API_KEY_HA;
 const PRIVATE_KEY = process.env.SECRET_KEY_HA;
 
@@ -610,7 +613,7 @@ function parseDestinationName(name) {
   }
 }
 
-// Função principal para processar os países e inserir destinos na tabela locations
+// Função principal para processar os países e inserir destinos na tabela 'locations'
 async function processDestinations() {
   for (const country of countries) {
     try {
@@ -634,14 +637,13 @@ async function processDestinations() {
         continue;
       }
       const data = await response.json();
-
       const destinations = data?.country?.destinations;
       if (!destinations || !destinations.length) {
         console.log(`Nenhum destino encontrado para ${country.name}`);
         continue;
       }
 
-      // Para cada destino, extraia os dados e insira no Supabase
+      // Processa cada destino e insere no Supabase
       for (const destination of destinations) {
         const { cityName, stateName, stateCode } = parseDestinationName(destination.name);
         const payload = {
@@ -653,7 +655,7 @@ async function processDestinations() {
           city_code: destination.code
         };
 
-        const { data: insertData, error } = await supabase
+        const { error } = await supabase
           .from('locations')
           .insert(payload);
         if (error) {
@@ -668,7 +670,7 @@ async function processDestinations() {
   }
 }
 
-// Executa a função principal
+// Executa a função principal e finaliza o processo
 processDestinations()
   .then(() => {
     console.log("Processamento concluído!");
