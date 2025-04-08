@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////
 // server.js (ESM) - Versão Final Integrando Hotelbeds,
 // PayPal, Braintree, Malga (tokenização + 3DS) e hbacti,
-// + Rota /api/checkoutComplete (via checkoutRoutes).
+// + Rota /api/checkoutComplete (via checkoutRoutes), 
+// /api/orderInit, /api/orderComplete e /api/autocomplete.
 ///////////////////////////////////////////////////////////
 
 import express from 'express'
@@ -16,14 +17,13 @@ import { createClient } from '@supabase/supabase-js'
 // 1) Carregar variáveis do .env
 dotenv.config()
 
-// 2) Resolver __filename em modo ESM
+// 2) Resolver __filename e __dirname em modo ESM
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// 3) Criar cliente do Supabase (exemplo)
-// ATENÇÃO: para inserir no banco sem restrições, use a Service Role Key.
-// Por simplicidade, deixo 'process.env.SUPABASE_ANON_KEY'.
-// Mas o ideal é 'process.env.SUPABASE_SERVICE_ROLE_KEY' no .env da Vercel.
+// 3) Criar cliente do Supabase (Exemplo)
+// ATENÇÃO: para inserir no banco sem restrições, use a Service Role Key se necessário.
+// Neste exemplo, usamos a chave anônima.
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -33,17 +33,16 @@ const supabase = createClient(
 const app = express()
 app.use(cors())
 
-// Receber JSON e dados de formulário
+// Analisar JSON e dados via URL encoded
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// 5) Servir arquivos estáticos a partir de /public
+// 5) Servir arquivos estáticos a partir da pasta /public
 app.use(express.static(path.join(__dirname, 'public')))
 
-// Middleware para evitar erro ao buscar favicon (exemplo para favicon.png)
-app.get('/favicon.png', (req, res) => res.sendStatus(204))
-// Middleware para favicon.ico também, se necessário
+// Middleware para evitar erros com favicon (caso o arquivo não exista)
 app.get('/favicon.ico', (req, res) => res.sendStatus(204))
+app.get('/favicon.png', (req, res) => res.sendStatus(204))
 
 // ------------------------------------------------------
 // IMPORTAR ROTAS EXISTENTES
@@ -58,14 +57,14 @@ import payRouter from './routes/pay.routes.js' // Rota PayPal
 import { malgaRouter } from './routes/malga.routes.js' // Rota Malga (tokenização + 3DS)
 import hbactiRouter from './routes/hbacti.js' // Rota Hotelbeds Activities
 
-// (NOVO) IMPORTAR A ROTA DE CHECKOUT (inserção no banco)
+// (NOVO) Importar rota de checkout
 import checkoutRouter from './routes/checkoutRoutes.js'
 
-// (NOVO) IMPORTAR AS ROTAS orderInit e orderComplete
+// (NOVO) Importar rotas orderInit e orderComplete
 import orderInitRoutes from './routes/orderInit.js'
 import orderCompleteRoutes from './routes/orderComplete.js'
 
-// (NOVO) IMPORTAR A ROTA DE AUTOCOMPLETE – Certifique-se que o arquivo exporta default!
+// (NOVO) Importar a rota de Autocomplete
 import autocompleteRouter from './routes/autocomplete.js'
 
 // ------------------------------------------------------
@@ -81,26 +80,21 @@ app.use('/api/pay', payRouter)       // Rota PayPal
 app.use('/api/malga', malgaRouter)   // Rota Malga (tokenização + 3DS)
 app.use('/api/hbacti', hbactiRouter) // Rota Hotelbeds Activities
 
-// (NOVO) Agora, qualquer rota definida em checkoutRoutes.js
-// ficará disponível em /api/checkoutComplete (ou conforme definido lá).
+// Rotas de checkout e order
 app.use('/api', checkoutRouter)
-
-// (NOVO) Registrando as novas rotas /api/orderInit e /api/orderComplete
 app.use('/api/orderInit', orderInitRoutes)
 app.use('/api/orderComplete', orderCompleteRoutes)
 
-// (NOVO) Nova rota de Autocomplete
+// Rota de Autocomplete
 app.use('/api/autocomplete', autocompleteRouter)
 
 // ------------------------------------------------------
-// ROTA PRINCIPAL (teste)
+// Rota Principal (teste)
 app.get('/', (req, res) => {
-  res.send('Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree e Malga!')
+  res.send('Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree, Malga e Autocomplete!')
 })
 
-// ------------------------------------------------------
 // Rota /checkout (Exemplo form-handling-tokenization)
-// => Você já tem, mas se for substituir pela do checkoutRoutes, pode remover.
 app.post('/checkout', async (req, res) => {
   try {
     console.log('Dados recebidos do formulário Malga:', req.body)
@@ -121,7 +115,6 @@ function generateSignature() {
   return crypto.createHash('sha256').update(assemble).digest('hex')
 }
 
-// ------------------------------------------------------
 // Rota GET para Preço / Disponibilidade (Hotelbeds - Hotels)
 app.get('/api/hotelbeds/hotels', async (req, res) => {
   try {
@@ -175,7 +168,6 @@ app.get('/api/hotelbeds/hotels', async (req, res) => {
   }
 })
 
-// ------------------------------------------------------
 // Rota GET para Conteúdo Detalhado (Hotelbeds - Content)
 app.get('/api/hotelbeds/hotel-content', async (req, res) => {
   try {
@@ -205,13 +197,10 @@ app.get('/api/hotelbeds/hotel-content', async (req, res) => {
     return res.json(result)
   } catch (err) {
     console.error('Erro ao buscar conteúdo detalhado do hotel:', err)
-    res
-      .status(500)
-      .json({ error: 'Erro interno ao buscar conteúdo detalhado do hotel' })
+    res.status(500).json({ error: 'Erro interno ao buscar conteúdo detalhado do hotel' })
   }
 })
 
-// ------------------------------------------------------
 // Rota POST para "proxy-hotelbeds" (antiga, opcional)
 app.post('/proxy-hotelbeds', async (req, res) => {
   try {
@@ -252,9 +241,7 @@ app.post('/proxy-hotelbeds', async (req, res) => {
   }
 })
 
-// ------------------------------------------------------
 // BRAINTREE EXEMPLO
-// ------------------------------------------------------
 import { gateway } from './api/braintree.js'
 
 app.get('/api/braintree/get-client-token', async (req, res) => {
@@ -273,9 +260,7 @@ app.post('/api/braintree/create-transaction', async (req, res) => {
     const saleRequest = {
       amount,
       paymentMethodNonce,
-      options: {
-        submitForSettlement: true
-      }
+      options: { submitForSettlement: true }
     }
     const result = await gateway.transaction.sale(saleRequest)
     if (result.success) {
@@ -284,9 +269,7 @@ app.post('/api/braintree/create-transaction', async (req, res) => {
         transactionId: result.transaction.id
       })
     } else {
-      return res
-        .status(500)
-        .json({ success: false, message: result.message })
+      return res.status(500).json({ success: false, message: result.message })
     }
   } catch (error) {
     console.error('Erro ao criar transação Braintree:', error)
@@ -294,12 +277,11 @@ app.post('/api/braintree/create-transaction', async (req, res) => {
   }
 })
 
-// ------------------------------------------------------
 // Subir o servidor localmente (para ambiente não-serverless)
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`)
 })
 
-// Export default (não é obrigatório, mas pode ser útil em testes/imports)
+// Export default (útil em testes ou imports)
 export default app
