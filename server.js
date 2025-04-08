@@ -40,6 +40,9 @@ app.use(express.urlencoded({ extended: true }))
 // 5) Servir arquivos estáticos a partir de /public
 app.use(express.static(path.join(__dirname, 'public')))
 
+// Middleware para evitar erro de favicon (caso o arquivo não exista)
+app.get('/favicon.png', (req, res) => res.sendStatus(204))
+
 // ------------------------------------------------------
 // IMPORTAR ROTAS EXISTENTES
 // ------------------------------------------------------
