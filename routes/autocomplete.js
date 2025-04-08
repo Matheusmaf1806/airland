@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY; // Certifique-se de usar a chave correta
+    const supabaseKey = process.env.SUPABASE_ANON_KEY; // Certifique-se de usar a chave correta
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Variáveis de ambiente SUPABASE_URL ou SUPABASE_KEY não definidas');
     }
