@@ -20,10 +20,9 @@ dotenv.config()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// 3) Criar cliente do Supabase (exemplo)
-// ATENÇÃO: para inserir no banco sem restrições, use a Service Role Key.
-// Por simplicidade, deixo 'process.env.SUPABASE_ANON_KEY'.
-// Mas o ideal é 'process.env.SUPABASE_SERVICE_ROLE_KEY' no .env da Vercel.
+// 3) Criar cliente do Supabase utilizando as variáveis de ambiente configuradas na Vercel
+// ATENÇÃO: Para inserções sem restrições, utilize a Service Role Key, caso esteja disponível.
+// Neste exemplo usamos SUPABASE_ANON_KEY, mas é recomendável utilizar SUPABASE_SERVICE_ROLE_KEY, se apropriado.
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -50,7 +49,7 @@ import getLatestDollar from './routes/getLatestDollar.js'
 import userRoutes from './routes/user.routes.js'
 import { getAffiliateColors } from './routes/affiliateColors.js'
 import payRouter from './routes/pay.routes.js' // Rota PayPal
-import { malgaRouter } from './routes/malga.routes.js' // Rota Malga
+import { malgaRouter } from './routes/malga.routes.js' // Rota Malga (tokenização + 3DS)
 import hbactiRouter from './routes/hbacti.js' // Rota Hotelbeds Activities
 
 // (NOVO) IMPORTAR A ROTA DE CHECKOUT (inserção no banco)
@@ -73,8 +72,8 @@ app.use('/api/pay', payRouter)       // Rota PayPal
 app.use('/api/malga', malgaRouter)   // Rota Malga (tokenização + 3DS)
 app.use('/api/hbacti', hbactiRouter) // Rota Hotelbeds Activities
 
-// (NOVO) Agora, qualquer rota definida em checkoutRoutes.js
-// ficará disponível em /api/checkoutComplete (ou conforme definido lá).
+// (NOVO) Agora, quaisquer rotas definidas em checkoutRoutes.js
+// ficarão disponíveis em /api/checkoutComplete (ou conforme definido lá).
 app.use('/api', checkoutRouter)
 
 // (NOVO) Registrando as novas rotas /api/orderInit e /api/orderComplete
@@ -84,12 +83,11 @@ app.use('/api/orderComplete', orderCompleteRoutes)
 // ------------------------------------------------------
 // ROTA PRINCIPAL (teste)
 app.get('/', (req, res) => {
-  res.send('Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree e Malga!')
+  res.send('Olá, API rodando com ESM, Express e integrações Hotelbeds, PayPal, Braintree, Malga, hbacti, e Checkout!')
 })
 
 // ------------------------------------------------------
 // Rota /checkout (Exemplo form-handling-tokenization)
-// => Você já tem, mas se for substituir pela do checkoutRoutes, pode remover.
 app.post('/checkout', async (req, res) => {
   try {
     console.log('Dados recebidos do formulário Malga:', req.body)
@@ -103,8 +101,8 @@ app.post('/checkout', async (req, res) => {
 // ------------------------------------------------------
 // Função para gerar assinatura (Hotelbeds - Hotels API)
 function generateSignature() {
-  const publicKey = process.env.API_KEY_HH // ex.: "123456..."
-  const privateKey = process.env.SECRET_KEY_HH // ex.: "abcXYZ..."
+  const publicKey = process.env.API_KEY_HH // Ex.: sua API key pública Hotelbeds
+  const privateKey = process.env.SECRET_KEY_HH // Ex.: sua chave secreta Hotelbeds
   const utcDate = Math.floor(Date.now() / 1000)
   const assemble = `${publicKey}${privateKey}${utcDate}`
   return crypto.createHash('sha256').update(assemble).digest('hex')
@@ -194,9 +192,7 @@ app.get('/api/hotelbeds/hotel-content', async (req, res) => {
     return res.json(result)
   } catch (err) {
     console.error('Erro ao buscar conteúdo detalhado do hotel:', err)
-    res
-      .status(500)
-      .json({ error: 'Erro interno ao buscar conteúdo detalhado do hotel' })
+    res.status(500).json({ error: 'Erro interno ao buscar conteúdo detalhado do hotel' })
   }
 })
 
