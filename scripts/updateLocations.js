@@ -1,9 +1,9 @@
-// Importa o cliente do Supabase a partir do seu arquivo existente
+// scripts/updateLocations.js
 import supabase from '../api/supabaseClient.js';
 import crypto from 'crypto';
-import fetch from 'node-fetch'; // Caso seja necessário; se estiver usando Node 18+, a função fetch já é global
+import fetch from 'node-fetch'; // Se estiver usando Node < 18; para Node 18+ pode remover essa linha
 
-// Dados da API usando as variáveis de ambiente definidas na Vercel
+// Dados da API usando as variáveis definidas na Vercel
 const PUBLIC_KEY = process.env.API_KEY_HA;
 const PRIVATE_KEY = process.env.SECRET_KEY_HA;
 
@@ -163,13 +163,11 @@ const countries = [
 ];
 
 // Função para extrair cidade, estado e código do estado a partir do nome do destino  
-// Exemplo de formato: "Orlando Area - Florida - FL"
 function parseDestinationName(name) {
   const parts = name.split(' - ');
   if (parts.length >= 3) {
     const stateCode = parts[parts.length - 1].trim();
     const stateName = parts[parts.length - 2].trim();
-    // As partes restantes compõem o nome da cidade
     const cityName = parts.slice(0, parts.length - 2).join(' - ').trim();
     return { cityName, stateName, stateCode };
   } else {
@@ -182,11 +180,8 @@ async function processDestinations() {
   for (const country of countries) {
     try {
       const { signature } = generateSignature();
-
-      // Monta a URL para buscar destinos para o país
       const url = `https://api.test.hotelbeds.com/activity-content-api/3.0/destinations/en/${country.code}`;
-      
-      // Executa a requisição com os headers apropriados
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -196,7 +191,7 @@ async function processDestinations() {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         console.error(`Erro ao buscar destinos para ${country.name}: ${response.statusText}`);
         continue;
@@ -209,7 +204,6 @@ async function processDestinations() {
         continue;
       }
 
-      // Processa cada destino e insere no Supabase
       for (const destination of destinations) {
         const { cityName, stateName, stateCode } = parseDestinationName(destination.name);
         const payload = {
@@ -236,7 +230,6 @@ async function processDestinations() {
   }
 }
 
-// Executa a função principal e finaliza o processo
 processDestinations()
   .then(() => {
     console.log("Processamento concluído!");
