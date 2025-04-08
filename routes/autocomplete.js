@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 // As credenciais serão lidas das variáveis de ambiente definidas no Vercel
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.get('/', async (req, res) => {
