@@ -1,24 +1,29 @@
 // scripts/updateLocations.js
-import { createClient } from '@supabase/supabase-js';
+import supabase from '../api/supabaseClient.js';
 import crypto from 'crypto';
-import fetch from 'node-fetch'; // Se estiver usando Node < 18; se estiver usando Node 18+, pode remover essa linha
+import fetch from 'node-fetch'; // Se estiver usando Node < 18; se estiver usando Node 18+ pode remover essa linha
 
-// Lê as variáveis de ambiente diretamente
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+// Verificação de Debug para saber se as variáveis estão definidas
+if (!process.env.SUPABASE_URL) {
+  console.error("Erro: A variável de ambiente SUPABASE_URL não foi definida.");
+  process.exit(1);
+}
+if (!process.env.SUPABASE_ANON_KEY) {
+  console.error("Erro: A variável de ambiente SUPABASE_ANON_KEY não foi definida.");
+  process.exit(1);
+}
+if (!process.env.API_KEY_HA) {
+  console.error("Erro: A variável de ambiente API_KEY_HA não foi definida.");
+  process.exit(1);
+}
+if (!process.env.SECRET_KEY_HA) {
+  console.error("Erro: A variável de ambiente SECRET_KEY_HA não foi definida.");
+  process.exit(1);
+}
+
+// O restante do código segue igual...
 const PUBLIC_KEY = process.env.API_KEY_HA;
 const PRIVATE_KEY = process.env.SECRET_KEY_HA;
-
-// Verifica se as variáveis essenciais estão definidas
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error('SUPABASE_URL and SUPABASE_ANON_KEY must be defined.');
-}
-if (!PUBLIC_KEY || !PRIVATE_KEY) {
-  throw new Error('API_KEY_HA and SECRET_KEY_HA must be defined.');
-}
-
-// Cria o cliente do Supabase diretamente
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Função para gerar a assinatura (X-Signature)
 function generateSignature() {
@@ -175,14 +180,12 @@ const countries = [
   { code: "ZW", name: "Zimbabwe" }
 ];
 
-// Função para extrair cidade, estado e código do estado a partir do nome do destino
-// Exemplo de formato: "Orlando Area - Florida - FL"
+// Função para extrair cidade, estado e código do estado a partir do nome do destino  
 function parseDestinationName(name) {
   const parts = name.split(' - ');
   if (parts.length >= 3) {
     const stateCode = parts[parts.length - 1].trim();
     const stateName = parts[parts.length - 2].trim();
-    // As partes restantes compõem o nome da cidade
     const cityName = parts.slice(0, parts.length - 2).join(' - ').trim();
     return { cityName, stateName, stateCode };
   } else {
@@ -200,7 +203,7 @@ async function processDestinations() {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Api-key': PUBLIC_KEY,
+          'Api-key': process.env.API_KEY_HA, // ou PUBLIC_KEY
           'X-Signature': signature,
           'Accept': 'application/json',
           'Content-Type': 'application/json'
