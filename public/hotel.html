@@ -1591,39 +1591,46 @@
     });
 
   // Função para configurar o autocomplete para um input específico
+  // Função para configurar o autocomplete para um input específico
   function setupAutocomplete(inputId) {
     const input = document.getElementById(inputId);
     // Cria um contêiner para as sugestões
     const suggestionBox = document.createElement('div');
     suggestionBox.className = 'autocomplete-suggestions';
+    // Garante position: relative no pai
     input.parentNode.style.position = 'relative';
     input.parentNode.appendChild(suggestionBox);
 
     input.addEventListener('input', async () => {
       const term = input.value;
       suggestionBox.innerHTML = '';
-      // Opcional: só executa se o termo tiver pelo menos 2 caracteres
+      // Opcional: só disparar se houver pelo menos 2 caracteres
       if (term.length < 2) return;
+
       try {
-        // Altere a URL conforme necessário – se seu site usar HTTPS, use https://
-        const response = await fetch(`https://business.airland.com.br/api/autocomplete?term=${encodeURIComponent(term)}`);
+        // Ajuste para HTTPS se necessário
+        const response = await fetch(
+          `https://business.airland.com.br/api/autocomplete?term=${encodeURIComponent(term)}`
+        );
         const suggestions = await response.json();
-        // Verifica se a resposta é um array
+
+        // Se a resposta não for um array, loga e interrompe
         if (!Array.isArray(suggestions)) {
           console.error('Resposta inválida do autocomplete:', suggestions);
           return;
         }
-        // Filtra registros duplicados: garante que para cada combinação de destination_name e country_name, somente o primeiro seja mantido
-        const uniqueSuggestions = suggestions.filter((item, index, self) => 
-          index === self.findIndex(i => 
-            i.destination_name === item.destination_name &&
-            i.country_name === item.country_name
+
+        // Filtra duplicados com base em (destination_code + country_code) ou outro critério de unicidade
+        const uniqueSuggestions = suggestions.filter((item, index, self) =>
+          index === self.findIndex((v) =>
+            v.destination_code === item.destination_code &&
+            v.country_code === item.country_code
           )
         );
 
-        uniqueSuggestions.forEach(suggestion => {
+        // Exibe somente os registros filtrados
+        uniqueSuggestions.forEach((suggestion) => {
           const div = document.createElement('div');
-          // Exibe o nome do destino e o país para maior clareza
           div.textContent = `${suggestion.destination_name} (${suggestion.country_name})`;
           div.addEventListener('click', () => {
             input.value = suggestion.destination_name;
@@ -1644,11 +1651,11 @@
     });
   }
 
-  // Configura o autocomplete para os inputs desejados
+  // Configura o autocomplete para os inputs de Ingressos e Hotéis
   document.addEventListener('DOMContentLoaded', () => {
     setupAutocomplete('destinoIngresso');
     setupAutocomplete('destinoHoteis');
-  });
+  });  
   </script>
 </body>
 </html>
