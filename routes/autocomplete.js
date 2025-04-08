@@ -1,32 +1,32 @@
-// routes/autocomplete.js
-const express = require('express');
-const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-
-// As credenciais serão lidas das variáveis de ambiente definidas no Vercel
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// routes/autocomplete.js (versão ESM)
+import express from 'express'
+const router = express.Router()
 
 router.get('/', async (req, res) => {
-  const term = req.query.term;
+  const term = req.query.term
   if (!term) {
-    return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' });
+    return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' })
   }
   try {
-    // Pesquisa no campo destination_name (você pode expandir para outros campos se necessário)
+    // Pesquisa no campo destination_name (você pode expandir para outros campos)
+    // Supondo que as credenciais estejam em variáveis de ambiente já configuradas na Vercel.
+    import { createClient } from '@supabase/supabase-js'
+    const supabaseUrl = process.env.SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_KEY // ou outra, conforme o que você definiu
+    const supabase = createClient(supabaseUrl, supabaseKey)
+    
     const { data, error } = await supabase
       .from('locations')
       .select('country_name, country_code, destination_name, destination_code')
       .ilike('destination_name', `%${term}%`)
-      .limit(10);
+      .limit(10)
 
-    if (error) throw error;
-    return res.json(data);
+    if (error) throw error
+    return res.json(data)
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: err.message });
+    console.error(err)
+    return res.status(500).json({ error: err.message })
   }
-});
+})
 
-module.exports = router;
+export default router
