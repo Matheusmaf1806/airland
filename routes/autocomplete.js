@@ -1,5 +1,7 @@
-// routes/autocomplete.js (versão ESM)
+// routes/autocomplete.js
 import express from 'express'
+import { createClient } from '@supabase/supabase-js'
+
 const router = express.Router()
 
 router.get('/', async (req, res) => {
@@ -8,13 +10,10 @@ router.get('/', async (req, res) => {
     return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' })
   }
   try {
-    // Pesquisa no campo destination_name (você pode expandir para outros campos)
-    // Supondo que as credenciais estejam em variáveis de ambiente já configuradas na Vercel.
-    import { createClient } from '@supabase/supabase-js'
     const supabaseUrl = process.env.SUPABASE_URL
-    const supabaseKey = process.env.SUPABASE_KEY // ou outra, conforme o que você definiu
+    const supabaseKey = process.env.SUPABASE_KEY
     const supabase = createClient(supabaseUrl, supabaseKey)
-    
+
     const { data, error } = await supabase
       .from('locations')
       .select('country_name, country_code, destination_name, destination_code')
