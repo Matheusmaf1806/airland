@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////
 // routes/hbacti.js
-// Este arquivo:
-//  1) Recebe POST /fetchChunk
-//  2) Chama a API Hotelbeds (Activities)
-//  3) Processa e insere na tabela "activities_bd" 
-//     com colunas unificadas: country, destination, modality, etc.
+// Exemplo final:
+// - POST /fetchChunk
+// - Chama a API Hotelbeds Activities
+// - Insere tudo em "activities_bd" (uma só tabela)
+// - Usa a coluna "date" (DATE) para gravar fromStr (data do chunk)
 //////////////////////////////////////////////////////////////
 
 import { Router } from "express";
@@ -13,7 +13,7 @@ import fetch from "node-fetch";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
-// 1) Inicializar o supabase client
+// 1) Inicializar supabase client
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
@@ -21,7 +21,7 @@ const supabase = createClient(
 
 const router = Router();
 
-// 2) Gerar assinatura (Hotelbeds Activities)
+// 2) Gera assinatura (Hotelbeds)
 function generateSignature() {
   console.log("[generateSignature] API_KEY_HA =", process.env.API_KEY_HA);
   console.log("[generateSignature] SECRET_KEY_HA =", process.env.SECRET_KEY_HA);
@@ -34,7 +34,7 @@ function generateSignature() {
   return hash;
 }
 
-// 3) Chama a API Activities 
+// 3) Chama a API de Activities
 async function callActivityAPI(fromDateStr, toDateStr) {
   console.log(`[callActivityAPI] from=${fromDateStr}, to=${toDateStr}`);
 
@@ -47,7 +47,6 @@ async function callActivityAPI(fromDateStr, toDateStr) {
     "Content-Type": "application/json"
   };
 
-  // Exemplo: MCO + 1 Adult
   const body = {
     filters: [
       {
@@ -56,7 +55,7 @@ async function callActivityAPI(fromDateStr, toDateStr) {
         ]
       }
     ],
-    paxes: [{ age: 30 }], 
+    paxes: [{ age: 30 }], // 1 adulto
     from: fromDateStr,
     to: toDateStr,
     language: "en",
@@ -85,30 +84,30 @@ async function callActivityAPI(fromDateStr, toDateStr) {
   return data;
 }
 
-// 4) Salvar no DB "activities_bd"
-async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
-  console.log("[saveActivitiesToOneTable] Intervalo =", fromDateStr, "~", toDateStr);
-  
+// 4) Salvar no BD (tabela "activities_bd"), incluindo "date"
+async function saveActivitiesToOneTable(data, fromStr, toStr) {
+  console.log("[saveActivitiesToOneTable] Intervalo =", fromStr, "~", toStr);
+
   if (!data.activities || !Array.isArray(data.activities)) {
-    console.log("Nenhuma atividade no intervalo:", fromDateStr, toDateStr);
+    console.log("Nenhuma atividade no intervalo:", fromStr, toStr);
     return;
   }
 
   const records = [];
 
   for (const activity of data.activities) {
-    // Campos básicos do topo
-    const activityCode   = activity.activityCode;  // ex. "A0SENO0031"
-    const codeExterno    = activity.code;          // ex. "E-U10-A0SENO0031"
-    const nome           = activity.name;          // "Drawn to Life by Cirque du Soleil"
-    const tipo           = activity.type;          // "TICKET"
-    const currency       = activity.currency;      // ex. "EUR"
-    
+    // Campos gerais
+    const activityCode = activity.activityCode;  
+    const codeExterno  = activity.code;          
+    const nome         = activity.name;          
+    const tipo         = activity.type;          
+    const currency     = activity.currency || null;
+
     // country / destinations
-    let countryCode = "";
-    let countryName = "";
-    let destinationCode = "";
-    let destinationName = "";
+    let countryCode    = "";
+    let countryName    = "";
+    let destinationCode   = "";
+    let destinationName   = "";
 
     if (activity.country) {
       countryCode = activity.country.code || "";
@@ -119,16 +118,13 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
       }
     }
 
-    // operationDays
-    // Ex.: [ {code:"WED",name:"Wednesday"}... ]
-    // vamos armazenar como string array do code ou name
+    // operationDays => array
     let operationCodes = [];
     if (activity.operationDays && Array.isArray(activity.operationDays)) {
       operationCodes = activity.operationDays.map(d => d.code || "");
     }
 
-    // amountsFrom top-level (pode ter child/adult)
-    // ex. [ {paxType:"CHILD",amount: 60.22}, {paxType:"ADULT",amount:76.84} ]
+    // amountsFrom (top-level)
     let topLevelChildPrice = null;
     let topLevelAdultPrice = null;
     if (activity.amountsFrom && Array.isArray(activity.amountsFrom)) {
@@ -138,15 +134,16 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
       }
     }
 
-    // redeemInfo => text
+    // redeemInfo
     let redeemInfo = "";
     if (activity.content && activity.content.redeemInfo) {
-      redeemInfo = activity.content.redeemInfo.comments
-        ? activity.content.redeemInfo.comments.map(c => c.description).join(" ")
-        : "";
+      const r = activity.content.redeemInfo;
+      if (r.comments && Array.isArray(r.comments)) {
+        redeemInfo = r.comments.map(c => c.description).join(" ");
+      }
     }
 
-    // media => JSON (pode ser a array images)
+    // media => JSON
     let mediaJson = [];
     if (activity.content && activity.content.media && activity.content.media.images) {
       mediaJson = activity.content.media.images;
@@ -164,24 +161,21 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
       descricao = activity.content.description;
     }
 
-    // Para cada "modality", criamos um registro
+    // modalities
     if (!activity.modalities || !Array.isArray(activity.modalities)) {
-      // sem modalities, insira apenas 1 "genérico"? ou ignore
       console.log("Atividade sem modalities, ignorado:", activityCode);
       continue;
     }
 
     for (const modality of activity.modalities) {
-      const modalityCode = modality.code;  // ex. "429087105#A-GC"
-      const modalityName = modality.name;  // ex. "Golden Circle Seating"
+      const modalityCode = modality.code || "";
+      const modalityName = modality.name || "";
 
-      // ex. 1.0 (dia) ou 90.0 (minutes) - depende do "duration"
       let durationVal = null;
       if (modality.duration && modality.duration.value) {
         durationVal = modality.duration.value; 
       }
 
-      // amountsFrom para child/adult
       let amountChild = null;
       let amountAdult = null;
       if (modality.amountsFrom && Array.isArray(modality.amountsFrom)) {
@@ -191,12 +185,10 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
         }
       }
 
-      // rateKey, boxOffice, sessions
       let rateKey = null;
       let boxOffice = null;
       let sessionsArr = [];
 
-      // Pegamos a 1a "rate" e 1a "rateDetails" como exemplo
       if (modality.rates && modality.rates.length > 0) {
         const rate = modality.rates[0];
         if (rate.rateDetails && rate.rateDetails.length > 0) {
@@ -206,51 +198,60 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
           if (rd.totalAmount) {
             boxOffice = rd.totalAmount.boxOfficeAmount || null;
           }
-          // sessions
           if (rd.sessions && rd.sessions.length > 0) {
             sessionsArr = rd.sessions.map(s => s.code); 
           }
         }
       }
 
-      // Monta o objeto final para inserir
+      // Cada "record" vira uma linha
+      // Adicionamos a coluna date, que vai receber fromStr
       const record = {
         activity_code: activityCode,
-        code_externo: codeExterno,
+        code_externo:  codeExterno,
         nome,
         tipo,
+
         country_code: countryCode,
         country_name: countryName,
         destination_code: destinationCode,
         destination_name: destinationName,
-        operation_days: operationCodes, // array
+
+        operation_days: operationCodes, // TEXT[]
+
         modality_code: modalityCode,
         modality_name: modalityName,
         duration: durationVal,
+
         amount_child: amountChild,
         amount_adult: amountAdult,
+
         rate_key: rateKey,
         box_office_amount: boxOffice,
-        sessions: sessionsArr, // array
+
+        sessions: sessionsArr,         // TEXT[]
         redeem_info: redeemInfo,
-        media: mediaJson, // JSON
+        media: mediaJson,              // JSONB
         highlights,
         descricao,
+
         top_level_child_price: topLevelChildPrice,
         top_level_adult_price: topLevelAdultPrice,
-        currency
+        currency,
+
+        // Aqui armazenamos a data do chunk
+        date: fromStr  // <--- Salva a data do "fromStr" do chunk
       };
 
       records.push(record);
-    } // fim de cada modality
-  } // fim de cada activity
+    }
+  }
 
   console.log(`[saveActivitiesToOneTable] Montou ${records.length} registros para inserir.`);
 
   if (records.length > 0) {
-    // Insert em batch
     const { data: insertedData, error } = await supabase
-      .from("activities_bd")  // nome da sua tabela unificada
+      .from("activities_bd")  // Tabela que já tem a coluna "date" do tipo DATE
       .insert(records);
 
     if (error) {
@@ -263,7 +264,7 @@ async function saveActivitiesToOneTable(data, fromDateStr, toDateStr) {
   }
 }
 
-// 5) POST /fetchChunk 
+// 5) Rota POST /fetchChunk
 router.post("/fetchChunk", async (req, res) => {
   console.log("[fetchChunk] body recebido:", req.body);
   try {
@@ -272,7 +273,7 @@ router.post("/fetchChunk", async (req, res) => {
 
     const chunkSize = days || 45;
 
-    // Se a data for ausente ou no passado, força "amanhã"
+    // Se data no passado, força "amanhã"
     const now = dayjs();
     const tomorrow = now.add(1, "day");
     let start = dayjs(startDate);
@@ -287,9 +288,10 @@ router.post("/fetchChunk", async (req, res) => {
 
     console.log(`[fetchChunk] from=${fromStr}, to=${toStr}`);
 
-    // 1) Chamar a API
+    // 1) Chama API
     const data = await callActivityAPI(fromStr, toStr);
-    // 2) Salvar no BD unificado "activities_bd"
+
+    // 2) Salva na tabela "activities_bd"
     await saveActivitiesToOneTable(data, fromStr, toStr);
 
     return res.json({
