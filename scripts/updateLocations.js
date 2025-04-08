@@ -1,15 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+// Importa o cliente do Supabase a partir do seu arquivo existente
+import supabase from '../api/supabaseClient.js';
 import crypto from 'crypto';
-import fetch from 'node-fetch'; // Remova este import se estiver usando Node 18+ que já tem fetch globalmente
+import fetch from 'node-fetch'; // Caso seja necessário; se estiver usando Node 18+, a função fetch já é global
 
-dotenv.config();
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Dados da API usando as variáveis de ambiente API_KEY_HA e SECRET_KEY_HA
+// Dados da API usando as variáveis de ambiente definidas na Vercel
 const PUBLIC_KEY = process.env.API_KEY_HA;
 const PRIVATE_KEY = process.env.SECRET_KEY_HA;
 
@@ -168,13 +162,14 @@ const countries = [
   { code: "ZW", name: "Zimbabwe" }
 ];
 
-// Função para extrair cidade, estado e código do estado a partir do nome do destino
+// Função para extrair cidade, estado e código do estado a partir do nome do destino  
+// Exemplo de formato: "Orlando Area - Florida - FL"
 function parseDestinationName(name) {
   const parts = name.split(' - ');
   if (parts.length >= 3) {
     const stateCode = parts[parts.length - 1].trim();
     const stateName = parts[parts.length - 2].trim();
-    // Junta as partes restantes para formar o nome da cidade
+    // As partes restantes compõem o nome da cidade
     const cityName = parts.slice(0, parts.length - 2).join(' - ').trim();
     return { cityName, stateName, stateCode };
   } else {
@@ -201,10 +196,12 @@ async function processDestinations() {
           'Content-Type': 'application/json'
         }
       });
+      
       if (!response.ok) {
-        console.error(`Erro ao buscar destinos para ${country.name}: `, response.statusText);
+        console.error(`Erro ao buscar destinos para ${country.name}: ${response.statusText}`);
         continue;
       }
+      
       const data = await response.json();
       const destinations = data?.country?.destinations;
       if (!destinations || !destinations.length) {
