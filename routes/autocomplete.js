@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
   if (!term) {
     return res.status(400).json({ error: 'O parâmetro "term" é obrigatório.' })
   }
+
   try {
     const supabaseUrl = process.env.SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_KEY
