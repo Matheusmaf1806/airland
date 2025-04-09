@@ -1105,64 +1105,38 @@
      ********************************************/
 
     // Função que é chamada ao clicar no botão "Buscar Ingressos"
-    function formatDateToISO(dateStr) {
-  // Supõe que dateStr vem no formato DD/MM/YYYY
-  const parts = dateStr.split('/');
-  if (parts.length === 3) {
-    // Retorna AAAA-MM-DD
-    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-  }
-  return dateStr; // Se já estiver no formato ISO, retorna como está
-}
-
-function buscarIngressos() {
-  // Use o campo hidden para pegar o código do destino
-  const destinationCode = document.getElementById('destinoIngressoCode').value.trim();
-  // Se não houver um código válido, informe o usuário
-  if (!destinationCode) {
-    document.getElementById('status').textContent = "Selecione um destino válido.";
-    return;
-  }
-
-  // Leia a data e converta para ISO (yyyy-mm-dd)
-  const dataInput = document.getElementById('dataIngresso').value.trim();
-  const dateISO = formatDateToISO(dataInput);
-
-  // Construa a URL com os parâmetros que o servidor espera
-  const apiUrl = `https://business.airland.com.br/api/tickets?destination=${encodeURIComponent(destinationCode)}&date=${encodeURIComponent(dateISO)}`;
-  
-  document.getElementById('status').textContent = "Buscando ingressos...";
-  
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      // Supondo que a resposta seja um objeto com a propriedade "tickets" e "categories"
-      if (data && Array.isArray(data)) {
-        // Se a rota não estiver retornando um objeto com "tickets" e "categories"
-        // e estiver retornando diretamente os dados, adapte conforme o seu retorno.
-        exibirIngressos(data);
-      } else if (data.tickets) {
-        exibirIngressos(data.tickets);
-      } else {
-        document.getElementById('activitiesGrid').innerHTML = "<p>Nenhum ingresso encontrado.</p>";
-      }
+    function buscarIngressos() {
+      const destino = document.getElementById('destinoIngresso').value.trim();
+      const data = document.getElementById('dataIngresso').value.trim();
       
-      // Se houver categorias, popula a sidebar
-      if (data.categories && Array.isArray(data.categories)) {
-        populateCategoriesSidebar(data.categories);
-      }
+      // Construa a URL da API conforme necessário
+      const apiUrl = `https://business.airland.com.br/api/ingressos?destino=${encodeURIComponent(destino)}&data=${encodeURIComponent(data)}`;
       
-      // Exibe a sidebar de filtros para ingressos
-      const sidebar = document.getElementById('sidebarIngressos');
-      sidebar.classList.remove('hidden');
-      sidebar.classList.add('visible');
-      document.getElementById('status').textContent = "";
-    })
-    .catch(error => {
-      console.error('Erro na busca de ingressos:', error);
-      document.getElementById('status').textContent = "Erro ao buscar ingressos.";
-    });
-}
+      document.getElementById('status').textContent = "Buscando ingressos...";
+      
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Espera que a API retorne { tickets: [...], categories: [...] }
+          if (data.tickets) {
+            exibirIngressos(data.tickets);
+          } else {
+            document.getElementById('activitiesGrid').innerHTML = "<p>Nenhum ingresso encontrado.</p>";
+          }
+          if (data.categories) {
+            populateCategoriesSidebar(data.categories);
+          }
+          // Exibe a sidebar de ingressos
+          const sidebar = document.getElementById('sidebarIngressos');
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('visible');
+          document.getElementById('status').textContent = "";
+        })
+        .catch(error => {
+          console.error('Erro na busca de ingressos:', error);
+          document.getElementById('status').textContent = "Erro ao buscar ingressos.";
+        });
+    }
 
     // Função para popular dinamicamente a sidebar com as categorias retornadas da API
     function populateCategoriesSidebar(categories) {
