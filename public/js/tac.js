@@ -5,7 +5,6 @@
   }
 
   async function buscarIngressos() {
-  // Use o campo hidden para o código do destino
   const destination = document.getElementById('destinoIngressoCode')?.value ||
                       document.getElementById('destinoIngresso')?.value || '';
   const dateInput = document.getElementById('dataIngresso')?.value || '';
@@ -18,8 +17,8 @@
     alert('Selecione uma data!');
     return;
   }
-
-  // Se o input estiver no formato dd/mm/yyyy, converta para yyyy-mm-dd
+  
+  // Converte a data do formato dd/mm/yyyy para yyyy-mm-dd
   function convertDateFormat(dateStr) {
     const [d, m, y] = dateStr.split('/');
     return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
@@ -33,14 +32,14 @@
   }
   const query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(dateFormatted)}`;
   const url = `/api/tickets${query}`;
+  
   try {
     const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error('Erro na consulta de ingressos: ' + resp.status);
     }
-    const tickets = await resp.json();
-    // Função para exibir os ingressos (implemente conforme necessário)
-    exibirIngressos(tickets);
+    const activities = await resp.json();
+    exibirAtividades(activities);
     if (statusEl) statusEl.style.display = 'none';
   } catch (e) {
     console.error(e);
