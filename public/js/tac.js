@@ -1,36 +1,31 @@
   async function buscarIngressos() {
-    // Obtenha o código do destino a partir do campo hidden
+    // Prioriza o valor do campo hidden; se estiver vazio, utiliza o texto digitado (mas o ideal é sempre ter o code)
     const destination = document.getElementById('destinoIngressoCode')?.value ||
-                        document.getElementById('destinoIngresso')?.value ||
-                        '';
+                        document.getElementById('destinoIngresso')?.value || '';
     const date = document.getElementById('dataIngresso')?.value || '';
-
+  
     if (!destination) {
       alert('Selecione ou informe um destino válido.');
       return;
     }
-
-    // Atualize uma área da página para indicar que a busca está sendo realizada
+  
     const statusEl = document.getElementById('status');
     if (statusEl) {
       statusEl.textContent = 'Buscando ingressos...';
       statusEl.style.display = 'block';
     }
-
-    // Monte a query: supondo que a data de evento no banco esteja no formato YYYY-MM-DD,
-    // você pode ter que converter o valor do input se ele estiver em outro formato.
-    // Para este exemplo, vamos assumir que o usuário já informa no formato correto.
+  
+    // Monte a query string (supondo que o backend espera "destination" e "date")
     const query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(date)}`;
     const url = `/api/tickets${query}`;
     console.log('Buscando ingressos na URL:', url);
-
+  
     try {
       const resp = await fetch(url);
       if (!resp.ok) {
         throw new Error('Erro na consulta de ingressos: ' + resp.status);
       }
       const tickets = await resp.json();
-      // Exiba os ingressos na página; por exemplo, crie cards para cada ingresso.
       exibirIngressos(tickets);
       if (statusEl) statusEl.style.display = 'none';
     } catch (e) {
