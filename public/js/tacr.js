@@ -1,6 +1,6 @@
-// tacr.js - Versão final ajustada
+// tacr.js - Versão unificada com seleção da melhor resolução na lista de media
 
-// Formata os preços sempre em Reais (BRL) – ex.: R$ 1.111,11
+// Função para formatar preços sempre em Reais (BRL), no formato 'R$ 1.111,11'
 function formatPrice(value) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -8,38 +8,8 @@ function formatPrice(value) {
   }).format(value);
 }
 
-// Função que, dado um array de mídia, percorre todos os itens procurando a melhor imagem
-// de acordo com a ordem de preferência definida.
-function getBestMediaUrl(mediaArray) {
-  if (!mediaArray || !mediaArray.length) {
-    return 'https://via.placeholder.com/300x180?text=No+Image';
-  }
-
-  // Ordem de preferência para os tamanhos
-  const preferredSizes = ["XLARGE", "LARGE", "MEDIUM", "SMALL"];
-
-  // Percorre os tamanhos em ordem de preferência
-  for (let size of preferredSizes) {
-    for (let i = 0; i < mediaArray.length; i++) {
-      const mediaItem = mediaArray[i];
-      if (mediaItem.urls && mediaItem.urls.length) {
-        const foundUrl = mediaItem.urls.find(u => u.sizeType === size);
-        if (foundUrl && foundUrl.resource) {
-          return foundUrl.resource;
-        }
-      }
-    }
-  }
-
-  // Se não encontrar, retorna a primeira URL do primeiro item (ou fallback)
-  if (mediaArray[0].urls && mediaArray[0].urls.length) {
-    return mediaArray[0].urls[0].resource || 'https://via.placeholder.com/300x180?text=No+Image';
-  }
-  return 'https://via.placeholder.com/300x180?text=No+Image';
-}
-
-// Remove duplicatas com base no nome (case insensitive)
-// Se houver duplicatas, mantém a atividade com o menor valor de top_level_adult_price.
+// Função para deduplicar atividades com base no nome (case insensitive),
+// mantendo a atividade com o menor top_level_adult_price em caso de duplicatas.
 function deduplicateActivities(activities) {
   const uniqueMap = {};
   activities.forEach(activity => {
@@ -55,15 +25,38 @@ function deduplicateActivities(activities) {
   return Object.values(uniqueMap);
 }
 
-// Exibe os cards no container especificado (padrão: "activitiesGrid") com layout em grid de 3 colunas.
+// Função que, dado um array de itens de media, retorna a URL da imagem com a melhor resolução
+// seguindo a ordem de preferência: XLARGE, LARGE, MEDIUM, SMALL.
+// Caso não encontre, retorna null.
+function getBestMediaUrl(mediaArray) {
+  if (!mediaArray || !mediaArray.length) return null;
+  const preferredSizes = ["XLARGE", "LARGE", "MEDIUM", "SMALL"];
+  
+  for (let size of preferredSizes) {
+    // Percorre todos os itens da media
+    for (let i = 0; i < mediaArray.length; i++) {
+      const item = mediaArray[i];
+      if (item.urls && item.urls.length) {
+        const foundUrl = item.urls.find(u => u.sizeType === size);
+        if (foundUrl && foundUrl.resource) {
+          return foundUrl.resource;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+// Função para exibir os cards no container especificado (padrão: "activitiesGrid")
+// Configura o layout em grid com 3 itens por fileira.
 function exibirAtividades(activities, containerId = 'activitiesGrid') {
   const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container com id "${containerId}" não foi encontrado.`);
     return;
   }
-  
-  // Configura o layout em grid: 3 colunas com gap de 20px
+
+  // Configura o container em grid: 3 colunas com gap de 20px
   container.style.display = 'grid';
   container.style.gridTemplateColumns = 'repeat(3, 1fr)';
   container.style.gap = '20px';
@@ -75,8 +68,11 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   }
 
   activities.forEach(activity => {
-    // Obtém a URL da melhor imagem percorrendo todos os itens de mídia
+    // Seleciona a imagem usando a função que percorre todo o array de media
     let imageUrl = getBestMediaUrl(activity.media);
+    if (!imageUrl) {
+      imageUrl = 'https://via.placeholder.com/300x180?text=No+Image';
+    }
 
     // Processa a descrição: remove as tags HTML e limita a 100 caracteres
     let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
@@ -84,13 +80,13 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
       descText = descText.substring(0, 100) + '...';
     }
 
-    // Define o preço a ser exibido: utiliza top_level_adult_price; caso não exista, usa outros campos como fallback
+    // Determina o preço a ser exibido: utiliza top_level_adult_price ou, se não existir, outros campos como fallback
     let priceToShow = activity.top_level_adult_price;
     if (!priceToShow || priceToShow <= 0) {
       priceToShow = activity.amount_adult || activity.box_office_amount || 0;
     }
 
-    // Cria o elemento do card
+    // Cria o card principal
     const card = document.createElement('div');
     card.className = 'activity-card';
 
@@ -111,13 +107,13 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
     title.textContent = activity.nome;
     body.appendChild(title);
 
-    // Data da atividade ou ingresso
+    // Exibe a data da atividade ou ingresso
     const dateEl = document.createElement('p');
     dateEl.className = 'activity-date';
     dateEl.textContent = `Data: ${activity.date}`;
     body.appendChild(dateEl);
 
-    // Área de preços
+    // Área de preços: formata o valor para BRL
     const priceEl = document.createElement('div');
     priceEl.className = 'activity-prices';
     const priceStarting = document.createElement('span');
@@ -150,27 +146,23 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   });
 }
 
-// Função para tratar o clique no botão "Ver detalhes"
-// Essa função pode ser personalizada para redirecionar para outra página ou abrir um modal com informações detalhadas.
+// Função para tratar o clique em "Ver detalhes"
+// Pode ser personalizada para redirecionar para uma página com mais informações ou abrir um modal.
 function verDetalhesActivity(activityCode) {
   alert(`Detalhes da atividade: ${activityCode}`);
   // Exemplo alternativo:
   // window.location.href = `/detalhes.html?code=${activityCode}`;
 }
 
-// Converte um ingresso (ticket) para o formato de "atividade" esperado.
-// Agora, a função verifica os campos top_level_adult_price, price, amount_adult e box_office_amount para definir o valor.
-// Força a moeda para BRL.
+// Função para converter um ingresso (ticket) para o formato de "atividade" esperado
+// Aqui não mexemos na lógica de preço; apenas mapeamos os campos e forçamos a moeda para 'BRL'
 function convertTicketToActivity(ticket) {
-  const computedPrice = ticket.top_level_adult_price || ticket.price || ticket.amount_adult || ticket.box_office_amount || 0;
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
     date: ticket.event_date || ticket.date || '',
     currency: 'BRL',
-    top_level_adult_price: computedPrice,
-    amount_adult: ticket.amount_adult || 0, // Mapeia também para fallback, se necessário
-    box_office_amount: ticket.box_office_amount || 0,
-    // Estrutura de "media": utiliza ticket.image_url se disponível
+    top_level_adult_price: ticket.price || 0,
+    // Estrutura de "media": usa ticket.image_url se existir; caso contrário, placeholder
     media: [{
       urls: [{
         sizeType: 'XLARGE',
@@ -182,8 +174,8 @@ function convertTicketToActivity(ticket) {
   };
 }
 
-// Exibe ingressos utilizando o mesmo layout de cards das atividades.
-// Converte os ingressos, remove duplicatas e renderiza no container "ingressosList".
+// Função para exibir ingressos utilizando o mesmo layout de cards das atividades.
+// Converte os ingressos para o formato adequado, deduplica e renderiza no container "ingressosList".
 function exibirIngressos(tickets) {
   if (!tickets || tickets.length === 0) {
     const ingressoContainer = document.getElementById('ingressosList');
