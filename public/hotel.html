@@ -854,16 +854,19 @@
   </style>
 </head>
 <body>
-  <!-- Header: o componente <app-header> é carregado via módulo -->
+  <!-- Loading Overlay: será substituído pelo conteúdo de loading.html -->
+  <div id="loading-overlay"></div>
+
+  <!-- Header: o componente <app-header> e shopping-cart são carregados via módulo -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
-  
+
   <!-- HERO -->
   <section class="hero">
     <h1>Sua Próxima Aventura</h1>
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
-  
+
   <!-- CONTAINER DE BUSCA -->
   <div class="search-container">
     <!-- TABS -->
@@ -884,8 +887,8 @@
         <span class="material-icons">shield</span> Seguros
       </div>
     </div>
-  
-    <!-- Aba de Ingressos -->
+
+    <!-- Conteúdo da Aba de Ingressos -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -902,9 +905,10 @@
         </div>
       </div>
       <div id="status"></div>
+      <!-- Removido o container dos resultados de ingressos daqui -->
     </div>
-  
-    <!-- Aba de Hotéis -->
+
+    <!-- Conteúdo da Aba de Hotéis -->
     <div id="tab-hoteis" class="tab-content">
       <div class="form-group">
         <div class="form-field">
@@ -940,8 +944,8 @@
         </div>
       </div>
     </div>
-  
-    <!-- Abas de Carros, Transfer e Seguros -->
+
+    <!-- Conteúdo das Abas de Carros, Transfer e Seguros -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -952,14 +956,14 @@
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
-  
-  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) -->
+
+  <!-- ÁREA DE RESULTADOS (fora do container de busca) -->
   <div class="results-wrapper">
-    <!-- Barra lateral de filtros -->
+    <!-- Barra lateral com filtros/categorias -->
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
       
-      <!-- Grupo 1: Buscar por Nome da Propriedade -->
+      <!-- Grupo 1: Buscar por nome da propriedade -->
       <div class="filter-group">
         <h3>Buscar por nome</h3>
         <div class="property-search">
@@ -967,7 +971,7 @@
         </div>
       </div>
       
-      <!-- Grupo 2: Preço por diária (inputs e slider) -->
+      <!-- Grupo 2: Filtro de Preço por diária -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
         <div class="price-range">
@@ -981,7 +985,6 @@
               <input type="number" placeholder="R$ 2.400+" id="priceMax" />
             </div>
           </div>
-          <!-- Slider opcional -->
           <div class="price-slider">
             <input type="range" id="rangeMin" min="0" max="2400" value="0" step="50" />
             <input type="range" id="rangeMax" min="0" max="2400" value="2400" step="50" />
@@ -989,52 +992,24 @@
         </div>
       </div>
       
-      <!-- Grupo 3: Estrelas -->
-      <div class="filter-group">
-        <h3>Estrelas</h3>
-        <label><input type="checkbox" value="5" /> 5 estrelas</label>
-        <label><input type="checkbox" value="4" /> 4 estrelas</label>
-        <label><input type="checkbox" value="3" /> 3 estrelas</label>
-        <label><input type="checkbox" value="2" /> 2 estrelas</label>
-        <label><input type="checkbox" value="1" /> 1 estrela</label>
-      </div>
+      <!-- (Outros grupos de filtros podem ser adicionados aqui) -->
       
-      <!-- Grupo 4: Tipo de Acomodação -->
-      <div class="filter-group">
-        <h3>Tipo de Acomodação</h3>
-        <label><input type="checkbox" value="hotel" /> Hotel</label>
-        <label><input type="checkbox" value="resort" /> Resort</label>
-        <label><input type="checkbox" value="pousada" /> Pousada</label>
-        <label><input type="checkbox" value="apart" /> Apart-hotel</label>
-      </div>
-      
-      <!-- Grupo 5: Comodidades -->
-      <div class="filter-group">
-        <h3>Comodidades</h3>
-        <label><input type="checkbox" value="wifi" /> Wi-Fi Grátis</label>
-        <label><input type="checkbox" value="pool" /> Piscina</label>
-        <label><input type="checkbox" value="parking" /> Estacionamento</label>
-        <label><input type="checkbox" value="gym" /> Academia</label>
-        <label><input type="checkbox" value="pets" /> Aceita Pets</label>
-      </div>
-      
-      <!-- Botão para aplicar filtros -->
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
-  
-    <!-- Área principal de resultados -->
+
+    <!-- Área principal dos resultados -->
     <div class="results-main">
       <!-- Barra de pesquisa por nome acima dos cards -->
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
-      <!-- Grid de cards (resultados) -->
+      <!-- Grid para exibição dos cards -->
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
-  
-  <!-- TEMPLATE DO CARD -->
+
+  <!-- Template do Card (para hotéis, se necessário) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -1066,8 +1041,8 @@
       </div>
     </div>
   </template>
-  
-  <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
+
+  <!-- Seção de Destaque (opcional) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
     <p style="color: #666; margin-bottom: 1rem;">
