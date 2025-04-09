@@ -1,4 +1,4 @@
-// tacr.js - Versão original com alteração apenas na obtenção da imagem
+// tacr.js - Versão com modificação apenas na extração da imagem
 
 // Função para formatar preços sempre em Reais (BRL), no formato 'R$ 1.111,11'
 function formatPrice(value, currency) {
@@ -25,13 +25,15 @@ function deduplicateActivities(activities) {
   return Object.values(uniqueMap);
 }
 
-// *** NOVA FUNÇÃO: Apenas para obter a imagem com sizeType "XLARGE" procurando em todo o array ***
+/* NOVA FUNÇÃO: Obtém a URL da imagem procurando em todo o array de media.
+   Se encontrar um item com sizeType "XLARGE", retorna sua resource.
+   Caso contrário, retorna a primeira URL disponível ou um fallback. */
 function getActivityImageUrl(activity) {
   let fallback = 'https://via.placeholder.com/300x180?text=No+Image';
   if (!activity.media || !activity.media.length) {
     return fallback;
   }
-  // Tenta encontrar no array inteiro o primeiro item com sizeType "XLARGE"
+  // Percorre todo o array de media
   for (let i = 0; i < activity.media.length; i++) {
     const mediaItem = activity.media[i];
     if (mediaItem.urls && mediaItem.urls.length) {
@@ -41,7 +43,7 @@ function getActivityImageUrl(activity) {
       }
     }
   }
-  // Se não encontrar "XLARGE", retorna a primeira URL do primeiro item
+  // Se não encontrar nenhum "XLARGE", retorna a primeira URL do primeiro item
   const first = activity.media[0];
   if (first.urls && first.urls.length) {
     return first.urls[0].resource || fallback;
@@ -70,7 +72,7 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   }
 
   activities.forEach(activity => {
-    // Obtém a imagem usando a nova função getActivityImageUrl (modificação única)
+    // Aqui, em vez de usar activity.media[0], usamos a função getActivityImageUrl:
     let imageUrl = getActivityImageUrl(activity);
 
     // Processa a descrição: remove as tags HTML e limita a 100 caracteres
@@ -79,7 +81,7 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
       descText = descText.substring(0, 100) + '...';
     }
 
-    // Determina o preço: usa top_level_adult_price; se não existir, usa amount_adult ou box_office_amount
+    // Determina o preço: usa top_level_adult_price ou, se não existir, usa amount_adult ou box_office_amount
     let priceToShow = activity.top_level_adult_price;
     if (!priceToShow || priceToShow <= 0) {
       priceToShow = activity.amount_adult || activity.box_office_amount || 0;
