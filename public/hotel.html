@@ -854,20 +854,20 @@
   </style>
 </head>
 <body>
-    <!-- Loading Overlay: será substituído pelo conteúdo de loading.html -->
+  <!-- 1. Loading Overlay -->
   <div id="loading-overlay"></div>
 
-  <!-- Header e shopping-cart -->
+  <!-- 2. Header e Shopping Cart -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
 
-  <!-- HERO -->
+  <!-- 3. HERO -->
   <section class="hero">
     <h1>Sua Próxima Aventura</h1>
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- CONTAINER DE BUSCA -->
+  <!-- 4. CONTAINER DE BUSCA (apenas formulários; resultados foram movidos) -->
   <div class="search-container">
     <!-- TABS -->
     <div class="tabs">
@@ -892,7 +892,7 @@
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
-          <label for="destinoIngresso">Destino ou Ingresso</label>
+          <label for="destinoIngresso">Destino ou Ingressos</label>
           <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
           <input type="hidden" id="destinoIngressoCode" />
         </div>
@@ -905,7 +905,7 @@
         </div>
       </div>
       <div id="status"></div>
-      <!-- Removemos o container dos resultados daqui -->
+      <!-- Note: O container dos resultados de ingressos foi removido daqui -->
     </div>
 
     <!-- Conteúdo da Aba de Hotéis -->
@@ -956,26 +956,25 @@
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
+  <!-- Fim do search-container -->
 
-  <!-- NOVA ÁREA DE RESULTADOS (fora da área de busca) -->
-  <!-- INSIRA ESSE BLOCO LOGO APÓS o fechamento da div ".search-container" -->
+  <!-- 5. NOVA ÁREA DE RESULTADOS (fora do container de busca) -->
+  <!-- INSIRA AQUI: Após fechar a div .search-container, adicione a div .results-wrapper -->
   <div class="results-wrapper">
-    <!-- Barra lateral de filtros (inicia oculta) -->
+    <!-- 5a. Barra lateral de filtros (oculta inicialmente) -->
     <aside class="filters-panel hidden" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
       
-      <!-- AQUI: INSIRA O NOVO FILTRO DINÂMICO PELOS NOMES DOS CARDS -->
-      <!-- Este filtro será um select que, via JavaScript, será preenchido com os nomes dos cards vindos da API -->
+      <!-- INSIRA AQUI o filtro dinâmico por nomes dos cards (Novo Filtro 1) -->
       <div class="filter-group">
         <h3>Filtrar por Nome</h3>
         <select id="cardNameFilter">
           <option value="">Selecione...</option>
-          <!-- Opções serão adicionadas dinamicamente -->
+          <!-- As opções serão preenchidas dinamicamente via JavaScript -->
         </select>
       </div>
       
-      <!-- AQUI: INSIRA O NOVO FILTRO DE CATEGORIAS -->
-      <!-- Este filtro permite ordenar os itens: Menor Desconto, Maior Desconto, Preço (Menor para Maior) e Preço (Maior para Menor) -->
+      <!-- INSIRA AQUI o filtro de categorias (Novo Filtro 2) -->
       <div class="filter-group">
         <h3>Ordenar Por</h3>
         <select id="categoryFilter">
@@ -987,7 +986,7 @@
         </select>
       </div>
       
-      <!-- Filtros já existentes (exemplo de preço, estrelas, tipo, comodidades) -->
+      <!-- Filtros já existentes -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
         <div class="price-range">
@@ -1032,20 +1031,21 @@
       </div>
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
-  
-    <!-- Área principal dos resultados -->
+    
+    <!-- 5b. Área principal de resultados -->
     <div class="results-main">
-      <!-- Barra de pesquisa por nome (separada, para filtrar os cards já carregados) -->
+      <!-- Barra de pesquisa por nome (separada dos filtros) -->
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
-      <!-- Grid para os cards (resultados) -->
+      <!-- Grid de cards (resultados) -->
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
+  <!-- Fim da results-wrapper -->
 
-  <!-- Template do Card (para hotéis, se necessário) -->
+  <!-- 6. Template do Card (para hotéis, se necessário) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -1078,7 +1078,7 @@
     </div>
   </template>
 
-  <!-- Seção de Destaque (opcional) -->
+  <!-- 7. Seção de Destaque (opcional) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
     <p style="color: #666; margin-bottom: 1rem;">
@@ -1086,7 +1086,7 @@
     </p>
   </section>
 
-  <!-- SCRIPTS EXTERNOS -->
+  <!-- 8. SCRIPTS EXTERNOS e JavaScript da Página -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="/js/tac.js"></script>
@@ -1727,6 +1727,128 @@
         }
       });
     }
+
+    // ============================================
+    // NOVOS FILTROS: FUNÇÕES PARA PREENCHER E APLICAR
+    // ============================================
+    
+    // Função para popular o filtro dinâmico de nomes dos cards.
+    // Esta função varre a grid de cards, coleta os nomes (do elemento com classe .activity-title)
+    // e preenche o select (com id "cardNameFilter") com essas opções.
+    function populateCardNameFilter() {
+      const grid = document.getElementById('activitiesGrid');
+      const select = document.getElementById('cardNameFilter');
+      if (!grid || !select) return;
+      
+      // Use um Set para evitar nomes duplicados.
+      const namesSet = new Set();
+      const cards = grid.querySelectorAll('.activity-card');
+      cards.forEach(card => {
+        const titleEl = card.querySelector('.activity-title');
+        if (titleEl) {
+          namesSet.add(titleEl.textContent.trim());
+        }
+      });
+      
+      // Limpa as opções existentes e insere a opção padrão.
+      select.innerHTML = '<option value="">Selecione...</option>';
+      namesSet.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    }
+    
+    // Função para aplicar os novos filtros sobre os cards exibidos.
+    // Ela faz duas operações:
+    // 1. Filtra os cards com base na opção selecionada no filtro "cardNameFilter".
+    // 2. Ordena os cards com base na seleção do filtro "categoryFilter".
+    //    (Para a ordenação por desconto, pressupõe-se que os cards tenham um
+    //     atributo data-discount com o valor do desconto; para a ordenação por preço,
+    //     extrai o valor do elemento .price-starting.)
+    function applyNewFilters() {
+      const grid = document.getElementById('activitiesGrid');
+      const nameSelect = document.getElementById('cardNameFilter');
+      const categorySelect = document.getElementById('categoryFilter');
+      if (!grid || !nameSelect || !categorySelect) return;
+    
+      // Obtenha todos os cards (como Array, para possibilitar a ordenação)
+      const cards = Array.from(grid.getElementsByClassName('activity-card'));
+      
+      // 1. Filtro pelo nome:
+      // Se um nome específico for selecionado, mostra apenas os cards que possuam exatamente esse nome.
+      if (nameSelect.value) {
+        cards.forEach(card => {
+          const titleEl = card.querySelector('.activity-title');
+          if (titleEl && titleEl.textContent.trim() === nameSelect.value) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      } else {
+        // Se nenhum nome for selecionado, todos os cards são mostrados.
+        cards.forEach(card => {
+          card.style.display = 'block';
+        });
+      }
+      
+      // 2. Ordenação por categoria:
+      // As opções disponíveis são:
+      // "menor-desconto", "maior-desconto", "preco-asc" e "preco-desc".
+      // Para "menor-desconto" e "maior-desconto", supõe-se que os cards tenham 
+      // o atributo data-discount com o valor numérico do desconto.
+      // Para os ordenamentos por preço, extraímos o valor do texto do elemento .price-starting.
+      if (categorySelect.value) {
+        // Clone o array de cards para ordená-lo
+        let sortedCards = cards.slice();
+        if (categorySelect.value === 'preco-asc') {
+          sortedCards.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
+            const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
+            return priceA - priceB;
+          });
+        } else if (categorySelect.value === 'preco-desc') {
+          sortedCards.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
+            const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
+            return priceB - priceA;
+          });
+        } else if (categorySelect.value === 'menor-desconto') {
+          sortedCards.sort((a, b) => {
+            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
+            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
+            return discA - discB;
+          });
+        } else if (categorySelect.value === 'maior-desconto') {
+          sortedCards.sort((a, b) => {
+            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
+            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
+            return discB - discA;
+          });
+        }
+        // Reanexa os cards ordenados ao grid – isso reordena os elementos visualmente.
+        sortedCards.forEach(card => {
+          grid.appendChild(card);
+        });
+      }
+    }
+    
+    // ============================================
+    // ADICIONANDO EVENT LISTENERS AOS NOVOS FILTROS
+    // ============================================
+    
+    // Quando o usuário selecionar uma opção no filtro "cardNameFilter", aplique os filtros.
+    document.getElementById('cardNameFilter').addEventListener('change', applyNewFilters);
+    
+    // Quando o usuário selecionar uma opção no filtro "categoryFilter", aplique os filtros.
+    document.getElementById('categoryFilter').addEventListener('change', applyNewFilters);
+    
+    // Opcional: Sempre que os cards forem renderizados ou atualizados,
+    // chame populateCardNameFilter() para garantir que o select seja atualizado.
+    // Por exemplo, após a renderização dos cards, você pode chamar:
+    populateCardNameFilter();
   </script>
 </body>
 </html>
