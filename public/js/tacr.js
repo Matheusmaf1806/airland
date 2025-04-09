@@ -151,7 +151,7 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
 }
 
 // Função para tratar o clique no botão "Ver detalhes"
-// Pode ser personalizada para redirecionar para outra página ou abrir um modal com informações detalhadas.
+// Essa função pode ser personalizada para redirecionar para outra página ou abrir um modal com informações detalhadas.
 function verDetalhesActivity(activityCode) {
   alert(`Detalhes da atividade: ${activityCode}`);
   // Exemplo alternativo:
@@ -159,13 +159,17 @@ function verDetalhesActivity(activityCode) {
 }
 
 // Converte um ingresso (ticket) para o formato de "atividade" esperado.
+// Agora, a função verifica os campos top_level_adult_price, price, amount_adult e box_office_amount para definir o valor.
 // Força a moeda para BRL.
 function convertTicketToActivity(ticket) {
+  const computedPrice = ticket.top_level_adult_price || ticket.price || ticket.amount_adult || ticket.box_office_amount || 0;
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
     date: ticket.event_date || ticket.date || '',
     currency: 'BRL',
-    top_level_adult_price: ticket.price || 0,
+    top_level_adult_price: computedPrice,
+    amount_adult: ticket.amount_adult || 0, // Mapeia também para fallback, se necessário
+    box_office_amount: ticket.box_office_amount || 0,
     // Estrutura de "media": utiliza ticket.image_url se disponível
     media: [{
       urls: [{
