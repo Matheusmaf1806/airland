@@ -854,19 +854,16 @@
   </style>
 </head>
 <body>
-  <!-- Loading Overlay: será substituído pelo conteúdo de loading.html -->
-  <div id="loading-overlay"></div>
-
   <!-- Header: o componente <app-header> é carregado via módulo -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
-
+  
   <!-- HERO -->
   <section class="hero">
     <h1>Sua Próxima Aventura</h1>
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
-
+  
   <!-- CONTAINER DE BUSCA -->
   <div class="search-container">
     <!-- TABS -->
@@ -887,16 +884,15 @@
         <span class="material-icons">shield</span> Seguros
       </div>
     </div>
-
-    <!-- Aba de Ingressos já existente -->
+  
+    <!-- Aba de Ingressos -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
           <label for="destinoIngresso">Destino ou Ingresso</label>
           <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
-          <!-- Campo hidden para armazenar o código selecionado -->
           <input type="hidden" id="destinoIngressoCode" />
-        </div> <!-- Fechamento do form-field do destino -->
+        </div>
         <div class="form-field">
           <label for="dataIngresso">Data</label>
           <input type="text" id="dataIngresso" placeholder="Selecione a data" />
@@ -905,49 +901,47 @@
           <button class="search-button" onclick="buscarIngressos()">Buscar Ingressos</button>
         </div>
       </div>
-      <!-- Container para exibir os ingressos -->
       <div id="status"></div>
-      <div id="ingressosList"></div>
     </div>
-
-      <!-- Aba Hotéis -->
-      <div id="tab-hoteis" class="tab-content">
-        <div class="form-group">
-          <div class="form-field">
-            <label for="destinoHoteis">Destino</label>
-            <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
-            <input type="hidden" id="destinoHoteisCode" />
-          </div>
-          <div class="form-field">
-            <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
-            <input type="text" id="dataRangeHoteis" placeholder="DD/MM/YYYY - DD/MM/YYYY" />
-          </div>
-          <div class="form-field">
-            <label for="quartos">Quartos e Pessoas</label>
-            <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
-            <!-- Dropdown para quartos -->
-            <div id="quartosDropdown" class="quartos-dropdown">
-              <div class="qd-row">
-                <span>Quartos</span>
-                <div class="qd-counter">
-                  <button type="button" id="roomsMinus">-</button>
-                  <span id="roomsTotal">1</span>
-                  <button type="button" id="roomsPlus">+</button>
-                </div>
-              </div>
-              <div class="qd-rooms-container" id="roomsContainer"></div>
-              <div class="qd-apply">
-                <button type="button" id="applyQuartos">Aplicar</button>
+  
+    <!-- Aba de Hotéis -->
+    <div id="tab-hoteis" class="tab-content">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoHoteis">Destino</label>
+          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
+          <input type="hidden" id="destinoHoteisCode" />
+        </div>
+        <div class="form-field">
+          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
+          <input type="text" id="dataRangeHoteis" placeholder="DD/MM/YYYY - DD/MM/YYYY" />
+        </div>
+        <div class="form-field">
+          <label for="quartos">Quartos e Pessoas</label>
+          <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
+          <!-- Dropdown para quartos -->
+          <div id="quartosDropdown" class="quartos-dropdown">
+            <div class="qd-row">
+              <span>Quartos</span>
+              <div class="qd-counter">
+                <button type="button" id="roomsMinus">-</button>
+                <span id="roomsTotal">1</span>
+                <button type="button" id="roomsPlus">+</button>
               </div>
             </div>
-          </div>
-          <div class="form-field button-field">
-            <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+            <div class="qd-rooms-container" id="roomsContainer"></div>
+            <div class="qd-apply">
+              <button type="button" id="applyQuartos">Aplicar</button>
+            </div>
           </div>
         </div>
+        <div class="form-field button-field">
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+        </div>
       </div>
-
-    <!-- Abas Carros, Transfer e Seguros -->
+    </div>
+  
+    <!-- Abas de Carros, Transfer e Seguros -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -958,37 +952,25 @@
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
-
-  <!-- RESULTADOS + FILTROS -->
-  <div id="activitiesGrid" class="activities-grid"></div>
-
-  <div class="results-container">
-    <!-- Botão para abrir filtros no mobile -->
-    <button class="mobile-filter-toggle" onclick="toggleFilters()">Filtrar</button>
-
-    <!-- Barra lateral de Filtros: inicia oculto com classe "hidden" -->
-    <aside class="filters-panel hidden" id="filtersPanel">
+  
+  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) -->
+  <div class="results-wrapper">
+    <!-- Barra lateral de filtros -->
+    <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
-
-      <!-- Exemplo de grupos de filtro -->
-
-      <!-- 1) Buscar por Nome da Propriedade -->
+      
+      <!-- Grupo 1: Buscar por Nome da Propriedade -->
       <div class="filter-group">
-        <h3>Buscar por nome da propriedade</h3>
+        <h3>Buscar por nome</h3>
         <div class="property-search">
-          <input
-            type="text"
-            id="propertyName"
-            placeholder="por ex., Marriott"
-          />
+          <input type="text" id="propertyName" placeholder="por ex., Marriott" />
         </div>
       </div>
-
-      <!-- 2) Preço por diária (com inputs e slider, se desejar) -->
+      
+      <!-- Grupo 2: Preço por diária (inputs e slider) -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
         <div class="price-range">
-          <!-- Inputs de texto -->
           <div class="price-inputs">
             <div>
               <label>Mín.</label>
@@ -999,14 +981,15 @@
               <input type="number" placeholder="R$ 2.400+" id="priceMax" />
             </div>
           </div>
-          <!-- Slider (opcional) -->
+          <!-- Slider opcional -->
           <div class="price-slider">
             <input type="range" id="rangeMin" min="0" max="2400" value="0" step="50" />
             <input type="range" id="rangeMax" min="0" max="2400" value="2400" step="50" />
           </div>
         </div>
       </div>
-
+      
+      <!-- Grupo 3: Estrelas -->
       <div class="filter-group">
         <h3>Estrelas</h3>
         <label><input type="checkbox" value="5" /> 5 estrelas</label>
@@ -1015,7 +998,8 @@
         <label><input type="checkbox" value="2" /> 2 estrelas</label>
         <label><input type="checkbox" value="1" /> 1 estrela</label>
       </div>
-
+      
+      <!-- Grupo 4: Tipo de Acomodação -->
       <div class="filter-group">
         <h3>Tipo de Acomodação</h3>
         <label><input type="checkbox" value="hotel" /> Hotel</label>
@@ -1023,7 +1007,8 @@
         <label><input type="checkbox" value="pousada" /> Pousada</label>
         <label><input type="checkbox" value="apart" /> Apart-hotel</label>
       </div>
-
+      
+      <!-- Grupo 5: Comodidades -->
       <div class="filter-group">
         <h3>Comodidades</h3>
         <label><input type="checkbox" value="wifi" /> Wi-Fi Grátis</label>
@@ -1032,21 +1017,23 @@
         <label><input type="checkbox" value="gym" /> Academia</label>
         <label><input type="checkbox" value="pets" /> Aceita Pets</label>
       </div>
-
-      <!-- Botão Aplicar (poderia ser automático) -->
-      <button class="search-button" style="width: 100%;">
-        Aplicar Filtros
-      </button>
+      
+      <!-- Botão para aplicar filtros -->
+      <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
-
-    <!-- SEÇÃO DE RESULTADOS (CARDS) -->
-    <section id="hotelResults">
-      <div id="status"></div>
-      <div id="hotelsList" class="hotels-list"></div>
-      <div id="pagination" class="pagination"></div>
-    </section>
+  
+    <!-- Área principal de resultados -->
+    <div class="results-main">
+      <!-- Barra de pesquisa por nome acima dos cards -->
+      <div class="name-search">
+        <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
+        <button onclick="applyNameFilter()">Filtrar</button>
+      </div>
+      <!-- Grid de cards (resultados) -->
+      <div id="activitiesGrid" class="activities-grid"></div>
+    </div>
   </div>
-
+  
   <!-- TEMPLATE DO CARD -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
@@ -1079,7 +1066,7 @@
       </div>
     </div>
   </template>
-
+  
   <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
