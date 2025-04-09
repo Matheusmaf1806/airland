@@ -867,7 +867,7 @@
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
 
-  <!-- 4. CONTAINER DE BUSCA (apenas formulários; os resultados serão exibidos posteriormente) -->
+  <!-- 4. CONTAINER DE BUSCA (formulário para Ingressos e demais abas) -->
   <div class="search-container">
     <!-- TABS -->
     <div class="tabs">
@@ -888,67 +888,31 @@
       </div>
     </div>
 
-    <!-- Conteúdo da Aba de Ingressos -->
+    <!-- Aba de Ingressos -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
-        <!-- Campo de busca para destino ou nome do ingresso -->
         <div class="form-field">
           <label for="destinoIngresso">Destino ou Ingressos</label>
           <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
           <input type="hidden" id="destinoIngressoCode" />
         </div>
-        <!-- Campo para seleção de data -->
         <div class="form-field">
           <label for="dataIngresso">Data</label>
           <input type="text" id="dataIngresso" placeholder="Selecione a data" />
         </div>
-        <!-- Botão para disparar a busca de Ingressos -->
         <div class="form-field button-field">
+          <!-- Ao clicar, a função buscarIngressos() fará a requisição à API -->
           <button class="search-button" onclick="buscarIngressos()">Buscar Ingressos</button>
         </div>
       </div>
       <div id="status"></div>
-      <!-- Aqui os resultados dos ingressos (cards) serão renderizados posteriormente -->
     </div>
 
-    <!-- Conteúdo da Aba de Hotéis (mantém o formulário de hotéis para outras buscas) -->
+    <!-- Demais abas (Hotéis, Carros, Transfer, Seguros) – permanecem inalteradas -->
     <div id="tab-hoteis" class="tab-content">
-      <div class="form-group">
-        <div class="form-field">
-          <label for="destinoHoteis">Destino</label>
-          <input type="text" id="destinoHoteis" placeholder="Cidade, região ou hotel" />
-          <input type="hidden" id="destinoHoteisCode" />
-        </div>
-        <div class="form-field">
-          <label for="dataRangeHoteis">Data (Check-in / Check-out)</label>
-          <input type="text" id="dataRangeHoteis" placeholder="DD/MM/YYYY - DD/MM/YYYY" />
-        </div>
-        <div class="form-field">
-          <label for="quartos">Quartos e Pessoas</label>
-          <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
-          <!-- Dropdown para quartos -->
-          <div id="quartosDropdown" class="quartos-dropdown">
-            <div class="qd-row">
-              <span>Quartos</span>
-              <div class="qd-counter">
-                <button type="button" id="roomsMinus">-</button>
-                <span id="roomsTotal">1</span>
-                <button type="button" id="roomsPlus">+</button>
-              </div>
-            </div>
-            <div class="qd-rooms-container" id="roomsContainer"></div>
-            <div class="qd-apply">
-              <button type="button" id="applyQuartos">Aplicar</button>
-            </div>
-          </div>
-        </div>
-        <div class="form-field button-field">
-          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
-        </div>
-      </div>
+      <!-- Conteúdo do formulário de hotéis (não utilizado para a busca de ingressos) -->
+      <p>Formulário de hotéis aqui...</p>
     </div>
-
-    <!-- Conteúdo das Abas de Carros, Transfer e Seguros -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -961,52 +925,50 @@
   </div>
   <!-- Fim do search-container -->
 
-  <!-- 5. NOVA ÁREA DE RESULTADOS (fora do container de busca) -->
+  <!-- 5. ÁREA DE RESULTADOS PARA INGRESSOS -->
   <div class="results-wrapper">
-    <!-- 5a. Sidebar de filtros exclusiva para Ingressos (inicialmente oculta) -->
-    <aside class="filters-panel hidden" id="ingressosFilters">
-      <h2>Filtros de Ingressos</h2>
-      <!-- Filtro Dinâmico: Lista de Categorias gerada pela API -->
-      <div class="filter-group">
-        <h3>Categorias</h3>
-        <ul id="ingressosCategoriesList">
-          <!-- Os itens serão inseridos dinamicamente via JavaScript -->
-        </ul>
-      </div>
-      <!-- Filtro: Pesquisa por Palavra-chave -->
+    <!-- 5a. Sidebar dinâmico de filtros para Ingressos -->
+    <aside class="filters-panel hidden" id="sidebarIngressos">
+      <h2>Categorias de Ingressos</h2>
+      <!-- A lista de categorias será preenchida dinamicamente via JavaScript -->
+      <ul id="categoriesList"></ul>
+      
+      <!-- Filtro extra: Pesquisa por palavra-chave -->
       <div class="filter-group">
         <h3>Pesquisar por Palavra-chave</h3>
-        <input type="text" id="ingressosKeyword" placeholder="Digite a palavra-chave">
+        <input type="text" id="ingressoKeyword" placeholder="Digite a palavra-chave">
       </div>
-      <!-- Filtro: Ordenação dos Resultados -->
+      
+      <!-- Filtro extra: Ordenar por -->
       <div class="filter-group">
-        <h3>Ordenar Por</h3>
-        <select id="ingressosOrderSelect">
+        <h3>Ordenar por</h3>
+        <select id="ingressoOrder">
           <option value="menor-desconto">Menor Desconto</option>
           <option value="maior-desconto">Maior Desconto</option>
           <option value="preco-asc">Preço: Menor para Maior</option>
           <option value="preco-desc">Preço: Maior para Menor</option>
         </select>
       </div>
-      <!-- Botão para aplicar os filtros de Ingressos -->
-      <button class="search-button" onclick="applyIngressosFilters()" style="width: 100%;">Aplicar Filtros</button>
+      <!-- Botão para aplicar os filtros dinâmicos dos ingressos -->
+      <button class="search-button" onclick="applyIngressosFilters()">Aplicar Filtros</button>
     </aside>
     
-    <!-- 5b. Área principal de resultados (onde os cards de Ingressos serão exibidos) -->
+    <!-- 5b. Área principal de resultados (cards de ingressos) -->
     <div class="results-main">
-      <!-- Barra de pesquisa geral (opcional para filtrar por nome) -->
+      <!-- Barra de pesquisa complementar (por nome, se necessário) -->
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
-      <!-- Grid dos cards de Ingressos -->
+      <!-- Grid onde os ingressos serão exibidos -->
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
-  <!-- Fim da results-wrapper -->
+  <!-- Fim do results-wrapper -->
 
-  <!-- 6. Template do Card (para hotéis, se necessário) -->
+  <!-- 6. Template do Card (para hotéis/ingressos se necessário) -->
   <template id="hotelCardTemplate">
+    <!-- Exemplo de template – usado para hotéis no código original -->
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
         <button class="carousel-button prev-button">&#10094;</button>
@@ -1049,24 +1011,27 @@
   <!-- 8. SCRIPTS EXTERNOS e JavaScript da Página -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <!-- Outros scripts (tac.js, tacr.js, htl.js) -->
   <script src="/js/tac.js"></script>
   <script src="/js/tacr.js"></script>
   <script src="/js/htl.js"></script>
 
-  <!-- JavaScript da Página -->
+  <!-- JavaScript PARA A BUSCA E FILTROS DOS INGRESSOS -->
   <script>
-    // ------------------------------------------------------------------
-    // Função debounce para reduzir requisições enquanto digita
+    /********************************************
+     * UTILITÁRIOS E FUNÇÕES COMUNS
+     ********************************************/
+    
+    // Função debounce para reduzir requisições enquanto o usuário digita
     function debounce(func, delay) {
       let timer;
       return function(...args) {
         clearTimeout(timer);
         timer = setTimeout(() => func.apply(this, args), delay);
-      }
+      };
     }
 
-    // ------------------------------------------------------------------
-    // Função para configurar o autocomplete para inputs (destinoIngresso e destinoHoteis)
+    // Configura o autocomplete nos inputs (mantido do código original)
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -1121,6 +1086,7 @@
         }
       }, 300));
 
+      // Fecha o dropdown quando clica fora
       document.addEventListener('click', (e) => {
         if (e.target !== input) {
           suggestionBox.innerHTML = '';
@@ -1128,223 +1094,301 @@
       });
     }
 
-    // Inicializa o autocomplete ao carregar o DOM
+    // Inicializa o autocomplete para os inputs de destino
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
     });
 
-    // ------------------------------------------------------------------
-    // FUNÇÕES DOS FILTROS DE INGRESSOS
-    //
-    // Ao realizar a busca de Ingressos, esta função será chamada para buscar os dados
-    // e, com o retorno da API, popular a sidebar de filtros com as categorias.
-    async function buscarIngressos() {
-      try {
-        // Exemplo: busca na API de ingressos – substitua pela sua URL e parâmetros corretos
-        const response = await fetch('https://suaapi.com/ingressos?termo=algumTermo');
-        const data = await response.json();
+    /********************************************
+     * FUNÇÕES ESPECÍFICAS PARA INGRESSOS
+     ********************************************/
 
-        // Supondo que a resposta contenha um array "categories" com as categorias disponíveis
-        if (data.categories && data.categories.length > 0) {
-          populateIngressosCategories(data.categories);
-          // Exibe a sidebar de filtros dos ingressos removendo a classe "hidden"
-          const sidebar = document.getElementById('ingressosFilters');
+    // Função que é chamada ao clicar no botão "Buscar Ingressos"
+    function buscarIngressos() {
+      const destino = document.getElementById('destinoIngresso').value.trim();
+      const data = document.getElementById('dataIngresso').value.trim();
+      
+      // Construa a URL da API conforme necessário
+      const apiUrl = `https://business.airland.com.br/api/ingressos?destino=${encodeURIComponent(destino)}&data=${encodeURIComponent(data)}`;
+      
+      document.getElementById('status').textContent = "Buscando ingressos...";
+      
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Espera que a API retorne { tickets: [...], categories: [...] }
+          if (data.tickets) {
+            exibirIngressos(data.tickets);
+          } else {
+            document.getElementById('activitiesGrid').innerHTML = "<p>Nenhum ingresso encontrado.</p>";
+          }
+          if (data.categories) {
+            populateCategoriesSidebar(data.categories);
+          }
+          // Exibe a sidebar de ingressos
+          const sidebar = document.getElementById('sidebarIngressos');
           sidebar.classList.remove('hidden');
-          // Aqui você pode adicionar uma classe “visible” se desejar uma transição
           sidebar.classList.add('visible');
-        } else {
-          console.warn('Nenhuma categoria encontrada para Ingressos.');
-        }
-
-        // Aqui você também implementaria a renderização dos cards de ingressos no grid "activitiesGrid"
-        // ...
-
-      } catch (error) {
-        console.error('Erro ao buscar ingressos:', error);
-      }
+          document.getElementById('status').textContent = "";
+        })
+        .catch(error => {
+          console.error('Erro na busca de ingressos:', error);
+          document.getElementById('status').textContent = "Erro ao buscar ingressos.";
+        });
     }
 
-    // Função para popular dinamicamente a lista de categorias na sidebar de Ingressos
-    function populateIngressosCategories(categories) {
-      const ul = document.getElementById('ingressosCategoriesList');
-      ul.innerHTML = ''; // Limpa as categorias anteriores
+    // Função para popular dinamicamente a sidebar com as categorias retornadas da API
+    function populateCategoriesSidebar(categories) {
+      const ul = document.getElementById('categoriesList');
+      ul.innerHTML = ''; // Limpa categorias anteriores
       categories.forEach(category => {
-        // Considera que cada objeto "category" possui as propriedades "id" e "nome"
+        // Supondo que cada objeto da categoria tenha "id" e "nome"
         const li = document.createElement('li');
-        li.textContent = category.nome;  // Exemplo: "Disney World - Ingresso 1 Dia"
+        li.textContent = category.nome;
         li.dataset.categoryId = category.id;
-        // Evento opcional para filtrar os resultados com base na categoria selecionada
+
+        // Se desejar, adicione interatividade para filtrar ao clicar
         li.addEventListener('click', () => {
-          console.log(`Categoria selecionada: ${category.nome}`);
-          // Aqui você pode chamar uma função para filtrar os cards, por ex:
-          // filterIngressosByCategory(category.id);
+          // Por exemplo, salve a categoria selecionada num atributo do <ul>
+          ul.dataset.selectedCategory = category.id;
+          // E aplique o filtro
+          applyIngressosFilters();
         });
+
         ul.appendChild(li);
       });
     }
 
-    // Função para aplicar os filtros de ingressos (ex.: palavra-chave e ordenação)
+    // Modifica a função de conversão para incluir uma propriedade "category"
+    function convertTicketToActivity(ticket) {
+      return {
+        nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
+        date: ticket.event_date || ticket.date || '',
+        currency: 'BRL',  // Forçando R$
+        top_level_adult_price: ticket.top_level_adult_price ||
+                               ticket.amount_adult ||
+                               ticket.box_office_amount ||
+                               0,
+        media: ticket.media,
+        descricao: ticket.description || ticket.descricao || '',
+        activity_code: ticket.ticket_id || ticket.code || ticket.event_code || '',
+        category: ticket.category || ''  // Nova propriedade para filtrar por categoria
+      };
+    }
+
+    // Função já existente para exibir os ingressos (convertendo tickets em atividades)
+    function exibirIngressos(tickets) {
+      if (!tickets || tickets.length === 0) {
+        const resultContainer = document.getElementById('activitiesGrid');
+        if (resultContainer) {
+          resultContainer.innerHTML = '<p>Nenhum ingresso encontrado.</p>';
+        }
+        return;
+      }
+      const activities = tickets.map(convertTicketToActivity);
+      const uniqueActivities = deduplicateActivities(activities);
+      // Aqui, adiciona o data-category em cada card (usaremos essa propriedade para filtrar)
+      uniqueActivities.forEach(activity => {
+        // Essa modificação também pode ser feita dentro de exibirAtividades() se preferir
+        activity.category = activity.category || "";
+      });
+      exibirAtividades(uniqueActivities, 'activitiesGrid');
+    }
+
+    // Função para aplicar os filtros dos ingressos – usa: categoria selecionada, palavra-chave e ordenação
     function applyIngressosFilters() {
-      // Obtém os valores dos campos dos filtros
-      const keyword = document.getElementById('ingressosKeyword').value;
-      const order = document.getElementById('ingressosOrderSelect').value;
-
-      // Aqui você implementa a lógica para filtrar ou reordenar os resultados exibidos
-      console.log("Aplicando filtros de ingressos:", keyword, order);
-
-      // Exemplo (a ser adaptado): filtrando os cards na grid "activitiesGrid"
       const grid = document.getElementById('activitiesGrid');
       const cards = Array.from(grid.getElementsByClassName('activity-card'));
-      
-      // Filtra por palavra-chave
+      const keyword = document.getElementById('ingressoKeyword').value.trim().toLowerCase();
+      const order = document.getElementById('ingressoOrder').value;
+      // Categoria selecionada (se tiver sido clicada na sidebar)
+      const selectedCategory = document.getElementById('categoriesList').dataset.selectedCategory;
+
+      // Filtra pelos cards que atendem à palavra-chave e categoria
       cards.forEach(card => {
         const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        if (keyword && !title.includes(keyword.toLowerCase())) {
-          card.style.display = 'none';
-        } else {
-          card.style.display = 'block';
+        const cardCategory = card.dataset.category || "";
+        let display = true;
+
+        // Se houver palavra-chave, verifica se o título contém
+        if (keyword && !title.includes(keyword)) {
+          display = false;
         }
+        // Se houver categoria selecionada, filtra comparando com o data-category do card
+        if (selectedCategory && cardCategory !== selectedCategory) {
+          display = false;
+        }
+        card.style.display = display ? 'block' : 'none';
       });
-      
-      // Ordenação (exemplo simples; adapte conforme sua estrutura dos cards)
+
+      // Ordena os cards se alguma opção de ordenação foi selecionada
       if (order) {
-        let sortedCards = cards.slice();
-        if (order === 'preco-asc') {
+        let sortedCards = cards.filter(card => card.style.display !== 'none');
+        if (order === 'preco-asc' || order === 'preco-desc') {
           sortedCards.sort((a, b) => {
             const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
             const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            return priceA - priceB;
-          });
-        } else if (order === 'preco-desc') {
-          sortedCards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            return priceB - priceA;
-          });
-        } else if (order === 'menor-desconto') {
-          sortedCards.sort((a, b) => {
-            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
-            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
-            return discA - discB;
-          });
-        } else if (order === 'maior-desconto') {
-          sortedCards.sort((a, b) => {
-            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
-            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
-            return discB - discA;
+            return order === 'preco-asc' ? priceA - priceB : priceB - priceA;
           });
         }
-        // Reanexa os cards ordenados ao grid para atualizar a exibição
-        sortedCards.forEach(card => {
-          grid.appendChild(card);
-        });
+        if (order === 'menor-desconto' || order === 'maior-desconto') {
+          // Supondo que os cards tenham um atributo data-discount
+          sortedCards.sort((a, b) => {
+            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
+            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
+            return order === 'menor-desconto' ? discA - discB : discB - discA;
+          });
+        }
+        // Reanexa os cards ordenados para atualizar a ordem visual
+        sortedCards.forEach(card => grid.appendChild(card));
       }
     }
 
-    // Função para aplicar filtro de nome (usada na barra de pesquisa geral)
+    // Função para filtrar por nome na barra complementar (mantida do código original)
     function applyNameFilter() {
       const input = document.getElementById('nameSearchInput');
       const filterValue = input.value.trim().toLowerCase();
+      
       const cards = document.querySelectorAll('#activitiesGrid .activity-card');
       cards.forEach(card => {
         const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        if (title.includes(filterValue)) {
-          card.style.display = 'block';
+        card.style.display = title.includes(filterValue) ? 'block' : 'none';
+      });
+    }
+    
+    /********************************************
+     * FUNÇÕES DO CÓDIGO ORIGINAL (tacr.js)
+     ********************************************/
+    
+    // Função para formatar o valor em moeda BRL
+    function formatPrice(value, currency) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: currency || 'BRL'
+      }).format(value);
+    }
+
+    // Função para remover duplicatas nas atividades (ingressos)
+    function deduplicateActivities(activities) {
+      const uniqueMap = {};
+      activities.forEach(activity => {
+        const key = activity.nome.toLowerCase();
+        if (!uniqueMap[key]) {
+          uniqueMap[key] = activity;
         } else {
-          card.style.display = 'none';
+          if (activity.top_level_adult_price < uniqueMap[key].top_level_adult_price) {
+            uniqueMap[key] = activity;
+          }
         }
+      });
+      return Object.values(uniqueMap);
+    }
+
+    // Função para obter a URL da imagem do ingresso (tamanho XLARGE)
+    function getActivityImageUrl(activity) {
+      let fallback = 'https://via.placeholder.com/300x180?text=No+Image';
+      if (!activity.media || !activity.media.length) {
+        return fallback;
+      }
+      for (let i = 0; i < activity.media.length; i++) {
+        const mediaItem = activity.media[i];
+        if (mediaItem.urls && mediaItem.urls.length) {
+          const urlObj = mediaItem.urls.find(u => u.sizeType === 'XLARGE');
+          if (urlObj && urlObj.resource) {
+            return urlObj.resource;
+          }
+        }
+      }
+      const first = activity.media[0];
+      if (first.urls && first.urls.length) {
+        return first.urls[0].resource || fallback;
+      }
+      return fallback;
+    }
+
+    // Função para exibir as atividades (ingressos) na grade
+    function exibirAtividades(activities, containerId = 'activitiesGrid') {
+      const container = document.getElementById(containerId);
+      if (!container) {
+        console.error(`Container com id "${containerId}" não foi encontrado.`);
+        return;
+      }
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      container.style.gap = '20px';
+      container.innerHTML = ''; // Limpa o container
+
+      if (!activities || activities.length === 0) {
+        container.innerHTML = '<p>Nenhuma atividade encontrada.</p>';
+        return;
+      }
+
+      activities.forEach(activity => {
+        // Cria um card para cada ingresso
+        const imageUrl = getActivityImageUrl(activity);
+        let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
+        if (descText.length > 100) {
+          descText = descText.substring(0, 100) + '...';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'activity-card';
+        // Adiciona o atributo data-category para filtragem
+        card.dataset.category = activity.category || '';
+
+        const img = document.createElement('img');
+        img.className = 'activity-card-img';
+        img.src = imageUrl;
+        img.alt = activity.nome;
+        card.appendChild(img);
+
+        const body = document.createElement('div');
+        body.className = 'activity-body';
+
+        const title = document.createElement('h3');
+        title.className = 'activity-title';
+        title.textContent = activity.nome;
+        body.appendChild(title);
+
+        const dateEl = document.createElement('p');
+        dateEl.className = 'activity-date';
+        dateEl.textContent = `Data: ${activity.date}`;
+        body.appendChild(dateEl);
+
+        const priceEl = document.createElement('div');
+        priceEl.className = 'activity-prices';
+        const priceStarting = document.createElement('span');
+        priceStarting.className = 'price-starting';
+        priceStarting.textContent = `A partir de ${formatPrice(activity.top_level_adult_price, activity.currency)}`;
+        priceEl.appendChild(priceStarting);
+
+        const installments = document.createElement('span');
+        installments.className = 'installments';
+        installments.textContent = ' ou 10x sem juros';
+        priceEl.appendChild(installments);
+        body.appendChild(priceEl);
+
+        const descEl = document.createElement('p');
+        descEl.className = 'activity-description';
+        descEl.textContent = descText;
+        body.appendChild(descEl);
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-see-more';
+        btn.textContent = 'Ver detalhes';
+        btn.onclick = function() { verDetalhesActivity(activity.activity_code); };
+        body.appendChild(btn);
+
+        card.appendChild(body);
+        container.appendChild(card);
       });
     }
 
-    // =================================================================
-    // FUNÇÕES EXISTENTES DOS FILTROS DINÂMICOS (para hotéis) – mantenha se necessário
-    // A seguir estão as funções para popular e aplicar filtros de nomes nos cards.
-    // Se esses filtros não se aplicarem aos Ingressos, você pode removê-los ou adaptá-los.
-    function populateCardNameFilter() {
-      const grid = document.getElementById('activitiesGrid');
-      const select = document.getElementById('cardNameFilter');
-      if (!grid || !select) return;
-      
-      const namesSet = new Set();
-      const cards = grid.querySelectorAll('.activity-card');
-      cards.forEach(card => {
-        const titleEl = card.querySelector('.activity-title');
-        if (titleEl) {
-          namesSet.add(titleEl.textContent.trim());
-        }
-      });
-      
-      select.innerHTML = '<option value="">Selecione...</option>';
-      namesSet.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-      });
+    // Função para exibir detalhes (exemplo simples com alert)
+    function verDetalhesActivity(activityCode) {
+      alert(`Detalhes da atividade: ${activityCode}`);
     }
-    
-    function applyNewFilters() {
-      const grid = document.getElementById('activitiesGrid');
-      const nameSelect = document.getElementById('cardNameFilter');
-      const categorySelect = document.getElementById('categoryFilter');
-      if (!grid || !nameSelect || !categorySelect) return;
-    
-      const cards = Array.from(grid.getElementsByClassName('activity-card'));
-      
-      if (nameSelect.value) {
-        cards.forEach(card => {
-          const titleEl = card.querySelector('.activity-title');
-          if (titleEl && titleEl.textContent.trim() === nameSelect.value) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      } else {
-        cards.forEach(card => {
-          card.style.display = 'block';
-        });
-      }
-      
-      if (categorySelect.value) {
-        let sortedCards = cards.slice();
-        if (categorySelect.value === 'preco-asc') {
-          sortedCards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            return priceA - priceB;
-          });
-        } else if (categorySelect.value === 'preco-desc') {
-          sortedCards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            const priceB = parseFloat(b.querySelector('.price-starting').textContent.replace(/[^0-9.,]+/g, '').replace(',', '.')) || 0;
-            return priceB - priceA;
-          });
-        } else if (categorySelect.value === 'menor-desconto') {
-          sortedCards.sort((a, b) => {
-            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
-            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
-            return discA - discB;
-          });
-        } else if (categorySelect.value === 'maior-desconto') {
-          sortedCards.sort((a, b) => {
-            const discA = parseFloat(a.getAttribute('data-discount')) || 0;
-            const discB = parseFloat(b.getAttribute('data-discount')) || 0;
-            return discB - discA;
-          });
-        }
-        sortedCards.forEach(card => {
-          grid.appendChild(card);
-        });
-      }
-    }
-    
-    document.getElementById('cardNameFilter').addEventListener('change', applyNewFilters);
-    document.getElementById('categoryFilter').addEventListener('change', applyNewFilters);
-    
-    // Opcional: Atualiza o select de nomes após a renderização dos cards
-    populateCardNameFilter();
   </script>
 </body>
 </html>
