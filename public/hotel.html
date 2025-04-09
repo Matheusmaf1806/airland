@@ -1701,6 +1701,21 @@
     setupAutocomplete('destinoIngresso');
     setupAutocomplete('destinoHoteis');
   });
+
+  function applyNameFilter() {
+      const input = document.getElementById('nameSearchInput');
+      const filterValue = input.value.trim().toLowerCase();
+      
+      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      cards.forEach(card => {
+        const title = card.querySelector('.activity-title').textContent.toLowerCase();
+        if (title.includes(filterValue)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
   </script>
 </body>
 </html>
