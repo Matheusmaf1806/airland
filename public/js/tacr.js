@@ -156,13 +156,13 @@ function convertTicketToActivity(ticket) {
 
 function exibirIngressos(tickets) {
   if (!tickets || tickets.length === 0) {
-    const ingressoContainer = document.getElementById('ingressosList');
-    if (ingressoContainer) {
-      ingressoContainer.innerHTML = '<p>Nenhum ingresso encontrado.</p>';
+    const resultContainer = document.getElementById('activitiesGrid');
+    if (resultContainer) {
+      resultContainer.innerHTML = '<p>Nenhum ingresso encontrado.</p>';
     }
     return;
   }
   const activities = tickets.map(convertTicketToActivity);
   const uniqueActivities = deduplicateActivities(activities);
-  exibirAtividades(uniqueActivities, 'ingressosList');
+  exibirAtividades(uniqueActivities, 'activitiesGrid'); // Usando "activitiesGrid" aqui
 }
