@@ -887,24 +887,27 @@
       </div>
     </div>
 
-    <!-- Aba Ingressos -->
-      <div id="tab-ingressos" class="tab-content active">
-        <div class="form-group">
-          <div class="form-field">
-            <label for="destinoIngresso">Destino ou Ingresso</label>
-            <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
-            <!-- Hidden para armazenar o código do destino -->
-            <input type="hidden" id="destinoIngressoCode" />
-          </div>
-          <div class="form-field">
-            <label for="dataIngresso">Data</label>
-            <input type="text" id="dataIngresso" placeholder="Selecione a data" />
-          </div>
-          <div class="form-field button-field">
-            <button class="search-button">Buscar Ingressos</button>
-          </div>
+    <!-- Aba de Ingressos já existente -->
+    <div id="tab-ingressos" class="tab-content active">
+      <div class="form-group">
+        <div class="form-field">
+          <label for="destinoIngresso">Destino ou Ingresso</label>
+          <input type="text" id="destinoIngresso" placeholder="Digite a cidade ou parque" />
+          <!-- Campo hidden para armazenar o código selecionado -->
+          <input type="hidden" id="destinoIngressoCode" />
+        </div>
+        <div class="form-field">
+          <label for="dataIngresso">Data</label>
+          <input type="text" id="dataIngresso" placeholder="Selecione a data" />
+        </div>
+        <div class="form-field button-field">
+          <button class="search-button" onclick="buscarIngressos()">Buscar Ingressos</button>
         </div>
       </div>
+      <!-- Container para exibir os ingressos -->
+      <div id="status"></div>
+      <div id="ingressosList"></div>
+    </div>
 
       <!-- Aba Hotéis -->
       <div id="tab-hoteis" class="tab-content">
@@ -1085,6 +1088,7 @@
   <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+  <script src="/js/tac.js"></script>
 
   <!-- JavaScript da Página -->
   <script>
