@@ -1,6 +1,6 @@
-// tacr.js - Versão anterior
+// tacr.js - Versão unificada original
 
-// Função para formatar preços com a moeda apropriada
+// Função para formatar preços sempre em Reais (BRL), no formato 'R$ 1.111,11'
 function formatPrice(value, currency) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -8,9 +8,36 @@ function formatPrice(value, currency) {
   }).format(value);
 }
 
-// Função para exibir os cards de atividades no container especificado (default: "activitiesGrid")
+// Função para deduplicar atividades com base no nome (case insensitive),
+// mantendo a atividade com o menor top_level_adult_price em caso de duplicatas.
+function deduplicateActivities(activities) {
+  const uniqueMap = {};
+  activities.forEach(activity => {
+    const key = activity.nome.toLowerCase();
+    if (!uniqueMap[key]) {
+      uniqueMap[key] = activity;
+    } else {
+      if (activity.top_level_adult_price < uniqueMap[key].top_level_adult_price) {
+        uniqueMap[key] = activity;
+      }
+    }
+  });
+  return Object.values(uniqueMap);
+}
+
+// Função para exibir os cards no container especificado (padrão: "activitiesGrid").
+// Configura o layout em grid com 3 itens por fileira.
 function exibirAtividades(activities, containerId = 'activitiesGrid') {
   const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container com id "${containerId}" não foi encontrado.`);
+    return;
+  }
+  
+  // Configura o layout em grid: 3 colunas com gap de 20px
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  container.style.gap = '20px';
   container.innerHTML = ''; // Limpa o container
 
   if (!activities || activities.length === 0) {
@@ -19,12 +46,12 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   }
 
   activities.forEach(activity => {
-    // Código de extração da imagem original: utiliza apenas o primeiro item do array activity.media
+    // Obter a imagem da atividade: nesta versão, usamos apenas activity.media[0]
     let imageUrl = 'https://via.placeholder.com/300x180?text=No+Image';
     if (activity.media && activity.media.length > 0) {
       const firstMedia = activity.media[0];
       if (firstMedia.urls && firstMedia.urls.length > 0) {
-        // Tenta encontrar uma URL com sizeType 'XLARGE'; se não encontrar, usa a primeira
+        // Busca uma URL com sizeType "XLARGE", ou se não houver, a primeira URL
         const urlObj = firstMedia.urls.find(u => u.sizeType === 'XLARGE') || firstMedia.urls[0];
         if (urlObj && urlObj.resource) {
           imageUrl = urlObj.resource;
@@ -32,13 +59,13 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
       }
     }
 
-    // Trata a descrição, removendo tags HTML e limitando a 100 caracteres
+    // Processa a descrição: remove as tags HTML e limita a 100 caracteres
     let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
     if (descText.length > 100) {
       descText = descText.substring(0, 100) + '...';
     }
 
-    // Define o preço a ser exibido – tenta usar top_level_adult_price, ou outros campos se necessário
+    // Determina o preço: usa top_level_adult_price; se não existir, usa amount_adult ou box_office_amount
     let priceToShow = activity.top_level_adult_price;
     if (!priceToShow || priceToShow <= 0) {
       priceToShow = activity.amount_adult || activity.box_office_amount || 0;
@@ -55,17 +82,17 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
     img.alt = activity.nome;
     card.appendChild(img);
 
-    // Cria o corpo do card (área de conteúdo)
+    // Cria a área de conteúdo do card
     const body = document.createElement('div');
     body.className = 'activity-body';
 
-    // Título
+    // Título da atividade ou ingresso
     const title = document.createElement('h3');
     title.className = 'activity-title';
     title.textContent = activity.nome;
     body.appendChild(title);
 
-    // Data
+    // Data da atividade ou ingresso
     const dateEl = document.createElement('p');
     dateEl.className = 'activity-date';
     dateEl.textContent = `Data: ${activity.date}`;
@@ -84,7 +111,7 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
     priceEl.appendChild(installments);
     body.appendChild(priceEl);
 
-    // Descrição resumida
+    // Descrição curta
     const descEl = document.createElement('p');
     descEl.className = 'activity-description';
     descEl.textContent = descText;
@@ -104,19 +131,22 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   });
 }
 
-// Função simples para tratar o botão "Ver detalhes"
+// Função para tratar o clique em "Ver detalhes" – pode ser adaptada para redirecionamento ou modal.
 function verDetalhesActivity(activityCode) {
   alert(`Detalhes da atividade: ${activityCode}`);
-  // Exemplo: window.location.href = `/detalhes.html?code=${activityCode}`;
+  // Exemplo alternativo:
+  // window.location.href = `/detalhes.html?code=${activityCode}`;
 }
 
-// Função para converter um ingresso (ticket) para o formato de "atividade"
+// Função para converter um ingresso (ticket) para o formato de "atividade" esperado.
+// Aqui, os campos são mapeados conforme o que a busca espera, sem alterar a lógica de preços.
 function convertTicketToActivity(ticket) {
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
     date: ticket.event_date || ticket.date || '',
     currency: ticket.currency || 'BRL',
     top_level_adult_price: ticket.price || 0,
+    // Estrutura de "media": usa ticket.image_url se disponível
     media: [{
       urls: [{
         sizeType: 'XLARGE',
@@ -129,12 +159,16 @@ function convertTicketToActivity(ticket) {
 }
 
 // Função para exibir ingressos utilizando o mesmo layout de cards das atividades.
-// Converte os ingressos para o formato esperado e renderiza no container "ingressosList".
+// Converte os ingressos para o formato adequado, deduplica e renderiza no container "ingressosList".
 function exibirIngressos(tickets) {
   if (!tickets || tickets.length === 0) {
-    document.getElementById('ingressosList').innerHTML = '<p>Nenhum ingresso encontrado.</p>';
+    const ingressoContainer = document.getElementById('ingressosList');
+    if (ingressoContainer) {
+      ingressoContainer.innerHTML = '<p>Nenhum ingresso encontrado.</p>';
+    }
     return;
   }
   const activities = tickets.map(convertTicketToActivity);
-  exibirAtividades(activities, 'ingressosList');
+  const uniqueActivities = deduplicateActivities(activities);
+  exibirAtividades(uniqueActivities, 'ingressosList');
 }
