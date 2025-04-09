@@ -67,6 +67,9 @@ import orderCompleteRoutes from './routes/orderComplete.js'
 // (NOVO) Importar a rota de Autocomplete
 import autocompleteRouter from './routes/autocomplete.js'
 
+// Rota de Ingressos Hotelbeds
+import ticketsRouter from './routes/tickets.routes.js'
+
 // ------------------------------------------------------
 // Vincular as rotas
 // ------------------------------------------------------
@@ -87,6 +90,9 @@ app.use('/api/orderComplete', orderCompleteRoutes)
 
 // Rota de Autocomplete
 app.use('/api/autocomplete', autocompleteRouter)
+
+// Rota de Ingressos HotelBeds
+app.use('/api/tickets', ticketsRouter);
 
 // ------------------------------------------------------
 // Rota Principal (teste)
