@@ -1,15 +1,12 @@
-// tacr.js - Versão com modificação apenas na extração da imagem
+// tacr.js
 
-// Função para formatar preços sempre em Reais (BRL), no formato 'R$ 1.111,11'
 function formatPrice(value, currency) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
-    currency: currency || 'EUR'
+    currency: currency || 'BRL' // Força R$ sempre
   }).format(value);
 }
 
-// Função para deduplicar atividades com base no nome (case insensitive),
-// mantendo a atividade com o menor top_level_adult_price em caso de duplicatas.
 function deduplicateActivities(activities) {
   const uniqueMap = {};
   activities.forEach(activity => {
@@ -25,15 +22,13 @@ function deduplicateActivities(activities) {
   return Object.values(uniqueMap);
 }
 
-/* NOVA FUNÇÃO: Obtém a URL da imagem procurando em todo o array de media.
-   Se encontrar um item com sizeType "XLARGE", retorna sua resource.
-   Caso contrário, retorna a primeira URL disponível ou um fallback. */
+// Função para obter a imagem com sizeType "XLARGE", percorrendo todo o array.
 function getActivityImageUrl(activity) {
   let fallback = 'https://via.placeholder.com/300x180?text=No+Image';
   if (!activity.media || !activity.media.length) {
     return fallback;
   }
-  // Percorre todo o array de media
+  // Tenta achar "XLARGE"
   for (let i = 0; i < activity.media.length; i++) {
     const mediaItem = activity.media[i];
     if (mediaItem.urls && mediaItem.urls.length) {
@@ -43,7 +38,7 @@ function getActivityImageUrl(activity) {
       }
     }
   }
-  // Se não encontrar nenhum "XLARGE", retorna a primeira URL do primeiro item
+  // Se não encontrou, usa a primeira URL do primeiro item
   const first = activity.media[0];
   if (first.urls && first.urls.length) {
     return first.urls[0].resource || fallback;
@@ -51,20 +46,16 @@ function getActivityImageUrl(activity) {
   return fallback;
 }
 
-// Função para exibir os cards no container especificado (padrão: "activitiesGrid").
-// Configura o layout em grid com 3 itens por fileira.
 function exibirAtividades(activities, containerId = 'activitiesGrid') {
   const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container com id "${containerId}" não foi encontrado.`);
     return;
   }
-  
-  // Configura o layout em grid: 3 colunas com gap de 20px
   container.style.display = 'grid';
   container.style.gridTemplateColumns = 'repeat(3, 1fr)';
   container.style.gap = '20px';
-  container.innerHTML = ''; // Limpa o container
+  container.innerHTML = ''; // Limpa
 
   if (!activities || activities.length === 0) {
     container.innerHTML = '<p>Nenhuma atividade encontrada.</p>';
@@ -72,68 +63,63 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   }
 
   activities.forEach(activity => {
-    // Aqui, em vez de usar activity.media[0], usamos a função getActivityImageUrl:
-    let imageUrl = getActivityImageUrl(activity);
+    const imageUrl = getActivityImageUrl(activity);
 
-    // Processa a descrição: remove as tags HTML e limita a 100 caracteres
-    let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
+    let descText = activity.descricao
+      ? activity.descricao.replace(/<[^>]*>/g, '')
+      : '';
     if (descText.length > 100) {
       descText = descText.substring(0, 100) + '...';
     }
 
-    // Determina o preço: usa top_level_adult_price ou, se não existir, usa amount_adult ou box_office_amount
+    // Lógica de preço
     let priceToShow = activity.top_level_adult_price;
     if (!priceToShow || priceToShow <= 0) {
       priceToShow = activity.amount_adult || activity.box_office_amount || 0;
     }
 
-    // Cria o elemento do card
     const card = document.createElement('div');
     card.className = 'activity-card';
 
-    // Cria e insere a imagem do card
     const img = document.createElement('img');
     img.className = 'activity-card-img';
     img.src = imageUrl;
     img.alt = activity.nome;
     card.appendChild(img);
 
-    // Cria a área de conteúdo do card
     const body = document.createElement('div');
     body.className = 'activity-body';
 
-    // Título da atividade ou ingresso
     const title = document.createElement('h3');
     title.className = 'activity-title';
     title.textContent = activity.nome;
     body.appendChild(title);
 
-    // Data da atividade ou ingresso
     const dateEl = document.createElement('p');
     dateEl.className = 'activity-date';
     dateEl.textContent = `Data: ${activity.date}`;
     body.appendChild(dateEl);
 
-    // Área de preços
     const priceEl = document.createElement('div');
     priceEl.className = 'activity-prices';
     const priceStarting = document.createElement('span');
     priceStarting.className = 'price-starting';
+
+    // Exibe o valor em R$ (forçamos 'BRL' no formatPrice)
     priceStarting.textContent = `A partir de ${formatPrice(priceToShow, activity.currency)}`;
     priceEl.appendChild(priceStarting);
+
     const installments = document.createElement('span');
     installments.className = 'installments';
     installments.textContent = ' ou 10x sem juros';
     priceEl.appendChild(installments);
     body.appendChild(priceEl);
 
-    // Descrição curta
     const descEl = document.createElement('p');
     descEl.className = 'activity-description';
     descEl.textContent = descText;
     body.appendChild(descEl);
 
-    // Botão "Ver detalhes"
     const btn = document.createElement('button');
     btn.className = 'btn-see-more';
     btn.textContent = 'Ver detalhes';
@@ -147,35 +133,27 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   });
 }
 
-// Função para tratar o clique em "Ver detalhes" – pode ser adaptada para redirecionamento ou modal.
 function verDetalhesActivity(activityCode) {
   alert(`Detalhes da atividade: ${activityCode}`);
-  // Exemplo alternativo:
-  // window.location.href = `/detalhes.html?code=${activityCode}`;
 }
 
-// Função para converter um ingresso (ticket) para o formato de "atividade" esperado.
-// Mapeia os campos conforme o que a busca espera, sem alterar a lógica de preços.
+// **AQUI A MUDANÇA PRINCIPAL**: Mapeamos de fato o ticket.top_level_adult_price e ticket.media
 function convertTicketToActivity(ticket) {
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
     date: ticket.event_date || ticket.date || '',
-    currency: ticket.currency || 'BRL',
-    top_level_adult_price: ticket.price || 0,
-    // Estrutura de "media": usa ticket.image_url se disponível
-    media: [{
-      urls: [{
-        sizeType: 'XLARGE',
-        resource: ticket.image_url || 'https://via.placeholder.com/300x180?text=No+Image'
-      }]
-    }],
+    // Se sempre quiser R$, pode forçar 'BRL'. Se quiser respeitar a do JSON, use ticket.currency
+    currency: 'BRL',
+    top_level_adult_price: ticket.top_level_adult_price
+      || ticket.amount_adult
+      || ticket.box_office_amount
+      || 0,
+    media: ticket.media, // Agora aproveitamos o array real do servidor
     descricao: ticket.description || ticket.descricao || '',
     activity_code: ticket.ticket_id || ticket.code || ticket.event_code || ''
   };
 }
 
-// Função para exibir ingressos utilizando o mesmo layout de cards das atividades.
-// Converte os ingressos para o formato adequado, deduplica e renderiza no container "ingressosList".
 function exibirIngressos(tickets) {
   if (!tickets || tickets.length === 0) {
     const ingressoContainer = document.getElementById('ingressosList');
