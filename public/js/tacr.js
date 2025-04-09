@@ -1,4 +1,4 @@
-// tacr.js - Versão unificada original
+// tacr.js - Versão original com alteração apenas na obtenção da imagem
 
 // Função para formatar preços sempre em Reais (BRL), no formato 'R$ 1.111,11'
 function formatPrice(value, currency) {
@@ -25,6 +25,30 @@ function deduplicateActivities(activities) {
   return Object.values(uniqueMap);
 }
 
+// *** NOVA FUNÇÃO: Apenas para obter a imagem com sizeType "XLARGE" procurando em todo o array ***
+function getActivityImageUrl(activity) {
+  let fallback = 'https://via.placeholder.com/300x180?text=No+Image';
+  if (!activity.media || !activity.media.length) {
+    return fallback;
+  }
+  // Tenta encontrar no array inteiro o primeiro item com sizeType "XLARGE"
+  for (let i = 0; i < activity.media.length; i++) {
+    const mediaItem = activity.media[i];
+    if (mediaItem.urls && mediaItem.urls.length) {
+      const urlObj = mediaItem.urls.find(u => u.sizeType === 'XLARGE');
+      if (urlObj && urlObj.resource) {
+        return urlObj.resource;
+      }
+    }
+  }
+  // Se não encontrar "XLARGE", retorna a primeira URL do primeiro item
+  const first = activity.media[0];
+  if (first.urls && first.urls.length) {
+    return first.urls[0].resource || fallback;
+  }
+  return fallback;
+}
+
 // Função para exibir os cards no container especificado (padrão: "activitiesGrid").
 // Configura o layout em grid com 3 itens por fileira.
 function exibirAtividades(activities, containerId = 'activitiesGrid') {
@@ -46,18 +70,8 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
   }
 
   activities.forEach(activity => {
-    // Obter a imagem da atividade: nesta versão, usamos apenas activity.media[0]
-    let imageUrl = 'https://via.placeholder.com/300x180?text=No+Image';
-    if (activity.media && activity.media.length > 0) {
-      const firstMedia = activity.media[0];
-      if (firstMedia.urls && firstMedia.urls.length > 0) {
-        // Busca uma URL com sizeType "XLARGE", ou se não houver, a primeira URL
-        const urlObj = firstMedia.urls.find(u => u.sizeType === 'XLARGE') || firstMedia.urls[0];
-        if (urlObj && urlObj.resource) {
-          imageUrl = urlObj.resource;
-        }
-      }
-    }
+    // Obtém a imagem usando a nova função getActivityImageUrl (modificação única)
+    let imageUrl = getActivityImageUrl(activity);
 
     // Processa a descrição: remove as tags HTML e limita a 100 caracteres
     let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
@@ -139,7 +153,7 @@ function verDetalhesActivity(activityCode) {
 }
 
 // Função para converter um ingresso (ticket) para o formato de "atividade" esperado.
-// Aqui, os campos são mapeados conforme o que a busca espera, sem alterar a lógica de preços.
+// Mapeia os campos conforme o que a busca espera, sem alterar a lógica de preços.
 function convertTicketToActivity(ticket) {
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
