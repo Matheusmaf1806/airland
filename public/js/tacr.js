@@ -8,11 +8,11 @@ function formatPrice(value, currency) {
   }).format(value);
 }
 
-// Função para exibir os cards de atividades no container "activitiesGrid"
-// Essa função monta os cards utilizando as classes definidas no CSS (.activity-card, .activity-card-img, etc.)
-function exibirAtividades(activities) {
-  const container = document.getElementById('activitiesGrid');
-  container.innerHTML = ''; // Limpa o grid
+// Função para exibir os cards no container especificado (padrão: "activitiesGrid").
+// Ao chamar essa função, você pode informar outro ID de container para manter a busca (ex.: "ingressosList")
+function exibirAtividades(activities, containerId = 'activitiesGrid') {
+  const container = document.getElementById(containerId);
+  container.innerHTML = ''; // Limpa o container
 
   if (!activities || activities.length === 0) {
     container.innerHTML = '<p>Nenhuma atividade encontrada.</p>';
@@ -39,7 +39,7 @@ function exibirAtividades(activities) {
       descText = descText.substring(0, 100) + '...';
     }
 
-    // Define o preço a ser exibido: tenta usar top_level_adult_price; senão, utiliza outros campos
+    // Define o preço a ser exibido: tenta usar top_level_adult_price; caso contrário, usa outros campos
     let priceToShow = activity.top_level_adult_price;
     if (!priceToShow || priceToShow <= 0) {
       priceToShow = activity.amount_adult || activity.box_office_amount || 0;
@@ -105,8 +105,8 @@ function exibirAtividades(activities) {
   });
 }
 
-// Exemplo simples de função para tratar o botão "Ver detalhes"
-// Essa função pode ser adaptada para redirecionar para uma página com mais informações ou abrir um modal
+// Função simples para tratar o botão "Ver detalhes"
+// Pode ser adaptada para redirecionar para uma página ou abrir um modal com mais informações
 function verDetalhesActivity(activityCode) {
   alert(`Detalhes da atividade: ${activityCode}`);
   // Exemplo alternativo:
@@ -120,7 +120,7 @@ function convertTicketToActivity(ticket) {
     date: ticket.event_date || ticket.date || '',
     currency: ticket.currency || 'BRL',
     top_level_adult_price: ticket.price || 0,
-    // Cria um objeto "media" para manter o padrão de imagem; usa ticket.image_url se disponível
+    // Cria um objeto "media" para manter o padrão da imagem; usa ticket.image_url se disponível
     media: [{
       urls: [{
         sizeType: 'XLARGE',
@@ -132,13 +132,13 @@ function convertTicketToActivity(ticket) {
   };
 }
 
-// Função para exibir ingressos utilizando o mesmo layout de cards das atividades
-// Converte cada ingresso para o formato esperado e chama exibirAtividades
+// Função para exibir ingressos utilizando o mesmo layout de cards das atividades.
+// Converte cada ingresso para o formato esperado e chama exibirAtividades passando o container "ingressosList".
 function exibirIngressos(tickets) {
   if (!tickets || tickets.length === 0) {
-    document.getElementById('activitiesGrid').innerHTML = '<p>Nenhum ingresso encontrado.</p>';
+    document.getElementById('ingressosList').innerHTML = '<p>Nenhum ingresso encontrado.</p>';
     return;
   }
   const activities = tickets.map(convertTicketToActivity);
-  exibirAtividades(activities);
+  exibirAtividades(activities, 'ingressosList');
 }
