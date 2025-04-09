@@ -5,50 +5,48 @@
   }
 
   async function buscarIngressos() {
-    const destination = document.getElementById('destinoIngressoCode')?.value ||
-                        document.getElementById('destinoIngresso')?.value || '';
-    const dateInput = document.getElementById('dataIngresso')?.value || '';
-  
-    if (!destination) {
-      alert('Selecione ou informe um destino válido.');
-      return;
-    }
-    if (!dateInput) {
-      alert('Selecione uma data!');
-      return;
-    }
-  
-    function convertDateFormat(dateStr) {
-      const [d, m, a] = dateStr.split('/');
-      return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    }
-    const dateFormatted = convertDateFormat(dateInput);
-  
-    const statusEl = document.getElementById('status');
-    if (statusEl) {
-      statusEl.textContent = 'Buscando ingressos...';
-      statusEl.style.display = 'block';
-    }
-  
-    // Aqui montamos a URL com um caminho relativo.
-    const query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(dateFormatted)}`;
-    const url = '/api/tickets' + query; // ← Certifique-se de usar "/api/tickets", não a URL completa!
-  
-    console.log('Buscando ingressos na URL:', url);
-  
-    try {
-      const resp = await fetch(url);
-      if (!resp.ok) {
-        throw new Error('Erro na consulta de ingressos: ' + resp.status);
-      }
-      const tickets = await resp.json();
-      exibirIngressos(tickets);
-      if (statusEl) statusEl.style.display = 'none';
-    } catch (e) {
-      console.error(e);
-      if (statusEl) statusEl.textContent = 'Erro ao buscar ingressos.';
-    }
+  // Use o campo hidden para o código do destino
+  const destination = document.getElementById('destinoIngressoCode')?.value ||
+                      document.getElementById('destinoIngresso')?.value || '';
+  const dateInput = document.getElementById('dataIngresso')?.value || '';
+
+  if (!destination) {
+    alert('Selecione ou informe um destino válido.');
+    return;
   }
+  if (!dateInput) {
+    alert('Selecione uma data!');
+    return;
+  }
+
+  // Se o input estiver no formato dd/mm/yyyy, converta para yyyy-mm-dd
+  function convertDateFormat(dateStr) {
+    const [d, m, y] = dateStr.split('/');
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  const dateFormatted = convertDateFormat(dateInput);
+
+  const statusEl = document.getElementById('status');
+  if (statusEl) {
+    statusEl.textContent = 'Buscando ingressos...';
+    statusEl.style.display = 'block';
+  }
+  const query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(dateFormatted)}`;
+  const url = `/api/tickets${query}`;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error('Erro na consulta de ingressos: ' + resp.status);
+    }
+    const tickets = await resp.json();
+    // Função para exibir os ingressos (implemente conforme necessário)
+    exibirIngressos(tickets);
+    if (statusEl) statusEl.style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    if (statusEl) statusEl.textContent = 'Erro ao buscar ingressos.';
+  }
+}
 
   function exibirIngressos(tickets) {
     const container = document.getElementById('ingressosList');
