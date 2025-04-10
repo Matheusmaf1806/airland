@@ -578,16 +578,19 @@
   /***********************************************
   * D') EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (INGRESSOS)
   ***********************************************/
-  // Esse trecho foi ajustado para realizar o redirecionamento sem chamar modal.
+  // Se o botão "Ver detalhes" não tiver a classe .btn-details-ingresso,
+  // interceptamos qualquer clique em um botão cujo texto seja "Ver detalhes"
+  // dentro de um .ticket-card que esteja dentro de #ingressosList.
   const ingressosListEl = document.getElementById('ingressosList');
   if (ingressosListEl) {
     ingressosListEl.addEventListener('click', function(e) {
-      // Procura pelo botão "Ver detalhes" que deve ter a classe .btn-details-ingresso
-      const btn = e.target.closest('.btn-details-ingresso');
+      // Busca qualquer botão que tenha texto "Ver detalhes"
+      const btn = e.target.closest('button');
       if (!btn) return;
+      if (btn.textContent.trim() !== "Ver detalhes") return;  // Garante que é o botão certo
       const card = btn.closest('.ticket-card');
       if (!card) return;
-      // Extraindo referências dos dados do ingresso
+      // Extrai os dados do ingresso
       const ticketId = card.getAttribute('data-ticket-id');
       const dataIngresso = document.getElementById('dataIngresso')?.value || '';
       const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
@@ -600,7 +603,6 @@
         destinoIngressoCode: destinoIngressoCode
       };
       const queryString = new URLSearchParams(searchParams).toString();
-      // Redireciona para a página de tickets com os parâmetros na query string
       window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
     });
   }
