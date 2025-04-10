@@ -110,7 +110,7 @@
           <input type="text" id="dataIngresso" placeholder="Selecione a data" />
         </div>
         <div class="form-field button-field">
-          <button class="search-button" id="btnBuscarIngressos" onclick="buscarIngressos()">Buscar Ingressos</button>
+          <button class="search-button" onclick="buscarIngressos()">Buscar Ingressos</button>
         </div>
       </div>
       <div id="status"></div>
@@ -123,6 +123,7 @@
           <div class="filter-group">
             <h3>Categorias</h3>
             <div id="ingressoCategoriesList">
+              <!-- Insira aqui os itens de categoria (pode ser checkboxes ou lista) -->
               <!-- Exemplo: -->
               <!-- <label><input type="checkbox" value="parque"> Parque</label> -->
             </div>
@@ -130,7 +131,7 @@
           <div class="filter-group">
             <h3>Buscar por Nome</h3>
             <input type="text" id="nameSearchInputIngressos" placeholder="Ex: Magic Kingdom" />
-            <button id="btnFiltrarNomeIngressos" onclick="applyNameFilterIngressos()">Filtrar</button>
+            <button onclick="applyNameFilterIngressos()">Filtrar</button>
           </div>
           <div class="filter-group">
             <h3>Preço</h3>
@@ -138,13 +139,13 @@
             <input type="number" placeholder="R$ 0" id="priceMinIngresso" />
             <label>Máx.</label>
             <input type="number" placeholder="R$ 2.000+" id="priceMaxIngresso" />
-            <button id="btnFiltrarPrecoIngressos" onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
+            <button onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
           </div>
         </aside>
   
         <!-- RESULTADOS DOS INGRESSOS -->
         <div class="results-main">
-          <!-- Os cards de ingresso serão gerados via API aqui -->
+          <!-- Os cards de ingresso serão inseridos aqui pelos scripts (ex.: tac.js/tacr.js) -->
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
@@ -184,7 +185,7 @@
           </div>
         </div>
         <div class="form-field button-field">
-          <button class="search-button" id="btnBuscarHoteis" onclick="buscarHoteis()">Buscar Hotéis</button>
+          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
         </div>
       </div>
     </div>
@@ -264,7 +265,7 @@
     </div>
   </div>
   
-  <!-- TEMPLATE DO CARD DE HOTÉIS (permanece inalterado) -->
+  <!-- TEMPLATE DO CARD DE HOTÉIS -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -293,28 +294,6 @@
         <div class="price-starting"></div>
         <div class="ten-installments"></div>
         <button class="btn-options">Visualizar opções</button>
-      </div>
-    </div>
-  </template>
-  
-  <!-- TEMPLATE DO CARD DE INGRESSOS (NOVIDADE) -->
-  <template id="ticketCardTemplate">
-    <div class="ticket-card">
-      <!-- Carrossel de imagens -->
-      <div class="ticket-carousel">
-        <div class="carousel-track"></div>
-        <div class="carousel-dots"></div>
-      </div>
-      <!-- Corpo do card -->
-      <div class="ticket-body">
-        <h3 class="ticket-title"></h3>
-        <p class="ticket-description"></p>
-        <p class="ticket-date"></p>
-        <div class="ticket-prices">
-          <div class="price-starting"></div>
-          <div class="installments"></div>
-        </div>
-        <button class="btn-ticket-details" id="btnTicketDetails">Veja mais</button>
       </div>
     </div>
   </template>
@@ -600,170 +579,258 @@
     }
     
     /***********************************************
-    * D) CRIAÇÃO DE CARD PARA INGRESSOS (TICKET CARD)
+    * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
     ***********************************************/
-    function createTicketCard(ingressoData) {
-      const template = document.getElementById('ticketCardTemplate');
-      if (!template) return document.createDocumentFragment();
-      const clone = template.content.cloneNode(true);
-      
-      // Preenche os dados do ingresso
-      clone.querySelector('.ticket-title').textContent = ingressoData.title || 'Ingresso';
-      clone.querySelector('.ticket-description').textContent = ingressoData.description || '';
-      clone.querySelector('.ticket-date').textContent = ingressoData.dateText || '';
-      clone.querySelector('.price-starting').textContent = ingressoData.priceStarting || 'R$ ???';
-      clone.querySelector('.installments').textContent = ingressoData.installments || 'Até 10x';
-      
-      // Monta o carrossel de imagens
-      const track = clone.querySelector('.carousel-track');
-      const dotsContainer = clone.querySelector('.carousel-dots');
-      let currentSlide = 0;
-      const images = ingressoData.images || [];
-      
-      images.forEach((imgUrl) => {
-        const slide = document.createElement('div');
-        slide.classList.add('carousel-slide');
-        slide.innerHTML = `<img src="${imgUrl}" alt="Imagem do Ingresso" />`;
-        track.appendChild(slide);
-      });
-      
-      images.forEach((_, index) => {
-        const dot = document.createElement('span');
-        dot.classList.add('carousel-dot');
-        if (index === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => {
-          currentSlide = index;
-          updateCarousel();
-        });
-        dotsContainer.appendChild(dot);
-      });
-      
-      function updateCarousel() {
-        const slides = track.querySelectorAll('.carousel-slide');
-        if (!slides.length) return;
-        const slideWidth = slides[0].getBoundingClientRect().width;
-        track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-        updateDots();
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-options, .select-room-button');
+      if (!btn) return;
+      const card = btn.closest('.hotel-card');
+      if (!card) return;
+      const hotelCode = card.getAttribute('data-hotel-id');
+      if (!hotelCode) {
+        console.error('Código do hotel não encontrado no card.');
+        return;
       }
-      
-      function updateDots() {
-        const allDots = dotsContainer.querySelectorAll('.carousel-dot');
-        allDots.forEach((d, i) => {
-          d.classList.toggle('active', i === currentSlide);
-        });
+      const dateRange = document.getElementById('dataRangeHoteis')?.value || '';
+      let checkIn = '', checkOut = '';
+      if (dateRange) {
+        const dates = dateRange.split(' - ');
+        checkIn = dates[0] || '';
+        checkOut = dates[1] || '';
       }
-      
-      window.addEventListener('resize', updateCarousel);
-      
-      return clone;
-    }
+      checkIn = convertDateFormat(checkIn);
+      checkOut = convertDateFormat(checkOut);
+      let totalRooms = roomsData.length;
+      let totalAdults = 0, totalChildren = 0;
+      roomsData.forEach((room) => {
+        totalAdults += room.adults;
+        totalChildren += room.children;
+      });
+      const searchParams = {
+        hotelCode: hotelCode,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        rooms: totalRooms,
+        adults: totalAdults,
+        children: totalChildren,
+      };
+      const queryString = new URLSearchParams(searchParams).toString();
+      window.location.href = 'hoteldetails.html?' + queryString;
+    });
     
     /***********************************************
-    * E) EVENTOS E FUNÇÕES PARA BUSCAR CONTEÚDO VIA API
+    * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
     ***********************************************/
-    
-    // Função para buscar ingressos via API – TODOS OS ITENS DEVEM SER GERADOS PELA API!
-    async function buscarIngressos() {
-      const destination = document.getElementById('destinoIngressoCode')?.value
-        || document.getElementById('destinoIngresso')?.value || 'default';
-      const date = document.getElementById('dataIngresso')?.value || '';
-      const ingressosListEl = document.getElementById('ingressosList');
+    async function buscarHoteis() {
+      const destination = document.getElementById('destinoHoteisCode')?.value
+        || document.getElementById('destinoHoteis')?.value
+        || 'MCO';
+      const range = document.getElementById('dataRangeHoteis')?.value || '';
+      const hotelsListEl = document.getElementById('hotelsList');
       const statusEl = document.getElementById('status');
+      const paginationEl = document.getElementById('pagination');
       
-      if (!date) {
-        alert('Selecione a data!');
+      if (!range) {
+        alert('Selecione as datas!');
         return;
       }
       
-      // Exibe status de carregamento
+      showFiltersPanel();
+      
+      function toISO(dmy) {
+        const [d, m, y] = dmy.split('/');
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+      let checkIn = '', checkOut = '';
+      const parts = range.split(' ');
+      if (parts.length >= 2) {
+        checkIn = parts[0];
+        checkOut = parts[2] || parts[1];
+      }
+      const isoIn = toISO(checkIn);
+      const isoOut = toISO(checkOut);
+      
+      let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
+      roomsData.forEach((r, i) => {
+        const idx = i + 1;
+        query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
+      });
+      
+      if (hotelsListEl) hotelsListEl.innerHTML = '';
+      if (paginationEl) {
+        paginationEl.innerHTML = '';
+        paginationEl.style.display = 'none';
+      }
       if (statusEl) {
-        statusEl.textContent = 'Carregando ingressos...';
+        statusEl.textContent = 'Carregando hotéis...';
         statusEl.style.display = 'block';
       }
       
-      // Exemplo de chamada à API – ajuste a URL conforme sua implementação!
-      const url = `/api/ingressos?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(date)}`;
-      console.log('API de Ingressos:', url);
+      const url = `/api/hotelbeds/hotels${query}`;
+      console.log('API de Hotéis:', url);
       
       try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Erro na API: ${response.status}`);
+        const bookingResp = await fetch(url);
+        if (!bookingResp.ok) {
+          throw new Error('Booking API Error: ' + bookingResp.status);
         }
-        const data = await response.json();
-        // Supondo que a resposta contenha um array "ingressos"
-        const ingressosArr = data.ingressos || [];
+        const bookingData = await bookingResp.json();
+        let hotelsArr = bookingData.hotels?.hotels || [];
         
-        // Limpa a lista atual
-        if (ingressosListEl) ingressosListEl.innerHTML = '';
+        const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
+        if (propertyNameFilter) {
+          hotelsArr = hotelsArr.filter(h => h.name.toLowerCase().includes(propertyNameFilter));
+        }
         
-        // Para cada ingresso, gera o card
-        ingressosArr.forEach((ingresso) => {
-          const ingressoData = {
-            title: ingresso.name,
-            description: ingresso.shortDescription,
-            dateText: ingresso.date, // ajuste conforme seu JSON
-            priceStarting: ingresso.priceLabel,
-            installments: ingresso.installmentsLabel,
-            images: ingresso.images  // array de URLs
-          };
-          const cardEl = createTicketCard(ingressoData);
-          ingressosListEl.appendChild(cardEl);
-        });
+        const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
+        const selectedStars = Array.from(starCheckboxes)
+          .filter(cb => cb.checked)
+          .map(cb => parseInt(cb.value, 10));
+        if (selectedStars.length > 0) {
+          hotelsArr = hotelsArr.filter(hotel => {
+            if (!hotel.categoryName) return false;
+            const starNum = parseInt(hotel.categoryName, 10);
+            return selectedStars.includes(starNum);
+          });
+        }
         
+        if (!hotelsArr.length) {
+          if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
+          return;
+        }
         if (statusEl) statusEl.style.display = 'none';
         
-      } catch (error) {
-        console.error(error);
-        if (statusEl) statusEl.textContent = 'Erro ao buscar ingressos. Ver console.';
+        for (const hotel of hotelsArr) {
+          const code = hotel.code;
+          const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
+          if (!contentResp.ok) {
+            console.warn('Falha ao buscar content do hotel:', code);
+            continue;
+          }
+          const contentData = await contentResp.json();
+          const content = contentData?.hotel || {};
+          const name = content.name?.content || hotel.name || 'Sem Nome';
+          const street = content.address?.street || '';
+          const city = content.city?.content || '';
+          let addressFull = street;
+          if (city) {
+            addressFull += addressFull ? `, ${city}` : city;
+          }
+          let ratingNum = 0;
+          if (hotel.categoryCode) {
+            const mm = hotel.categoryCode.match(/\d+/);
+            if (mm) ratingNum = parseInt(mm[0], 10);
+          } else if (hotel.categoryName) {
+            const mm2 = hotel.categoryName.match(/\d+(\.\d+)?/);
+            if (mm2) ratingNum = parseFloat(mm2[0]);
+          }
+          if (!ratingNum) ratingNum = 3;
+          
+          let priceLabel = 'A partir de R$ ???';
+          if (hotel.minRate != null) {
+            const pr = parseFloat(hotel.minRate);
+            if (!isNaN(pr)) {
+              priceLabel = 'A partir de ' + formatPriceBRL(pr);
+            }
+          }
+          
+          let facArr = (content.facilities || []).map((f) => f.description?.content || '');
+          let poiArr = [];
+          if (content.interestPoints?.length) {
+            poiArr = content.interestPoints.map((ip) => ({
+              poiName: ip.poiName || 'Ponto de Interesse',
+              distance: ip.distance || '0',
+            }));
+          }
+          
+          let imagesArr = [];
+          if (content.images?.length) {
+            const roomImgs = content.images.filter((img) => img.type?.code === 'HAB');
+            const arr = roomImgs.length ? roomImgs : content.images;
+            imagesArr = arr.map((img) => `https://photos.hotelbeds.com/giata/xl/${img.path}`);
+          } else {
+            imagesArr = ['https://dummyimage.com/300x200/ccc/000.png&text=No+Image'];
+          }
+          
+          let daysNightsLabel = '';
+          if (checkIn && checkOut) {
+            const parseDmy = (dmy) => {
+              const [D, M, A] = dmy.split('/');
+              return new Date(+A, +M - 1, +D);
+            };
+            const d1 = parseDmy(checkIn);
+            const d2 = parseDmy(checkOut);
+            const ms = d2 - d1;
+            if (ms > 0) {
+              const diffDays = Math.round(ms / (1000 * 60 * 60 * 24));
+              daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
+            }
+          }
+          
+          const hotelObj = {
+            code: code,
+            name: name,
+            address: addressFull,
+            ratingStars: ratingNum,
+            ratingValue: ratingNum.toString(),
+            images: imagesArr,
+            daysNights: daysNightsLabel,
+            priceFrom: priceLabel,
+            installments: 'Até 10x sem juros',
+            facilities: facArr,
+            poiList: poiArr,
+          };
+          
+          const cardEl = createHotelCard(hotelObj);
+          hotelsListEl?.appendChild(cardEl);
+        }
+      } catch (e) {
+        console.error(e);
+        if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
       }
     }
     
-    /***********************************************
-    * F) EVENTOS PARA FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
-    ***********************************************/
-    function applyNameFilterIngressos() {
-      const input = document.getElementById('nameSearchInputIngressos');
-      const filterValue = input.value.trim().toLowerCase();
-      const cards = document.querySelectorAll('#ingressosList .ticket-card');
-      cards.forEach(card => {
-        const titleEl = card.querySelector('.ticket-title');
-        if (!titleEl) return;
-        const title = titleEl.textContent.toLowerCase();
-        card.style.display = title.includes(filterValue) ? 'block' : 'none';
-      });
+    function exibirPaginacao(totalPages, currentPage) {
+      const pagEl = document.getElementById('pagination');
+      if (!pagEl || totalPages <= 1) return;
+      pagEl.style.display = 'flex';
+      if (currentPage > 1) {
+        const btnPrev = document.createElement('button');
+        btnPrev.textContent = 'Anterior';
+        pagEl.appendChild(btnPrev);
+      }
+      if (currentPage < totalPages) {
+        const btnNext = document.createElement('button');
+        btnNext.textContent = 'Próxima Página';
+        pagEl.appendChild(btnNext);
+      }
     }
     
-    function applyPriceFilterIngressos() {
-      const minValue = parseFloat(document.getElementById('priceMinIngresso').value) || 0;
-      const maxValue = parseFloat(document.getElementById('priceMaxIngresso').value) || Infinity;
-      const cards = document.querySelectorAll('#ingressosList .ticket-card');
-      cards.forEach(card => {
-        const priceEl = card.querySelector('.price-starting');
-        if (!priceEl) return;
-        const priceText = priceEl.textContent || '';
-        const match = priceText.match(/([\d.,]+)/);
-        let price = 0;
-        if (match && match[1]) {
-          const numericStr = match[1].replace(/\./g, '').replace(',', '.');
-          price = parseFloat(numericStr);
-        }
-        card.style.display = (price >= minValue && price <= maxValue) ? 'block' : 'none';
-      });
+    function convertDateFormat(dateStr) {
+      const [d, m, a] = dateStr.split('/');
+      return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
     
     /***********************************************
-    * G) OUTRAS FUNÇÕES (HOTÉIS, REDIRECIONAMENTO, AUTOCOMPLETE, ETC.)
-    * (Mantenha o que já estava implementado para hotéis, carros etc.)
+    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
     ***********************************************/
-    // ... (código original referente a hotéis, redirecionamento e autocomplete permanece inalterado) ...
+    function showFiltersPanel() {
+      const panel = document.getElementById('filtersPanel');
+      panel.classList.remove('hidden');
+      panel.classList.add('visible');
+    }
     
-    document.addEventListener('DOMContentLoaded', () => {
-      setupAutocomplete('destinoIngresso');
-      setupAutocomplete('destinoHoteis');
-    });
+    /***********************************************
+    * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
+    ***********************************************/
+    function toggleFilters() {
+      const panel = document.getElementById('filtersPanel');
+      panel.classList.toggle('active');
+    }
     
-    // Exibe conteúdo somente após carregamento completo, etc.
+    /***********************************************
+    * Otimização: Exibe o conteúdo somente após o carregamento completo
+    ***********************************************/
     document.addEventListener('DOMContentLoaded', function () {
       fetch('loading.html')
         .then((response) => {
@@ -788,7 +855,7 @@
       });
     });
     
-    // Função debounce
+    // Função debounce para reduzir requisições enquanto o usuário digita
     function debounce(func, delay) {
       let timer;
       return function(...args) {
@@ -797,7 +864,7 @@
       }
     }
     
-    // Função para configurar autocomplete (mantida do código original)
+    // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -855,6 +922,52 @@
       document.addEventListener('click', (e) => {
         if (e.target !== input) {
           suggestionBox.innerHTML = '';
+        }
+      });
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      setupAutocomplete('destinoIngresso');
+      setupAutocomplete('destinoHoteis');
+    });
+    
+    /***********************************************
+    * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
+    ***********************************************/
+    function applyNameFilterIngressos() {
+      const input = document.getElementById('nameSearchInputIngressos');
+      const filterValue = input.value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#ingressosList .ticket-card');
+      cards.forEach(card => {
+        const titleEl = card.querySelector('h3');
+        if (!titleEl) return;
+        const title = titleEl.textContent.toLowerCase();
+        if (title.includes(filterValue)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+    
+    function applyPriceFilterIngressos() {
+      const minValue = parseFloat(document.getElementById('priceMinIngresso').value) || 0;
+      const maxValue = parseFloat(document.getElementById('priceMaxIngresso').value) || Infinity;
+      const cards = document.querySelectorAll('#ingressosList .ticket-card');
+      cards.forEach(card => {
+        const priceEl = card.querySelector('.price-starting');
+        if (!priceEl) return;
+        const priceText = priceEl.textContent || '';
+        const match = priceText.match(/([\d.,]+)/);
+        let price = 0;
+        if (match && match[1]) {
+          const numericStr = match[1].replace(/\./g, '').replace(',', '.');
+          price = parseFloat(numericStr);
+        }
+        if (price < minValue || price > maxValue) {
+          card.style.display = 'none';
+        } else {
+          card.style.display = 'block';
         }
       });
     }
