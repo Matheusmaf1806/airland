@@ -58,6 +58,7 @@
     }
     /* Estilo básico para os cards de ingresso (exemplo) */
     .ticket-card {
+      /* Essas regras serão substituídas pelas novas regras no tac.css */
       background: #fff;
       border: 1px solid #ddd;
       padding: 10px;
@@ -66,7 +67,7 @@
   </style>
 </head>
 <body>
-  <!-- HEADER e Shopping Cart -->
+  <!-- HEADER -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
   
@@ -97,7 +98,7 @@
       </div>
     </div>
   
-    <!-- ABA DE INGRESSOS (exclusivo para Ingressos) -->
+    <!-- ABA DE INGRESSOS -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -110,26 +111,28 @@
           <input type="text" id="dataIngresso" placeholder="Selecione a data" />
         </div>
         <div class="form-field button-field">
-          <button class="search-button" onclick="buscarIngressos()">Buscar Ingressos</button>
+          <button class="search-button" id="btnBuscarIngressos" onclick="buscarIngressos()">Buscar Ingressos</button>
         </div>
       </div>
       <div id="status"></div>
       
-      <!-- BARRA LATERAL + RESULTADOS -->
+      <!-- BARRA LATERAL + RESULTADOS PARA INGRESSOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
-        <!-- BARRA LATERAL COM FILTROS -->
+        <!-- BARRA LATERAL (FILTROS EXCLUSIVOS PARA INGRESSOS) -->
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Filtros de Ingressos</h2>
           <div class="filter-group">
             <h3>Categorias</h3>
             <div id="ingressoCategoriesList">
-              <!-- Itens de categoria (ex.: checkboxes) -->
+              <!-- Insira aqui os itens de categoria (pode ser checkboxes ou lista) -->
+              <!-- Exemplo: -->
+              <!-- <label><input type="checkbox" value="parque"> Parque</label> -->
             </div>
           </div>
           <div class="filter-group">
             <h3>Buscar por Nome</h3>
             <input type="text" id="nameSearchInputIngressos" placeholder="Ex: Magic Kingdom" />
-            <button onclick="applyNameFilterIngressos()">Filtrar</button>
+            <button id="btnFiltroNomeIngressos" onclick="applyNameFilterIngressos()">Filtrar</button>
           </div>
           <div class="filter-group">
             <h3>Preço</h3>
@@ -137,13 +140,13 @@
             <input type="number" placeholder="R$ 0" id="priceMinIngresso" />
             <label>Máx.</label>
             <input type="number" placeholder="R$ 2.000+" id="priceMaxIngresso" />
-            <button onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
+            <button id="btnFiltroPrecoIngressos" onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
           </div>
         </aside>
   
         <!-- RESULTADOS DOS INGRESSOS -->
         <div class="results-main">
-          <!-- Os cards de ingresso serão inseridos aqui pelo JS -->
+          <!-- Os cards de ingresso serão inseridos aqui pelos scripts -->
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
@@ -151,9 +154,8 @@
     </div>
     <!-- FIM DA ABA DE INGRESSOS -->
   
-    <!-- Outras abas (Hotéis, Carros, etc.) permanecem conforme seu código original -->
+    <!-- ABA DE HOTÉIS -->
     <div id="tab-hoteis" class="tab-content">
-      <!-- Conteúdo para Hotéis -->
       <div class="form-group">
         <div class="form-field">
           <label for="destinoHoteis">Destino</label>
@@ -184,10 +186,12 @@
           </div>
         </div>
         <div class="form-field button-field">
-          <button class="search-button" onclick="buscarHoteis()">Buscar Hotéis</button>
+          <button class="search-button" id="btnBuscarHoteis" onclick="buscarHoteis()">Buscar Hotéis</button>
         </div>
       </div>
     </div>
+  
+    <!-- ABAS DE CARROS, TRANSFER E SEGUROS -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -262,7 +266,33 @@
     </div>
   </div>
   
-  <!-- TEMPLATE DO CARD DE HOTÉIS (já existente) -->
+  <!-- TEMPLATE DO CARD DE TICKETS (INGRESSOS) -->
+  <template id="ticketCardTemplate">
+    <div class="ticket-card">
+      <!-- Carrossel (imagens) -->
+      <div class="ticket-carousel">
+        <div class="carousel-track">
+          <!-- As imagens serão inseridas dinamicamente -->
+        </div>
+        <div class="carousel-dots">
+          <!-- As bolinhas (dots) serão criadas dinamicamente -->
+        </div>
+      </div>
+      <!-- Corpo do Card -->
+      <div class="ticket-body">
+        <h3 class="ticket-title"></h3>
+        <p class="ticket-description"></p>
+        <p class="ticket-date"></p>
+        <div class="ticket-prices">
+          <div class="price-starting"></div>
+          <div class="installments"></div>
+        </div>
+        <button class="btn-ticket-details">Veja mais</button>
+      </div>
+    </div>
+  </template>
+  
+  <!-- TEMPLATE DO CARD DE HOTÉIS -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -295,26 +325,6 @@
     </div>
   </template>
   
-  <!-- TEMPLATE DO CARD DE INGRESSOS (NOVO – exclusivo para Ingressos) -->
-  <template id="ticketCardTemplate">
-    <div class="ticket-card">
-      <div class="ticket-carousel">
-        <div class="carousel-track"></div>
-        <div class="carousel-dots"></div>
-      </div>
-      <div class="ticket-body">
-        <h3 class="ticket-title"></h3>
-        <p class="ticket-description"></p>
-        <p class="ticket-date"></p>
-        <div class="ticket-prices">
-          <div class="price-starting"></div>
-          <div class="installments"></div>
-        </div>
-        <button class="btn-ticket-details">Veja mais</button>
-      </div>
-    </div>
-  </template>
-  
   <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
@@ -332,8 +342,8 @@
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
-     * A) TABS + FLATPICKR
-     ***********************************************/
+    * A) TABS + FLATPICKR
+    ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach((tab) => {
@@ -364,8 +374,8 @@
     }
     
     /***********************************************
-     * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
-     ***********************************************/
+    * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
+    ***********************************************/
     const quartosInput = document.getElementById('quartos');
     const dropdown = document.getElementById('quartosDropdown');
     const roomsMinus = document.getElementById('roomsMinus');
@@ -475,8 +485,8 @@
     renderRooms();
     
     /***********************************************
-     * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
-     ***********************************************/
+    * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
+    ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
@@ -596,8 +606,105 @@
     }
     
     /***********************************************
-     * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
-     ***********************************************/
+    * NOVA SEÇÃO: CRIAÇÃO DE CARD E FUNÇÃO PARA INGRESSOS
+    ***********************************************/
+    // Função para criar um card de ingresso com carrossel (usando o template ticketCardTemplate)
+    function createTicketCard(ticketData) {
+      const template = document.getElementById('ticketCardTemplate');
+      if (!template) return document.createDocumentFragment();
+      const clone = template.content.cloneNode(true);
+      
+      // Preencher informações básicas
+      clone.querySelector('.ticket-title').textContent = ticketData.title || 'Ingresso';
+      clone.querySelector('.ticket-description').textContent = ticketData.description || '';
+      clone.querySelector('.ticket-date').textContent = ticketData.dateText || '';
+      clone.querySelector('.price-starting').textContent = ticketData.priceStarting || 'R$ ???';
+      clone.querySelector('.installments').textContent = ticketData.installments || '';
+      
+      // Carrossel
+      const track = clone.querySelector('.carousel-track');
+      const dotsContainer = clone.querySelector('.carousel-dots');
+      let currentSlide = 0;
+      const images = ticketData.images || [];
+      
+      images.forEach((imgUrl) => {
+        const slide = document.createElement('div');
+        slide.classList.add('carousel-slide');
+        slide.innerHTML = `<img src="${imgUrl}" alt="Imagem do Ingresso" />`;
+        track.appendChild(slide);
+      });
+      
+      images.forEach((_, index) => {
+        const dot = document.createElement('span');
+        dot.classList.add('carousel-dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+          currentSlide = index;
+          updateCarousel();
+        });
+        dotsContainer.appendChild(dot);
+      });
+      
+      function updateCarousel() {
+        const slides = track.querySelectorAll('.carousel-slide');
+        if (!slides.length) return;
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
+        updateDots();
+      }
+      
+      function updateDots() {
+        const allDots = dotsContainer.querySelectorAll('.carousel-dot');
+        allDots.forEach((d, i) => {
+          d.classList.toggle('active', i === currentSlide);
+        });
+      }
+      
+      window.addEventListener('resize', updateCarousel);
+      
+      return clone;
+    }
+    
+    // Exemplo de implementação para buscar ingressos
+    function buscarIngressos() {
+      // Dados fictícios de ingressos para demonstração.
+      const ticketsData = [
+        {
+          title: "Ingresso para Parque Aventura",
+          description: "Um dia inesquecível com atrações radicais.",
+          dateText: "15/04/2025",
+          priceStarting: "R$ 120,00",
+          installments: "3x sem juros",
+          images: [
+            "https://dummyimage.com/400x220/ccc/000.png&text=Parque+Aventura+1",
+            "https://dummyimage.com/400x220/ccc/000.png&text=Parque+Aventura+2"
+          ]
+        },
+        {
+          title: "Ingresso para Show de Música",
+          description: "Experiência única com a melhor banda.",
+          dateText: "20/04/2025",
+          priceStarting: "R$ 200,00",
+          installments: "5x sem juros",
+          images: [
+            "https://dummyimage.com/400x220/ccc/000.png&text=Show+1",
+            "https://dummyimage.com/400x220/ccc/000.png&text=Show+2",
+            "https://dummyimage.com/400x220/ccc/000.png&text=Show+3"
+          ]
+        }
+      ];
+      
+      const ingressosListEl = document.getElementById('ingressosList');
+      ingressosListEl.innerHTML = "";
+      ticketsData.forEach(ticket => {
+        const cardEl = createTicketCard(ticket);
+        ingressosListEl.appendChild(cardEl);
+      });
+    }
+    
+    /***********************************************
+    * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
+    ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
       if (!btn) return;
@@ -636,8 +743,8 @@
     });
     
     /***********************************************
-     * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
-     ***********************************************/
+    * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
+    ***********************************************/
     async function buscarHoteis() {
       const destination = document.getElementById('destinoHoteisCode')?.value
         || document.getElementById('destinoHoteis')?.value
@@ -829,8 +936,8 @@
     }
     
     /***********************************************
-     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
-     ***********************************************/
+    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
+    ***********************************************/
     function showFiltersPanel() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.remove('hidden');
@@ -838,16 +945,16 @@
     }
     
     /***********************************************
-     * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
-     ***********************************************/
+    * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
+    ***********************************************/
     function toggleFilters() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.toggle('active');
     }
     
     /***********************************************
-     * Otimização: Exibe o conteúdo somente após o carregamento completo
-     ***********************************************/
+    * Otimização: Exibe o conteúdo somente após o carregamento completo
+    ***********************************************/
     document.addEventListener('DOMContentLoaded', function () {
       fetch('loading.html')
         .then((response) => {
@@ -881,7 +988,7 @@
       }
     }
     
-    // Função para configurar autocomplete para um input específico
+    // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -946,22 +1053,24 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
-      // Opcional: disparar a busca de ingressos para teste
-      // buscarIngressos();
     });
     
     /***********************************************
-     * FUNÇÕES ESPECÍFICAS DA ABA DE INGRESSOS
-     ***********************************************/
+    * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
+    ***********************************************/
     function applyNameFilterIngressos() {
       const input = document.getElementById('nameSearchInputIngressos');
       const filterValue = input.value.trim().toLowerCase();
       const cards = document.querySelectorAll('#ingressosList .ticket-card');
       cards.forEach(card => {
-        const titleEl = card.querySelector('.ticket-title');
+        const titleEl = card.querySelector('h3');
         if (!titleEl) return;
         const title = titleEl.textContent.toLowerCase();
-        card.style.display = title.includes(filterValue) ? 'block' : 'none';
+        if (title.includes(filterValue)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
       });
     }
     
@@ -979,43 +1088,11 @@
           const numericStr = match[1].replace(/\./g, '').replace(',', '.');
           price = parseFloat(numericStr);
         }
-        card.style.display = (price < minValue || price > maxValue) ? 'none' : 'block';
-      });
-    }
-    
-    // Exemplo de função para buscar ingressos (exclusivo para a aba Ingressos)
-    function buscarIngressos() {
-      // Simulação de dados. Substitua com sua chamada à API real.
-      const sampleIngressos = [
-        {
-          title: 'Parque de Diversões XYZ',
-          description: 'A diversão está garantida com várias atrações.',
-          dateText: '15/05/2025',
-          priceStarting: 'R$ 120,00',
-          installments: 'Em até 5x',
-          images: [
-            'https://dummyimage.com/400x220/ccc/000.png&text=Parque+1',
-            'https://dummyimage.com/400x220/ddd/000.png&text=Parque+2',
-            'https://dummyimage.com/400x220/eee/000.png&text=Parque+3'
-          ]
-        },
-        {
-          title: 'Show do Artista ABC',
-          description: 'Imperdível! Garanta já seu ingresso.',
-          dateText: '22/06/2025',
-          priceStarting: 'R$ 200,00',
-          installments: 'Em até 10x',
-          images: [
-            'https://dummyimage.com/400x220/aaa/000.png&text=Show+1',
-            'https://dummyimage.com/400x220/bbb/000.png&text=Show+2'
-          ]
+        if (price < minValue || price > maxValue) {
+          card.style.display = 'none';
+        } else {
+          card.style.display = 'block';
         }
-      ];
-      const ingressosListEl = document.getElementById('ingressosList');
-      ingressosListEl.innerHTML = '';
-      sampleIngressos.forEach(ticket => {
-        const card = createTicketCard(ticket);
-        ingressosListEl.appendChild(card);
       });
     }
   </script>
