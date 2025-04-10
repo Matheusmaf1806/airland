@@ -1,3 +1,5 @@
+// routes/tickets.routes.js
+
 import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 
@@ -9,23 +11,37 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.get('/', async (req, res) => {
-  // Recebe os parâmetros: destination (código do destino) e date (data no formato yyyy-mm-dd)
-  const { destination, date } = req.query;
-  if (!destination) {
-    return res.status(400).json({ error: 'O parâmetro "destination" é obrigatório.' });
-  }
-  try {
-    let tableName = 'tickets';
-    let dateColumn = 'event_date'; // Coluna de data para a tabela tickets
+  // Recebe os parâmetros tanto para destination/date quanto para activityCode/dataIngresso
+  const { destination, date, activityCode, dataIngresso } = req.query;
 
-    // Se o destino for MCO, use a tabela activities_bd e a coluna "date"
+  let tableName, dateColumn;
+  let query;
+
+  if (activityCode && dataIngresso) {
+    // Se for chamada com activityCode e dataIngresso, utiliza a tabela e coluna correspondentes
+    // Ajuste o nome da tabela e as colunas conforme sua modelagem de dados
+    tableName = 'activities_bd';
+    dateColumn = 'date';
+    query = supabase
+      .from(tableName)
+      .select('*')
+      .eq('activity_code', activityCode);
+      
+    // Se a data foi enviada, acrescenta o filtro
+    if (dataIngresso) {
+      query = query.eq(dateColumn, dataIngresso);
+    }
+  } else if (destination) {
+    // Se for chamada com destination e date
+    tableName = 'tickets';
+    dateColumn = 'event_date';
+
+    // Se o destino for MCO, usa outra tabela conforme lógica existente
     if (destination.toUpperCase() === 'MCO') {
       tableName = 'activities_bd';
       dateColumn = 'date';
     }
-
-    // Construa a query
-    let query = supabase
+    query = supabase
       .from(tableName)
       .select('*')
       .eq('destination_code', destination);
@@ -33,9 +49,12 @@ router.get('/', async (req, res) => {
     if (date) {
       query = query.eq(dateColumn, date);
     }
+  } else {
+    return res.status(400).json({ error: 'Informe os parâmetros necessários (destination/date ou activityCode/dataIngresso).' });
+  }
 
+  try {
     const { data, error } = await query;
-
     if (error) throw error;
     return res.json(data);
   } catch (err) {
