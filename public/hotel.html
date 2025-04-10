@@ -9,9 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
+  <!-- Estilos CSS -->
   <link rel="preload" href="/css/cart.css" as="style" />
   <link rel="stylesheet" href="/css/tac.css" />
-
   <!-- Fonte Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
 
@@ -65,9 +66,45 @@
     .tabs .tab.active { background: #eee; }
     .tab-content { display: none; margin-top: 16px; }
     .tab-content.active { display: block; }
+    /* Estilo para o overlay de loading */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    /* Estilo para hotelDetail se necessário */
+    #hotelDetail {
+      display: none;
+    }
+    /* Estilo para autocomplete suggestions */
+    .autocomplete-suggestions {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ccc;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    .autocomplete-suggestions div {
+      padding: 8px;
+      cursor: pointer;
+    }
+    .autocomplete-suggestions div:hover {
+      background: #f0f0f0;
+    }
   </style>
 </head>
 <body>
+  <!-- Overlay de loading -->
+  <div id="loading-overlay">Carregando...</div>
   <!-- HEADER e CARRINHO -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
@@ -125,9 +162,9 @@
           <div class="filter-group">
             <h3>Preço</h3>
             <label>Mín.</label>
-            <input type="number" placeholder="R$ 0" id="priceMinIngresso" />
+            <input type="number" placeholder="0" id="priceMinIngresso" />
             <label>Máx.</label>
-            <input type="number" placeholder="R$ 2.000+" id="priceMaxIngresso" />
+            <input type="number" placeholder="2000" id="priceMaxIngresso" />
             <button onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
           </div>
         </aside>
@@ -203,11 +240,11 @@
           <div class="price-inputs">
             <div>
               <label>Mín.</label>
-              <input type="number" placeholder="R$ 0" id="priceMin" />
+              <input type="number" placeholder="0" id="priceMin" />
             </div>
             <div>
               <label>Máx.</label>
-              <input type="number" placeholder="R$ 2.400+" id="priceMax" />
+              <input type="number" placeholder="2400" id="priceMax" />
             </div>
           </div>
           <div class="price-slider">
@@ -218,11 +255,11 @@
       </div>
       <div class="filter-group">
         <h3>Estrelas</h3>
-        <label><input type="checkbox" value="5" /> 5 estrelas</label>
-        <label><input type="checkbox" value="4" /> 4 estrelas</label>
-        <label><input type="checkbox" value="3" /> 3 estrelas</label>
-        <label><input type="checkbox" value="2" /> 2 estrelas</label>
-        <label><input type="checkbox" value="1" /> 1 estrela</label>
+        <label><input class="star-checkbox" type="checkbox" value="5" /> 5 estrelas</label>
+        <label><input class="star-checkbox" type="checkbox" value="4" /> 4 estrelas</label>
+        <label><input class="star-checkbox" type="checkbox" value="3" /> 3 estrelas</label>
+        <label><input class="star-checkbox" type="checkbox" value="2" /> 2 estrelas</label>
+        <label><input class="star-checkbox" type="checkbox" value="1" /> 1 estrela</label>
       </div>
       <div class="filter-group">
         <h3>Tipo de Acomodação</h3>
@@ -246,6 +283,8 @@
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
+      <!-- Container para paginação -->
+      <div id="pagination" style="display:none;"></div>
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
@@ -291,6 +330,9 @@
     </p>
   </section>
 
+  <!-- ELEMENTO PARA DETALHES DO HOTEL (se necessário) -->
+  <div id="hotelDetail"></div>
+
   <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
@@ -318,7 +360,10 @@
         }
       });
     });
-  
+
+    // Array global para funções de atualização de carousel
+    const carouselUpdateFunctions = [];
+
     if (typeof flatpickr !== 'undefined') {
       flatpickr('#dataIngresso', {
         locale: 'pt',
@@ -335,7 +380,7 @@
         allowInput: true
       });
     }
-  
+
     /***********************************************
      * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
      ***********************************************/
@@ -346,9 +391,9 @@
     const roomsTotalEl = document.getElementById('roomsTotal');
     const roomsContainer = document.getElementById('roomsContainer');
     const applyQuartos = document.getElementById('applyQuartos');
-  
+
     let roomsData = [{ adults: 2, children: 0, childAges: [] }];
-  
+
     if (quartosInput) {
       quartosInput.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -361,7 +406,7 @@
     document.addEventListener('click', () => {
       if (dropdown) dropdown.classList.remove('active');
     });
-  
+
     function renderRooms() {
       if (!roomsContainer || !roomsTotalEl) return;
       roomsContainer.innerHTML = '';
@@ -373,7 +418,7 @@
         title.className = 'qd-room-title';
         title.textContent = `Quarto ${index + 1}`;
         block.appendChild(title);
-  
+
         const adRow = document.createElement('div');
         adRow.className = 'qd-row';
         adRow.innerHTML = `
@@ -385,7 +430,7 @@
           </div>
         `;
         block.appendChild(adRow);
-  
+
         const chRow = document.createElement('div');
         chRow.className = 'qd-row';
         chRow.innerHTML = `
@@ -397,7 +442,7 @@
           </div>
         `;
         block.appendChild(chRow);
-  
+
         const agesDiv = document.createElement('div');
         agesDiv.className = 'children-ages';
         room.childAges.forEach((ageVal, i2) => {
@@ -416,16 +461,16 @@
           agesDiv.appendChild(sel);
         });
         block.appendChild(agesDiv);
-  
+
         adRow.querySelector('.adultPlus').addEventListener('click', () => { room.adults++; renderRooms(); });
         adRow.querySelector('.adultMinus').addEventListener('click', () => { if (room.adults > 1) { room.adults--; renderRooms(); } });
         chRow.querySelector('.childPlus').addEventListener('click', () => { room.children++; room.childAges.push(0); renderRooms(); });
         chRow.querySelector('.childMinus').addEventListener('click', () => { if (room.children > 0) { room.children--; room.childAges.pop(); renderRooms(); } });
-  
+
         roomsContainer.appendChild(block);
       });
     }
-  
+
     if (roomsPlus) {
       roomsPlus.addEventListener('click', () => { roomsData.push({ adults: 2, children: 0, childAges: [] }); renderRooms(); });
     }
@@ -446,22 +491,22 @@
       });
     }
     renderRooms();
-  
+
     /***********************************************
      * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
      ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
-  
+
     const priorityFacilities = ['Wi-fi', 'Gym', 'Pool', 'Parking'];
-  
+
     function convertDistanceToKm(distStr) {
       const meters = parseFloat(distStr) || 0;
       const km = meters / 1000;
       return km.toFixed(1).replace('.', ',') + ' km';
     }
-  
+
     function createHotelCard(hotelData) {
       const template = document.getElementById('hotelCardTemplate');
       if (!template) return document.createDocumentFragment();
@@ -472,7 +517,7 @@
       clone.querySelector('.days-nights').textContent = hotelData.daysNights || '';
       clone.querySelector('.price-starting').textContent = hotelData.priceFrom || '';
       clone.querySelector('.ten-installments').textContent = hotelData.installments || '';
-  
+
       const starEl = clone.querySelector('.stars');
       starEl.innerHTML = '';
       const r = Math.round(hotelData.ratingStars || 0);
@@ -483,7 +528,7 @@
         starEl.appendChild(star);
       }
       clone.querySelector('.rating-value').textContent = hotelData.ratingValue || '';
-  
+
       let facArr = hotelData.facilities || [];
       facArr.sort((a, b) => {
         const aIndex = priorityFacilities.findIndex((p) => a.toLowerCase().includes(p.toLowerCase()));
@@ -525,7 +570,7 @@
         }
         facDiv.appendChild(iconDiv);
       });
-  
+
       const poiUl = clone.querySelector('.poi-list');
       (hotelData.poiList || [])
         .slice(0, 3)
@@ -534,7 +579,7 @@
           li.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${p.poiName} - ${convertDistanceToKm(p.distance)}`;
           poiUl.appendChild(li);
         });
-  
+
       const track = clone.querySelector('.carousel-track');
       let currentSlide = 0;
       (hotelData.images || []).forEach((url) => {
@@ -543,7 +588,7 @@
         slide.innerHTML = `<img loading="lazy" src="${url}" alt="Foto do Hotel">`;
         track.appendChild(slide);
       });
-  
+
       const prevBtn = clone.querySelector('.prev-button');
       const nextBtn = clone.querySelector('.next-button');
       function updateCarousel() {
@@ -552,7 +597,6 @@
         const w = slides[0].getBoundingClientRect().width;
         track.style.transform = `translateX(-${currentSlide * w}px)`;
       }
-  
       prevBtn.addEventListener('click', () => {
         const slides = track.querySelectorAll('.carousel-slide');
         currentSlide = (currentSlide - 1 + slides.length) % slides.length;
@@ -563,11 +607,18 @@
         currentSlide = (currentSlide + 1) % slides.length;
         updateCarousel();
       });
-      window.addEventListener('resize', updateCarousel);
-  
+      // Em vez de adicionar listener diretamente ao window para cada cartão,
+      // adicionamos a função updateCarousel a um array global que será chamado no resize.
+      carouselUpdateFunctions.push(updateCarousel);
+
       return clone;
     }
-  
+
+    // Listener global para atualizar os carousels ao redimensionar a janela
+    window.addEventListener('resize', () => {
+      carouselUpdateFunctions.forEach(fn => fn());
+    });
+
     /***********************************************
      * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
      ***********************************************/
@@ -584,9 +635,11 @@
       const dateRange = document.getElementById('dataRangeHoteis')?.value || '';
       let checkIn = '', checkOut = '';
       if (dateRange) {
-        const dates = dateRange.split(' - ');
-        checkIn = dates[0] || '';
-        checkOut = dates[1] || '';
+        const parts = dateRange.split(' - ');
+        if (parts.length === 2) {
+          checkIn = parts[0];
+          checkOut = parts[1];
+        }
       }
       checkIn = convertDateFormat(checkIn);
       checkOut = convertDateFormat(checkOut);
@@ -607,7 +660,7 @@
       const queryString = new URLSearchParams(searchParams).toString();
       window.location.href = 'hoteldetails.html?' + queryString;
     });
-  
+
     /***********************************************
      * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
      ***********************************************/
@@ -616,36 +669,38 @@
         || document.getElementById('destinoHoteis')?.value
         || 'MCO';
       const range = document.getElementById('dataRangeHoteis')?.value || '';
-      const hotelsListEl = document.getElementById('hotelsList');
+      // Alterado para utilizar o elemento "activitiesGrid"
+      const hotelsListEl = document.getElementById('activitiesGrid');
       const statusEl = document.getElementById('status');
       const paginationEl = document.getElementById('pagination');
-  
+
       if (!range) {
         alert('Selecione as datas!');
         return;
       }
-  
+
       showFiltersPanel();
-  
+
       function toISO(dmy) {
         const [d, m, y] = dmy.split('/');
         return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
       }
       let checkIn = '', checkOut = '';
-      const parts = range.split(' ');
-      if (parts.length >= 2) {
+      // Atualizado para split correto do range
+      const parts = range.split(' - ');
+      if (parts.length === 2) {
         checkIn = parts[0];
-        checkOut = parts[2] || parts[1];
+        checkOut = parts[1];
       }
       const isoIn = toISO(checkIn);
       const isoOut = toISO(checkOut);
-  
+
       let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
       roomsData.forEach((r, i) => {
         const idx = i + 1;
         query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
       });
-  
+
       if (hotelsListEl) hotelsListEl.innerHTML = '';
       if (paginationEl) {
         paginationEl.innerHTML = '';
@@ -655,10 +710,10 @@
         statusEl.textContent = 'Carregando hotéis...';
         statusEl.style.display = 'block';
       }
-  
+
       const url = `/api/hotelbeds/hotels${query}`;
       console.log('API de Hotéis:', url);
-  
+
       try {
         const bookingResp = await fetch(url);
         if (!bookingResp.ok) {
@@ -666,13 +721,14 @@
         }
         const bookingData = await bookingResp.json();
         let hotelsArr = bookingData.hotels?.hotels || [];
-  
+
         const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
         if (propertyNameFilter) {
           hotelsArr = hotelsArr.filter(h => h.name.toLowerCase().includes(propertyNameFilter));
         }
-  
-        const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
+
+        // Utilizando seletor refinado para checkboxes de estrelas
+        const starCheckboxes = document.querySelectorAll('.star-checkbox');
         const selectedStars = Array.from(starCheckboxes)
           .filter(cb => cb.checked)
           .map(cb => parseInt(cb.value, 10));
@@ -683,13 +739,13 @@
             return selectedStars.includes(starNum);
           });
         }
-  
+
         if (!hotelsArr.length) {
           if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
           return;
         }
         if (statusEl) statusEl.style.display = 'none';
-  
+
         for (const hotel of hotelsArr) {
           const code = hotel.code;
           const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
@@ -715,7 +771,7 @@
             if (mm2) ratingNum = parseFloat(mm2[0]);
           }
           if (!ratingNum) ratingNum = 3;
-  
+
           let priceLabel = 'A partir de R$ ???';
           if (hotel.minRate != null) {
             const pr = parseFloat(hotel.minRate);
@@ -723,7 +779,7 @@
               priceLabel = 'A partir de ' + formatPriceBRL(pr);
             }
           }
-  
+
           let facArr = (content.facilities || []).map((f) => f.description?.content || '');
           let poiArr = [];
           if (content.interestPoints?.length) {
@@ -732,7 +788,7 @@
               distance: ip.distance || '0',
             }));
           }
-  
+
           let imagesArr = [];
           if (content.images?.length) {
             const roomImgs = content.images.filter((img) => img.type?.code === 'HAB');
@@ -741,7 +797,7 @@
           } else {
             imagesArr = ['https://dummyimage.com/300x200/ccc/000.png&text=No+Image'];
           }
-  
+
           let daysNightsLabel = '';
           if (checkIn && checkOut) {
             const parseDmy = (dmy) => {
@@ -756,7 +812,7 @@
               daysNightsLabel = `${diffDays} dia(s), ${Math.max(diffDays - 1, 1)} noite(s)`;
             }
           }
-  
+
           const hotelObj = {
             code: code,
             name: name,
@@ -770,7 +826,7 @@
             facilities: facArr,
             poiList: poiArr,
           };
-  
+
           const cardEl = createHotelCard(hotelObj);
           hotelsListEl?.appendChild(cardEl);
         }
@@ -779,7 +835,7 @@
         if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
       }
     }
-  
+
     function exibirPaginacao(totalPages, currentPage) {
       const pagEl = document.getElementById('pagination');
       if (!pagEl || totalPages <= 1) return;
@@ -795,29 +851,31 @@
         pagEl.appendChild(btnNext);
       }
     }
-  
+
     function convertDateFormat(dateStr) {
       const [d, m, a] = dateStr.split('/');
       return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
-  
+
     /***********************************************
      * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
      ***********************************************/
     function showFiltersPanel() {
       const panel = document.getElementById('filtersPanel');
-      panel.classList.remove('hidden');
-      panel.classList.add('visible');
+      if (panel) {
+        panel.classList.remove('hidden');
+        panel.classList.add('visible');
+      }
     }
-  
+
     /***********************************************
      * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
      ***********************************************/
     function toggleFilters() {
       const panel = document.getElementById('filtersPanel');
-      panel.classList.toggle('active');
+      if (panel) panel.classList.toggle('active');
     }
-  
+
     /***********************************************
      * Otimização: Exibe o conteúdo somente após o carregamento completo
      ***********************************************/
@@ -833,7 +891,7 @@
         })
         .catch((err) => console.error('Erro ao carregar loading.html:', err));
     });
-  
+
     window.addEventListener('load', function () {
       Promise.all([document.fonts.ready]).then(() => {
         requestAnimationFrame(() => {
@@ -844,7 +902,7 @@
         });
       });
     });
-  
+
     // Função debounce para reduzir requisições enquanto o usuário digita
     function debounce(func, delay) {
       let timer;
@@ -853,7 +911,7 @@
         timer = setTimeout(() => func.apply(this, args), delay);
       }
     }
-  
+
     // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
@@ -863,7 +921,7 @@
       input.parentNode.style.position = 'relative';
       input.parentNode.appendChild(suggestionBox);
       const cache = {};
-  
+
       input.addEventListener('input', debounce(async () => {
         const term = input.value.trim();
         suggestionBox.innerHTML = '';
@@ -890,7 +948,7 @@
         } catch (error) {
           console.error('Erro no autocomplete:', error);
         }
-  
+
         function renderSuggestions(suggestions) {
           suggestionBox.innerHTML = '';
           suggestions.forEach(suggestion => {
@@ -908,19 +966,19 @@
           });
         }
       }, 300));
-  
+
       document.addEventListener('click', (e) => {
         if (e.target !== input) {
           suggestionBox.innerHTML = '';
         }
       });
     }
-  
+
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
     });
-  
+
     /***********************************************
      * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
      ***********************************************/
@@ -935,7 +993,7 @@
         card.style.display = title.includes(filterValue) ? 'block' : 'none';
       });
     }
-  
+
     function applyPriceFilterIngressos() {
       const minValue = parseFloat(document.getElementById('priceMinIngresso').value) || 0;
       const maxValue = parseFloat(document.getElementById('priceMaxIngresso').value) || Infinity;
@@ -953,7 +1011,7 @@
         card.style.display = (price >= minValue && price <= maxValue) ? 'block' : 'none';
       });
     }
-  
+
     /***********************************************
      * NOVA ABORDAGEM: Forçar Redirecionamento para Ingressos
      ***********************************************/
@@ -975,14 +1033,14 @@
             e.preventDefault();
             e.stopPropagation();
             if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-  
+
             const card = newBtn.closest('.ticket-card');
             if (!card) return;
             const ticketId = card.getAttribute('data-ticket-id') || '';
             const dataIngresso = document.getElementById('dataIngresso')?.value || '';
             const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
             const destinoIngressoCode = document.getElementById('destinoIngressoCode')?.value || '';
-  
+
             const searchParams = {
               ticketId: ticketId,
               dataIngresso: dataIngresso,
@@ -995,6 +1053,16 @@
         });
       }, 500);
     });
+
+    /***********************************************
+     * Função placeholder para buscar ingressos
+     ***********************************************/
+    function buscarIngressos() {
+      const statusEl = document.getElementById('status');
+      if (statusEl) {
+        statusEl.textContent = 'Busca de ingressos não implementada.';
+      }
+    }
   </script>
 </body>
 </html>
