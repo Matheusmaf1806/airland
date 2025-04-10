@@ -34,7 +34,7 @@
   <!-- Carrega o facilitiesMap -->
   <script src="/js/facilitiesMap.js" defer></script>
 
-  <!-- (Opcional) CSS para a barra lateral de Ingressos -->
+  <!-- CSS opcional para a barra lateral de Ingressos -->
   <style>
     #filtersPanelIngressos {
       width: 250px;
@@ -65,13 +65,13 @@
   <!-- HEADER -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
-  
+
   <!-- HERO -->
   <section class="hero">
     <h1>Sua Próxima Aventura</h1>
     <p>Descubra ingressos, hotéis, carros, transfers e seguros com apenas alguns cliques</p>
   </section>
-  
+
   <!-- CONTAINER DE BUSCA -->
   <div class="search-container">
     <!-- TABS -->
@@ -92,7 +92,7 @@
         <span class="material-icons">shield</span> Seguros
       </div>
     </div>
-  
+
     <!-- ABA DE INGRESSOS -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
@@ -110,10 +110,9 @@
         </div>
       </div>
       <div id="status"></div>
-      
+
       <!-- BARRA LATERAL + RESULTADOS DOS INGRESSOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
-        <!-- Filtros Exclusivos para Ingressos -->
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Filtros de Ingressos</h2>
           <div class="filter-group">
@@ -136,15 +135,15 @@
             <button onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
           </div>
         </aside>
-  
-        <!-- Área para os cartões de Ingressos -->
+
+        <!-- Área para os cartões de ingresso -->
         <div class="results-main">
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
     </div>
     <!-- Fim da aba de Ingressos -->
-  
+
     <!-- ABA DE HOTÉIS (inalterada) -->
     <div id="tab-hoteis" class="tab-content">
       <div class="form-group">
@@ -160,7 +159,6 @@
         <div class="form-field">
           <label for="quartos">Quartos e Pessoas</label>
           <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
-          <!-- Dropdown de quartos -->
           <div id="quartosDropdown" class="quartos-dropdown">
             <div class="qd-row">
               <span>Quartos</span>
@@ -181,7 +179,7 @@
         </div>
       </div>
     </div>
-  
+
     <!-- ABAS DE CARROS, TRANSFER E SEGUROS (inalteradas) -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
@@ -193,12 +191,12 @@
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
-  
+
   <!-- RESULTADOS GERAIS PARA HOTÉIS -->
   <div class="results-wrapper">
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
-      <!-- Filtros gerais para hotéis -->
+      <!-- Filtros para hotéis -->
       <div class="filter-group">
         <h3>Buscar por nome</h3>
         <div class="property-search">
@@ -257,8 +255,8 @@
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
-  
-  <!-- TEMPLATE DO CARD DE HOTÉIS -->
+
+  <!-- TEMPLATE DO CARD DE HOTÉIS (inalterado) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -290,7 +288,7 @@
       </div>
     </div>
   </template>
-  
+
   <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
@@ -298,13 +296,13 @@
       Explore nossas ofertas imperdíveis para destinos incríveis.
     </p>
   </section>
-  
+
   <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="/js/tac.js"></script>
   <script src="/js/tacr.js"></script>
-  
+
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
@@ -857,7 +855,7 @@
       }
     }
   
-    // Função para configurar o autocomplete para um input específico
+    // Configura o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -935,11 +933,7 @@
         const titleEl = card.querySelector('h3');
         if (!titleEl) return;
         const title = titleEl.textContent.toLowerCase();
-        if (title.includes(filterValue)) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
+        card.style.display = title.includes(filterValue) ? 'block' : 'none';
       });
     }
   
@@ -957,35 +951,33 @@
           const numericStr = match[1].replace(/\./g, '').replace(',', '.');
           price = parseFloat(numericStr);
         }
-        if (price < minValue || price > maxValue) {
-          card.style.display = 'none';
-        } else {
-          card.style.display = 'block';
-        }
+        card.style.display = (price >= minValue && price <= maxValue) ? 'block' : 'none';
       });
     }
   
     /***********************************************
-    * NOVA ABORDAGEM: Forçar Redirecionamento para Ingressos
+    * NOVA ABORDAGEM: Clonar Botões de Ingressos para Forçar Redirecionamento
     ***********************************************/
-    // Usamos o modo de captura para interceptar o clique do botão “Ver detalhes”
-    // e forçar o redirecionamento para a página de tickets.
+    // Quando o DOM estiver totalmente carregado, clonamos os botões de “Ver detalhes” para remover eventos indesejados.
     document.addEventListener('DOMContentLoaded', () => {
-      // Aguarda 500ms para garantir que os cartões tenham sido gerados (ajuste conforme necessário)
       setTimeout(() => {
         const detailButtons = document.querySelectorAll('.btn-details-ingresso');
-        detailButtons.forEach(btn => {
-          // Remove quaisquer atributos que possam acionar modal
-          btn.removeAttribute('data-toggle');
-          btn.removeAttribute('data-bs-toggle');
-          btn.removeAttribute('data-target');
-          btn.removeAttribute('data-bs-target');
-          btn.onclick = null;
-          // Adiciona o event listener em modo de captura
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        detailButtons.forEach(oldBtn => {
+          // Removendo atributos que possam disparar modal
+          oldBtn.removeAttribute('data-toggle');
+          oldBtn.removeAttribute('data-bs-toggle');
+          oldBtn.removeAttribute('data-target');
+          oldBtn.removeAttribute('data-bs-target');
+          // Clonar o botão para apagar todos os eventos já vinculados
+          const newBtn = oldBtn.cloneNode(true);
+          oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+          // Adiciona o nosso event listener em modo de captura com stopImmediatePropagation
+          newBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const card = btn.closest('.ticket-card');
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+  
+            const card = newBtn.closest('.ticket-card');
             if (!card) return;
             const ticketId = card.getAttribute('data-ticket-id') || '';
             const dataIngresso = document.getElementById('dataIngresso')?.value || '';
@@ -1000,9 +992,9 @@
             };
             const queryString = new URLSearchParams(searchParams).toString();
             window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
-          }, true); // true ativa o modo de captura
+          }, true);
         });
-      }, 500);
+      }, 1000); // O delay pode ser ajustado conforme necessário
     });
   </script>
 </body>
