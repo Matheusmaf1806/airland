@@ -61,6 +61,7 @@ function exibirIngressos(tickets) {
       <h3>${ticket.event_name || ticket.nome}</h3>
       <p>Data: ${ticket.event_date || ticket.date}</p>
       <p>Preço: ${ticket.price ? ticket.price : 'Consultar'}</p>
+      <button class="btn-details-ingresso">Ver detalhes</button>
     `;
     container.appendChild(card);
   });
