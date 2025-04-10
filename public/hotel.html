@@ -1749,63 +1749,6 @@
     /***********************************************
     * F) FUNÇÃO PARA BUSCAR INGRESSOS
     ***********************************************/
-    async function buscarIngressos() {
-      // 1. Obtenha o código do destino do campo hidden (se existir)
-      let destino = document.getElementById("destinoIngressoCode")?.value;
-      // Se não houver um código (por exemplo, o usuário não escolheu nenhuma sugestão),
-      // você pode utilizar o valor do input visível ou emitir um alerta.
-      if (!destino) {
-        alert("Selecione um destino válido (utilize as sugestões do autocomplete).");
-        return;
-      }
-    
-      // 2. Obtenha a data digitada no formato "dd/mm/yyyy"
-      const dataIngresso = document.getElementById("dataIngresso")?.value || "";
-      
-      if (!dataIngresso) {
-        alert("Selecione a data!");
-        return;
-      }
-      
-      // 3. Converta a data para o formato "yyyy-mm-dd"
-      const [d, m, y] = dataIngresso.split('/');
-      // Verifica se a data está no formato esperado
-      if (!d || !m || !y) {
-        alert("Data inválida. Utilize o formato dd/mm/yyyy.");
-        return;
-      }
-      const dataFormatada = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    
-      // 4. Construa a URL de requisição usando o código do destino e a data no formato ISO
-      const url = `/api/tickets?destino=${encodeURIComponent(destino)}&data=${encodeURIComponent(dataFormatada)}`;
-      console.log("API de Ingressos:", url);
-    
-      // 5. Faça a requisição à API
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error("Erro ao buscar ingressos da API");
-        }
-        const data = await response.json();
-        // Supondo que "data" seja um array de ingressos,
-        // salve em uma variável global e renderize os resultados:
-        window.__ingressosData = data;
-        montarCategoriasIngressos(data);
-        renderIngressos(data);
-        // Opcional: esconder algum elemento de status de carregamento
-        const statusEl = document.getElementById("status");
-        if (statusEl) {
-          statusEl.style.display = "none";
-        }
-      } catch (err) {
-        console.error(err);
-        const statusEl = document.getElementById("status");
-        if (statusEl) {
-          statusEl.textContent = "Erro ao buscar ingressos. Ver console.";
-        }
-      }
-    }
-
     /***********************************************
   * G) MONTAR A LISTA DE CATEGORIAS (INGRESSOS)
   ***********************************************/
