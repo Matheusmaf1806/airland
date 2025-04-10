@@ -123,7 +123,9 @@
           <div class="filter-group">
             <h3>Categorias</h3>
             <div id="ingressoCategoriesList">
-              <!-- Insira aqui os itens de categoria (ex.: checkboxes ou lista) -->
+              <!-- Insira aqui os itens de categoria (pode ser checkboxes ou lista) -->
+              <!-- Exemplo: -->
+              <!-- <label><input type="checkbox" value="parque"> Parque</label> -->
             </div>
           </div>
           <div class="filter-group">
@@ -147,6 +149,7 @@
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
+      <!-- FIM BARRA LATERAL + RESULTADOS -->
     </div>
     <!-- FIM DA ABA DE INGRESSOS -->
   
@@ -312,7 +315,7 @@
   <!-- JavaScript da Página -->
   <script>
   /***********************************************
-  * A) TABS + FLATPICKR (INVARIÁVEL)
+  * A) TABS + FLATPICKR
   ***********************************************/
   const tabs = document.querySelectorAll('.tab');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -344,7 +347,7 @@
   }
   
   /***********************************************
-  * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS) (INVARIÁVEL)
+  * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
   ***********************************************/
   const quartosInput = document.getElementById('quartos');
   const dropdown = document.getElementById('quartosDropdown');
@@ -455,7 +458,7 @@
   renderRooms();
   
   /***********************************************
-  * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS (INVARIÁVEL)
+  * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
   ***********************************************/
   function formatPriceBRL(value) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -576,47 +579,37 @@
   }
   
   /***********************************************
-  * D') FORÇA O REDIRECIONAMENTO DE “VER DETALHES” (INGRESSOS)
-  * Utiliza captura do clique para interceptar antes de outros scripts.
+  * D') EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (INGRESSOS)
   ***********************************************/
-  document.addEventListener('click', function(e) {
-    // Verifica se a aba de Ingressos está ativa
-    const ingressosTab = document.getElementById('tab-ingressos');
-    if (!ingressosTab || !ingressosTab.classList.contains('active')) return;
-  
-    // Procura o botão clicado
-    const btn = e.target.closest('button');
-    if (!btn) return;
-  
-    // Compara o texto do botão em minúsculas (ajuste se necessário)
-    if (btn.textContent.trim().toLowerCase() === 'ver detalhes') {
-      // Impede que outros listeners sejam executados
-      e.stopImmediatePropagation();
-      e.stopPropagation();
-      e.preventDefault();
-  
-      const ticketCard = btn.closest('.ticket-card');
-      if (!ticketCard) return;
-  
-      // Extrai os dados do ingresso
-      const ticketId = ticketCard.getAttribute('data-ticket-id') || '';
+  // Este trecho é específico para os cartões de INGRESSOS.
+  // Ao clicar no botão com a classe ".btn-details-ingresso" dentro de um card (".ticket-card")
+  // o usuário será redirecionado para "https://business.airland.com.br/tickets.html" com os parâmetros desejados.
+  const ingressosListEl = document.getElementById('ingressosList');
+  if (ingressosListEl) {
+    ingressosListEl.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-details-ingresso');
+      if (!btn) return;
+      const card = btn.closest('.ticket-card');
+      if (!card) return;
+      // Certifique-se de que o cartão possua o atributo "data-ticket-id"
+      const ticketId = card.getAttribute('data-ticket-id') || '';
       const dataIngresso = document.getElementById('dataIngresso')?.value || '';
       const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
       const destinoIngressoCode = document.getElementById('destinoIngressoCode')?.value || '';
-  
+      
       const searchParams = {
-        ticketId,
-        dataIngresso,
-        destinoIngresso,
-        destinoIngressoCode
+        ticketId: ticketId,
+        dataIngresso: dataIngresso,
+        destinoIngresso: destinoIngresso,
+        destinoIngressoCode: destinoIngressoCode
       };
       const queryString = new URLSearchParams(searchParams).toString();
       window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
-    }
-  }, true);
+    });
+  }
   
   /***********************************************
-  * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS) (INVARIÁVEL)
+  * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
   ***********************************************/
   document.addEventListener('click', function(e) {
     const btn = e.target.closest('.btn-options, .select-room-button');
@@ -644,9 +637,9 @@
       totalChildren += room.children;
     });
     const searchParams = {
-      hotelCode,
-      checkIn,
-      checkOut,
+      hotelCode: hotelCode,
+      checkIn: checkIn,
+      checkOut: checkOut,
       rooms: totalRooms,
       adults: totalAdults,
       children: totalChildren,
@@ -656,7 +649,7 @@
   });
   
   /***********************************************
-  * E) FUNÇÕES PARA BUSCAR HOTÉIS (INVARIÁVEL)
+  * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
   ***********************************************/
   async function buscarHoteis() {
     const destination = document.getElementById('destinoHoteisCode')?.value
@@ -849,7 +842,7 @@
   }
   
   /***********************************************
-  * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS) (INVARIÁVEL)
+  * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
   ***********************************************/
   function showFiltersPanel() {
     const panel = document.getElementById('filtersPanel');
@@ -858,7 +851,7 @@
   }
   
   /***********************************************
-  * TOGGLE DE FILTROS NO MOBILE (HOTÉIS) (INVARIÁVEL)
+  * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
   ***********************************************/
   function toggleFilters() {
     const panel = document.getElementById('filtersPanel');
@@ -866,7 +859,7 @@
   }
   
   /***********************************************
-  * Otimização: Exibe o conteúdo somente após o carregamento completo (INVARIÁVEL)
+  * Otimização: Exibe o conteúdo somente após o carregamento completo
   ***********************************************/
   document.addEventListener('DOMContentLoaded', function () {
     fetch('loading.html')
@@ -892,7 +885,7 @@
     });
   });
   
-  // Função debounce para reduzir requisições enquanto o usuário digita (INVARIÁVEL)
+  // Função debounce para reduzir requisições enquanto o usuário digita
   function debounce(func, delay) {
     let timer;
     return function(...args) {
@@ -901,7 +894,7 @@
     }
   }
   
-  // Função para configurar o autocomplete para um input específico (INVARIÁVEL)
+  // Função para configurar o autocomplete para um input específico
   function setupAutocomplete(inputId) {
     const input = document.getElementById(inputId);
     const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -969,7 +962,7 @@
   });
   
   /***********************************************
-  * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS (INVARIÁVEL)
+  * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
   ***********************************************/
   function applyNameFilterIngressos() {
     const input = document.getElementById('nameSearchInputIngressos');
