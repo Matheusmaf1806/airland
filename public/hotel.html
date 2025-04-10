@@ -26,7 +26,6 @@
 
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="/css/cart.css" />
-
   <link rel="stylesheet" href="/css/inx.css" />
 
   <!-- Importa o header-component via módulo ES -->
@@ -35,7 +34,7 @@
   <!-- Carrega o facilitiesMap -->
   <script src="/js/facilitiesMap.js" defer></script>
 
-  <!-- (Opcional) CSS mínimo para exibir a barra lateral de Ingressos -->
+  <!-- (Opcional) CSS para a barra lateral de Ingressos -->
   <style>
     #filtersPanelIngressos {
       width: 250px;
@@ -112,16 +111,15 @@
       </div>
       <div id="status"></div>
       
-      <!-- BARRA LATERAL + RESULTADOS PARA INGRESSOS -->
+      <!-- BARRA LATERAL + RESULTADOS DOS INGRESSOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
-        <!-- FILTROS EXCLUSIVOS PARA INGRESSOS -->
+        <!-- Filtros exclusivos para ingressos -->
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Filtros de Ingressos</h2>
           <div class="filter-group">
             <h3>Categorias</h3>
             <div id="ingressoCategoriesList">
-              <!-- Exemplo: -->
-              <!-- <label><input type="checkbox" value="parque"> Parque</label> -->
+              <!-- Ex.: <label><input type="checkbox" value="parque"> Parque</label> -->
             </div>
           </div>
           <div class="filter-group">
@@ -139,17 +137,16 @@
           </div>
         </aside>
   
-        <!-- RESULTADOS DOS INGRESSOS -->
+        <!-- Área onde os cartões de ingresso serão inseridos -->
         <div class="results-main">
-          <!-- Os cartões de ingresso serão inseridos aqui -->
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
-      <!-- FIM DOS RESULTADOS DE INGRESSOS -->
+      <!-- Fim dos resultados de ingressos -->
     </div>
-    <!-- FIM DA ABA DE INGRESSOS -->
+    <!-- Fim da aba de ingressos -->
   
-    <!-- ABA DE HOTÉIS -->
+    <!-- ABA DE HOTÉIS (não alterada) -->
     <div id="tab-hoteis" class="tab-content">
       <div class="form-group">
         <div class="form-field">
@@ -164,7 +161,7 @@
         <div class="form-field">
           <label for="quartos">Quartos e Pessoas</label>
           <input type="text" id="quartos" placeholder="Clique para escolher" readonly />
-          <!-- Dropdown para quartos -->
+          <!-- Dropdown de quartos -->
           <div id="quartosDropdown" class="quartos-dropdown">
             <div class="qd-row">
               <span>Quartos</span>
@@ -578,15 +575,18 @@
     * D') EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (INGRESSOS)
     ***********************************************/
     // Ao clicar no botão com a classe ".btn-details-ingresso" dentro de um ".ticket-card",
-    // o usuário é redirecionado para "https://business.airland.com.br/tickets.html"
+    // o usuário será redirecionado para "https://business.airland.com.br/tickets.html"
     // com os parâmetros extraídos.
     const ingressosListEl = document.getElementById('ingressosList');
     if (ingressosListEl) {
       ingressosListEl.addEventListener('click', function(e) {
         const btn = e.target.closest('.btn-details-ingresso');
         if (!btn) return;
+        // Removemos qualquer preventDefault ou interceptação aqui
+        e.stopPropagation();
         const card = btn.closest('.ticket-card');
         if (!card) return;
+        // Certifique-se de que os cartões de ingresso tenham o atributo "data-ticket-id"
         const ticketId = card.getAttribute('data-ticket-id') || '';
         const dataIngresso = document.getElementById('dataIngresso')?.value || '';
         const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
