@@ -66,7 +66,7 @@
   </style>
 </head>
 <body>
-  <!-- HEADER -->
+  <!-- HEADER e Shopping Cart -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
   
@@ -97,7 +97,7 @@
       </div>
     </div>
   
-    <!-- ABA DE INGRESSOS -->
+    <!-- ABA DE INGRESSOS (exclusivo para Ingressos) -->
     <div id="tab-ingressos" class="tab-content active">
       <div class="form-group">
         <div class="form-field">
@@ -115,17 +115,15 @@
       </div>
       <div id="status"></div>
       
-      <!-- BARRA LATERAL + RESULTADOS PARA INGRESSOS -->
+      <!-- BARRA LATERAL + RESULTADOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
-        <!-- BARRA LATERAL (FILTROS EXCLUSIVOS PARA INGRESSOS) -->
+        <!-- BARRA LATERAL COM FILTROS -->
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Filtros de Ingressos</h2>
           <div class="filter-group">
             <h3>Categorias</h3>
             <div id="ingressoCategoriesList">
-              <!-- Insira aqui os itens de categoria (pode ser checkboxes ou lista) -->
-              <!-- Exemplo: -->
-              <!-- <label><input type="checkbox" value="parque"> Parque</label> -->
+              <!-- Itens de categoria (ex.: checkboxes) -->
             </div>
           </div>
           <div class="filter-group">
@@ -145,7 +143,7 @@
   
         <!-- RESULTADOS DOS INGRESSOS -->
         <div class="results-main">
-          <!-- Os cards de ingresso serão inseridos aqui pelos scripts (ex.: tac.js/tacr.js) -->
+          <!-- Os cards de ingresso serão inseridos aqui pelo JS -->
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
@@ -153,8 +151,9 @@
     </div>
     <!-- FIM DA ABA DE INGRESSOS -->
   
-    <!-- ABA DE HOTÉIS -->
+    <!-- Outras abas (Hotéis, Carros, etc.) permanecem conforme seu código original -->
     <div id="tab-hoteis" class="tab-content">
+      <!-- Conteúdo para Hotéis -->
       <div class="form-group">
         <div class="form-field">
           <label for="destinoHoteis">Destino</label>
@@ -189,8 +188,6 @@
         </div>
       </div>
     </div>
-  
-    <!-- ABAS DE CARROS, TRANSFER E SEGUROS -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
@@ -265,7 +262,7 @@
     </div>
   </div>
   
-  <!-- TEMPLATE DO CARD DE HOTÉIS -->
+  <!-- TEMPLATE DO CARD DE HOTÉIS (já existente) -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -298,6 +295,26 @@
     </div>
   </template>
   
+  <!-- TEMPLATE DO CARD DE INGRESSOS (NOVO – exclusivo para Ingressos) -->
+  <template id="ticketCardTemplate">
+    <div class="ticket-card">
+      <div class="ticket-carousel">
+        <div class="carousel-track"></div>
+        <div class="carousel-dots"></div>
+      </div>
+      <div class="ticket-body">
+        <h3 class="ticket-title"></h3>
+        <p class="ticket-description"></p>
+        <p class="ticket-date"></p>
+        <div class="ticket-prices">
+          <div class="price-starting"></div>
+          <div class="installments"></div>
+        </div>
+        <button class="btn-ticket-details">Veja mais</button>
+      </div>
+    </div>
+  </template>
+  
   <!-- SEÇÃO DE DESTAQUE (OPCIONAL) -->
   <section style="width: 90%; max-width: 1200px; margin: 2rem auto;">
     <h2 style="margin-bottom: 1rem;">Ofertas em Destaque</h2>
@@ -315,8 +332,8 @@
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
-    * A) TABS + FLATPICKR
-    ***********************************************/
+     * A) TABS + FLATPICKR
+     ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach((tab) => {
@@ -347,8 +364,8 @@
     }
     
     /***********************************************
-    * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
-    ***********************************************/
+     * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
+     ***********************************************/
     const quartosInput = document.getElementById('quartos');
     const dropdown = document.getElementById('quartosDropdown');
     const roomsMinus = document.getElementById('roomsMinus');
@@ -458,8 +475,8 @@
     renderRooms();
     
     /***********************************************
-    * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
-    ***********************************************/
+     * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
+     ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
@@ -579,8 +596,8 @@
     }
     
     /***********************************************
-    * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
-    ***********************************************/
+     * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
+     ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
       if (!btn) return;
@@ -619,8 +636,8 @@
     });
     
     /***********************************************
-    * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
-    ***********************************************/
+     * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
+     ***********************************************/
     async function buscarHoteis() {
       const destination = document.getElementById('destinoHoteisCode')?.value
         || document.getElementById('destinoHoteis')?.value
@@ -812,8 +829,8 @@
     }
     
     /***********************************************
-    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
-    ***********************************************/
+     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
+     ***********************************************/
     function showFiltersPanel() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.remove('hidden');
@@ -821,16 +838,16 @@
     }
     
     /***********************************************
-    * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
-    ***********************************************/
+     * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
+     ***********************************************/
     function toggleFilters() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.toggle('active');
     }
     
     /***********************************************
-    * Otimização: Exibe o conteúdo somente após o carregamento completo
-    ***********************************************/
+     * Otimização: Exibe o conteúdo somente após o carregamento completo
+     ***********************************************/
     document.addEventListener('DOMContentLoaded', function () {
       fetch('loading.html')
         .then((response) => {
@@ -864,7 +881,7 @@
       }
     }
     
-    // Função para configurar o autocomplete para um input específico
+    // Função para configurar autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -929,24 +946,22 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
+      // Opcional: disparar a busca de ingressos para teste
+      // buscarIngressos();
     });
     
     /***********************************************
-    * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
-    ***********************************************/
+     * FUNÇÕES ESPECÍFICAS DA ABA DE INGRESSOS
+     ***********************************************/
     function applyNameFilterIngressos() {
       const input = document.getElementById('nameSearchInputIngressos');
       const filterValue = input.value.trim().toLowerCase();
       const cards = document.querySelectorAll('#ingressosList .ticket-card');
       cards.forEach(card => {
-        const titleEl = card.querySelector('h3');
+        const titleEl = card.querySelector('.ticket-title');
         if (!titleEl) return;
         const title = titleEl.textContent.toLowerCase();
-        if (title.includes(filterValue)) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
+        card.style.display = title.includes(filterValue) ? 'block' : 'none';
       });
     }
     
@@ -964,11 +979,43 @@
           const numericStr = match[1].replace(/\./g, '').replace(',', '.');
           price = parseFloat(numericStr);
         }
-        if (price < minValue || price > maxValue) {
-          card.style.display = 'none';
-        } else {
-          card.style.display = 'block';
+        card.style.display = (price < minValue || price > maxValue) ? 'none' : 'block';
+      });
+    }
+    
+    // Exemplo de função para buscar ingressos (exclusivo para a aba Ingressos)
+    function buscarIngressos() {
+      // Simulação de dados. Substitua com sua chamada à API real.
+      const sampleIngressos = [
+        {
+          title: 'Parque de Diversões XYZ',
+          description: 'A diversão está garantida com várias atrações.',
+          dateText: '15/05/2025',
+          priceStarting: 'R$ 120,00',
+          installments: 'Em até 5x',
+          images: [
+            'https://dummyimage.com/400x220/ccc/000.png&text=Parque+1',
+            'https://dummyimage.com/400x220/ddd/000.png&text=Parque+2',
+            'https://dummyimage.com/400x220/eee/000.png&text=Parque+3'
+          ]
+        },
+        {
+          title: 'Show do Artista ABC',
+          description: 'Imperdível! Garanta já seu ingresso.',
+          dateText: '22/06/2025',
+          priceStarting: 'R$ 200,00',
+          installments: 'Em até 10x',
+          images: [
+            'https://dummyimage.com/400x220/aaa/000.png&text=Show+1',
+            'https://dummyimage.com/400x220/bbb/000.png&text=Show+2'
+          ]
         }
+      ];
+      const ingressosListEl = document.getElementById('ingressosList');
+      ingressosListEl.innerHTML = '';
+      sampleIngressos.forEach(ticket => {
+        const card = createTicketCard(ticket);
+        ingressosListEl.appendChild(card);
       });
     }
   </script>
