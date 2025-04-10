@@ -952,6 +952,47 @@
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
+
+  <!-- NOVA ESTRUTURA PARA LISTAGEM DE INGRESSOS (apenas na aba de ingressos) -->
+    <div class="results-wrapper" id="ingressosResultsWrapper" style="display: none;">
+    <!-- Barra lateral de Categorias / Filtros para Ingressos -->
+    <aside class="filters-panel" id="filtersPanelIngressos">
+        <h2>Categorias</h2>
+        <div id="ingressosCategoriesList">
+        <!-- Aqui serão listadas dinamicamente as categorias vindas da API de ingressos -->
+        <!-- Exemplo de como será montado dinamicamente:
+            <label><input type="checkbox" value="Magic Kingdom" /> Magic Kingdom</label>
+            <label><input type="checkbox" value="Universal Studios" /> Universal Studios</label>
+        -->
+        </div>
+        
+        <!-- Filtro de preço (ordenação) -->
+        <h2>Ordenar Preço</h2>
+        <div class="filter-group">
+        <select id="priceOrderIngressos">
+            <option value="asc">Menor Preço</option>
+            <option value="desc">Maior Preço</option>
+        </select>
+        </div>
+
+        <!-- Botão para aplicar filtros -->
+        <button class="search-button" style="width: 100%;" onclick="filtrarIngressos()">Aplicar Filtros</button>
+    </aside>
+
+    <!-- Área principal de resultados -->
+    <div class="results-main">
+        <!-- Barra de busca por nome -->
+        <div class="name-search">
+        <input type="text" id="nameSearchInputIngressos" placeholder="Buscar por nome do ingresso..." />
+        <button onclick="filtrarIngressos()">Filtrar</button>
+        </div>
+
+        <!-- Grid de resultados de ingressos -->
+        <div id="activitiesGridIngressos" class="activities-grid">
+        <!-- Aqui serão injetados os cards de ingressos (ex: Promo Disney - 10 dias pelo preço de 8) -->
+        </div>
+    </div>
+    </div>
   
   <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) -->
   <div class="results-wrapper">
@@ -1021,17 +1062,6 @@
       <!-- Botão para aplicar filtros -->
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
-  
-    <!-- Área principal de resultados -->
-    <div class="results-main">
-      <!-- Barra de pesquisa por nome acima dos cards -->
-      <div class="name-search">
-        <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
-        <button onclick="applyNameFilter()">Filtrar</button>
-      </div>
-      <!-- Grid de cards (resultados) -->
-      <div id="activitiesGrid" class="activities-grid"></div>
-    </div>
   </div>
   
   <!-- TEMPLATE DO CARD -->
@@ -1703,19 +1733,200 @@
   });
 
   function applyNameFilter() {
-      const input = document.getElementById('nameSearchInput');
-      const filterValue = input.value.trim().toLowerCase();
-      
-      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
-      cards.forEach(card => {
-        const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        if (title.includes(filterValue)) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
+    const input = document.getElementById('nameSearchInputIngressos'); // corrigido
+    const filterValue = input.value.trim().toLowerCase();
+    
+    const cards = document.querySelectorAll('#activitiesGridIngressos .activity-card');
+    cards.forEach(card => {
+      const title = card.querySelector('.activity-title').textContent.toLowerCase();
+      if (title.includes(filterValue)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+}
+    /***********************************************
+    * F) FUNÇÃO PARA BUSCAR INGRESSOS
+    ***********************************************/
+    async function buscarIngressos() {
+        // 1) Ler valor do destinoIngresso e dataIngresso
+        const destinoIngresso = document.getElementById("destinoIngresso")?.value || "";
+        const dataIngresso = document.getElementById("dataIngresso")?.value || "";
+    
+        // 2) Caso queira validar se o usuário inseriu algo
+        if (!destinoIngresso) {
+        alert("Digite o destino ou ingresso!");
+        return;
         }
-      });
+        if (!dataIngresso) {
+        alert("Selecione a data!");
+        return;
+        }
+    
+        // 3) Exibe o painel de resultados e filtros
+        document.getElementById("ingressosResultsWrapper").style.display = "flex";
+    
+        // 4) Mostra algum status inicial
+        const statusEl = document.getElementById("status");
+        if (statusEl) {
+        statusEl.textContent = "Carregando ingressos...";
+        statusEl.style.display = "block";
+        }
+    
+        // 5) Limpa grid antes de inserir novos resultados
+        const gridEl = document.getElementById("activitiesGridIngressos");
+        if (gridEl) {
+        gridEl.innerHTML = "";
+        }
+    
+        // 6) Monte a URL para sua API de ingressos
+        // Exemplo fictício: "/api/ingressos?destino=XYZ&data=2025-04-22"
+        // Ajuste para o endpoint correto do seu projeto
+        const url = `/api/ingressos?destino=${encodeURIComponent(destinoIngresso)}&data=${encodeURIComponent(dataIngresso)}`;
+        
+        try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Erro ao buscar ingressos da API");
+        }
+        const data = await response.json();
+    
+        // 7) Digamos que "data" seja um array de ingressos. Exemplo:
+        // [
+        //   { nome: 'Promo Disney - 7 Dias', preco: 3425.50, categoria: 'Disney' },
+        //   { nome: 'Universal 2 Parks', preco: 1800.00, categoria: 'Universal' },
+        //   ...
+        // ]
+        // Guarde em uma variável global para filtrar depois
+        window.__ingressosData = data;
+    
+        // 8) Montar dinamicamente as categorias
+        montarCategoriasIngressos(data);
+    
+        // 9) Renderizar os ingressos na tela
+        renderIngressos(data);
+    
+        if (statusEl) {
+            statusEl.style.display = "none";
+        }
+        } catch (err) {
+        console.error(err);
+        if (statusEl) {
+            statusEl.textContent = "Erro ao buscar ingressos. Ver console.";
+        }
+        }
     }
+
+    /***********************************************
+  * G) MONTAR A LISTA DE CATEGORIAS (INGRESSOS)
+  ***********************************************/
+  function montarCategoriasIngressos(ingressos) {
+    // 1) Extrair todas as categorias (exemplo: "Disney", "Universal", etc.)
+    // Supondo que o campo se chame "categoria"
+    const categoriasUnicas = [...new Set(ingressos.map(item => item.categoria))].filter(Boolean);
+
+    const catContainer = document.getElementById("ingressosCategoriesList");
+    if (!catContainer) return;
+    catContainer.innerHTML = "";
+
+    // 2) Criar um checkbox para cada categoria única
+    categoriasUnicas.forEach(cat => {
+      const label = document.createElement("label");
+      label.style.display = "block"; // Forçar cada categoria numa linha
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = cat;         // Value = nome da categoria
+      input.checked = false;
+
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(" " + cat));
+      catContainer.appendChild(label);
+    });
+  }
+
+  /***********************************************
+  * H) RENDERIZAR OS INGRESSOS NO GRID
+  ***********************************************/
+  function renderIngressos(ingressos) {
+    const gridEl = document.getElementById("activitiesGridIngressos");
+    if (!gridEl) return;
+
+    gridEl.innerHTML = ""; // Limpar
+
+    ingressos.forEach(item => {
+      // Cada "item" representa um ingresso obtido da API
+      // Exemplo: { nome: 'Promo Disney - 7 Dias', preco: 3425.50, categoria: 'Disney' }
+
+      // Crie um "card" (pode ser um DIV ou article, etc.)
+      const card = document.createElement("div");
+      card.className = "activity-card";
+      card.style.border = "1px solid #ccc";
+      card.style.borderRadius = "8px";
+      card.style.padding = "16px";
+      card.style.marginBottom = "12px";
+
+      // Título
+      const title = document.createElement("h3");
+      title.className = "activity-title";
+      title.textContent = item.nome || "Ingresso sem nome";
+      card.appendChild(title);
+
+      // Preço
+      const price = document.createElement("p");
+      price.textContent = "Preço: R$ " + (item.preco?.toFixed(2) ?? "0,00");
+      card.appendChild(price);
+
+      // Categoria
+      const cat = document.createElement("p");
+      cat.textContent = "Categoria: " + (item.categoria || "N/A");
+      card.appendChild(cat);
+
+      // (Opcional) Botão para comprar/detalhes etc.
+      // ...
+
+      gridEl.appendChild(card);
+    });
+  }
+
+function filtrarIngressos() {
+    // Pega os ingressos salvos na variável global
+    const data = window.__ingressosData || [];
+    if (!data.length) return;
+
+    // 1) Filtro por nome
+    const inputName = document.getElementById("nameSearchInputIngressos");
+    const nameValue = inputName?.value.trim().toLowerCase() || "";
+
+    let filtrados = data.filter(item => {
+      const nomeIngresso = item.nome?.toLowerCase() || "";
+      return nomeIngresso.includes(nameValue);
+    });
+
+    // 2) Filtro por categorias (checkboxes marcados)
+    const catContainer = document.getElementById("ingressosCategoriesList");
+    if (catContainer) {
+      const checkboxes = catContainer.querySelectorAll("input[type='checkbox']:checked");
+      const categoriasMarcadas = Array.from(checkboxes).map(cb => cb.value);
+
+      if (categoriasMarcadas.length > 0) {
+        filtrados = filtrados.filter(item => categoriasMarcadas.includes(item.categoria));
+      }
+    }
+
+    // 3) Ordenação por preço (asc ou desc)
+    const priceOrder = document.getElementById("priceOrderIngressos")?.value || "asc";
+    if (priceOrder === "asc") {
+      filtrados.sort((a, b) => (a.preco || 0) - (b.preco || 0));
+    } else {
+      filtrados.sort((a, b) => (b.preco || 0) - (a.preco || 0));
+    }
+
+    // 4) Por fim, renderiza novamente com base na lista filtrada
+    renderIngressos(filtrados);
+  }
+  
   </script>
 </body>
 </html>
