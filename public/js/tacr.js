@@ -138,7 +138,7 @@ function verDetalhesActivity(activityCode) {
   const dataIngresso = document.getElementById('dataIngresso')?.value || '';
   // Monta a query final
   const queryParams = new URLSearchParams({
-    activity_code,
+    activityCode,
     dataIngresso
   });
   window.location.href = 'https://business.airland.com.br/tickets.html?' + queryParams.toString();
@@ -149,15 +149,12 @@ function convertTicketToActivity(ticket) {
   return {
     nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
     date: ticket.event_date || ticket.date || '',
-    // Se sempre quiser R$, pode forçar 'BRL'. Se quiser respeitar a do JSON, use ticket.currency
     currency: 'BRL',
-    top_level_adult_price: ticket.top_level_adult_price
-      || ticket.amount_adult
-      || ticket.box_office_amount
-      || 0,
-    media: ticket.media, // Agora aproveitamos o array real do servidor
+    top_level_adult_price: ticket.top_level_adult_price || ticket.amount_adult || ticket.box_office_amount || 0,
+    media: ticket.media,
     descricao: ticket.description || ticket.descricao || '',
-    activity_code: ticket.ticket_id || ticket.code || ticket.event_code || ''
+    // Verifica primeiro ticket.activity_code, pois a API o retorna com esse nome.
+    activity_code: ticket.activity_code || ticket.ticket_id || ticket.code || ticket.event_code || ''
   };
 }
 
