@@ -1,35 +1,61 @@
+/* Variáveis globais (opcional) */
+:root {
+  --color-primary: #0277bd;
+  --color-primary-hover: #01579b;
+  --color-text: #333;
+  --color-subtext: #666;
+  --color-description: #555;
+  --color-price: #e53935;
+
+  --border-radius-card: 12px;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+  --spacing-card: 1.5rem;
+  --transition-fast: 0.3s;
+  --transition-slow: 0.2s;
+}
+
 /* Grid de cards */
 .activities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 20px;
   margin-top: 1rem;
+  justify-items: center; /* Se quiser centralizar os cards */
 }
 
-/* Estilo dos cards – versão premium */
+/* Estilo dos cards */
 .activity-card {
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+  max-width: 380px; /* Limite opcional de largura para cada card */
 }
 
 .activity-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card-hover);
 }
 
+/* Imagem do card */
 .activity-card-img {
   width: 100%;
   height: 200px;
   object-fit: cover;
+  /* Se quiser manter a proporção 16:9 em navegadores modernos:
+     aspect-ratio: 16/9;
+  */
 }
 
+/* Corpo do card (texto, título, etc.) */
 .activity-body {
-  padding: 1.5rem;
+  padding: var(--spacing-card);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -40,21 +66,22 @@
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: var(--color-text);
 }
 
 .activity-date {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-subtext);
   margin-bottom: 0.5rem;
 }
 
+/* Área de preços */
 .activity-prices {
   margin-top: 0.5rem;
 }
 
 .price-starting {
-  color: #e53935;
+  color: var(--color-price);
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
@@ -65,36 +92,55 @@
   color: #888;
 }
 
+/* Descrição do card */
 .activity-description {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--color-description);
   margin-bottom: 1rem;
   flex: 1;
   line-height: 1.4;
 }
 
+/* Botão "Ver detalhes" */
 .btn-see-more {
   display: inline-block;
   margin-top: 0.75rem;
   padding: 0.7rem 1.2rem;
-  background: #0277bd;
+  background: var(--color-primary);
   color: #fff;
   border-radius: 4px;
   font-size: 1rem;
   text-align: center;
   cursor: pointer;
   border: none;
-  transition: background 0.2s, transform 0.2s;
+  transition: background var(--transition-slow), transform var(--transition-slow);
 }
 
 .btn-see-more:hover {
-  background: #01579b;
+  background: var(--color-primary-hover);
   transform: scale(1.02);
 }
 
-/* Outros estilos mantidos... (formulários, autocomplete, etc.) */
+/* Responsividade básica */
+@media (max-width: 576px) {
+  .activity-card-img {
+    height: 160px; /* Ajuste a altura conforme o necessário */
+  }
 
-/* Estilos para a nova estrutura dos resultados */
+  .activity-body {
+    padding: 1rem;
+  }
+
+  .activity-title {
+    font-size: 1.2rem;
+  }
+
+  .price-starting {
+    font-size: 1.2rem;
+  }
+}
+
+/* Outros estilos (painéis, busca, etc.) */
 .results-wrapper {
   display: flex;
   width: 90%;
@@ -108,7 +154,7 @@
   background: #fff;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .results-main {
@@ -141,7 +187,7 @@
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-slow);
 }
 
 .name-search button:hover {
