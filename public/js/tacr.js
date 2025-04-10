@@ -1,5 +1,14 @@
 // tacr.js
 
+// Função para converter data de "dd/mm/yyyy" para "yyyy-mm-dd" 
+function convertDateFormat(dateStr) {
+  if (dateStr.indexOf('/') > -1) {
+    const [d, m, y] = dateStr.split('/');
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  return dateStr; // Se já estiver em outro formato, retorna o próprio valor.
+}
+
 function formatPrice(value, currency) {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -134,8 +143,10 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
 }
 
 function verDetalhesActivity(activityCode) {
-  // Exemplo: capturar outras infos do DOM se necessário
-  const dataIngresso = document.getElementById('dataIngresso')?.value || '';
+  // Captura a data de ingresso do DOM
+  const rawDataIngresso = document.getElementById('dataIngresso')?.value || '';
+  // Converte para o formato yyyy-mm-dd
+  const dataIngresso = convertDateFormat(rawDataIngresso);
   // Monta a query final
   const queryParams = new URLSearchParams({
     activityCode,
