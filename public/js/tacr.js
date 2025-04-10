@@ -138,7 +138,7 @@ function verDetalhesActivity(activityCode) {
   const dataIngresso = document.getElementById('dataIngresso')?.value || '';
   // Monta a query final
   const queryParams = new URLSearchParams({
-    activityCode,
+    activity_code,
     dataIngresso
   });
   window.location.href = 'https://business.airland.com.br/tickets.html?' + queryParams.toString();
