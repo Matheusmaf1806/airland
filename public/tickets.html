@@ -5,16 +5,17 @@
   <title>Walt Disney World Resort - Ingressos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- META TAGS PARA SEO -->
-  <meta name="description" content="Compre ingressos para o Walt Disney World Resort com até 10x sem juros e desconto no Pix. Aproveite Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom em Orlando, Estados Unidos.">
-  <meta name="keywords" content="Disney, Ingressos, Orlando, Walt Disney World, Magic Kingdom, Epcot, Hollywood Studios, Animal Kingdom, Desconto, Pix, Parcelamento">
-
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
 
   <!-- Font Awesome (opcional) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="css/cart.css">
+  <link rel="preload" href="css/cart.css" as="style">
+
+  <script src="/js/cart-component.js" defer></script>
+  <script src="/js/header-component.js" type="module"></script>
 
   <style>
     /* RESET / BASE */
@@ -373,23 +374,17 @@
     }
 
     /* ---------------------------
-       ESTILOS DO CARRINHO SUSPENSO
+       ESTILOS DO CARRINHO SUSPENSO (exemplo)
        --------------------------- */
-
-    /* Container do Carrinho */
     .cart-container {
-      /* Já definido acima, mas lembre-se que ele ficará fixo à direita */
+      /* Defina aqui estilos se necessário */
     }
-
-    /* Rodapé fixo do carrinho (cupom e totais) */
     .cart-footer {
       flex-shrink: 0;
       border-top: 1px solid #eee;
       padding: 1rem;
       background: #fff;
-      /* Sempre no final do carrinho */
     }
-    /* Cupom de desconto (com ícone 30x30) */
     .coupon-section {
       display: flex;
       align-items: center;
@@ -460,34 +455,25 @@
 </head>
 <body>
 
-  <!-- HEADER EXTERNO -->
-  <div id="externalHeader"></div>
-  <script>
-    fetch("https://business.airland.com.br/header.html")
-      .then(resp => resp.text())
-      .then(html => {
-        document.getElementById("externalHeader").innerHTML = html;
-      })
-      .catch(err => console.error("Erro ao carregar header externa:", err));
-  </script>
+<app-header></app-header>
 
   <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
   <div class="main-container">
     <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
     <div class="left-column">
       <div class="main-banner">
-        <img src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png" alt="Disney Banner">
+        <img src="placeholder-banner.jpg" alt="Banner Dinâmico">
       </div>
       <div class="mini-images">
-        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/EPCOT.jpg" alt="Epcot" />
-        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Hollywood-Studios.jpg" alt="Hollywood Studios" />
-        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Animal-Kingdom.jpg" alt="Animal Kingdom" />
+        <img src="placeholder-mini1.jpg" alt="Mini Imagem 1">
+        <img src="placeholder-mini2.jpg" alt="Mini Imagem 2">
+        <img src="placeholder-mini3.jpg" alt="Mini Imagem 3">
       </div>
     </div>
 
     <!-- COLUNA DIREITA: Título, Avaliações, Box de Preço -->
     <div class="right-column">
-      <h1 class="product-title">Walt Disney World Resort</h1>
+      <h1 class="product-title">Carregando...</h1>
       <div class="stars-reviews">
         <div class="stars">
           <i class="fas fa-star"></i> <i class="fas fa-star"></i>
@@ -496,40 +482,31 @@
         </div>
         <span>79 avaliações</span>
       </div>
-      <div class="location">Orlando, Estados Unidos da América</div>
+      <div class="location">Carregando localização...</div>
       
       <div class="action-buttons">
-        <button><i class="fas fa-share"></i> Compartilhar</button>
+        <button id="shareBtn"><i class="fas fa-share"></i> Compartilhar</button>
         <button><i class="far fa-heart"></i> Minha lista de desejos</button>
       </div>
 
       <!-- BOX DE PREÇO / RESERVA -->
       <div class="price-box">
         <span class="price-label">A partir de</span>
-        <div class="price-value">
-          R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small>
-        </div>
-        <div class="installment-info">
-          em até 10x sem juros de R$ 235,32
-        </div>
-        <div class="pix-discount">
-          ou R$ 2.235,54 no Pix (5% off)
-        </div>
+        <div class="price-value">Carregando preço...</div>
+        <div class="installment-info">Carregando parcelamento...</div>
+        <div class="pix-discount">Carregando desconto...</div>
 
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
           <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
           <div style="display: flex; gap:8px;">
-            <select id="numAdults" style="flex:1;">
-              <option value="2" selected>2 adultos</option>
-              <option value="1">1 adulto</option>
-              <option value="3">3 adultos</option>
-              <option value="4">4 adultos</option>
+            <select id="numAdults">
+              <option value="1" selected>1 adulto</option>
+              <!-- Aqui você pode adicionar lógica para incrementar o número de adultos -->
             </select>
-            <select id="numChildren" style="flex:1;">
+            <select id="numChildren">
               <option value="0" selected>0 crianças</option>
-              <option value="1">1 criança</option>
-              <option value="2">2 crianças</option>
+              <!-- Aqui você pode adicionar lógica para incrementar o número de crianças -->
             </select>
           </div>
         </div>
@@ -548,56 +525,23 @@
   <!-- SEÇÃO DE INGRESSOS (LISTA) -->
   <section class="ticket-section">
     <div class="ticket-top-text">
-      <strong>1 a 10 dias</strong> (aprox.) • <strong>Ingresso digital</strong> • Garantia de menor preço
+      <strong>Carregando dias e tipo de ingresso...</strong> • <strong>Ingresso digital</strong>
       <br>
       Escolha abaixo quantos dias você deseja e obtenha o valor final. Confira também políticas de cancelamento e detalhes adicionais.
     </div>
     <div class="ticket-list">
-      <!-- Bilhete 1 -->
-      <div class="ticket-item" onclick="toggleActive(this)">
-        <div class="ticket-info">
-          <h3>Bilhete base de 7 dias</h3>
-          <p>
-            Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom.
-            <br><em>Não reembolsável</em>
-          </p>
-        </div>
-        <div class="price-and-action">
-          <div class="ticket-price">
-            R$ 6.171,70
-            <small class="tooltip">
-              <i class="fas fa-info-circle"></i>
-              <span class="tooltip-text">Super desconto de 5% no Pix = R$ 5.863,11</span>
-            </small>
-          </div>
-          <div class="installment-info-item">
-            2 adultos x R$ 3.085,85
-          </div>
-          <div class="pix-discount-item">
-            em até 10x Sem Juros
-          </div>
-          <button class="reserve-now-btn">Reserve agora</button>
-        </div>
-      </div>
-      <!-- (Repita ou adicione outros bilhetes se necessário) -->
+      <!-- Os itens dos tickets serão preenchidos dinamicamente -->
     </div>
   </section>
 
   <!-- SEÇÃO DE CONTEÚDO ADICIONAL -->
   <div class="content-section">
     <h2>Sobre o Produto</h2>
-    <p>
-      Desfrute de toda a magia de Walt Disney World com ingressos para os icônicos parques
-      temáticos em Orlando. Garanta também benefícios exclusivos, brindes especiais e
-      toda a praticidade para você e sua família.
-    </p>
+    <p>Carregando descrição do produto...</p>
 
     <h2>Destaques</h2>
     <ul class="highlights-list">
-      <li><i class="fas fa-check"></i> Ingressos oficiais e validados no app My Disney Experience</li>
-      <li><i class="fas fa-check"></i> Flexibilidade de datas (1 a 10 dias de visita)</li>
-      <li><i class="fas fa-check"></i> Brindes exclusivos na retirada</li>
-      <li><i class="fas fa-check"></i> Atendimento em português</li>
+      <!-- Itens de destaque serão inseridos dinamicamente -->
     </ul>
 
     <h2>Política de Cancelamento</h2>
@@ -613,55 +557,207 @@
     © 2025 - Layout estilo Airland • Todos os direitos reservados
   </footer>
 
-  <!-- SCRIPT: Funções de busca, toggle, etc. -->
+  <!-- SCRIPTS DINÂMICOS -->
   <script>
+    // Função para atualizar a busca (exemplo de uso dos valores selecionados)
     function atualizarBusca() {
       const dateValue = document.getElementById('arrival-date').value;
       const numAdults = document.getElementById('numAdults').value;
       const numChildren = document.getElementById('numChildren').value;
       alert("Data: " + dateValue + "\nAdultos: " + numAdults + "\nCrianças: " + numChildren);
+      // Aqui você pode adicionar lógica para recalcular os valores de preço, se necessário.
     }
+
+    // Função para aplicar ou remover a classe "active" nos bilhetes
     function toggleActive(element) {
       const allTickets = document.querySelectorAll('.ticket-item');
       allTickets.forEach(ticket => ticket.classList.remove('active'));
       element.classList.add('active');
     }
+
+    // Função para copiar a URL para a área de transferência
+    document.getElementById('shareBtn').addEventListener('click', function() {
+      navigator.clipboard.writeText(window.location.href)
+        .then(() => alert("URL copiada para a área de transferência!"))
+        .catch(() => alert("Erro ao copiar a URL."));
+    });
+
+    // Função para obter parâmetros da URL
+    function getUrlParameter(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // Ao carregar o DOM, buscar os dados da API e preencher a página
+    document.addEventListener('DOMContentLoaded', function() {
+      const activityCode = getUrlParameter('activityCode');
+      const dataIngresso = getUrlParameter('dataIngresso');
+
+      if (!activityCode || !dataIngresso) {
+        console.error('Parâmetros activityCode e dataIngresso não foram fornecidos na URL.');
+        return;
+      }
+
+      const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dataIngresso}`;
+
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Supondo que a API retorne um objeto ou um array com os dados do ticket
+          let ticket;
+          if (Array.isArray(data) && data.length > 0) {
+            ticket = data[0];
+          } else {
+            ticket = data;
+          }
+
+          // Atualiza o título do produto (usando a propriedade "nome")
+          document.querySelector('.product-title').textContent = ticket.nome || 'Produto Indisponível';
+
+          // Atualiza a localização (usando "destination_name")
+          document.querySelector('.location').textContent = ticket.destination_name || '';
+
+          // Atualiza a imagem do banner principal com o primeiro item de media
+          if (ticket.media && ticket.media.length > 0) {
+            const media = ticket.media[0];
+            let imgUrl = '';
+            if (Array.isArray(media.urls)) {
+              const largeImg = media.urls.find(urlObj => urlObj.width >= 1024) || media.urls[0];
+              imgUrl = largeImg.resource;
+            }
+            document.querySelector('.main-banner img').src = imgUrl;
+          }
+
+          // Atualiza as mini-imagens (usando os próximos itens de media, se disponíveis)
+          if (ticket.media && ticket.media.length > 1) {
+            const miniImagesElements = document.querySelectorAll('.mini-images img');
+            miniImagesElements.forEach((img, index) => {
+              if (ticket.media[index + 1] && ticket.media[index + 1].urls) {
+                const urls = ticket.media[index + 1].urls;
+                const largeImg = urls.find(urlObj => urlObj.width >= 1024) || urls[0];
+                img.src = largeImg.resource;
+              }
+            });
+          }
+
+          // Atualiza a descrição do produto
+          const descElement = document.querySelector('.content-section p');
+          if (descElement) {
+            descElement.innerHTML = ticket.descricao || 'Descrição não disponível.';
+          }
+
+          // Atualiza os destaques
+          if (ticket.highlights && Array.isArray(ticket.highlights)) {
+            const highlightsList = document.querySelector('.highlights-list');
+            highlightsList.innerHTML = '';
+            ticket.highlights.forEach(item => {
+              const li = document.createElement('li');
+              li.innerHTML = `<i class="fas fa-check"></i> ${item}`;
+              highlightsList.appendChild(li);
+            });
+          }
+
+          // Atualiza os valores de preço na price-box
+          let priceAdult = ticket.top_level_adult_price || ticket.amount_adult || 0;
+          const currency = ticket.currency || 'BRL';
+          const formattedPrice = priceAdult.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+          document.querySelector('.price-value').innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
+
+          // Atualiza a informação de parcelamento
+          let installmentValue = priceAdult / 10;
+          const formattedInstallment = installmentValue.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+          document.querySelector('.installment-info').textContent = `em até 10x sem juros de ${formattedInstallment}`;
+
+          // Atualiza o desconto no Pix (5% off)
+          let pixPrice = priceAdult * 0.95;
+          const formattedPixPrice = pixPrice.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+          document.querySelector('.pix-discount').textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
+
+          // Atualiza a seção de ingressos (ticket-list)
+          // Se a API retornar um array "modalities", usamos esse array; caso contrário, usamos o próprio ticket
+          const modalities = ticket.modalities || [ticket];
+          const ticketListContainer = document.querySelector('.ticket-list');
+          ticketListContainer.innerHTML = '';
+          modalities.forEach(modality => {
+            const ticketItem = document.createElement('div');
+            ticketItem.classList.add('ticket-item');
+            ticketItem.setAttribute('onclick', 'toggleActive(this)');
+
+            // Informações do ticket
+            const ticketInfo = document.createElement('div');
+            ticketInfo.classList.add('ticket-info');
+            const ticketTitle = document.createElement('h3');
+            ticketTitle.textContent = modality.modality_name || `Bilhete base de ${modality.duration} dias`;
+            ticketInfo.appendChild(ticketTitle);
+            const ticketDesc = document.createElement('p');
+            ticketDesc.innerHTML = `Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom. <br><em>Não reembolsável</em>`;
+            ticketInfo.appendChild(ticketDesc);
+            ticketItem.appendChild(ticketInfo);
+
+            // Preço e ações
+            const priceAndAction = document.createElement('div');
+            priceAndAction.classList.add('price-and-action');
+
+            // Calcula o preço total com base nos participantes selecionados
+            const numAdults = parseInt(document.getElementById('numAdults').value) || 1;
+            const numChildren = parseInt(document.getElementById('numChildren').value) || 0;
+            const priceAdultModality = modality.amount_adult || ticket.amount_adult || 0;
+            const priceChildModality = modality.amount_child || ticket.amount_child || 0;
+            const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
+            const ticketPriceDiv = document.createElement('div');
+            ticketPriceDiv.classList.add('ticket-price');
+            const formattedTotalPrice = totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+            ticketPriceDiv.textContent = formattedTotalPrice;
+
+            // Tooltip para desconto Pix no ticket
+            const tooltip = document.createElement('small');
+            tooltip.classList.add('tooltip');
+            tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalPrice * 0.95).toLocaleString('pt-BR', { style: 'currency', currency: currency })}</span>`;
+            ticketPriceDiv.appendChild(tooltip);
+            priceAndAction.appendChild(ticketPriceDiv);
+
+            const installmentInfoItem = document.createElement('div');
+            installmentInfoItem.classList.add('installment-info-item');
+            const formattedPerPerson = priceAdultModality.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+            installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? 's' : ''} x ${formattedPerPerson}`;
+            priceAndAction.appendChild(installmentInfoItem);
+
+            const pixDiscountItem = document.createElement('div');
+            pixDiscountItem.classList.add('pix-discount-item');
+            pixDiscountItem.textContent = `em até 10x Sem Juros`;
+            priceAndAction.appendChild(pixDiscountItem);
+
+            // Botão "Reserve agora"
+            const reserveBtn = document.createElement('button');
+            reserveBtn.classList.add('reserve-now-btn');
+            reserveBtn.textContent = 'Reserve agora';
+            reserveBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              const dateElem = document.getElementById('arrival-date');
+              const dateValue = dateElem ? dateElem.value : "2025-04-12";
+              const item = {
+                name: ticketTitle.textContent,
+                category: "INGRESSOS",
+                date: dateValue,
+                price: totalPrice,
+                adults: numAdults,
+                children: numChildren
+              };
+              addItemToCart(item);
+            });
+            priceAndAction.appendChild(reserveBtn);
+
+            ticketItem.appendChild(priceAndAction);
+            ticketListContainer.appendChild(ticketItem);
+          });
+        })
+        .catch(err => {
+          console.error("Erro ao buscar dados da API:", err);
+        });
+    });
   </script>
 
   <!-- INCLUSÃO DO global-cart.js -->
   <script src="global-cart.js"></script>
-  
-  <!-- Exemplo: Listener para os botões "Reserve agora" -->
-  <script>
-    document.querySelectorAll('.reserve-now-btn').forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const ticketItem = this.closest('.ticket-item');
-        const title = ticketItem.querySelector('.ticket-info h3').textContent.trim();
-        
-        let price = 0;
-        const priceText = ticketItem.querySelector('.ticket-price').textContent;
-        const priceMatch = priceText.match(/R\$[\s]?([\d.,]+)/);
-        if (priceMatch && priceMatch[1]) {
-          let normalized = priceMatch[1].replace(/\./g, '').replace(',', '.');
-          price = parseFloat(normalized);
-        }
-        
-        const dateElement = document.getElementById('arrival-date');
-        const date = dateElement ? dateElement.value : "2025-04-12";
-        
-        const item = {
-          name: title,
-          category: "INGRESSOS",
-          date: date,
-          price: price,
-          adults: parseInt(document.getElementById('numAdults').value) || 0,
-          children: parseInt(document.getElementById('numChildren').value) || 0
-        };
-        
-        addItemToCart(item);
-      });
-    });
-  </script>
 </body>
 </html>
