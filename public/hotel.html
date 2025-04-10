@@ -24,7 +24,7 @@
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 
-  <!-- CSS do Carrinho -->
+  <!-- CSS do Carrinho e INX -->
   <link rel="stylesheet" href="/css/cart.css" />
   <link rel="stylesheet" href="/css/inx.css" />
 
@@ -34,7 +34,7 @@
   <!-- Carrega o facilitiesMap -->
   <script src="/js/facilitiesMap.js" defer></script>
 
-  <!-- CSS opcional para a barra lateral de Ingressos -->
+  <!-- Estilos extra (exemplo para barra lateral e cards) -->
   <style>
     #filtersPanelIngressos {
       width: 250px;
@@ -58,11 +58,17 @@
       border: 1px solid #ddd;
       padding: 10px;
       box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
     }
+    /* Exemplo mínimo de estilos para abas */
+    .tabs .tab { display: inline-block; padding: 8px; cursor: pointer; border: 1px solid #ccc; margin-right: 2px; }
+    .tabs .tab.active { background: #eee; }
+    .tab-content { display: none; margin-top: 16px; }
+    .tab-content.active { display: block; }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
+  <!-- HEADER e CARRINHO -->
   <app-header></app-header>
   <shopping-cart></shopping-cart>
 
@@ -76,21 +82,11 @@
   <div class="search-container">
     <!-- TABS -->
     <div class="tabs">
-      <div class="tab active" data-tab="tab-ingressos">
-        <span class="material-icons">local_activity</span> Ingressos
-      </div>
-      <div class="tab" data-tab="tab-hoteis">
-        <span class="material-icons">hotel</span> Hotéis
-      </div>
-      <div class="tab" data-tab="tab-carros">
-        <span class="material-icons">directions_car</span> Carros
-      </div>
-      <div class="tab" data-tab="tab-transfer">
-        <span class="material-icons">compare_arrows</span> Transfer
-      </div>
-      <div class="tab" data-tab="tab-seguros">
-        <span class="material-icons">shield</span> Seguros
-      </div>
+      <div class="tab active" data-tab="tab-ingressos">Ingressos</div>
+      <div class="tab" data-tab="tab-hoteis">Hotéis</div>
+      <div class="tab" data-tab="tab-carros">Carros</div>
+      <div class="tab" data-tab="tab-transfer">Transfer</div>
+      <div class="tab" data-tab="tab-seguros">Seguros</div>
     </div>
 
     <!-- ABA DE INGRESSOS -->
@@ -110,8 +106,8 @@
         </div>
       </div>
       <div id="status"></div>
-
-      <!-- BARRA LATERAL + RESULTADOS DOS INGRESSOS -->
+      
+      <!-- RESULTADOS DOS INGRESSOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Filtros de Ingressos</h2>
@@ -135,8 +131,6 @@
             <button onclick="applyPriceFilterIngressos()">Filtrar Preço</button>
           </div>
         </aside>
-
-        <!-- Área para os cartões de ingresso -->
         <div class="results-main">
           <div id="ingressosList" class="activities-grid"></div>
         </div>
@@ -180,10 +174,11 @@
       </div>
     </div>
 
-    <!-- ABAS DE CARROS, TRANSFER E SEGUROS (inalteradas) -->
+    <!-- ABA DE CARROS -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
+    <!-- Outras abas -->
     <div id="tab-transfer" class="tab-content">
       <p>Formulário de transfer aqui...</p>
     </div>
@@ -196,7 +191,6 @@
   <div class="results-wrapper">
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
-      <!-- Filtros para hotéis -->
       <div class="filter-group">
         <h3>Buscar por nome</h3>
         <div class="property-search">
@@ -256,7 +250,7 @@
     </div>
   </div>
 
-  <!-- TEMPLATE DO CARD DE HOTÉIS (inalterado) -->
+  <!-- TEMPLATE DO CARD DE HOTÉIS -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -306,8 +300,8 @@
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
-    * A) TABS + FLATPICKR
-    ***********************************************/
+     * A) TABS + FLATPICKR
+     ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach((tab) => {
@@ -317,6 +311,11 @@
         tab.classList.add('active');
         const target = tab.getAttribute('data-tab');
         document.getElementById(target).classList.add('active');
+        // Se não for a aba de Ingressos, limpa a lista
+        if (target !== 'tab-ingressos') {
+          const ingressosList = document.getElementById('ingressosList');
+          if (ingressosList) ingressosList.innerHTML = '';
+        }
       });
     });
   
@@ -338,8 +337,8 @@
     }
   
     /***********************************************
-    * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
-    ***********************************************/
+     * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS)
+     ***********************************************/
     const quartosInput = document.getElementById('quartos');
     const dropdown = document.getElementById('quartosDropdown');
     const roomsMinus = document.getElementById('roomsMinus');
@@ -449,8 +448,8 @@
     renderRooms();
   
     /***********************************************
-    * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
-    ***********************************************/
+     * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS
+     ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
     }
@@ -570,8 +569,8 @@
     }
   
     /***********************************************
-    * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
-    ***********************************************/
+     * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
+     ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
       if (!btn) return;
@@ -610,8 +609,8 @@
     });
   
     /***********************************************
-    * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
-    ***********************************************/
+     * E) FUNÇÕES PARA BUSCAR HOTÉIS (Booking API) E PAGINAÇÃO
+     ***********************************************/
     async function buscarHoteis() {
       const destination = document.getElementById('destinoHoteisCode')?.value
         || document.getElementById('destinoHoteis')?.value
@@ -803,8 +802,8 @@
     }
   
     /***********************************************
-    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
-    ***********************************************/
+     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
+     ***********************************************/
     function showFiltersPanel() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.remove('hidden');
@@ -812,16 +811,16 @@
     }
   
     /***********************************************
-    * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
-    ***********************************************/
+     * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
+     ***********************************************/
     function toggleFilters() {
       const panel = document.getElementById('filtersPanel');
       panel.classList.toggle('active');
     }
   
     /***********************************************
-    * Otimização: Exibe o conteúdo somente após o carregamento completo
-    ***********************************************/
+     * Otimização: Exibe o conteúdo somente após o carregamento completo
+     ***********************************************/
     document.addEventListener('DOMContentLoaded', function () {
       fetch('loading.html')
         .then((response) => {
@@ -855,7 +854,7 @@
       }
     }
   
-    // Configura o autocomplete para um input específico
+    // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -923,8 +922,8 @@
     });
   
     /***********************************************
-    * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
-    ***********************************************/
+     * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
+     ***********************************************/
     function applyNameFilterIngressos() {
       const input = document.getElementById('nameSearchInputIngressos');
       const filterValue = input.value.trim().toLowerCase();
@@ -956,26 +955,26 @@
     }
   
     /***********************************************
-    * NOVA ABORDAGEM: Clonar Botões de Ingressos para Forçar Redirecionamento
-    ***********************************************/
-    // Quando o DOM estiver totalmente carregado, clonamos os botões de “Ver detalhes” para remover eventos indesejados.
+     * NOVA ABORDAGEM: Forçar Redirecionamento para Ingressos
+     ***********************************************/
+    // Essa abordagem utiliza clone e modo de captura para eliminar outros listeners.
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         const detailButtons = document.querySelectorAll('.btn-details-ingresso');
         detailButtons.forEach(oldBtn => {
-          // Removendo atributos que possam disparar modal
+          // Remover atributos que possam acionar modais
           oldBtn.removeAttribute('data-toggle');
           oldBtn.removeAttribute('data-bs-toggle');
           oldBtn.removeAttribute('data-target');
           oldBtn.removeAttribute('data-bs-target');
-          // Clonar o botão para apagar todos os eventos já vinculados
+          // Clonar o botão para eliminar event listeners já anexados
           const newBtn = oldBtn.cloneNode(true);
           oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-          // Adiciona o nosso event listener em modo de captura com stopImmediatePropagation
+          // Adiciona nosso event listener em modo de captura e com stopImmediatePropagation
           newBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            e.stopImmediatePropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
   
             const card = newBtn.closest('.ticket-card');
             if (!card) return;
@@ -994,7 +993,7 @@
             window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
           }, true);
         });
-      }, 1000); // O delay pode ser ajustado conforme necessário
+      }, 500);
     });
   </script>
 </body>
