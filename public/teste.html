@@ -1,112 +1,667 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"
-    />
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Walt Disney World Resort - Ingressos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Script do Malga Checkout SDK -->
-    <script
-      type="module"
-      src="https://unpkg.com/@malga-checkout/core@latest/dist/malga-checkout/malga-checkout.esm.js"
-    ></script>
+  <!-- META TAGS PARA SEO -->
+  <meta name="description" content="Compre ingressos para o Walt Disney World Resort com até 10x sem juros e desconto no Pix. Aproveite Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom em Orlando, Estados Unidos.">
+  <meta name="keywords" content="Disney, Ingressos, Orlando, Walt Disney World, Magic Kingdom, Epcot, Hollywood Studios, Animal Kingdom, Desconto, Pix, Parcelamento">
 
-    <title>Malga Checkout Example</title>
-  </head>
-  <body>
-    <main>
-      <!-- Componente Web do Malga Checkout -->
-      <malga-checkout
-        id="malga-checkout"
-        sandbox="false"
-        public-key="bfabc953-1ea0-45d0-95e4-4968cfe2a00e"
-        client-id="4457c178-0f07-4589-ba0e-954e5816fd0f"
-        merchant-id="1deb9fd4-8623-4e0e-a317-135008bb3a0a"
-      >
-      </malga-checkout>
-    </main>
+  <!-- FONTE MONTSERRAT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
 
-    <script>
-      // Seleciona o componente <malga-checkout> no DOM
-      const malgaCheckout = document.querySelector('malga-checkout');
+  <!-- Font Awesome (opcional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
-      // Exemplo de config de métodos de pagamento
-      malgaCheckout.paymentMethods = {
-        pix: {
-          expiresIn: 600,
-          items: [
-            {
-              id: "123",
-              title: "Produto Exemplo - PIX",
-              quantity: 1,
-              unitPrice: 159000,
-            },
-          ],
-        },
-        credit: {
-          installments: {
-            quantity: 10,
-            show: true,
-          },
-          showCreditCard: true,
-        },
-        boleto: {
-          expiresDate: "2025-12-31",
-          instructions: "Instruções de pagamento do boleto",
-          interest: {
-            days: 1,
-            amount: 159000,
-          },
-          fine: {
-            days: 2,
-            amount: 200,
-          },
-          items: [
-            {
-              id: "123",
-              title: "Produto Exemplo - Boleto",
-              quantity: 1,
-              unitPrice: 159000,
-            },
-          ],
-        },
-      };
+  <style>
+    /* RESET / BASE */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: white;
+      color: #333;
+      line-height: 1.4;
+      position: relative;
+    }
+    input, select, textarea, button {
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button {
+      cursor: pointer;
+    }
+    
+    /* HEADER EXTERNO */
+    #externalHeader {
+      width: 100%;
+      border-bottom: 1px solid #eee;
+    }
 
-      // Configurações de transação
-      malgaCheckout.transactionConfig = {
-        statementDescriptor: "Malga Checkout Example",
-        amount: 159000, // Em centavos
-        description: "Demonstração do Malga Checkout",
-        orderId: "pedido-123",
-        customerId: "",
-        currency: "BRL",
-        capture: false,
-        customer: null,
-      };
+    /* CONTÊINER PRINCIPAL (DUAS COLUNAS) */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    /* COLUNA ESQUERDA */
+    .left-column {
+      flex: 1 1 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .main-banner {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .main-banner img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+    .mini-images {
+      display: flex;
+      gap: 8px;
+    }
+    .mini-images img {
+      flex: 1;
+      border-radius: 6px;
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      background: #eee;
+    }
 
-      // Configurações do diálogo (modal) de status
-      malgaCheckout.dialogConfig = {
-        show: true,
-        actionButtonLabel: "Continuar",
-        errorActionButtonLabel: "Tentar novamente",
-        successActionButtonLabel: "Continuar",
-        successRedirectUrl: "https://www.malga.io/",
-        pixFilledProgressBarColor: "#2FAC9B",
-        pixEmptyProgressBarColor: "#D8DFF0",
-      };
+    /* COLUNA DIREITA */
+    .right-column {
+      flex: 1 1 300px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .stars-reviews {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .stars-reviews i {
+      color: #f1c40f;
+    }
+    .location {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .action-buttons button {
+      background: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #555;
+      transition: background 0.2s;
+    }
+    .action-buttons button:hover {
+      background: #f1f1f1;
+    }
 
-      // Listeners de eventos
-      malgaCheckout.addEventListener("paymentSuccess", (event) => {
-        console.log("Pagamento concluído com sucesso:", event.detail);
-        // Exemplo: Redirecionar ou mostrar mensagem
+    /* BOX DE PREÇO / RESERVA (COLUNA DIREITA) */
+    .price-box {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .price-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .price-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .installment-info,
+    .pix-discount {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount {
+      color: #27ae60;
+      font-weight: 500;
+    }
+    .date-participants {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .date-participants input,
+    .date-participants select {
+      width: 100%;
+      height: 38px;
+      padding: 0 8px;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .price-box button {
+      width: 100%;
+      background: #00a0e3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.3s;
+      margin-top: 4px;
+    }
+    .price-box button:hover {
+      background: #008dc8;
+    }
+    .non-refundable {
+      font-size: 0.8rem;
+      color: #999;
+    }
+    .warning {
+      background: #fff7e6;
+      border: 1px solid #ffe4b8;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.85rem;
+      color: #aa6a1f;
+      margin-top: 4px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .warning i {
+      color: #aa6a1f;
+    }
+
+    /* SEÇÃO DE INGRESSOS (LISTA) */
+    .ticket-section {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 16px;
+    }
+    .ticket-top-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ticket-item {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      transition: box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
+    }
+    .ticket-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .ticket-item.active {
+      border: 2px solid #00a0e3;
+      box-shadow: 0 2px 8px rgba(0,160,227,0.15);
+    }
+    .ticket-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ticket-info h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .ticket-info p {
+      font-size: 0.85rem;
+      color: #777;
+      line-height: 1.3;
+    }
+    .price-and-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .ticket-price {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #444;
+      text-align: right;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .installment-info-item,
+    .pix-discount-item {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount-item {
+      color: #27ae60;
+      font-weight: 500;
+    }
+    .reserve-now-btn {
+      background: #00a0e3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .reserve-now-btn:hover {
+      background: #008dc8;
+    }
+
+    /* SEÇÃO DE CONTEÚDO ADICIONAL */
+    .content-section {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+    .content-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #333;
+      font-weight: 600;
+    }
+    .content-section p {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .highlights-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+    .highlights-list li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .highlights-list li i {
+      color: #00a0e3;
+    }
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+      margin-left: 6px;
+      display: inline-block;
+    }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: auto;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 6px 8px;
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 999;
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* RODAPÉ */
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #999;
+      padding: 20px 0;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+
+    /* ---------------------------
+       ESTILOS DO CARRINHO SUSPENSO
+       --------------------------- */
+
+    /* Container do Carrinho */
+    .cart-container {
+      /* Já definido acima, mas lembre-se que ele ficará fixo à direita */
+    }
+
+    /* Rodapé fixo do carrinho (cupom e totais) */
+    .cart-footer {
+      flex-shrink: 0;
+      border-top: 1px solid #eee;
+      padding: 1rem;
+      background: #fff;
+      /* Sempre no final do carrinho */
+    }
+    /* Cupom de desconto (com ícone 30x30) */
+    .coupon-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px dashed #ccc;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 1rem;
+      background: #fcfcfc;
+    }
+    .coupon-icon {
+      width: 30px;
+      height: 30px;
+      fill: #666;
+      flex-shrink: 0;
+    }
+    .coupon-input-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .coupon-input-box label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .coupon-input-box input {
+      width: 100%;
+      height: 32px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .price-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .price-line .green {
+      color: #2a942f;
+      font-weight: 600;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin: 0.5rem 0 1rem;
+    }
+    .checkout-btn {
+      width: 100%;
+      background: #35b473;
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      padding: 0.7rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checkout-btn:hover {
+      background: #2d9e64;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER EXTERNO -->
+  <div id="externalHeader"></div>
+  <script>
+    fetch("https://business.airland.com.br/header.html")
+      .then(resp => resp.text())
+      .then(html => {
+        document.getElementById("externalHeader").innerHTML = html;
+      })
+      .catch(err => console.error("Erro ao carregar header externa:", err));
+  </script>
+
+  <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
+  <div class="main-container">
+    <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
+    <div class="left-column">
+      <div class="main-banner">
+        <img src="https://ogimg.infoglobo.com.br/in/25161878-97c-45c/FT1086A/Personagens-DisneyRoupa-50-anos.png" alt="Disney Banner">
+      </div>
+      <div class="mini-images">
+        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/EPCOT.jpg" alt="Epcot" />
+        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Hollywood-Studios.jpg" alt="Hollywood Studios" />
+        <img src="https://www.magictraveltur.com/wp-content/uploads/2024/10/Animal-Kingdom.jpg" alt="Animal Kingdom" />
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA: Título, Avaliações, Box de Preço -->
+    <div class="right-column">
+      <h1 class="product-title">Walt Disney World Resort</h1>
+      <div class="stars-reviews">
+        <div class="stars">
+          <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i>
+        </div>
+        <span>79 avaliações</span>
+      </div>
+      <div class="location">Orlando, Estados Unidos da América</div>
+      
+      <div class="action-buttons">
+        <button><i class="fas fa-share"></i> Compartilhar</button>
+        <button><i class="far fa-heart"></i> Minha lista de desejos</button>
+      </div>
+
+      <!-- BOX DE PREÇO / RESERVA -->
+      <div class="price-box">
+        <span class="price-label">A partir de</span>
+        <div class="price-value">
+          R$ 2.353,20 <small style="font-size:0.75rem;">por pessoa</small>
+        </div>
+        <div class="installment-info">
+          em até 10x sem juros de R$ 235,32
+        </div>
+        <div class="pix-discount">
+          ou R$ 2.235,54 no Pix (5% off)
+        </div>
+
+        <div class="date-participants">
+          <label for="arrival-date">Data e participantes</label>
+          <input type="date" id="arrival-date" min="2025-03-20" value="2025-03-20">
+          <div style="display: flex; gap:8px;">
+            <select id="numAdults" style="flex:1;">
+              <option value="2" selected>2 adultos</option>
+              <option value="1">1 adulto</option>
+              <option value="3">3 adultos</option>
+              <option value="4">4 adultos</option>
+            </select>
+            <select id="numChildren" style="flex:1;">
+              <option value="0" selected>0 crianças</option>
+              <option value="1">1 criança</option>
+              <option value="2">2 crianças</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="atualizarBusca()">Atualizar busca</button>
+        <div class="non-refundable">
+          <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
+        </div>
+        <div class="warning">
+          <i class="fas fa-exclamation-triangle"></i>
+          Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÃO DE INGRESSOS (LISTA) -->
+  <section class="ticket-section">
+    <div class="ticket-top-text">
+      <strong>1 a 10 dias</strong> (aprox.) • <strong>Ingresso digital</strong> • Garantia de menor preço
+      <br>
+      Escolha abaixo quantos dias você deseja e obtenha o valor final. Confira também políticas de cancelamento e detalhes adicionais.
+    </div>
+    <div class="ticket-list">
+      <!-- Bilhete 1 -->
+      <div class="ticket-item" onclick="toggleActive(this)">
+        <div class="ticket-info">
+          <h3>Bilhete base de 7 dias</h3>
+          <p>
+            Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom.
+            <br><em>Não reembolsável</em>
+          </p>
+        </div>
+        <div class="price-and-action">
+          <div class="ticket-price">
+            R$ 6.171,70
+            <small class="tooltip">
+              <i class="fas fa-info-circle"></i>
+              <span class="tooltip-text">Super desconto de 5% no Pix = R$ 5.863,11</span>
+            </small>
+          </div>
+          <div class="installment-info-item">
+            2 adultos x R$ 3.085,85
+          </div>
+          <div class="pix-discount-item">
+            em até 10x Sem Juros
+          </div>
+          <button class="reserve-now-btn">Reserve agora</button>
+        </div>
+      </div>
+      <!-- (Repita ou adicione outros bilhetes se necessário) -->
+    </div>
+  </section>
+
+  <!-- SEÇÃO DE CONTEÚDO ADICIONAL -->
+  <div class="content-section">
+    <h2>Sobre o Produto</h2>
+    <p>
+      Desfrute de toda a magia de Walt Disney World com ingressos para os icônicos parques
+      temáticos em Orlando. Garanta também benefícios exclusivos, brindes especiais e
+      toda a praticidade para você e sua família.
+    </p>
+
+    <h2>Destaques</h2>
+    <ul class="highlights-list">
+      <li><i class="fas fa-check"></i> Ingressos oficiais e validados no app My Disney Experience</li>
+      <li><i class="fas fa-check"></i> Flexibilidade de datas (1 a 10 dias de visita)</li>
+      <li><i class="fas fa-check"></i> Brindes exclusivos na retirada</li>
+      <li><i class="fas fa-check"></i> Atendimento em português</li>
+    </ul>
+
+    <h2>Política de Cancelamento</h2>
+    <p>
+      Os ingressos não são reembolsáveis após a confirmação da compra.
+      Em caso de imprevistos, entre em contato com nossa equipe para
+      verificar possíveis soluções.
+    </p>
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer>
+    © 2025 - Layout estilo Airland • Todos os direitos reservados
+  </footer>
+
+  <!-- SCRIPT: Funções de busca, toggle, etc. -->
+  <script>
+    function atualizarBusca() {
+      const dateValue = document.getElementById('arrival-date').value;
+      const numAdults = document.getElementById('numAdults').value;
+      const numChildren = document.getElementById('numChildren').value;
+      alert("Data: " + dateValue + "\nAdultos: " + numAdults + "\nCrianças: " + numChildren);
+    }
+    function toggleActive(element) {
+      const allTickets = document.querySelectorAll('.ticket-item');
+      allTickets.forEach(ticket => ticket.classList.remove('active'));
+      element.classList.add('active');
+    }
+  </script>
+
+  <!-- INCLUSÃO DO global-cart.js -->
+  <script src="global-cart.js"></script>
+  
+  <!-- Exemplo: Listener para os botões "Reserve agora" -->
+  <script>
+    document.querySelectorAll('.reserve-now-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const ticketItem = this.closest('.ticket-item');
+        const title = ticketItem.querySelector('.ticket-info h3').textContent.trim();
+        
+        let price = 0;
+        const priceText = ticketItem.querySelector('.ticket-price').textContent;
+        const priceMatch = priceText.match(/R\$[\s]?([\d.,]+)/);
+        if (priceMatch && priceMatch[1]) {
+          let normalized = priceMatch[1].replace(/\./g, '').replace(',', '.');
+          price = parseFloat(normalized);
+        }
+        
+        const dateElement = document.getElementById('arrival-date');
+        const date = dateElement ? dateElement.value : "2025-04-12";
+        
+        const item = {
+          name: title,
+          category: "INGRESSOS",
+          date: date,
+          price: price,
+          adults: parseInt(document.getElementById('numAdults').value) || 0,
+          children: parseInt(document.getElementById('numChildren').value) || 0
+        };
+        
+        addItemToCart(item);
       });
-
-      malgaCheckout.addEventListener("paymentFailed", (event) => {
-        console.log("Falha no pagamento:", event.detail);
-        // Exemplo: Mostrar mensagem de erro
-      });
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
