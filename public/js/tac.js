@@ -1,9 +1,13 @@
 // public/js/tac.js
 
 // Função global para converter "dd/mm/yyyy" para "yyyy-mm-dd"
+// Obs.: Se a data já estiver no formato ISO, esta função pode ser ajustada para não alterar
 function convertDateFormat(dateStr) {
-  const [d, m, y] = dateStr.split('/');
-  return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  if (dateStr.indexOf('/') > -1) {
+    const [d, m, y] = dateStr.split('/');
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  return dateStr; // já no formato ISO
 }
 
 async function buscarIngressos() {
@@ -16,7 +20,7 @@ async function buscarIngressos() {
   let query = '';
 
   if (activityCode && dataIngressoParam) {
-    // Se os parâmetros estiverem presentes na URL, converte a data (supondo que esteja em "dd/mm/yyyy")
+    // Se os parâmetros estiverem na URL, converte a data se necessário
     const formattedDataIngresso = convertDateFormat(dataIngressoParam);
     query = `?activityCode=${encodeURIComponent(activityCode)}&dataIngresso=${encodeURIComponent(formattedDataIngresso)}`;
   } else {
@@ -70,7 +74,7 @@ function exibirIngressos(tickets) {
     return;
   }
   tickets.forEach(ticket => {
-    // Cria um card simples para cada ingresso – adapte os campos conforme necessário
+    // Cria um card simples para cada ingresso – adapta os campos conforme necessário
     const card = document.createElement('div');
     card.className = 'ticket-card';
     card.setAttribute('data-ticket-id', ticket.ticket_id || ticket.code || '');
