@@ -7,22 +7,40 @@ function convertDateFormat(dateStr) {
 }
 
 async function buscarIngressos() {
-  // Usa o campo hidden para o código do destino
-  const destination = document.getElementById('destinoIngressoCode')?.value ||
-                      document.getElementById('destinoIngresso')?.value || '';
-  const dateInput = document.getElementById('dataIngresso')?.value || '';
+  // Primeiro, verifica se os parâmetros de URL activityCode e dataIngresso foram fornecidos
+  const urlParams = new URLSearchParams(window.location.search);
+  const activityCode = urlParams.get('activityCode');
+  const dataIngressoParam = urlParams.get('dataIngresso');
 
-  if (!destination) {
-    alert('Selecione ou informe um destino válido.');
-    return;
-  }
-  if (!dateInput) {
-    alert('Selecione uma data!');
-    return;
-  }
+  let apiUrl = '/api/tickets';
+  let query = '';
 
-  // Converte a data (a função já está definida globalmente)
-  const dateFormatted = convertDateFormat(dateInput);
+  if (activityCode && dataIngressoParam) {
+    // Se os parâmetros estiverem presentes na URL, converte a data (supondo que esteja em "dd/mm/yyyy")
+    const formattedDataIngresso = convertDateFormat(dataIngressoParam);
+    query = `?activityCode=${encodeURIComponent(activityCode)}&dataIngresso=${encodeURIComponent(formattedDataIngresso)}`;
+  } else {
+    // Senão, utiliza os valores dos campos do formulário
+    const destination = document.getElementById('destinoIngressoCode')?.value ||
+                        document.getElementById('destinoIngresso')?.value || '';
+    const dateInput = document.getElementById('dataIngresso')?.value || '';
+
+    if (!destination) {
+      alert('Selecione ou informe um destino válido.');
+      return;
+    }
+    if (!dateInput) {
+      alert('Selecione uma data!');
+      return;
+    }
+
+    // Converte a data para o formato esperado
+    const dateFormatted = convertDateFormat(dateInput);
+    query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(dateFormatted)}`;
+  }
+  
+  // Monta a URL final para a busca
+  const urlFinal = apiUrl + query;
 
   const statusEl = document.getElementById('status');
   if (statusEl) {
@@ -30,12 +48,8 @@ async function buscarIngressos() {
     statusEl.style.display = 'block';
   }
   
-  // Monta a query string com os parâmetros
-  const query = `?destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(dateFormatted)}`;
-  const url = '/api/tickets' + query;
-  
   try {
-    const resp = await fetch(url);
+    const resp = await fetch(urlFinal);
     if (!resp.ok) {
       throw new Error('Erro na consulta de ingressos: ' + resp.status);
     }
@@ -56,7 +70,7 @@ function exibirIngressos(tickets) {
     return;
   }
   tickets.forEach(ticket => {
-    // Cria um card simples para cada ingresso – adapta os campos conforme necessário
+    // Cria um card simples para cada ingresso – adapte os campos conforme necessário
     const card = document.createElement('div');
     card.className = 'ticket-card';
     card.setAttribute('data-ticket-id', ticket.ticket_id || ticket.code || '');
