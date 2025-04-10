@@ -112,8 +112,8 @@
   
         <!-- Área principal de resultados (grid de ingressos) -->
         <div class="results-main">
-          <!-- IMPORTANTE: Mantenha o ID "activitiesGrid" pois o script tacr.js utiliza este container -->
-          <div id="activitiesGrid" class="activities-grid"></div>
+          <!-- IMPORTANTE: Utilizamos o id "ingressosList" para que tac.js funcione corretamente -->
+          <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
       <!-- FIM FILTROS INGRESSOS -->
@@ -173,9 +173,9 @@
     </div>
   </div>
   
-  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) – geralmente para Hotéis -->
+  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) – Geralmente para Hotéis -->
   <div class="results-wrapper">
-    <!-- Barra lateral de filtros -->
+    <!-- Barra lateral de filtros para Hotéis -->
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
       
@@ -187,7 +187,7 @@
         </div>
       </div>
       
-      <!-- Grupo 2: Preço por diária (inputs e slider) -->
+      <!-- Grupo 2: Preço por diária -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
         <div class="price-range">
@@ -201,7 +201,6 @@
               <input type="number" placeholder="R$ 2.400+" id="priceMax" />
             </div>
           </div>
-          <!-- Slider opcional -->
           <div class="price-slider">
             <input type="range" id="rangeMin" min="0" max="2400" value="0" step="50" />
             <input type="range" id="rangeMax" min="0" max="2400" value="2400" step="50" />
@@ -242,19 +241,17 @@
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
   
-    <!-- Área principal de resultados -->
+    <!-- Área principal de resultados para Hotéis -->
     <div class="results-main">
-      <!-- Barra de pesquisa por nome acima dos cards -->
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
-      <!-- Grid de cards (resultados) -->
       <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
   
-  <!-- TEMPLATE DO CARD -->
+  <!-- TEMPLATE DO CARD DE HOTÉIS -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -294,13 +291,13 @@
       Explore nossas ofertas imperdíveis para destinos incríveis.
     </p>
   </section>
-
+  
   <!-- SCRIPTS EXTERNOS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="/js/tac.js"></script>
   <script src="/js/tacr.js"></script>
-
+  
   <!-- JavaScript da Página -->
   <script>
     /***********************************************
@@ -317,7 +314,7 @@
         document.getElementById(target).classList.add('active');
       });
     });
-
+  
     if (typeof flatpickr !== 'undefined') {
       flatpickr('#dataIngresso', {
         locale: 'pt',
@@ -334,7 +331,7 @@
         allowInput: true
       });
     }
-
+  
     /***********************************************
     * B) DROPDOWN DE QUARTOS E PESSOAS
     ***********************************************/
@@ -345,9 +342,9 @@
     const roomsTotalEl = document.getElementById('roomsTotal');
     const roomsContainer = document.getElementById('roomsContainer');
     const applyQuartos = document.getElementById('applyQuartos');
-
+  
     let roomsData = [{ adults: 2, children: 0, childAges: [] }];
-
+  
     if (quartosInput) {
       quartosInput.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -360,7 +357,7 @@
     document.addEventListener('click', () => {
       if (dropdown) dropdown.classList.remove('active');
     });
-
+  
     function renderRooms() {
       if (!roomsContainer || !roomsTotalEl) return;
       roomsContainer.innerHTML = '';
@@ -437,9 +434,9 @@
       });
     }
     renderRooms();
-
+  
     /***********************************************
-    * C) CRIAÇÃO DE CARD E FUNÇÕES
+    * C) CRIAÇÃO DE CARD E FUNÇÕES (HOTÉIS)
     ***********************************************/
     function formatPriceBRL(value) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -548,9 +545,9 @@
       window.addEventListener('resize', updateCarousel);
       return clone;
     }
-
+  
     /***********************************************
-    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
+    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES (HOTÉIS)
     ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
@@ -588,7 +585,7 @@
       const queryString = new URLSearchParams(searchParams).toString();
       window.location.href = 'hoteldetails.html?' + queryString;
     });
-
+  
     /***********************************************
     * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
     ***********************************************/
@@ -598,15 +595,15 @@
       const hotelsListEl = document.getElementById('hotelsList');
       const statusEl = document.getElementById('status');
       const paginationEl = document.getElementById('pagination');
-
+  
       if (!range) {
         alert('Selecione as datas!');
         return;
       }
-
+  
       // Exibe o painel de filtros somente após o clique em "Buscar Hotéis"
       showFiltersPanel();
-
+  
       function toISO(dmy) {
         const [d, m, y] = dmy.split('/');
         return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
@@ -619,13 +616,13 @@
       }
       const isoIn = toISO(checkIn);
       const isoOut = toISO(checkOut);
-
+  
       let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
       roomsData.forEach((r, i) => {
         const idx = i + 1;
         query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
       });
-
+  
       if (hotelsListEl) hotelsListEl.innerHTML = '';
       if (paginationEl) {
         paginationEl.innerHTML = '';
@@ -635,10 +632,10 @@
         statusEl.textContent = 'Carregando hotéis...';
         statusEl.style.display = 'block';
       }
-
+  
       const url = `/api/hotelbeds/hotels${query}`;
       console.log('API de Hotéis:', url);
-
+  
       try {
         const bookingResp = await fetch(url);
         if (!bookingResp.ok) {
@@ -646,13 +643,13 @@
         }
         const bookingData = await bookingResp.json();
         let hotelsArr = bookingData.hotels?.hotels || [];
-
+  
         // Filtro: Buscar por nome da propriedade (automaticamente)
         const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
         if (propertyNameFilter) {
           hotelsArr = hotelsArr.filter(hotel => hotel.name.toLowerCase().includes(propertyNameFilter));
         }
-
+  
         // Filtro: Por estrelas (extraindo o número de estrelas da categoryName)
         const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
         const selectedStars = Array.from(starCheckboxes)
@@ -665,13 +662,13 @@
             return selectedStars.includes(stars);
           });
         }
-
+  
         if (!hotelsArr.length) {
           if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
           return;
         }
         if (statusEl) statusEl.style.display = 'none';
-
+  
         for (const hotel of hotelsArr) {
           const code = hotel.code;
           const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
@@ -755,7 +752,7 @@
         if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
       }
     }
-
+  
     function exibirPaginacao(totalPages, currentPage) {
       const pagEl = document.getElementById('pagination');
       if (!pagEl || totalPages <= 1) return;
@@ -771,12 +768,12 @@
         pagEl.appendChild(btnNext);
       }
     }
-
+  
     function convertDateFormat(dateStr) {
       const [d, m, a] = dateStr.split('/');
       return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
     }
-
+  
     /***********************************************
     * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
     ***********************************************/
@@ -785,7 +782,7 @@
       panel.classList.remove('hidden');
       panel.classList.add('visible');
     }
-
+  
     /***********************************************
     * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
     ***********************************************/
@@ -793,7 +790,7 @@
       const panel = document.getElementById('filtersPanel');
       panel.classList.toggle('active');
     }
-
+  
     /***********************************************
     * Otimização: Exibe o conteúdo somente após o carregamento completo
     ***********************************************/
@@ -808,7 +805,7 @@
         })
         .catch((err) => console.error('Erro ao carregar loading.html:', err));
     });
-
+  
     window.addEventListener('load', function () {
       Promise.all([document.fonts.ready]).then(() => {
         requestAnimationFrame(() => {
@@ -817,7 +814,7 @@
         });
       });
     });
-
+  
     // Função debounce para reduzir requisições enquanto o usuário digita
     function debounce(func, delay) {
       let timer;
@@ -826,7 +823,7 @@
         timer = setTimeout(() => func.apply(this, args), delay);
       }
     }
-
+  
     // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
@@ -836,7 +833,7 @@
       input.parentNode.style.position = 'relative';
       input.parentNode.appendChild(suggestionBox);
       const cache = {};
-
+  
       input.addEventListener('input', debounce(async () => {
         const term = input.value.trim();
         suggestionBox.innerHTML = '';
@@ -880,19 +877,20 @@
           });
         }
       }, 300));
-
+  
       document.addEventListener('click', (e) => {
         if (e.target !== input) {
           suggestionBox.innerHTML = '';
         }
       });
     }
-
+  
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
     });
-
+  
+    // Função de filtro para Hotéis (já existente)
     function applyNameFilter() {
       const input = document.getElementById('nameSearchInput');
       const filterValue = input.value.trim().toLowerCase();
@@ -906,16 +904,16 @@
         }
       });
     }
-
+  
     /***********************************************
     * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
     ***********************************************/
     function applyNameFilterIngressos() {
       const input = document.getElementById('nameSearchInputIngressos');
       const filterValue = input.value.trim().toLowerCase();
-      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      const cards = document.querySelectorAll('#ingressosList .ticket-card');
       cards.forEach(card => {
-        const titleEl = card.querySelector('.activity-title');
+        const titleEl = card.querySelector('h3');
         if (!titleEl) return;
         const title = titleEl.textContent.toLowerCase();
         if (title.includes(filterValue)) {
@@ -925,11 +923,11 @@
         }
       });
     }
-
+  
     function applyPriceFilterIngressos() {
       const minValue = parseFloat(document.getElementById('priceMinIngresso').value) || 0;
       const maxValue = parseFloat(document.getElementById('priceMaxIngresso').value) || Infinity;
-      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      const cards = document.querySelectorAll('#ingressosList .ticket-card');
       cards.forEach(card => {
         const priceEl = card.querySelector('.price-starting');
         if (!priceEl) return;
