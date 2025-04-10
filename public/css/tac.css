@@ -1,166 +1,60 @@
-/* Variáveis globais (opcional) */
-:root {
-  --color-primary: #0277bd;
-  --color-primary-hover: #01579b;
-  --color-text: #333;
-  --color-subtext: #666;
-  --color-description: #555;
-  --color-price: #e53935;
-
-  --border-radius-card: 12px;
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.1);
-  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
-
-  --spacing-card: 1.5rem;
-  --transition-fast: 0.3s;
-  --transition-slow: 0.2s;
-}
-
-/* Grid de cards (geral) */
+/* Grid de cards */
 .activities-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 20px;
   margin-top: 1rem;
-  justify-items: center;
 }
 
-/* ================================
-   ESTILOS PARA CARDS DE ATIVIDADES/HOTÉIS
-   ================================ */
-.activity-card,
-.hotel-card {
+/* Estilo dos cards – versão premium */
+.activity-card {
   background: #fff;
-  border-radius: var(--border-radius-card);
-  box-shadow: var(--shadow-card);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  width: 100%;
-  max-width: 380px;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.activity-card:hover,
-.hotel-card:hover {
+.activity-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
-.activity-card-img,
-.hotel-image img {
+.activity-card-img {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
 
-/* Corpo dos cards */
-.activity-body,
-.hotel-info,
-.ticket-body {
-  padding: var(--spacing-card);
-}
-
-/* ================================
-   ESTILOS PARA O CARD DE INGRESSOS
-   ================================ */
-.ticket-card {
-  background: #fff;
-  border-radius: var(--border-radius-card);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+.activity-body {
+  padding: 1.5rem;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto;
+  justify-content: space-between;
 }
 
-.ticket-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* Carrossel de Ingressos */
-.ticket-carousel {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  height: 220px; /* ajuste conforme necessário */
-  display: flex;
-}
-
-.carousel-track {
-  display: flex;
-  transition: transform 0.4s ease-in-out;
-  will-change: transform;
-}
-
-.carousel-slide {
-  min-width: 100%;
-  box-sizing: border-box;
-}
-
-.carousel-slide img {
-  display: block;
-  width: 100%;
-  height: 220px; /* mesma altura do container */
-  object-fit: cover;
-}
-
-/* Bolinhas (dots) para o carrossel */
-.carousel-dots {
-  position: absolute;
-  bottom: 8px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.carousel-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #bbb;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.carousel-dot.active,
-.carousel-dot:hover {
-  background-color: #333;
-}
-
-/* Corpo do Ticket */
-.ticket-body {
-  padding: var(--spacing-card);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.ticket-title {
-  font-size: 1.2rem;
+.activity-title {
+  font-size: 1.3rem;
   font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
 }
 
-.ticket-description,
-.ticket-date {
+.activity-date {
   font-size: 0.9rem;
-  color: var(--color-description);
+  color: #666;
+  margin-bottom: 0.5rem;
 }
 
-.ticket-prices {
+.activity-prices {
   margin-top: 0.5rem;
 }
 
 .price-starting {
-  color: var(--color-price);
+  color: #e53935;
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
@@ -171,33 +65,50 @@
   color: #888;
 }
 
-.btn-ticket-details {
-  margin-top: 1rem;
+.activity-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.btn-see-more {
+  display: inline-block;
+  margin-top: 0.75rem;
   padding: 0.7rem 1.2rem;
-  background: var(--color-primary);
+  background: #0277bd;
   color: #fff;
   border-radius: 4px;
   font-size: 1rem;
+  text-align: center;
   cursor: pointer;
   border: none;
-  transition: background var(--transition-slow), transform var(--transition-slow);
-  align-self: flex-start;
+  transition: background 0.2s, transform 0.2s;
 }
 
-.btn-ticket-details:hover {
-  background: var(--color-primary-hover);
+.btn-see-more:hover {
+  background: #01579b;
   transform: scale(1.02);
 }
 
-/* ================================
-   OUTROS ESTILOS (Filtros, Busca, etc.)
-   ================================ */
+/* Outros estilos mantidos... (formulários, autocomplete, etc.) */
+
+/* Estilos para a nova estrutura dos resultados */
+.results-wrapper {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  gap: 1rem;
+}
+
 .filters-panel {
   width: 280px;
   background: #fff;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .results-main {
@@ -230,34 +141,9 @@
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background var(--transition-slow);
+  transition: background 0.2s;
 }
 
 .name-search button:hover {
   background: #0b4ea9;
-}
-
-/* Responsividade básica */
-@media (max-width: 576px) {
-  .activity-card-img,
-  .hotel-image img,
-  .carousel-slide img {
-    height: 160px;
-  }
-
-  .ticket-carousel {
-    height: 180px;
-  }
-
-  .ticket-body {
-    padding: 1rem;
-  }
-
-  .ticket-title {
-    font-size: 1.1rem;
-  }
-
-  .price-starting {
-    font-size: 1.2rem;
-  }
 }
