@@ -134,7 +134,14 @@ function exibirAtividades(activities, containerId = 'activitiesGrid') {
 }
 
 function verDetalhesActivity(activityCode) {
-  alert(`Detalhes da atividade: ${activityCode}`);
+  // Exemplo: capturar outras infos do DOM se necessário
+  const dataIngresso = document.getElementById('dataIngresso')?.value || '';
+  // Monta a query final
+  const queryParams = new URLSearchParams({
+    activityCode,
+    dataIngresso
+  });
+  window.location.href = 'https://business.airland.com.br/tickets.html?' + queryParams.toString();
 }
 
 // **AQUI A MUDANÇA PRINCIPAL**: Mapeamos de fato o ticket.top_level_adult_price e ticket.media
