@@ -13,16 +13,28 @@
   <link rel="stylesheet" href="/css/tac.css" />
 
   <!-- Fonte Montserrat -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Flatpickr CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
 
   <!-- MATERIAL ICONS -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
 
   <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    rel="stylesheet"
+  />
 
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="/css/cart.css" />
@@ -87,11 +99,11 @@
       
       <!-- INÍCIO FILTROS INGRESSOS -->
       <div class="results-wrapper" id="resultsWrapperIngressos">
-        <!-- Barra lateral de filtros para Ingressos -->
+        <!-- Barra lateral com filtros exclusivos para Ingressos -->
         <aside class="filters-panel" id="filtersPanelIngressos">
           <h2>Categorias</h2>
           <div id="ingressoCategoriesList">
-            <!-- Aqui serão listadas dinamicamente as categorias/nomes de atrações, se desejado -->
+            <!-- Aqui serão listadas dinamicamente as categorias/nomes de atrações (se desejado) -->
           </div>
           <h2>Buscar por Nome</h2>
           <input type="text" id="nameSearchInputIngressos" placeholder="Ex: Magic Kingdom" />
@@ -110,9 +122,8 @@
           <button class="search-button" style="width: 100%;" onclick="applyPriceFilterIngressos()">Aplicar Filtros</button>
         </aside>
   
-        <!-- Área principal de resultados (grid de ingressos) -->
+        <!-- Área principal de resultados (onde os ingressos serão exibidos) -->
         <div class="results-main">
-          <!-- IMPORTANTE: Utilizamos o id "ingressosList" para que tac.js funcione corretamente -->
           <div id="ingressosList" class="activities-grid"></div>
         </div>
       </div>
@@ -157,28 +168,23 @@
       </div>
     </div>
   
-    <!-- Aba de Carros -->
+    <!-- Abas de Carros, Transfer e Seguros -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
-  
-    <!-- Aba de Transfer -->
     <div id="tab-transfer" class="tab-content">
       <p>Formulário de transfer aqui...</p>
     </div>
-  
-    <!-- Aba de Seguros -->
     <div id="tab-seguros" class="tab-content">
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
   
-  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) – Geralmente para Hotéis -->
+  <!-- NOVA ESTRUTURA DE RESULTADOS (Geral – Hotéis) -->
   <div class="results-wrapper">
     <!-- Barra lateral de filtros para Hotéis -->
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
-      
       <!-- Grupo 1: Buscar por Nome da Propriedade -->
       <div class="filter-group">
         <h3>Buscar por nome</h3>
@@ -186,7 +192,6 @@
           <input type="text" id="propertyName" placeholder="por ex., Marriott" />
         </div>
       </div>
-      
       <!-- Grupo 2: Preço por diária -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
@@ -207,7 +212,6 @@
           </div>
         </div>
       </div>
-      
       <!-- Grupo 3: Estrelas -->
       <div class="filter-group">
         <h3>Estrelas</h3>
@@ -217,7 +221,6 @@
         <label><input type="checkbox" value="2" /> 2 estrelas</label>
         <label><input type="checkbox" value="1" /> 1 estrela</label>
       </div>
-      
       <!-- Grupo 4: Tipo de Acomodação -->
       <div class="filter-group">
         <h3>Tipo de Acomodação</h3>
@@ -226,7 +229,6 @@
         <label><input type="checkbox" value="pousada" /> Pousada</label>
         <label><input type="checkbox" value="apart" /> Apart-hotel</label>
       </div>
-      
       <!-- Grupo 5: Comodidades -->
       <div class="filter-group">
         <h3>Comodidades</h3>
@@ -236,12 +238,8 @@
         <label><input type="checkbox" value="gym" /> Academia</label>
         <label><input type="checkbox" value="pets" /> Aceita Pets</label>
       </div>
-      
-      <!-- Botão para aplicar filtros -->
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
-  
-    <!-- Área principal de resultados para Hotéis -->
     <div class="results-main">
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
@@ -500,7 +498,7 @@
           tt.textContent = found.pt;
           iconDiv.appendChild(tt);
         } else {
-          iconDiv.innerHTML = `<i class="fas fa-check"></i>`;
+          iconDiv.innerHTML = '<i class="fas fa-check"></i>';
           const tt = document.createElement('div');
           tt.className = 'tooltip';
           tt.textContent = f;
@@ -547,7 +545,7 @@
     }
   
     /***********************************************
-    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES (HOTÉIS)
+    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
     ***********************************************/
     document.addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-options, .select-room-button');
@@ -815,7 +813,7 @@
       });
     });
   
-    // Função debounce para reduzir requisições enquanto o usuário digita
+    // Função debounce para reduzir requisições enquanto digita
     function debounce(func, delay) {
       let timer;
       return function(...args) {
@@ -860,6 +858,7 @@
         } catch (error) {
           console.error('Erro no autocomplete:', error);
         }
+  
         function renderSuggestions(suggestions) {
           suggestionBox.innerHTML = '';
           suggestions.forEach(suggestion => {
@@ -890,7 +889,6 @@
       setupAutocomplete('destinoHoteis');
     });
   
-    // Função de filtro para Hotéis (já existente)
     function applyNameFilter() {
       const input = document.getElementById('nameSearchInput');
       const filterValue = input.value.trim().toLowerCase();
