@@ -54,9 +54,10 @@ function exibirIngressos(tickets) {
     return;
   }
   tickets.forEach(ticket => {
-    // Cria um card simples para cada ingresso – adapte os campos conforme necessário
+    // Cria um card simples para cada ingresso – adapta os campos conforme necessário
     const card = document.createElement('div');
     card.className = 'ticket-card';
+    card.setAttribute('data-ticket-id', ticket.ticket_id || ticket.code || '');
     card.innerHTML = `
       <h3>${ticket.event_name || ticket.nome}</h3>
       <p>Data: ${ticket.event_date || ticket.date}</p>
