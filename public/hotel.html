@@ -579,6 +579,36 @@
   }
   
   /***********************************************
+  * D') EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (INGRESSOS)
+  ***********************************************/
+  // Este código é específico para a aba de Ingressos. Ao clicar no botão "Ver detalhes"
+  // dentro de um cartão de ingresso (ticket-card), o usuário é redirecionado para
+  // https://business.airland.com.br/tickets.html passando as variáveis necessárias.
+  const ingressosListEl = document.getElementById('ingressosList');
+  if (ingressosListEl) {
+    ingressosListEl.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-details-ingresso');
+      if (!btn) return;
+      const card = btn.closest('.ticket-card');
+      if (!card) return;
+      // Supondo que cada ticket-card tenha um atributo data-ticket-id
+      const ticketId = card.getAttribute('data-ticket-id');
+      const dataIngresso = document.getElementById('dataIngresso')?.value || '';
+      const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
+      const destinoIngressoCode = document.getElementById('destinoIngressoCode')?.value || '';
+  
+      const searchParams = {
+        ticketId: ticketId,
+        dataIngresso: dataIngresso,
+        destinoIngresso: destinoIngresso,
+        destinoIngressoCode: destinoIngressoCode
+      };
+      const queryString = new URLSearchParams(searchParams).toString();
+      window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
+    });
+  }
+  
+  /***********************************************
   * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS)
   ***********************************************/
   document.addEventListener('click', function(e) {
@@ -971,32 +1001,6 @@
       }
     });
   }
-  
-  /***********************************************
-  * EVENTO PARA REDIRECIONAR PARA A PÁGINA DE TICKETS (INGRESSOS)
-  ***********************************************/
-  document.addEventListener('click', function(e) {
-    // Verifica se o clique ocorreu em um card de ingresso
-    const ticketCard = e.target.closest('.ticket-card');
-    if (!ticketCard) return;
-    const ticketId = ticketCard.getAttribute('data-ticket-id');
-    if (!ticketId) {
-      console.error('ID do ingresso não encontrado no card.');
-      return;
-    }
-    const dateIngresso = document.getElementById('dataIngresso')?.value || '';
-    const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
-  
-    const searchParams = {
-      ticketId: ticketId,
-      data: dateIngresso,
-      destino: destinoIngresso
-      // Adicione outros parâmetros conforme necessário
-    };
-  
-    const queryString = new URLSearchParams(searchParams).toString();
-    window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
-  });
 </script>
 </body>
 </html>
