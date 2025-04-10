@@ -312,7 +312,7 @@
   <!-- JavaScript da Página -->
   <script>
   /***********************************************
-  * A) TABS + FLATPICKR (Mantido exatamente como estava)
+  * A) TABS + FLATPICKR (INVARIÁVEL)
   ***********************************************/
   const tabs = document.querySelectorAll('.tab');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -342,9 +342,9 @@
       allowInput: true
     });
   }
-
+  
   /***********************************************
-  * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS) (Mantido sem mudanças)
+  * B) DROPDOWN DE QUARTOS E PESSOAS (HOTÉIS) (INVARIÁVEL)
   ***********************************************/
   const quartosInput = document.getElementById('quartos');
   const dropdown = document.getElementById('quartosDropdown');
@@ -455,7 +455,7 @@
   renderRooms();
   
   /***********************************************
-  * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS (Mantido sem mudanças)
+  * C) CRIAÇÃO DE CARD E FUNÇÕES PARA HOTÉIS (INVARIÁVEL)
   ***********************************************/
   function formatPriceBRL(value) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -574,36 +574,36 @@
     
     return clone;
   }
-
+  
   /***********************************************
   * D') FORÇA O REDIRECIONAMENTO DE “VER DETALHES” (INGRESSOS)
-  * Intercepta o clique em fase de captura e
-  * impede qualquer outro listener que abra modal/alert
+  * Utiliza captura do clique para interceptar antes de outros scripts.
   ***********************************************/
   document.addEventListener('click', function(e) {
-    // Se o elemento clicado (ou ancestral) for um <button> com texto "Ver detalhes"
-    // dentro de um .ticket-card, e se #tab-ingressos estiver ativo, redirecione.
+    // Verifica se a aba de Ingressos está ativa
+    const ingressosTab = document.getElementById('tab-ingressos');
+    if (!ingressosTab || !ingressosTab.classList.contains('active')) return;
+  
+    // Procura o botão clicado
     const btn = e.target.closest('button');
-    const activeTab = document.querySelector('#tab-ingressos.tab-content.active');
-    if (!btn || !activeTab) return;
-
-    if (btn.textContent.trim() === 'Ver detalhes') {
-      // Bloqueia todos os outros handlers que possam abrir modal
+    if (!btn) return;
+  
+    // Compara o texto do botão em minúsculas (ajuste se necessário)
+    if (btn.textContent.trim().toLowerCase() === 'ver detalhes') {
+      // Impede que outros listeners sejam executados
       e.stopImmediatePropagation();
       e.stopPropagation();
       e.preventDefault();
-
-      // Localiza o card .ticket-card
-      const card = btn.closest('.ticket-card');
-      if (!card) return;
-
-      // Extrai dados do ingresso
-      const ticketId = card.getAttribute('data-ticket-id') || '';
+  
+      const ticketCard = btn.closest('.ticket-card');
+      if (!ticketCard) return;
+  
+      // Extrai os dados do ingresso
+      const ticketId = ticketCard.getAttribute('data-ticket-id') || '';
       const dataIngresso = document.getElementById('dataIngresso')?.value || '';
       const destinoIngresso = document.getElementById('destinoIngresso')?.value || '';
       const destinoIngressoCode = document.getElementById('destinoIngressoCode')?.value || '';
-
-      // Monta query string
+  
       const searchParams = {
         ticketId,
         dataIngresso,
@@ -611,14 +611,12 @@
         destinoIngressoCode
       };
       const queryString = new URLSearchParams(searchParams).toString();
-
-      // Redireciona
       window.location.href = 'https://business.airland.com.br/tickets.html?' + queryString;
     }
-  }, true);  // <== O "true" aqui faz a captura antes de listeners normais
-
+  }, true);
+  
   /***********************************************
-  * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS) (Mantido como estava)
+  * D) EVENTO PARA REDIRECIONAR A PÁGINA DE DETALHES (HOTÉIS) (INVARIÁVEL)
   ***********************************************/
   document.addEventListener('click', function(e) {
     const btn = e.target.closest('.btn-options, .select-room-button');
@@ -646,9 +644,9 @@
       totalChildren += room.children;
     });
     const searchParams = {
-      hotelCode: hotelCode,
-      checkIn: checkIn,
-      checkOut: checkOut,
+      hotelCode,
+      checkIn,
+      checkOut,
       rooms: totalRooms,
       adults: totalAdults,
       children: totalChildren,
@@ -658,7 +656,7 @@
   });
   
   /***********************************************
-  * E) FUNÇÕES PARA BUSCAR HOTÉIS (Mantido como estava)
+  * E) FUNÇÕES PARA BUSCAR HOTÉIS (INVARIÁVEL)
   ***********************************************/
   async function buscarHoteis() {
     const destination = document.getElementById('destinoHoteisCode')?.value
@@ -851,7 +849,7 @@
   }
   
   /***********************************************
-  * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS) (Mantido)
+  * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS) (INVARIÁVEL)
   ***********************************************/
   function showFiltersPanel() {
     const panel = document.getElementById('filtersPanel');
@@ -860,7 +858,7 @@
   }
   
   /***********************************************
-  * TOGGLE DE FILTROS NO MOBILE (HOTÉIS) (Mantido)
+  * TOGGLE DE FILTROS NO MOBILE (HOTÉIS) (INVARIÁVEL)
   ***********************************************/
   function toggleFilters() {
     const panel = document.getElementById('filtersPanel');
@@ -868,7 +866,7 @@
   }
   
   /***********************************************
-  * Otimização: Exibe o conteúdo somente após o carregamento completo (Mantido)
+  * Otimização: Exibe o conteúdo somente após o carregamento completo (INVARIÁVEL)
   ***********************************************/
   document.addEventListener('DOMContentLoaded', function () {
     fetch('loading.html')
@@ -894,7 +892,7 @@
     });
   });
   
-  // Função debounce para reduzir requisições enquanto o usuário digita (Mantido)
+  // Função debounce para reduzir requisições enquanto o usuário digita (INVARIÁVEL)
   function debounce(func, delay) {
     let timer;
     return function(...args) {
@@ -903,7 +901,7 @@
     }
   }
   
-  // Função para configurar o autocomplete para um input específico (Mantido)
+  // Função para configurar o autocomplete para um input específico (INVARIÁVEL)
   function setupAutocomplete(inputId) {
     const input = document.getElementById(inputId);
     const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -971,7 +969,7 @@
   });
   
   /***********************************************
-  * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS (Mantido)
+  * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS (INVARIÁVEL)
   ***********************************************/
   function applyNameFilterIngressos() {
     const input = document.getElementById('nameSearchInputIngressos');
