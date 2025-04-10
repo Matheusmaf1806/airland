@@ -26,6 +26,7 @@
 
   <!-- CSS do Carrinho -->
   <link rel="stylesheet" href="/css/cart.css" />
+
   <link rel="stylesheet" href="/css/inx.css" />
 
   <!-- Importa o header-component via módulo ES -->
@@ -83,7 +84,41 @@
         </div>
       </div>
       <div id="status"></div>
+      
+      <!-- INÍCIO FILTROS INGRESSOS -->
+      <div class="results-wrapper" id="resultsWrapperIngressos">
+        <!-- Barra lateral de filtros para Ingressos -->
+        <aside class="filters-panel" id="filtersPanelIngressos">
+          <h2>Categorias</h2>
+          <div id="ingressoCategoriesList">
+            <!-- Aqui serão listadas dinamicamente as categorias/nomes de atrações, se desejado -->
+          </div>
+          <h2>Buscar por Nome</h2>
+          <input type="text" id="nameSearchInputIngressos" placeholder="Ex: Magic Kingdom" />
+          <button onclick="applyNameFilterIngressos()">Filtrar</button>
+          <h2>Preço</h2>
+          <div class="price-range">
+            <div>
+              <label>Mín.</label>
+              <input type="number" placeholder="R$ 0" id="priceMinIngresso" />
+            </div>
+            <div>
+              <label>Máx.</label>
+              <input type="number" placeholder="R$ 2.000+" id="priceMaxIngresso" />
+            </div>
+          </div>
+          <button class="search-button" style="width: 100%;" onclick="applyPriceFilterIngressos()">Aplicar Filtros</button>
+        </aside>
+  
+        <!-- Área principal de resultados (grid de ingressos) -->
+        <div class="results-main">
+          <!-- IMPORTANTE: Mantenha o ID "activitiesGrid" pois o script tacr.js utiliza este container -->
+          <div id="activitiesGrid" class="activities-grid"></div>
+        </div>
+      </div>
+      <!-- FIM FILTROS INGRESSOS -->
     </div>
+    <!-- Fim da Aba de Ingressos -->
   
     <!-- Aba de Hotéis -->
     <div id="tab-hoteis" class="tab-content">
@@ -122,67 +157,37 @@
       </div>
     </div>
   
-    <!-- Abas de Carros, Transfer e Seguros -->
+    <!-- Aba de Carros -->
     <div id="tab-carros" class="tab-content">
       <p>Formulário de carros aqui...</p>
     </div>
+  
+    <!-- Aba de Transfer -->
     <div id="tab-transfer" class="tab-content">
       <p>Formulário de transfer aqui...</p>
     </div>
+  
+    <!-- Aba de Seguros -->
     <div id="tab-seguros" class="tab-content">
       <p>Formulário de seguros aqui...</p>
     </div>
   </div>
-
-  <!-- =========================================
-       ESTRUTURAS DE RESULTADOS – INGRESSOS E HOTÉIS
-       ========================================= -->
-
-  <!-- RESULTADOS PARA INGRESSOS: NOVA ESTRUTURA -->
-  <div class="results-wrapper" id="ingressosResultsWrapper" style="display: none;">
-    <aside class="filters-panel" id="filtersPanelIngressos">
-      <h2>Filtrar Ingressos</h2>
-      <!-- Filtro de Categorias -->
-      <div class="filter-group">
-        <h3>Categorias</h3>
-        <div id="categoriesListIngressos">
-          <!-- Será populado dinamicamente se a API retornar as categorias -->
-        </div>
-      </div>
-      <!-- Ordenação por Preço -->
-      <div class="filter-group">
-        <h3>Ordenar por Preço</h3>
-        <select id="priceOrderSelectIngressos" onchange="sortIngressosByPrice(this.value)">
-          <option value="asc">Menor para Maior</option>
-          <option value="desc">Maior para Menor</option>
-        </select>
-      </div>
-      <!-- Botão para aplicar filtros adicionais -->
-      <button class="search-button" style="width: 100%;" onclick="applyFiltersIngressos()">Aplicar Filtros</button>
-    </aside>
-    <div class="results-main">
-      <!-- Busca por nome para Ingressos -->
-      <div class="name-search">
-        <input type="text" id="nameSearchInputIngressos" placeholder="Buscar por nome..." />
-        <button onclick="applyNameFilterIngressos()">Filtrar</button>
-      </div>
-      <!-- Grid onde serão exibidos os cards de ingresso (usado pelo tacr.js) -->
-      <div id="activitiesGrid" class="activities-grid"></div>
-    </div>
-  </div>
-
-  <!-- RESULTADOS PARA HOTÉIS -->
+  
+  <!-- NOVA ESTRUTURA DE RESULTADOS (fora da área de busca) – geralmente para Hotéis -->
   <div class="results-wrapper">
+    <!-- Barra lateral de filtros -->
     <aside class="filters-panel" id="filtersPanel">
       <h2>Filtrar Resultados</h2>
-      <!-- Grupo 1: Buscar por nome da propriedade -->
+      
+      <!-- Grupo 1: Buscar por Nome da Propriedade -->
       <div class="filter-group">
         <h3>Buscar por nome</h3>
         <div class="property-search">
           <input type="text" id="propertyName" placeholder="por ex., Marriott" />
         </div>
       </div>
-      <!-- Grupo 2: Preço por diária -->
+      
+      <!-- Grupo 2: Preço por diária (inputs e slider) -->
       <div class="filter-group">
         <h3>Preço por diária</h3>
         <div class="price-range">
@@ -196,12 +201,14 @@
               <input type="number" placeholder="R$ 2.400+" id="priceMax" />
             </div>
           </div>
+          <!-- Slider opcional -->
           <div class="price-slider">
             <input type="range" id="rangeMin" min="0" max="2400" value="0" step="50" />
             <input type="range" id="rangeMax" min="0" max="2400" value="2400" step="50" />
           </div>
         </div>
       </div>
+      
       <!-- Grupo 3: Estrelas -->
       <div class="filter-group">
         <h3>Estrelas</h3>
@@ -211,6 +218,7 @@
         <label><input type="checkbox" value="2" /> 2 estrelas</label>
         <label><input type="checkbox" value="1" /> 1 estrela</label>
       </div>
+      
       <!-- Grupo 4: Tipo de Acomodação -->
       <div class="filter-group">
         <h3>Tipo de Acomodação</h3>
@@ -219,6 +227,7 @@
         <label><input type="checkbox" value="pousada" /> Pousada</label>
         <label><input type="checkbox" value="apart" /> Apart-hotel</label>
       </div>
+      
       <!-- Grupo 5: Comodidades -->
       <div class="filter-group">
         <h3>Comodidades</h3>
@@ -228,19 +237,24 @@
         <label><input type="checkbox" value="gym" /> Academia</label>
         <label><input type="checkbox" value="pets" /> Aceita Pets</label>
       </div>
+      
+      <!-- Botão para aplicar filtros -->
       <button class="search-button" style="width: 100%;">Aplicar Filtros</button>
     </aside>
+  
+    <!-- Área principal de resultados -->
     <div class="results-main">
+      <!-- Barra de pesquisa por nome acima dos cards -->
       <div class="name-search">
         <input type="text" id="nameSearchInput" placeholder="Buscar por nome..." />
         <button onclick="applyNameFilter()">Filtrar</button>
       </div>
-      <!-- Grid exclusivo para Hotéis -->
-      <div id="activitiesGridHotel" class="activities-grid"></div>
+      <!-- Grid de cards (resultados) -->
+      <div id="activitiesGrid" class="activities-grid"></div>
     </div>
   </div>
   
-  <!-- TEMPLATE DO CARD DE HOTÉIS -->
+  <!-- TEMPLATE DO CARD -->
   <template id="hotelCardTemplate">
     <div class="hotel-card" data-hotel-id="">
       <div class="hotel-image">
@@ -285,172 +299,13 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
   <script src="/js/tac.js"></script>
-  
-  <!-- =====================================================
-       SCRIPT "TACR.JS" – FUNÇÕES PARA ATIVIDADES E INGRESSOS
-       ===================================================== -->
-  <script>
-    function formatPrice(value, currency) {
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: currency || 'BRL'
-      }).format(value);
-    }
-    
-    function deduplicateActivities(activities) {
-      const uniqueMap = {};
-      activities.forEach(activity => {
-        const key = activity.nome.toLowerCase();
-        if (!uniqueMap[key]) {
-          uniqueMap[key] = activity;
-        } else {
-          if (activity.top_level_adult_price < uniqueMap[key].top_level_adult_price) {
-            uniqueMap[key] = activity;
-          }
-        }
-      });
-      return Object.values(uniqueMap);
-    }
-    
-    // Obtém a imagem com sizeType "XLARGE", percorrendo todo o array.
-    function getActivityImageUrl(activity) {
-      let fallback = 'https://via.placeholder.com/300x180?text=No+Image';
-      if (!activity.media || !activity.media.length) {
-        return fallback;
-      }
-      for (let i = 0; i < activity.media.length; i++) {
-        const mediaItem = activity.media[i];
-        if (mediaItem.urls && mediaItem.urls.length) {
-          const urlObj = mediaItem.urls.find(u => u.sizeType === 'XLARGE');
-          if (urlObj && urlObj.resource) {
-            return urlObj.resource;
-          }
-        }
-      }
-      const first = activity.media[0];
-      if (first.urls && first.urls.length) {
-        return first.urls[0].resource || fallback;
-      }
-      return fallback;
-    }
-    
-    function exibirAtividades(activities, containerId = 'activitiesGrid') {
-      const container = document.getElementById(containerId);
-      if (!container) {
-        console.error(`Container com id "${containerId}" não foi encontrado.`);
-        return;
-      }
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(3, 1fr)';
-      container.style.gap = '20px';
-      container.innerHTML = ''; // Limpa
-      if (!activities || activities.length === 0) {
-        container.innerHTML = '<p>Nenhuma atividade encontrada.</p>';
-        return;
-      }
-    
-      activities.forEach(activity => {
-        const imageUrl = getActivityImageUrl(activity);
-        let descText = activity.descricao ? activity.descricao.replace(/<[^>]*>/g, '') : '';
-        if (descText.length > 100) {
-          descText = descText.substring(0, 100) + '...';
-        }
-    
-        let priceToShow = activity.top_level_adult_price;
-        if (!priceToShow || priceToShow <= 0) {
-          priceToShow = activity.amount_adult || activity.box_office_amount || 0;
-        }
-    
-        const card = document.createElement('div');
-        card.className = 'activity-card';
-    
-        const img = document.createElement('img');
-        img.className = 'activity-card-img';
-        img.src = imageUrl;
-        img.alt = activity.nome;
-        card.appendChild(img);
-    
-        const body = document.createElement('div');
-        body.className = 'activity-body';
-    
-        const title = document.createElement('h3');
-        title.className = 'activity-title';
-        title.textContent = activity.nome;
-        body.appendChild(title);
-    
-        const dateEl = document.createElement('p');
-        dateEl.className = 'activity-date';
-        dateEl.textContent = `Data: ${activity.date}`;
-        body.appendChild(dateEl);
-    
-        const priceEl = document.createElement('div');
-        priceEl.className = 'activity-prices';
-        const priceStarting = document.createElement('span');
-        priceStarting.className = 'price-starting';
-        priceStarting.textContent = `A partir de ${formatPrice(priceToShow, activity.currency)}`;
-        priceEl.appendChild(priceStarting);
-    
-        const installments = document.createElement('span');
-        installments.className = 'installments';
-        installments.textContent = ' ou 10x sem juros';
-        priceEl.appendChild(installments);
-        body.appendChild(priceEl);
-    
-        const descEl = document.createElement('p');
-        descEl.className = 'activity-description';
-        descEl.textContent = descText;
-        body.appendChild(descEl);
-    
-        const btn = document.createElement('button');
-        btn.className = 'btn-see-more';
-        btn.textContent = 'Ver detalhes';
-        btn.onclick = function() {
-          verDetalhesActivity(activity.activity_code);
-        };
-        body.appendChild(btn);
-    
-        card.appendChild(body);
-        container.appendChild(card);
-      });
-    }
-    
-    function verDetalhesActivity(activityCode) {
-      alert(`Detalhes da atividade: ${activityCode}`);
-    }
-    
-    function convertTicketToActivity(ticket) {
-      return {
-        nome: ticket.event_name || ticket.nome || 'Evento Sem Nome',
-        date: ticket.event_date || ticket.date || '',
-        currency: 'BRL',
-        top_level_adult_price: ticket.top_level_adult_price || ticket.amount_adult || ticket.box_office_amount || 0,
-        media: ticket.media,
-        descricao: ticket.description || ticket.descricao || '',
-        activity_code: ticket.ticket_id || ticket.code || ticket.event_code || ''
-      };
-    }
-    
-    function exibirIngressos(tickets) {
-      if (!tickets || tickets.length === 0) {
-        const resultContainer = document.getElementById('activitiesGrid');
-        if (resultContainer) {
-          resultContainer.innerHTML = '<p>Nenhum ingresso encontrado.</p>';
-        }
-        return;
-      }
-      const activities = tickets.map(convertTicketToActivity);
-      const uniqueActivities = deduplicateActivities(activities);
-      exibirAtividades(uniqueActivities, 'activitiesGrid');
-    }
-  </script>
-  
-  <!-- ==========================================================
-       SCRIPT PRINCIPAL – FUNÇÕES, EVENTOS E AUTOCOMPLETE
-       ========================================================== -->
+  <script src="/js/tacr.js"></script>
+
+  <!-- JavaScript da Página -->
   <script>
     /***********************************************
-     * A) TABS E FLATPICKR
-     ***********************************************/
+    * A) TABS + FLATPICKR
+    ***********************************************/
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
     tabs.forEach((tab) => {
@@ -462,7 +317,7 @@
         document.getElementById(target).classList.add('active');
       });
     });
-    
+
     if (typeof flatpickr !== 'undefined') {
       flatpickr('#dataIngresso', {
         locale: 'pt',
@@ -479,10 +334,10 @@
         allowInput: true
       });
     }
-    
+
     /***********************************************
-     * B) DROPDOWN DE QUARTOS E PESSOAS (Hotéis)
-     ***********************************************/
+    * B) DROPDOWN DE QUARTOS E PESSOAS
+    ***********************************************/
     const quartosInput = document.getElementById('quartos');
     const dropdown = document.getElementById('quartosDropdown');
     const roomsMinus = document.getElementById('roomsMinus');
@@ -490,9 +345,9 @@
     const roomsTotalEl = document.getElementById('roomsTotal');
     const roomsContainer = document.getElementById('roomsContainer');
     const applyQuartos = document.getElementById('applyQuartos');
-    
+
     let roomsData = [{ adults: 2, children: 0, childAges: [] }];
-    
+
     if (quartosInput) {
       quartosInput.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -505,7 +360,7 @@
     document.addEventListener('click', () => {
       if (dropdown) dropdown.classList.remove('active');
     });
-    
+
     function renderRooms() {
       if (!roomsContainer || !roomsTotalEl) return;
       roomsContainer.innerHTML = '';
@@ -519,23 +374,25 @@
         block.appendChild(title);
         const adRow = document.createElement('div');
         adRow.className = 'qd-row';
-        adRow.innerHTML = 
-          `<span class="qd-label">Adultos</span>
-           <div class="qd-counter">
-             <button type="button" class="adultMinus">-</button>
-             <span class="adultCount">${room.adults}</span>
-             <button type="button" class="adultPlus">+</button>
-           </div>`;
+        adRow.innerHTML = `
+          <span class="qd-label">Adultos</span>
+          <div class="qd-counter">
+            <button type="button" class="adultMinus">-</button>
+            <span class="adultCount">${room.adults}</span>
+            <button type="button" class="adultPlus">+</button>
+          </div>
+        `;
         block.appendChild(adRow);
         const chRow = document.createElement('div');
         chRow.className = 'qd-row';
-        chRow.innerHTML = 
-          `<span class="qd-label">Crianças</span>
-           <div class="qd-counter">
-             <button type="button" class="childMinus">-</button>
-             <span class="childCount">${room.children}</span>
-             <button type="button" class="childPlus">+</button>
-           </div>`;
+        chRow.innerHTML = `
+          <span class="qd-label">Crianças</span>
+          <div class="qd-counter">
+            <button type="button" class="childMinus">-</button>
+            <span class="childCount">${room.children}</span>
+            <button type="button" class="childPlus">+</button>
+          </div>
+        `;
         block.appendChild(chRow);
         const agesDiv = document.createElement('div');
         agesDiv.className = 'children-ages';
@@ -575,29 +432,24 @@
           totalA += r.adults;
           totalC += r.children;
         });
-        if (quartosInput) { 
-          quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`; 
-        }
+        if (quartosInput) { quartosInput.value = `${roomsData.length} Quarto(s), ${totalA} Adulto(s), ${totalC} Criança(s)`; }
         if (dropdown) dropdown.classList.remove('active');
       });
     }
     renderRooms();
-    
+
     /***********************************************
-     * C) FUNÇÕES PARA CRIAÇÃO DE CARD E BUSCA DE HOTÉIS
-     ***********************************************/
-    // Variáveis e funções auxiliares para Hotels:
+    * C) CRIAÇÃO DE CARD E FUNÇÕES
+    ***********************************************/
+    function formatPriceBRL(value) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
     const priorityFacilities = ['Wi-fi', 'Gym', 'Pool', 'Parking'];
     function convertDistanceToKm(distStr) {
       const meters = parseFloat(distStr) || 0;
       const km = meters / 1000;
       return km.toFixed(1).replace('.', ',') + ' km';
     }
-    
-    function formatPriceBRL(value) {
-      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-    }
-    
     function createHotelCard(hotelData) {
       const template = document.getElementById('hotelCardTemplate');
       if (!template) return document.createDocumentFragment();
@@ -696,22 +548,65 @@
       window.addEventListener('resize', updateCarousel);
       return clone;
     }
-    
+
+    /***********************************************
+    * D) EVENTO PARA ENVIAR OS DADOS PARA A PÁGINA DE DETALHES
+    ***********************************************/
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-options, .select-room-button');
+      if (!btn) return;
+      const card = btn.closest('.hotel-card');
+      if (!card) return;
+      const hotelCode = card.getAttribute('data-hotel-id');
+      if (!hotelCode) {
+        console.error('Código do hotel não encontrado no card.');
+        return;
+      }
+      const dateRange = document.getElementById('dataRangeHoteis')?.value || '';
+      let checkIn = '', checkOut = '';
+      if (dateRange) {
+        const dates = dateRange.split(' - ');
+        checkIn = dates[0] || '';
+        checkOut = dates[1] || '';
+      }
+      checkIn = convertDateFormat(checkIn);
+      checkOut = convertDateFormat(checkOut);
+      let totalRooms = roomsData.length;
+      let totalAdults = 0, totalChildren = 0;
+      roomsData.forEach((room) => {
+        totalAdults += room.adults;
+        totalChildren += room.children;
+      });
+      const searchParams = {
+        hotelCode: hotelCode,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        rooms: totalRooms,
+        adults: totalAdults,
+        children: totalChildren,
+      };
+      const queryString = new URLSearchParams(searchParams).toString();
+      window.location.href = 'hoteldetails.html?' + queryString;
+    });
+
+    /***********************************************
+    * E) FUNÇÕES PARA BUSCAR HOTÉIS E PAGINAÇÃO
+    ***********************************************/
     async function buscarHoteis() {
       const destination = document.getElementById('destinoHoteisCode')?.value || document.getElementById('destinoHoteis')?.value || 'MCO';
       const range = document.getElementById('dataRangeHoteis')?.value || '';
       const hotelsListEl = document.getElementById('hotelsList');
       const statusEl = document.getElementById('status');
       const paginationEl = document.getElementById('pagination');
-    
+
       if (!range) {
         alert('Selecione as datas!');
         return;
       }
-    
+
       // Exibe o painel de filtros somente após o clique em "Buscar Hotéis"
       showFiltersPanel();
-    
+
       function toISO(dmy) {
         const [d, m, y] = dmy.split('/');
         return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
@@ -724,13 +619,13 @@
       }
       const isoIn = toISO(checkIn);
       const isoOut = toISO(checkOut);
-    
+
       let query = `?checkIn=${isoIn}&checkOut=${isoOut}&destination=${destination}&rooms=${roomsData.length}&page=1&limit=20`;
       roomsData.forEach((r, i) => {
         const idx = i + 1;
         query += `&adults${idx}=${r.adults}&children${idx}=${r.children}`;
       });
-    
+
       if (hotelsListEl) hotelsListEl.innerHTML = '';
       if (paginationEl) {
         paginationEl.innerHTML = '';
@@ -740,10 +635,10 @@
         statusEl.textContent = 'Carregando hotéis...';
         statusEl.style.display = 'block';
       }
-    
+
       const url = `/api/hotelbeds/hotels${query}`;
       console.log('API de Hotéis:', url);
-    
+
       try {
         const bookingResp = await fetch(url);
         if (!bookingResp.ok) {
@@ -751,13 +646,13 @@
         }
         const bookingData = await bookingResp.json();
         let hotelsArr = bookingData.hotels?.hotels || [];
-    
-        // Filtro: Buscar por nome da propriedade (automático)
+
+        // Filtro: Buscar por nome da propriedade (automaticamente)
         const propertyNameFilter = document.getElementById('propertyName')?.value.trim().toLowerCase();
         if (propertyNameFilter) {
           hotelsArr = hotelsArr.filter(hotel => hotel.name.toLowerCase().includes(propertyNameFilter));
         }
-    
+
         // Filtro: Por estrelas (extraindo o número de estrelas da categoryName)
         const starCheckboxes = document.querySelectorAll('.filter-group input[type="checkbox"][value]');
         const selectedStars = Array.from(starCheckboxes)
@@ -770,13 +665,13 @@
             return selectedStars.includes(stars);
           });
         }
-    
+
         if (!hotelsArr.length) {
           if (statusEl) statusEl.textContent = 'Nenhum hotel encontrado.';
           return;
         }
         if (statusEl) statusEl.style.display = 'none';
-    
+
         for (const hotel of hotelsArr) {
           const code = hotel.code;
           const contentResp = await fetch(`/api/hotelbeds/hotel-content?hotelCode=${code}`);
@@ -860,62 +755,7 @@
         if (statusEl) statusEl.textContent = 'Erro ao buscar hotéis. Ver console.';
       }
     }
-    
-    /***********************************************
-     * D) EVENTO PARA ENVIAR DADOS PARA A PÁGINA DE DETALHES (Hotéis)
-     ***********************************************/
-    document.addEventListener('click', function(e) {
-      const btn = e.target.closest('.btn-options, .select-room-button');
-      if (!btn) return;
-      const card = btn.closest('.hotel-card');
-      if (!card) return;
-      const hotelCode = card.getAttribute('data-hotel-id');
-      if (!hotelCode) {
-        console.error('Código do hotel não encontrado no card.');
-        return;
-      }
-      const dateRange = document.getElementById('dataRangeHoteis')?.value || '';
-      let checkIn = '', checkOut = '';
-      if (dateRange) {
-        const dates = dateRange.split(' - ');
-        checkIn = dates[0] || '';
-        checkOut = dates[1] || '';
-      }
-      checkIn = convertDateFormat(checkIn);
-      checkOut = convertDateFormat(checkOut);
-      let totalRooms = roomsData.length;
-      let totalAdults = 0, totalChildren = 0;
-      roomsData.forEach((room) => {
-        totalAdults += room.adults;
-        totalChildren += room.children;
-      });
-      const searchParams = {
-        hotelCode: hotelCode,
-        checkIn: checkIn,
-        checkOut: checkOut,
-        rooms: totalRooms,
-        adults: totalAdults,
-        children: totalChildren,
-      };
-      const queryString = new URLSearchParams(searchParams).toString();
-      window.location.href = 'hoteldetails.html?' + queryString;
-    });
-    
-    function convertDateFormat(dateStr) {
-      const [d, m, a] = dateStr.split('/');
-      return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    }
-    
-    function showFiltersPanel() {
-      const panel = document.getElementById('filtersPanel');
-      panel.classList.remove('hidden');
-      panel.classList.add('visible');
-    }
-    
-    /***********************************************
-     * E) FUNÇÕES DE BUSCA E PAGINAÇÃO PARA HOTÉIS
-     ***********************************************/
-    // (Caso utilize alguma função de paginação, insira aqui. Exemplo simples abaixo:)
+
     function exibirPaginacao(totalPages, currentPage) {
       const pagEl = document.getElementById('pagination');
       if (!pagEl || totalPages <= 1) return;
@@ -931,123 +771,54 @@
         pagEl.appendChild(btnNext);
       }
     }
-    
+
+    function convertDateFormat(dateStr) {
+      const [d, m, a] = dateStr.split('/');
+      return `${a}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+
     /***********************************************
-     * FUNÇÕES ESPECÍFICAS PARA INGRESSOS
-     ***********************************************/
-    async function buscarIngressos() {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = 'Carregando ingressos...';
-      statusEl.style.display = 'block';
-    
-      try {
-        const destino = document.getElementById('destinoIngresso').value.trim();
-        const dataIngresso = document.getElementById('dataIngresso').value.trim();
-    
-        // Monte sua URL da API para ingressos conforme sua implementação
-        const url = `/api/ingressos?destino=${encodeURIComponent(destino)}&data=${encodeURIComponent(dataIngresso)}`;
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('Erro ao buscar ingressos');
-    
-        const jsonData = await resp.json();
-        const tickets = jsonData.tickets || [];
-    
-        // Exibe os ingressos utilizando a função do tacr.js
-        exibirIngressos(tickets);
-    
-        statusEl.style.display = 'none';
-    
-        // Exibe a área de resultados de ingressos e o painel de filtros
-        document.getElementById('ingressosResultsWrapper').style.display = 'flex';
-        document.getElementById('filtersPanelIngressos').classList.add('visible');
-    
-        // Caso sua API retorne as categorias, descomente a linha abaixo:
-        // populateIngressosCategories(jsonData.categories);
-    
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent = 'Erro ao buscar ingressos.';
-      }
+    * FUNÇÃO PARA EXIBIR O PAINEL DE FILTROS (HOTÉIS)
+    ***********************************************/
+    function showFiltersPanel() {
+      const panel = document.getElementById('filtersPanel');
+      panel.classList.remove('hidden');
+      panel.classList.add('visible');
     }
-    
-    // Função para popular categorias (se a API fornecer o array de categorias)
-    function populateIngressosCategories(categories) {
-      const catContainer = document.getElementById('categoriesListIngressos');
-      if (!catContainer) return;
-      catContainer.innerHTML = '';
-    
-      categories.forEach(cat => {
-        const label = document.createElement('label');
-        label.innerHTML = `<input type="checkbox" value="${cat}"> ${cat}`;
-        catContainer.appendChild(label);
-      });
-    }
-    
-    // Função para aplicar filtros adicionais na aba de Ingressos (ex.: por categoria)
-    function applyFiltersIngressos() {
-      const checkedValues = [];
-      document.querySelectorAll('#categoriesListIngressos input[type="checkbox"]:checked')
-        .forEach(cb => checkedValues.push(cb.value.toLowerCase()));
-      
-      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
-      cards.forEach(card => {
-        const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        let shouldShow = true;
-        if (checkedValues.length > 0) {
-          shouldShow = checkedValues.some(cat => title.includes(cat));
-        }
-        card.style.display = shouldShow ? 'block' : 'none';
-      });
-    }
-    
-    // Função de busca por nome para Ingressos
-    function applyNameFilterIngressos() {
-      const input = document.getElementById('nameSearchInputIngressos');
-      const filterValue = input.value.trim().toLowerCase();
-      
-      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
-      cards.forEach(card => {
-        const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        card.style.display = title.includes(filterValue) ? 'block' : 'none';
-      });
-    }
-    
-    // Função para ordenar os ingressos por preço (asc ou desc)
-    function sortIngressosByPrice(order) {
-      const container = document.getElementById('activitiesGrid');
-      const cards = Array.from(container.querySelectorAll('.activity-card'));
-    
-      function getPriceFromCard(card) {
-        const priceEl = card.querySelector('.price-starting');
-        if (!priceEl) return 0;
-        const rawText = priceEl.textContent.replace(/[^\d,]/g, '').replace(',', '.');
-        return parseFloat(rawText) || 0;
-      }
-    
-      cards.sort((a, b) => {
-        const priceA = getPriceFromCard(a);
-        const priceB = getPriceFromCard(b);
-        return order === 'asc' ? priceA - priceB : priceB - priceA;
-      });
-    
-      cards.forEach(card => container.appendChild(card));
-    }
-    
-    // Função para filtrar por nome na busca de Hotéis
-    function applyNameFilter() {
-      const input = document.getElementById('nameSearchInput');
-      const filterValue = input.value.trim().toLowerCase();
-      
-      const cards = document.querySelectorAll('#activitiesGridHotel .activity-card');
-      cards.forEach(card => {
-        const title = card.querySelector('.activity-title').textContent.toLowerCase();
-        card.style.display = title.includes(filterValue) ? 'block' : 'none';
-      });
-    }
-    
+
     /***********************************************
-     * AUTOCOMPLETE – MESMO CÓDIGO ORIGINAL
-     ***********************************************/
+    * TOGGLE DE FILTROS NO MOBILE (HOTÉIS)
+    ***********************************************/
+    function toggleFilters() {
+      const panel = document.getElementById('filtersPanel');
+      panel.classList.toggle('active');
+    }
+
+    /***********************************************
+    * Otimização: Exibe o conteúdo somente após o carregamento completo
+    ***********************************************/
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('loading.html')
+        .then((response) => {
+          if (response.ok) return response.text();
+          else throw new Error('Arquivo não encontrado');
+        })
+        .then((html) => {
+          document.getElementById('loading-overlay').innerHTML = html;
+        })
+        .catch((err) => console.error('Erro ao carregar loading.html:', err));
+    });
+
+    window.addEventListener('load', function () {
+      Promise.all([document.fonts.ready]).then(() => {
+        requestAnimationFrame(() => {
+          document.getElementById('loading-overlay').style.display = 'none';
+          document.getElementById('hotelDetail').style.display = 'block';
+        });
+      });
+    });
+
+    // Função debounce para reduzir requisições enquanto o usuário digita
     function debounce(func, delay) {
       let timer;
       return function(...args) {
@@ -1055,7 +826,8 @@
         timer = setTimeout(() => func.apply(this, args), delay);
       }
     }
-    
+
+    // Função para configurar o autocomplete para um input específico
     function setupAutocomplete(inputId) {
       const input = document.getElementById(inputId);
       const hiddenCodeInput = document.getElementById(inputId + "Code");
@@ -1063,41 +835,34 @@
       suggestionBox.className = 'autocomplete-suggestions';
       input.parentNode.style.position = 'relative';
       input.parentNode.appendChild(suggestionBox);
-    
       const cache = {};
-    
+
       input.addEventListener('input', debounce(async () => {
         const term = input.value.trim();
         suggestionBox.innerHTML = '';
         if (term.length < 2) return;
-    
         if (cache[term]) {
           renderSuggestions(cache[term]);
           return;
         }
-    
         try {
           const response = await fetch(`https://business.airland.com.br/api/autocomplete?term=${encodeURIComponent(term)}`);
           const suggestions = await response.json();
-    
           if (!Array.isArray(suggestions)) {
             console.error('Resposta inválida do autocomplete:', suggestions);
             return;
           }
-    
           const uniqueSuggestions = suggestions.filter((item, index, self) =>
             index === self.findIndex(i =>
               i.destination_name.trim().toLowerCase() === item.destination_name.trim().toLowerCase() &&
               i.country_name.trim().toLowerCase() === item.country_name.trim().toLowerCase()
             )
           );
-    
           cache[term] = uniqueSuggestions;
           renderSuggestions(uniqueSuggestions);
         } catch (error) {
           console.error('Erro no autocomplete:', error);
         }
-    
         function renderSuggestions(suggestions) {
           suggestionBox.innerHTML = '';
           suggestions.forEach(suggestion => {
@@ -1115,18 +880,73 @@
           });
         }
       }, 300));
-    
+
       document.addEventListener('click', (e) => {
         if (e.target !== input) {
           suggestionBox.innerHTML = '';
         }
       });
     }
-    
+
     document.addEventListener('DOMContentLoaded', () => {
       setupAutocomplete('destinoIngresso');
       setupAutocomplete('destinoHoteis');
     });
+
+    function applyNameFilter() {
+      const input = document.getElementById('nameSearchInput');
+      const filterValue = input.value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      cards.forEach(card => {
+        const title = card.querySelector('.activity-title').textContent.toLowerCase();
+        if (title.includes(filterValue)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    /***********************************************
+    * FILTROS ESPECÍFICOS DA ABA DE INGRESSOS
+    ***********************************************/
+    function applyNameFilterIngressos() {
+      const input = document.getElementById('nameSearchInputIngressos');
+      const filterValue = input.value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      cards.forEach(card => {
+        const titleEl = card.querySelector('.activity-title');
+        if (!titleEl) return;
+        const title = titleEl.textContent.toLowerCase();
+        if (title.includes(filterValue)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function applyPriceFilterIngressos() {
+      const minValue = parseFloat(document.getElementById('priceMinIngresso').value) || 0;
+      const maxValue = parseFloat(document.getElementById('priceMaxIngresso').value) || Infinity;
+      const cards = document.querySelectorAll('#activitiesGrid .activity-card');
+      cards.forEach(card => {
+        const priceEl = card.querySelector('.price-starting');
+        if (!priceEl) return;
+        const priceText = priceEl.textContent || '';
+        const match = priceText.match(/([\d.,]+)/);
+        let price = 0;
+        if (match && match[1]) {
+          const numericStr = match[1].replace(/\./g, '').replace(',', '.');
+          price = parseFloat(numericStr);
+        }
+        if (price < minValue || price > maxValue) {
+          card.style.display = 'none';
+        } else {
+          card.style.display = 'block';
+        }
+      });
+    }
   </script>
 </body>
 </html>
