@@ -2,14 +2,24 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Teste do Calendário</title>
+  <title>Calendário</title>
+  <!-- Inclua seu CSS para estilizar os elementos com as classes usadas -->
+  <link rel="stylesheet" href="seu-estilo.css">
 </head>
 <body>
+  <div id="calendario-container"></div>
   <script type="module">
-    import { createSingleDateCalendar } from '/js/calcomuni.js';
-    const calendarData = createSingleDateCalendar();
-    console.log("Calendário criado:", calendarData);
-    document.body.appendChild(calendarData.element);
+    import { createSingleDateCalendar } from "./calcom.js";
+
+    const calendario = createSingleDateCalendar();
+    document.getElementById("calendario-container").appendChild(calendario.element);
+
+    // Exemplo: obter a data selecionada ao clicar no botão "Confirmar"
+    const btnConfirmar = calendario.element.querySelector(".calendar__button--primary");
+    btnConfirmar.addEventListener("click", () => {
+      const dataSelecionada = calendario.getSelectedDate();
+      console.log("Data selecionada:", dataSelecionada);
+    });
   </script>
 </body>
 </html>
