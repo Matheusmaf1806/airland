@@ -12,14 +12,13 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.get('/', async (req, res) => {
   // Recebe os parâmetros tanto para destination/date quanto para activityCode/dataIngresso
-  const { destination, date, activityCode, dataIngresso } = req.query;
+  const { destination, date, activityCode, dataIngresso, start_date, end_date } = req.query;
 
   let tableName, dateColumn;
   let query;
 
-  if (activityCode && dataIngresso) {
-    // Se for chamada com activityCode e dataIngresso, utiliza a tabela e coluna correspondentes
-    // Ajuste o nome da tabela e as colunas conforme sua modelagem de dados
+  if (activityCode) {
+    // Se a consulta usar activityCode (usada para activities_bd)
     tableName = 'activities_bd';
     dateColumn = 'date';
     query = supabase
@@ -27,16 +26,20 @@ router.get('/', async (req, res) => {
       .select('*')
       .eq('activity_code', activityCode);
       
-    // Se a data foi enviada, acrescenta o filtro
-    if (dataIngresso) {
+    // Se foram enviados start_date e end_date, filtra um intervalo de datas
+    if (start_date && end_date) {
+      query = query.gte(dateColumn, start_date).lte(dateColumn, end_date);
+    }
+    // Senão, se for apenas dataIngresso, filtra por essa data exata
+    else if (dataIngresso) {
       query = query.eq(dateColumn, dataIngresso);
     }
   } else if (destination) {
-    // Se for chamada com destination e date
+    // Se a consulta usar destination e date (para tabela tickets)
     tableName = 'tickets';
     dateColumn = 'event_date';
 
-    // Se o destino for MCO, usa outra tabela conforme lógica existente
+    // Se o destino for MCO, usa outra tabela (activities_bd) conforme sua lógica
     if (destination.toUpperCase() === 'MCO') {
       tableName = 'activities_bd';
       dateColumn = 'date';
