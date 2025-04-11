@@ -1,5 +1,8 @@
 // public/js/calcomuni.js
 export function createSingleDateCalendar(basePrice) {
+  // Valor para variação diária – ajuste conforme necessário
+  const dailyIncrement = 5; // R$5,00 de incremento por dia
+
   // =================== 1) Criação da Estrutura do Calendário ===================
   const calendarEl = document.createElement("div");
   calendarEl.classList.add("calendar");
@@ -73,7 +76,7 @@ export function createSingleDateCalendar(basePrice) {
   function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
   }
-  // Faz a semana começar na segunda (0 = segunda, 6 = domingo)
+  // A função abaixo faz a semana começar na segunda (0 = segunda, 6 = domingo)
   function getWeekDayIndex(date) {
     return (date.getDay() + 6) % 7;
   }
@@ -93,10 +96,10 @@ export function createSingleDateCalendar(basePrice) {
     const totalDays = getDaysInMonth(year, month);
     const firstDay = new Date(year, month, 1);
     const startWeekIndex = getWeekDayIndex(firstDay);
-    const totalCells = 42; // Grade de 6 linhas x 7 células
+    const totalCells = 42;
     let daysArray = [];
 
-    // Dias do mês anterior (preenche o início da grade)
+    // Dias do mês anterior
     if (startWeekIndex > 0) {
       let prevMonth = month - 1;
       let prevYear = year;
@@ -124,7 +127,7 @@ export function createSingleDateCalendar(basePrice) {
       });
     }
 
-    // Dias do próximo mês para completar as 42 células
+    // Dias do próximo mês (para completar 42 células)
     const remaining = totalCells - daysArray.length;
     if (remaining > 0) {
       let nextMonth = month + 1;
@@ -142,28 +145,26 @@ export function createSingleDateCalendar(basePrice) {
       }
     }
 
-    // Renderiza cada célula
+    // Renderiza as células
     daysArray.forEach(obj => {
       const cell = document.createElement("div");
       cell.classList.add("calendar__date");
-      // Se a data não pertence ao mês atual ou é anterior a hoje, deixa grisinha
       if (!obj.inCurrent || obj.date < today) {
         cell.classList.add("calendar__date--grey");
       }
-      // Cria o conteúdo: o número do dia e o preço
       const inner = document.createElement("div");
       inner.classList.add("date-content");
       const daySpan = document.createElement("span");
       daySpan.textContent = obj.day;
       const priceSpan = document.createElement("span");
       priceSpan.classList.add("calendar__price");
-      // Use o preço base passado (basePrice) – o mesmo para todos os dias
-      priceSpan.textContent = basePrice.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      // Calcula o preço dinamicamente: basePrice + incremento diário (ex.: R$5,00 por dia)
+      const price = basePrice + ((obj.day - 1) * dailyIncrement);
+      priceSpan.textContent = price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
       inner.appendChild(daySpan);
       inner.appendChild(priceSpan);
       cell.appendChild(inner);
   
-      // Se a data é válida (>= hoje) torna a célula clicável
       if (obj.date >= today) {
         clickableDates.push(cell);
         cell.addEventListener("click", () => {
@@ -176,7 +177,7 @@ export function createSingleDateCalendar(basePrice) {
     });
   }
   
-  // =================== 5) Atualiza o Calendário com os Selects ===================
+  // =================== 5) Eventos dos Selects ===================
   function onChangeMonthYear() {
     const year = parseInt(selectYear.value, 10);
     const month = parseInt(selectMonth.value, 10);
