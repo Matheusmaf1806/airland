@@ -67,7 +67,15 @@
     .stars-reviews i { color: #f1c40f; }
     .location { font-size: 0.9rem; color: #999; margin-bottom: 8px; }
     .action-buttons { display: flex; gap: 10px; }
-    .action-buttons button { background: none; border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px; font-size: 0.85rem; color: #555; transition: background 0.2s; }
+    .action-buttons button {
+      background: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #555;
+      transition: background 0.2s;
+    }
     .action-buttons button:hover { background: #f1f1f1; }
     
     /* BOX DE PREÇO / RESERVA */
@@ -168,7 +176,12 @@
       margin: 20px auto 40px;
       padding: 0 16px;
     }
-    .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
+    .ticket-top-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    /* Aqui, vamos preencher ticket-top-text dinamicamente com o intervalo de "duration" */
     .ticket-list {
       display: flex;
       flex-direction: column;
@@ -199,6 +212,12 @@
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
+    /* Caso exista a propriedade sessions, vamos criar um elemento adicional */
+    .ticket-sessions {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 4px;
+    }
     .price-and-action {
       display: flex;
       flex-direction: column;
@@ -230,7 +249,11 @@
     .reserve-now-btn:hover { background: #008dc8; }
     
     /* CONTEÚDO ADICIONAL */
-    .content-section { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+    .content-section {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
     .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
     .content-section p { font-size: 0.95rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
     .highlights-list { list-style: none; margin-bottom: 16px; }
@@ -420,12 +443,10 @@
   
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
-    <div class="ticket-top-text">
-      <strong>Carregando dias e tipo de ingresso...</strong> • <strong>Ingresso digital</strong><br>
-      Escolha abaixo quantos dias você deseja e obtenha o valor final. Confira também políticas de cancelamento e detalhes adicionais.
-    </div>
+    <!-- ticket-top-text: será preenchido dinamicamente com o intervalo de "duration" -->
+    <div class="ticket-top-text"></div>
     <div class="ticket-list">
-      <!-- Itens dos tickets serão gerados dinamicamente -->
+      <!-- Todos os ingressos disponíveis serão exibidos aqui -->
     </div>
   </section>
   
@@ -433,10 +454,9 @@
   <div class="content-section">
     <h2>Sobre o Produto</h2>
     <p>Carregando descrição do produto...</p>
-    <h2>Destaques</h2>
-    <ul class="highlights-list">
-      <!-- Itens de destaque serão inseridos dinamicamente -->
-    </ul>
+    <!-- Se não houver highlights, esta seção será ocultada pelo script -->
+    <h2 id="highlights-header">Destaques</h2>
+    <ul class="highlights-list"></ul>
     <h2>Política de Cancelamento</h2>
     <p>
       Os ingressos não são reembolsáveis após a confirmação da compra.
@@ -494,7 +514,7 @@
       });
     });
   
-    // Função para aplicar/remover a classe "active" nos tickets
+    // Função para aplicar/remover a classe "active" nos tickets (para destaque visual)
     function toggleActive(element) {
       const allTickets = document.querySelectorAll(".ticket-item");
       allTickets.forEach(ticket => ticket.classList.remove("active"));
@@ -507,7 +527,7 @@
       return params.get(name);
     }
   
-    // Ao carregar o DOM, faz o fetch da API para preencher os dados
+    // Ao carregar o DOM, faz o fetch da API para preencher os dados da página
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
       const dataIngresso = getUrlParameter("dataIngresso");
@@ -522,20 +542,34 @@
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          let ticket;
-          if (Array.isArray(data) && data.length > 0) {
-            ticket = data[0];
+          // Trata a resposta da API: se for array, use todos os ingressos; se não, cria um array com o único item.
+          let tickets = [];
+          if (Array.isArray(data)) {
+            tickets = data;
           } else {
-            ticket = data;
+            tickets = [data];
           }
   
-          document.title = ticket.nome || "Título Padrão";
-          document.querySelector(".product-title").textContent = ticket.nome || "Produto Indisponível";
-          document.querySelector(".location").textContent = ticket.destination_name || "";
+          // Atualiza o ticket-top-text com o intervalo de "duration"
+          const topTextElem = document.querySelector(".ticket-top-text");
+          const durations = tickets.map(item => item.duration).filter(d => d !== undefined);
+          if (durations.length > 0) {
+            const minDuration = Math.min(...durations);
+            const maxDuration = Math.max(...durations);
+            topTextElem.innerHTML = `<strong>${minDuration} a ${maxDuration} dias</strong>`;
+          } else {
+            topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
+          }
+  
+          // Atualiza os dados do produto
+          const ticketForProduct = tickets[0]; // Para informações comuns
+          document.title = ticketForProduct.nome || "Título Padrão";
+          document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
+          document.querySelector(".location").textContent = ticketForProduct.destination_name || "";
   
           // Atualiza o banner principal
-          if (ticket.media && ticket.media.length > 0) {
-            const media = ticket.media[0];
+          if (ticketForProduct.media && ticketForProduct.media.length > 0) {
+            const media = ticketForProduct.media[0];
             let imgUrl = "";
             if (Array.isArray(media.urls)) {
               const largeImg = media.urls.find(urlObj => urlObj.width >= 1024) || media.urls[0];
@@ -545,11 +579,11 @@
           }
   
           // Atualiza as mini-imagens
-          if (ticket.media && ticket.media.length > 1) {
+          if (ticketForProduct.media && ticketForProduct.media.length > 1) {
             const miniImages = document.querySelectorAll(".mini-images img");
             miniImages.forEach((img, index) => {
-              if (ticket.media[index + 1] && ticket.media[index + 1].urls) {
-                const urls = ticket.media[index + 1].urls;
+              if (ticketForProduct.media[index + 1] && ticketForProduct.media[index + 1].urls) {
+                const urls = ticketForProduct.media[index + 1].urls;
                 const largeImg = urls.find(urlObj => urlObj.width >= 1024) || urls[0];
                 img.src = largeImg.resource;
               }
@@ -559,24 +593,28 @@
           // Atualiza a descrição do produto
           const descElement = document.querySelector(".content-section p");
           if (descElement) {
-            descElement.innerHTML = ticket.descricao || "Descrição não disponível.";
+            descElement.innerHTML = ticketForProduct.descricao || "Descrição não disponível.";
           }
   
-          // Atualiza os destaques
-          if (ticket.highlights && Array.isArray(ticket.highlights)) {
-            const highlightsList = document.querySelector(".highlights-list");
-            highlightsList.innerHTML = "";
-            ticket.highlights.forEach(item => {
+          // Atualiza os destaques – se não houver nenhum, oculta a seção "Destaques"
+          const highlightsList = document.querySelector(".highlights-list");
+          highlightsList.innerHTML = "";
+          if (ticketForProduct.highlights && ticketForProduct.highlights.length > 0) {
+            ticketForProduct.highlights.forEach(item => {
               const li = document.createElement("li");
               li.innerHTML = `<i class="fas fa-check"></i> ${item}`;
               highlightsList.appendChild(li);
             });
+          } else {
+            // Se não houver destaques, oculta a seção (inclusive o título "Destaques")
+            document.getElementById("highlights-header")?.remove();
+            highlightsList.style.display = "none";
           }
   
-          // Atualiza os preços e guarda o preço para cada adulto globalmente
-          let priceAdult = ticket.top_level_adult_price || ticket.amount_adult || 0;
+          // Atualiza os preços do produto
+          let priceAdult = ticketForProduct.top_level_adult_price || ticketForProduct.amount_adult || 0;
           window.globalAmountAdult = priceAdult; // Para uso no calendário customizado
-          const currency = ticket.currency || "BRL";
+          const currency = ticketForProduct.currency || "BRL";
           const formattedPrice = priceAdult.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
   
@@ -590,11 +628,11 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
   
-          // Atualiza a seção de ingressos
-          const modalities = ticket.modalities || [ticket];
+          // Atualiza a seção de ingressos: para cada ingresso (ticket) da API, crie um ticket-item
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
-          modalities.forEach(modality => {
+          tickets.forEach(ticket => {
+            // Cria um ticket para cada item da API
             const ticketItem = document.createElement("div");
             ticketItem.classList.add("ticket-item");
             ticketItem.setAttribute("onclick", "toggleActive(this)");
@@ -603,20 +641,26 @@
             const ticketInfo = document.createElement("div");
             ticketInfo.classList.add("ticket-info");
             const ticketTitle = document.createElement("h3");
-            ticketTitle.textContent = modality.modality_name || `Bilhete base de ${modality.duration} dias`;
+            ticketTitle.textContent = ticket.modality_name || `Bilhete base de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
             const ticketDesc = document.createElement("p");
             ticketDesc.innerHTML = `Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom. <br><em>Não reembolsável</em>`;
             ticketInfo.appendChild(ticketDesc);
+            // Se o ticket tiver a propriedade "sessions", exiba os horários
+            if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
+              const sessionsElem = document.createElement("div");
+              sessionsElem.classList.add("ticket-sessions");
+              sessionsElem.textContent = "Sessões: " + ticket.sessions.join(", ");
+              ticketInfo.appendChild(sessionsElem);
+            }
             ticketItem.appendChild(ticketInfo);
   
             // Preço e ações
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
-  
-            // Usa as variáveis globais (numAdults e numChildren) para calcular o preço total
-            const priceAdultModality = modality.amount_adult || ticket.amount_adult || 0;
-            const priceChildModality = modality.amount_child || ticket.amount_child || 0;
+            // Cálculo do preço total: utilizando os valores globais numAdults e numChildren
+            const priceAdultModality = ticket.amount_adult || 0;
+            const priceChildModality = ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
             const ticketPriceDiv = document.createElement("div");
             ticketPriceDiv.classList.add("ticket-price");
@@ -681,12 +725,12 @@
       import("/js/calcomuni.js")
         .then(module => {
           const { createSingleDateCalendar } = module;
-          // Usa o preço de adultos (globalAmountAdult) obtido via API como base
+          // Usa o preço de adultos (globalAmountAdult) obtido via API como base para o calendário
           const basePrice = window.globalAmountAdult || 0;
           const calendarData = createSingleDateCalendar(basePrice);
           const calendarElement = calendarData.element;
   
-          // Container posicionado de forma absoluta para o calendário
+          // Cria um container ABSOLUTO para posicionar o calendário logo abaixo do input
           const container = document.createElement("div");
           container.style.position = "absolute";
           container.style.zIndex = "9999";
@@ -720,7 +764,7 @@
             container.remove();
           });
   
-          // O botão "Voltar" fecha o calendário sem alterar o input
+          // Botão "Voltar" fecha o calendário sem alterar o input
           const btnBack = calendarElement.querySelector(".calendar__button--grey");
           btnBack.addEventListener("click", () => {
             container.remove();
