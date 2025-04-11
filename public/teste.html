@@ -7,10 +7,12 @@
   
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
   
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
   
@@ -205,7 +207,7 @@
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
-    /* NOVA CLASSE: exibe a data pesquisada com ícone de calendário */
+    /* NOVA CLASSE para exibir a data selecionada com ícone */
     .ticket-date {
       font-size: 0.85rem;
       color: #555;
@@ -407,7 +409,7 @@
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
-          <!-- O input manterá internamente o valor ISO (no atributo data-iso) e exibirá DD/MM/YYYY -->
+          <!-- O input armazena o valor ISO em data-iso e exibe para o usuário em DD/MM/YYYY -->
           <input type="date" id="arrival-date" class="date-input" value="2025-03-20">
           <div class="counters-row">
             <!-- Adultos -->
@@ -431,7 +433,7 @@
           </div>
         </div>
   
-        <!-- Botão para atualizar os dados do produto com a nova data selecionada -->
+        <!-- Botão para atualizar os dados do produto conforme a data selecionada -->
         <button onclick="atualizarBusca()">Atualizar busca</button>
         <div class="non-refundable">
           <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
@@ -447,7 +449,7 @@
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
     <div class="ticket-top-text">
-      <!-- Será preenchido dinamicamente com: "X a Y dias • [redeem_info]" -->
+      <!-- Preenchido dinamicamente com: "X a Y dias • [redeem_info]" -->
     </div>
     <div class="ticket-list">
       <!-- Todos os ingressos para o dia selecionado serão gerados dinamicamente -->
@@ -472,18 +474,18 @@
     © 2025 - Layout estilo Airland • Todos os direitos reservados
   </footer>
   
-  <!-- SCRIPT: CONTROLE DE PARTICIPANTES E FUNÇÕES GERAIS -->
+  <!-- SCRIPT: FUNÇÕES GERAIS E CONTROLE DE PARTICIPANTES -->
   <script>
     let numAdults = 1;
     let numChildren = 0;
-
+    
     // Converte data ISO (YYYY-MM-DD) para DD/MM/YYYY
     function formatISOtoDisplay(iso) {
       const parts = iso.split("-");
       return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : iso;
     }
-
-    // Função para carregar os dados do produto para uma data específica (dataIngresso)
+    
+    // Função para carregar os dados do produto para uma data específica (em ISO)
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
@@ -491,7 +493,7 @@
         .then(response => response.json())
         .then(data => {
           let tickets = Array.isArray(data) ? data : [data];
-
+    
           // Atualiza o ticket-top-text com o intervalo de duração e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(item => item.duration).filter(d => d !== undefined);
@@ -503,13 +505,13 @@
           } else {
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
-
-          // Atualiza os dados gerais do produto (usa o primeiro ticket)
+    
+          // Atualiza os dados gerais do produto (usando o primeiro ticket)
           const ticketForProduct = tickets[0];
           document.title = ticketForProduct.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
           document.querySelector(".location").textContent = ticketForProduct.destination_name || "";
-
+    
           // Banner principal
           if (ticketForProduct.media && ticketForProduct.media.length > 0) {
             const media = ticketForProduct.media[0];
@@ -520,7 +522,7 @@
             }
             document.querySelector(".main-banner img").src = imgUrl;
           }
-
+    
           // Mini imagens
           if (ticketForProduct.media && ticketForProduct.media.length > 1) {
             const miniImages = document.querySelectorAll(".mini-images img");
@@ -532,13 +534,13 @@
               }
             });
           }
-
-          // Descrição do produto – formata a descrição
+    
+          // Atualiza a descrição do produto – formata a descrição
           const descElement = document.getElementById("product-description");
           if (descElement) {
             descElement.innerHTML = formatDescription(ticketForProduct.descricao || "Descrição não disponível.");
           }
-
+    
           // Destaques – se não houver, oculta a seção
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
@@ -553,8 +555,8 @@
             if (header) header.remove();
             highlightsList.style.display = "none";
           }
-
-          // Atualiza o preço para adultos para o dia selecionado – usando o menor preço entre os tickets
+    
+          // Atualiza o preço para adultos para o dia selecionado (usando o menor preço)
           const prices = tickets.map(item => item.top_level_adult_price || item.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
@@ -566,15 +568,15 @@
             maximumFractionDigits: 0
           });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
-
+    
           let installmentValue = minPrice / 10;
           const formattedInstallment = installmentValue.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".installment-info").textContent = `em até 10x sem juros de ${formattedInstallment}`;
-
+    
           let pixPrice = minPrice * 0.95;
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
-
+    
           // Monta a lista de ingressos para o dia selecionado
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
@@ -582,29 +584,29 @@
             const ticketItem = document.createElement("div");
             ticketItem.classList.add("ticket-item");
             ticketItem.setAttribute("onclick", "toggleActive(this)");
-
+    
             const ticketInfo = document.createElement("div");
             ticketInfo.classList.add("ticket-info");
             const ticketTitle = document.createElement("h3");
             ticketTitle.textContent = ticket.modality_name || `Bilhete de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
-
-            // Descrição (redeem_info)
+    
+            // Redeem info – descrição (com limpeza de quebras extras)
             const ticketDesc = document.createElement("p");
             let redeemText = ticket.redeem_info || "";
             redeemText = redeemText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
             ticketDesc.innerHTML = redeemText;
             ticketInfo.appendChild(ticketDesc);
-
-            // Sessões (se houver)
+    
+            // Sessões – se houver
             if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
               const sessionsElem = document.createElement("div");
               sessionsElem.classList.add("ticket-sessions");
               sessionsElem.textContent = "Sessões: " + ticket.sessions.join(", ");
               ticketInfo.appendChild(sessionsElem);
             }
-
-            // Adiciona a data pesquisada (do input) com ícone de calendário
+    
+            // Adiciona a data pesquisada com ícone de calendário (valor ISO exibido como DD/MM/YYYY)
             const dateISO = document.getElementById("arrival-date").dataset.iso || "";
             if (dateISO) {
               const parts = dateISO.split("-");
@@ -614,12 +616,12 @@
               dateElem.innerHTML = `<i class="fas fa-calendar-alt"></i> ${displayDate}`;
               ticketInfo.appendChild(dateElem);
             }
-
+    
             ticketItem.appendChild(ticketInfo);
-
+    
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
-
+    
             const priceAdultModality = ticket.amount_adult || 0;
             const priceChildModality = ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
@@ -627,24 +629,24 @@
             ticketPriceDiv.classList.add("ticket-price");
             const formattedTotalPrice = totalPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
             ticketPriceDiv.textContent = formattedTotalPrice;
-
+    
             const tooltip = document.createElement("small");
             tooltip.classList.add("tooltip");
             tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalPrice * 0.95).toLocaleString("pt-BR", { style: "currency", currency: currency })}</span>`;
             ticketPriceDiv.appendChild(tooltip);
             priceAndAction.appendChild(ticketPriceDiv);
-
+    
             const installmentInfoItem = document.createElement("div");
             installmentInfoItem.classList.add("installment-info-item");
             const formattedPerPerson = priceAdultModality.toLocaleString("pt-BR", { style: "currency", currency: currency });
             installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedPerPerson}`;
             priceAndAction.appendChild(installmentInfoItem);
-
+    
             const pixDiscountItem = document.createElement("div");
             pixDiscountItem.classList.add("pix-discount-item");
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
-
+    
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
@@ -662,7 +664,7 @@
               addItemToCart(item);
             });
             priceAndAction.appendChild(reserveBtn);
-
+    
             ticketItem.appendChild(priceAndAction);
             ticketListContainer.appendChild(ticketItem);
           });
@@ -671,14 +673,14 @@
           console.error("Erro ao buscar dados da API:", err);
         });
     }
-
-    // Extrai um parâmetro da URL
+    
+    // Função para extrair um parâmetro da URL
     function getUrlParameter(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
     }
-
-    // Função para formatar a descrição (mantém os parágrafos com <br><br>)
+    
+    // Função para formatar a descrição
     function formatDescription(htmlString) {
       const container = document.createElement("div");
       container.innerHTML = htmlString;
@@ -696,20 +698,20 @@
         return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
       }
     }
-
-    // Função que recarrega os dados do produto para a data atual
+    
+    // Função para atualizar (recarregar) os dados do produto para uma nova data
     function atualizarBusca() {
       const dateISO = document.getElementById("arrival-date").dataset.iso;
       if (!dateISO) return;
       loadProductData(dateISO);
     }
-
-    // Ao carregar o DOM, configura o input de data e carrega os dados do produto usando o parâmetro dataIngresso
+    
+    // Ao carregar o DOM, configura o campo de data e carrega os dados iniciais
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
       let dataIngresso = getUrlParameter("dataIngresso") || new Date().toISOString().split("T")[0];
       
-      // Configura o input: armazena o valor ISO (data-iso) e exibe em DD/MM/YYYY
+      // Configura o input de data: guarda o valor ISO em data-iso e exibe em DD/MM/YYYY
       const dateInput = document.getElementById("arrival-date");
       dateInput.dataset.iso = dataIngresso;
       dateInput.value = formatISOtoDisplay(dataIngresso);
@@ -744,14 +746,13 @@
     const arrivalDateElem = document.getElementById("arrival-date");
     // Desativa o datepicker nativo para usar o nosso calendário customizado
     arrivalDateElem.setAttribute("type", "text");
-
+    
     arrivalDateElem.addEventListener("click", async (event) => {
       event.stopPropagation();
       try {
         const module = await import("/js/calcomuni.js");
         const { createSingleDateCalendar } = module;
-        // Usa o activityCode global para o calendário buscar os preços de todo o mês
-        const actCode = window.globalActivityCode;
+        const actCode = window.globalActivityCode; // definido via fetch
         const calendarData = await createSingleDateCalendar({ activityCode: actCode });
         const calendarElement = calendarData.element;
     
@@ -781,7 +782,7 @@
             const y = selected.getFullYear();
             const m = String(selected.getMonth() + 1).padStart(2, "0");
             const d = String(selected.getDate()).padStart(2, "0");
-            // Armazena o valor em data-iso (YYYY-MM-DD) e exibe para o usuário em DD/MM/YYYY
+            // Atualiza o data-iso e exibe no formato DD/MM/YYYY
             arrivalDateElem.dataset.iso = `${y}-${m}-${d}`;
             arrivalDateElem.value = `${d}/${m}/${y}`;
           }
