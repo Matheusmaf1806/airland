@@ -1,18 +1,26 @@
 // public/js/calcomuni.js
-// Agora a função recebe um objeto de opções, por exemplo, { activityCode: "XYZ" }
-export async function createSingleDateCalendar(options = {}) {
-  const { activityCode } = options;
 
-  // Cria a estrutura do calendário (elemento principal, selects, corpo, etc.)
+/**
+ * Cria um calendário de data única, buscando preços reais para cada data do mês
+ * usando a rota /api/tickets?activityCode=...&start_date=...&end_date=....
+ *
+ * @param {object} options - Objeto de opções, ex: { activityCode: "XYZ" }
+ * @returns {object} - { element, getSelectedDate, btnBack, btnApply, selectYear, selectMonth }
+ */
+export async function createSingleDateCalendar(options = {}) {
+  const { activityCode } = options;  // activityCode para buscar dados reais
+
+  // ========== Criação da Estrutura do Calendário ==========
   const calendarEl = document.createElement("div");
   calendarEl.classList.add("calendar");
 
-  // --- Configuração dos selects de mês e ano ---
+  // Container de opções - Selects para mês e ano
   const opts = document.createElement("div");
   opts.classList.add("calendar__opts");
 
   const selectMonth = document.createElement("select");
   selectMonth.id = "calendar__month";
+
   const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   meses.forEach((mes, idx) => {
     const option = document.createElement("option");
@@ -35,11 +43,11 @@ export async function createSingleDateCalendar(options = {}) {
   opts.appendChild(selectYear);
   calendarEl.appendChild(opts);
 
-  // --- Corpo do calendário ---
+  // Corpo do calendário (dias da semana + datas)
   const bodyEl = document.createElement("div");
   bodyEl.classList.add("calendar__body");
 
-  // Rótulos dos dias (começa em segunda)
+  // Rótulos dos dias (começando em segunda)
   const daysEl = document.createElement("div");
   daysEl.classList.add("calendar__days");
   const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
@@ -50,13 +58,14 @@ export async function createSingleDateCalendar(options = {}) {
   });
   bodyEl.appendChild(daysEl);
 
+  // Container para as datas
   const datesEl = document.createElement("div");
   datesEl.classList.add("calendar__dates");
   datesEl.id = "calendar__dates";
   bodyEl.appendChild(datesEl);
   calendarEl.appendChild(bodyEl);
 
-  // --- Botões (Voltar e Confirmar) ---
+  // Botões (Voltar/Confirmar)
   const buttonsEl = document.createElement("div");
   buttonsEl.classList.add("calendar__buttons");
   const btnBack = document.createElement("button");
@@ -69,11 +78,12 @@ export async function createSingleDateCalendar(options = {}) {
   buttonsEl.appendChild(btnApply);
   calendarEl.appendChild(buttonsEl);
 
-  // --- Funções auxiliares ---
+  // ========== Variáveis / Funções Auxiliares ==========
   function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
   }
   function getWeekDayIndex(date) {
+    // Ajusta para segunda-feira = 0
     return (date.getDay() + 6) % 7;
   }
 
@@ -83,20 +93,25 @@ export async function createSingleDateCalendar(options = {}) {
   let selectedDate = null;
   let clickableDates = [];
 
-  // --- Função para buscar preços reais para o mês corrente ---
+  // Função que faz o fetch dos preços reais para (activityCode, intervalo do mês)
   async function getPricesForMonth(activityCode, year, month) {
-    if (!activityCode) return {}; // se não houver activityCode, retorna vazio
-    // Formata o início e fim do mês (YYYY-MM-DD)
+    if (!activityCode) return {};  // Se não houver activityCode, não faz busca
     const start_date = `${year}-${String(month + 1).padStart(2, "0")}-01`;
     const lastDay = getDaysInMonth(year, month);
     const end_date = `${year}-${String(month + 1).padStart(2, "0")}-${lastDay}`;
+
     try {
-      // Faz a requisição à API; essa rota precisa estar preparada para receber start_date e end_date
-      const response = await fetch(`/api/tickets?activityCode=${activityCode}&start_date=${start_date}&end_date=${end_date}`);
+      // Rota que retorna todos os registros entre start_date e end_date
+      const response = await fetch(
+        `/api/tickets?activityCode=${activityCode}&start_date=${start_date}&end_date=${end_date}`
+      );
       const data = await response.json();
-      // Monta um mapeamento: data (YYYY-MM-DD) -> amount_adult
+      // Mapeamento "YYYY-MM-DD" -> amount_adult
       const mapping = {};
       data.forEach(item => {
+        // Exemplo: se a coluna de data no BD for "date"
+        // item.date deve conter "2025-04-15", etc.
+        // e item.amount_adult é o preço de adulto
         mapping[item.date] = item.amount_adult;
       });
       return mapping;
@@ -106,12 +121,12 @@ export async function createSingleDateCalendar(options = {}) {
     }
   }
 
-  // --- Função para construir o calendário com os preços reais ---
+  // Constrói o calendário para um mês/ano específicos
   async function buildCalendar(year, month) {
     datesEl.innerHTML = "";
     clickableDates = [];
 
-    // Busca o mapeamento de preços para o mês atual (se activityCode for informado)
+    // Pega o mapeamento de preços (caso haja activityCode)
     let priceMapping = {};
     if (activityCode) {
       priceMapping = await getPricesForMonth(activityCode, year, month);
@@ -120,10 +135,10 @@ export async function createSingleDateCalendar(options = {}) {
     const totalDays = getDaysInMonth(year, month);
     const firstDay = new Date(year, month, 1);
     const startWeekIndex = getWeekDayIndex(firstDay);
-    const totalCells = 42;
+    const totalCells = 42; // 6 linhas x 7 colunas
     let daysArray = [];
 
-    // Dias do mês anterior
+    // Dias do mês anterior para preencher o início do grid
     if (startWeekIndex > 0) {
       let prevMonth = month - 1;
       let prevYear = year;
@@ -151,7 +166,7 @@ export async function createSingleDateCalendar(options = {}) {
       });
     }
 
-    // Dias do próximo mês para completar as 42 células
+    // Dias do próximo mês para preencher as 42 células
     const remaining = totalCells - daysArray.length;
     if (remaining > 0) {
       let nextMonth = month + 1;
@@ -180,17 +195,20 @@ export async function createSingleDateCalendar(options = {}) {
       inner.classList.add("date-content");
       const daySpan = document.createElement("span");
       daySpan.textContent = obj.day;
+
       const priceSpan = document.createElement("span");
       priceSpan.classList.add("calendar__price");
 
-      // Formata a data como YYYY-MM-DD para consulta no mapeamento
+      // Monta a data no formato YYYY-MM-DD para procurar em priceMapping
       const formattedDate = obj.date.toISOString().split("T")[0];
       if (obj.inCurrent && priceMapping[formattedDate] !== undefined) {
         const price = priceMapping[formattedDate];
         priceSpan.textContent = price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
       } else if (obj.inCurrent) {
+        // Se está dentro do mês mas não tem preço no mapeamento
         priceSpan.textContent = "Indisponível";
       } else {
+        // Fora do mês atual
         priceSpan.textContent = "";
       }
 
@@ -198,6 +216,7 @@ export async function createSingleDateCalendar(options = {}) {
       inner.appendChild(priceSpan);
       cell.appendChild(inner);
 
+      // Se está no mês atual e não é antes de hoje, permite clicar
       if (obj.date >= today && obj.inCurrent) {
         clickableDates.push(cell);
         cell.addEventListener("click", () => {
@@ -206,20 +225,22 @@ export async function createSingleDateCalendar(options = {}) {
           selectedDate = obj.date;
         });
       }
+
       datesEl.appendChild(cell);
     });
   }
 
-  // Eventos dos selects — refaz o calendário com nova busca
+  // Sempre que user muda mês/ano, refaz buildCalendar
   async function onChangeMonthYear() {
     const year = parseInt(selectYear.value, 10);
     const month = parseInt(selectMonth.value, 10);
     await buildCalendar(year, month);
   }
+
   selectMonth.addEventListener("change", onChangeMonthYear);
   selectYear.addEventListener("change", onChangeMonthYear);
 
-  // Inicializa no mês vigente
+  // Inicia no mês atual
   selectYear.value = today.getFullYear();
   selectMonth.value = today.getMonth();
   await buildCalendar(today.getFullYear(), today.getMonth());
