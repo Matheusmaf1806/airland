@@ -35,7 +35,7 @@
     /* HEADER */
     #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
     
-    /* CONTAINER PRINCIPAL */
+    /* CONTEÚDO PRINCIPAL */
     .main-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -102,7 +102,7 @@
     }
     .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
     /* Input readonly para forçar o uso do calendário customizado;
-       exibe no formato DD/MM/AAAA, mas o valor ISO é armazenado no dataset */
+       exibe no formato DD/MM/AAAA, mas armazena a data ISO em dataset */
     .date-input {
       width: 100%;
       padding: 8px 12px;
@@ -475,7 +475,7 @@
       return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
-    // Carrega os dados dos ingressos para a data selecionada
+    // Função para carregar os dados dos ingressos para a data selecionada
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
@@ -550,7 +550,7 @@
           const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
-          const currency = "BRL"; // Força uso de BRL
+          const currency = "BRL";
           const formattedPrice = minPrice.toLocaleString("pt-BR", {
             style: "currency",
             currency: currency,
@@ -600,7 +600,7 @@
               ticketInfo.appendChild(sess);
             }
   
-            // Exibe a data selecionada com ícone (utilizando o dataset.iso do input)
+            // Exibe a data selecionada com ícone (usando o dataset.iso do input)
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
               const parts = arrivalDateIso.split("-");
@@ -616,7 +616,8 @@
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
   
-            // Para cálculo de preços: usa amount_adult; para crianças, se amount_child estiver vazio, usa o mesmo valor de amount_adult
+            // Para cálculo de preços: utiliza amount_adult e amount_child;
+            // Se amount_child estiver nulo/empty, usa o mesmo preço de adult.
             const priceAdultModality = Number(ticket.amount_adult) || 0;
             const priceChildModality = (ticket.amount_child != null && ticket.amount_child !== "") 
               ? Number(ticket.amount_child) 
@@ -645,15 +646,26 @@
             ticketPriceDiv.appendChild(tooltip);
             priceAndAction.appendChild(ticketPriceDiv);
   
+            // Monta o elemento installment-info-item com os dados de adultos e, se houver, de crianças
             const installmentInfoItem = document.createElement("div");
             installmentInfoItem.classList.add("installment-info-item");
-            const formattedPerPerson = priceAdultModality.toLocaleString("pt-BR", {
+            const formattedAdultPrice = priceAdultModality.toLocaleString("pt-BR", {
               style: "currency",
               currency: currency,
               minimumFractionDigits: 0,
               maximumFractionDigits: 0
             });
-            installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedPerPerson}`;
+            if (numChildren > 0) {
+              const formattedChildPrice = priceChildModality.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              });
+              installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedAdultPrice} + ${numChildren} criança${numChildren > 1 ? "s" : ""} x ${formattedChildPrice}`;
+            } else {
+              installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedAdultPrice}`;
+            }
             priceAndAction.appendChild(installmentInfoItem);
   
             const pixDiscountItem = document.createElement("div");
@@ -668,7 +680,7 @@
             reserveBtn.addEventListener("click", (e) => {
               e.stopPropagation();
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
-              // Monta o objeto do ingresso para o carrinho com os dados solicitados
+              // Monta o objeto do ingresso para o carrinho
               const cartItem = {
                 type: "INGRESSOS",
                 productName: `${firstTicket.nome || ""} - ${ticket.modality_name || ""}`.trim(),
@@ -810,5 +822,6 @@
       }
     });
   </script>
+  
 </body>
 </html>
