@@ -7,12 +7,10 @@
   
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
   
   <!-- Font Awesome -->
-  <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
   
@@ -538,14 +536,21 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
-      const dataIngresso = getUrlParameter("dataIngresso");
-
-      if (!activityCode || !dataIngresso) {
-        console.error("Parâmetros activityCode e dataIngresso não foram fornecidos na URL.");
+      // Removemos o dataIngresso, pois vamos utilizar intervalo
+      if (!activityCode) {
+        console.error("Parâmetro activityCode não foi fornecido na URL.");
         return;
       }
+      
+      // Calcula o intervalo do mês corrente
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const startDate = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+      const lastDay = new Date(year, month+1, 0).getDate();
+      const endDate = `${year}-${String(month + 1).padStart(2, "0")}-${lastDay}`;
 
-      const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dataIngresso}`;
+      const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&start_date=${startDate}&end_date=${endDate}`;
 
       fetch(apiUrl)
         .then(response => response.json())
@@ -564,7 +569,7 @@
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
 
-          // Dados gerais do produto – usa o primeiro ingresso
+          // Dados gerais do produto – usa o primeiro ingresso para exibir informações comuns
           const ticketForProduct = tickets[0];
           document.title = ticketForProduct.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
@@ -593,7 +598,7 @@
             });
           }
 
-          // Descrição do produto – formata a descrição usando a nova função
+          // Descrição do produto – formata usando a função formatDescription
           const descElement = document.getElementById("product-description");
           if (descElement) {
             const rawDesc = ticketForProduct.descricao || "Descrição não disponível.";
@@ -615,9 +620,11 @@
             highlightsList.style.display = "none";
           }
 
-          // Preço para adultos (para calendário) e demais preços
+          // Preço para adultos (para uso no calendário) e demais preços
           let priceAdult = ticketForProduct.top_level_adult_price || ticketForProduct.amount_adult || 0;
           window.globalAmountAdult = priceAdult;
+          // Armazena também o activityCode para o calendário
+          window.globalActivityCode = activityCode;
           const currency = ticketForProduct.currency || "BRL";
           const formattedPrice = priceAdult.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
@@ -630,7 +637,7 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
 
-          // Monta a lista de ingressos
+          // Monta a lista de ingressos – exibe todos os ingressos do intervalo consultado
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
@@ -717,7 +724,7 @@
         });
     });
   </script>
-
+  
   <!-- SCRIPT PARA CALENDÁRIO CUSTOMIZADO -->
   <script type="module">
     const arrivalDateElem = document.getElementById("arrival-date");
@@ -728,8 +735,7 @@
       try {
         const module = await import("/js/calcomuni.js");
         const { createSingleDateCalendar } = module;
-        const basePrice = window.globalAmountAdult || 0;
-        const actCode = window.globalActivityCode; // definido no fetch
+        const actCode = window.globalActivityCode; // atividade definida após o fetch do produto
         const calendarData = await createSingleDateCalendar({ activityCode: actCode });
         const calendarElement = calendarData.element;
     
@@ -773,7 +779,7 @@
       }
     });
   </script>
-
+  
   <script src="global-cart.js"></script>
 </body>
 </html>
