@@ -21,7 +21,11 @@
   
   <style>
     /* RESET / BASE */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Montserrat', sans-serif;
       background: #fafafa;
@@ -29,12 +33,22 @@
       line-height: 1.4;
       position: relative;
     }
-    input, select, textarea, button { font-family: 'Montserrat', sans-serif !important; }
-    a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; }
+    input, select, textarea, button {
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button {
+      cursor: pointer;
+    }
     
     /* HEADER */
-    #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
+    #externalHeader {
+      width: 100%;
+      border-bottom: 1px solid #eee;
+    }
     
     /* CONTAINER PRINCIPAL */
     .main-container {
@@ -47,10 +61,26 @@
     }
     
     /* COLUNA ESQUERDA */
-    .left-column { flex: 1 1 600px; display: flex; flex-direction: column; gap: 16px; }
-    .main-banner { width: 100%; border-radius: 8px; overflow: hidden; }
-    .main-banner img { width: 100%; height: 431.5px; object-fit: cover; }
-    .mini-images { display: flex; gap: 8px; }
+    .left-column {
+      flex: 1 1 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .main-banner {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .main-banner img {
+      width: 100%;
+      height: 431.5px;
+      object-fit: cover;
+    }
+    .mini-images {
+      display: flex;
+      gap: 8px;
+    }
     .mini-images img {
       flex: 1;
       border-radius: 6px;
@@ -61,12 +91,37 @@
     }
     
     /* COLUNA DIREITA */
-    .right-column { flex: 1 1 300px; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
-    .product-title { font-size: 1.8rem; font-weight: 600; color: #333; }
-    .stars-reviews { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #666; }
-    .stars-reviews i { color: #f1c40f; }
-    .location { font-size: 0.9rem; color: #999; margin-bottom: 8px; }
-    .action-buttons { display: flex; gap: 10px; }
+    .right-column {
+      flex: 1 1 300px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .stars-reviews {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .stars-reviews i {
+      color: #f1c40f;
+    }
+    .location {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
     .action-buttons button {
       background: none;
       border: 1px solid #ccc;
@@ -76,7 +131,9 @@
       color: #555;
       transition: background 0.2s;
     }
-    .action-buttons button:hover { background: #f1f1f1; }
+    .action-buttons button:hover {
+      background: #f1f1f1;
+    }
     
     /* BOX DE PREÇO / RESERVA */
     .price-box {
@@ -88,10 +145,23 @@
       flex-direction: column;
       gap: 8px;
     }
-    .price-label { font-size: 0.8rem; color: #888; }
-    .price-value { font-size: 1.4rem; font-weight: 600; }
-    .installment-info, .pix-discount { font-size: 0.85rem; color: #666; }
-    .pix-discount { color: #27ae60; font-weight: 500; }
+    .price-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .price-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .installment-info,
+    .pix-discount {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount {
+      color: #27ae60;
+      font-weight: 500;
+    }
     
     /* SEÇÃO "DATA E PARTICIPANTES" */
     .date-participants {
@@ -101,13 +171,24 @@
       border-radius: 8px;
       background: #fafafa;
     }
-    .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
+    .date-participants label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
     .date-input {
       width: 100%;
       padding: 8px 12px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
+      /* Desativa input nativo e datepicker nativo */
+      cursor: pointer;
+    }
+    /* Adiciona placeholder e readonly para garantir que não abra o datepicker nativo */
+    .date-input[readonly] {
+      background: #f9f9f9;
     }
     
     /* CONTROLES DE PARTICIPANTES */
@@ -121,7 +202,10 @@
       flex-direction: column;
       align-items: flex-start;
     }
-    .counter-box label { font-size: 0.9rem; margin-bottom: 4px; }
+    .counter-box label {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
     .counter-control {
       display: flex;
       align-items: center;
@@ -139,8 +223,12 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .btn-counter:hover { background: #eee; }
-    .btn-counter:active { background: #ddd; }
+    .btn-counter:hover {
+      background: #eee;
+    }
+    .btn-counter:active {
+      background: #ddd;
+    }
     
     .price-box button {
       width: 100%;
@@ -154,8 +242,13 @@
       transition: background 0.3s;
       margin-top: 8px;
     }
-    .price-box button:hover { background: #008dc8; }
-    .non-refundable { font-size: 0.8rem; color: #999; }
+    .price-box button:hover {
+      background: #008dc8;
+    }
+    .non-refundable {
+      font-size: 0.8rem;
+      color: #999;
+    }
     .warning {
       background: #fff7e6;
       border: 1px solid #ffe4b8;
@@ -168,7 +261,9 @@
       gap: 4px;
       align-items: center;
     }
-    .warning i { color: #aa6a1f; }
+    .warning i {
+      color: #aa6a1f;
+    }
     
     /* SEÇÃO DE INGRESSOS */
     .ticket-section {
@@ -176,7 +271,11 @@
       margin: 20px auto 40px;
       padding: 0 16px;
     }
-    .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
+    .ticket-top-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 16px;
+    }
     .ticket-list {
       display: flex;
       flex-direction: column;
@@ -195,7 +294,9 @@
       transition: box-shadow 0.2s, border 0.2s;
       cursor: pointer;
     }
-    .ticket-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .ticket-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
     .ticket-item.active {
       border: 2px solid #00a0e3;
       box-shadow: 0 2px 8px rgba(0,160,227,0.15);
@@ -205,8 +306,16 @@
       flex-direction: column;
       gap: 4px;
     }
-    .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
-    .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
+    .ticket-info h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .ticket-info p {
+      font-size: 0.85rem;
+      color: #777;
+      line-height: 1.3;
+    }
     /* NOVA CLASSE para exibir a data selecionada com ícone */
     .ticket-date {
       font-size: 0.85rem;
@@ -216,7 +325,9 @@
       gap: 4px;
       margin-top: 4px;
     }
-    .ticket-date i { font-size: 0.9rem; }
+    .ticket-date i {
+      font-size: 0.9rem;
+    }
     .price-and-action {
       display: flex;
       flex-direction: column;
@@ -232,8 +343,15 @@
       align-items: center;
       white-space: nowrap;
     }
-    .installment-info-item, .pix-discount-item { font-size: 0.85rem; color: #666; }
-    .pix-discount-item { color: #27ae60; font-weight: 500; }
+    .installment-info-item,
+    .pix-discount-item {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount-item {
+      color: #27ae60;
+      font-weight: 500;
+    }
     .reserve-now-btn {
       background: #00a0e3;
       color: #fff;
@@ -245,7 +363,9 @@
       transition: background 0.3s;
       cursor: pointer;
     }
-    .reserve-now-btn:hover { background: #008dc8; }
+    .reserve-now-btn:hover {
+      background: #008dc8;
+    }
     
     /* CONTEÚDO ADICIONAL */
     .content-section {
@@ -253,14 +373,22 @@
       margin: 20px auto;
       padding: 0 16px;
     }
-    .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
+    .content-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #333;
+      font-weight: 600;
+    }
     .content-section p {
       font-size: 0.95rem;
       color: #555;
       line-height: 1.5;
       margin-bottom: 16px;
     }
-    .highlights-list { list-style: none; margin-bottom: 16px; }
+    .highlights-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
     .highlights-list li {
       margin-bottom: 8px;
       font-size: 0.95rem;
@@ -269,7 +397,9 @@
       align-items: center;
       gap: 6px;
     }
-    .highlights-list li i { color: #00a0e3; }
+    .highlights-list li i {
+      color: #00a0e3;
+    }
     .tooltip {
       position: relative;
       cursor: pointer;
@@ -295,7 +425,10 @@
       transition: opacity 0.2s ease;
       z-index: 999;
     }
-    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
     
     /* RODAPÉ */
     footer {
@@ -308,7 +441,8 @@
     }
     
     /* ESTILOS DO CARRINHO (exemplo) */
-    .cart-container { }
+    .cart-container {
+    }
     .cart-footer {
       flex-shrink: 0;
       border-top: 1px solid #eee;
@@ -325,14 +459,23 @@
       margin-bottom: 1rem;
       background: #fcfcfc;
     }
-    .coupon-icon { width: 30px; height: 30px; fill: #666; flex-shrink: 0; }
+    .coupon-icon {
+      width: 30px;
+      height: 30px;
+      fill: #666;
+      flex-shrink: 0;
+    }
     .coupon-input-box {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-    .coupon-input-box label { font-size: 0.8rem; font-weight: 500; color: #555; }
+    .coupon-input-box label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #555;
+    }
     .coupon-input-box input {
       width: 100%;
       height: 32px;
@@ -342,8 +485,16 @@
       font-size: 0.85rem;
       color: #333;
     }
-    .price-line { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
-    .price-line .green { color: #2a942f; font-weight: 600; }
+    .price-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+    }
+    .price-line .green {
+      color: #2a942f;
+      font-weight: 600;
+    }
     .total-line {
       display: flex;
       justify-content: space-between;
@@ -361,7 +512,9 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .checkout-btn:hover { background: #2d9e64; }
+    .checkout-btn:hover {
+      background: #2d9e64;
+    }
   </style>
 </head>
 <body>
@@ -369,7 +522,7 @@
   
   <!-- CONTEÚDO PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA: Banner e Imagens -->
+    <!-- COLUNA ESQUERDA -->
     <div class="left-column">
       <div class="main-banner">
         <img src="placeholder-banner.jpg" alt="Banner Dinâmico">
@@ -380,8 +533,8 @@
         <img src="placeholder-mini3.jpg" alt="Mini Imagem 3">
       </div>
     </div>
-    
-    <!-- COLUNA DIREITA: Informações do Produto -->
+
+    <!-- COLUNA DIREITA -->
     <div class="right-column">
       <h1 class="product-title">Carregando...</h1>
       <div class="stars-reviews">
@@ -395,24 +548,31 @@
         <span>79 avaliações</span>
       </div>
       <div class="location">Carregando localização...</div>
+      
       <div class="action-buttons">
         <button id="shareBtn"><i class="fas fa-share"></i> Compartilhar</button>
         <button><i class="far fa-heart"></i> Minha lista de desejos</button>
       </div>
+
       <!-- BOX DE PREÇO / RESERVA -->
       <div class="price-box">
         <span class="price-label">A partir de</span>
         <div class="price-value">Carregando preço...</div>
         <div class="installment-info">Carregando parcelamento...</div>
         <div class="pix-discount">Carregando desconto...</div>
-  
+
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
-          <!-- O input armazena o valor ISO em data-iso e exibe para o usuário em DD/MM/YYYY -->
-          <input type="date" id="arrival-date" class="date-input" value="2025-03-20">
+          <!-- Muda para type="text" e readonly -->
+          <input
+            type="text"
+            id="arrival-date"
+            class="date-input"
+            readonly
+            placeholder="DD/MM/AAAA"
+          />
           <div class="counters-row">
-            <!-- Adultos -->
             <div class="counter-box">
               <label for="numAdultsValue">Adultos</label>
               <div class="counter-control">
@@ -421,7 +581,6 @@
                 <button type="button" id="btnAdultsPlus" class="btn-counter">+</button>
               </div>
             </div>
-            <!-- Crianças -->
             <div class="counter-box">
               <label for="numChildrenValue">Crianças</label>
               <div class="counter-control">
@@ -432,9 +591,8 @@
             </div>
           </div>
         </div>
-  
-        <!-- Botão para atualizar os dados do produto conforme a data selecionada -->
         <button onclick="atualizarBusca()">Atualizar busca</button>
+        
         <div class="non-refundable">
           <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
         </div>
@@ -445,17 +603,17 @@
       </div>
     </div>
   </div>
-  
+
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
     <div class="ticket-top-text">
-      <!-- Preenchido dinamicamente com: "X a Y dias • [redeem_info]" -->
+      <!-- Preenchido dinamicamente -->
     </div>
     <div class="ticket-list">
-      <!-- Todos os ingressos para o dia selecionado serão gerados dinamicamente -->
+      <!-- Itens dos ingressos serão gerados dinamicamente -->
     </div>
   </section>
-  
+
   <!-- CONTEÚDO ADICIONAL -->
   <div class="content-section">
     <h2>Sobre o Produto</h2>
@@ -468,13 +626,13 @@
       Em caso de imprevistos, entre em contato com nossa equipe para verificar possíveis soluções.
     </p>
   </div>
-  
+
   <!-- RODAPÉ -->
   <footer>
     © 2025 - Layout estilo Airland • Todos os direitos reservados
   </footer>
-  
-  <!-- SCRIPTS -->
+
+  <!-- SCRIPT: FUNÇÕES GERAIS -->
   <script>
     let numAdults = 1;
     let numChildren = 0;
@@ -486,15 +644,15 @@
     }
 
     // Converte data ISO (YYYY-MM-DD) para DD/MM/YYYY
-    function formatISOtoDisplay(iso) {
-      const parts = iso.split("-");
+    function formatISOtoDisplay(isoString) {
+      const parts = isoString.split("-");
       if (parts.length === 3) {
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
-      return iso;
+      return isoString;
     }
 
-    // Converte HTML com parágrafos para exibição
+    // Formata HTML com parágrafos
     function formatDescription(htmlString) {
       const container = document.createElement("div");
       container.innerHTML = htmlString;
@@ -502,31 +660,29 @@
       if (pElements.length > 0) {
         let paragraphs = [];
         pElements.forEach((p) => {
-          let html = p.innerHTML.replace(/<br\s*\/?>/gi, "").trim();
-          if (html.length > 0) {
-            paragraphs.push(html);
-          }
+          let clean = p.innerHTML.replace(/<br\s*\/?>/gi, "").trim();
+          if (clean) paragraphs.push(clean);
         });
         return paragraphs.join("<br><br>");
-      } else {
-        return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
       }
+      return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
-    // Carrega dados do produto para dateISO
+    // Carrega dados do produto para uma data (ISO)
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
       fetch(apiUrl)
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           const tickets = Array.isArray(data) ? data : [data];
+          if (!tickets || !tickets.length || !tickets[0]) return;
 
           // topText: durações e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
-          const durations = tickets.map((t) => t.duration).filter(Boolean);
-          let minDur = durations.length ? Math.min(...durations) : null;
-          let maxDur = durations.length ? Math.max(...durations) : null;
+          const durations = tickets.map(t => t.duration).filter(Boolean);
+          const minDur = durations.length ? Math.min(...durations) : null;
+          const maxDur = durations.length ? Math.max(...durations) : null;
           const redeemInfo = tickets[0].redeem_info || "Ingresso digital";
           if (minDur !== null && maxDur !== null) {
             topTextElem.innerHTML = `<strong>${minDur} a ${maxDur} dias</strong> • <strong>${redeemInfo}</strong>`;
@@ -534,7 +690,7 @@
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
 
-          // Dados gerais (usando o primeiro ingresso)
+          // Dados gerais do produto
           const firstTicket = tickets[0];
           document.title = firstTicket.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = firstTicket.nome || "Produto Indisponível";
@@ -545,7 +701,7 @@
             const media = firstTicket.media[0];
             let imgUrl = "";
             if (Array.isArray(media.urls)) {
-              const largeImg = media.urls.find((u) => u.width >= 1024) || media.urls[0];
+              const largeImg = media.urls.find(u => u.width >= 1024) || media.urls[0];
               imgUrl = largeImg.resource;
             }
             document.querySelector(".main-banner img").src = imgUrl;
@@ -554,10 +710,10 @@
           // Mini imagens
           if (firstTicket.media && firstTicket.media.length > 1) {
             const miniImgs = document.querySelectorAll(".mini-images img");
-            miniImgs.forEach((img, idx) => {
-              if (firstTicket.media[idx + 1] && firstTicket.media[idx + 1].urls) {
-                const urls = firstTicket.media[idx + 1].urls;
-                const largeImg = urls.find((u) => u.width >= 1024) || urls[0];
+            miniImgs.forEach((img, index) => {
+              if (firstTicket.media[index + 1] && firstTicket.media[index + 1].urls) {
+                const urls = firstTicket.media[index + 1].urls;
+                const largeImg = urls.find(u => u.width >= 1024) || urls[0];
                 img.src = largeImg.resource;
               }
             });
@@ -573,7 +729,7 @@
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
           if (firstTicket.highlights && firstTicket.highlights.length > 0) {
-            firstTicket.highlights.forEach((h) => {
+            firstTicket.highlights.forEach(h => {
               const li = document.createElement("li");
               li.innerHTML = `<i class="fas fa-check"></i> ${h}`;
               highlightsList.appendChild(li);
@@ -585,7 +741,7 @@
           }
 
           // Preço "A partir de"
-          const prices = tickets.map((t) => t.top_level_adult_price || t.amount_adult || 0);
+          const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
           const currency = firstTicket.currency || "BRL";
@@ -593,7 +749,7 @@
             style: "currency",
             currency: currency,
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            maximumFractionDigits: 0
           });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
 
@@ -605,13 +761,13 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
 
-          // Monta a lista de ingressos
+          // Lista de ingressos
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
-          tickets.forEach((ticket) => {
+          tickets.forEach(ticket => {
             const ticketItem = document.createElement("div");
             ticketItem.classList.add("ticket-item");
-            ticketItem.setAttribute("onclick", "toggleActive(this)");
+            ticketItem.onclick = () => toggleActive(ticketItem);
 
             const ticketInfo = document.createElement("div");
             ticketInfo.classList.add("ticket-info");
@@ -635,7 +791,7 @@
               ticketInfo.appendChild(sess);
             }
 
-            // Adiciona a data pesquisada do data-iso
+            // Data pesquisada (do dataset do input)
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
               const parts = arrivalDateIso.split("-");
@@ -654,7 +810,6 @@
             const priceAdultModality = ticket.amount_adult || 0;
             const priceChildModality = ticket.amount_child || 0;
             const totalPrice = numAdults * priceAdultModality + numChildren * priceChildModality;
-
             const ticketPriceDiv = document.createElement("div");
             ticketPriceDiv.classList.add("ticket-price");
             const formattedTotal = totalPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
@@ -680,7 +835,7 @@
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
-            reserveBtn.addEventListener("click", (e) => {
+            reserveBtn.addEventListener("click", e => {
               e.stopPropagation();
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
               const item = {
@@ -689,7 +844,7 @@
                 date: isoVal,
                 price: totalPrice,
                 adults: numAdults,
-                children: numChildren,
+                children: numChildren
               };
               addItemToCart(item);
             });
@@ -699,38 +854,34 @@
             ticketListContainer.appendChild(ticketItem);
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Erro ao buscar dados da API:", err);
         });
     }
 
-    // Impede cliques repetidos / manipulação manual do input
+    // Atualiza a busca para a data armazenada em data-iso
     function atualizarBusca() {
       const dateISO = document.getElementById("arrival-date").dataset.iso;
       if (!dateISO) return;
       loadProductData(dateISO);
     }
 
-    // Seleciona / deseleciona tickets
+    // Marca um ticket como active
     function toggleActive(el) {
-      document.querySelectorAll(".ticket-item").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".ticket-item").forEach(t => t.classList.remove("active"));
       el.classList.add("active");
     }
 
-    // Ao carregar a página, configura a data inicial e carrega os dados
     document.addEventListener("DOMContentLoaded", () => {
-      const activityCode = getUrlParameter("activityCode");
       let dataIngresso = getUrlParameter("dataIngresso") || new Date().toISOString().split("T")[0];
 
-      // Força o input a exibir a data formatada e armazenar ISO no dataset
+      // Seta a data ISO no dataset e exibe em DD/MM/YYYY para o usuário
       const dateInput = document.getElementById("arrival-date");
       dateInput.dataset.iso = dataIngresso;
       dateInput.value = formatISOtoDisplay(dataIngresso);
 
-      // Carrega os dados para essa data
       loadProductData(dataIngresso);
 
-      // Configura contadores de adultos / crianças
       document.getElementById("btnAdultsMinus").addEventListener("click", () => {
         if (numAdults > 1) {
           numAdults--;
@@ -760,26 +911,26 @@
     });
   </script>
 
-  <!-- MÓDULO DO CALENDÁRIO CUSTOMIZADO -->
+  <!-- SCRIPT DO CALENDÁRIO CUSTOMIZADO -->
   <script type="module">
     const arrivalDateElem = document.getElementById("arrival-date");
     arrivalDateElem.addEventListener("click", async (event) => {
       event.stopPropagation();
       try {
         const { createSingleDateCalendar } = await import("/js/calcomuni.js");
-        const calendarData = await createSingleDateCalendar({
-          activityCode: window.globalActivityCode || getUrlParameter("activityCode"),
-        });
+        const actCode = window.globalActivityCode || getUrlParameter("activityCode");
+        const calendarData = await createSingleDateCalendar({ activityCode: actCode });
         const calendarElement = calendarData.element;
 
+        // Cria container ABSOLUTO para o calendário
         const container = document.createElement("div");
         container.style.position = "absolute";
         container.style.zIndex = "9999";
         container.id = "custom-calendar-container";
 
         const rect = arrivalDateElem.getBoundingClientRect();
-        container.style.top = (window.scrollY + rect.bottom) + "px";
-        container.style.left = (window.scrollX + rect.left) + "px";
+        container.style.top = `${window.scrollY + rect.bottom}px`;
+        container.style.left = `${window.scrollX + rect.left}px`;
 
         container.appendChild(calendarElement);
         document.body.appendChild(container);
@@ -798,8 +949,9 @@
             const y = selected.getFullYear();
             const m = String(selected.getMonth() + 1).padStart(2, "0");
             const d = String(selected.getDate()).padStart(2, "0");
+            // Armazena no dataset em ISO e exibe pro usuário em DD/MM/YYYY
             arrivalDateElem.dataset.iso = `${y}-${m}-${d}`;
-            arrivalDateElem.value = `${d}/${m}/${y}`; // Exibe no formato DD/MM/YYYY
+            arrivalDateElem.value = `${d}/${m}/${y}`;
           }
           container.remove();
         });
