@@ -4,41 +4,61 @@
   <meta charset="UTF-8">
   <title>Walt Disney World Resort - Ingressos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
-
-  <!-- Font Awesome (opcional) -->
+  
+  <!-- Font Awesome -->
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
-
+  
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
-
+  
   <style>
     /* RESET / BASE */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Montserrat', sans-serif; background: #fafafa; color: #333; line-height: 1.4; position: relative; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #fafafa;
+      color: #333;
+      line-height: 1.4;
+      position: relative;
+    }
     input, select, textarea, button { font-family: 'Montserrat', sans-serif !important; }
     a { color: inherit; text-decoration: none; }
     button { cursor: pointer; }
     
-    /* HEADER EXTERNO */
+    /* HEADER */
     #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
     
-    /* CONTÊINER PRINCIPAL */
-    .main-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; display: flex; gap: 20px; flex-wrap: wrap; }
+    /* CONTAINER PRINCIPAL */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
     
     /* COLUNA ESQUERDA */
     .left-column { flex: 1 1 600px; display: flex; flex-direction: column; gap: 16px; }
     .main-banner { width: 100%; border-radius: 8px; overflow: hidden; }
-    .main-banner img { height: 431.5px; width: 100%; display: block; object-fit: cover; }
+    .main-banner img { width: 100%; height: 431.5px; object-fit: cover; }
     .mini-images { display: flex; gap: 8px; }
-    .mini-images img { flex: 1; border-radius: 6px; width: 100%; height: 130px; object-fit: cover; background: #eee; }
+    .mini-images img {
+      flex: 1;
+      border-radius: 6px;
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      background: #eee;
+    }
     
     /* COLUNA DIREITA */
     .right-column { flex: 1 1 300px; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
@@ -51,70 +71,161 @@
     .action-buttons button:hover { background: #f1f1f1; }
     
     /* BOX DE PREÇO / RESERVA */
-    .price-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .price-box {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .price-label { font-size: 0.8rem; color: #888; }
     .price-value { font-size: 1.4rem; font-weight: 600; }
     .installment-info, .pix-discount { font-size: 0.85rem; color: #666; }
     .pix-discount { color: #27ae60; font-weight: 500; }
     
-    /* DESIGN DA SEÇÃO "DATA E PARTICIPANTES" */
-    .date-participants { margin-top: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+    /* SEÇÃO "DATA E PARTICIPANTES" */
+    .date-participants {
+      margin-top: 16px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
     .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
-    .date-input { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+    .date-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
     
-    /* Controles de Participantes */
-    .counters-row { display: flex; gap: 16px; margin-top: 12px; }
-    .counter-box { display: flex; flex-direction: column; align-items: flex-start; }
+    /* CONTROLES DE PARTICIPANTES */
+    .counters-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .counter-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
     .counter-box label { font-size: 0.9rem; margin-bottom: 4px; }
-    .counter-control { display: flex; align-items: center; gap: 10px; }
+    .counter-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .btn-counter {
-      width: 32px; height: 32px; border: 1px solid #ccc; border-radius: 4px;
-      background: #f9f9f9; font-size: 1.2rem; font-weight: 600; color: #333;
-      cursor: pointer; transition: background 0.2s;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f9f9f9;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.2s;
     }
     .btn-counter:hover { background: #eee; }
     .btn-counter:active { background: #ddd; }
     
     .price-box button {
-      width: 100%; background: #00a0e3; color: #fff; border: none; border-radius: 6px;
-      padding: 12px; font-size: 1rem; font-weight: 500; transition: background 0.3s; margin-top: 8px;
+      width: 100%;
+      background: #00a0e3;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background 0.3s;
+      margin-top: 8px;
     }
     .price-box button:hover { background: #008dc8; }
     .non-refundable { font-size: 0.8rem; color: #999; }
     .warning {
-      background: #fff7e6; border: 1px solid #ffe4b8; border-radius: 6px; padding: 10px;
-      font-size: 0.85rem; color: #aa6a1f; margin-top: 4px; display: flex; gap: 4px; align-items: center;
+      background: #fff7e6;
+      border: 1px solid #ffe4b8;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.85rem;
+      color: #aa6a1f;
+      margin-top: 4px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
     }
     .warning i { color: #aa6a1f; }
     
     /* SEÇÃO DE INGRESSOS */
-    .ticket-section { max-width: 1200px; margin: 20px auto 40px; padding: 0 16px; }
+    .ticket-section {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 16px;
+    }
     .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
-    .ticket-list { display: flex; flex-direction: column; gap: 16px; }
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
     .ticket-item {
-      background: #fff; border: 1px solid #eee; border-radius: 8px;
-      padding: 16px; display: flex; align-items: flex-start;
-      justify-content: space-between; flex-wrap: wrap; gap: 10px;
-      transition: box-shadow 0.2s, border 0.2s; cursor: pointer;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      transition: box-shadow 0.2s, border 0.2s;
+      cursor: pointer;
     }
     .ticket-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .ticket-item.active {
       border: 2px solid #00a0e3;
       box-shadow: 0 2px 8px rgba(0,160,227,0.15);
     }
-    .ticket-info { display: flex; flex-direction: column; gap: 4px; }
+    .ticket-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
-    .price-and-action { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .price-and-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
     .ticket-price {
-      font-size: 1rem; font-weight: 600; color: #444; text-align: right;
-      display: inline-flex; align-items: center; white-space: nowrap;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #444;
+      text-align: right;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
     }
     .installment-info-item, .pix-discount-item { font-size: 0.85rem; color: #666; }
     .pix-discount-item { color: #27ae60; font-weight: 500; }
     .reserve-now-btn {
-      background: #00a0e3; color: #fff; border: none; border-radius: 4px;
-      padding: 8px 14px; font-size: 0.9rem; font-weight: 500; transition: background 0.3s; cursor: pointer;
+      background: #00a0e3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.3s;
+      cursor: pointer;
     }
     .reserve-now-btn:hover { background: #008dc8; }
     
@@ -123,21 +234,53 @@
     .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
     .content-section p { font-size: 0.95rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
     .highlights-list { list-style: none; margin-bottom: 16px; }
-    .highlights-list li { margin-bottom: 8px; font-size: 0.95rem; color: #555; display: flex; align-items: center; gap: 6px; }
+    .highlights-list li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     .highlights-list li i { color: #00a0e3; }
-    .tooltip { position: relative; cursor: pointer; margin-left: 6px; display: inline-block; }
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+      margin-left: 6px;
+      display: inline-block;
+    }
     .tooltip .tooltip-text {
-      visibility: hidden; width: auto; background-color: #333; color: #fff; text-align: center;
-      border-radius: 4px; padding: 6px 8px; position: absolute; bottom: 120%; left: 50%;
-      transform: translateX(-50%); font-size: 0.85rem; line-height: 1.2; white-space: nowrap;
-      opacity: 0; transition: opacity 0.2s ease; z-index: 999;
+      visibility: hidden;
+      width: auto;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 6px 8px;
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      line-height: 1.2;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 999;
     }
     .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
     
     /* RODAPÉ */
-    footer { text-align: center; font-size: 0.85rem; color: #999; padding: 20px 0; border-top: 1px solid #eee; background: #fff; }
+    footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #999;
+      padding: 20px 0;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
     
-    /* ESTILOS DO CARRINHO SUSPENSO (exemplo) */
+    /* ESTILOS DO CARRINHO (exemplo) */
     .cart-container { }
     .cart-footer {
       flex-shrink: 0;
@@ -172,12 +315,7 @@
       font-size: 0.85rem;
       color: #333;
     }
-    .price-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.2rem;
-    }
+    .price-line { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
     .price-line .green { color: #2a942f; font-weight: 600; }
     .total-line {
       display: flex;
@@ -320,7 +458,6 @@
     function atualizarBusca() {
       const dateValue = document.getElementById("arrival-date").value;
       alert(`Data: ${dateValue}\nAdultos: ${numAdults}\nCrianças: ${numChildren}`);
-      // Aqui, você pode adicionar lógica extra para recalcular preços, etc.
     }
   
     // Configura os botões de incremento/decremento
@@ -357,7 +494,7 @@
       });
     });
   
-    // Função para aplicar/remover classe "active" nos tickets (exemplo)
+    // Função para aplicar/remover a classe "active" nos tickets
     function toggleActive(element) {
       const allTickets = document.querySelectorAll(".ticket-item");
       allTickets.forEach(ticket => ticket.classList.remove("active"));
@@ -370,7 +507,7 @@
       return params.get(name);
     }
   
-    // Ao carregar o DOM, faz o fetch da API e preenche a página
+    // Ao carregar o DOM, faz o fetch da API para preencher os dados
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
       const dataIngresso = getUrlParameter("dataIngresso");
@@ -436,10 +573,9 @@
             });
           }
   
-          // Atualiza os preços (guarda o preço do ingresso para adultos globalmente)
+          // Atualiza os preços e guarda o preço para cada adulto globalmente
           let priceAdult = ticket.top_level_adult_price || ticket.amount_adult || 0;
-          window.globalAmountAdult = priceAdult; // variável global para passar ao calendário
-  
+          window.globalAmountAdult = priceAdult; // Para uso no calendário customizado
           const currency = ticket.currency || "BRL";
           const formattedPrice = priceAdult.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
@@ -478,7 +614,7 @@
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
   
-            // Aqui usamos as variáveis globais numéricas para participantes
+            // Usa as variáveis globais (numAdults e numChildren) para calcular o preço total
             const priceAdultModality = modality.amount_adult || ticket.amount_adult || 0;
             const priceChildModality = modality.amount_child || ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
@@ -505,7 +641,6 @@
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
   
-            // Botão "Reserve agora"
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
@@ -546,12 +681,12 @@
       import("/js/calcomuni.js")
         .then(module => {
           const { createSingleDateCalendar } = module;
-          // Usa o valor global da API (globalAmountAdult) como preço base para o calendário
+          // Usa o preço de adultos (globalAmountAdult) obtido via API como base
           const basePrice = window.globalAmountAdult || 0;
           const calendarData = createSingleDateCalendar(basePrice);
           const calendarElement = calendarData.element;
   
-          // Cria um container ABSOLUTO para posicionar o calendário
+          // Container posicionado de forma absoluta para o calendário
           const container = document.createElement("div");
           container.style.position = "absolute";
           container.style.zIndex = "9999";
@@ -585,7 +720,7 @@
             container.remove();
           });
   
-          // Botão "Voltar" fecha o calendário sem alterar o input
+          // O botão "Voltar" fecha o calendário sem alterar o input
           const btnBack = calendarElement.querySelector(".calendar__button--grey");
           btnBack.addEventListener("click", () => {
             container.remove();
