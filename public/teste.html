@@ -207,7 +207,7 @@
       gap: 4px;
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
-    /* Utiliza o redeem_info para preencher a descrição do ingresso */
+    /* Para cada ingresso, usa o redeem_info para descrição */
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
     /* Se houver sessões, exibe os horários */
     .ticket-sessions {
@@ -445,7 +445,7 @@
   
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
-    <!-- ticket-top-text será preenchido dinamicamente -->
+    <!-- O ticket-top-text será preenchido dinamicamente com "X a Y dias • Redeem Info" -->
     <div class="ticket-top-text"></div>
     <div class="ticket-list">
       <!-- Itens dos tickets serão gerados dinamicamente -->
@@ -487,17 +487,25 @@
       const childrenElem = document.getElementById("numChildrenValue");
   
       document.getElementById("btnAdultsMinus").addEventListener("click", () => {
-        if (numAdults > 1) { numAdults--; adultsElem.textContent = numAdults; }
+        if (numAdults > 1) {
+          numAdults--;
+          adultsElem.textContent = numAdults;
+        }
       });
       document.getElementById("btnAdultsPlus").addEventListener("click", () => {
-        numAdults++; adultsElem.textContent = numAdults;
+        numAdults++;
+        adultsElem.textContent = numAdults;
       });
   
       document.getElementById("btnChildrenMinus").addEventListener("click", () => {
-        if (numChildren > 0) { numChildren--; childrenElem.textContent = numChildren; }
+        if (numChildren > 0) {
+          numChildren--;
+          childrenElem.textContent = numChildren;
+        }
       });
       document.getElementById("btnChildrenPlus").addEventListener("click", () => {
-        numChildren++; childrenElem.textContent = numChildren;
+        numChildren++;
+        childrenElem.textContent = numChildren;
       });
   
       document.getElementById("shareBtn").addEventListener("click", () => {
@@ -507,7 +515,7 @@
       });
     });
   
-    // Função para aplicar a classe "active" em tickets
+    // Função para aplicar a classe "active" nos tickets
     function toggleActive(element) {
       const allTickets = document.querySelectorAll(".ticket-item");
       allTickets.forEach(ticket => ticket.classList.remove("active"));
@@ -518,6 +526,19 @@
     function getUrlParameter(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
+    }
+  
+    // Função para limpar e formatar a descrição
+    function formatDescription(htmlString) {
+      // Cria um elemento temporário para interpretar o HTML
+      const temp = document.createElement("div");
+      temp.innerHTML = htmlString;
+      // Extrai o conteúdo de cada parágrafo, removendo quebras em excesso
+      const paragraphs = Array.from(temp.querySelectorAll("p"))
+        .map(p => p.textContent.trim())
+        .filter(text => text.length > 0);
+      // Junta os parágrafos com uma única quebra de linha
+      return paragraphs.join("<br>");
     }
   
     // Ao carregar o DOM, faz o fetch da API para preencher os dados
@@ -537,7 +558,7 @@
         .then(data => {
           let tickets = Array.isArray(data) ? data : [data];
   
-          // Preenche ticket-top-text com intervalo de duration e redeem_info
+          // Atualiza o ticket-top-text com o intervalo de duration e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(item => item.duration).filter(d => d !== undefined);
           let minDuration = durations.length ? Math.min(...durations) : null;
@@ -549,7 +570,7 @@
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
   
-          // Usa o primeiro ingresso para dados comuns do produto
+          // Atualiza os dados do produto usando o primeiro ingresso
           const ticketForProduct = tickets[0];
           document.title = ticketForProduct.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
@@ -578,14 +599,14 @@
             });
           }
   
-          // Atualiza a descrição do produto e corrige quebras de linha múltiplas
+          // Atualiza a descrição do produto e formata para ter apenas uma quebra de linha entre parágrafos
           const descElement = document.getElementById("product-description");
           if (descElement) {
             const rawDesc = ticketForProduct.descricao || "Descrição não disponível.";
-            descElement.innerHTML = rawDesc.replace(/(\r\n|\n|\r){2,}/gm, "$1");
+            descElement.innerHTML = formatDescription(rawDesc);
           }
   
-          // Atualiza os destaques; oculta se não houver
+          // Atualiza os destaques; se não houver, oculta a seção
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
           if (ticketForProduct.highlights && ticketForProduct.highlights.length > 0) {
@@ -600,7 +621,7 @@
             highlightsList.style.display = "none";
           }
   
-          // Atualiza preços e guarda o preço para adultos globalmente
+          // Preço para adultos, armazenado globalmente para o calendário
           let priceAdult = ticketForProduct.top_level_adult_price || ticketForProduct.amount_adult || 0;
           window.globalAmountAdult = priceAdult;
           const currency = ticketForProduct.currency || "BRL";
@@ -615,7 +636,7 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
   
-          // Preenche a lista de ingressos exibindo todos os itens
+          // Monta a lista de ingressos, exibindo todos os itens
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
@@ -629,7 +650,7 @@
             ticketTitle.textContent = ticket.modality_name || `Bilhete base de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
   
-            // Usa redeem_info para a descrição; corrige quebras de linha
+            // Usa redeem_info para a descrição e formata para ter somente uma quebra de linha
             const ticketDesc = document.createElement("p");
             let redeemText = ticket.redeem_info || "";
             redeemText = redeemText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
@@ -714,7 +735,7 @@
       import("/js/calcomuni.js")
         .then(module => {
           const { createSingleDateCalendar } = module;
-          // Usa o preço para adultos global obtido via API como base
+          // Usa o preço de adultos (globalAmountAdult) obtido via API como base para o calendário
           const basePrice = window.globalAmountAdult || 0;
           const calendarData = createSingleDateCalendar(basePrice);
           const calendarElement = calendarData.element;
@@ -732,7 +753,7 @@
           container.appendChild(calendarElement);
           document.body.appendChild(container);
   
-          // Fecha o calendário ao clicar fora
+          // Fecha o calendário se clicar fora dele
           document.addEventListener("click", function handleOutside(e) {
             if (!container.contains(e.target) && e.target !== arrivalDateElem) {
               container.remove();
@@ -740,7 +761,7 @@
             }
           });
   
-          // Ao confirmar, atualiza o input com a data selecionada
+          // Ao clicar em "Confirmar", atualiza o input com a data selecionada
           const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
           btnConfirm.addEventListener("click", () => {
             const selected = calendarData.getSelectedDate();
