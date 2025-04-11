@@ -35,7 +35,7 @@ export async function createSingleDateCalendar(options = {}) {
   const selectYear = document.createElement("select");
   selectYear.id = "calendar__year";
   const currentYear = new Date().getFullYear();
-  // Permite selecionar o ano corrente e o próximo (pode ser adaptado se necessário)
+  // Permite selecionar o ano corrente e o próximo
   [currentYear, currentYear + 1].forEach(year => {
     const option = document.createElement("option");
     option.value = year;
@@ -51,7 +51,7 @@ export async function createSingleDateCalendar(options = {}) {
   const bodyEl = document.createElement("div");
   bodyEl.classList.add("calendar__body");
 
-  // Rótulos dos dias, começando na segunda-feira
+  // Rótulos dos dias, começando em segunda-feira
   const daysEl = document.createElement("div");
   daysEl.classList.add("calendar__days");
   const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
@@ -62,7 +62,7 @@ export async function createSingleDateCalendar(options = {}) {
   });
   bodyEl.appendChild(daysEl);
 
-  // Container das datas
+  // Container para as datas
   const datesEl = document.createElement("div");
   datesEl.classList.add("calendar__dates");
   datesEl.id = "calendar__dates";
@@ -112,7 +112,7 @@ export async function createSingleDateCalendar(options = {}) {
       // Constrói um mapeamento: { "YYYY-MM-DD": amount_adult, ... }
       const mapping = {};
       data.forEach(item => {
-        // Aqui assume que o campo de data no BD é "date" e já vem no formato "YYYY-MM-DD"
+        // Assume que o campo 'date' já vem no formato "YYYY-MM-DD"
         mapping[item.date] = item.amount_adult;
       });
       return mapping;
@@ -127,7 +127,7 @@ export async function createSingleDateCalendar(options = {}) {
     datesEl.innerHTML = "";
     clickableDates = [];
 
-    // Busca os preços reais para o mês, se o activityCode estiver definido
+    // Busca os preços reais para o mês, se activityCode estiver definido
     let priceMapping = {};
     if (activityCode) {
       priceMapping = await getPricesForMonth(activityCode, year, month);
@@ -136,10 +136,10 @@ export async function createSingleDateCalendar(options = {}) {
     const totalDays = getDaysInMonth(year, month);
     const firstDay = new Date(year, month, 1);
     const startWeekIndex = getWeekDayIndex(firstDay);
-    const totalCells = 42; // 6 semanas (6 x 7 = 42 células)
+    const totalCells = 42; // 6 linhas x 7 colunas
     let daysArray = [];
 
-    // Preenche dias do mês anterior para posicionamento (grid)
+    // Preenche dias do mês anterior para alinhamento no grid
     if (startWeekIndex > 0) {
       let prevMonth = month - 1;
       let prevYear = year;
@@ -189,7 +189,7 @@ export async function createSingleDateCalendar(options = {}) {
     daysArray.forEach(obj => {
       const cell = document.createElement("div");
       cell.classList.add("calendar__date");
-      // Se não é do mês atual ou se a data é anterior a hoje, adiciona estilo de célula desabilitada
+      // Se a data não pertence ao mês atual ou for anterior a hoje, marca como desabilitada (cinza)
       if (!obj.inCurrent || obj.date < today) {
         cell.classList.add("calendar__date--grey");
       }
@@ -200,13 +200,29 @@ export async function createSingleDateCalendar(options = {}) {
       const priceSpan = document.createElement("span");
       priceSpan.classList.add("calendar__price");
 
-      // Converte a data para o formato "YYYY-MM-DD" para consulta no mapping
+      // Formata a data no formato "YYYY-MM-DD"
       const formattedDate = obj.date.toISOString().split("T")[0];
       if (obj.inCurrent && priceMapping[formattedDate] !== undefined) {
+        // Exibe o preço sem centavos
         const price = priceMapping[formattedDate];
-        priceSpan.textContent = price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        priceSpan.textContent = price.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        });
+        // Permite que a célula seja clicável
+        clickableDates.push(cell);
+        cell.addEventListener("click", () => {
+          clickableDates.forEach(c => c.classList.remove("calendar__date--range"));
+          cell.classList.add("calendar__date--range");
+          selectedDate = obj.date;
+        });
       } else if (obj.inCurrent) {
-        priceSpan.textContent = "Indisponível";
+        // Se não houver preço para o dia, não exibe nada
+        priceSpan.textContent = "";
+        // Garante a aparência desabilitada (cinza) sem adicionar evento de clique
+        cell.classList.add("calendar__date--grey");
       } else {
         priceSpan.textContent = "";
       }
@@ -215,15 +231,6 @@ export async function createSingleDateCalendar(options = {}) {
       inner.appendChild(priceSpan);
       cell.appendChild(inner);
 
-      // Se a data é do mês atual e não é anterior a hoje, torna a célula clicável
-      if (obj.date >= today && obj.inCurrent) {
-        clickableDates.push(cell);
-        cell.addEventListener("click", () => {
-          clickableDates.forEach(c => c.classList.remove("calendar__date--range"));
-          cell.classList.add("calendar__date--range");
-          selectedDate = obj.date;
-        });
-      }
       datesEl.appendChild(cell);
     });
   }
