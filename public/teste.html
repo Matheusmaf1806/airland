@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <title>Walt Disney World Resort - Ingressos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
-  
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
-  
+
   <!-- Scripts de Carrinho e Header -->
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
@@ -101,7 +101,8 @@
       background: #fafafa;
     }
     .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
-    /* O input é readonly para forçar o calendário customizado – exibe data no formato DD/MM/YYYY */
+    /* Input readonly para forçar o uso do calendário customizado;
+       exibe no formato DD/MM/AAAA, mas o valor ISO é armazenado no dataset */
     .date-input {
       width: 100%;
       padding: 8px 12px;
@@ -209,7 +210,7 @@
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
-    /* Exibe a data selecionada com ícone de calendário */
+    /* Classe para exibir a data com ícone de calendário */
     .ticket-date {
       font-size: 0.85rem;
       color: #555;
@@ -377,7 +378,7 @@
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label>Data e participantes</label>
-          <!-- O input exibe a data no formato DD/MM/YYYY e armazena a data em ISO no dataset -->
+          <!-- Input readonly: exibe data no formato DD/MM/AAAA, mas guarda data ISO no dataset -->
           <input type="text" id="arrival-date" class="date-input" readonly placeholder="DD/MM/AAAA">
           <div class="counters-row">
             <!-- Adultos -->
@@ -400,7 +401,7 @@
             </div>
           </div>
         </div>
-        <!-- Botão para atualizar a busca com a data selecionada -->
+        <!-- Botão para atualizar a busca com a nova data selecionada -->
         <button onclick="atualizarBusca()">Atualizar busca</button>
         <div class="non-refundable">
           <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
@@ -452,7 +453,7 @@
       return params.get(name);
     }
 
-    // Converte data ISO (YYYY-MM-DD) para exibição no formato DD/MM/YYYY
+    // Converte data ISO (YYYY-MM-DD) para exibição em DD/MM/YYYY
     function formatISOtoDisplay(isoString) {
       const parts = isoString.split("-");
       return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoString;
@@ -484,7 +485,7 @@
           const tickets = Array.isArray(data) ? data : [data];
           if (!tickets || tickets.length === 0) return;
 
-          // Atualiza o ticket-top-text (intervalo de durações e redeem_info)
+          // Atualiza o ticket-top-text com o intervalo de duração e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(t => t.duration).filter(Boolean);
           const minDur = durations.length ? Math.min(...durations) : null;
@@ -496,7 +497,7 @@
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
     
-          // Atualiza os dados gerais do produto usando o primeiro ticket
+          // Dados gerais do produto (usando o primeiro ingresso)
           const firstTicket = tickets[0];
           document.title = firstTicket.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = firstTicket.nome || "Produto Indisponível";
@@ -545,7 +546,7 @@
             highlightsList.style.display = "none";
           }
     
-          // Define o preço "A partir de" (menor valor dos ingressos para a data)
+          // Define o preço "A partir de" (menor valor dos ingressos)
           const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
@@ -566,7 +567,7 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
     
-          // Monta a lista de ingressos: exibe somente os tickets para a data selecionada
+          // Monta a lista de ingressos: exibe somente os ingressos para a data selecionada
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
@@ -577,21 +578,21 @@
             const ticketInfo = document.createElement("div");
             ticketInfo.classList.add("ticket-info");
     
-            // Define o nome do ingresso como "nome - modality_name"
+            // Nome do ingresso: "nome - modality_name"
             const ticketTitle = document.createElement("h3");
             const prodName = ticket.nome || "";
             const modName = ticket.modality_name || `Bilhete de ${ticket.duration} dias`;
-            ticketTitle.textContent = `${prodName} - ${modName}`;
+            ticketTitle.textContent = `${prodName} - ${modName}`.trim();
             ticketInfo.appendChild(ticketTitle);
     
-            // Redeem info como descrição (limpando quebras extras)
+            // Redeem info como descrição, limpando quebras extras
             const pDesc = document.createElement("p");
             let rText = ticket.redeem_info || "";
             rText = rText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
             pDesc.innerHTML = rText;
             ticketInfo.appendChild(pDesc);
     
-            // Sessões (se houver)
+            // Sessões, se houver
             if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
               const sess = document.createElement("div");
               sess.classList.add("ticket-sessions");
@@ -599,7 +600,7 @@
               ticketInfo.appendChild(sess);
             }
     
-            // Exibe a data pesquisada com ícone de calendário
+            // Exibe a data selecionada com ícone (utilizando o dataset.iso do input)
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
               const parts = arrivalDateIso.split("-");
@@ -615,7 +616,7 @@
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
     
-            // Calcula o preço para o ingresso (soma de preços de adultos e crianças)
+            // Calcula o preço para ingressos: (adultos x basePriceAdult) + (crianças x basePriceChild)
             const priceAdultModality = ticket.amount_adult || 0;
             const priceChildModality = ticket.amount_child || 0;
             const totalTicketPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
@@ -657,14 +658,14 @@
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
     
-            // Ao clicar em "Reserve agora", adiciona ao carrinho e abre o carrinho
+            // Botão "Reserve agora": adiciona ao carrinho e abre o carrinho
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
             reserveBtn.addEventListener("click", (e) => {
               e.stopPropagation();
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
-              // Monta o objeto do ingresso com os campos para o carrinho
+              // Monta o objeto do ingresso para o carrinho
               const cartItem = {
                 type: "INGRESSOS",
                 productName: `${firstTicket.nome || ""} - ${ticket.modality_name || ""}`.trim(),
@@ -686,7 +687,7 @@
         });
     }
     
-    // Atualiza os ingressos para a data selecionada (usando o dataset.iso do input)
+    // Atualiza os ingressos conforme a data selecionada (usando o dataset.iso do input)
     function atualizarBusca() {
       const dateISO = document.getElementById("arrival-date").dataset.iso;
       if (!dateISO) return;
@@ -718,10 +719,10 @@
       dateInput.dataset.iso = dataIngresso;
       dateInput.value = formatISOtoDisplay(dataIngresso);
       
-      // Carrega dados iniciais
+      // Carrega os dados iniciais
       loadProductData(dataIngresso);
       
-      // Configura os contadores
+      // Configura os contadores de adultos e crianças
       document.getElementById("btnAdultsMinus").addEventListener("click", () => {
         if (numAdults > 1) {
           numAdults--;
@@ -743,6 +744,7 @@
         document.getElementById("numChildrenValue").textContent = numChildren;
       });
     
+      // Botão Compartilhar
       document.getElementById("shareBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(window.location.href)
           .then(() => alert("URL copiada para a área de transferência!"))
@@ -774,7 +776,6 @@
         container.appendChild(calendarElement);
         document.body.appendChild(container);
     
-        // Fecha o calendário se clicar fora
         document.addEventListener("click", function handleOutside(e) {
           if (!container.contains(e.target) && e.target !== arrivalDateElem) {
             container.remove();
@@ -793,7 +794,7 @@
             arrivalDateElem.value = `${d}/${m}/${y}`;
           }
           container.remove();
-          // Ao atualizar a data, refaz a busca
+          // Ao atualizar a data via calendário, refaz a busca
           atualizarBusca();
         });
     
@@ -806,8 +807,5 @@
       }
     });
   </script>
-  
-  <!-- Carrega o script do carrinho real -->
-  <script src="global-cart.js"></script>
 </body>
 </html>
