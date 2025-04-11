@@ -178,7 +178,7 @@ export function createSingleDateCalendar() {
           // Remove a classe .calendar__date--range de todas as clicáveis
           clickableDates.forEach(c => c.classList.remove("calendar__date--range"));
           // Adiciona no item clicado
-          cell.classList.add("calendar__date--range");
+          cell.classList.add(".calendar__date--range-end::before");
           selectedDate = obj.date;
         });
       }
