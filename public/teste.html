@@ -7,10 +7,12 @@
   
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
   
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
   
@@ -174,7 +176,7 @@
       margin: 20px auto 40px;
       padding: 0 16px;
     }
-    /* A seguir, o ticket-top-text será preenchido dinamicamente */
+    /* Este elemento será preenchido dinamicamente com o intervalo "duration" e "redeem_info" */
     .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
     .ticket-list {
       display: flex;
@@ -205,8 +207,9 @@
       gap: 4px;
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
-    /* Aqui, substituiremos o texto fixo por "redeem_info" */
+    /* Utiliza o redeem_info para preencher a descrição do ingresso */
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
+    /* Se houver sessões, exibe os horários */
     .ticket-sessions {
       font-size: 0.85rem;
       color: #666;
@@ -442,7 +445,7 @@
   
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
-    <!-- O ticket-top-text será preenchido dinamicamente -->
+    <!-- ticket-top-text será preenchido dinamicamente -->
     <div class="ticket-top-text"></div>
     <div class="ticket-list">
       <!-- Itens dos tickets serão gerados dinamicamente -->
@@ -453,7 +456,7 @@
   <div class="content-section">
     <h2>Sobre o Produto</h2>
     <p id="product-description">Carregando descrição do produto...</p>
-    <!-- Se não houver destaques, a seção será ocultada -->
+    <!-- Se não houver destaques, a seção será oculta -->
     <h2 id="highlights-header">Destaques</h2>
     <ul class="highlights-list"></ul>
     <h2>Política de Cancelamento</h2>
@@ -484,25 +487,17 @@
       const childrenElem = document.getElementById("numChildrenValue");
   
       document.getElementById("btnAdultsMinus").addEventListener("click", () => {
-        if (numAdults > 1) {
-          numAdults--;
-          adultsElem.textContent = numAdults;
-        }
+        if (numAdults > 1) { numAdults--; adultsElem.textContent = numAdults; }
       });
       document.getElementById("btnAdultsPlus").addEventListener("click", () => {
-        numAdults++;
-        adultsElem.textContent = numAdults;
+        numAdults++; adultsElem.textContent = numAdults;
       });
   
       document.getElementById("btnChildrenMinus").addEventListener("click", () => {
-        if (numChildren > 0) {
-          numChildren--;
-          childrenElem.textContent = numChildren;
-        }
+        if (numChildren > 0) { numChildren--; childrenElem.textContent = numChildren; }
       });
       document.getElementById("btnChildrenPlus").addEventListener("click", () => {
-        numChildren++;
-        childrenElem.textContent = numChildren;
+        numChildren++; childrenElem.textContent = numChildren;
       });
   
       document.getElementById("shareBtn").addEventListener("click", () => {
@@ -512,7 +507,7 @@
       });
     });
   
-    // Função para aplicar/remover a classe "active" nos tickets
+    // Função para aplicar a classe "active" em tickets
     function toggleActive(element) {
       const allTickets = document.querySelectorAll(".ticket-item");
       allTickets.forEach(ticket => ticket.classList.remove("active"));
@@ -525,7 +520,7 @@
       return params.get(name);
     }
   
-    // Ao carregar o DOM, faz o fetch da API para preencher a página
+    // Ao carregar o DOM, faz o fetch da API para preencher os dados
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
       const dataIngresso = getUrlParameter("dataIngresso");
@@ -540,19 +535,13 @@
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          let tickets = [];
-          if (Array.isArray(data)) {
-            tickets = data;
-          } else {
-            tickets = [data];
-          }
+          let tickets = Array.isArray(data) ? data : [data];
   
-          // Atualiza o ticket-top-text com intervalo de "duration" e "redeem_info"
+          // Preenche ticket-top-text com intervalo de duration e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(item => item.duration).filter(d => d !== undefined);
-          let minDuration = durations.length > 0 ? Math.min(...durations) : null;
-          let maxDuration = durations.length > 0 ? Math.max(...durations) : null;
-          // Usa o redeem_info do primeiro item, se disponível
+          let minDuration = durations.length ? Math.min(...durations) : null;
+          let maxDuration = durations.length ? Math.max(...durations) : null;
           let redeemInfo = tickets[0].redeem_info || "Ingresso digital";
           if (minDuration !== null && maxDuration !== null) {
             topTextElem.innerHTML = `<strong>${minDuration} a ${maxDuration} dias</strong> • <strong>${redeemInfo}</strong>`;
@@ -560,13 +549,13 @@
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
   
-          // Atualiza os dados do produto usando o primeiro ingresso para informações comuns
+          // Usa o primeiro ingresso para dados comuns do produto
           const ticketForProduct = tickets[0];
           document.title = ticketForProduct.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
           document.querySelector(".location").textContent = ticketForProduct.destination_name || "";
   
-          // Banner principal
+          // Atualiza o banner principal
           if (ticketForProduct.media && ticketForProduct.media.length > 0) {
             const media = ticketForProduct.media[0];
             let imgUrl = "";
@@ -577,7 +566,7 @@
             document.querySelector(".main-banner img").src = imgUrl;
           }
   
-          // Mini-imagens
+          // Atualiza as mini-imagens
           if (ticketForProduct.media && ticketForProduct.media.length > 1) {
             const miniImages = document.querySelectorAll(".mini-images img");
             miniImages.forEach((img, index) => {
@@ -589,15 +578,14 @@
             });
           }
   
-          // Descrição do produto – colapsa múltiplas quebras de linha para uma única
+          // Atualiza a descrição do produto e corrige quebras de linha múltiplas
           const descElement = document.getElementById("product-description");
           if (descElement) {
             const rawDesc = ticketForProduct.descricao || "Descrição não disponível.";
-            // Substitui múltiplos quebras de linha por uma única
             descElement.innerHTML = rawDesc.replace(/(\r\n|\n|\r){2,}/gm, "$1");
           }
   
-          // Destaques – se não houver highlights, oculta a seção
+          // Atualiza os destaques; oculta se não houver
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
           if (ticketForProduct.highlights && ticketForProduct.highlights.length > 0) {
@@ -612,7 +600,7 @@
             highlightsList.style.display = "none";
           }
   
-          // Preço do ingresso para adultos, salvo globalmente para o calendário
+          // Atualiza preços e guarda o preço para adultos globalmente
           let priceAdult = ticketForProduct.top_level_adult_price || ticketForProduct.amount_adult || 0;
           window.globalAmountAdult = priceAdult;
           const currency = ticketForProduct.currency || "BRL";
@@ -623,12 +611,11 @@
           let installmentValue = priceAdult / 10;
           const formattedInstallment = installmentValue.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".installment-info").textContent = `em até 10x sem juros de ${formattedInstallment}`;
-  
           let pixPrice = priceAdult * 0.95;
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
   
-          // Monta a lista de ingressos – exibe todos os itens disponíveis
+          // Preenche a lista de ingressos exibindo todos os itens
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
@@ -642,7 +629,7 @@
             ticketTitle.textContent = ticket.modality_name || `Bilhete base de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
   
-            // Utiliza o redeem_info no lugar da mensagem fixa; garante que apenas uma quebra de linha seja mantida.
+            // Usa redeem_info para a descrição; corrige quebras de linha
             const ticketDesc = document.createElement("p");
             let redeemText = ticket.redeem_info || "";
             redeemText = redeemText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
@@ -662,7 +649,6 @@
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
   
-            // Calcula o preço total com base em numAdults e numChildren
             const priceAdultModality = ticket.amount_adult || 0;
             const priceChildModality = ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
@@ -671,7 +657,6 @@
             const formattedTotalPrice = totalPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
             ticketPriceDiv.textContent = formattedTotalPrice;
   
-            // Adiciona um tooltip para desconto Pix
             const tooltip = document.createElement("small");
             tooltip.classList.add("tooltip");
             tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalPrice * 0.95).toLocaleString("pt-BR", { style: "currency", currency: currency })}</span>`;
@@ -729,12 +714,12 @@
       import("/js/calcomuni.js")
         .then(module => {
           const { createSingleDateCalendar } = module;
-          // Usa o preço de adultos (globalAmountAdult) obtido via API como base
+          // Usa o preço para adultos global obtido via API como base
           const basePrice = window.globalAmountAdult || 0;
           const calendarData = createSingleDateCalendar(basePrice);
           const calendarElement = calendarData.element;
   
-          // Cria um container ABSOLUTO para posicionar o calendário
+          // Cria um container ABSOLUTO para o calendário
           const container = document.createElement("div");
           container.style.position = "absolute";
           container.style.zIndex = "9999";
@@ -747,7 +732,7 @@
           container.appendChild(calendarElement);
           document.body.appendChild(container);
   
-          // Fecha o calendário se clicar fora dele
+          // Fecha o calendário ao clicar fora
           document.addEventListener("click", function handleOutside(e) {
             if (!container.contains(e.target) && e.target !== arrivalDateElem) {
               container.remove();
@@ -755,7 +740,7 @@
             }
           });
   
-          // Ao clicar em "Confirmar", atualiza o input com a data selecionada
+          // Ao confirmar, atualiza o input com a data selecionada
           const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
           btnConfirm.addEventListener("click", () => {
             const selected = calendarData.getSelectedDate();
