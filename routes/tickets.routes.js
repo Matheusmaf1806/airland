@@ -11,14 +11,15 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABAS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 router.get('/', async (req, res) => {
-  // Recebe os parâmetros tanto para destination/date quanto para activityCode/dataIngresso
+  // Recebe os parâmetros para destination/date ou activityCode/dataIngresso
+  // Também contempla os parâmetros start_date e end_date para intervalos de datas
   const { destination, date, activityCode, dataIngresso, start_date, end_date } = req.query;
 
   let tableName, dateColumn;
   let query;
 
   if (activityCode) {
-    // Se a consulta usar activityCode (usada para activities_bd)
+    // Se a consulta for feita por activityCode, utilizamos a tabela 'activities_bd'
     tableName = 'activities_bd';
     dateColumn = 'date';
     query = supabase
@@ -26,20 +27,20 @@ router.get('/', async (req, res) => {
       .select('*')
       .eq('activity_code', activityCode);
       
-    // Se foram enviados start_date e end_date, filtra um intervalo de datas
+    // Se start_date e end_date estiverem presentes, filtra pelo intervalo completo
     if (start_date && end_date) {
       query = query.gte(dateColumn, start_date).lte(dateColumn, end_date);
     }
-    // Senão, se for apenas dataIngresso, filtra por essa data exata
+    // Senão, se for passado apenas dataIngresso (um dia específico), filtra por esse dia exato
     else if (dataIngresso) {
       query = query.eq(dateColumn, dataIngresso);
     }
   } else if (destination) {
-    // Se a consulta usar destination e date (para tabela tickets)
+    // Se a consulta for feita por destination, a tabela padrão é 'tickets'
     tableName = 'tickets';
     dateColumn = 'event_date';
 
-    // Se o destino for MCO, usa outra tabela (activities_bd) conforme sua lógica
+    // Se o destination for "MCO", usamos a tabela 'activities_bd' e a coluna "date"
     if (destination.toUpperCase() === 'MCO') {
       tableName = 'activities_bd';
       dateColumn = 'date';
