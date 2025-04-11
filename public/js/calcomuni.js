@@ -1,7 +1,7 @@
 // public/js/calcomuni.js
 export function createSingleDateCalendar(basePrice) {
-  // Valor para variação diária – ajuste conforme necessário
-  const dailyIncrement = 5; // R$5,00 de incremento por dia
+  // Se desejar variar o preço ao longo do mês, defina um incremento diário; se não, use 0.
+  const dailyIncrement = 5; // Exemplo: R$5,00 a mais para cada dia seguinte
 
   // =================== 1) Criação da Estrutura do Calendário ===================
   const calendarEl = document.createElement("div");
@@ -76,7 +76,7 @@ export function createSingleDateCalendar(basePrice) {
   function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
   }
-  // A função abaixo faz a semana começar na segunda (0 = segunda, 6 = domingo)
+  // Faz a semana começar na segunda (0 = segunda, 6 = domingo)
   function getWeekDayIndex(date) {
     return (date.getDay() + 6) % 7;
   }
@@ -96,7 +96,7 @@ export function createSingleDateCalendar(basePrice) {
     const totalDays = getDaysInMonth(year, month);
     const firstDay = new Date(year, month, 1);
     const startWeekIndex = getWeekDayIndex(firstDay);
-    const totalCells = 42;
+    const totalCells = 42; // Grade 6x7
     let daysArray = [];
 
     // Dias do mês anterior
@@ -149,6 +149,7 @@ export function createSingleDateCalendar(basePrice) {
     daysArray.forEach(obj => {
       const cell = document.createElement("div");
       cell.classList.add("calendar__date");
+      // Se a data não é do mês atual ou é anterior a hoje, aplica classe grisalha
       if (!obj.inCurrent || obj.date < today) {
         cell.classList.add("calendar__date--grey");
       }
@@ -158,7 +159,7 @@ export function createSingleDateCalendar(basePrice) {
       daySpan.textContent = obj.day;
       const priceSpan = document.createElement("span");
       priceSpan.classList.add("calendar__price");
-      // Calcula o preço dinamicamente: basePrice + incremento diário (ex.: R$5,00 por dia)
+      // Calcula o preço para este dia: basePrice + incremento diário * (dia - 1)
       const price = basePrice + ((obj.day - 1) * dailyIncrement);
       priceSpan.textContent = price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
       inner.appendChild(daySpan);
@@ -186,7 +187,7 @@ export function createSingleDateCalendar(basePrice) {
   selectMonth.addEventListener("change", onChangeMonthYear);
   selectYear.addEventListener("change", onChangeMonthYear);
   
-  // =================== 6) Inicialização no Mês Vigente ===================
+  // =================== 6) Inicializa no Mês Vigente ===================
   selectYear.value = today.getFullYear();
   selectMonth.value = today.getMonth();
   buildCalendar(today.getFullYear(), today.getMonth());
