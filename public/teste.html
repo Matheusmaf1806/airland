@@ -7,460 +7,134 @@
 
   <!-- FONTE MONTSERRAT -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" />
 
   <!-- Font Awesome (opcional) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="css/cart.css">
-  <link rel="preload" href="css/cart.css" as="style">
-  <link rel="preload" href="css/calcom.css" as="style">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="stylesheet" href="/css/cart.css">
+  <link rel="stylesheet" href="/css/calcom.css">
 
   <script src="/js/cart-component.js" defer></script>
   <script src="/js/header-component.js" type="module"></script>
 
   <style>
     /* RESET / BASE */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: white;
-      color: #333;
-      line-height: 1.4;
-      position: relative;
-    }
-    input, select, textarea, button {
-      font-family: 'Montserrat', sans-serif !important;
-    }
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-    button {
-      cursor: pointer;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: white; color: #333; line-height: 1.4; position: relative; }
+    input, select, textarea, button { font-family: 'Montserrat', sans-serif !important; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
     
     /* HEADER EXTERNO */
-    #externalHeader {
-      width: 100%;
-      border-bottom: 1px solid #eee;
-    }
-
-    /* CONTÊINER PRINCIPAL (DUAS COLUNAS) */
-    .main-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px 16px;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
+    #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
+    
+    /* CONTÊINER PRINCIPAL */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; display: flex; gap: 20px; flex-wrap: wrap; }
     /* COLUNA ESQUERDA */
-    .left-column {
-      flex: 1 1 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .main-banner {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .main-banner img {
-      width: 100%;
-      height: auto;
-      display: block;
-      object-fit: cover;
-    }
-    .mini-images {
-      display: flex;
-      gap: 8px;
-    }
-    .mini-images img {
-      flex: 1;
-      border-radius: 6px;
-      width: 100%;
-      height: 130px;
-      object-fit: cover;
-      background: #eee;
-    }
-
+    .left-column { flex: 1 1 600px; display: flex; flex-direction: column; gap: 16px; }
+    .main-banner { width: 100%; border-radius: 8px; overflow: hidden; }
+    .main-banner img { width: 100%; height: auto; display: block; object-fit: cover; }
+    .mini-images { display: flex; gap: 8px; }
+    .mini-images img { flex: 1; border-radius: 6px; width: 100%; height: 130px; object-fit: cover; background: #eee; }
+    
     /* COLUNA DIREITA */
-    .right-column {
-      flex: 1 1 300px;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .right-column { flex: 1 1 300px; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+    .product-title { font-size: 1.8rem; font-weight: 600; color: #333; }
+    .stars-reviews { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #666; }
+    .stars-reviews i { color: #f1c40f; }
+    .location { font-size: 0.9rem; color: #999; margin-bottom: 8px; }
+    .action-buttons { display: flex; gap: 10px; }
+    .action-buttons button { background: none; border: 1px solid #ccc; border-radius: 4px; padding: 8px 12px; font-size: 0.85rem; color: #555; transition: background 0.2s; }
+    .action-buttons button:hover { background: #f1f1f1; }
+    
+    /* BOX DE PREÇO / RESERVA */
+    .price-box { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .price-label { font-size: 0.8rem; color: #888; }
+    .price-value { font-size: 1.4rem; font-weight: 600; }
+    .installment-info, .pix-discount { font-size: 0.85rem; color: #666; }
+    .pix-discount { color: #27ae60; font-weight: 500; }
+    .date-participants { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    
+    /* CONTROLES DE PARTICIPANTES (BOTÕES + E -) */
+    .counters-row { display: flex; gap: 16px; }
+    .counter-box { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .counter-control { display: flex; align-items: center; gap: 10px; }
+    .btn-counter {
+      width: 32px; height: 32px; border: 1px solid #ccc; border-radius: 4px;
+      background: #f9f9f9; font-size: 1.2rem; font-weight: 600; color: #333;
+      cursor: pointer; transition: background 0.2s;
     }
-    .product-title {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #333;
-    }
-    .stars-reviews {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .stars-reviews i {
-      color: #f1c40f;
-    }
-    .location {
-      font-size: 0.9rem;
-      color: #999;
-      margin-bottom: 8px;
-    }
-    .action-buttons {
-      display: flex;
-      gap: 10px;
-    }
-    .action-buttons button {
-      background: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      color: #555;
-      transition: background 0.2s;
-    }
-    .action-buttons button:hover {
-      background: #f1f1f1;
-    }
-
-    /* BOX DE PREÇO / RESERVA (COLUNA DIREITA) */
-    .price-box {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .price-label {
-      font-size: 0.8rem;
-      color: #888;
-    }
-    .price-value {
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
-    .installment-info,
-    .pix-discount {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .pix-discount {
-      color: #27ae60;
-      font-weight: 500;
-    }
-    .date-participants {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .date-participants input,
-    .date-participants select {
-      width: 100%;
-      height: 38px;
-      padding: 0 8px;
-      font-size: 0.9rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+    .btn-counter:hover { background: #eee; }
+    .btn-counter:active { background: #ddd; }
+    
     .price-box button {
-      width: 100%;
-      background: #00a0e3;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background 0.3s;
-      margin-top: 4px;
+      width: 100%; background: #00a0e3; color: #fff; border: none; border-radius: 6px;
+      padding: 12px; font-size: 1rem; font-weight: 500; transition: background 0.3s; margin-top: 4px;
     }
-    .price-box button:hover {
-      background: #008dc8;
-    }
-    .non-refundable {
-      font-size: 0.8rem;
-      color: #999;
-    }
+    .price-box button:hover { background: #008dc8; }
+    .non-refundable { font-size: 0.8rem; color: #999; }
     .warning {
-      background: #fff7e6;
-      border: 1px solid #ffe4b8;
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 0.85rem;
-      color: #aa6a1f;
-      margin-top: 4px;
-      display: flex;
-      gap: 4px;
-      align-items: center;
+      background: #fff7e6; border: 1px solid #ffe4b8; border-radius: 6px; padding: 10px;
+      font-size: 0.85rem; color: #aa6a1f; margin-top: 4px; display: flex; gap: 4px; align-items: center;
     }
-    .warning i {
-      color: #aa6a1f;
-    }
-
-    /* SEÇÃO DE INGRESSOS (LISTA) */
-    .ticket-section {
-      max-width: 1200px;
-      margin: 20px auto 40px;
-      padding: 0 16px;
-    }
-    .ticket-top-text {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 16px;
-    }
-    .ticket-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .warning i { color: #aa6a1f; }
+    
+    /* SEÇÃO DE INGRESSOS */
+    .ticket-section { max-width: 1200px; margin: 20px auto 40px; padding: 0 16px; }
+    .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
+    .ticket-list { display: flex; flex-direction: column; gap: 16px; }
     .ticket-item {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      transition: box-shadow 0.2s, border 0.2s;
-      cursor: pointer;
+      background: #fff; border: 1px solid #eee; border-radius: 8px;
+      padding: 16px; display: flex; align-items: flex-start;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      transition: box-shadow 0.2s, border 0.2s; cursor: pointer;
     }
-    .ticket-item:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .ticket-item.active {
-      border: 2px solid #00a0e3;
-      box-shadow: 0 2px 8px rgba(0,160,227,0.15);
-    }
-    .ticket-info {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .ticket-info h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #333;
-    }
-    .ticket-info p {
-      font-size: 0.85rem;
-      color: #777;
-      line-height: 1.3;
-    }
-    .price-and-action {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
+    .ticket-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .ticket-item.active { border: 2px solid #00a0e3; box-shadow: 0 2px 8px rgba(0,160,227,0.15); }
+    .ticket-info { display: flex; flex-direction: column; gap: 4px; }
+    .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
+    .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
+    .price-and-action { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .ticket-price {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #444;
-      text-align: right;
-      display: inline-flex;
-      align-items: center;
-      white-space: nowrap;
+      font-size: 1rem; font-weight: 600; color: #444; text-align: right;
+      display: inline-flex; align-items: center; white-space: nowrap;
     }
-    .installment-info-item,
-    .pix-discount-item {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    .pix-discount-item {
-      color: #27ae60;
-      font-weight: 500;
-    }
+    .installment-info-item, .pix-discount-item { font-size: 0.85rem; color: #666; }
+    .pix-discount-item { color: #27ae60; font-weight: 500; }
     .reserve-now-btn {
-      background: #00a0e3;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: background 0.3s;
-      cursor: pointer;
+      background: #00a0e3; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 14px; font-size: 0.9rem; font-weight: 500; transition: background 0.3s; cursor: pointer;
     }
-    .reserve-now-btn:hover {
-      background: #008dc8;
-    }
-
-    /* SEÇÃO DE CONTEÚDO ADICIONAL */
-    .content-section {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 0 16px;
-    }
-    .content-section h2 {
-      font-size: 1.4rem;
-      margin-bottom: 12px;
-      color: #333;
-      font-weight: 600;
-    }
-    .content-section p {
-      font-size: 0.95rem;
-      color: #555;
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-    .highlights-list {
-      list-style: none;
-      margin-bottom: 16px;
-    }
-    .highlights-list li {
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-      color: #555;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .highlights-list li i {
-      color: #00a0e3;
-    }
-    .tooltip {
-      position: relative;
-      cursor: pointer;
-      margin-left: 6px;
-      display: inline-block;
-    }
+    .reserve-now-btn:hover { background: #008dc8; }
+    
+    /* CONTEÚDO ADICIONAL */
+    .content-section { max-width: 1200px; margin: 20px auto; padding: 0 16px; }
+    .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
+    .content-section p { font-size: 0.95rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
+    .highlights-list { list-style: none; margin-bottom: 16px; }
+    .highlights-list li { margin-bottom: 8px; font-size: 0.95rem; color: #555; display: flex; align-items: center; gap: 6px; }
+    .highlights-list li i { color: #00a0e3; }
+    .tooltip { position: relative; cursor: pointer; margin-left: 6px; display: inline-block; }
     .tooltip .tooltip-text {
-      visibility: hidden;
-      width: auto;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 4px;
-      padding: 6px 8px;
-      position: absolute;
-      bottom: 120%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.85rem;
-      line-height: 1.2;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 999;
+      visibility: hidden; width: auto; background-color: #333; color: #fff; text-align: center;
+      border-radius: 4px; padding: 6px 8px; position: absolute; bottom: 120%; left: 50%;
+      transform: translateX(-50%); font-size: 0.85rem; line-height: 1.2; white-space: nowrap;
+      opacity: 0; transition: opacity 0.2s ease; z-index: 999;
     }
-    .tooltip:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
-
+    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+    
     /* RODAPÉ */
-    footer {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #999;
-      padding: 20px 0;
-      border-top: 1px solid #eee;
-      background: #fff;
-    }
-
-    /* ---------------------------
-       ESTILOS DO CARRINHO SUSPENSO (exemplo)
-       --------------------------- */
-    .cart-container {
-      /* Defina aqui estilos se necessário */
-    }
-    .cart-footer {
-      flex-shrink: 0;
-      border-top: 1px solid #eee;
-      padding: 1rem;
-      background: #fff;
-    }
-    .coupon-section {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px dashed #ccc;
-      border-radius: 6px;
-      padding: 8px;
-      margin-bottom: 1rem;
-      background: #fcfcfc;
-    }
-    .coupon-icon {
-      width: 30px;
-      height: 30px;
-      fill: #666;
-      flex-shrink: 0;
-    }
-    .coupon-input-box {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .coupon-input-box label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #555;
-    }
-    .coupon-input-box input {
-      width: 100%;
-      height: 32px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 0 8px;
-      font-size: 0.85rem;
-      color: #333;
-    }
-    .price-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.2rem;
-    }
-    .price-line .green {
-      color: #2a942f;
-      font-weight: 600;
-    }
-    .total-line {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 600;
-      margin: 0.5rem 0 1rem;
-    }
-    .checkout-btn {
-      width: 100%;
-      background: #35b473;
-      border: none;
-      color: #fff;
-      font-size: 0.9rem;
-      border-radius: 6px;
-      padding: 0.7rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .checkout-btn:hover {
-      background: #2d9e64;
-    }
+    footer { text-align: center; font-size: 0.85rem; color: #999; padding: 20px 0; border-top: 1px solid #eee; background: #fff; }
   </style>
 </head>
 <body>
-
-<app-header></app-header>
-
-  <!-- CONTEÚDO PRINCIPAL (DUAS COLUNAS) -->
+  <app-header></app-header>
+  
+  <!-- CONTEÚDO PRINCIPAL -->
   <div class="main-container">
-    <!-- COLUNA ESQUERDA: Banner + Mini-imagens -->
+    <!-- COLUNA ESQUERDA -->
     <div class="left-column">
       <div class="main-banner">
         <img src="placeholder-banner.jpg" alt="Banner Dinâmico">
@@ -471,44 +145,53 @@
         <img src="placeholder-mini3.jpg" alt="Mini Imagem 3">
       </div>
     </div>
-
-    <!-- COLUNA DIREITA: Título, Avaliações, Box de Preço -->
+    <!-- COLUNA DIREITA -->
     <div class="right-column">
       <h1 class="product-title">Carregando...</h1>
       <div class="stars-reviews">
         <div class="stars">
-          <i class="fas fa-star"></i> <i class="fas fa-star"></i>
-          <i class="fas fa-star"></i> <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
           <i class="fas fa-star-half-alt"></i>
         </div>
         <span>79 avaliações</span>
       </div>
       <div class="location">Carregando localização...</div>
-      
       <div class="action-buttons">
         <button id="shareBtn"><i class="fas fa-share"></i> Compartilhar</button>
         <button><i class="far fa-heart"></i> Minha lista de desejos</button>
       </div>
-
       <!-- BOX DE PREÇO / RESERVA -->
       <div class="price-box">
         <span class="price-label">A partir de</span>
         <div class="price-value">Carregando preço...</div>
         <div class="installment-info">Carregando parcelamento...</div>
         <div class="pix-discount">Carregando desconto...</div>
-
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
           <input type="date" id="arrival-date" value="2025-03-20">
-          <div style="display: flex; gap:8px;">
-            <select id="numAdults">
-              <option value="1" selected>1 adulto</option>
-              <!-- Aqui você pode adicionar lógica para incrementar o número de adultos -->
-            </select>
-            <select id="numChildren">
-              <option value="0" selected>0 crianças</option>
-              <!-- Aqui você pode adicionar lógica para incrementar o número de crianças -->
-            </select>
+          <!-- Controles de Participantes (botões de + e -) -->
+          <div class="counters-row">
+            <!-- Adultos -->
+            <div class="counter-box">
+              <label for="numAdultsValue">Adultos</label>
+              <div class="counter-control">
+                <button type="button" id="btnAdultsMinus" class="btn-counter">-</button>
+                <span id="numAdultsValue">1</span>
+                <button type="button" id="btnAdultsPlus" class="btn-counter">+</button>
+              </div>
+            </div>
+            <!-- Crianças -->
+            <div class="counter-box">
+              <label for="numChildrenValue">Crianças</label>
+              <div class="counter-control">
+                <button type="button" id="btnChildrenMinus" class="btn-counter">-</button>
+                <span id="numChildrenValue">0</span>
+                <button type="button" id="btnChildrenPlus" class="btn-counter">+</button>
+              </div>
+            </div>
           </div>
         </div>
         <button onclick="atualizarBusca()">Atualizar busca</button>
@@ -522,29 +205,26 @@
       </div>
     </div>
   </div>
-
-  <!-- SEÇÃO DE INGRESSOS (LISTA) -->
+  
+  <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
     <div class="ticket-top-text">
-      <strong>Carregando dias e tipo de ingresso...</strong> • <strong>Ingresso digital</strong>
-      <br>
+      <strong>Carregando dias e tipo de ingresso...</strong> • <strong>Ingresso digital</strong><br>
       Escolha abaixo quantos dias você deseja e obtenha o valor final. Confira também políticas de cancelamento e detalhes adicionais.
     </div>
     <div class="ticket-list">
-      <!-- Os itens dos tickets serão preenchidos dinamicamente -->
+      <!-- Os itens dos tickets serão gerados dinamicamente -->
     </div>
   </section>
-
-  <!-- SEÇÃO DE CONTEÚDO ADICIONAL -->
+  
+  <!-- CONTEÚDO ADICIONAL -->
   <div class="content-section">
     <h2>Sobre o Produto</h2>
     <p>Carregando descrição do produto...</p>
-
     <h2>Destaques</h2>
     <ul class="highlights-list">
       <!-- Itens de destaque serão inseridos dinamicamente -->
     </ul>
-
     <h2>Política de Cancelamento</h2>
     <p>
       Os ingressos não são reembolsáveis após a confirmação da compra.
@@ -552,89 +232,83 @@
       verificar possíveis soluções.
     </p>
   </div>
-
+  
   <!-- RODAPÉ -->
   <footer>
     © 2025 - Layout estilo Airland • Todos os direitos reservados
   </footer>
-
-  <!-- SCRIPTS DINÂMICOS -->
+  
+  <!-- SCRIPT: FUNÇÕES GERAIS, API E CONTROLE DOS TICKETS -->
   <script>
-    // Função para atualizar a busca (exemplo de uso dos valores selecionados)
+    // Função para atualizar a busca (exemplo para exibir os valores selecionados)
     function atualizarBusca() {
-      const dateValue = document.getElementById('arrival-date').value;
-      const numAdults = document.getElementById('numAdults').value;
-      const numChildren = document.getElementById('numChildren').value;
-      alert("Data: " + dateValue + "\nAdultos: " + numAdults + "\nCrianças: " + numChildren);
-      // Aqui você pode adicionar lógica para recalcular os valores de preço, se necessário.
+      const dateValue = document.getElementById("arrival-date").value;
+      // Agora usamos as variáveis globais para participantes
+      alert(`Data: ${dateValue}\nAdultos: ${numAdults}\nCrianças: ${numChildren}`);
+      // Aqui, você pode adicionar lógica extra para recalcular preços, se necessário.
     }
-
-    // Função para aplicar ou remover a classe "active" nos bilhetes
+  
+    // Função para aplicar/remover a classe "active" dos itens de ticket
     function toggleActive(element) {
-      const allTickets = document.querySelectorAll('.ticket-item');
-      allTickets.forEach(ticket => ticket.classList.remove('active'));
-      element.classList.add('active');
+      const allTickets = document.querySelectorAll(".ticket-item");
+      allTickets.forEach(ticket => ticket.classList.remove("active"));
+      element.classList.add("active");
     }
-
+  
     // Função para copiar a URL para a área de transferência
-    document.getElementById('shareBtn').addEventListener('click', function() {
+    document.getElementById("shareBtn").addEventListener("click", function () {
       navigator.clipboard.writeText(window.location.href)
         .then(() => alert("URL copiada para a área de transferência!"))
         .catch(() => alert("Erro ao copiar a URL."));
     });
-
+  
     // Função para obter parâmetros da URL
     function getUrlParameter(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
     }
-
-    // Ao carregar o DOM, buscar os dados da API e preencher a página
-    document.addEventListener('DOMContentLoaded', function() {
-      const activityCode = getUrlParameter('activityCode');
-      const dataIngresso = getUrlParameter('dataIngresso');
-
+  
+    // Ao carregar o DOM, busca os dados da API e preenche a página
+    document.addEventListener("DOMContentLoaded", function () {
+      const activityCode = getUrlParameter("activityCode");
+      const dataIngresso = getUrlParameter("dataIngresso");
+  
       if (!activityCode || !dataIngresso) {
-        console.error('Parâmetros activityCode e dataIngresso não foram fornecidos na URL.');
+        console.error("Parâmetros activityCode e dataIngresso não foram fornecidos na URL.");
         return;
       }
-
+  
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dataIngresso}`;
-
+  
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          // Supondo que a API retorne um objeto ou um array com os dados do ticket
           let ticket;
           if (Array.isArray(data) && data.length > 0) {
             ticket = data[0];
           } else {
             ticket = data;
           }
-          
+  
           document.title = ticket.nome || "Título Padrão";
-
-          // Atualiza o título do produto (usando a propriedade "nome")
-          document.querySelector('.product-title').textContent = ticket.nome || 'Produto Indisponível';
-
-          // Atualiza a localização (usando "destination_name")
-          document.querySelector('.location').textContent = ticket.destination_name || '';
-
-          // Atualiza a imagem do banner principal com o primeiro item de media
+          document.querySelector(".product-title").textContent = ticket.nome || "Produto Indisponível";
+          document.querySelector(".location").textContent = ticket.destination_name || "";
+  
+          // Atualiza o banner principal
           if (ticket.media && ticket.media.length > 0) {
             const media = ticket.media[0];
-            let imgUrl = '';
+            let imgUrl = "";
             if (Array.isArray(media.urls)) {
               const largeImg = media.urls.find(urlObj => urlObj.width >= 1024) || media.urls[0];
               imgUrl = largeImg.resource;
             }
-            document.querySelector('.main-banner img').src = imgUrl;
+            document.querySelector(".main-banner img").src = imgUrl;
           }
-
-          // Atualiza as mini-imagens (usando os próximos itens de media, se disponíveis)
+  
+          // Atualiza as mini-imagens
           if (ticket.media && ticket.media.length > 1) {
-            const miniImagesElements = document.querySelectorAll('.mini-images img');
-            miniImagesElements.forEach((img, index) => {
+            const miniImages = document.querySelectorAll(".mini-images img");
+            miniImages.forEach((img, index) => {
               if (ticket.media[index + 1] && ticket.media[index + 1].urls) {
                 const urls = ticket.media[index + 1].urls;
                 const largeImg = urls.find(urlObj => urlObj.width >= 1024) || urls[0];
@@ -642,101 +316,98 @@
               }
             });
           }
-
+  
           // Atualiza a descrição do produto
-          const descElement = document.querySelector('.content-section p');
+          const descElement = document.querySelector(".content-section p");
           if (descElement) {
-            descElement.innerHTML = ticket.descricao || 'Descrição não disponível.';
+            descElement.innerHTML = ticket.descricao || "Descrição não disponível.";
           }
-
+  
           // Atualiza os destaques
           if (ticket.highlights && Array.isArray(ticket.highlights)) {
-            const highlightsList = document.querySelector('.highlights-list');
-            highlightsList.innerHTML = '';
+            const highlightsList = document.querySelector(".highlights-list");
+            highlightsList.innerHTML = "";
             ticket.highlights.forEach(item => {
-              const li = document.createElement('li');
+              const li = document.createElement("li");
               li.innerHTML = `<i class="fas fa-check"></i> ${item}`;
               highlightsList.appendChild(li);
             });
           }
-
-          // Atualiza os valores de preço na price-box
+  
+          // Atualiza os valores de preço
           let priceAdult = ticket.top_level_adult_price || ticket.amount_adult || 0;
-          const currency = ticket.currency || 'BRL';
-          const formattedPrice = priceAdult.toLocaleString('pt-BR', { style: 'currency', currency: currency });
-          document.querySelector('.price-value').innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
-
-          // Atualiza a informação de parcelamento
+          const currency = ticket.currency || "BRL";
+          const formattedPrice = priceAdult.toLocaleString("pt-BR", { style: "currency", currency: currency });
+          document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
+  
+          // Parcelamento
           let installmentValue = priceAdult / 10;
-          const formattedInstallment = installmentValue.toLocaleString('pt-BR', { style: 'currency', currency: currency });
-          document.querySelector('.installment-info').textContent = `em até 10x sem juros de ${formattedInstallment}`;
-
-          // Atualiza o desconto no Pix (5% off)
+          const formattedInstallment = installmentValue.toLocaleString("pt-BR", { style: "currency", currency: currency });
+          document.querySelector(".installment-info").textContent = `em até 10x sem juros de ${formattedInstallment}`;
+  
+          // Desconto no Pix (5%)
           let pixPrice = priceAdult * 0.95;
-          const formattedPixPrice = pixPrice.toLocaleString('pt-BR', { style: 'currency', currency: currency });
-          document.querySelector('.pix-discount').textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
-
-          // Atualiza a seção de ingressos (ticket-list)
-          // Se a API retornar um array "modalities", usamos esse array; caso contrário, usamos o próprio ticket
+          const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
+          document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
+  
+          // Atualiza a seção de ingressos
           const modalities = ticket.modalities || [ticket];
-          const ticketListContainer = document.querySelector('.ticket-list');
-          ticketListContainer.innerHTML = '';
+          const ticketListContainer = document.querySelector(".ticket-list");
+          ticketListContainer.innerHTML = "";
           modalities.forEach(modality => {
-            const ticketItem = document.createElement('div');
-            ticketItem.classList.add('ticket-item');
-            ticketItem.setAttribute('onclick', 'toggleActive(this)');
-
+            const ticketItem = document.createElement("div");
+            ticketItem.classList.add("ticket-item");
+            ticketItem.setAttribute("onclick", "toggleActive(this)");
+  
             // Informações do ticket
-            const ticketInfo = document.createElement('div');
-            ticketInfo.classList.add('ticket-info');
-            const ticketTitle = document.createElement('h3');
+            const ticketInfo = document.createElement("div");
+            ticketInfo.classList.add("ticket-info");
+            const ticketTitle = document.createElement("h3");
             ticketTitle.textContent = modality.modality_name || `Bilhete base de ${modality.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
-            const ticketDesc = document.createElement('p');
+            const ticketDesc = document.createElement("p");
             ticketDesc.innerHTML = `Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom. <br><em>Não reembolsável</em>`;
             ticketInfo.appendChild(ticketDesc);
             ticketItem.appendChild(ticketInfo);
-
+  
             // Preço e ações
-            const priceAndAction = document.createElement('div');
-            priceAndAction.classList.add('price-and-action');
-
-            // Calcula o preço total com base nos participantes selecionados
-            const numAdults = parseInt(document.getElementById('numAdults').value) || 1;
-            const numChildren = parseInt(document.getElementById('numChildren').value) || 0;
+            const priceAndAction = document.createElement("div");
+            priceAndAction.classList.add("price-and-action");
+  
+            // Aqui usamos as variáveis globais numéricas (numAdults e numChildren) em vez de selects
             const priceAdultModality = modality.amount_adult || ticket.amount_adult || 0;
             const priceChildModality = modality.amount_child || ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
-            const ticketPriceDiv = document.createElement('div');
-            ticketPriceDiv.classList.add('ticket-price');
-            const formattedTotalPrice = totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: currency });
+            const ticketPriceDiv = document.createElement("div");
+            ticketPriceDiv.classList.add("ticket-price");
+            const formattedTotalPrice = totalPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
             ticketPriceDiv.textContent = formattedTotalPrice;
-
-            // Tooltip para desconto Pix no ticket
-            const tooltip = document.createElement('small');
-            tooltip.classList.add('tooltip');
-            tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalPrice * 0.95).toLocaleString('pt-BR', { style: 'currency', currency: currency })}</span>`;
+  
+            // Tooltip para desconto Pix
+            const tooltip = document.createElement("small");
+            tooltip.classList.add("tooltip");
+            tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalPrice * 0.95).toLocaleString("pt-BR", { style: "currency", currency: currency })}</span>`;
             ticketPriceDiv.appendChild(tooltip);
             priceAndAction.appendChild(ticketPriceDiv);
-
-            const installmentInfoItem = document.createElement('div');
-            installmentInfoItem.classList.add('installment-info-item');
-            const formattedPerPerson = priceAdultModality.toLocaleString('pt-BR', { style: 'currency', currency: currency });
-            installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? 's' : ''} x ${formattedPerPerson}`;
+  
+            const installmentInfoItem = document.createElement("div");
+            installmentInfoItem.classList.add("installment-info-item");
+            const formattedPerPerson = priceAdultModality.toLocaleString("pt-BR", { style: "currency", currency: currency });
+            installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedPerPerson}`;
             priceAndAction.appendChild(installmentInfoItem);
-
-            const pixDiscountItem = document.createElement('div');
-            pixDiscountItem.classList.add('pix-discount-item');
+  
+            const pixDiscountItem = document.createElement("div");
+            pixDiscountItem.classList.add("pix-discount-item");
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
-
+  
             // Botão "Reserve agora"
-            const reserveBtn = document.createElement('button');
-            reserveBtn.classList.add('reserve-now-btn');
-            reserveBtn.textContent = 'Reserve agora';
-            reserveBtn.addEventListener('click', function(e) {
+            const reserveBtn = document.createElement("button");
+            reserveBtn.classList.add("reserve-now-btn");
+            reserveBtn.textContent = "Reserve agora";
+            reserveBtn.addEventListener("click", function (e) {
               e.stopPropagation();
-              const dateElem = document.getElementById('arrival-date');
+              const dateElem = document.getElementById("arrival-date");
               const dateValue = dateElem ? dateElem.value : "2025-04-12";
               const item = {
                 name: ticketTitle.textContent,
@@ -749,7 +420,7 @@
               addItemToCart(item);
             });
             priceAndAction.appendChild(reserveBtn);
-
+  
             ticketItem.appendChild(priceAndAction);
             ticketListContainer.appendChild(ticketItem);
           });
@@ -759,71 +430,65 @@
         });
     });
   </script>
+  
+  <!-- SCRIPT PARA CALENDÁRIO CUSTOMIZADO -->
   <script type="module">
-  const arrivalDateElem = document.getElementById("arrival-date");
-
-  // Muda o type para "text" para não abrir o datepicker nativo
-  arrivalDateElem.setAttribute("type", "text");
-
-  arrivalDateElem.addEventListener("click", (event) => {
-    // Previne reabertura se já estiver aberto (opcional)
-    event.stopPropagation();
-
-    // Carrega o módulo que contém createSingleDateCalendar()
-    import('/js/calcomuni.js')
-      .then(module => {
-        const { createSingleDateCalendar } = module;
-        // Instancia o calendário
-        const calendarData = createSingleDateCalendar(); 
-        const calendarElement = calendarData.element;
-
-        // Cria um container ABSOLUTO para posicionar o calendário
-        const container = document.createElement("div");
-        container.style.position = "absolute";
-        container.style.zIndex = "9999"; // para garantir que fique em cima
-        container.id = "custom-calendar-container";
-
-        // Pega as coordenadas do input
-        const rect = arrivalDateElem.getBoundingClientRect();
-        container.style.top = (window.scrollY + rect.bottom) + "px";
-        container.style.left = (window.scrollX + rect.left) + "px";
-
-        // Insere o calendário no container e o container no body
-        container.appendChild(calendarElement);
-        document.body.appendChild(container);
-
-        // Fecha o calendário caso clique fora dele (opcional)
-        document.addEventListener("click", function handleOutside(e) {
-          // Se o clique não foi no container nem no input, remove o calendário
-          if (!container.contains(e.target) && e.target !== arrivalDateElem) {
+    const arrivalDateElem = document.getElementById("arrival-date");
+    // Define o type para "text" para evitar o datepicker nativo
+    arrivalDateElem.setAttribute("type", "text");
+  
+    arrivalDateElem.addEventListener("click", (event) => {
+      event.stopPropagation();
+      import("/js/calcomuni.js")
+        .then(module => {
+          const { createSingleDateCalendar } = module;
+          const calendarData = createSingleDateCalendar();
+          const calendarElement = calendarData.element;
+  
+          // Cria um container posicionado de forma absoluta para o calendário
+          const container = document.createElement("div");
+          container.style.position = "absolute";
+          container.style.zIndex = "9999";
+          container.id = "custom-calendar-container";
+  
+          const rect = arrivalDateElem.getBoundingClientRect();
+          container.style.top = (window.scrollY + rect.bottom) + "px";
+          container.style.left = (window.scrollX + rect.left) + "px";
+  
+          container.appendChild(calendarElement);
+          document.body.appendChild(container);
+  
+          // Fecha o calendário se clicar fora dele
+          document.addEventListener("click", function handleOutside(e) {
+            if (!container.contains(e.target) && e.target !== arrivalDateElem) {
+              container.remove();
+              document.removeEventListener("click", handleOutside);
+            }
+          });
+  
+          // Ao clicar em "Confirmar", atualiza o input com a data selecionada
+          const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
+          btnConfirm.addEventListener("click", () => {
+            const selected = calendarData.getSelectedDate();
+            if (selected) {
+              const y = selected.getFullYear();
+              const m = String(selected.getMonth() + 1).padStart(2, "0");
+              const d = String(selected.getDate()).padStart(2, "0");
+              arrivalDateElem.value = `${y}-${m}-${d}`;
+            }
             container.remove();
-            document.removeEventListener("click", handleOutside);
-          }
-        });
-
-        // Quando clicar em "Confirmar", pegar a data e preencher o input
-        const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
-        btnConfirm.addEventListener("click", () => {
-          const selected = calendarData.getSelectedDate();
-          if (selected) {
-            // Formata a data no padrão YYYY-MM-DD
-            const y = selected.getFullYear();
-            const m = String(selected.getMonth() + 1).padStart(2, "0");
-            const d = String(selected.getDate()).padStart(2, "0");
-            arrivalDateElem.value = `${y}-${m}-${d}`;
-          }
-          container.remove();
-        });
-
-        // Se quiser um botão "Voltar" que apenas fecha o calendário:
-        const btnBack = calendarElement.querySelector(".calendar__button--grey");
-        btnBack.addEventListener("click", () => {
-          container.remove();
-        });
-      })
-      .catch(err => console.error("Erro ao carregar calcomuni.js:", err));
-  });
-</script>
+          });
+  
+          // Botão "Voltar" fecha o calendário sem alterações
+          const btnBack = calendarElement.querySelector(".calendar__button--grey");
+          btnBack.addEventListener("click", () => {
+            container.remove();
+          });
+        })
+        .catch(err => console.error("Erro ao carregar calcomuni.js:", err));
+    });
+  </script>
+  
   <!-- INCLUSÃO DO global-cart.js -->
   <script src="global-cart.js"></script>
 </body>
