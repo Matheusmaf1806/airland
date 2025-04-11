@@ -175,10 +175,10 @@ export function createSingleDateCalendar() {
       if (obj.date >= amanha) {
         clickableDates.push(cell);
         cell.addEventListener("click", function() {
-          // Remove a classe de seleção de todas as células clicáveis
-          clickableDates.forEach(cel => cel.classList.remove("calendar__date--selected"));
-          // Adiciona a classe de seleção apenas na célula clicada
-          cell.classList.add("calendar__date--selected");
+          // Remove a classe 'calendar__date--range' de todas as células clicáveis
+          clickableDates.forEach(cel => cel.classList.remove("calendar__date--range"));
+          // Adiciona a classe apenas na célula clicada
+          cell.classList.add("calendar__date--range");
           selectedDate = obj.date;
         });
       }
@@ -199,7 +199,7 @@ export function createSingleDateCalendar() {
       clickableDates.forEach(cell => {
         const cellDay = parseInt(cell.querySelector(".date-content span").textContent, 10);
         if (cellDay === amanha.getDate()) {
-          cell.classList.add("calendar__date--selected");
+          cell.classList.add("calendar__date--range");
           selectedDate = amanha;
         }
       });
