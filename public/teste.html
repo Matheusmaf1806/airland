@@ -723,52 +723,54 @@
     const arrivalDateElem = document.getElementById("arrival-date");
     arrivalDateElem.setAttribute("type", "text");
 
-    arrivalDateElem.addEventListener("click", (event) => {
+    arrivalDateElem.addEventListener("click", async (event) => {
       event.stopPropagation();
-      import("/js/calcomuni.js")
-        .then(module => {
-          const { createSingleDateCalendar } = module;
-          const basePrice = window.globalAmountAdult || 0;
-          const calendarData = createSingleDateCalendar(basePrice);
-          const calendarElement = calendarData.element;
-
-          const container = document.createElement("div");
-          container.style.position = "absolute";
-          container.style.zIndex = "9999";
-          container.id = "custom-calendar-container";
-
-          const rect = arrivalDateElem.getBoundingClientRect();
-          container.style.top = (window.scrollY + rect.bottom) + "px";
-          container.style.left = (window.scrollX + rect.left) + "px";
-
-          container.appendChild(calendarElement);
-          document.body.appendChild(container);
-
-          document.addEventListener("click", function handleOutside(e) {
-            if (!container.contains(e.target) && e.target !== arrivalDateElem) {
-              container.remove();
-              document.removeEventListener("click", handleOutside);
-            }
-          });
-
-          const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
-          btnConfirm.addEventListener("click", () => {
-            const selected = calendarData.getSelectedDate();
-            if (selected) {
-              const y = selected.getFullYear();
-              const m = String(selected.getMonth() + 1).padStart(2, "0");
-              const d = String(selected.getDate()).padStart(2, "0");
-              arrivalDateElem.value = `${y}-${m}-${d}`;
-            }
+      try {
+        const module = await import("/js/calcomuni.js");
+        const { createSingleDateCalendar } = module;
+        const basePrice = window.globalAmountAdult || 0;
+        const actCode = window.globalActivityCode; // definido no fetch
+        const calendarData = await createSingleDateCalendar({ activityCode: actCode });
+        const calendarElement = calendarData.element;
+    
+        const container = document.createElement("div");
+        container.style.position = "absolute";
+        container.style.zIndex = "9999";
+        container.id = "custom-calendar-container";
+    
+        const rect = arrivalDateElem.getBoundingClientRect();
+        container.style.top = (window.scrollY + rect.bottom) + "px";
+        container.style.left = (window.scrollX + rect.left) + "px";
+    
+        container.appendChild(calendarElement);
+        document.body.appendChild(container);
+    
+        document.addEventListener("click", function handleOutside(e) {
+          if (!container.contains(e.target) && e.target !== arrivalDateElem) {
             container.remove();
-          });
-
-          const btnBack = calendarElement.querySelector(".calendar__button--grey");
-          btnBack.addEventListener("click", () => {
-            container.remove();
-          });
-        })
-        .catch(err => console.error("Erro ao carregar calcomuni.js:", err));
+            document.removeEventListener("click", handleOutside);
+          }
+        });
+    
+        const btnConfirm = calendarElement.querySelector(".calendar__button--primary");
+        btnConfirm.addEventListener("click", () => {
+          const selected = calendarData.getSelectedDate();
+          if (selected) {
+            const y = selected.getFullYear();
+            const m = String(selected.getMonth() + 1).padStart(2, "0");
+            const d = String(selected.getDate()).padStart(2, "0");
+            arrivalDateElem.value = `${y}-${m}-${d}`;
+          }
+          container.remove();
+        });
+    
+        const btnBack = calendarElement.querySelector(".calendar__button--grey");
+        btnBack.addEventListener("click", () => {
+          container.remove();
+        });
+      } catch (err) {
+        console.error("Erro ao carregar calcomuni.js:", err);
+      }
     });
   </script>
 
