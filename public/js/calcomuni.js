@@ -1,14 +1,14 @@
 // public/js/calcomuni.js
-export function createSingleDateCalendar() {
-  // =================== 1) Estrutura do Calendário ===================
+export function createSingleDateCalendar(basePrice) {
+  // =================== 1) Criação da Estrutura do Calendário ===================
   const calendarEl = document.createElement("div");
   calendarEl.classList.add("calendar");
 
-  // Área de opções: selects para mês e ano
+  // Container de opções – selects para mês e ano
   const opts = document.createElement("div");
   opts.classList.add("calendar__opts");
 
-  // Select para o mês
+  // Select de mês
   const selectMonth = document.createElement("select");
   selectMonth.id = "calendar__month";
   const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -19,15 +19,14 @@ export function createSingleDateCalendar() {
     selectMonth.appendChild(option);
   });
 
-  // Select para o ano
+  // Select de ano – usamos o ano atual e o próximo
   const selectYear = document.createElement("select");
   selectYear.id = "calendar__year";
-  // Aqui, preenchendo com o ano vigente e o próximo
   const currentYear = new Date().getFullYear();
-  [currentYear, currentYear + 1].forEach(ano => {
+  [currentYear, currentYear + 1].forEach(year => {
     const option = document.createElement("option");
-    option.value = ano;
-    option.textContent = ano;
+    option.value = year;
+    option.textContent = year;
     selectYear.appendChild(option);
   });
 
@@ -35,17 +34,17 @@ export function createSingleDateCalendar() {
   opts.appendChild(selectYear);
   calendarEl.appendChild(opts);
 
-  // Corpo do calendário: rótulos dos dias e datas
+  // =================== Corpo do Calendário ===================
   const bodyEl = document.createElement("div");
   bodyEl.classList.add("calendar__body");
 
-  // Dias da semana (iniciando em segunda)
+  // Linha dos rótulos dos dias (inicia em segunda)
   const daysEl = document.createElement("div");
   daysEl.classList.add("calendar__days");
-  const diasRotulos = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
-  diasRotulos.forEach(dia => {
+  const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+  dayLabels.forEach(day => {
     const dayDiv = document.createElement("div");
-    dayDiv.textContent = dia;
+    dayDiv.textContent = day;
     daysEl.appendChild(dayDiv);
   });
   bodyEl.appendChild(daysEl);
@@ -57,7 +56,7 @@ export function createSingleDateCalendar() {
   bodyEl.appendChild(datesEl);
   calendarEl.appendChild(bodyEl);
 
-  // Área de botões: "Voltar" e "Confirmar"
+  // =================== Botões "Voltar" e "Confirmar" ===================
   const buttonsEl = document.createElement("div");
   buttonsEl.classList.add("calendar__buttons");
   const btnBack = document.createElement("button");
@@ -74,14 +73,14 @@ export function createSingleDateCalendar() {
   function getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
   }
-  // Ajusta para que a semana comece em segunda (0 = segunda, 6 = domingo)
+  // Faz a semana começar na segunda (0 = segunda, 6 = domingo)
   function getWeekDayIndex(date) {
     return (date.getDay() + 6) % 7;
   }
 
   // =================== 3) Configuração da Data Atual ===================
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0); // Zera as horas para comparação
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   let selectedDate = null;
   let clickableDates = [];
@@ -91,13 +90,13 @@ export function createSingleDateCalendar() {
     datesEl.innerHTML = "";
     clickableDates = [];
 
-    const totalDias = getDaysInMonth(year, month);
-    const primeiroDia = new Date(year, month, 1);
-    const startWeekIndex = getWeekDayIndex(primeiroDia);
-    const totalCells = 42; // 6 linhas de 7 dias
-    let diasArray = [];
+    const totalDays = getDaysInMonth(year, month);
+    const firstDay = new Date(year, month, 1);
+    const startWeekIndex = getWeekDayIndex(firstDay);
+    const totalCells = 42; // Grade de 6 linhas x 7 células
+    let daysArray = [];
 
-    // Preenche os dias do mês anterior
+    // Dias do mês anterior (preenche o início da grade)
     if (startWeekIndex > 0) {
       let prevMonth = month - 1;
       let prevYear = year;
@@ -105,82 +104,70 @@ export function createSingleDateCalendar() {
         prevMonth = 11;
         prevYear--;
       }
-      const totalDiasPrev = getDaysInMonth(prevYear, prevMonth);
+      const totalDaysPrev = getDaysInMonth(prevYear, prevMonth);
       for (let i = startWeekIndex; i > 0; i--) {
-        const diaNum = totalDiasPrev - i + 1;
-        diasArray.push({
-          dia: diaNum,
+        const dayNum = totalDaysPrev - i + 1;
+        daysArray.push({
+          day: dayNum,
           inCurrent: false,
-          date: new Date(prevYear, prevMonth, diaNum)
+          date: new Date(prevYear, prevMonth, dayNum)
         });
       }
     }
 
-    // Preenche os dias do mês atual
-    for (let d = 1; d <= totalDias; d++) {
-      diasArray.push({
-        dia: d,
+    // Dias do mês atual
+    for (let d = 1; d <= totalDays; d++) {
+      daysArray.push({
+        day: d,
         inCurrent: true,
         date: new Date(year, month, d)
       });
     }
 
-    // Preenche os dias do próximo mês para completar as 42 células
-    const restantes = totalCells - diasArray.length;
-    if (restantes > 0) {
+    // Dias do próximo mês para completar as 42 células
+    const remaining = totalCells - daysArray.length;
+    if (remaining > 0) {
       let nextMonth = month + 1;
       let nextYear = year;
       if (nextMonth > 11) {
         nextMonth = 0;
         nextYear++;
       }
-      for (let d = 1; d <= restantes; d++) {
-        diasArray.push({
-          dia: d,
+      for (let d = 1; d <= remaining; d++) {
+        daysArray.push({
+          day: d,
           inCurrent: false,
           date: new Date(nextYear, nextMonth, d)
         });
       }
     }
 
-    // Renderiza cada célula do calendário
-    diasArray.forEach(obj => {
+    // Renderiza cada célula
+    daysArray.forEach(obj => {
       const cell = document.createElement("div");
       cell.classList.add("calendar__date");
-
-      // Se o dia não pertence ao mês atual, pinta-o com cor de fundo grisalha
-      if (!obj.inCurrent) {
+      // Se a data não pertence ao mês atual ou é anterior a hoje, deixa grisinha
+      if (!obj.inCurrent || obj.date < today) {
         cell.classList.add("calendar__date--grey");
       }
-      // Se a data for anterior a hoje, também deverá estar inativa
-      if (obj.date < hoje) {
-        cell.classList.add("calendar__date--grey");
-      }
-
-      // Cria o conteúdo interno (dia + preço de exemplo)
-      const container = document.createElement("div");
-      container.classList.add("date-content");
-      const spanDia = document.createElement("span");
-      spanDia.textContent = obj.dia;
-      // Exemplo: preço calculado como 30 + dia
-      const preco = 30 + obj.dia;
-      const spanPreco = document.createElement("span");
-      spanPreco.classList.add("calendar__price");
-      spanPreco.textContent = preco.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-      container.appendChild(spanDia);
-      container.appendChild(spanPreco);
-      cell.appendChild(container);
-
-      // Se a data é válida (>= hoje), torna-a clicável
-      if (obj.date >= hoje) {
+      // Cria o conteúdo: o número do dia e o preço
+      const inner = document.createElement("div");
+      inner.classList.add("date-content");
+      const daySpan = document.createElement("span");
+      daySpan.textContent = obj.day;
+      const priceSpan = document.createElement("span");
+      priceSpan.classList.add("calendar__price");
+      // Use o preço base passado (basePrice) – o mesmo para todos os dias
+      priceSpan.textContent = basePrice.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      inner.appendChild(daySpan);
+      inner.appendChild(priceSpan);
+      cell.appendChild(inner);
+  
+      // Se a data é válida (>= hoje) torna a célula clicável
+      if (obj.date >= today) {
         clickableDates.push(cell);
         cell.addEventListener("click", () => {
-          // Remove a classe de seleção de todas as células clicáveis
           clickableDates.forEach(c => c.classList.remove("calendar__date--range"));
-          // Adiciona a classe apenas na célula clicada para destacá-la
           cell.classList.add("calendar__date--range");
           selectedDate = obj.date;
         });
@@ -188,28 +175,27 @@ export function createSingleDateCalendar() {
       datesEl.appendChild(cell);
     });
   }
-
-  // =================== 5) Atualiza o Calendário ao Mudar os Selects ===================
+  
+  // =================== 5) Atualiza o Calendário com os Selects ===================
   function onChangeMonthYear() {
     const year = parseInt(selectYear.value, 10);
     const month = parseInt(selectMonth.value, 10);
     buildCalendar(year, month);
   }
-
-  // =================== 6) Inicializa o Calendário no Mês Vigente ===================
-  selectYear.value = hoje.getFullYear();
-  selectMonth.value = hoje.getMonth();
-  buildCalendar(hoje.getFullYear(), hoje.getMonth());
-
   selectMonth.addEventListener("change", onChangeMonthYear);
   selectYear.addEventListener("change", onChangeMonthYear);
-
+  
+  // =================== 6) Inicialização no Mês Vigente ===================
+  selectYear.value = today.getFullYear();
+  selectMonth.value = today.getMonth();
+  buildCalendar(today.getFullYear(), today.getMonth());
+  
   // =================== 7) Retorno do Componente ===================
   return {
-    element: calendarEl,         // Elemento HTML do calendário
-    getSelectedDate: () => selectedDate, // Função para obter a data selecionada
-    btnBack,                      // Botão "Voltar"
-    btnApply,                     // Botão "Confirmar"
+    element: calendarEl,
+    getSelectedDate: () => selectedDate,
+    btnBack,
+    btnApply,
     selectYear,
     selectMonth
   };
