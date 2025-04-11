@@ -378,7 +378,7 @@
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label>Data e participantes</label>
-          <!-- Input readonly: exibe data no formato DD/MM/AAAA, mas guarda data ISO no dataset -->
+          <!-- Input readonly: exibe data no formato DD/MM/AAAA, mas armazena a data ISO em dataset -->
           <input type="text" id="arrival-date" class="date-input" readonly placeholder="DD/MM/AAAA">
           <div class="counters-row">
             <!-- Adultos -->
@@ -475,7 +475,7 @@
       return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
-    // Função para carregar os dados dos ingressos para a data selecionada
+    // Carrega os dados dos ingressos para a data selecionada
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
@@ -484,7 +484,7 @@
         .then(data => {
           const tickets = Array.isArray(data) ? data : [data];
           if (!tickets || tickets.length === 0) return;
-
+  
           // Atualiza o ticket-top-text com o intervalo de duração e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(t => t.duration).filter(Boolean);
@@ -496,13 +496,13 @@
           } else {
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
-    
+  
           // Dados gerais do produto (usando o primeiro ingresso)
           const firstTicket = tickets[0];
           document.title = firstTicket.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = firstTicket.nome || "Produto Indisponível";
           document.querySelector(".location").textContent = firstTicket.destination_name || "";
-    
+  
           // Atualiza o banner principal
           if (firstTicket.media && firstTicket.media.length > 0) {
             const media = firstTicket.media[0];
@@ -524,13 +524,13 @@
               }
             });
           }
-    
+  
           // Atualiza a descrição do produto
           const descEl = document.getElementById("product-description");
           if (descEl) {
             descEl.innerHTML = formatDescription(firstTicket.descricao || "Descrição não disponível.");
           }
-    
+  
           // Destaques: exibe ou oculta se não houver
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
@@ -545,12 +545,12 @@
             if (header) header.remove();
             highlightsList.style.display = "none";
           }
-    
-          // Define o preço "A partir de" (menor valor dos ingressos)
+  
+          // Define o preço "A partir de": menor valor dos ingressos
           const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
-          const currency = firstTicket.currency || "BRL";
+          const currency = "BRL"; // Força uso de BRL
           const formattedPrice = minPrice.toLocaleString("pt-BR", {
             style: "currency",
             currency: currency,
@@ -558,15 +558,15 @@
             maximumFractionDigits: 0
           });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
-    
+  
           let installmentValue = minPrice / 10;
           const formattedInstallment = installmentValue.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".installment-info").textContent = `em até 10x sem juros de ${formattedInstallment}`;
-    
+  
           let pixPrice = minPrice * 0.95;
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
-    
+  
           // Monta a lista de ingressos: exibe somente os ingressos para a data selecionada
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
@@ -574,24 +574,24 @@
             const ticketItem = document.createElement("div");
             ticketItem.classList.add("ticket-item");
             ticketItem.onclick = () => toggleActive(ticketItem);
-    
+  
             const ticketInfo = document.createElement("div");
             ticketInfo.classList.add("ticket-info");
-    
+  
             // Nome do ingresso: "nome - modality_name"
             const ticketTitle = document.createElement("h3");
             const prodName = ticket.nome || "";
             const modName = ticket.modality_name || `Bilhete de ${ticket.duration} dias`;
             ticketTitle.textContent = `${prodName} - ${modName}`.trim();
             ticketInfo.appendChild(ticketTitle);
-    
-            // Redeem info como descrição, limpando quebras extras
+  
+            // Redeem info como descrição, removendo quebras extras
             const pDesc = document.createElement("p");
             let rText = ticket.redeem_info || "";
             rText = rText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
             pDesc.innerHTML = rText;
             ticketInfo.appendChild(pDesc);
-    
+  
             // Sessões, se houver
             if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
               const sess = document.createElement("div");
@@ -599,7 +599,7 @@
               sess.textContent = "Sessões: " + ticket.sessions.join(", ");
               ticketInfo.appendChild(sess);
             }
-    
+  
             // Exibe a data selecionada com ícone (utilizando o dataset.iso do input)
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
@@ -610,16 +610,19 @@
               dateElem.innerHTML = `<i class="fas fa-calendar-alt"></i> ${displayDate}`;
               ticketInfo.appendChild(dateElem);
             }
-    
+  
             ticketItem.appendChild(ticketInfo);
-    
+  
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
-    
-            // Calcula o preço para ingressos: (adultos x basePriceAdult) + (crianças x basePriceChild)
-            const priceAdultModality = ticket.amount_adult || 0;
-            const priceChildModality = ticket.amount_child || 0;
+  
+            // Para cálculo de preços: usa amount_adult; para crianças, se amount_child estiver vazio, usa o mesmo valor de amount_adult
+            const priceAdultModality = Number(ticket.amount_adult) || 0;
+            const priceChildModality = (ticket.amount_child != null && ticket.amount_child !== "") 
+              ? Number(ticket.amount_child) 
+              : priceAdultModality;
             const totalTicketPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
+  
             const ticketPriceDiv = document.createElement("div");
             ticketPriceDiv.classList.add("ticket-price");
             const formattedTotal = totalTicketPrice.toLocaleString("pt-BR", {
@@ -629,7 +632,7 @@
               maximumFractionDigits: 0
             });
             ticketPriceDiv.textContent = formattedTotal;
-    
+  
             // Tooltip para desconto
             const tooltip = document.createElement("small");
             tooltip.classList.add("tooltip");
@@ -641,7 +644,7 @@
             })}</span>`;
             ticketPriceDiv.appendChild(tooltip);
             priceAndAction.appendChild(ticketPriceDiv);
-    
+  
             const installmentInfoItem = document.createElement("div");
             installmentInfoItem.classList.add("installment-info-item");
             const formattedPerPerson = priceAdultModality.toLocaleString("pt-BR", {
@@ -652,12 +655,12 @@
             });
             installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedPerPerson}`;
             priceAndAction.appendChild(installmentInfoItem);
-    
+  
             const pixDiscountItem = document.createElement("div");
             pixDiscountItem.classList.add("pix-discount-item");
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
-    
+  
             // Botão "Reserve agora": adiciona ao carrinho e abre o carrinho
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
@@ -665,7 +668,7 @@
             reserveBtn.addEventListener("click", (e) => {
               e.stopPropagation();
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
-              // Monta o objeto do ingresso para o carrinho
+              // Monta o objeto do ingresso para o carrinho com os dados solicitados
               const cartItem = {
                 type: "INGRESSOS",
                 productName: `${firstTicket.nome || ""} - ${ticket.modality_name || ""}`.trim(),
@@ -677,7 +680,7 @@
               addItemToCart(cartItem);
             });
             priceAndAction.appendChild(reserveBtn);
-    
+  
             ticketItem.appendChild(priceAndAction);
             ticketListContainer.appendChild(ticketItem);
           });
