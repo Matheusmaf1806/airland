@@ -760,17 +760,17 @@
     });
   </script>
   <script type="module">
-    // Seleciona o input de data pelo id
+    // Seleciona o input de data
     const arrivalDateElem = document.getElementById("arrival-date");
     
-    // Adiciona um listener para o clique
     arrivalDateElem.addEventListener("click", () => {
-      // Carrega dinamicamente o módulo public/js/calcomuni.js
       import('/js/calcomuni.js')
         .then(module => {
-          // Supondo que seu módulo exporte uma função initCalendar() que
-          // abra o calendário customizado (sem range, apenas data única)
-          module.initCalendar();
+          // Chama a função exportada createSingleDateCalendar()
+          const calendarData = module.createSingleDateCalendar();
+          // Aqui você pode, por exemplo, abrir um modal ou inserir o calendário em um contêiner
+          // Exemplo: inserir o calendário na página
+          document.body.appendChild(calendarData.element);
         })
         .catch(err => console.error("Erro ao carregar calcomuni.js:", err));
     });
