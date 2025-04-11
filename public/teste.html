@@ -525,17 +525,21 @@
 
     // Remove todos os <br> do HTML, depois extrai cada <p>, e junta-os com <br><br>
     function formatDescription(htmlString) {
-      // 1) Remove todos os <br> do HTML
-      const removeBreaks = htmlString.replace(/<br\s*\/?>/gi, "");
-      // 2) Cria um container para "interpretar" o HTML resultante
+      // Cria um elemento container para interpretar o HTML
       const container = document.createElement("div");
-      container.innerHTML = removeBreaks;
-      // 3) Extrai cada <p>, mantendo tags internas (ex: <strong>)
-      const paragraphs = Array.from(container.querySelectorAll("p"))
-        .map(p => p.innerHTML.trim())
-        .filter(text => text.length > 0);
-      // 4) Junta os parágrafos com <br><br> (duas quebras em branco)
-      return paragraphs.join("<br><br>");
+      container.innerHTML = htmlString;
+      
+      // Primeiro, tenta buscar <p> – se encontrar, usa esse método
+      const pElements = container.querySelectorAll("p");
+      if (pElements.length > 0) {
+        const paragraphs = Array.from(pElements)
+          .map(p => p.innerHTML.trim())
+          .filter(text => text.length > 0);
+        return paragraphs.join("<br><br>");
+      }
+      
+      // Se não houver <p>, substitui múltiplos <br> por uma única quebra desejada
+      return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
     document.addEventListener("DOMContentLoaded", function () {
