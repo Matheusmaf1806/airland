@@ -100,8 +100,8 @@
       background: #fafafa;
     }
     .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
-    /* O input é do tipo text, readonly, para forçar o uso do calendário customizado.
-       O valor real (ISO) fica armazenado em data-iso e o exibido é formatado em DD/MM/AAAA */
+    /* Input readonly que exibe a data formatada em DD/MM/AAAA;
+       o valor real (ISO) fica armazenado em data-iso */
     .date-input {
       width: 100%;
       padding: 8px 12px;
@@ -109,8 +109,8 @@
       border-radius: 4px;
       font-size: 1rem;
       cursor: pointer;
+      background: #f9f9f9;
     }
-    .date-input[readonly] { background: #f9f9f9; }
     
     /* CONTROLES DE PARTICIPANTES */
     .counters-row {
@@ -344,12 +344,7 @@
       font-size: 0.85rem;
       color: #333;
     }
-    .price-line {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.2rem;
-    }
+    .price-line { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.2rem; }
     .price-line .green { color: #2a942f; font-weight: 600; }
     .total-line {
       display: flex;
@@ -374,8 +369,17 @@
 <body>
   <app-header></app-header>
   
+  <!-- CARRINHO: Web Component – certifique-se que o global-cart.js o define -->
+  <shopping-cart 
+    type="INGRESSOS" 
+    category="Ingressos" 
+    nameDays="Dias" 
+    date="2025-04-12"
+    basePriceAdult="0">
+  </shopping-cart>
+  
   <!-- CONTEÚDO PRINCIPAL -->
-  <div class="main-container">
+  <div class="main-container" id="mainContent">
     <!-- COLUNA ESQUERDA: Banner e Imagens -->
     <div class="left-column">
       <div class="main-banner">
@@ -417,8 +421,7 @@
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label for="arrival-date">Data e participantes</label>
-          <!-- Input somente leitura para forçar o uso do calendário customizado.
-               O valor real (ISO) será armazenado em data-iso e o exibido será formatado em DD/MM/AAAA -->
+          <!-- O input é do tipo text readonly: o valor real em data-iso e exibido formatado -->
           <input type="text" id="arrival-date" class="date-input" readonly placeholder="DD/MM/AAAA">
           <div class="counters-row">
             <!-- Adultos -->
@@ -441,7 +444,7 @@
             </div>
           </div>
         </div>
-        <!-- Botão para atualizar os dados de ingressos conforme nova data selecionada -->
+        <!-- Botão para atualizar os ingressos conforme a nova data selecionada -->
         <button onclick="atualizarBusca()">Atualizar busca</button>
         <div class="non-refundable">
           <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
@@ -487,7 +490,7 @@
     let numAdults = 1;
     let numChildren = 0;
 
-    // Função para obter um parâmetro da URL
+    // Obtém um parâmetro da URL
     function getUrlParameter(name) {
       const params = new URLSearchParams(window.location.search);
       return params.get(name);
@@ -499,7 +502,7 @@
       return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoString;
     }
 
-    // Formata a descrição, removendo quebras extras (mantendo um parágrafo com duplas quebras)
+    // Formata a descrição removendo quebras extras
     function formatDescription(htmlString) {
       const container = document.createElement("div");
       container.innerHTML = htmlString;
@@ -515,7 +518,7 @@
       return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
-    // Carrega os dados dos ingressos para a data informada (em formato ISO)
+    // Carrega os ingressos para a data informada (ISO) e atualiza a página
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
       const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
@@ -525,7 +528,7 @@
           const tickets = Array.isArray(data) ? data : [data];
           if (!tickets || tickets.length === 0) return;
 
-          // Atualiza o ticket-top-text com intervalo de duração e redeem_info
+          // Atualiza o ticket-top-text: intervalo de duração e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(t => t.duration).filter(Boolean);
           const minDur = durations.length ? Math.min(...durations) : null;
@@ -542,8 +545,8 @@
           document.title = firstTicket.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = firstTicket.nome || "Produto Indisponível";
           document.querySelector(".location").textContent = firstTicket.destination_name || "";
-          
-          // Atualiza o banner principal
+
+          // Atualiza banner principal
           if (firstTicket.media && firstTicket.media.length > 0) {
             const media = firstTicket.media[0];
             let imgUrl = "";
@@ -554,7 +557,7 @@
             document.querySelector(".main-banner img").src = imgUrl;
           }
           
-          // Atualiza as mini-imagens
+          // Atualiza mini-imagens
           if (firstTicket.media && firstTicket.media.length > 1) {
             const miniImgs = document.querySelectorAll(".mini-images img");
             miniImgs.forEach((img, idx) => {
@@ -572,7 +575,7 @@
             descEl.innerHTML = formatDescription(firstTicket.descricao || "Descrição não disponível.");
           }
           
-          // Destaques: se não houver, oculta a seção
+          // Destaques
           const highlightsList = document.querySelector(".highlights-list");
           highlightsList.innerHTML = "";
           if (firstTicket.highlights && firstTicket.highlights.length > 0) {
@@ -586,8 +589,8 @@
             if (header) header.remove();
             highlightsList.style.display = "none";
           }
-    
-          // Atualiza o preço "A partir de" (usa o menor preço dos ingressos para o dia)
+          
+          // Atualiza o preço "A partir de" com o menor preço para o dia
           const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
           window.globalAmountAdult = minPrice;
@@ -608,7 +611,7 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
     
-          // Monta a lista de ingressos (exibindo somente os ingressos para o dia pesquisado)
+          // Monta a lista de ingressos (somente os do dia pesquisado)
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
@@ -623,14 +626,14 @@
             ticketTitle.textContent = ticket.modality_name || `Bilhete de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
     
-            // Usa o redeem_info para a descrição, limpando quebras extras
+            // Redeem info (descrição) limpando quebras extras
             const pDesc = document.createElement("p");
             let rText = ticket.redeem_info || "";
             rText = rText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
             pDesc.innerHTML = rText;
             ticketInfo.appendChild(pDesc);
     
-            // Se houver sessões, exibe os horários
+            // Sessões, se houver
             if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
               const sess = document.createElement("div");
               sess.classList.add("ticket-sessions");
@@ -638,7 +641,7 @@
               ticketInfo.appendChild(sess);
             }
     
-            // Adiciona a data pesquisada com ícone de calendário
+            // Adiciona a data pesquisada com ícone de calendário (utiliza o valor ISO armazenado)
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
               const parts = arrivalDateIso.split("-");
@@ -679,13 +682,12 @@
             pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
     
-            // Botão "Reserve agora" para adicionar o ingresso ao carrinho e abrir o carrinho
+            // Botão "Reserve agora": adiciona ao carrinho e abre-o
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
             reserveBtn.addEventListener("click", (e) => {
               e.stopPropagation();
-              // Recupera a data ISO armazenada no dataset do input
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
               const item = {
                 name: ticketTitle.textContent,
@@ -695,7 +697,6 @@
                 adults: numAdults,
                 children: numChildren
               };
-              // Chama a função para adicionar o ingresso ao carrinho e abrir o carrinho
               addItemToCart(item);
             });
             priceAndAction.appendChild(reserveBtn);
@@ -709,20 +710,20 @@
         });
     }
     
-    // Função para atualizar os dados do produto com base na data selecionada
+    // Atualiza os ingressos para a data armazenada em data-iso
     function atualizarBusca() {
       const dateISO = document.getElementById("arrival-date").dataset.iso;
       if (!dateISO) return;
       loadProductData(dateISO);
     }
     
-    // Função para alternar a seleção de um ticket
+    // Alterna a classe active para os tickets selecionados
     function toggleActive(el) {
       document.querySelectorAll(".ticket-item").forEach(t => t.classList.remove("active"));
       el.classList.add("active");
     }
     
-    // Configura o campo de data e os contadores assim que o documento estiver pronto
+    // Ao carregar, configura a data inicial e os contadores
     document.addEventListener("DOMContentLoaded", () => {
       const dataIngresso = getUrlParameter("dataIngresso") || new Date().toISOString().split("T")[0];
       const dateInput = document.getElementById("arrival-date");
@@ -757,6 +758,18 @@
           .catch(() => alert("Erro ao copiar a URL."));
       });
     });
+    
+    // Função para adicionar o ingresso ao carrinho e abrir o carrinho (IMPLEMENTAÇÃO REAL)
+    function addItemToCart(item) {
+      // Aqui espera‑se que seu componente de carrinho esteja devidamente implementado em global-cart.js
+      const cartComponent = document.querySelector("shopping-cart");
+      if (cartComponent && typeof cartComponent.addItem === "function" && typeof cartComponent.openCart === "function") {
+        cartComponent.addItem(item);
+        cartComponent.openCart();
+      } else {
+        console.error("Componente de carrinho ou métodos addItem/openCart não estão definidos.");
+      }
+    }
   </script>
   
   <!-- SCRIPT PARA CALENDÁRIO CUSTOMIZADO -->
@@ -782,6 +795,7 @@
         container.appendChild(calendarElement);
         document.body.appendChild(container);
     
+        // Fecha o calendário se clicar fora dele
         document.addEventListener("click", function handleOutside(e) {
           if (!container.contains(e.target) && e.target !== arrivalDateElem) {
             container.remove();
@@ -812,22 +826,7 @@
     });
   </script>
   
-  <!-- DEFINIÇÃO REAL DA FUNÇÃO addItemToCart -->
-  <script>
-    function addItemToCart(item) {
-      // Aqui você deverá integrar com o seu carrinho real.
-      // Exemplo usando um componente <shopping-cart>:
-      const cartComponent = document.querySelector("shopping-cart");
-      if (cartComponent && typeof cartComponent.addItem === "function" && typeof cartComponent.openCart === "function") {
-        cartComponent.addItem(item);
-        cartComponent.openCart();
-      } else {
-        console.error("Componente de carrinho ou métodos addItem/openCart não definidos.");
-        // Se necessário, implemente uma lógica alternativa para adicionar ao carrinho
-      }
-    }
-  </script>
-  
+  <!-- DEFINIÇÃO REAL DO CARRINHO -->
   <script src="global-cart.js"></script>
 </body>
 </html>
