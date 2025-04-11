@@ -176,12 +176,8 @@
       margin: 20px auto 40px;
       padding: 0 16px;
     }
-    .ticket-top-text {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 16px;
-    }
-    /* Aqui, vamos preencher ticket-top-text dinamicamente com o intervalo de "duration" */
+    /* ticket-top-text: Preenche com intervalo de duration e redeem_info */
+    .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
     .ticket-list {
       display: flex;
       flex-direction: column;
@@ -212,12 +208,8 @@
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
-    /* Caso exista a propriedade sessions, vamos criar um elemento adicional */
-    .ticket-sessions {
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 4px;
-    }
+    /* ticket-sessions: exibe os horários, se houver */
+    .ticket-sessions { font-size: 0.85rem; color: #666; margin-top: 4px; }
     .price-and-action {
       display: flex;
       flex-direction: column;
@@ -254,8 +246,18 @@
       margin: 20px auto;
       padding: 0 16px;
     }
-    .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
-    .content-section p { font-size: 0.95rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
+    .content-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #333;
+      font-weight: 600;
+    }
+    .content-section p {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
     .highlights-list { list-style: none; margin-bottom: 16px; }
     .highlights-list li {
       margin-bottom: 8px;
@@ -443,18 +445,17 @@
   
   <!-- SEÇÃO DE INGRESSOS -->
   <section class="ticket-section">
-    <!-- ticket-top-text: será preenchido dinamicamente com o intervalo de "duration" -->
+    <!-- Preenche ticket-top-text com "X a Y dias • Ingresso digital" -->
     <div class="ticket-top-text"></div>
     <div class="ticket-list">
-      <!-- Todos os ingressos disponíveis serão exibidos aqui -->
+      <!-- Itens dos tickets serão gerados dinamicamente -->
     </div>
   </section>
   
   <!-- CONTEÚDO ADICIONAL -->
   <div class="content-section">
     <h2>Sobre o Produto</h2>
-    <p>Carregando descrição do produto...</p>
-    <!-- Se não houver highlights, esta seção será ocultada pelo script -->
+    <p></p>
     <h2 id="highlights-header">Destaques</h2>
     <ul class="highlights-list"></ul>
     <h2>Política de Cancelamento</h2>
@@ -514,7 +515,7 @@
       });
     });
   
-    // Função para aplicar/remover a classe "active" nos tickets (para destaque visual)
+    // Função para aplicar/remover a classe "active" nos tickets (destacar o selecionado)
     function toggleActive(element) {
       const allTickets = document.querySelectorAll(".ticket-item");
       allTickets.forEach(ticket => ticket.classList.remove("active"));
@@ -527,7 +528,7 @@
       return params.get(name);
     }
   
-    // Ao carregar o DOM, faz o fetch da API para preencher os dados da página
+    // Ao carregar o DOM, faz o fetch da API para preencher os dados
     document.addEventListener("DOMContentLoaded", function () {
       const activityCode = getUrlParameter("activityCode");
       const dataIngresso = getUrlParameter("dataIngresso");
@@ -542,7 +543,6 @@
       fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-          // Trata a resposta da API: se for array, use todos os ingressos; se não, cria um array com o único item.
           let tickets = [];
           if (Array.isArray(data)) {
             tickets = data;
@@ -550,19 +550,20 @@
             tickets = [data];
           }
   
-          // Atualiza o ticket-top-text com o intervalo de "duration"
+          // Preenche ticket-top-text: intervalo de duration e redeem_info
           const topTextElem = document.querySelector(".ticket-top-text");
           const durations = tickets.map(item => item.duration).filter(d => d !== undefined);
+          const redeemInfo = tickets[0].redeem_info || "";
           if (durations.length > 0) {
             const minDuration = Math.min(...durations);
             const maxDuration = Math.max(...durations);
-            topTextElem.innerHTML = `<strong>${minDuration} a ${maxDuration} dias</strong>`;
+            topTextElem.innerHTML = `<strong>${minDuration} a ${maxDuration} dias</strong> • <strong>${redeemInfo}</strong>`;
           } else {
             topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
   
-          // Atualiza os dados do produto
-          const ticketForProduct = tickets[0]; // Para informações comuns
+          // Atualiza os dados do produto (usando o primeiro ingresso para informações comuns)
+          const ticketForProduct = tickets[0];
           document.title = ticketForProduct.nome || "Título Padrão";
           document.querySelector(".product-title").textContent = ticketForProduct.nome || "Produto Indisponível";
           document.querySelector(".location").textContent = ticketForProduct.destination_name || "";
@@ -590,30 +591,34 @@
             });
           }
   
-          // Atualiza a descrição do produto
+          // Atualiza a descrição do produto, normalizando as quebras de linha
           const descElement = document.querySelector(".content-section p");
           if (descElement) {
-            descElement.innerHTML = ticketForProduct.descricao || "Descrição não disponível.";
+            let description = ticketForProduct.descricao || "Descrição não disponível.";
+            // Substitui múltiplas quebras de linha por uma única
+            description = description.replace(/(\r\n|\n|\r)+/g, "<br>");
+            descElement.innerHTML = description;
           }
   
-          // Atualiza os destaques – se não houver nenhum, oculta a seção "Destaques"
+          // Atualiza os destaques; se não houver destaques, oculta a seção
           const highlightsList = document.querySelector(".highlights-list");
-          highlightsList.innerHTML = "";
           if (ticketForProduct.highlights && ticketForProduct.highlights.length > 0) {
+            highlightsList.innerHTML = "";
             ticketForProduct.highlights.forEach(item => {
               const li = document.createElement("li");
               li.innerHTML = `<i class="fas fa-check"></i> ${item}`;
               highlightsList.appendChild(li);
             });
           } else {
-            // Se não houver destaques, oculta a seção (inclusive o título "Destaques")
-            document.getElementById("highlights-header")?.remove();
+            // Oculta o título e a lista de destaques
+            const highlightsHeader = document.getElementById("highlights-header");
+            if (highlightsHeader) highlightsHeader.style.display = "none";
             highlightsList.style.display = "none";
           }
   
-          // Atualiza os preços do produto
+          // Atualiza os preços: armazena o preço para adultos e exibe na Price Box
           let priceAdult = ticketForProduct.top_level_adult_price || ticketForProduct.amount_adult || 0;
-          window.globalAmountAdult = priceAdult; // Para uso no calendário customizado
+          window.globalAmountAdult = priceAdult; // variável global para uso no calendário
           const currency = ticketForProduct.currency || "BRL";
           const formattedPrice = priceAdult.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
@@ -628,11 +633,10 @@
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
           document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
   
-          // Atualiza a seção de ingressos: para cada ingresso (ticket) da API, crie um ticket-item
+          // Atualiza a seção de ingressos – exibe todos os ingressos da API
           const ticketListContainer = document.querySelector(".ticket-list");
           ticketListContainer.innerHTML = "";
           tickets.forEach(ticket => {
-            // Cria um ticket para cada item da API
             const ticketItem = document.createElement("div");
             ticketItem.classList.add("ticket-item");
             ticketItem.setAttribute("onclick", "toggleActive(this)");
@@ -643,10 +647,11 @@
             const ticketTitle = document.createElement("h3");
             ticketTitle.textContent = ticket.modality_name || `Bilhete base de ${ticket.duration} dias`;
             ticketInfo.appendChild(ticketTitle);
+            // Usa "redeem_info" em vez de texto fixo
             const ticketDesc = document.createElement("p");
-            ticketDesc.innerHTML = `Parques incluídos: Magic Kingdom, Epcot, Hollywood Studios e Animal Kingdom. <br><em>Não reembolsável</em>`;
+            ticketDesc.innerHTML = ticket.redeem_info || "<em>Não reembolsável</em>";
             ticketInfo.appendChild(ticketDesc);
-            // Se o ticket tiver a propriedade "sessions", exiba os horários
+            // Se houver sessões, exibe os horários
             if (ticket.sessions && Array.isArray(ticket.sessions) && ticket.sessions.length > 0) {
               const sessionsElem = document.createElement("div");
               sessionsElem.classList.add("ticket-sessions");
@@ -658,7 +663,8 @@
             // Preço e ações
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
-            // Cálculo do preço total: utilizando os valores globais numAdults e numChildren
+  
+            // Usa os valores globais para participantes (numAdults, numChildren)
             const priceAdultModality = ticket.amount_adult || 0;
             const priceChildModality = ticket.amount_child || 0;
             const totalPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
