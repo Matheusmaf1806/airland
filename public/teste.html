@@ -18,7 +18,11 @@
 
   <style>
     /* RESET / BASE */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Montserrat', sans-serif;
       background: #fafafa;
@@ -26,12 +30,22 @@
       line-height: 1.4;
       position: relative;
     }
-    input, select, textarea, button { font-family: 'Montserrat', sans-serif !important; }
-    a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; }
+    input, select, textarea, button {
+      font-family: 'Montserrat', sans-serif !important;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button {
+      cursor: pointer;
+    }
     
     /* HEADER */
-    #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
+    #externalHeader {
+      width: 100%;
+      border-bottom: 1px solid #eee;
+    }
     
     /* CONTEÚDO PRINCIPAL */
     .main-container {
@@ -44,10 +58,26 @@
     }
     
     /* COLUNA ESQUERDA */
-    .left-column { flex: 1 1 600px; display: flex; flex-direction: column; gap: 16px; }
-    .main-banner { width: 100%; border-radius: 8px; overflow: hidden; }
-    .main-banner img { width: 100%; height: 431.5px; object-fit: cover; }
-    .mini-images { display: flex; gap: 8px; }
+    .left-column {
+      flex: 1 1 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .main-banner {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .main-banner img {
+      width: 100%;
+      height: 431.5px;
+      object-fit: cover;
+    }
+    .mini-images {
+      display: flex;
+      gap: 8px;
+    }
     .mini-images img {
       flex: 1;
       border-radius: 6px;
@@ -58,12 +88,37 @@
     }
     
     /* COLUNA DIREITA */
-    .right-column { flex: 1 1 300px; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
-    .product-title { font-size: 1.8rem; font-weight: 600; color: #333; }
-    .stars-reviews { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #666; }
-    .stars-reviews i { color: #f1c40f; }
-    .location { font-size: 0.9rem; color: #999; margin-bottom: 8px; }
-    .action-buttons { display: flex; gap: 10px; }
+    .right-column {
+      flex: 1 1 300px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .stars-reviews {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .stars-reviews i {
+      color: #f1c40f;
+    }
+    .location {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 8px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
     .action-buttons button {
       background: none;
       border: 1px solid #ccc;
@@ -73,7 +128,9 @@
       color: #555;
       transition: background 0.2s;
     }
-    .action-buttons button:hover { background: #f1f1f1; }
+    .action-buttons button:hover {
+      background: #f1f1f1;
+    }
     
     /* BOX DE PREÇO / RESERVA */
     .price-box {
@@ -85,10 +142,23 @@
       flex-direction: column;
       gap: 8px;
     }
-    .price-label { font-size: 0.8rem; color: #888; }
-    .price-value { font-size: 1.4rem; font-weight: 600; }
-    .installment-info, .pix-discount { font-size: 0.85rem; color: #666; }
-    .pix-discount { color: #27ae60; font-weight: 500; }
+    .price-label {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .price-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .installment-info,
+    .pix-discount {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount {
+      color: #27ae60;
+      font-weight: 500;
+    }
     
     /* SEÇÃO "DATA E PARTICIPANTES" */
     .date-participants {
@@ -99,7 +169,12 @@
       background: #fafafa;
       position: relative;
     }
-    .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
+    .date-participants label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
     .date-input {
       width: 100%;
       padding: 8px 12px;
@@ -110,7 +185,7 @@
       cursor: pointer;
     }
     
-    /* Novo layout para participantes */
+    /* PARTICIPANTES: LAYOUT MAIS DELICADO */
     .participants-wrapper {
       position: relative;
       margin-top: 8px;
@@ -122,10 +197,15 @@
       width: 100%;
       cursor: pointer;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 8px;
       background: #fff;
       padding: 8px 12px;
       font-size: 1rem;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .participants-trigger:hover {
+      background: #f9f9f9;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .participants-trigger i {
       font-size: 1.1rem;
@@ -139,7 +219,7 @@
       width: 100%; 
       background: #fff;
       border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 12px;
       z-index: 9999;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -150,33 +230,58 @@
     .participants-dropdown .counter-box:last-child {
       margin-bottom: 0;
     }
+    .counter-box label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+      display: inline-block;
+    }
     .counter-box label small {
-      font-weight: 400;
-      color: #777;
+      font-weight: normal;
+      color: #999;
       margin-left: 4px;
+      font-size: 0.75rem;
     }
     
-    /* CONTROLES DE PARTICIPANTES (botões de + e -) */
+    /* LAYOUT MAIS DELICADO PARA OS CONTROLES DE ADULTOS/CRIANÇAS */
     .counter-control {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .btn-counter {
-      width: 32px;
-      height: 32px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: #f9f9f9;
+      width: 36px;
+      height: 36px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fff;
       font-size: 1.2rem;
       font-weight: 600;
-      color: #333;
+      color: #444;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-    .btn-counter:hover { background: #eee; }
-    .btn-counter:active { background: #ddd; }
+    .btn-counter:hover {
+      background: #f7f7f7;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+    .btn-counter:active {
+      background: #eee;
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    #numAdultsValue,
+    #numChildrenValue {
+      min-width: 24px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #333;
+    }
     
+    /* BOTÃO DE ATUALIZAR BUSCA / MENSAGENS */
     .price-box button {
       width: 100%;
       background: #00a0e3;
@@ -189,8 +294,13 @@
       transition: background 0.3s;
       margin-top: 8px;
     }
-    .price-box button:hover { background: #008dc8; }
-    .non-refundable { font-size: 0.8rem; color: #999; }
+    .price-box button:hover {
+      background: #008dc8;
+    }
+    .non-refundable {
+      font-size: 0.8rem;
+      color: #999;
+    }
     .warning {
       background: #fff7e6;
       border: 1px solid #ffe4b8;
@@ -203,7 +313,9 @@
       gap: 4px;
       align-items: center;
     }
-    .warning i { color: #aa6a1f; }
+    .warning i {
+      color: #aa6a1f;
+    }
     
     /* SEÇÃO DE INGRESSOS */
     .ticket-section {
@@ -211,7 +323,11 @@
       margin: 20px auto 40px;
       padding: 0 16px;
     }
-    .ticket-top-text { font-size: 0.9rem; color: #666; margin-bottom: 16px; }
+    .ticket-top-text {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 16px;
+    }
     .ticket-list {
       display: flex;
       flex-direction: column;
@@ -230,7 +346,9 @@
       transition: box-shadow 0.2s, border 0.2s;
       cursor: pointer;
     }
-    .ticket-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .ticket-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
     .ticket-item.active {
       border: 2px solid #00a0e3;
       box-shadow: 0 2px 8px rgba(0,160,227,0.15);
@@ -240,8 +358,16 @@
       flex-direction: column;
       gap: 4px;
     }
-    .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
-    .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
+    .ticket-info h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .ticket-info p {
+      font-size: 0.85rem;
+      color: #777;
+      line-height: 1.3;
+    }
     .ticket-date {
       font-size: 0.85rem;
       color: #555;
@@ -250,7 +376,9 @@
       gap: 4px;
       margin-top: 4px;
     }
-    .ticket-date i { font-size: 0.9rem; }
+    .ticket-date i {
+      font-size: 0.9rem;
+    }
     .price-and-action {
       display: flex;
       flex-direction: column;
@@ -266,8 +394,15 @@
       align-items: center;
       white-space: nowrap;
     }
-    .installment-info-item, .pix-discount-item { font-size: 0.85rem; color: #666; }
-    .pix-discount-item { color: #27ae60; font-weight: 500; }
+    .installment-info-item,
+    .pix-discount-item {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .pix-discount-item {
+      color: #27ae60;
+      font-weight: 500;
+    }
     .reserve-now-btn {
       background: #00a0e3;
       color: #fff;
@@ -279,7 +414,9 @@
       transition: background 0.3s;
       cursor: pointer;
     }
-    .reserve-now-btn:hover { background: #008dc8; }
+    .reserve-now-btn:hover {
+      background: #008dc8;
+    }
     
     /* CONTEÚDO ADICIONAL */
     .content-section {
@@ -287,14 +424,22 @@
       margin: 20px auto;
       padding: 0 16px;
     }
-    .content-section h2 { font-size: 1.4rem; margin-bottom: 12px; color: #333; font-weight: 600; }
+    .content-section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #333;
+      font-weight: 600;
+    }
     .content-section p {
       font-size: 0.95rem;
       color: #555;
       line-height: 1.5;
       margin-bottom: 16px;
     }
-    .highlights-list { list-style: none; margin-bottom: 16px; }
+    .highlights-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
     .highlights-list li {
       margin-bottom: 8px;
       font-size: 0.95rem;
@@ -303,7 +448,9 @@
       align-items: center;
       gap: 6px;
     }
-    .highlights-list li i { color: #00a0e3; }
+    .highlights-list li i {
+      color: #00a0e3;
+    }
     .tooltip {
       position: relative;
       cursor: pointer;
@@ -329,7 +476,10 @@
       transition: opacity 0.2s ease;
       z-index: 999;
     }
-    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
     
     /* RODAPÉ */
     footer {
