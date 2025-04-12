@@ -11,13 +11,11 @@
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  
+  <!-- CSS do Carrinho e Calendar (separados ou em um arquivo único conforme sua organização) -->
   <link rel="stylesheet" href="/css/cart.css">
   <link rel="stylesheet" href="/css/calcom.css">
 
-  <!-- Scripts de Carrinho e Header -->
-  <script src="/js/cart-component.js" defer></script>
-  <script src="/js/header-component.js" type="module"></script>
-  
   <style>
     /* RESET / BASE */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +33,7 @@
     /* HEADER */
     #externalHeader { width: 100%; border-bottom: 1px solid #eee; }
     
-    /* CONTAINER PRINCIPAL */
+    /* CONTEÚDO PRINCIPAL */
     .main-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -99,10 +97,9 @@
       border: 1px solid #ddd;
       border-radius: 8px;
       background: #fafafa;
+      position: relative;
     }
     .date-participants label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 500; }
-    /* Input readonly para forçar o uso do calendário customizado;
-       exibe no formato DD/MM/AAAA, mas o valor ISO é armazenado no dataset */
     .date-input {
       width: 100%;
       padding: 8px 12px;
@@ -113,23 +110,53 @@
       cursor: pointer;
     }
     
-    /* CONTROLES DE PARTICIPANTES */
-    .counters-row {
+    /* Novo layout para participantes */
+    .participants-wrapper {
+      position: relative;
+      margin-top: 8px;
+    }
+    .participants-trigger {
       display: flex;
-      gap: 16px;
-      margin-top: 12px;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      padding: 8px 12px;
+      font-size: 1rem;
     }
-    .counter-box {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+    .participants-trigger i {
+      font-size: 1.1rem;
+      color: #666;
     }
-    .counter-box label { 
-      font-size: 0.9rem; 
-      margin-bottom: 4px; 
-      font-weight: 600; 
-      color: #333;
+    .participants-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 100%; 
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      z-index: 9999;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+    .participants-dropdown .counter-box {
+      margin-bottom: 12px;
+    }
+    .participants-dropdown .counter-box:last-child {
+      margin-bottom: 0;
+    }
+    .counter-box label small {
+      font-weight: 400;
+      color: #777;
+      margin-left: 4px;
+    }
+    
+    /* CONTROLES DE PARTICIPANTES (botões de + e -) */
     .counter-control {
       display: flex;
       align-items: center;
@@ -140,18 +167,15 @@
       height: 32px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      background: #e5f1ff;
+      background: #f9f9f9;
       font-size: 1.2rem;
       font-weight: 600;
       color: #333;
       cursor: pointer;
       transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    .btn-counter:hover { background: #cce4ff; }
-    .btn-counter:active { background: #bcd9ff; }
+    .btn-counter:hover { background: #eee; }
+    .btn-counter:active { background: #ddd; }
     
     .price-box button {
       width: 100%;
@@ -218,7 +242,6 @@
     }
     .ticket-info h3 { font-size: 1rem; font-weight: 600; color: #333; }
     .ticket-info p { font-size: 0.85rem; color: #777; line-height: 1.3; }
-    /* Classe para exibir a data com ícone de calendário */
     .ticket-date {
       font-size: 0.85rem;
       color: #555;
@@ -318,7 +341,7 @@
       background: #fff;
     }
     
-    /* ESTILOS DO CARRINHO (exemplo) */
+    /* ESTILOS DO CARRINHO */
     shopping-cart {
       --cart-bg: #fff;
       --cart-text-color: #333;
@@ -386,39 +409,44 @@
         <!-- SEÇÃO "DATA E PARTICIPANTES" -->
         <div class="date-participants">
           <label>Data e participantes</label>
-          <!-- Input readonly: exibe data no formato DD/MM/AAAA, mas armazena a data ISO em dataset -->
-          <input type="text" id="arrival-date" class="date-input" readonly placeholder="DD/MM/AAAA">
+          <input type="text" id="arrival-date" class="date-input" readonly placeholder="DD/MM/AAAA" />
           
-          <!-- NOVA VERSÃO DOS CONTADORES (de acordo com o anexo 2) -->
-          <div class="counters-row">
-            <!-- Adultos -->
-            <div class="counter-box">
-              <label for="numAdultsValue">Adultos (a partir de 10 anos)</label>
-              <div class="counter-control">
-                <button type="button" id="btnAdultsMinus" class="btn-counter">-</button>
-                <span id="numAdultsValue">1</span>
-                <button type="button" id="btnAdultsPlus" class="btn-counter">+</button>
-              </div>
+          <!-- Novo layout para participantes -->
+          <div class="participants-wrapper">
+            <div class="participants-trigger" id="participants-trigger">
+              <span id="participants-count">1 Pessoa</span>
+              <i class="fas fa-angle-down"></i>
             </div>
-            <!-- Crianças -->
-            <div class="counter-box">
-              <label for="numChildrenValue">Crianças (de 3 a 9 anos)</label>
-              <div class="counter-control">
-                <button type="button" id="btnChildrenMinus" class="btn-counter">-</button>
-                <span id="numChildrenValue">0</span>
-                <button type="button" id="btnChildrenPlus" class="btn-counter">+</button>
+            <div class="participants-dropdown" id="participants-dropdown">
+              <div class="counter-box">
+                <label for="numAdultsValue">Adultos <small>(a partir de 10 anos)</small></label>
+                <div class="counter-control">
+                  <button type="button" id="btnAdultsMinus" class="btn-counter">–</button>
+                  <span id="numAdultsValue">1</span>
+                  <button type="button" id="btnAdultsPlus" class="btn-counter">+</button>
+                </div>
+              </div>
+              <div class="counter-box">
+                <label for="numChildrenValue">Crianças <small>(de 3 a 9 anos)</small></label>
+                <div class="counter-control">
+                  <button type="button" id="btnChildrenMinus" class="btn-counter">–</button>
+                  <span id="numChildrenValue">0</span>
+                  <button type="button" id="btnChildrenPlus" class="btn-counter">+</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <!-- Botão para atualizar a busca com a nova data selecionada -->
-        <button onclick="atualizarBusca()">Atualizar busca</button>
-        <div class="non-refundable">
-          <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
-        </div>
-        <div class="warning">
-          <i class="fas fa-exclamation-triangle"></i>
-          Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
+  
+          <!-- Botão para atualizar a busca com a nova data selecionada -->
+          <button onclick="atualizarBusca()">Atualizar busca</button>
+  
+          <div class="non-refundable">
+            <strong>Não reembolsável!</strong> — Se você cancelar, não receberá um reembolso.
+          </div>
+          <div class="warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Não perca tempo! Reservas são geralmente feitas com até 60 dias de antecedência.
+          </div>
         </div>
       </div>
     </div>
@@ -466,7 +494,7 @@
     // Converte data ISO (YYYY-MM-DD) para exibição em DD/MM/YYYY
     function formatISOtoDisplay(isoString) {
       const parts = isoString.split("-");
-      return parts.length === 3 ? \`\${parts[2]}/\${parts[1]}/\${parts[0]}\` : isoString;
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : isoString;
     }
 
     // Remove quebras extras na descrição
@@ -485,10 +513,10 @@
       return htmlString.replace(/(<br\s*\/?>\s*){2,}/gi, "<br><br>");
     }
 
-    // Carrega os dados dos ingressos para a data selecionada
+    // Função para carregar os dados dos ingressos para a data selecionada
     function loadProductData(dateISO) {
       const activityCode = getUrlParameter("activityCode");
-      const apiUrl = \`https://business.airland.com.br/api/tickets?activityCode=\${activityCode}&dataIngresso=\${dateISO}\`;
+      const apiUrl = `https://business.airland.com.br/api/tickets?activityCode=${activityCode}&dataIngresso=${dateISO}`;
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
@@ -502,9 +530,9 @@
           const maxDur = durations.length ? Math.max(...durations) : null;
           const redeemInfo = tickets[0].redeem_info || "Ingresso digital";
           if (minDur !== null && maxDur !== null) {
-            topTextElem.innerHTML = \`<strong>\${minDur} a \${maxDur} dias</strong> • <strong>\${redeemInfo}</strong>\`;
+            topTextElem.innerHTML = `<strong>${minDur} a ${maxDur} dias</strong> • <strong>${redeemInfo}</strong>`;
           } else {
-            topTextElem.innerHTML = \`<strong>Ingressos disponíveis</strong>\`;
+            topTextElem.innerHTML = `<strong>Ingressos disponíveis</strong>`;
           }
   
           // Dados gerais do produto (usando o primeiro ingresso)
@@ -547,7 +575,7 @@
           if (firstTicket.highlights && firstTicket.highlights.length > 0) {
             firstTicket.highlights.forEach(h => {
               const li = document.createElement("li");
-              li.innerHTML = \`<i class="fas fa-check"></i> \${h}\`;
+              li.innerHTML = `<i class="fas fa-check"></i> ${h}`;
               highlightsList.appendChild(li);
             });
           } else {
@@ -559,7 +587,7 @@
           // Define o preço "A partir de": menor valor dos ingressos
           const prices = tickets.map(t => t.top_level_adult_price || t.amount_adult || 0);
           const minPrice = prices.length ? Math.min(...prices) : 0;
-          // Força uso de BRL
+          window.globalAmountAdult = minPrice;
           const currency = "BRL";
           const formattedPrice = minPrice.toLocaleString("pt-BR", {
             style: "currency",
@@ -567,15 +595,15 @@
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
           });
-          document.querySelector(".price-value").innerHTML = \`\${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>\`;
+          document.querySelector(".price-value").innerHTML = `${formattedPrice} <small style="font-size:0.75rem;">por pessoa</small>`;
   
           let installmentValue = minPrice / 10;
           const formattedInstallment = installmentValue.toLocaleString("pt-BR", { style: "currency", currency: currency });
-          document.querySelector(".installment-info").textContent = \`em até 10x sem juros de \${formattedInstallment}\`;
+          document.querySelector(".installment-info").textContent = `em até 10x sem juros de ${formattedInstallment}`;
   
           let pixPrice = minPrice * 0.95;
           const formattedPixPrice = pixPrice.toLocaleString("pt-BR", { style: "currency", currency: currency });
-          document.querySelector(".pix-discount").textContent = \`ou \${formattedPixPrice} no Pix (5% off)\`;
+          document.querySelector(".pix-discount").textContent = `ou ${formattedPixPrice} no Pix (5% off)`;
   
           // Monta a lista de ingressos: exibe somente os ingressos para a data selecionada
           const ticketListContainer = document.querySelector(".ticket-list");
@@ -591,11 +619,11 @@
             // Nome do ingresso: "nome - modality_name"
             const ticketTitle = document.createElement("h3");
             const prodName = ticket.nome || "";
-            const modName = ticket.modality_name || \`Bilhete de \${ticket.duration} dias\`;
-            ticketTitle.textContent = \`\${prodName} - \${modName}\`.trim();
+            const modName = ticket.modality_name || `Bilhete de ${ticket.duration} dias`;
+            ticketTitle.textContent = `${prodName} - ${modName}`.trim();
             ticketInfo.appendChild(ticketTitle);
   
-            // Redeem info como descrição, removendo quebras extras
+            // Redeem info como descrição
             const pDesc = document.createElement("p");
             let rText = ticket.redeem_info || "";
             rText = rText.replace(/(\r\n|\n|\r){2,}/gm, "$1");
@@ -614,10 +642,10 @@
             const arrivalDateIso = document.getElementById("arrival-date").dataset.iso || "";
             if (arrivalDateIso) {
               const parts = arrivalDateIso.split("-");
-              const displayDate = parts.length === 3 ? \`\${parts[2]}/\${parts[1]}/\${parts[0]}\` : arrivalDateIso;
+              const displayDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : arrivalDateIso;
               const dateElem = document.createElement("div");
               dateElem.classList.add("ticket-date");
-              dateElem.innerHTML = \`<i class="fas fa-calendar-alt"></i> \${displayDate}\`;
+              dateElem.innerHTML = `<i class="fas fa-calendar-alt"></i> ${displayDate}`;
               ticketInfo.appendChild(dateElem);
             }
   
@@ -626,12 +654,11 @@
             const priceAndAction = document.createElement("div");
             priceAndAction.classList.add("price-and-action");
   
-            // Se amount_child for null ou vazio, usamos o valor do amount_adult para crianças
+            // Cálculo dos preços
             const priceAdultModality = Number(ticket.amount_adult) || 0;
-            const priceChildModality = (ticket.amount_child != null && ticket.amount_child !== "")
-              ? Number(ticket.amount_child)
+            const priceChildModality = (ticket.amount_child != null && ticket.amount_child !== "") 
+              ? Number(ticket.amount_child) 
               : priceAdultModality;
-  
             const totalTicketPrice = (numAdults * priceAdultModality) + (numChildren * priceChildModality);
   
             const ticketPriceDiv = document.createElement("div");
@@ -647,55 +674,52 @@
             // Tooltip para desconto
             const tooltip = document.createElement("small");
             tooltip.classList.add("tooltip");
-            tooltip.innerHTML = \`<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = \${(totalTicketPrice * 0.95).toLocaleString("pt-BR", {
+            tooltip.innerHTML = `<i class="fas fa-info-circle"></i><span class="tooltip-text">Super desconto de 5% no Pix = ${(totalTicketPrice * 0.95).toLocaleString("pt-BR", {
               style: "currency",
               currency: currency,
               minimumFractionDigits: 0,
               maximumFractionDigits: 0
-            })}</span>\`;
+            })}</span>`;
             ticketPriceDiv.appendChild(tooltip);
             priceAndAction.appendChild(ticketPriceDiv);
   
-            // Exibe no installment-info-item também o número de adultos e crianças, se crianças > 0
+            // Informações de parcelamento
             const installmentInfoItem = document.createElement("div");
             installmentInfoItem.classList.add("installment-info-item");
-            
             const formattedAdultPrice = priceAdultModality.toLocaleString("pt-BR", {
               style: "currency",
               currency: currency,
               minimumFractionDigits: 0,
               maximumFractionDigits: 0
             });
-            const formattedChildPrice = priceChildModality.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: currency,
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0
-            });
-            
             if (numChildren > 0) {
-              installmentInfoItem.textContent = \`\${numAdults} adulto(s) x \${formattedAdultPrice} | \${numChildren} criança(s) x \${formattedChildPrice}\`;
+              const formattedChildPrice = priceChildModality.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+              });
+              installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedAdultPrice} + ${numChildren} criança${numChildren > 1 ? "s" : ""} x ${formattedChildPrice}`;
             } else {
-              installmentInfoItem.textContent = \`\${numAdults} adulto(s) x \${formattedAdultPrice}\`;
+              installmentInfoItem.textContent = `${numAdults} adulto${numAdults > 1 ? "s" : ""} x ${formattedAdultPrice}`;
             }
             priceAndAction.appendChild(installmentInfoItem);
   
             const pixDiscountItem = document.createElement("div");
             pixDiscountItem.classList.add("pix-discount-item");
-            pixDiscountItem.textContent = "em até 10x Sem Juros";
+            pixDiscountItem.textContent = `em até 10x Sem Juros`;
             priceAndAction.appendChild(pixDiscountItem);
   
-            // Botão "Reserve agora": adiciona ao carrinho e abre o carrinho
+            // Botão "Reserve agora"
             const reserveBtn = document.createElement("button");
             reserveBtn.classList.add("reserve-now-btn");
             reserveBtn.textContent = "Reserve agora";
             reserveBtn.addEventListener("click", (e) => {
               e.stopPropagation();
               const isoVal = document.getElementById("arrival-date").dataset.iso || "2025-04-12";
-              // Monta o objeto do ingresso para o carrinho
               const cartItem = {
                 type: "INGRESSOS",
-                productName: \`\${firstTicket.nome || ""} - \${ticket.modality_name || ""}\`.trim(),
+                productName: `${firstTicket.nome || ""} - ${ticket.modality_name || ""}`.trim(),
                 date: isoVal,
                 adults: numAdults,
                 children: numChildren,
@@ -714,20 +738,17 @@
         });
     }
     
-    // Atualiza os ingressos conforme a data selecionada (usando o dataset.iso do input)
     function atualizarBusca() {
       const dateISO = document.getElementById("arrival-date").dataset.iso;
       if (!dateISO) return;
       loadProductData(dateISO);
     }
     
-    // Seleciona/desmarca um ingresso na lista
     function toggleActive(el) {
       document.querySelectorAll(".ticket-item").forEach(t => t.classList.remove("active"));
       el.classList.add("active");
     }
     
-    // Adiciona o item ao carrinho e abre o carrinho
     function addItemToCart(item) {
       const cartComponent = document.querySelector("shopping-cart");
       if (cartComponent && typeof cartComponent.addItem === "function" && typeof cartComponent.openCart === "function") {
@@ -740,37 +761,56 @@
     }
     
     document.addEventListener("DOMContentLoaded", () => {
-      // Lê dataIngresso da URL (ou usa a data de hoje)
+      // Configura data e contadores iniciais
       const dataIngresso = getUrlParameter("dataIngresso") || new Date().toISOString().split("T")[0];
       const dateInput = document.getElementById("arrival-date");
       dateInput.dataset.iso = dataIngresso;
       dateInput.value = formatISOtoDisplay(dataIngresso);
       
-      // Carrega os dados iniciais
       loadProductData(dataIngresso);
       
-      // Configura os contadores de adultos e crianças
+      // Configuração do dropdown de participantes
+      const trigger = document.getElementById("participants-trigger");
+      const dropdown = document.getElementById("participants-dropdown");
+      const participantsCountSpan = document.getElementById("participants-count");
+
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target) && e.target !== trigger) {
+          dropdown.style.display = "none";
+        }
+      });
+
+      // Atualiza os contadores e o texto do dropdown
       document.getElementById("btnAdultsMinus").addEventListener("click", () => {
         if (numAdults > 1) {
           numAdults--;
           document.getElementById("numAdultsValue").textContent = numAdults;
+          participantsCountSpan.textContent = (numAdults + numChildren) + ((numAdults + numChildren) > 1 ? " Pessoas" : " Pessoa");
         }
       });
       document.getElementById("btnAdultsPlus").addEventListener("click", () => {
         numAdults++;
         document.getElementById("numAdultsValue").textContent = numAdults;
+        participantsCountSpan.textContent = (numAdults + numChildren) + ((numAdults + numChildren) > 1 ? " Pessoas" : " Pessoa");
       });
       document.getElementById("btnChildrenMinus").addEventListener("click", () => {
         if (numChildren > 0) {
           numChildren--;
           document.getElementById("numChildrenValue").textContent = numChildren;
+          participantsCountSpan.textContent = (numAdults + numChildren) + ((numAdults + numChildren) > 1 ? " Pessoas" : " Pessoa");
         }
       });
       document.getElementById("btnChildrenPlus").addEventListener("click", () => {
         numChildren++;
         document.getElementById("numChildrenValue").textContent = numChildren;
+        participantsCountSpan.textContent = (numAdults + numChildren) + ((numAdults + numChildren) > 1 ? " Pessoas" : " Pessoa");
       });
-    
+
       // Botão Compartilhar
       document.getElementById("shareBtn").addEventListener("click", () => {
         navigator.clipboard.writeText(window.location.href)
@@ -817,11 +857,10 @@
             const y = selected.getFullYear();
             const m = String(selected.getMonth() + 1).padStart(2, "0");
             const d = String(selected.getDate()).padStart(2, "0");
-            arrivalDateElem.dataset.iso = \`\${y}-\${m}-\${d}\`;
-            arrivalDateElem.value = \`\${d}/\${m}/\${y}\`;
+            arrivalDateElem.dataset.iso = `${y}-${m}-${d}`;
+            arrivalDateElem.value = `${d}/${m}/${y}`;
           }
           container.remove();
-          // Ao atualizar a data via calendário, refaz a busca
           atualizarBusca();
         });
     
@@ -834,5 +873,6 @@
       }
     });
   </script>
+  
 </body>
 </html>
